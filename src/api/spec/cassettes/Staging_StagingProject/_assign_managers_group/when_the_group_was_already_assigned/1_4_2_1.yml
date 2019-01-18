@@ -40,14 +40,14 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_20">
+        <workflow project="home:tom" managers="group_1">
           <staging_project name="home:tom:Staging:A"/>
         </workflow>
     headers:
@@ -69,19 +69,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '172'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="34">
-          <srcmd5>9a93e226d354e8c0b628b3cce0ea7b2c</srcmd5>
-          <time>1542879845</time>
+        <revision rev="180">
+          <srcmd5>e5041e116aada333f093a54cd9eb647e</srcmd5>
+          <time>1547744623</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=_nobody_
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_20" role="maintainer"/>
+          <group groupid="group_1" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_20" role="maintainer" />
+          <group groupid="group_1" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:tom" managers="group_20">
+        <workflow project="home:tom" managers="group_1">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -152,19 +152,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '172'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="35">
-          <srcmd5>8da317e26168b4639bbbf4172477283b</srcmd5>
-          <time>1542879845</time>
+        <revision rev="181">
+          <srcmd5>24931ffd0c813a8a478aa1e474921c59</srcmd5>
+          <time>1547744623</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=_nobody_
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:tom:Staging:B">
           <title/>
           <description/>
-          <group groupid="group_20" role="maintainer"/>
+          <group groupid="group_1" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,26 +195,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="group_20" role="maintainer" />
+          <group groupid="group_1" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:43 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/package_19/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:A/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_19" project="home:tom:Staging:A">
-          <title>The Parliament of Man</title>
-          <description>Quasi recusandae et autem.</description>
+        <package name="package_1" project="home:tom:Staging:A">
+          <title>Beneath the Bleeding</title>
+          <description>Rem quia pariatur illum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -235,25 +235,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '159'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_19" project="home:tom:Staging:A">
-          <title>The Parliament of Man</title>
-          <description>Quasi recusandae et autem.</description>
+        <package name="package_1" project="home:tom:Staging:A">
+          <title>Beneath the Bleeding</title>
+          <description>Rem quia pariatur illum.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/package_19/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:A/package_1/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_19" project="home:tom:Staging:A">
-          <title>The Parliament of Man</title>
-          <description>Quasi recusandae et autem.</description>
+        <package name="package_1" project="home:tom:Staging:A">
+          <title>Beneath the Bleeding</title>
+          <description>Rem quia pariatur illum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -274,22 +274,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '159'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_19" project="home:tom:Staging:A">
-          <title>The Parliament of Man</title>
-          <description>Quasi recusandae et autem.</description>
+        <package name="package_1" project="home:tom:Staging:A">
+          <title>Beneath the Bleeding</title>
+          <description>Rem quia pariatur illum.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/package_19/_config
+    uri: http://backend:5352/source/home:tom:Staging:A/package_1/_config
     body:
       encoding: UTF-8
-      string: Qui dolore libero. Delectus recusandae soluta. Consequatur aperiam numquam.
+      string: Libero consequatur qui. Rerum repudiandae ex. Dolorem voluptatem quibusdam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -313,22 +313,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>2b8dca7323fec8be4d1ff1c74b262159</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>08c55570b13a32cfba74fc189d4c9374</srcmd5>
           <version>unknown</version>
-          <time>1542879845</time>
+          <time>1547744624</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/package_19/somefile.txt
+    uri: http://backend:5352/source/home:tom:Staging:A/package_1/somefile.txt
     body:
       encoding: UTF-8
-      string: Ex aut dignissimos. Dolorum recusandae architecto. Amet aut id.
+      string: Ad sequi rem. At architecto nostrum. Hic consequuntur qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -352,298 +352,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>860e5eb220e492003f651eb018b8042f</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>0f029f727bd697534834e66b0a11cee0</srcmd5>
           <version>unknown</version>
-          <time>1542879845</time>
+          <time>1547744624</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="target_project">
-          <title>When the Green Woods Laugh</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '117'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>When the Green Woods Laugh</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Quia consequatur qui ad.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '154'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Quia consequatur qui ad.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Quia consequatur qui ad.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '154'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Behold the Man</title>
-          <description>Quia consequatur qui ad.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>Stranger in a Strange Land</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '117'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>Stranger in a Strange Land</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>The Daffodil Sky</title>
-          <description>Laboriosam voluptatem eos sit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '162'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>The Daffodil Sky</title>
-          <description>Laboriosam voluptatem eos sit.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>The Daffodil Sky</title>
-          <description>Laboriosam voluptatem eos sit.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '162'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>The Daffodil Sky</title>
-          <description>Laboriosam voluptatem eos sit.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:05 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_20/_meta?user=user_20
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_20">
-          <title/>
-          <description/>
-          <person userid="user_20" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '137'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_20">
-          <title></title>
-          <description></description>
-          <person userid="user_20" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:06 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <workflow project="home:tom" managers="group_20">
+        <workflow project="home:tom" managers="group_1">
           <staging_project name="home:tom:Staging:A"/>
           <staging_project name="home:tom:Staging:B"/>
         </workflow>
@@ -666,29 +391,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '167'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="36">
-          <srcmd5>8da317e26168b4639bbbf4172477283b</srcmd5>
-          <time>1542879846</time>
-          <user>_nobody_</user>
+        <revision rev="182">
+          <srcmd5>24931ffd0c813a8a478aa1e474921c59</srcmd5>
+          <time>1547744624</time>
+          <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:06 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title/>
           <description/>
-          <group groupid="group_20" role="maintainer"/>
+          <group groupid="group_1" role="maintainer"/>
           <repository name="staging_repository">
             <arch>x86_64</arch>
           </repository>
@@ -712,18 +437,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '225'
+      - '224'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="group_20" role="maintainer" />
+          <group groupid="group_1" role="maintainer" />
           <repository name="staging_repository">
             <arch>x86_64</arch>
           </repository>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 09:44:06 GMT
+  recorded_at: Thu, 17 Jan 2019 17:03:44 GMT
 recorded_with: VCR 4.0.0

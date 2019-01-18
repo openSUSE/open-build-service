@@ -5,8 +5,9 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe BsRequestAction, vcr: true do
+  let(:user) { create(:confirmed_user, login: 'request_user') }
+
   context 'encoding of sourcediffs' do
-    let(:user) { create(:confirmed_user, login: 'request_user') }
     let(:file_content) { "-{\xA2:\xFA*\xA3q\u0010\xC2X\\\x9D" }
     let(:utf8_encoded_file_content) { file_content.encode('UTF-8', 'binary', invalid: :replace, undef: :replace) }
     let(:project) { user.home_project }
@@ -18,18 +19,8 @@ RSpec.describe BsRequestAction, vcr: true do
       create(:package_with_file, name: 'package_encoding_2',
                                  file_content: 'test', project: project)
     end
-    let(:bs_request) { build(:bs_request, creator: user.login) }
-    let(:action_attributes) do
-      {
-        bs_request: bs_request,
-        type: 'submit',
-        target_project: project.name,
-        target_package: target_package.name,
-        source_project: project.name,
-        source_package: source_package.name
-      }
-    end
-    let(:bs_request_action) { create(:bs_request_action_submit, action_attributes) }
+    let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     before do
       allow(User).to receive(:current).and_return(user)
@@ -47,8 +38,8 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:action_attributes) do
       {
         type: 'submit',
-        source_project: source_prj,
         source_package: source_pkg,
+        source_project: source_prj,
         target_project: target_prj,
         target_package: target_pkg
       }
@@ -59,7 +50,7 @@ RSpec.describe BsRequestAction, vcr: true do
     it { expect(bs_request_action).to be_valid }
 
     it 'validates uniqueness of type among bs requests, target_project and target_package' do
-      duplicated_bs_request_action = bs_request.bs_request_actions.build(action_attributes)
+      duplicated_bs_request_action = build(:bs_request_action, action_attributes.merge(bs_request: bs_request))
       expect(duplicated_bs_request_action).not_to be_valid
       expect(duplicated_bs_request_action.errors.full_messages.to_sentence).to eq('Type has already been taken')
     end
@@ -67,7 +58,10 @@ RSpec.describe BsRequestAction, vcr: true do
     RSpec.shared_examples 'it skips validation for type' do |type|
       context "type '#{type}'" do
         it 'allows multiple bs request actions' do
-          expect(build(:bs_request_action, action_attributes.merge(type: 'add_role'))).to be_valid
+          expect(build(:bs_request_action, action_attributes.merge(type: type,
+                                                                   person_name: user.login,
+                                                                   role: Role.find_by_title!('maintainer'),
+                                                                   bs_request: bs_request))).to be_valid
         end
       end
     end
@@ -83,12 +77,12 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:package) { project.packages.first }
 
     it 'sets target_package_object to package if target_package and target_project parameters provided' do
-      action = BsRequestAction.create(target_project: project.name, target_package: package.name)
+      action = BsRequestAction.create(target_project: project.name, target_package: package)
       expect(action.target_package_object).to eq(package)
     end
 
     it 'sets target_project_object to project if target_project parameters provided' do
-      action = BsRequestAction.create(target_project: project.name)
+      action = BsRequestAction.create(target_project: project)
       expect(action.target_project_object).to eq(project)
     end
   end
@@ -100,10 +94,8 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:source_project) { source_package.project }
     let(:bs_request) do
       create(:bs_request_with_submit_action,
-             source_package: source_package.name,
-             source_project: source_project.name,
-             target_project: target_project.name,
-             target_package: target_package.name)
+             source_package: source_package,
+             target_package: target_package)
     end
     let(:bs_request_action) { bs_request.bs_request_actions.first }
 
@@ -120,10 +112,8 @@ RSpec.describe BsRequestAction, vcr: true do
     context 'with matching action' do
       let!(:another_bs_request) do
         create(:bs_request_with_submit_action,
-               source_package: source_package.name,
-               source_project: source_project.name,
-               target_project: target_project.name,
-               target_package: target_package.name)
+               source_package: source_package,
+               target_package: target_package)
       end
       let(:another_bs_request_action) { another_bs_request.bs_request_actions.first }
 
@@ -134,10 +124,8 @@ RSpec.describe BsRequestAction, vcr: true do
         let(:another_target_project) { another_target_package.project }
         let(:another_bs_request) do
           create(:bs_request_with_submit_action,
-                 source_package: source_package.name,
-                 source_project: source_project.name,
-                 target_project: another_target_project.name,
-                 target_package: another_target_package.name)
+                 source_package: source_package,
+                 target_package: another_target_package)
         end
         let(:another_bs_request_action) do
           create(:bs_request_action_submit,

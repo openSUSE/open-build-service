@@ -10,10 +10,8 @@ RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           target_project: project.name,
-           target_package: target_package.name,
-           source_project: source_package.project.name,
-           source_package: source_package.name)
+           target_package: target_package,
+           source_package: source_package)
   end
 
   before do

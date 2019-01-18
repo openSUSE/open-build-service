@@ -11,6 +11,13 @@ FactoryBot.define do
       create(:confirmed_user)
     end
 
+    initialize_with do
+      request = new(attributes)
+      # the sanitize part is a heavy requirement on a model
+      request.skip_sanitize
+      request
+    end
+
     reviews do |evaluator|
       ret = []
       ret << build(:review, by_project: evaluator.review_by_project) if evaluator.review_by_project
@@ -24,17 +31,43 @@ FactoryBot.define do
     end
 
     bs_request_actions do |evaluator|
-      [build(:bs_request_action,
-             type: evaluator.type,
-             source_project: evaluator.source_project,
-             source_package: evaluator.source_package,
-             source_rev: evaluator.source_rev,
-             target_project: evaluator.target_project,
-             target_package: evaluator.target_package,
-             target_repository: evaluator.target_repository,
-             target_releaseproject: evaluator.target_releaseproject,
-             role: evaluator.role,
-             person_name: evaluator.person_name)]
+      attribs = attributes_for(:bs_request_action,
+                               type: evaluator.type,
+                               source_project: evaluator.source_project,
+                               source_package: evaluator.source_package,
+                               source_rev: evaluator.source_rev,
+                               target_project: evaluator.target_project,
+                               target_package: evaluator.target_package,
+                               target_repository: evaluator.target_repository,
+                               target_releaseproject: evaluator.target_releaseproject,
+                               role: evaluator.role,
+                               group_name: evaluator.group_name,
+                               person_name: evaluator.person_name)
+
+      if attribs[:source_project].is_a?(Project)
+        attribs[:source_project] = attribs[:source_project].name
+      end
+
+      if attribs[:target_project].is_a?(Project)
+        attribs[:target_project] = attribs[:target_project].name
+      end
+
+      if attribs[:source_package].is_a?(Package)
+        attribs[:source_project] ||= attribs[:source_package].project.name
+        attribs[:source_package] = attribs[:source_package].name
+      end
+      if attribs[:target_package].is_a?(Package)
+        attribs[:target_project] ||= attribs[:target_package].project.name
+        attribs[:target_package] = attribs[:target_package].name
+      end
+      # TODO: this should really be .to_sym but the submit action validates the source
+      attribs[:type] = attribs[:type].to_s
+
+      [build(:bs_request_action, attribs)]
+    end
+
+    before(:create) do |_request, evaluator|
+      raise 'Do not pass a string as creator' if evaluator.creator.is_a?(String)
     end
 
     transient do
@@ -46,6 +79,7 @@ FactoryBot.define do
       target_package { nil }
       target_repository { nil }
       target_releaseproject { nil }
+      group_name { nil }
       person_name { nil }
       role { nil }
       reviewer { nil }
@@ -66,6 +100,8 @@ FactoryBot.define do
     end
 
     after(:create) do |request, evaluator|
+      # the state will be overwritten by the constructor, so we need
+      # to set it afterwards
       request.update_attributes(state: evaluator.state)
       request.reload
       User.current = evaluator.before_current_user
@@ -75,7 +111,7 @@ FactoryBot.define do
       type { :submit }
 
       factory :declined_bs_request do
-        state { 'declined' }
+        state { :declined }
       end
     end
 
@@ -85,6 +121,7 @@ FactoryBot.define do
 
     factory :add_role_request do
       type { :add_role }
+      person_name { |evaluator| evaluator.creator.login }
 
       factory :add_maintainer_request do
         transient do

@@ -19,9 +19,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
       create(:bs_request_with_submit_action,
              creator: user2,
              priority: 'critical',
-             source_project: source_project2,
              source_package: source_package2,
-             target_project: target_project3,
              target_package: target_package3)
     end
 

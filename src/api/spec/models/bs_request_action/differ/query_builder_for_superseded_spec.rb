@@ -8,17 +8,13 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project,
            target_package: target_package)
   end
   let(:bs_request_action) { bs_request.bs_request_actions.first }
   let(:superseded_bs_request) do
     create(:bs_request_with_submit_action,
-           source_project: source_project,
            source_package: source_package,
-           target_project: target_project,
            target_package: target_package)
   end
   let(:superseded_bs_request_action) { superseded_bs_request.bs_request_actions.first }
@@ -108,9 +104,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForSuperseded do
         let!(:another_source_package) { create(:package, name: 'another_source_package', project: another_source_project) }
         let!(:superseded_bs_request) do
           create(:bs_request_with_submit_action,
-                 source_project: another_source_project,
                  source_package: another_source_package,
-                 target_project: target_project,
                  target_package: target_package)
         end
         let!(:superseded_bs_request_action) { superseded_bs_request.bs_request_actions.first }

@@ -157,18 +157,14 @@ RSpec.describe ObsFactory::Distribution do
       let!(:review_request) do
         create(:bs_request_with_submit_action,
                review_by_user: user.login,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
       let!(:other_review_request) do
         create(:bs_request_with_submit_action,
                review_by_user: other_user.login,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
 
       subject { distribution.requests_with_reviews_for_user(user.login) }
@@ -183,18 +179,14 @@ RSpec.describe ObsFactory::Distribution do
       let!(:review_request) do
         create(:bs_request_with_submit_action,
                review_by_group: group.title,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
       let!(:other_review_request) do
         create(:bs_request_with_submit_action,
                review_by_group: other_group.title,
-               target_project: project.name,
-               target_package: target_package.name,
-               source_project: source_package.project.name,
-               source_package: source_package.name)
+               target_package: target_package,
+               source_package: source_package)
       end
 
       subject { distribution.requests_with_reviews_for_group(group.title) }

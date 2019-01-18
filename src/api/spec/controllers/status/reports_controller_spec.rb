@@ -12,9 +12,7 @@ RSpec.describe Status::ReportsController, type: :controller do
       let(:bs_request) do
         create(:bs_request_with_submit_action,
                creator: user,
-               source_project: source_project,
                source_package: source_project.packages.first,
-               target_project: target_project,
                target_package: target_project.packages.first)
       end
       let(:status_report) { create(:status_report, checkable: bs_request) }

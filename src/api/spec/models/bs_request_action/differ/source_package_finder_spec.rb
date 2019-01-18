@@ -11,7 +11,6 @@ RSpec.describe BsRequestAction::Differ::SourcePackageFinder do
     context 'with a source package' do
       let!(:bs_request) do
         create(:bs_request_with_submit_action,
-               source_project: source_project,
                source_package: source_package,
                target_project: target_project)
       end

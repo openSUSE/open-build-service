@@ -776,7 +776,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       context 'with a project that has maintenance release requests' do
-        let!(:bs_request) { create(:bs_request, type: 'maintenance_release', source_project: user.home_project.name) }
+        let!(:bs_request) { create(:bs_request, type: 'maintenance_release', source_project: user.home_project) }
 
         before do
           user.home_project.update(kind: 'maintenance_incident')
