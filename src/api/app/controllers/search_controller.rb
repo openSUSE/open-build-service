@@ -214,10 +214,10 @@ class SearchController < ApplicationController
     preloads = []
     case what
     when :package
-      relation = Package.where(id: search_items)
+      relation = Package.where(id: search_items).order('projects.name', :name)
       includes = [:project]
     when :project
-      relation = Project.where(id: search_items)
+      relation = Project.where(id: search_items).order(:name)
       if render_all
         includes = [:repositories]
       else
@@ -227,13 +227,13 @@ class SearchController < ApplicationController
       relation = Repository.where(id: search_items)
       includes = [:project]
     when :request
-      relation = BsRequest.where(id: search_items)
+      relation = BsRequest.where(id: search_items).order(:id)
       preloads = [:reviews, { review_history_elements: :user },
                   { bs_request_actions: :bs_request_action_accept_info }]
       opts[:withhistory] = 1 if params[:withhistory]
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
-      relation = User.where(id: search_items)
+      relation = User.where(id: search_items).order(:login)
     when :channel
       relation = ChannelBinary.where(id: search_items)
     when :channel_binary
