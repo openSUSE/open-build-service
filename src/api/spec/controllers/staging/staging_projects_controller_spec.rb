@@ -61,24 +61,29 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
         }
       end
 
-      let!(:bs_request) do
+      let(:bs_request) do
         create(:bs_request_with_submit_action, request_attributes.merge(creator: user, staging_project: staging_project))
       end
 
-      let!(:untracked_request) do
+      let(:untracked_request) do
         create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project))
       end
 
-      let!(:bs_request_to_review) do
+      let(:bs_request_to_review) do
         create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_project: staging_project, staging_project: staging_project))
       end
 
-      let!(:bs_request_missing_review) do
+      let(:bs_request_missing_review) do
         create(:bs_request_with_submit_action, request_attributes.merge(creator: user, review_by_user: user, staging_project: staging_project))
       end
 
       before do
         stub_request(:get, broken_packages_path).and_return(body: broken_packages_backend)
+        # staging select
+        bs_request_to_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+        bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+        untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
+        bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         get :show, params: { staging_main_project_name: staging_workflow.project.name, name: staging_project.name, format: :xml }
       end
 

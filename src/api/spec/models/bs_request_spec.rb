@@ -9,7 +9,7 @@ require 'nokogiri'
 RSpec.describe BsRequest, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
-  let(:source_project) { create(:project, name: 'source_project') }
+  let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
   let(:submit_request) do

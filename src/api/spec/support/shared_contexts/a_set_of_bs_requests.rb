@@ -2,7 +2,7 @@ RSpec.shared_context 'a set of bs requests' do
   # Set 1
   let!(:user) { create(:confirmed_user, login: 'tom') }
 
-  let!(:source_project) { create(:project_with_package) }
+  let!(:source_project) { create(:project_with_package, :as_submission_source) }
   let!(:source_package) { source_project.packages.first }
   let!(:target_project) { create(:project_with_package, name: 'a_target_project') }
   let!(:target_package) { target_project.packages.first }
