@@ -16,10 +16,10 @@ class CreateJob < ApplicationJob
 
   rescue_from(StandardError) do |exception|
     if Rails.env.test?
-      # make debug output useful in test suite, not just showing backtrace to Airbrake
+      # make debug output useful in test suite, not just showing backtrace
       Rails.logger.debug "ERROR: #{exception.inspect}: #{exception.backtrace}"
       puts exception.inspect, exception.backtrace
     end
-    Airbrake.notify(exception, failed_job: job_id)
+    Raven.capture_exception(exception, extra: { failed_job: job_id })
   end
 end

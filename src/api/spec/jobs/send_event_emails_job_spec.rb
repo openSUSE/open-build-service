@@ -73,7 +73,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
       before do
         allow(EventMailer).to receive(:event).and_raise(StandardError)
-        allow(Airbrake).to receive(:notify)
+        allow(Raven).to receive(:capture_exception)
       end
 
       subject! { SendEventEmailsJob.new.perform }
@@ -83,8 +83,8 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(event.mails_sent).to be_truthy
       end
 
-      it 'notifies airbrake' do
-        expect(Airbrake).to have_received(:notify)
+      it 'notifies about exceptions' do
+        expect(Raven).to have_received(:capture_exception)
       end
     end
 

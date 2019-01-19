@@ -100,6 +100,6 @@ class Staging::StageRequests
     errors << "Request '#{request.number}' already branched into '#{staging_project.name}'"
   rescue APIError, Backend::Error => e
     errors << "Request '#{request.number}' branching failed: '#{e.message}'"
-    Airbrake.notify(e, bs_request: request.number)
+    Raven.capture_exception(e, extra: { bs_request: request.number })
   end
 end

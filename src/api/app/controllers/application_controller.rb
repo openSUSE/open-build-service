@@ -27,6 +27,8 @@ class ApplicationController < ActionController::Base
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
+  before_action :set_raven_context
+
   after_action :set_nobody
 
   delegate :extract_user,
@@ -419,6 +421,11 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def set_raven_context
+    Raven.user_context(login: session[:login])
+    Raven.extra_context(params: params.to_unsafe_h, url: request.url)
+  end
 
   def forward_from_backend(path)
     # apache & mod_xforward case

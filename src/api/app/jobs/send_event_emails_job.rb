@@ -14,7 +14,7 @@ class SendEventEmailsJob < ApplicationJob
         create_rss_notifications(event)
         EventMailer.event(subscribers, event).deliver_now
       rescue StandardError => e
-        Airbrake.notify(e, event_id: event.id)
+        Raven.capture_exception(e, extra: { event_id: event.id })
       ensure
         event.update_attributes(mails_sent: true)
       end

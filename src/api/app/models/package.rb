@@ -626,7 +626,7 @@ class Package < ApplicationRecord
         if Rails.env.test?
           raise e
         else
-          Airbrake.notify(e, failed_job: "Couldn't store channel")
+          Raven.capture_exception(e, extra: { failed_job: 'Could not store channel' })
         end
       end
     else

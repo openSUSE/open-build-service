@@ -21,15 +21,15 @@ class UpdateNotificationEvents
         rescue ActiveRecord::StatementInvalid => e
           retries -= 1
           retry if retries > 0
-          Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
+          Raven.capture_exception(e, extra: { event_type: type.inspect, data: data.to_s })
         rescue => e
           if Rails.env.test?
-            # make debug output useful in test suite, not just showing backtrace to Airbrake
+            # make debug output useful in test suite, not just showing backtrace
             Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
             Rails.logger.info e.inspect
             Rails.logger.info e.backtrace
           end
-          Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
+          Raven.capture_exception(e, extra: { event_type: type.inspect, data: data.to_s })
         end
       end
     end

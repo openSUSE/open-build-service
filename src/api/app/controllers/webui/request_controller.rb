@@ -370,9 +370,9 @@ class Webui::RequestController < Webui::WebuiController
     begin
       forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
     rescue APIError, ActiveRecord::RecordInvalid => e
-      error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
-      error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
-      Airbrake.notify(error_string)
+      extra_hash = { number: @bs_request.number, params: params.inspect }
+      extra_hash['request'] = e.record.inspect if e.respond_to?(:record)
+      Raven.capture_exception(e, extra: extra_hash)
       flash[:error] = "Unable to forward submit request: #{e.message}"
       return
     end

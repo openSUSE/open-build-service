@@ -14,7 +14,7 @@ class RabbitmqBus
     end
   rescue => e
     Rails.logger.error "Publishing to RabbitMQ failed: #{e.message}"
-    Airbrake.notify(e)
+    Raven.capture_exception(e)
   end
 
   def self.publish(event_routing_key, event_payload)

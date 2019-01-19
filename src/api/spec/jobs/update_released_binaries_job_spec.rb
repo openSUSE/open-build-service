@@ -40,13 +40,13 @@ RSpec.describe UpdateReleasedBinariesJob, vcr: true do
       end
 
       before do
-        allow(Airbrake).to receive(:notify)
+        allow(Raven).to receive(:capture_exception)
       end
 
       subject! { UpdateReleasedBinariesJob.perform_now(event.id) }
 
-      it 'notifies airbrake' do
-        expect(Airbrake).to have_received(:notify)
+      it 'notifies about exceptions' do
+        expect(Raven).to have_received(:capture_exception)
       end
     end
   end
