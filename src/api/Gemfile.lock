@@ -407,7 +407,7 @@ GEM
     tdigest (0.1.1)
       rbtree (~> 0.4.2)
     temple (0.8.0)
-    term-ansicolor (1.7.0)
+    term-ansicolor (1.7.1)
       tins (~> 1.0)
     test-unit (3.2.9)
       power_assert
