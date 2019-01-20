@@ -40,14 +40,14 @@ http_interactions:
           <person userid="user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-14">
+        <workflow project="home:user" managers="staging-workflow-managers-4">
           <staging_project name="home:user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="139">
-          <srcmd5>6eae50b02be4972e4aa0b71c59407e3c</srcmd5>
-          <time>1542907136</time>
+        <revision rev="311">
+          <srcmd5>a73d394324caf6fee4f9d7b5e7146476</srcmd5>
+          <time>1547572579</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:A/_meta?user=_nobody_
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-14" role="maintainer"/>
+          <group groupid="staging-workflow-managers-4" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <project name="home:user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-14" role="maintainer" />
+          <group groupid="staging-workflow-managers-4" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-14">
+        <workflow project="home:user" managers="staging-workflow-managers-4">
           <staging_project name="home:user:Staging:A"/>
           <staging_project name="home:user:Staging:B"/>
         </workflow>
@@ -156,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="140">
-          <srcmd5>ae62708d7b72bc64d55a16dabc10b4c6</srcmd5>
-          <time>1542907136</time>
+        <revision rev="312">
+          <srcmd5>6c20ff809c1f07d8617a34555f96459f</srcmd5>
+          <time>1547572579</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:B/_meta?user=_nobody_
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-14" role="maintainer"/>
+          <group groupid="staging-workflow-managers-4" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <project name="home:user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-14" role="maintainer" />
+          <group groupid="staging-workflow-managers-4" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:manager/_meta?user=manager
@@ -246,7 +246,7 @@ http_interactions:
           <person userid="manager" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -287,7 +287,7 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/target_package/_meta?user=manager
@@ -295,8 +295,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>The Waste Land</title>
-          <description>Hic aliquam explicabo dicta.</description>
+          <title>Great Work of Time</title>
+          <description>Cumque hic laudantium corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -317,16 +317,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>The Waste Land</title>
-          <description>Hic aliquam explicabo dicta.</description>
+          <title>Great Work of Time</title>
+          <description>Cumque hic laudantium corporis.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/target_package/_meta?user=manager
@@ -334,8 +334,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>The Waste Land</title>
-          <description>Hic aliquam explicabo dicta.</description>
+          <title>Great Work of Time</title>
+          <description>Cumque hic laudantium corporis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -356,16 +356,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>The Waste Land</title>
-          <description>Hic aliquam explicabo dicta.</description>
+          <title>Great Work of Time</title>
+          <description>Cumque hic laudantium corporis.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=manager
@@ -373,7 +373,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Darkling Plain</title>
+          <title>An Acceptable Time</title>
           <description/>
         </project>
     headers:
@@ -395,16 +395,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Darkling Plain</title>
+          <title>An Acceptable Time</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:19 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=manager
@@ -412,8 +412,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jacob Have I Loved</title>
-          <description>Sapiente ea perspiciatis tempore.</description>
+          <title>The Proper Study</title>
+          <description>Error consequuntur vel vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -434,16 +434,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jacob Have I Loved</title>
-          <description>Sapiente ea perspiciatis tempore.</description>
+          <title>The Proper Study</title>
+          <description>Error consequuntur vel vel.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=manager
@@ -451,8 +451,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jacob Have I Loved</title>
-          <description>Sapiente ea perspiciatis tempore.</description>
+          <title>The Proper Study</title>
+          <description>Error consequuntur vel vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -473,53 +473,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Jacob Have I Loved</title>
-          <description>Sapiente ea perspiciatis tempore.</description>
+          <title>The Proper Study</title>
+          <description>Error consequuntur vel vel.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:56 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/no_staging/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="no_staging">
-          <title>That Good Night</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '102'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="no_staging">
-          <title>That Good Night</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:57 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:20 GMT
 recorded_with: VCR 4.0.0

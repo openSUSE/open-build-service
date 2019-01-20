@@ -95,4 +95,30 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
     end
   end
+
+  describe 'POST #copy' do
+    let(:original_staging_project_name) { staging_workflow.staging_projects.first.name }
+    let(:staging_project_copy_name) { "#{original_staging_project_name}-copy" }
+    let(:params) do
+      {
+        staging_workflow_id: staging_workflow.id,
+        staging_project_project_name: original_staging_project_name,
+        staging_project_copy_name: staging_project_copy_name
+      }
+    end
+
+    before do
+      ActiveJob::Base.queue_adapter = :test
+    end
+
+    after do
+      ActiveJob::Base.queue_adapter = :inline
+    end
+
+    it 'queues a StagingProjectCopyJob job' do
+      expect { post :copy, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow.project.name,
+                                                                                             original_staging_project_name,
+                                                                                             staging_project_copy_name)
+    end
+  end
 end

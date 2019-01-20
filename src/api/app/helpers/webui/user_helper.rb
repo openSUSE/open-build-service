@@ -12,16 +12,6 @@ module Webui::UserHelper
     image_tag(url, width: size, height: size, alt: alt, class: opt[:css_class])
   end
 
-  def webui2_user_image_tag(user, css_class = nil, alt = nil)
-    alt ||= (user ? "#{user.name}'s avatar" : 'Avatar')
-    url = if user.try(:email) && ::Configuration.gravatar
-            "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(user.email.downcase)}?s=500&d=wavatar"
-          else
-            'default_face.png'
-          end
-    image_tag(url, alt: alt, class: css_class, width: '100%')
-  end
-
   def _optional_icon(user, opt)
     if opt[:no_icon]
       ''

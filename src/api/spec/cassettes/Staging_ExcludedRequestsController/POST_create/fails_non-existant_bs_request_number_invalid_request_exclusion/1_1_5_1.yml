@@ -40,14 +40,14 @@ http_interactions:
           <person userid="user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-6">
+        <workflow project="home:user" managers="staging-workflow-managers-11">
           <staging_project name="home:user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="123">
-          <srcmd5>eff598cac61607d67b8c286d611ed6ef</srcmd5>
-          <time>1542907131</time>
+        <revision rev="325">
+          <srcmd5>3d7ac61475a4d480fe8b9a654e19ce20</srcmd5>
+          <time>1547572585</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:A/_meta?user=_nobody_
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-6" role="maintainer"/>
+          <group groupid="staging-workflow-managers-11" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <project name="home:user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-6" role="maintainer" />
+          <group groupid="staging-workflow-managers-11" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-6">
+        <workflow project="home:user" managers="staging-workflow-managers-11">
           <staging_project name="home:user:Staging:A"/>
           <staging_project name="home:user:Staging:B"/>
         </workflow>
@@ -156,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="124">
-          <srcmd5>c585545fcd58336b06b15a2aa9a40e63</srcmd5>
-          <time>1542907131</time>
+        <revision rev="326">
+          <srcmd5>51ad9082b49348eed9000afe3cec8ec3</srcmd5>
+          <time>1547572585</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:B/_meta?user=_nobody_
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-6" role="maintainer"/>
+          <group groupid="staging-workflow-managers-11" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <project name="home:user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-6" role="maintainer" />
+          <group groupid="staging-workflow-managers-11" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:manager/_meta?user=manager
@@ -246,5 +246,5 @@ http_interactions:
           <person userid="manager" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:51 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:25 GMT
 recorded_with: VCR 4.0.0

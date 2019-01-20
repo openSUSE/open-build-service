@@ -78,33 +78,42 @@ ul .table-list-group-item {
   &.requests {
     @extend .w-50;
 
-    a.request {
-      @extend .text-white;
-      padding: 0 0.125rem 0.25rem;
+    span.badge {
 
-      &:hover {
-        text-decoration: none;
+      margin-left: 10px;
+
+      a.request {
+        @extend .text-white;
+        padding: 0 0.125rem 0.25rem;
+
+        &:hover {
+          text-decoration: none;
+        }
+
+        img {
+          border-radius: 50%;
+          height: 20px;
+          width: 20px;
+          margin-left: 5px;
+        }
       }
 
-      span.badge {
-        &.state-ready {
-          @extend .badge-success;
-        }
+      &.state-ready {
+        @extend .badge-success;
+      }
 
-        &.state-review {
-          @extend .badge-warning;
-        }
+      &.state-review {
+        @extend .badge-warning;
+      }
 
-        &.state-obsolete {
-          @extend .badge-info;
-        }
+      &.state-obsolete {
+        @extend .badge-info;
+      }
 
-        &.state-untracked {
-          @extend .badge-dark;
-        }
+      &.state-untracked {
+        @extend .badge-dark;
       }
     }
-
     a, div.collapse, div.collapsing {
       float: left;
     }

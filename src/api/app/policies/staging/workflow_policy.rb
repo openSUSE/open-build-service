@@ -22,4 +22,12 @@ class Staging::WorkflowPolicy < ApplicationPolicy
   def destroy?
     ProjectPolicy.new(user, record.project).destroy?
   end
+
+  def copy?
+    update?
+  end
+
+  def preview_copy?
+    copy?
+  end
 end

@@ -18,11 +18,11 @@ class Staging::Workflow < ApplicationRecord
   has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
     def stageable
       managers_group_title = proxy_association.owner.managers_group.try(:title)
-      includes(:reviews).where(state: :review, reviews: { state: :new, by_group: managers_group_title })
+      includes(:reviews).where(state: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
     end
 
     def ready_to_stage
-      in_states('new')
+      in_states(:new)
     end
   end
 
@@ -33,6 +33,7 @@ class Staging::Workflow < ApplicationRecord
   validates :managers_group, presence: true
 
   after_create :create_staging_projects
+  after_create :add_reviewer_group
   before_update :update_staging_projects_managers_group
 
   def unassigned_requests
@@ -76,5 +77,11 @@ class Staging::Workflow < ApplicationRecord
     # FIXME: This assignation is need because after store a staging_project
     # the object is reloaded and we lost the changes.
     self.managers_group = new_managers_group
+  end
+
+  def add_reviewer_group
+    role = Role.find_by_title('reviewer')
+    project.relationships.find_or_create_by(group: managers_group, role: role)
+    project.store
   end
 end
