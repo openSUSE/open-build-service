@@ -723,6 +723,7 @@ sub checkconstraints {
   $workercache ||= {};
   my $sumworkers = 0;
   my $downworkers = 0;
+  my $badhostworkers = 0;
   my $buildarch = $info->{'hostarch'} || $arch;
   my %workerseen;
   for my $workerstate (qw{idle building away down}) {
@@ -742,12 +743,17 @@ sub checkconstraints {
       next unless !$constraints || BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
+      if ($badhost{"$info->{'project'}/$info->{'package'}/$arch/$workername"} || $badhost{"$info->{'project'}/:repo:$info->{'repository'}/$arch/$workername"}) {
+	$badhostworkers++ if $workerstate ne 'down';
+      }
     }
   }
   # return if more than half of the workers satisfy the constraint
-  return 0 if $sumworkers - $downworkers > 5 && ($sumworkers - $downworkers) > scalar(@all_workers) / 2;
+  my $goodworkers = $sumworkers - $downworkers - $badhostworkers;
+  return 0 if $goodworkers > 5 && $goodworkers > scalar(@all_workers) / 2;
   my $details = "waiting for $sumworkers compliant workers";
   $details .= " ($downworkers of them down)" if $downworkers;
+  $details .= " ($badhostworkers of them bad)" if $badhostworkers;
   if (!$sumworkers) {
     $details = "no compliant workers";
     my $hint = '';
@@ -1268,14 +1274,17 @@ while (1) {
       }
       undef $constraints if $constraints && !%$constraints;
       push @idle, '__lastoracle' if $constraints;
+      my $havebadhost;
       for my $idle (@idle) {
 	if ($idle eq '__lastoracle') {
 	  last unless $lastoracleidle;
 	  $idle = $lastoracleidle;
 	  $lastoracleidle = '__lastoracle';
 	}
-	next if $badhost{"$project/$info->{'package'}/$arch/$idle"};
-	next if $badhost{"$project/:repo:$info->{'repository'}/$arch/$idle"};
+	if ($badhost{"$project/$info->{'package'}/$arch/$idle"} || $badhost{"$project/:repo:$info->{'repository'}/$arch/$idle"}) {
+	  $havebadhost++;
+	  next;
+	}
 	my ($harch, $hname) = split(':', $idle, 2);
         my $worker = $workerinfo{$idle};
 	if (!$worker) {
@@ -1296,7 +1305,7 @@ while (1) {
 	}
         # is a helper needed for personality change?
         if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
-           next;	# worker is not supporting the needed personality change
+          next;	# worker is not supporting the needed personality change
         }
 	if ($constraints) {
 	  my $ora = BSDispatcher::Constraints::oracle($worker, $constraints);
@@ -1345,7 +1354,7 @@ while (1) {
       # we have jobs that could not be assigned and have constraints.
       # check if non idle workers could build these job or if there are no
       # workers that met the constraints
-      if (!$haveassigned && $constraints) {
+      if (!$haveassigned && ($BSConfig::dispatch_constraint || $constraints || $havebadhost)) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
 	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
 	    $info->{'allworkerchecktime'} = $now;

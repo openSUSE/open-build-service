@@ -40,14 +40,14 @@ http_interactions:
           <person userid="user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-4">
+        <workflow project="home:user" managers="staging-workflow-managers-9">
           <staging_project name="home:user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="119">
-          <srcmd5>a73d394324caf6fee4f9d7b5e7146476</srcmd5>
-          <time>1542907130</time>
+        <revision rev="321">
+          <srcmd5>6d75a717f36f0de9cdd6f141daf477b5</srcmd5>
+          <time>1547572583</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:A/_meta?user=_nobody_
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-4" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -119,17 +119,17 @@ http_interactions:
         <project name="home:user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-4" role="maintainer" />
+          <group groupid="staging-workflow-managers-9" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/_project/_staging_workflow?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:user" managers="staging-workflow-managers-4">
+        <workflow project="home:user" managers="staging-workflow-managers-9">
           <staging_project name="home:user:Staging:A"/>
           <staging_project name="home:user:Staging:B"/>
         </workflow>
@@ -156,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="120">
-          <srcmd5>6c20ff809c1f07d8617a34555f96459f</srcmd5>
-          <time>1542907130</time>
+        <revision rev="322">
+          <srcmd5>c667042ac9d63f271de8a85dcd53c269</srcmd5>
+          <time>1547572583</time>
           <user>_nobody_</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user:Staging:B/_meta?user=_nobody_
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-4" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -202,10 +202,10 @@ http_interactions:
         <project name="home:user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-4" role="maintainer" />
+          <group groupid="staging-workflow-managers-9" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:manager/_meta?user=manager
@@ -246,7 +246,7 @@ http_interactions:
           <person userid="manager" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -287,7 +287,7 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/target_package/_meta?user=manager
@@ -295,8 +295,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>Tiger! Tiger!</title>
-          <description>Placeat quia repudiandae expedita.</description>
+          <title>A Handful of Dust</title>
+          <description>Earum corrupti fuga beatae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -317,16 +317,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>Tiger! Tiger!</title>
-          <description>Placeat quia repudiandae expedita.</description>
+          <title>A Handful of Dust</title>
+          <description>Earum corrupti fuga beatae.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user/target_package/_meta?user=manager
@@ -334,8 +334,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>Tiger! Tiger!</title>
-          <description>Placeat quia repudiandae expedita.</description>
+          <title>A Handful of Dust</title>
+          <description>Earum corrupti fuga beatae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -356,16 +356,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:user">
-          <title>Tiger! Tiger!</title>
-          <description>Placeat quia repudiandae expedita.</description>
+          <title>A Handful of Dust</title>
+          <description>Earum corrupti fuga beatae.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=manager
@@ -373,7 +373,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Such, Such Were the Joys</title>
           <description/>
         </project>
     headers:
@@ -395,16 +395,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '115'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Jacob Have I Loved</title>
+          <title>Such, Such Were the Joys</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=manager
@@ -412,8 +412,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Parliament of Man</title>
-          <description>Eos ut ut quae.</description>
+          <title>Tirra Lirra by the River</title>
+          <description>Asperiores qui et voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -434,16 +434,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Parliament of Man</title>
-          <description>Eos ut ut quae.</description>
+          <title>Tirra Lirra by the River</title>
+          <description>Asperiores qui et voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=manager
@@ -451,8 +451,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Parliament of Man</title>
-          <description>Eos ut ut quae.</description>
+          <title>Tirra Lirra by the River</title>
+          <description>Asperiores qui et voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -473,14 +473,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>The Parliament of Man</title>
-          <description>Eos ut ut quae.</description>
+          <title>Tirra Lirra by the River</title>
+          <description>Asperiores qui et voluptas.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 17:18:50 GMT
+  recorded_at: Tue, 15 Jan 2019 17:16:24 GMT
 recorded_with: VCR 4.0.0

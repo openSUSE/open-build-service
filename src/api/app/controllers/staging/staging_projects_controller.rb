@@ -1,5 +1,5 @@
 class Staging::StagingProjectsController < ApplicationController
-  skip_before_action :require_login
+  before_action :require_login, except: [:index, :show]
 
   before_action :set_main_project
 
@@ -14,6 +14,14 @@ class Staging::StagingProjectsController < ApplicationController
 
   def show
     @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:name])
+  end
+
+  def copy
+    authorize @main_project.staging
+
+    StagingProjectCopyJob.perform_later(params[:staging_main_project_name], params[:staging_project_name], params[:staging_project_copy_name])
+
+    render_ok
   end
 
   private
