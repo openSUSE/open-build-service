@@ -193,13 +193,7 @@ class Webui::ProjectController < Webui::WebuiController
   def show
     @bugowners_mail = @project.bugowner_emails
 
-    # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
-    @has_patchinfo = false
-    if @packages.map { |p| p[0] }.include?('patchinfo')
-      Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
-        @has_patchinfo = true if e['name'] == '_patchinfo'
-      end
-    end
+    @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]

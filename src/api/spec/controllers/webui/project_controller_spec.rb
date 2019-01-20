@@ -376,10 +376,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with patchinfo' do
       before do
         login admin_user
-        # Avoid fetching from backend directly
-        allow(Directory).to receive(:hashed).and_return(Xmlhash::XMLHash.new('entry' => { 'name' => '_patchinfo' }))
-        # Avoid writing to the backend
-        allow_any_instance_of(Package).to receive(:sources_changed)
         Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
         get :show, params: { project: apache_project }
       end
