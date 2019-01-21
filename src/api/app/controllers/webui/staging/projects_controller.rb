@@ -57,7 +57,7 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name])
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name], User.current.id)
 
         flash[:success] = "Job to copy the staging project #{params[:staging_project_project_name]} successfully queued."
 
