@@ -33,7 +33,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
-
+  before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
@@ -44,6 +44,8 @@ class Webui::PackageController < Webui::WebuiController
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
   before_action :check_package_name_for_new, only: [:save_new]
+
+  before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
@@ -164,7 +166,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     begin
-      @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, params[:package], @repository.name, @arch.name, @filename)
+      @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
     rescue Backend::Error => e
       flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
       redirect_to controller: :package, action: :binaries, project: @project,
@@ -178,11 +180,14 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @durl = download_url_for_file_in_repo(@project, @package_name, @repository, @arch.name, @filename)
+    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
+                                                                 user: User.current, arch: @arch,
+                                                                 repository: @repository, filename: @filename)
+    @download_url = url_generator.download_url_for_file_in_repo
 
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
-    redirect_to(@durl) && return if request.format != Mime[:html] && @durl
+    redirect_to(@download_url) && return if request.format != Mime[:html] && @download_url
 
     switch_to_webui2
   end
@@ -438,9 +443,6 @@ class Webui::PackageController < Webui::WebuiController
       }
     end
     return
-  end
-
-  class DiffError < APIError
   end
 
   def get_diff(project, package, options = {})
@@ -844,8 +846,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def update_build_log
-    check_ajax
-
     # Make sure objects don't contain invalid chars (eg. '../')
     @repo = @project.repositories.find_by(name: params[:repository]).try(:name)
     unless @repo
@@ -942,15 +942,12 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def devel_project
-    check_ajax
     tgt_pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
     render plain: tgt_pkg.try(:develpackage).try(:project).to_s
   end
 
   def buildresult
-    check_ajax
-
     if @project.repositories.any?
       show_all = params[:show_all] == 'true'
       @index = params[:index]
@@ -964,8 +961,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_result
-    check_ajax
-    @repo_list = []
     @repo_arch_hash = {}
     @buildresult = Buildresult.find_hashed(project: @project.to_param, package: @package.to_param, view: 'status')
     repos = [] # Temp var
@@ -980,8 +975,9 @@ class Webui::PackageController < Webui::WebuiController
         end
       end
     end
-    repos.uniq.each do |repo_name|
-      @repo_list << [repo_name, valid_xml_id(elide(repo_name, 30))]
+
+    @repo_list = repos.uniq.collect do |repo_name|
+      [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
     return if params[:switch].present? && switch_to_webui2
@@ -994,7 +990,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log
-    required_parameters :project, :package, :repository, :architecture
     begin
       @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
@@ -1051,7 +1046,12 @@ class Webui::PackageController < Webui::WebuiController
     filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
     repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
 
-    download_url = download_url_for_file_in_repo(@project, params[:package], repository, architecture, filename)
+    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package,
+                                                                 user: User.current, arch: architecture,
+                                                                 repository: repository, filename: filename)
+
+    download_url = url_generator.download_url_for_file_in_repo
+
     if download_url
       redirect_to download_url
     else
@@ -1088,22 +1088,6 @@ class Webui::PackageController < Webui::WebuiController
       files << file
     end
     files
-  end
-
-  def file_available?(url, max_redirects = 5)
-    logger.debug "Checking url: #{url}"
-    uri = URI.parse(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 15
-    http.read_timeout = 15
-    response = http.head uri.path
-    if response.code.to_i == 302 && response['location'] && max_redirects > 0
-      return file_available?(response['location'], (max_redirects - 1))
-    end
-    return response.code.to_i == 200
-  rescue Object => e
-    logger.error "Error in checking for file #{url}: #{e.message}"
-    return false
   end
 
   def users_path
@@ -1165,14 +1149,6 @@ class Webui::PackageController < Webui::WebuiController
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end
 
-  def download_url_for_file_in_repo(project, package_name, repository, architecture, filename)
-    download_url = repository.download_url_for_file(package_name, architecture, filename)
-    # return mirror if available
-    return download_url if download_url && file_available?(download_url)
-    # only use API for logged in users if the mirror is not available - return nil otherwise
-    rpm_url(project, package_name, repository.name, architecture, filename) unless User.current.is_nobody?
-  end
-
   def require_architecture
     @arch = Architecture.archcache[params[:arch]]
     return if @arch
@@ -1185,5 +1161,9 @@ class Webui::PackageController < Webui::WebuiController
     return if @repository
     flash[:error] = "Couldn't find repository '#{params[:repository]}'"
     redirect_to package_show_path(project: @project, package: @package)
+  end
+
+  def handle_parameters_for_rpmlint_log
+    params.require([:project, :package, :repository, :architecture])
   end
 end
