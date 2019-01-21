@@ -137,6 +137,8 @@ sub check {
     }
     $bconf->{'type'} = 'kiwi';
   }
+  # remove our own prp from aprps (there can't be packages in it)
+  @aprps = grep {$_ ne $prp} @aprps;
 
   my @blocked;
   my @rpms;
@@ -158,7 +160,7 @@ sub check {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (kiwi-product)\n";
-	  print "        repository $aprp is unavailable";
+	  print "        repository $aprp is unavailable for sysbuild";
 	}
 	return ('broken', "repository $aprp is unavailable");
       }
@@ -201,7 +203,7 @@ sub check {
       if (!$ctx->checkprpaccess($aprp)) {
 	if ($ctx->{'verbose'}) {
 	  print "      - $packid (kiwi-product)\n";
-	  print "        repository $aprp is unavailable for sysbuild";
+	  print "        repository $aprp is unavailable";
 	}
 	return ('broken', "repository $aprp is unavailable");
       }
