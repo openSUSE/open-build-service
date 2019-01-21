@@ -14,7 +14,6 @@ module Event
       project_name = payload[:project]
       repository_name = payload[:repo]
       Rails.cache.delete("build_id-#{project_name}-#{repository_name}")
-      Rails.cache.delete("download_url_for_repository-#{project_name}-#{repository_name}-status")
     end
   end
 end

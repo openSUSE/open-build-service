@@ -6,9 +6,9 @@ module Backend
 
       # Returns the download url for a repository
       # @return [String]
-      def self.download_url_for_repository(project_name, repository_name, view = :publishedpath)
-        Rails.cache.fetch("download_url_for_repository-#{project_name}-#{repository_name}-#{view}") do
-          http_get(['/published/:project/:repository', project_name, repository_name], params: { view: view })
+      def self.download_url_for_repository(project_name, repository_name)
+        Rails.cache.fetch("download_url_for_repository-#{project_name}-#{repository_name}") do
+          http_get(['/published/:project/:repository', project_name, repository_name], params: { view: :publishedpath })
         end
       end
 
@@ -16,7 +16,7 @@ module Backend
       # @return [String]
       def self.build_id(project_name, repository_name)
         Rails.cache.fetch("build_id-#{project_name}-#{repository_name}") do
-          response = download_url_for_repository(project_name, repository_name, :status)
+          response = http_get(['/published/:project/:repository', project_name, repository_name], params: { view: :status })
           Xmlhash.parse(response)['buildid']
         end
       end
