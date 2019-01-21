@@ -20,7 +20,7 @@ module Cloud
       ].freeze
 
       has_secure_token :external_id
-      belongs_to :user, required: true
+      belongs_to :user, optional: false
 
       validates :external_id, uniqueness: true
       validates :arn, uniqueness: true, allow_nil: true
