@@ -50,6 +50,31 @@ class Staging::Workflow < ApplicationRecord
     Backend::Api::Sources::Project.write_staging_workflow(project.name, User.current_login, render_xml)
   end
 
+  def self.load_groups
+    # as it is not expected that there are many groups (~30) we cache all of them. Otherwise use this instead:
+    # group_ids = Review.where(bs_request: BsRequest.where(staging_project: @staging_projects)).select('group_id').distinct
+    # Group.where(id: group_ids).each do |group|
+    #
+    # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
+    #
+    groups_hash = {}
+    # FIXME: try to use cache without failure. Like: Rails.cache.fetch(Group.all.cache_key) do
+    Group.find_each do |group|
+      groups_hash[group.title] = group
+    end
+    groups_hash
+  end
+
+  def self.load_users(staging_projects)
+    # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
+    users_hash = {}
+    user_ids = Review.where(bs_request: BsRequest.where(staging_project: staging_projects)).select('user_id').distinct
+    User.where(id: user_ids).find_each do |user|
+      users_hash[user.login] = user
+    end
+    users_hash
+  end
+
   private
 
   def create_staging_projects

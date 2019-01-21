@@ -49,22 +49,8 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @empty_projects = @staging_workflow.staging_projects.without_staged_requests
     @managers = @staging_workflow.managers_group
 
-    # as it is not expected that there are many groups (~30) we catch all of them. Otherwise use this instead:
-    # group_ids = Review.where(bs_request: BsRequest.where(staging_project: @staging_projects)).select('group_id').distinct
-    # Group.where(id: group_ids).each do |group|
-
-    # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
-    @groups_hash = {}
-    Group.find_each do |group|
-      @groups_hash[group.title] = group
-    end
-
-    # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
-    @users_hash = {}
-    user_ids = Review.where(bs_request: BsRequest.where(staging_project: @staging_projects)).select('user_id').distinct
-    User.where(id: user_ids).each do |user|
-      @users_hash[user.login] = user
-    end
+    @groups_hash = ::Staging::Workflow.load_groups
+    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
   end
 
   def edit
@@ -72,6 +58,9 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
     @project = @staging_workflow.project
     @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
+
+    @groups_hash = ::Staging::Workflow.load_groups
+    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
   end
 
   def destroy
