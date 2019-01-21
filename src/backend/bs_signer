@@ -417,6 +417,10 @@ sub signjob {
 	}
 	my $signtime;
 	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
+	  # newer rpm versions sometimes do in-place signature replacement,
+	  # so create a copy first
+	  # (we should add a delsign option to our sign utility...)
+	  BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile", "$jobdir/$signfile");
 	  # special aggregate handling: remove old sigs
 	  # but get old sig time first
 	  eval {
