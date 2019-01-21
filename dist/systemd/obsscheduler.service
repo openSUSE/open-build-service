@@ -1,8 +1,8 @@
 [Unit]
 Description=OBS job scheduler
 Requires=obsrepserver.service
-After=network.target obssrcserver.service obsrepserver.service
 Wants=obsapisetup.service
+After=network.target obssrcserver.service obsrepserver.service obsapisetup.service
 
 [Service]
 Type=oneshot
