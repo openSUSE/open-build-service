@@ -4,6 +4,7 @@ module Event
     self.abstract_class = true
     payload_keys :project, :package, :sender, :repository, :arch, :release, :readytime, :srcmd5,
                  :rev, :reason, :bcnt, :verifymd5, :hostarch, :starttime, :endtime, :workerid, :versrel, :previouslyfailed
+    after_save :clear_cache
 
     def my_message_id
       # we put the verifymd5 sum in the message id, so new checkins get new thread, but it doesn't have to be very correct
@@ -18,6 +19,12 @@ module Event
       h['In-Reply-To'] = mid
       h['References'] = mid
       h
+    end
+
+    private
+
+    def clear_cache
+      Rails.cache.delete("failed_results-#{payload[:project]}")
     end
   end
 end
