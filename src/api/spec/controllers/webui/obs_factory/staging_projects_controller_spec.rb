@@ -27,6 +27,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   before do
     create(:project, name: 'openSUSE:Factory:Staging:A', description: description)
     create(:project, name: 'openSUSE:Factory:Staging:B', description: 'Factory staging project B')
+    Rails.cache.clear
   end
 
   describe 'GET #index' do
@@ -242,6 +243,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'published repo has pending check' do
           let!(:check) { create(:check, name: 'openqa', state: 'pending', status_report: published_report) }
+          let(:checkable) { published_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns testing' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json
@@ -258,6 +265,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'published repo has failed check' do
           let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: published_report) }
+          let(:checkable) { published_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns failed' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json
@@ -274,6 +287,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'published repo has succeeded check' do
           let!(:check) { create(:check, name: 'openqa', state: 'success', status_report: published_report) }
+          let(:checkable) { published_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns acceptable' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json
@@ -344,6 +363,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'build repo has pending check' do
           let!(:check) { create(:check, name: 'openqa', state: 'pending', status_report: build_report) }
+          let(:checkable) { build_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns testing' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json
@@ -360,6 +385,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'build repo has failed check' do
           let!(:check) { create(:check, name: 'openqa', state: 'failure', status_report: build_report) }
+          let(:checkable) { build_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns failed' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json
@@ -376,6 +407,12 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
 
         context 'build repo has succeeded check' do
           let!(:check) { create(:check, name: 'openqa', state: 'success', status_report: build_report) }
+          let(:checkable) { build_report.checkable }
+
+          before do
+            checkable.required_checks << 'openqa'
+            checkable.save
+          end
 
           it 'returns acceptable' do
             get :show, params: { project: factory, project_name: 'D' }, format: :json

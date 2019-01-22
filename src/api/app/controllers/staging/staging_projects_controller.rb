@@ -19,7 +19,7 @@ class Staging::StagingProjectsController < ApplicationController
   def copy
     authorize @main_project.staging
 
-    StagingProjectCopyJob.perform_later(params[:staging_main_project_name], params[:staging_project_name], params[:staging_project_copy_name])
+    StagingProjectCopyJob.perform_later(params[:staging_main_project_name], params[:staging_project_name], params[:staging_project_copy_name], User.current.id)
 
     render_ok
   end

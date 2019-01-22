@@ -118,7 +118,8 @@ RSpec.describe Webui::Staging::ProjectsController do
     it 'queues a StagingProjectCopyJob job' do
       expect { post :copy, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow.project.name,
                                                                                              original_staging_project_name,
-                                                                                             staging_project_copy_name)
+                                                                                             staging_project_copy_name,
+                                                                                             user.id)
     end
   end
 end
