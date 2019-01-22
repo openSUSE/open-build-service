@@ -50,7 +50,7 @@ module ObsFactory
       return @classified_requests if @classified_requests
 
       @classified_requests = []
-      requests = selected_requests
+      requests = open_requests + obsolete_requests
       return @classified_requests unless requests
 
       reviews = Hash.new
