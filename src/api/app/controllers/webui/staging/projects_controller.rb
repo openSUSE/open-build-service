@@ -25,6 +25,9 @@ module Webui
       def show
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
         @project = @staging_workflow.project
+
+        @groups_hash = ::Staging::Workflow.load_groups
+        @users_hash = ::Staging::Workflow.load_users(@staging_project)
       end
 
       def destroy
