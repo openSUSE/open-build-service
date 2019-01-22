@@ -84,13 +84,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#get_frontend_url_for' do
-    it 'generates a url' do
-      url = get_frontend_url_for(controller: 'foo', host: 'bar.com', port: 80, protocol: 'http')
-      expect(url).to eq('http://bar.com:80/foo')
-    end
-  end
-
   describe '#bugzilla_url' do
     before do
       @configuration = { 'bugzilla_url' => 'https://bugzilla.example.org' }

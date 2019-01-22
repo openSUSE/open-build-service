@@ -129,7 +129,8 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
     it 'queues a StagingProjectCopyJob job' do
       expect { post :copy, format: :xml, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_main_project_name,
                                                                                                            original_staging_project_name,
-                                                                                                           staging_project_copy_name)
+                                                                                                           staging_project_copy_name,
+                                                                                                           user.id)
     end
   end
 end

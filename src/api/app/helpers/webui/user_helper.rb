@@ -1,10 +1,11 @@
 module Webui::UserHelper
+  # This method is migrated to Webui2 (and refactored) with the name: image_tag_for
   # @param [User] user object
   def user_image_tag(user, opt = {})
     alt = opt[:alt] || user.try(:realname)
     alt = user.try(:login) if alt.empty?
     size = opt[:size] || 20
-    if user && ::Configuration.gravatar
+    if user.try(:email) && ::Configuration.gravatar
       url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(user.email.downcase)}?s=#{size}&d=wavatar"
     else
       url = 'default_face.png'

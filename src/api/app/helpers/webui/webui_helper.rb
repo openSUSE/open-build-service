@@ -4,19 +4,6 @@ module Webui::WebuiHelper
   include ActionView::Helpers::AssetTagHelper
   include Webui::BuildresultHelper
 
-  def get_frontend_url_for(opt = {})
-    opt[:host] ||= CONFIG['external_frontend_host'] || CONFIG['frontend_host']
-    opt[:port] ||= CONFIG['external_frontend_port'] || CONFIG['frontend_port']
-    opt[:protocol] ||= CONFIG['external_frontend_protocol'] || CONFIG['frontend_protocol']
-
-    unless opt[:controller]
-      logger.error 'No controller given for get_frontend_url_for().'
-      return
-    end
-
-    "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
-  end
-
   def bugzilla_url(email_list = '', desc = '')
     return '' if @configuration['bugzilla_url'].blank?
     assignee = email_list.first if email_list

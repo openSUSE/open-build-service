@@ -1675,6 +1675,7 @@ class Project < ApplicationRecord
   end
 
   def status_reports(checkables)
+    checkables = checkables.where.not(required_checks: nil)
     status_reports = Status::Report.where(checkable: checkables)
     result = {}
     status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|

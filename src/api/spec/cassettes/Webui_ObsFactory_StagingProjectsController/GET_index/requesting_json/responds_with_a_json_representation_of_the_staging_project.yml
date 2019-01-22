@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>No Highway</title>
+          <title>Of Mice and Men</title>
           <description/>
         </project>
     headers:
@@ -29,16 +29,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '116'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>No Highway</title>
+          <title>Of Mice and Men</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/_meta?user=_nobody_
@@ -46,7 +46,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Terrible Swift Sword</title>
+          <title>A Confederacy of Dunces</title>
           <description/>
         </project>
     headers:
@@ -68,16 +68,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '116'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Terrible Swift Sword</title>
+          <title>A Confederacy of Dunces</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
@@ -85,8 +85,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Endless Night</title>
-          <description>Consequatur fuga consectetur sed.</description>
+          <title>His Dark Materials</title>
+          <description>Quam odio earum dolor.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,16 +107,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Endless Night</title>
-          <description>Consequatur fuga consectetur sed.</description>
+          <title>His Dark Materials</title>
+          <description>Quam odio earum dolor.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=_nobody_
@@ -124,8 +124,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Endless Night</title>
-          <description>Consequatur fuga consectetur sed.</description>
+          <title>His Dark Materials</title>
+          <description>Quam odio earum dolor.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -146,24 +146,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Endless Night</title>
-          <description>Consequatur fuga consectetur sed.</description>
+          <title>His Dark Materials</title>
+          <description>Quam odio earum dolor.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_4/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>Down to a Sunless Sea</title>
+        <project name="project_4">
+          <title>The Wealth of Nations</title>
           <description/>
         </project>
     headers:
@@ -189,21 +189,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="project_5">
-          <title>Down to a Sunless Sea</title>
+        <project name="project_4">
+          <title>The Wealth of Nations</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/package_5/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_4/package_4/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>That Good Night</title>
-          <description>Ea inventore et maiores.</description>
+        <package name="package_4" project="project_4">
+          <title>Ah, Wilderness!</title>
+          <description>Blanditiis fuga enim rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -224,25 +224,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '146'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>That Good Night</title>
-          <description>Ea inventore et maiores.</description>
+        <package name="package_4" project="project_4">
+          <title>Ah, Wilderness!</title>
+          <description>Blanditiis fuga enim rem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_5/package_5/_meta?user=_nobody_
+    uri: http://backend:5352/source/project_4/package_4/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>That Good Night</title>
-          <description>Ea inventore et maiores.</description>
+        <package name="package_4" project="project_4">
+          <title>Ah, Wilderness!</title>
+          <description>Blanditiis fuga enim rem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -263,26 +263,67 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '146'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_5" project="project_5">
-          <title>That Good Night</title>
-          <description>Ea inventore et maiores.</description>
+        <package name="package_4" project="project_4">
+          <title>Ah, Wilderness!</title>
+          <description>Blanditiis fuga enim rem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_5/_meta?user=user_5
+    uri: http://backend:5352/source/project_4/_project/_attribute?meta=1&user=
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_5">
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="41">
+          <srcmd5>fb83a30f73e8f8e66e6c47ae3b12aae7</srcmd5>
+          <time>1548081924</time>
+          <user></user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_19/_meta?user=user_19
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_19">
           <title/>
           <description/>
-          <person userid="user_5" role="maintainer"/>
+          <person userid="user_19" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -303,25 +344,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '135'
+      - '137'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_5">
+        <project name="home:user_19">
           <title></title>
           <description></description>
-          <person userid="user_5" role="maintainer" />
+          <person userid="user_19" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=_nobody_
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>Number the Stars</title>
+          <title>The Heart Is a Lonely Hunter</title>
           <description>      requests:
                 - { id: 1 }
         </description>
@@ -345,26 +386,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>Number the Stars</title>
+          <title>The Heart Is a Lonely Hunter</title>
           <description>      requests:
                 - { id: 1 }
         </description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=_nobody_
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_19
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>Consider the Lilies</title>
+          <title>Such, Such Were the Joys</title>
           <description>Factory staging project B</description>
         </project>
     headers:
@@ -386,53 +427,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>Consider the Lilies</title>
+          <title>Such, Such Were the Joys</title>
           <description>Factory staging project B</description>
         </project>
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: unknown repository 'images'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '132'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown repository 'images'</summary>
-          <details>404 unknown repository 'images'</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
@@ -440,10 +444,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -467,44 +469,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: unknown repository 'images'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '132'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown repository 'images'</summary>
-          <details>404 unknown repository 'images'</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?code=unresolvable
@@ -512,10 +477,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -539,44 +502,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:02 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: unknown repository 'images'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '132'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown repository 'images'</summary>
-          <details>404 unknown repository 'images'</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:03 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
@@ -584,10 +510,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -611,44 +535,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:03 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?package=Test-DVD-x86_64&repository=images&view=binarylist
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: unknown repository 'images'
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '132'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>unknown repository 'images'</summary>
-          <details>404 unknown repository 'images'</details>
-        </status>
-    http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:03 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?code=unresolvable
@@ -656,10 +543,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -683,5 +568,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 30 Jul 2018 19:12:03 GMT
+  recorded_at: Mon, 21 Jan 2019 14:45:24 GMT
 recorded_with: VCR 4.0.0

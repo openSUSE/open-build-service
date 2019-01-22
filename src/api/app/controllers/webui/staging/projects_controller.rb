@@ -25,6 +25,9 @@ module Webui
       def show
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
         @project = @staging_workflow.project
+
+        @groups_hash = ::Staging::Workflow.load_groups
+        @users_hash = ::Staging::Workflow.load_users(@staging_project)
       end
 
       def destroy
@@ -57,7 +60,7 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name])
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name], User.current.id)
 
         flash[:success] = "Job to copy the staging project #{params[:staging_project_project_name]} successfully queued."
 

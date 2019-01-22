@@ -9,11 +9,6 @@ module Webui::PackageHelper
     Package.source_path(project, package, filename, opts)
   end
 
-  def rpm_url(project, package, repository, arch, filename)
-    get_frontend_url_for(controller: 'build') +
-      "/#{project}/#{repository}/#{arch}/#{package}/#{filename}"
-  end
-
   def human_readable_fsize(bytes)
     number_to_human_size(bytes)
   end

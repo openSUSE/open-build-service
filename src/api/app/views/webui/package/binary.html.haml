@@ -7,8 +7,8 @@
 
 %h3
   Detailed Information About
-  - if @durl
-    = link_to(@filename, @durl)
+  - if @download_url
+    = link_to(@filename, @download_url)
   - else
     = @filename
 

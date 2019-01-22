@@ -123,18 +123,36 @@ RSpec.describe Staging::StagingProject, vcr: true do
 
     context 'when there are pending checks' do
       let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'pending') }
+      let(:checkable) { published_report.checkable }
+
+      before do
+        checkable.required_checks << 'check_1'
+        checkable.save
+      end
 
       it { expect(staging_project.overall_state).to eq(:testing) }
     end
 
     context 'when there are failed checks on published repo' do
       let!(:check) { create(:check, name: 'check_1', status_report: published_report, state: 'failure') }
+      let(:checkable) { published_report.checkable }
+
+      before do
+        checkable.required_checks << 'check_1'
+        checkable.save
+      end
 
       it { expect(staging_project.overall_state).to eq(:failed) }
     end
 
     context 'when there are failed checks on build repo' do
       let!(:check) { create(:check, name: 'check_1', status_report: build_report, state: 'failure') }
+      let(:checkable) { build_report.checkable }
+
+      before do
+        checkable.required_checks << 'check_1'
+        checkable.save
+      end
 
       it { expect(staging_project.overall_state).to eq(:failed) }
       it { expect(staging_project.checks).to contain_exactly(check) }
