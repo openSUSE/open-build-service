@@ -2075,6 +2075,21 @@ sub putjob {
     sendbadhostevent($info, $idlename, $job);
     unlink("$jobsdir/$arch/$job:status");
     close(F);
+    if (BSServer::have_content()) {
+      # fetch logfile and put in in the .logfile.badhost directory
+      my $tmp = "$jobsdir/$arch/.putjob.log.$$";
+      unlink($tmp);
+      my $badhostextract = sub {
+        return ".putjob.log.$$" if $_[1] eq 'logfile';
+        return undef;
+      };
+      BSServer::read_cpio("$jobsdir/$arch", 'map' => $badhostextract);
+      if (-s $tmp) {
+        mkdir_p("$jobsdir/$arch/.logfile.badhost");
+        rename($tmp, "$jobsdir/$arch/.logfile.badhost/$job");
+      }
+      unlink($tmp);
+    }
     return $BSStdServer::return_ok;
   }
 
