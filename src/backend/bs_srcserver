@@ -5464,6 +5464,19 @@ sub lastevents {
   return ($ret, $BSXML::events);
 }
 
+sub prunelastevents {
+  my ($size) = @_;
+  local *F;
+  BSUtil::lockopen(\*F, '+>>', "$eventdir/lastevents");
+  my $events = readstr("$eventdir/lastevents");
+  if (length($events) >= $size * 2) {
+    $events = substr($events, -$size);
+    $events =~ s/^[^\n]*\n//s;
+    writestr("$eventdir/.lastevents", "$eventdir/lastevents", $events) if $events;
+  }
+  close F;
+}
+
 #
 # add an event to the "lastevents" queue used in the build service
 # interconnect implementation
@@ -5487,17 +5500,7 @@ sub addevent {
   $ev->{'time'} = time();
   mkdir_p($eventdir);
   my $size = 262144;	#keep at least 256k of data
-  if (-s "$eventdir/lastevents" && -s _ >= $size * 2) {
-    local *F;
-    BSUtil::lockopen(\*F, '+>>', "$eventdir/lastevents");
-    my $events = readstr("$eventdir/lastevents");
-    if (length($events) >= $size * 2) {
-      $events = substr($events, -$size);
-      $events =~ s/^[^\n]*\n//s;
-      writestr("$eventdir/.lastevents", "$eventdir/lastevents", $events);
-    }
-    close F;
-  }
+  prunelastevents($size) if -s "$eventdir/lastevents" && -s _ >= $size * 2;
   BSFileDB::fdb_add_i("$eventdir/lastevents", $eventlay, $ev);
 }
 

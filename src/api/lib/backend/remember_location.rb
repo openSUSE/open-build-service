@@ -13,6 +13,9 @@ module Backend
         Thread.current[:_influxdb_obs_backend_api_method] = method_name.to_s
         Thread.current[:_influxdb_obs_backend_api_module] = name
         original_method.call(*args, &block)
+      ensure
+        Thread.current[:_influxdb_obs_backend_api_method] = nil
+        Thread.current[:_influxdb_obs_backend_api_module] = nil
       end
     end
 

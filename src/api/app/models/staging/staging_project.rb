@@ -169,7 +169,7 @@ module Staging
     end
 
     def set_buildinfo
-      buildresult = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results(name))
+      buildresult = Backend::Api::BuildResults::Status.failed_results(name)
 
       @broken_packages = []
       @building_repositories = []
