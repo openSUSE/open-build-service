@@ -84,7 +84,7 @@ class BsRequest < ApplicationRecord
     where(state: 'new').where(id: Review.where(review_attributes).select(:bs_request_id)).includes(:reviews)
   }
   scope :with_open_reviews_for, lambda { |review_attributes|
-    where(state: 'review', id: Review.where(review_attributes).where(state: 'new').pluck(:bs_request_id))
+    where(state: 'review', id: Review.where(review_attributes).where(state: 'new').select(:bs_request_id))
       .includes(:reviews)
   }
 
