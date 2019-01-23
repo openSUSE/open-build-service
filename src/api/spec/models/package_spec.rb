@@ -756,5 +756,41 @@ RSpec.describe Package, vcr: true do
       end
     end
   end
+
+  describe '#update_from_xml' do
+    let(:invalid_meta_xml) do
+      <<-XML_DATA
+      <package>
+        <title/>
+        <description/>
+        <build>
+          <enable/>
+          <disable/>
+          <enable arch="i586"/>
+          <disable arch="x86_64"/>
+          <enable arch="x86_64"/>
+        </build>
+      </package>
+      XML_DATA
+    end
+    let(:corrected_meta_xml) do
+      <<~XML_DATA2
+        <package name="test_package" project="home:tom">
+          <title/>
+          <description/>
+          <build>
+            <disable/>
+            <enable arch="i586"/>
+            <disable arch="x86_64"/>
+          </build>
+        </package>
+      XML_DATA2
+    end
+
+    it "doesn't crash on duplicated flags" do
+      package.update_from_xml(Xmlhash.parse(invalid_meta_xml))
+      expect(package.render_xml).to eq(corrected_meta_xml)
+    end
+  end
 end
 # rubocop:enable Metrics/BlockLength

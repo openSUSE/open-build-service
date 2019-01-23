@@ -3,6 +3,7 @@ require_dependency 'has_relationships'
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
+  include Flag::Validations
   include CanRenderModel
   include HasRelationships
   include HasRatings
