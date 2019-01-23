@@ -19,16 +19,17 @@ use strict;
 use warnings;
 
 use Digest::MD5 ();
-use JSON::XS ();	# for containerinfo reading/writing
+use JSON::XS ();		# for containerinfo reading/writing
 
 use BSUtil;
 use BSXML;
 use BSRPC;			# FIXME: only async calls, please
-use BSSched::BuildJob;
-use BSSched::RPC;
-use BSConfiguration;		# for $BSConfig::sign
-use BSVerify;			# for verify_nevraquery
 use Build;			# for query
+use BSConfiguration;		# for $BSConfig::sign
+use BSSched::BuildJob;
+use BSSched::RPC;		# for is_transient_error
+use BSSched::ProjPacks;		# for orderpackids
+use BSVerify;			# for verify_nevraquery
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -173,6 +174,7 @@ sub check {
 	  push @apackids, $apackid;
 	}
 	@apackids = BSUtil::unify(sort(@apackids));
+	@apackids = BSSched::ProjPacks::orderpackids($proj, @apackids) if ($proj->{'kind'} || '') eq 'maintenance_release';
       }
 
       for my $apackid (@apackids) {
