@@ -7,7 +7,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
   end
 
   def bulk_update_availability
-    result = ::ArchitecturesControllerService::ArchitectureUpdater.new(params[:archs]).call
+    result = ::ArchitecturesControllerService::ArchitectureUpdater.new(params).call
 
     ::Configuration.write_to_backend
 
