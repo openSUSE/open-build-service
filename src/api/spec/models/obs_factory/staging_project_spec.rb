@@ -286,16 +286,17 @@ RSpec.describe ObsFactory::StagingProject do
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
-    it { expect(subject.selected_requests).to contain_exactly(bs_request_1, bs_request_2) }
+    it { expect(subject.selected_requests).to contain_exactly(bs_request_1.number, bs_request_2.number) }
   end
 
   describe '#missing_reviews' do
     include_context 'a staging project with description'
 
     let(:user) { create(:user, login: 'king') }
-    let(:bs_request_1) { create(:set_bugowner_request, number: 614_459, state: :review) }
+    let(:bs_request_1) { create(:set_bugowner_request, number: 614_459, review_by_project: staging_h) }
     let!(:review_1) { create(:review, state: :accepted, bs_request: bs_request_1, by_user: user.login) }
-    let(:bs_request_2) { create(:set_bugowner_request, number: 614_471, state: :review) }
+    let(:source_package) { create(:package, :as_submission_source) }
+    let(:bs_request_2) { create(:set_bugowner_request, target_project: factory, review_by_project: staging_h, number: 614_471) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
