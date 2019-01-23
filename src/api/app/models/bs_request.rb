@@ -89,7 +89,7 @@ class BsRequest < ApplicationRecord
   }
 
   before_save :assign_number
-  has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
+  has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :delete_all
   has_many :request_history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Request', foreign_key: :op_object_id
@@ -399,7 +399,7 @@ class BsRequest < ApplicationRecord
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
     builder.request(id: number, creator: creator) do |r|
-      bs_request_actions.each do |action|
+      bs_request_actions.includes([:bs_request_action_accept_info]).find_each do |action|
         action.render_xml(r)
       end
 
