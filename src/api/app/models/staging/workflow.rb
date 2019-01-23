@@ -56,13 +56,13 @@ class Staging::Workflow < ApplicationRecord
     # Group.where(id: group_ids).each do |group|
     #
     # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
-    #
-    groups_hash = {}
-    # FIXME: try to use cache without failure. Like: Rails.cache.fetch(Group.all.cache_key) do
-    Group.find_each do |group|
-      groups_hash[group.title] = group
+    Rails.cache.fetch("groups_hash_#{Group.all.cache_key}") do
+      groups_hash = {}
+      Group.find_each do |group|
+        groups_hash[group.title] = group
+      end
+      groups_hash
     end
-    groups_hash
   end
 
   def self.load_users(staging_projects)

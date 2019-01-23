@@ -3895,11 +3895,9 @@ if (!$testmode) {
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "kiwitree=1" if $kiwitree && $code eq 'succeeded';
   if ($code eq 'badhost') {
-    # don't transmit anything in the badhost case
-    $param = {
-      uri => "$buildinfo->{'reposerver'}/putjob",
-      request => 'POST',
-    };
+    # only transmit the logfile in the badhost case
+    @send = ();
+    push @send, {name => 'logfile', filename => "$buildroot/.build.log"} if -s "$buildroot/.build.log";
   }
   eval {
     my $res = BSRPC::rpc($param, undef, @args);
