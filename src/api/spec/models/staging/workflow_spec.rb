@@ -11,7 +11,6 @@ RSpec.describe Staging::Workflow, type: :model do
   let(:source_package) { create(:package, :as_submission_source, name: 'source_package', project: source_project) }
   let(:bs_request) do
     create(:bs_request_with_submit_action,
-           review_by_group: group, # FIXME: force to create a review for the group, because skip_sanitize is avoiding it
            target_package: target_package,
            source_package: source_package)
   end
@@ -50,8 +49,7 @@ RSpec.describe Staging::Workflow, type: :model do
       let!(:bs_request_2) do
         create(:bs_request_with_submit_action,
                target_package: target_package,
-               source_package: source_package,
-               review_by_group: group)
+               source_package: source_package)
       end
 
       before do
@@ -79,7 +77,6 @@ RSpec.describe Staging::Workflow, type: :model do
     context 'with request in state review whether they are in staging projects or not' do
       let(:bs_request_2) do
         create(:bs_request_with_submit_action,
-               review_by_group: group, # FIXME: force to create a review for the group, because skip_sanitize is avoiding it
                target_package: target_package,
                source_package: source_package)
       end
