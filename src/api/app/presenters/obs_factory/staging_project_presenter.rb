@@ -24,7 +24,7 @@ module ObsFactory
     # engine helpers are troublesome, so we avoid them
     def self.review_icon(reviewer)
       case reviewer
-      when 'opensuse-review-team' then
+      when 'opensuse-review-team', 'autobuild-team' then
         'search'
       when 'repo-checker' then
         'cog'
