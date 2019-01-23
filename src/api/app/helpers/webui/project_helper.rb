@@ -142,4 +142,8 @@ module Webui::ProjectHelper
                        @has_patchinfo && @open_release_requests.empty?
     false
   end
+
+  def can_be_released?(project, packages, open_release_requests, has_patchinfo)
+    !project.defines_remote_instance? && project.is_maintenance_incident? && packages.present? && has_patchinfo && open_release_requests.blank?
+  end
 end
