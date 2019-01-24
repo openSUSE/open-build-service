@@ -24,7 +24,7 @@ module ObsFactory
     # engine helpers are troublesome, so we avoid them
     def self.review_icon(reviewer)
       case reviewer
-      when 'opensuse-review-team' then
+      when 'opensuse-review-team', 'autobuild-team' then
         'search'
       when 'repo-checker' then
         'cog'
@@ -50,7 +50,7 @@ module ObsFactory
       return @classified_requests if @classified_requests
 
       @classified_requests = []
-      requests = selected_requests
+      requests = open_requests + obsolete_requests
       return @classified_requests unless requests
 
       reviews = Hash.new

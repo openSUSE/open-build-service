@@ -31,7 +31,7 @@ RSpec.describe Webui::ArchitecturesController do
 
     context 'with valid data but failing to save' do
       before do
-        allow_any_instance_of(Architecture).to receive(:save).and_return(false)
+        allow_any_instance_of(Architecture).to receive(:valid?).and_return(false)
         request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
         post :bulk_update_availability, params: { archs: { i586: '1', s390x: '1' } }
       end

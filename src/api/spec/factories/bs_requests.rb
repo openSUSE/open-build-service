@@ -1,21 +1,11 @@
 FactoryBot.define do
   factory :bs_request do
     description { Faker::Lorem.paragraph }
-    state do |evaluator|
-      evaluator.reviews.present? ? :review : :new
-    end
     commenter do
       creator
     end
     creator do
       create(:confirmed_user)
-    end
-
-    initialize_with do
-      request = new(attributes)
-      # the sanitize part is a heavy requirement on a model
-      request.skip_sanitize
-      request
     end
 
     reviews do |evaluator|
@@ -93,17 +83,22 @@ FactoryBot.define do
       before_current_user { User.current }
     end
 
-    after(:build) do |_request, evaluator|
+    after(:build) do |request, evaluator|
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
       User.current = evaluator.creating_user
+      request[:state] ||= 'new'
     end
 
     after(:create) do |request, evaluator|
       # the state will be overwritten by the constructor, so we need
       # to set it afterwards
-      request.update_attributes(state: evaluator.state)
-      request.reload
+      state = evaluator.state
+      state ||= :review if evaluator.reviews.present?
+      if state
+        request.update_attributes(state: state)
+        request.reload
+      end
       User.current = evaluator.before_current_user
     end
 
