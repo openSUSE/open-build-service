@@ -103,12 +103,7 @@
   <% @actions.each_with_index do |action, action_index| %>
       <div class="action_display" style="<%= 'display: none;' if action_index > 0 %>" id="action_display_<%= action_index %>">
         <p>
-          <% if action[:type] == :submit %>
-              <b>Submit
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg], rev: action[:srev] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
+          <b><%= request_action_header(action, @bs_request.creator) %></b>
               <% if @can_handle_request && @is_target_maintainer %>
                   <% if !action[:creator_is_target_maintainer] %>
                       <%# TODO: Make this work for each submit action individually: %>
@@ -137,53 +132,10 @@
                           <% end %>
                       <% end %>
                   <% end %>
-              <% end %>
 
-          <% elsif action[:type] == :delete %>
-              <b>Delete
-                <% if action[:trepo] %>
-                    repository <%= link_to action[:trepo], :controller => :repositories, :action => :index, :project => action[:tprj], :repository => action[:trepo] %>
-                    in
-                <% end %>
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif [:add_role, :set_bugowner].include? action[:type]  %>
-              <b>
-                <%= user_with_realname_and_icon @bs_request.creator %>
-                wants
-                <%= requester_str(@bs_request.creator, action[:user], action[:group]) %>
-                to
-                <%= creator_intentions(action[:role]) %>
-                for
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif action[:type] == :change_devel %>
-              <b>
-                Set the devel project to
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
-                for
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif action[:type] == :maintenance_incident %>
-              <b>
-                Submit update from
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg], homeproject: @req['creator'] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-              <% if action[:releaseproject] %>
-                  <br/><i>
-          Release in
-          <%= action[:releaseproject] %>
-        </i>
-              <% end %>
-          <% elsif action[:type] == :maintenance_release %>
-              <b>
-                Release
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
+            <% if action[:type] == :maintenance_incident && action[:releaseproject] %>
+              <br/><i>Release in <%= action[:releaseproject] %></i>
+            <% end %>
           <% end %>
         </p>
 
