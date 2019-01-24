@@ -104,16 +104,6 @@ class Webui::RequestController < Webui::WebuiController
     @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
       projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
 
-    @request_before = nil
-    @request_after = nil
-
-    index = session[:request_numbers].try(:index, @bs_request.number)
-    if index
-      @request_before = session[:request_numbers][index - 1] if index > 0
-      # will be nil for after end
-      @request_after = session[:request_numbers][index + 1]
-    end
-
     @comments = @bs_request.comments
     @comment = Comment.new
 

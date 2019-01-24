@@ -8,9 +8,6 @@ module Webui
         requests_query = BsRequest::DataTable::FindForProjectQuery.new(@project, parsed_params)
         @requests_data_table = BsRequest::DataTable::Table.new(requests_query, params[:draw])
 
-        # NOTE: This session is used by requests/show
-        session[:request_numbers] = requests_query.requests.map(&:number)
-
         respond_to do |format|
           if switch_to_webui2?
             format.json { render 'webui2/shared/bs_requests/index' }
