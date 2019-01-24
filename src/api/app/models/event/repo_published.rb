@@ -10,8 +10,8 @@ module Event
       # TODO: We should touch the repository instead of deleting the key
       # to invalidate the cache. However, repository currently does not have
       # an updated_at column so we can not use Rails' cache_key method.
-      project_name = payload[:project]
-      repository_name = payload[:repo]
+      project_name = payload['project']
+      repository_name = payload['repo']
       Rails.cache.delete("build_id-#{project_name}-#{repository_name}")
     end
   end
