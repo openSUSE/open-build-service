@@ -83,7 +83,7 @@
       <thead class="header">
         <tr>
           <th></th>
-          <% @repohash.sort.each do |repo,archlist|
+          <% @repoarray.each do |repo,archlist|
             next if archlist.empty? -%>
             <th colspan="<%= archlist.length %>"><span class="strong"><%= repo %></span></th>
           <% end -%>
@@ -91,7 +91,7 @@
         <!-- arch row -->
         <tr>
           <th></th>
-          <% @repohash.sort.each do |repo, archlist| -%>
+          <% @repoarray.each do |repo, archlist| -%>
             <% archlist.sort.each do |arch| -%>
               <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
             <% end -%>
@@ -106,7 +106,7 @@
               <%= link_to word_break(packname, 40), :controller => "package", :action => "show",
                 :package => packname, :project => @project.to_s %>
             </td>
-            <% @repohash.sort.each do |repo, archlist| -%>
+            <% @repoarray.each do |repo, archlist| -%>
               <% archlist.sort.each do |arch| -%>
                 <%= arch_repo_table_cell(repo, arch, packname, nil, false) %>
               <% end -%>

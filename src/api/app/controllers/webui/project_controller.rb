@@ -448,6 +448,8 @@ class Webui::ProjectController < Webui::WebuiController
         @repohash[repo].delete(arch) unless has_packages
       end
     end
+
+    @repoarray = @repohash.sort
     switch_to_webui2
   end
 
