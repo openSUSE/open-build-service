@@ -10,6 +10,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         - { id: #{declined_bs_request.number} }
     DESCRIPTION
   end
+  let(:maintainer) { create(:confirmed_user) }
   let(:factory) { create(:project, name: 'openSUSE:Factory') }
   let!(:factory_staging) { create(:project, name: 'openSUSE:Factory:Staging') }
 
@@ -25,6 +26,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
   end
 
   before do
+    login maintainer
     create(:project, name: 'openSUSE:Factory:Staging:A', description: description)
     create(:project, name: 'openSUSE:Factory:Staging:B', description: 'Factory staging project B')
     Rails.cache.clear
@@ -129,12 +131,24 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
     end
 
     context 'requesting json' do
-      subject { get :index, params: { project: factory }, format: :json }
-
-      it { is_expected.to have_http_status(:success) }
-      it 'responds with a json representation of the staging project' do
-        expect(JSON.parse(subject.body)).to eq(JSON.parse(staging_projects.to_json))
+      before do
+        declined_bs_request
       end
+
+      subject do
+        get :index, params: { project: factory }, format: :json
+        expect(response).to have_http_status(:success)
+        JSON.parse(response.body)
+      end
+
+      it 'responds with a json representation of the staging project' do
+        expect(subject).to eq(JSON.parse(staging_projects.to_json))
+      end
+
+      it 'returns array of A and B' do
+        expect(subject.size).to eq(2)
+      end
+      it { expect(subject[0]).to include('selected_requests' => [JSON.parse(declined_bs_request.to_json)]) }
     end
   end
 
@@ -158,6 +172,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
             'name' => 'openSUSE:Factory:Staging:A',
             'description' => description,
             'obsolete_requests' => [JSON.parse(declined_bs_request.to_json)],
+            'selected_requests' => [JSON.parse(declined_bs_request.to_json)],
             'overall_state' => 'unacceptable'
           )
         end
