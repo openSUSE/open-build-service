@@ -3,11 +3,10 @@ module Event
     self.message_bus_routing_key = 'repo.build_started'
     self.description = 'Repository (re)started building'
     payload_keys :project, :repo, :arch, :buildid
-    after_save :clear_cache
 
     private
 
-    def clear_cache
+    def clear_caches
       # TODO: We should touch the repository instead of deleting the key
       # to invalidate the cache. However, repository currently does not have
       # an updated_at column so we can not use Rails' cache_key method.
