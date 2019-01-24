@@ -741,15 +741,9 @@ class Webui::ProjectController < Webui::WebuiController
       @status_filter << s
     end
 
-    @avail_arch_values = []
-    @avail_repo_values = []
-
-    @project.repositories.each do |r|
-      @avail_repo_values << r.name
-      @avail_arch_values << r.architectures.pluck(:name)
-    end
-    @avail_arch_values = @avail_arch_values.flatten.uniq.sort!
-    @avail_repo_values = @avail_repo_values.flatten.uniq.sort!
+    repos = @project.repositories
+    @avail_repo_values = repos.select(:name).distinct.order(:name).pluck(:name)
+    @avail_arch_values = repos.joins(:architectures).select('architectures.name').distinct.order('architectures.name').pluck('architectures.name')
 
     @arch_filter = []
     @avail_arch_values.each do |s|
