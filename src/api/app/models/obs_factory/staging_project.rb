@@ -20,7 +20,7 @@ module ObsFactory
     # @return [Array] array of StagingProject objects
     def self.for(distribution, only_letter = true)
       wildcard = only_letter ? "_" : "%"
-      ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).
+      ::Project.where(["name like ?", "#{distribution.root_project_name}#{NAME_PREFIX}#{wildcard}"]).preload([{ repositories: :project }, :repository_architectures]).
         map { |project| ObsFactory::StagingProject.new(project: project, distribution: distribution) }
     end
 
@@ -89,7 +89,10 @@ module ObsFactory
     #
     # @return [ActiveRecord::Relation] Obsolete requests
     def obsolete_requests
-      selected_requests.obsolete
+      return @obsolete_requests unless @obsolete_requests.nil?
+      potential = selected_requests - open_requests.pluck(:number)
+      return BsRequest.none if potential.empty?
+      @obsolete_requests = BsRequest.where(number: potential).obsolete.includes(:bs_request_actions, :reviews)
     end
 
     # Packages included in the staging project that are not building properly.
@@ -119,14 +122,14 @@ module ObsFactory
     #
     # @return [Array] Array of Request objects
     def untracked_requests
-      open_requests - selected_requests
+      @untracked_requests ||= open_requests.reject { |req| req.number.in?(selected_requests) }
     end
 
     # Requests with open reviews
     #
     # @return [Array] Array of BsRequest objects
     def open_requests
-      @open_requests ||= BsRequest.with_open_reviews_for(by_project: name)
+      @open_requests ||= BsRequest.with_open_reviews_for(by_project: name).preload(:bs_request_actions)
     end
 
     # Requests selected in the project
@@ -147,9 +150,9 @@ module ObsFactory
     def missing_reviews
       if @missing_reviews.nil?
         @missing_reviews = []
-        attribs = [:by_group, :by_user, :by_project, :by_package]
+        attribs = [:by_group, :by_user, :by_package, :by_project]
 
-        (open_requests + selected_requests).uniq.each do |req|
+        (open_requests + obsolete_requests).each do |req|
           req.reviews.each do |rev|
             next if rev.state.to_s == 'accepted' || rev.by_project == name
             # FIXME: this loop (and the inner if) would not be needed
@@ -160,6 +163,7 @@ module ObsFactory
             attribs.each do |att|
               if who = rev.send(att)
                 @missing_reviews << { id: rev.id, request: req.number, state: rev.state.to_s, package: req.first_target_package, by: who }
+                break
               end
             end
           end
@@ -195,9 +199,9 @@ module ObsFactory
     end
 
     def check_state
-      if missing_checks.present? || checks.pending.exists?
+      if missing_checks.present? || checks.any?(&:pending?)
         :testing
-      elsif checks.failed.exists?
+      elsif checks.any?(&:failed?)
         :failed
       else
         :acceptable
@@ -280,8 +284,8 @@ module ObsFactory
     private
 
     def fetch_requests_from_meta
-      ids = meta["requests"].try(:map) { |i| i['id'] }
-      BsRequest.where(number: ids).includes(:reviews, :bs_request_actions)
+      return [] unless meta["requests"]
+      meta["requests"].map { |i| i['id'] }
     end
   end
 end

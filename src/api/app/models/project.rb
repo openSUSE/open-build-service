@@ -1612,6 +1612,7 @@ class Project < ApplicationRecord
   end
 
   def checks
+    return Status::Check.none if combined_status_reports.empty?
     Status::Check.where(status_report: combined_status_reports)
   end
 
@@ -1675,7 +1676,8 @@ class Project < ApplicationRecord
   end
 
   def status_reports(checkables)
-    checkables = checkables.where.not(required_checks: nil)
+    checkables = checkables.select { |checkable| checkable.required_checks.present? }
+    return [] if checkables.empty?
     status_reports = Status::Report.where(checkable: checkables)
     result = {}
     status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|

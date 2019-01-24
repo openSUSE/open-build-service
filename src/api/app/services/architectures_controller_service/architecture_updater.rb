@@ -1,21 +1,22 @@
 module ArchitecturesControllerService
   class ArchitectureUpdater
-    def initialize(archs)
-      @archs = archs
-      @all_valid = true
+    def initialize(params)
+      @archs = params.require(:archs).permit!
+      @all_valid = false
     end
 
     def call
-      @archs.each do |name, value|
+      @all_valid = @archs.to_h.map do |name, value|
         arch = Architecture.find_by(name: name)
         arch.available = value
-        @all_valid &&= arch.save
+        arch.save
       end
+
       self
     end
 
     def valid?
-      @all_valid
+      @all_valid.all?
     end
   end
 end
