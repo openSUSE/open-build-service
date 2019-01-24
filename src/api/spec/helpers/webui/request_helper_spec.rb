@@ -71,4 +71,39 @@ RSpec.describe Webui::RequestHelper do
       it { expect(calculate_filename(new_filename, file_element)).to eq("#{filename} -> #{new_filename}") }
     end
   end
+
+  context 'source diffs' do
+    let(:source_diff) do
+      {
+        'old' => {
+          'project' => 'home:Admin',
+          'package' => 'obs-server',
+          'rev' => 12
+        },
+        'new' => {
+          'project' => 'home:tux',
+          'package' => 'koji',
+          'rev' => 13
+        }
+      }
+    end
+
+    describe '#diff_label' do
+      it { expect(diff_label(source_diff['old'])).to eq('home:Admin / obs-server (rev 12)') }
+    end
+
+    describe '#diff_data' do
+      context "when it's a delete request" do
+        subject { diff_data(:delete, source_diff) }
+
+        it { is_expected.to match(project: 'home:Admin', package: 'obs-server', rev: 12) }
+      end
+
+      context "when it's not a delete request" do
+        subject { diff_data(:submit, source_diff) }
+
+        it { is_expected.to match(project: 'home:tux', package: 'koji', rev: 13) }
+      end
+    end
+  end
 end
