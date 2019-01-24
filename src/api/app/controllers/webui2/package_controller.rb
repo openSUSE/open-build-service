@@ -26,6 +26,9 @@ module Webui2::PackageController
     @repository = params[:repository]
     @package_name = params[:package]
 
-    @statistics = @package.statistics(@project.name, @repository, params[:arch]).results
+    @statistics = LocalBuildStatistic::ForPackage.new(package: @package_name,
+                                                      project: @project.name,
+                                                      repository: @repository,
+                                                      architecture: params[:arch]).results
   end
 end
