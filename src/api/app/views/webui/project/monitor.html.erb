@@ -92,7 +92,7 @@
         <tr>
           <th></th>
           <% @repoarray.each do |repo, archlist| -%>
-            <% archlist.sort.each do |arch| -%>
+            <% archlist.sort!.each do |arch| -%>
               <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
             <% end -%>
           <% end -%>
@@ -107,7 +107,7 @@
                 :package => packname, :project => @project.to_s %>
             </td>
             <% @repoarray.each do |repo, archlist| -%>
-              <% archlist.sort.each do |arch| -%>
+              <% archlist.each do |arch| -%>
                 <%= arch_repo_table_cell(repo, arch, packname, nil, false) %>
               <% end -%>
             <% end -%>
