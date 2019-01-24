@@ -728,7 +728,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')
@@ -737,7 +736,7 @@ class Webui::ProjectController < Webui::WebuiController
       else
         next unless defaults
       end
-      next if defaults && @filter_out.include?(s)
+      next if defaults && ['disabled', 'excluded', 'unknown'].include?(s)
       @status_filter << s
     end
 
@@ -747,14 +746,14 @@ class Webui::ProjectController < Webui::WebuiController
 
     @arch_filter = []
     @avail_arch_values.each do |s|
-      archid = valid_xml_id('arch_' + s)
-      @arch_filter << s if defaults || (params.key?(archid) && params[archid])
+      archid = valid_xml_id("arch_#{s}")
+      @arch_filter << s if defaults || params[archid]
     end
 
     @repo_filter = []
     @avail_repo_values.each do |s|
-      repoid = valid_xml_id('repo_' + s)
-      @repo_filter << s if defaults || (params.key?(repoid) && params[repoid])
+      repoid = valid_xml_id("repo_#{s}")
+      @repo_filter << s if defaults || params[repoid]
     end
   end
 
