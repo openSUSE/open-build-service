@@ -125,6 +125,9 @@ class Webui::RequestController < Webui::WebuiController
 
     @comments = @bs_request.comments
     @comment = Comment.new
+
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2 if Rails.env.development?
   end
 
   def sourcediff

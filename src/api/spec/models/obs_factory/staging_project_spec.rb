@@ -281,12 +281,12 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#selected_requests' do
     include_context 'a staging project with description'
-    let!(:bs_request_1) { create(:set_bugowner_request, number: 614_459) }
-    let!(:bs_request_2) { create(:set_bugowner_request, number: 614_471) }
+    let!(:bs_request_1) { create(:set_bugowner_request, number: 614_459, review_by_project: staging_h) }
+    let!(:bs_request_2) { create(:set_bugowner_request, number: 614_471, review_by_project: staging_h) }
 
     subject { ObsFactory::StagingProject.new(project: staging_h, distribution: factory_distribution) }
 
-    it { expect(subject.selected_requests).to contain_exactly(bs_request_1.number, bs_request_2.number) }
+    it { expect(subject.selected_requests).to contain_exactly(bs_request_1, bs_request_2) }
   end
 
   describe '#missing_reviews' do
@@ -383,14 +383,14 @@ RSpec.describe ObsFactory::StagingProject do
 
   describe '#overall_state' do
     before do
-      allow(staging_project_a).to receive(:selected_requests).and_return(['fake_content'])
+      allow(staging_project_a).to receive(:requests_in_meta).and_return(['fake_content'])
       allow(staging_project_a).to receive(:obsolete_requests).and_return([])
       allow(staging_project_a).to receive(:untracked_requests).and_return([])
     end
 
     context 'without selected_requests' do
       before do
-        allow(staging_project_a).to receive(:selected_requests).and_return([])
+        allow(staging_project_a).to receive(:requests_in_meta).and_return([])
       end
 
       it { expect(staging_project_a.overall_state).to eq(:empty) }
