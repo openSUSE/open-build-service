@@ -1,0 +1,47 @@
+%ul.list-unstyled
+  %li
+    %i.fas.fa-user.text-success
+    Created by
+    = user_with_realname_and_icon(request_creator, no_icon: true, short: true)
+    = fuzzy_time(request_created_at)
+  %li
+    %i.fas.fa-info-circle.text-info
+    In state
+    = link_to(request_state, { anchor: 'request_history' }, style: "color: #{request_state_color(request_state)};")
+  - unless package_maintainers.empty?
+    %li
+      %i.fas.fa-info-circle.text-info
+      = pluralize(package_maintainers.size, 'package maintainer')
+      (#{link_to('show who', '#', class: 'show_dialog', data: { toggle: 'modal', target: '#show-maintainers-modal' })})
+  - if superseding
+    %li
+      %i.fas.fa-plus-circle.text-primary
+      Supersedes
+      - superseding.each do |supersed|
+        = link_to supersed['number'], number: supersed['number']
+  - if superseded_by
+    %li
+      %i.fas.fa-exclamation-circle.text-info
+      Superseded by
+      = link_to(superseded_by, number: superseded_by)
+  - if accept_at
+    %li
+      %i.fas.fa-exclamation-circle.text-danger
+      - if BsRequest::FINAL_REQUEST_STATES.include?(request_state)
+        Auto-accept was set to
+        %span.fuzzy-time{ title: "#{l accept_at}" }
+        = l accept_at, format: :only_date
+        \.
+      - elsif accept_at.past?
+        This request will be automatically accepted when it enters the 'new' state.
+      - else
+        This request will be automatically accepted in #{time_ago_in_words(accept_at)}.
+  - other_open_reviews.each do |review|
+    %li
+      %i.fas.fa-info-circle.text-info
+      Open review for #{render partial: 'reviewer', locals: { review: review }}
+  - my_open_reviews.each do |review|
+    %li
+      %i.fas.fa-info-circle.text-info
+      Open review for
+      = render partial: 'reviewer', locals: { review: review }

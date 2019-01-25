@@ -19,14 +19,18 @@ class Webui::RequestController < Webui::WebuiController
   def add_reviewer
     begin
       opts = {}
+      # bento_only
+      # user, group, project, package are bento only
+      # and should be removed as soon the Bootstrap
+      # migration is finished
       case params[:review_type]
-      when 'user' then
+      when 'review-user', 'user'
         opts[:by_user] = params[:review_user]
-      when 'group' then
+      when 'review-group', 'group'
         opts[:by_group] = params[:review_group]
-      when 'project' then
+      when 'review-project', 'project'
         opts[:by_project] = params[:review_project]
-      when 'package' then
+      when 'review-package', 'package'
         opts[:by_project] = params[:review_project]
         opts[:by_package] = params[:review_package]
       end
