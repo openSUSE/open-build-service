@@ -23,7 +23,7 @@ module Event
     private
 
     def clear_caches
-      Rails.cache.delete("failed_results-#{payload[:project]}")
+      Rails.cache.delete("failed_results-#{payload['project']}")
     end
   end
 end
