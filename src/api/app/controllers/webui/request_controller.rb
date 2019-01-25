@@ -127,7 +127,7 @@ class Webui::RequestController < Webui::WebuiController
     @comment = Comment.new
 
     # TODO: Remove the statement after migration is finished
-    switch_to_webui2 if Rails.env.development?
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
   end
 
   def sourcediff

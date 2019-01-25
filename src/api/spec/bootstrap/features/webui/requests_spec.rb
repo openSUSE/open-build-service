@@ -15,6 +15,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         find(:id, 'role').select('Maintainer')
         fill_in('description', with: 'I can produce bugs too.')
 
+        skip_if_bootstrap
         expect { click_button 'Accept' }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
