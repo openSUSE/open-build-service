@@ -385,6 +385,7 @@ class Webui::PackageController < Webui::WebuiController
     @forced_unexpand ||= ''
 
     # check source access
+    @files = []
     return false unless @package.check_source_access?
 
     set_linkinfo
@@ -407,7 +408,6 @@ class Webui::PackageController < Webui::WebuiController
         @expand = 0
         return set_file_details
       end
-      @files = []
       return false
     end
 
