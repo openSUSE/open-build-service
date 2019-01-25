@@ -15,9 +15,9 @@
     .card
       .card-header.d-flex.justify-content-between
         %h5
-          Comments
-      .card-body
-        -# Commments partial
+          Comments for request #{@number} (#{@comments.size})
+      .card-body#comments
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @bs_request }
   .col-md-4
     .card
       .card-header.d-flex.justify-content-between
