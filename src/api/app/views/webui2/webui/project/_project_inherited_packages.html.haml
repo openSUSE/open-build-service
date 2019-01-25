@@ -10,6 +10,6 @@
           - inherited_packages.each do |package|
             %tr
               %td
-                = link_to(package.first, package_show_path(package: package.first, project: package.second))
+                = link_to(package.first, package_show_path(package: package.first, project: project))
               %td
                 = package.second

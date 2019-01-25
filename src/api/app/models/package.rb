@@ -1451,10 +1451,6 @@ class Package < ApplicationRecord
     PackageBuildReason.new(data)
   end
 
-  def statistics(project_name, repository_name, architecture_name)
-    LocalBuildStatistic::ForPackage.new(package: self, project: project_name, repository: repository_name, architecture: architecture_name)
-  end
-
   private
 
   def _add_channel(mode, channel_binary, message)

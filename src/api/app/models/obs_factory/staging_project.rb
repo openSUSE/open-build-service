@@ -90,7 +90,7 @@ module ObsFactory
     # @return [ActiveRecord::Relation] Obsolete requests
     def obsolete_requests
       return @obsolete_requests unless @obsolete_requests.nil?
-      potential = selected_requests - open_requests.pluck(:number)
+      potential = requests_in_meta - open_requests.pluck(:number)
       return BsRequest.none if potential.empty?
       @obsolete_requests = BsRequest.where(number: potential).obsolete.includes(:bs_request_actions, :reviews)
     end
@@ -122,7 +122,7 @@ module ObsFactory
     #
     # @return [Array] Array of Request objects
     def untracked_requests
-      @untracked_requests ||= open_requests.reject { |req| req.number.in?(selected_requests) }
+      @untracked_requests ||= open_requests.reject { |req| req.number.in?(requests_in_meta) }
     end
 
     # Requests with open reviews
@@ -132,11 +132,18 @@ module ObsFactory
       @open_requests ||= BsRequest.with_open_reviews_for(by_project: name).preload(:bs_request_actions)
     end
 
-    # Requests selected in the project
+    # Requests selected in the project. This is used in the JSON output
     #
-    # @return ActiveRecord::Relation of BsRequest objects
+    # @return [Array] Array of BsRequest objects
     def selected_requests
-      @selected_requests ||= fetch_requests_from_meta
+      open_requests + obsolete_requests
+    end
+
+    # Requests stored in meta yml
+    #
+    # @return [Array] Array of BsRequest numbers
+    def requests_in_meta
+      @requests_in_meta ||= fetch_requests_from_meta
     end
 
     # Reviews that need to be accepted in order to be able to accept the
@@ -213,7 +220,7 @@ module ObsFactory
       return @state unless @state.nil?
       @state = :empty
 
-      if selected_requests.empty?
+      if requests_in_meta.empty?
         return @state
       end
 
