@@ -38,8 +38,13 @@
   color: $red;
 }
 
-.build-state-disabled, .build-state-blocked {
+.build-state-disabled {
   @extend .text-black-50;
+}
+.build-state-blocked {
+  @extend .text-white;
+  @extend .bg-secondary;
+  @extend .px-1;
 }
 
 .build-state-scheduled-warning, .build-state-unknown {

@@ -600,6 +600,18 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(assigns(:more_info)).to include('service daemon error:') }
     end
 
+    context 'with a package without sourceaccess' do
+      before do
+        create(:sourceaccess_flag, project: user.home_project)
+        get :show, params: { project: user.home_project, package: source_package.name }
+      end
+
+      it 'assigns @files' do
+        expect(assigns(:files)).to eq([])
+      end
+      it { expect(response).to have_http_status(:success) }
+    end
+
     context 'revision handling' do
       let(:package_with_revisions) do
         create(:package_with_revisions, name: 'rev_package', revision_count: 3, project: user.home_project)
