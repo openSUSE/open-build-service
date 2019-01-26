@@ -7,8 +7,8 @@
     %h3.mb-3 Add Repositories to #{@project}
     - @distributions.each do |vendor, list|
       %h6.pt-3
-        - if resolve_asset_path("icons/distributions-#{vendor.downcase}")
-          = image_tag("icons/distributions-#{vendor.downcase}")
+        - if resolve_asset_path("icons/distributions-#{vendor.downcase}.png")
+          = image_tag("icons/distributions-#{vendor.downcase}.png")
         #{vendor} distributions
       .form-group.pl-3
         - list.each do |distribution|

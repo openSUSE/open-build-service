@@ -9,6 +9,10 @@ RSpec.feature 'Requests', type: :feature, js: true do
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
+  before do
+    skip_if_bootstrap
+  end
+
   RSpec.shared_examples 'expandable element' do
     scenario 'expanding a text field' do
       invalid_word_count = valid_word_count + 1
