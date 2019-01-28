@@ -744,7 +744,7 @@ class Webui::ProjectController < Webui::WebuiController
     @avail_arch_values = []
     @avail_repo_values = []
 
-    @project.api_obj.repositories.each do |r|
+    @project.repositories.each do |r|
       @avail_repo_values << r.name
       @avail_arch_values << r.architectures.pluck(:name)
     end

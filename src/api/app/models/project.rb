@@ -1587,10 +1587,6 @@ class Project < ApplicationRecord
     DownloadRepository.where(repository_id: repositories.select(:id)).exists?
   end
 
-  def api_obj
-    self
-  end
-
   def to_s
     name
   end
