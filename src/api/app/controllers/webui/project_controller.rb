@@ -2,7 +2,6 @@ class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::RequestHelper
   include Webui::ProjectHelper
-  include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include Webui2::ProjectController
 
@@ -635,6 +634,54 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   private
+
+  def fill_status_cache
+    @repohash = {}
+    @statushash = {}
+    @packagenames = []
+    @repostatushash = {}
+    @repostatusdetailshash = {}
+    @failures = 0
+
+    @buildresult.elements('result') do |result|
+      @resultvalue = result
+      repo = result['repository']
+      arch = result['arch']
+
+      next unless @repo_filter.nil? || @repo_filter.include?(repo)
+      next unless @arch_filter.nil? || @arch_filter.include?(arch)
+
+      @repohash[repo] ||= []
+      @repohash[repo] << arch
+
+      # package status cache
+      @statushash[repo] ||= {}
+      stathash = @statushash[repo][arch] = {}
+
+      result.elements('status') do |status|
+        stathash[status['package']] = status
+        if status['code'].in?(['unresolvable', 'failed', 'broken'])
+          @failures += 1
+        end
+      end
+      @packagenames << stathash.keys
+
+      # repository status cache
+      @repostatushash[repo] ||= {}
+      @repostatusdetailshash[repo] ||= {}
+
+      if result.key?('state')
+        if result.key?('dirty')
+          @repostatushash[repo][arch] = 'outdated_' + result['state']
+        else
+          @repostatushash[repo][arch] = result['state']
+        end
+        if result.key?('details')
+          @repostatusdetailshash[repo][arch] = result['details']
+        end
+      end
+    end
+  end
 
   def set_project_by_id
     @project = Project.find(params[:id])
