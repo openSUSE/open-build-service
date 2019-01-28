@@ -51,7 +51,10 @@ class Webui::ProjectController < Webui::WebuiController
       render :list_simple, status: params[:nextstatus]
     else
       switch_to_webui2
-      render :list, status: params[:nextstatus]
+      respond_to do |format|
+        format.html { render :list, status: params[:nextstatus] }
+        format.json { render json: ProjectDatatable.new(params) }
+      end
     end
   end
 
