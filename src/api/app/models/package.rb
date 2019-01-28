@@ -7,6 +7,7 @@ require_dependency 'authenticator'
 
 class Package < ApplicationRecord
   include FlagHelper
+  include Flag::Validations
   include CanRenderModel
   include HasRelationships
   include Package::Errors
