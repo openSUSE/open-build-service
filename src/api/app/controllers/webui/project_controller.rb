@@ -450,37 +450,6 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
-  # should be in the package controller, but all the helper functions to render the result of a build are in the project
-  def package_buildresult
-    check_ajax
-    begin
-      @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
-    rescue Backend::Error # wild work around for backend bug (sends 400 for 'not found')
-    end
-    @repohash = {}
-    @statushash = {}
-
-    if @buildresult
-      @buildresult.elements('result') do |result|
-        repo = result['repository']
-        arch = result['arch']
-
-        @repohash[repo] ||= []
-        @repohash[repo] << arch
-
-        # package status cache
-        @statushash[repo] ||= {}
-        @statushash[repo][arch] = {}
-
-        stathash = @statushash[repo][arch]
-        result.elements('status') do |status|
-          stathash[status['package']] = status
-        end
-      end
-    end
-    render layout: false
-  end
-
   def toggle_watch
     if User.current.watches?(@project.name)
       logger.debug "Remove #{@project} from watchlist for #{User.current}"
