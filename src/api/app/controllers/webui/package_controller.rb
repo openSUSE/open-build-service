@@ -65,7 +65,7 @@ class Webui::PackageController < Webui::WebuiController
     @srcmd5 = params[:srcmd5]
     @revision_parameter = params[:rev]
 
-    @bugowners_mail = (@package.bugowner_emails + @project.api_obj.bugowner_emails).uniq
+    @bugowners_mail = (@package.bugowner_emails + @project.bugowner_emails).uniq
     @revision = params[:rev]
     @failures = 0
 
@@ -540,7 +540,6 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
-    @project = @project.api_obj
     unless User.current.can_create_package_in?(@project)
       flash[:error] = "You can't create packages in #{@project.name}"
       redirect_to controller: :project, action: :new_package, project: @project
