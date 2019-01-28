@@ -2,7 +2,6 @@ class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::RequestHelper
   include Webui::ProjectHelper
-  include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include Webui2::ProjectController
 
@@ -453,37 +452,6 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
-  # should be in the package controller, but all the helper functions to render the result of a build are in the project
-  def package_buildresult
-    check_ajax
-    begin
-      @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
-    rescue Backend::Error # wild work around for backend bug (sends 400 for 'not found')
-    end
-    @repohash = {}
-    @statushash = {}
-
-    if @buildresult
-      @buildresult.elements('result') do |result|
-        repo = result['repository']
-        arch = result['arch']
-
-        @repohash[repo] ||= []
-        @repohash[repo] << arch
-
-        # package status cache
-        @statushash[repo] ||= {}
-        @statushash[repo][arch] = {}
-
-        stathash = @statushash[repo][arch]
-        result.elements('status') do |status|
-          stathash[status['package']] = status
-        end
-      end
-    end
-    render layout: false
-  end
-
   def toggle_watch
     if User.current.watches?(@project.name)
       logger.debug "Remove #{@project} from watchlist for #{User.current}"
@@ -637,6 +605,54 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   private
+
+  def fill_status_cache
+    @repohash = {}
+    @statushash = {}
+    @packagenames = []
+    @repostatushash = {}
+    @repostatusdetailshash = {}
+    @failures = 0
+
+    @buildresult.elements('result') do |result|
+      @resultvalue = result
+      repo = result['repository']
+      arch = result['arch']
+
+      next unless @repo_filter.nil? || @repo_filter.include?(repo)
+      next unless @arch_filter.nil? || @arch_filter.include?(arch)
+
+      @repohash[repo] ||= []
+      @repohash[repo] << arch
+
+      # package status cache
+      @statushash[repo] ||= {}
+      stathash = @statushash[repo][arch] = {}
+
+      result.elements('status') do |status|
+        stathash[status['package']] = status
+        if status['code'].in?(['unresolvable', 'failed', 'broken'])
+          @failures += 1
+        end
+      end
+      @packagenames << stathash.keys
+
+      # repository status cache
+      @repostatushash[repo] ||= {}
+      @repostatusdetailshash[repo] ||= {}
+
+      if result.key?('state')
+        if result.key?('dirty')
+          @repostatushash[repo][arch] = 'outdated_' + result['state']
+        else
+          @repostatushash[repo][arch] = result['state']
+        end
+        if result.key?('details')
+          @repostatusdetailshash[repo][arch] = result['details']
+        end
+      end
+    end
+  end
 
   def set_project_by_id
     @project = Project.find(params[:id])
