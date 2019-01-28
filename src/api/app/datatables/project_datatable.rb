@@ -6,6 +6,9 @@ class ProjectDatatable < AjaxDatatablesRails::ActiveRecord
     @view_columns ||= {
       # id: { source: "User.id", cond: :eq },
       # name: { source: "User.name", cond: :like }
+      name: { source: "Project.name", cond: :like },
+      title: { source: "Project.title", cond: :like },
+      description: { source: "Project.description", cond: :like }
     }
   end
 
@@ -15,6 +18,9 @@ class ProjectDatatable < AjaxDatatablesRails::ActiveRecord
         # example:
         # id: record.id,
         # name: record.name
+        name: record.name,
+        title: record.title,
+        description: record.description
       }
     end
   end
@@ -22,6 +28,7 @@ class ProjectDatatable < AjaxDatatablesRails::ActiveRecord
   def get_raw_records
     # insert query here
     # User.all
+    Project.all
   end
 
 end
