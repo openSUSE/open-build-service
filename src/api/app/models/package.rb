@@ -1370,10 +1370,6 @@ class Package < ApplicationRecord
     "#{project.name}_#{name}".tr(':', '_')
   end
 
-  def api_obj
-    self
-  end
-
   #### WARNING: these operations run in build object, not this package object
   def rebuild(params)
     backend_build_command(:rebuild, params[:project], params.slice(:package, :arch, :repository))
