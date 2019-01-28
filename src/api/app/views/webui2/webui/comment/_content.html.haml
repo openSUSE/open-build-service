@@ -18,8 +18,9 @@
   - comment.children.each do |children|
     = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
 
-:javascript
-  $('#comments img').one('error', function(){
-    $(this).after('<i class="fas fa-user-circle fa-2x ' + $(this).attr('class') + '"></i>');
-    $(this).remove();
-  });
+- unique_ready_function_entry(:comment_img_error) do
+  :plain
+    $('#comments img').one('error', function() {
+      $(this).after('<i class="fas fa-user-circle fa-2x ' + $(this).attr('class') + '"></i>');
+      $(this).remove();
+    });
