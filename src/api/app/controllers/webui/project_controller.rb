@@ -448,6 +448,8 @@ class Webui::ProjectController < Webui::WebuiController
         @repohash[repo].delete(arch) unless has_packages
       end
     end
+
+    @repoarray = @repohash.sort
     switch_to_webui2
   end
 
@@ -728,7 +730,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')
@@ -737,30 +738,24 @@ class Webui::ProjectController < Webui::WebuiController
       else
         next unless defaults
       end
-      next if defaults && @filter_out.include?(s)
+      next if defaults && ['disabled', 'excluded', 'unknown'].include?(s)
       @status_filter << s
     end
 
-    @avail_arch_values = []
-    @avail_repo_values = []
-
-    @project.repositories.each do |r|
-      @avail_repo_values << r.name
-      @avail_arch_values << r.architectures.pluck(:name)
-    end
-    @avail_arch_values = @avail_arch_values.flatten.uniq.sort!
-    @avail_repo_values = @avail_repo_values.flatten.uniq.sort!
+    repos = @project.repositories
+    @avail_repo_values = repos.select(:name).distinct.order(:name).pluck(:name)
+    @avail_arch_values = repos.joins(:architectures).select('architectures.name').distinct.order('architectures.name').pluck('architectures.name')
 
     @arch_filter = []
     @avail_arch_values.each do |s|
-      archid = valid_xml_id('arch_' + s)
-      @arch_filter << s if defaults || (params.key?(archid) && params[archid])
+      archid = valid_xml_id("arch_#{s}")
+      @arch_filter << s if defaults || params[archid]
     end
 
     @repo_filter = []
     @avail_repo_values.each do |s|
-      repoid = valid_xml_id('repo_' + s)
-      @repo_filter << s if defaults || (params.key?(repoid) && params[repoid])
+      repoid = valid_xml_id("repo_#{s}")
+      @repo_filter << s if defaults || params[repoid]
     end
   end
 

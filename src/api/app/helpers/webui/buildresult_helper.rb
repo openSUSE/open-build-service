@@ -43,7 +43,7 @@ module Webui::BuildresultHelper
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
     end
 
-    capture_haml do
+    capture do
       if enable_help && status['code']
         concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
                                     data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
