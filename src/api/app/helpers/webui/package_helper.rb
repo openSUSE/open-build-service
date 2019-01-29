@@ -84,19 +84,6 @@ module Webui::PackageHelper
     ::Cloud::UploadJob.new(filename: filename, arch: architecture).uploadable?
   end
 
-  def badge_for_diff_state(state)
-    case state
-    when 'added'
-      'badge-success'
-    when 'deleted'
-      'badge-danger'
-    when 'changed'
-      'badge-warning'
-    else
-      'badge-primary'
-    end
-  end
-
   def expand_diff?(filename, state)
     state != 'deleted' &&
       !filename.include?('/') &&

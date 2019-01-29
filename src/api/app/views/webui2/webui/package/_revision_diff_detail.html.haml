@@ -13,7 +13,7 @@
       %summary.card-header
         .diff-card-header
           = calculate_filename(filename, file)
-          %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+          %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
       %div
         = render partial: 'shared/editor', locals: { text: diff_content, mode: 'diff', style: { read_only: true } }
   - else
@@ -21,4 +21,4 @@
       .card-header
         .div.w-75
           = calculate_filename(filename, file)
-          %span.badge{ class: badge_for_diff_state(file['state']) }= file['state'].capitalize
+          %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
