@@ -86,7 +86,7 @@ class Repository < ApplicationRecord
           pe.save
         end
       end
-      lrep.project.store(lowprio: true)
+      lrep.project.store(lowprio: true) unless marked_for_destruction?
     end
     # target repos
     logger.debug "remove target repositories from repository #{project.name}/#{name}"
@@ -103,7 +103,7 @@ class Repository < ApplicationRecord
           rt.target_repository = Repository.deleted_instance
           rt.save
         end
-        repo.project.store(lowprio: true)
+        repo.project.store(lowprio: true) unless marked_for_destruction?
       end
     end
   end
@@ -150,6 +150,7 @@ class Repository < ApplicationRecord
   # or empty list
   def linking_repositories
     return [] if links.size.zero?
+    # FIXME: This is the same as using a `has_many through:` association
     links.map(&:repository)
   end
 
@@ -164,6 +165,7 @@ class Repository < ApplicationRecord
 
   def linking_target_repositories
     return [] if targetlinks.size.zero?
+    # FIXME: This is the same as using a `has_many through:` association
     targetlinks.map(&:target_repository)
   end
 

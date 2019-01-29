@@ -214,6 +214,8 @@ class Project < ApplicationRecord
 
     revoke_requests # Revoke all requests that have this project as source/target
     cleanup_packages # Deletes packages (only in DB)
+
+    repositories.each(&:mark_for_destruction)
   end
   private :cleanup_before_destroy
 
@@ -332,31 +334,31 @@ class Project < ApplicationRecord
 
   def cleanup_linking_repos
     # replace links to this project repositories with links to the "deleted" repository
-    find_repos(:linking_repositories) do |link_rep|
-      link_rep.path_elements.includes(:link).each do |pe|
-        next unless Repository.find(pe.repository_id).db_project_id == id
-        if link_rep.path_elements.find_by_repository_id(Repository.deleted_instance)
+    find_repos(:linking_repositories) do |linking_repository|
+      linking_repository.path_elements.includes(:link).each do |path_element|
+        next unless path_element.link.db_project_id == id && !(path_element.repository.db_project_id == id)
+        if linking_repository.path_elements.find_by_repository_id(Repository.deleted_instance)
           # repository has already a path to deleted repo
-          pe.destroy
+          path_element.destroy
         else
-          pe.link = Repository.deleted_instance
-          pe.save
+          path_element.link = Repository.deleted_instance
+          path_element.save
         end
         # update backend
-        link_rep.project.write_to_backend
+        linking_repository.project.write_to_backend
       end
     end
   end
 
   def cleanup_linking_targets
     # replace links to this projects with links to the "deleted" project
-    find_repos(:linking_target_repositories) do |link_rep|
-      link_rep.release_targets.includes(:target_repository).each do |rt|
-        next unless Repository.find(rt.repository_id).db_project_id == id
-        rt.target_repository = Repository.deleted_instance
-        rt.save
+    find_repos(:linking_target_repositories) do |linking_target_repository|
+      linking_target_repository.release_targets.includes(:target_repository, :link).each do |release_target|
+        next unless release_target.link.db_project_id == id
+        release_target.target_repository = Repository.deleted_instance
+        release_target.save
         # update backend
-        link_rep.project.write_to_backend
+        linking_target_repository.project.write_to_backend
       end
     end
   end

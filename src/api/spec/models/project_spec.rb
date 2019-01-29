@@ -429,7 +429,7 @@ RSpec.describe Project, vcr: true do
     end
 
     before do
-      login admin_user
+      login(admin_user)
     end
 
     it 'sets the user that restored the project in the history element' do
@@ -441,13 +441,20 @@ RSpec.describe Project, vcr: true do
       expect(meta.elements('revision').last['user']).to eq(admin_user.login)
     end
 
-    it 'project meta gets properly updated' do
-      reset_project_in_backend
-      old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).content
-      deleted_project.destroy!
+    context 'with linked repositories' do
+      let(:repository_1) { create(:repository, name: 'Tumbleweed', architectures: ['i586', 'x86_64'], project: deleted_project) }
+      let(:repository_2) { create(:repository, name: 'RepoWithLink', architectures: ['i586', 'x86_64'], project: deleted_project) }
+      let!(:path_elements) { create(:path_element, repository: repository_2, link: repository_1) }
 
-      restored_project = Project.restore(deleted_project.name)
-      expect(restored_project.meta.content).to eq(old_project_meta_xml)
+      it 'project meta is properly restored' do
+        reset_project_in_backend
+        deleted_project.write_to_backend
+        old_project_meta_xml = ProjectMetaFile.new(project_name: deleted_project.name).content
+        deleted_project.destroy!
+
+        restored_project = Project.restore(deleted_project.name, user: admin_user.login)
+        expect(restored_project.meta.content).to eq(old_project_meta_xml)
+      end
     end
 
     context 'on a project with packages' do
@@ -461,7 +468,7 @@ RSpec.describe Project, vcr: true do
         deleted_project.destroy!
       end
 
-      subject { Project.restore('project_used_for_restoration') }
+      subject { Project.restore('project_used_for_restoration', user: admin_user.login) }
 
       it 'creates package records in the database' do
         expect(subject.packages.size).to eq(2)
