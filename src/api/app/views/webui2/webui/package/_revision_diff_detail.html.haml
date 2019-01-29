@@ -1,9 +1,7 @@
 .position-relative
   = render partial: 'webui2/webui/package/revision_diff_detail_buttons',
-  locals: { project: project,
-    package: package,
+  locals: { file_view_path: file_view_path,
     filename: filename,
-    revision: revision,
     index: index,
     last: last,
     state: file['state'],

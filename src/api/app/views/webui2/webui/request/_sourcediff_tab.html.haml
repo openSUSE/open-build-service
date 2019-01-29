@@ -18,17 +18,18 @@
           %h4
             #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
         - files = sourcediff['files']
-        - diff = diff_data(action[:type], sourcediff)
+        - diff_params = diff_data(action[:type], sourcediff)
         - if sourcediff['filenames'].present?
           - sourcediff['filenames'].each_with_index do |filename, file_index|
+            - diff_params[:filename] = filename
+            -# Deleted files can not be linked. We have to hide them.
+            - file_view_path = package_view_file_path(diff_params) unless files[filename]['state'] == 'deleted'
             .mb-2
               = render partial: 'webui2/webui/package/revision_diff_detail',
-                locals: { project: diff[:project],
-                package: diff[:package],
+                locals: { file_view_path: file_view_path,
                 filename: filename,
                 file: files[filename],
                 diff_content: files[filename].dig('diff', '_content'),
-                revision: diff[:rev],
                 index: file_index,
                 last: sourcediff['filenames'].last == filename }
         - else
