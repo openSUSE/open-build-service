@@ -20,7 +20,7 @@
             %tr
               %th
               - @repoarray.each do |repo, archlist|
-                - archlist.sort!.each do |arch|
+                - archlist.each do |arch|
                   %th.text-center
                     = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
                     = arch

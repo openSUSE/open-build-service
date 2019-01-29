@@ -387,68 +387,20 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    @legend = Buildresult::STATUS_DESCRIPTION
-
-    @name_filter = params[:pkgname]
-    @lastbuild_switch = params[:lastbuild]
-    if params[:defaults]
-      defaults = (begin
-                    Integer(params[:defaults])
-                  rescue ArgumentError
-                    1
-                  end) > 0
-    else
-      defaults = true
-    end
-    params['expansionerror'] = 1 if params['unresolvable']
-    monitor_set_filter(defaults)
-
-    find_opt = { project: @project, view: 'status', code: @status_filter,
-                 arch: @arch_filter, repository: @repo_filter }
-    find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
-
-    @buildresult = Buildresult.find_hashed(find_opt)
-    if @buildresult.empty?
-      flash[:warning] = "No build results for project '#{@project}'"
-      redirect_to action: :show, project: params[:project]
-      return
-    end
-
-    unless @buildresult.key?('result')
+    unless (buildresult = monitor_buildresult)
       @buildresult_unavailable = true
       return
     end
 
-    fill_status_cache
+    monitor_parse_buildresult(buildresult)
 
-    @localpackages = {}
-    @project.packages.each do |package|
-      @localpackages[package.name] = 1
+    # extract repos
+    repohash = {}
+    @statushash.each do |repo, arch_hash|
+      repohash[repo] = arch_hash.keys.sort!
     end
+    @repoarray = repohash.sort
 
-    @packagenames = @packagenames.flatten.uniq.sort!
-
-    ## Filter for PackageNames ####
-    @packagenames.select! { |name| filter_matches?(name, @name_filter) } if @name_filter.present?
-
-    packagename_hash = {}
-    @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
-
-    # filter out repos without current packages
-    @statushash.each do |repo, hash|
-      hash.each do |arch, packages|
-        has_packages = false
-        packages.each do |p, _|
-          if packagename_hash.key?(p)
-            has_packages = true
-            break
-          end
-        end
-        @repohash[repo].delete(arch) unless has_packages
-      end
-    end
-
-    @repoarray = @repohash.sort
     switch_to_webui2
   end
 
@@ -606,52 +558,86 @@ class Webui::ProjectController < Webui::WebuiController
 
   private
 
-  def fill_status_cache
-    @repohash = {}
+  def monitor_buildresult
+    @legend = Buildresult::STATUS_DESCRIPTION
+
+    @name_filter = params[:pkgname]
+    @lastbuild_switch = params[:lastbuild]
+    if params[:defaults]
+      defaults = (begin
+                    Integer(params[:defaults])
+                  rescue ArgumentError
+                    1
+                  end) > 0
+    else
+      defaults = true
+    end
+    params['expansionerror'] = 1 if params['unresolvable']
+    monitor_set_filter(defaults)
+
+    find_opt = { project: @project, view: 'status', code: @status_filter,
+                 arch: @arch_filter, repository: @repo_filter }
+    find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
+
+    buildresult = Buildresult.find_hashed(find_opt)
+    if buildresult.empty?
+      flash[:warning] = "No build results for project '#{@project}'"
+      redirect_to action: :show, project: params[:project]
+      return
+    end
+
+    return unless buildresult.key?('result')
+    buildresult
+  end
+
+  def monitor_parse_buildresult(buildresult)
+    @packagenames = Set.new
     @statushash = {}
-    @packagenames = []
     @repostatushash = {}
     @repostatusdetailshash = {}
     @failures = 0
 
-    @buildresult.elements('result') do |result|
-      @resultvalue = result
-      repo = result['repository']
-      arch = result['arch']
+    buildresult.elements('result') do |result|
+      monitor_parse_result(result)
+    end
 
-      next unless @repo_filter.nil? || @repo_filter.include?(repo)
-      next unless @arch_filter.nil? || @arch_filter.include?(arch)
+    # convert to sorted array
+    @packagenames = @packagenames.to_a.sort!
+  end
 
-      @repohash[repo] ||= []
-      @repohash[repo] << arch
+  def monitor_parse_result(result)
+    repo = result['repository']
+    arch = result['arch']
 
-      # package status cache
-      @statushash[repo] ||= {}
-      stathash = @statushash[repo][arch] = {}
+    return unless @repo_filter.nil? || @repo_filter.include?(repo)
+    return unless @arch_filter.nil? || @arch_filter.include?(arch)
 
-      result.elements('status') do |status|
-        stathash[status['package']] = status
-        if status['code'].in?(['unresolvable', 'failed', 'broken'])
-          @failures += 1
-        end
-      end
-      @packagenames << stathash.keys
+    # package status cache
+    @statushash[repo] ||= {}
+    stathash = @statushash[repo][arch] = {}
 
-      # repository status cache
-      @repostatushash[repo] ||= {}
-      @repostatusdetailshash[repo] ||= {}
-
-      if result.key?('state')
-        if result.key?('dirty')
-          @repostatushash[repo][arch] = 'outdated_' + result['state']
-        else
-          @repostatushash[repo][arch] = result['state']
-        end
-        if result.key?('details')
-          @repostatusdetailshash[repo][arch] = result['details']
-        end
+    result.elements('status') do |status|
+      package = status['package']
+      next if @name_filter.present? && !filter_matches?(package, @name_filter)
+      stathash[package] = status
+      @packagenames.add(package)
+      if status['code'].in?(['unresolvable', 'failed', 'broken'])
+        @failures += 1
       end
     end
+
+    # repository status cache
+    @repostatushash[repo] ||= {}
+    @repostatusdetailshash[repo] ||= {}
+
+    return unless result.key?('state')
+    if result.key?('dirty')
+      @repostatushash[repo][arch] = 'outdated_' + result['state']
+    else
+      @repostatushash[repo][arch] = result['state']
+    end
+
+    @repostatusdetailshash[repo][arch] = result['details'] if result.key?('details')
   end
 
   def set_project_by_id
