@@ -85,9 +85,7 @@ module Webui::PackageHelper
   end
 
   def expand_diff?(filename, state)
-    state != 'deleted' &&
-      !filename.include?('/') &&
-      (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes'))
+    state != 'deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
   def calculate_revision_on_state(revision, state)
