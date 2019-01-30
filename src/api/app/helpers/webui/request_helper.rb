@@ -139,4 +139,12 @@ module Webui::RequestHelper
   def diff_label(diff)
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
   end
+
+  def hidden_review_payload(review)
+    capture do
+      [:by_user, :by_group, :by_project, :by_package].each do |key|
+        concat(hidden_field_tag(key, review[key])) if review[key]
+      end
+    end
+  end
 end
