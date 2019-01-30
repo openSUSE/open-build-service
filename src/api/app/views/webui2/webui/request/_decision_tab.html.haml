@@ -1,0 +1,14 @@
+= form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
+  = hidden_field_tag(:number, request_number)
+  %p
+    = text_area_tag(:reason, nil, placeholder: 'Please add a comment', row: 4, class: 'w-100 form-control')
+  %hr
+  - if state.in?(['new', 'review'])
+    - confirmation = (state == 'review' ? { confirm: 'Do you really want to approve this request, despite of open review requests?' } : {})
+    = submit_tag 'Accept request', name: 'accepted', class: 'btn btn-primary', data: confirmation
+    - unless is_author
+      = submit_tag 'Decline request', name: 'declined', class: 'btn btn-danger'
+  - if is_author && state.in?(['new', 'review', 'declined'])
+    = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger'
+  - if state == 'declined'
+    = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning'
