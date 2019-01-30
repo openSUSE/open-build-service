@@ -4,3 +4,11 @@
 
   .comment_new
     = render partial: 'webui2/webui/comment/new', locals: { commentable: commentable }
+
+:javascript
+  $(document).ready(function() {
+    $('#comments img').one('error', function() {
+      $(this).after('<i class="fas fa-user-circle fa-2x ' + $(this).attr('class') + '"></i>');
+      $(this).remove();
+    });
+  });
