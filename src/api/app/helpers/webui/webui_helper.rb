@@ -418,14 +418,5 @@ module Webui::WebuiHelper
       'default_face.png'
     end
   end
-
-  def unique_ready_function_entry(label)
-    @unique_ready_function_entries ||= []
-    return if @unique_ready_function_entries.include?(label)
-    @unique_ready_function_entries << label
-    content_for(:ready_function) do
-      yield
-    end
-  end
 end
 # rubocop:enable Metrics/ModuleLength
