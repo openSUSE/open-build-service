@@ -22,4 +22,8 @@ function setupProjectMonitor() { // jshint ignore:line
   $('.monitor-no-filter-link').on('click', function () {
     $(this).siblings().children('input:checked').prop('checked', false);
   });
+
+  $('.dropdown-menu.keep-open').on('click', function (e) {
+    e.stopPropagation();
+  });
 }

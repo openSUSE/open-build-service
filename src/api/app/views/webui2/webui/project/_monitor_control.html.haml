@@ -7,7 +7,7 @@
         %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
           %span.caret
           Status
-        .dropdown-menu
+        .dropdown-menu.keep-open
           %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
           - status.each do |status|
             .custom-control.custom-checkbox.dropdown-item.ml-2
@@ -18,7 +18,7 @@
         %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
           %span.caret
           Architecture
-        .dropdown-menu
+        .dropdown-menu.keep-open
           %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
           - architectures.each do |architecture|
             .custom-control.custom-checkbox.dropdown-item.ml-2
@@ -29,7 +29,7 @@
         %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
           %span.caret
           Repository
-        .dropdown-menu
+        .dropdown-menu.keep-open
           %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
           - repositories.each do |repository|
             .custom-control.custom-checkbox.dropdown-item.ml-2
