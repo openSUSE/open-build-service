@@ -1,5 +1,5 @@
 .comments
-  - commentable.comments.without_parent.each do |comment|
+  - commentable.comments.without_parent.includes(:user, :children).each do |comment|
     = render partial: 'webui2/webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
   .comment_new
