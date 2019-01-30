@@ -255,7 +255,7 @@ Blubber bnc#15\n
          params: { cmd: 'branch', target_project: 'home:Iggy:branches:BaseDistro', target_package: 'pack_new' }
     assert_response :success
     changes += "-------------------------------------------------------------------\n
-Aha bnc#123456\n
+Aha bnc#123456 github#openSUSE/build#123\n
 "
     changes.gsub!(/Blubber/, 'Blabber') # leads to changed
     changes.gsub!(/bnc#14/, '') # leads to removed
@@ -273,6 +273,9 @@ Aha bnc#123456\n
     assert_xml_tag parent: { tag: 'issue', attributes: { change: 'deleted' } }, tag: 'name', content: '14'
     assert_xml_tag parent: { tag: 'issue', attributes: { change: 'changed' } }, tag: 'name', content: '15'
     assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: '123456'
+    # test github special case, needs the # -> /issues/ replacement
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'name', content: 'openSUSE/build#123'
+    assert_xml_tag parent: { tag: 'issue', attributes: { change: 'added' } }, tag: 'url', content: 'https://github.com/openSUSE/build/issues/123'
 
     # cleanup
     delete '/source/home:Iggy:branches:BaseDistro'

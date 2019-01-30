@@ -83,6 +83,7 @@ class Issue < ApplicationRecord
   end
 
   def url
+    return issue_tracker.show_url_for(label) if issue_tracker.kind == 'github'
     issue_tracker.show_url.gsub('@@@', name)
   end
 
