@@ -8,7 +8,8 @@
           %span.caret
           Status
         .dropdown-menu.keep-open
-          %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
+          %button.btn.btn-link.monitor-filter-link{ type: :button } All
+          %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
           - status.each do |status|
             .custom-control.custom-checkbox.dropdown-item.ml-2
               = check_box_tag valid_xml_id(status), 1, status_filter.include?(status), class: 'custom-control-input'
@@ -19,7 +20,8 @@
           %span.caret
           Architecture
         .dropdown-menu.keep-open
-          %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
+          %button.btn.btn-link.monitor-filter-link{ type: :button } All
+          %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
           - architectures.each do |architecture|
             .custom-control.custom-checkbox.dropdown-item.ml-2
               = check_box_tag valid_xml_id('arch_' + architecture), 1, architecture_filter.include?(architecture), class: 'custom-control-input'
@@ -30,7 +32,8 @@
           %span.caret
           Repository
         .dropdown-menu.keep-open
-          %button.btn.btn-link.monitor-no-filter-link{ type: :button } No filter
+          %button.btn.btn-link.monitor-filter-link{ type: :button } All
+          %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
           - repositories.each do |repository|
             .custom-control.custom-checkbox.dropdown-item.ml-2
               = check_box_tag valid_xml_id('repo_' + repository), 1, repository_filter.include?(repository), class: 'custom-control-input'
