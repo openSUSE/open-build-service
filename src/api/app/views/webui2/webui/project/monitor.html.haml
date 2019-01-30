@@ -33,5 +33,6 @@
                   - archlist.each do |arch|
                     %td.text-center
                       = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
-:javascript
+
+- content_for :ready_function do
   setupProjectMonitor();
