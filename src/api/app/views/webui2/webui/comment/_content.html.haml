@@ -5,7 +5,7 @@
     %p
       = link_to(comment.user, user_show_path(comment.user))
       wrote
-      %u{ title: l(comment.created_at.utc) }
+      = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
         #{time_ago_in_words(comment.created_at)} ago
     = render_as_markdown(comment)
     = render partial: 'webui2/webui/comment/links', locals: { comment: comment }
