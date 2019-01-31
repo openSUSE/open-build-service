@@ -386,7 +386,6 @@ sub upload_to_registry {
   push @opts, '-B', $blobdir if $blobdir;
   my @cmd = ("$INC[0]/bs_regpush", '--dest-creds', '-', @opts, '-F', $containerdigestfile, $registryserver, $repository, @uploadfiles);
   print "Uploading to registry: @cmd\n";
-  BSUtil::xsystem("$registry->{user}:$registry->{password}\n", @cmd);
   my $result = BSPublisher::Util::qsystem('echo', "$registry->{user}:$registry->{password}\n", 'stdout', '', @cmd);
   my $containerdigests = readstr($containerdigestfile, 1);
   unlink($containerdigestfile);
