@@ -3,7 +3,7 @@ function setupPopover() {
 }
 
 function setAllLinks(event) {
-  $(this).siblings().children('input').prop('checked', event.data.checked);
+  $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);
 }
 
 function setupProjectMonitor() { // jshint ignore:line
