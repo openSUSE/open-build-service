@@ -267,4 +267,10 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     it { expect(calculate_revision_on_state('0', 'deleted')).to eq(0) }
     it { expect(calculate_revision_on_state('1', 'added')).to eq(1) }
   end
+
+  describe '#viewable_file?' do
+    it { expect(viewable_file?('some/file')).to be(false) }
+    it { expect(viewable_file?('some_file.rb')).to be(true) }
+    it { expect(viewable_file?('some_file.bin')).to be(false) }
+  end
 end

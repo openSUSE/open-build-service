@@ -88,6 +88,10 @@ module Webui::PackageHelper
     state != 'deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
+  def viewable_file?(filename)
+    !Package.is_binary_file?(filename) && !filename.include?('/')
+  end
+
   def calculate_revision_on_state(revision, state)
     result = revision.to_i
     result -= 1 if state == 'deleted'

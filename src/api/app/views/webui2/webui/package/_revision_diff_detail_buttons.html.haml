@@ -7,7 +7,7 @@
   href: "#revision_details_#{index + 1}",
   title: 'Go down to the next diff' }
     %i.fas.fa-chevron-down
-  - if file_view_path && !@linkinfo && (has_content && !Package.is_binary_file?(filename) && !filename.include?('/'))
+  - if file_view_path && has_content && !@linkinfo && viewable_file?(filename)
     = link_to(file_view_path, class: 'btn btn-sm btn-outline-secondary', title: 'View the whole file') do
       %span.d-none.d-sm-none.d-md-block View file
       %i.far.fa-file.d-block.d-sm-block.d-md-none
