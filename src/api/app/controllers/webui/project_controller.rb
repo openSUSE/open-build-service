@@ -53,7 +53,7 @@ class Webui::ProjectController < Webui::WebuiController
       switch_to_webui2
       respond_to do |format|
         format.html { render :list, status: params[:nextstatus] }
-        format.json { render json: ProjectDatatable.new(params) }
+        format.json { render json: ProjectDatatable.new(params, view_context: view_context) }
       end
     end
   end
