@@ -525,32 +525,34 @@ sub signjob {
     }
 
     # we have changed the file ids, thus we need to re-create
-    # the .bininfo file
-    my $bininfo = {};
-    my $oldbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1) || {};
-    for my $file (@files) {
-      my @s = stat("$jobdir/$file");
-      my $id = "$s[9]/$s[7]/$s[1]";
-      next unless @s;
-      if ($file !~ /\.(?:rpm|deb)$/) {
-	$bininfo->{$file} = $oldbininfo->{$file} if $oldbininfo->{$file};
-	next;
+    # the entries in the .bininfo file
+    my $oldbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1);
+    if ($oldbininfo) {
+      my $bininfo = {};
+      for my $file (@files) {
+	my @s = stat("$jobdir/$file");
+	my $id = "$s[9]/$s[7]/$s[1]";
+	next unless @s;
+	if ($file !~ /\.(?:rpm|deb)$/) {
+	  $bininfo->{$file} = $oldbininfo->{$file} if $oldbininfo->{$file};
+	  next;
+	}
+	my $data = Build::query("$jobdir/$file", 'evra' => 1);
+	die("$jobdir/$file: query failed") unless $data;
+	eval {
+	  BSVerify::verify_nevraquery($data);
+	};
+	die("$jobdir/$file: $@") if $@;
+	my $leadsigmd5;
+	die("$jobdir/$file: queryhdrmd5 failed\n") unless Build::queryhdrmd5("$jobdir/$file", \$leadsigmd5);
+	$data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+	$data->{'filename'} = $file;
+	$data->{'id'} = $id;
+	$bininfo->{$file} = $data;
       }
-      my $data = Build::query("$jobdir/$file", 'evra' => 1);
-      die("$jobdir/$file: query failed") unless $data;
-      eval {
-        BSVerify::verify_nevraquery($data);
-      };
-      die("$jobdir/$file: $@") if $@;
-      my $leadsigmd5;
-      die("$jobdir/$file: queryhdrmd5 failed\n") unless Build::queryhdrmd5("$jobdir/$file", \$leadsigmd5);
-      $data->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-      $data->{'filename'} = $file;
-      $data->{'id'} = $id;
-      $bininfo->{$file} = $data;
+      $bininfo->{'.bininfo'} = {};	# mark new version
+      BSUtil::store("$jobdir/.bininfo", undef, $bininfo);
     }
-    $bininfo->{'.bininfo'} = {};	# mark new version
-    BSUtil::store("$jobdir/.bininfo", undef, $bininfo);
   }
   
   # write finished job status and release lock
