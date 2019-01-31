@@ -33,7 +33,6 @@
               locals: { file_view_path: package_view_file_path(project: @project, package: @package, rev: revision, filename: filename),
                 filename: filename,
                 file: @files[filename],
-                diff_content: @files[filename].dig('diff', '_content'),
                 index: index,
                 last: @filenames.last == filename }
         - else
