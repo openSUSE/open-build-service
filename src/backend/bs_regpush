@@ -77,8 +77,8 @@ sub blob_exists {
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
     'replyheaders' => \$replyheaders,
+    'maxredirects' => 1,
   };
-  $replyheaders = undef;
   eval { BSRPC::rpc($param) };
   if ($replyheaders) {
     die("size mismatch?\n") if $replyheaders->{'content-length'} && $size && $size != $replyheaders->{'content-length'};
@@ -203,7 +203,7 @@ sub manifest_append {
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
   my $str = "$maniid ".length($manifest)." $tag\n";
   if ($digestfile ne '-') {
-    BSUtil::appendstr($digestfile, "$maniid ".length($manifest)." $tag\n");
+    BSUtil::appendstr($digestfile, $str);
   } else {
     print $str;
   }
