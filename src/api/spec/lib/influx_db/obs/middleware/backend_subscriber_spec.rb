@@ -21,9 +21,8 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
 
     let(:result) do
       {
-        values: {
-          value: 2000
-        },
+        # :request might be nil. In that case we have to filter it out.
+        values: InfluxDB::Rails.current.values.reject { |_, v| v.nil? }.update(value: 2000),
         tags: {
           http_status_code: 200,
           http_method: 'GET',
