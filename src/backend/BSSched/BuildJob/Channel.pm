@@ -176,13 +176,20 @@ sub check {
 
       my $apdata = $pdatas->{$apackid} || {};
       my $lapackid = $apackid;		# release target package
+      my $flavor;
+      if ($lapackid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+	$lapackid =~ s/^(.*):(.*?)$/$1/;	# split off multibuild flavor
+	$flavor = $2;
+      }
       if ($apdata->{'releasename'}) {
         $lapackid = $apdata->{'releasename'};
       } elsif (($proj->{'kind'} || '') eq 'maintenance_incident') {
         $lapackid =~ s/\.[^\.]+$//;
       }
+      my $lapackid2 = $lapackid;		# compat...
+      $lapackid .= ":$flavor" if defined $flavor;
 
-      my @pf = @{$packagefilter{"$arepoid/$apackid"} || $packagefilter{"$arepoid/$lapackid"} || []};
+      my @pf = @{$packagefilter{"$arepoid/$apackid"} || $packagefilter{"$arepoid/$lapackid"} || $packagefilter{"$arepoid/$lapackid2"} || []};
 
       my @bins = sort keys %$bininfo;
       # put imports last
@@ -213,7 +220,7 @@ sub check {
         my $importedfrom;
         for my $f (@{$filter{"$arepoid/$n"}}) {
           next if $f->{'importedfrom'} && $filename !~ /^::import::\Q$f->{'importedfrom'}\E::/;
-          next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'};
+          next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'} && $lapackid2 ne $f->{'package'};
           next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
           $supportstatus = $f->{'supportstatus'};
           $found = 1;
