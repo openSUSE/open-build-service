@@ -204,3 +204,13 @@ function setupActionLink() { // jshint ignore:line
     return false;
   });
 }
+
+function collapseHistory(desc, link) { //jshint ignore:line
+  $(desc).toggleClass("collapsed-history uncollapsed-history");
+  $(link).toggleClass("collapsed-link uncollapsed-link");
+  if ( $(link).attr('title') === 'show more' ) {
+    $(link).attr('title', 'show less');
+  } else {
+    $(link).attr('title', 'show more');
+  }
+}

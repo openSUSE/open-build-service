@@ -1,0 +1,10 @@
+.media-body
+  - if text.present?
+    .media.mt-2
+      .media-body
+        .req-description-box
+          - if text.length > 100
+            = simple_format(text, class: 'collapsed-history', id: 'req-description')
+            = link_to('', '###', class: 'collapsed-link', id: 'show-full-req-description', title: 'show more')
+          - else
+            = simple_format(text)

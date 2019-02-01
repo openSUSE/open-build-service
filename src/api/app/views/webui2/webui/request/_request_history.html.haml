@@ -1,0 +1,34 @@
+%ul.list-unstyled
+  %li.media
+    - user = User.find_by_login(bs_request.creator)
+    = image_tag_for(user, size: 32, custom_class: 'mr-3', width: nil)
+    .media-body
+      = render partial: 'request_history_heading', locals: { creator: bs_request.creator,
+                                                             created_at: bs_request.created_at }
+      created request
+      = render partial: 'request_history_body', locals: { text: bs_request.description }
+
+  - history.each do |element|
+    %li.media.mt-3
+      = image_tag_for(element.user, size: 32, custom_class: 'mr-3', width: nil)
+      .media-body
+        = render partial: 'request_history_heading', locals: { creator: element.user.login,
+                                                             created_at: element.created_at }
+        - if element.class == HistoryElement::RequestSuperseded
+          = link_to(element.description, request_show_path(element.description_extension))
+        - else
+          #{element.description}
+        = render partial: 'request_history_body', locals: { text: element.comment }
+
+= content_for :ready_function do
+  :plain
+
+    $('.req-description-box').on('click', '#req-description', function() {
+      var link = $(this).siblings('#show-full-req-description');
+      collapseHistory(this, link);
+    });
+
+    $('.req-description-box').on('click', '#show-full-req-description', function() {
+      var desc = $(this).siblings('#req-description');
+      collapseHistory(desc, this);
+    });

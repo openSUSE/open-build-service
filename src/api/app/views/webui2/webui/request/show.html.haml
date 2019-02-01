@@ -36,4 +36,4 @@
         %h5
           Request History
       .card-body
-        -# History content
+        = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
