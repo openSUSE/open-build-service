@@ -16,10 +16,10 @@ RSpec.describe SourceAttributeController, vcr: true do
     before do
       login user
       main_attribute
+      additional_attribute
     end
 
     it 'returns both without filter' do
-      additional_attribute
       get :show, params: { project: project }
       resp = Xmlhash.parse(response.body).elements('attribute')
       expect(resp).to match_array([{ 'namespace' => main_attribute.namespace, 'name' => main_attribute.name },
@@ -27,10 +27,23 @@ RSpec.describe SourceAttributeController, vcr: true do
     end
 
     it 'filters only the specified attribute' do
-      additional_attribute
       get :show, params: { project: project, attribute: main_attribute.fullname }
       resp = Xmlhash.parse(response.body)
       expect(resp.elements('attribute')).to contain_exactly('namespace' => main_attribute.namespace, 'name' => main_attribute.name)
+    end
+
+    context 'when with_project parameter is set' do
+      let(:package) { create(:package, name: 'my_package', project: project) }
+
+      it 'includes project attributes' do
+        get :show, params: { project: project, package: package, with_project: 1 }
+        resp = Xmlhash.parse(response.body)
+
+        expect(resp.elements('attribute')).to contain_exactly(
+          { 'name' => main_attribute.name, 'namespace' => main_attribute.namespace },
+          'name' => additional_attribute.name, 'namespace' => additional_attribute.namespace
+        )
+      end
     end
   end
 
