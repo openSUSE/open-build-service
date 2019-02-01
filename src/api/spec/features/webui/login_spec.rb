@@ -40,7 +40,7 @@ RSpec.feature 'Login', type: :feature, js: true do
       click_button('Log In')
     end
 
-    expect(find('#link-to-user-home').text).to eq(user.login)
+    expect(page).to have_css('#link-to-user-home', text: user.login)
   end
 
   scenario 'login with wrong data' do
