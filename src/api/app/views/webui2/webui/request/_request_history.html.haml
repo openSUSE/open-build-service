@@ -1,0 +1,16 @@
+.media
+  - user = User.find_by_login(bs_request.creator)
+  = image_tag_for(user, size: 32, custom_class: 'mr-3')
+  .media-body
+    %h6.mt-0.mb-1
+      #{bs_request.creator} (#{fuzzy_time(bs_request.created_at)})
+
+    %p.m-0.p-0.small created request
+
+    = render partial: 'request_history_description', locals: { text: bs_request.description }
+
+= render partial: 'request_history_element', collection: history, as: :element
+
+= content_for :ready_function do
+  handleCollapseForHistory('#req-description');
+  handleCollapseForHistory('#show-full-req-description');

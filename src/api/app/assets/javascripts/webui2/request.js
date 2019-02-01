@@ -121,3 +121,33 @@ function requestAddReviewAutocomplete() { // jshint ignore:line
     max: 50
   });
 }
+
+function setupActionLink() { // jshint ignore:line
+  var index;
+  $('.action_select_link').click(function (event) {
+    $('#action_select li.selected').attr('class', '');
+    $(event.target).parent().attr('class', 'selected');
+    $('.action_display').hide();
+    index = event.target.id.split('action_select_link_')[1];
+    $('#action_display_' + index).show();
+    // It is necessary to refresh the CodeMirror editors after switching tabs to initialise the dimensions again.
+    // Otherwise the editors are empty after calling show().
+    editors.forEach( function(editor) { editor.refresh(); });
+    return false;
+  });
+}
+
+function collapseHistory(parent) { //jshint ignore:line
+  var fullReqDescription = parent.find('#show-full-req-description');
+  parent.find('#req-description').toggleClass('collapsed-history uncollapsed-history');
+  fullReqDescription.toggleClass("collapsed-link uncollapsed-link");
+
+  var showText = (fullReqDescription.attr('title') === 'show more' ) ?  'show less': 'show more';
+  fullReqDescription.attr('title', showText);
+}
+
+function handleCollapseForHistory(origin) {  //jshint ignore:line
+  $('.req-description-box').on('click', origin, function() {
+    collapseHistory($(this).parents('.req-description-box'));
+  });
+}
