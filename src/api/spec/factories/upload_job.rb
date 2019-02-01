@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :upload_job, class: Cloud::User::UploadJob do
     user
-    job_id { Faker::Number.between(100, 1000) }
+    job_id { rand(1_000_000_000) }
   end
 end
