@@ -9,7 +9,15 @@
     %h5
       Diff
   .card-body
-    -# Diff content and build results
+    - @actions.each_with_index do |action, action_index|
+      - action[:sourcediff].each do |sourcediff|
+        .row
+          .col-md-8
+            Diff content
+          .col-md-4
+            = render partial: 'webui2/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_index }
+            - if sourcediff['issues'].present?
+              = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
 .row
   .col-md-8
     .card
