@@ -3,7 +3,7 @@ module FeaturesAttribute
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
     click_link('Add a new attribute')
     expect(page).to have_text('Add Attribute')
-    find('select#attrib_attrib_type_id').select("#{attribute_type.attrib_namespace}:#{attribute_type.name}")
+    find('select#attrib_attrib_type_id').select("#{attribute_type.attrib_namespace}:#{attribute_type.name}", match: :first)
     click_button('Add')
     expect(page).to have_content('Attribute was successfully created.')
 
