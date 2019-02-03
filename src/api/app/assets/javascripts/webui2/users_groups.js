@@ -2,7 +2,7 @@
 function changeUserRole(obj) { // jshint ignore:line
     var type = obj.data("type");
     var role = obj.data("role");
-    var spinner = obj.next().children('i:first-child');
+    var spinner = obj.siblings('.fa-spinner');
 
     var url;
     var data = {
@@ -17,14 +17,14 @@ function changeUserRole(obj) { // jshint ignore:line
         url = $('#involved-users').data("remove");
     }
 
-    spinner.removeClass('invisible');
+    spinner.removeClass('d-none');
 
     $.ajax({
         url: url,
         type: 'POST',
         data: data,
         complete: function () {
-            spinner.addClass('invisible');
+            spinner.addClass('d-none');
         }
     });
 }
