@@ -8,7 +8,7 @@
 
     <%= favicon_link_tag %>
 
-    <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
+    <title><%= "#{@pagetitle} - " if @pagetitle -%><%= home_title %></title>
 
     <%= stylesheet_link_tag 'webui/application' %>
     <% if content_for?(:head_style) -%>
@@ -49,7 +49,7 @@
 
     <div id="subheader" class="container_16">
       <div id="breadcrump" class="grid_10 alpha">
-        <%= sprite_tag( "home_grey", title: 'Logo' ) %><%= link_to "#{@configuration ? @configuration['title'] : 'Open Build Service'}", root_path %>
+        <%= sprite_tag( "home_grey", title: 'Logo' ) %><%= link_to home_title, root_path %>
         <% if @crumb_list %>
           <% @crumb_list.each do |link| %>
             &gt;

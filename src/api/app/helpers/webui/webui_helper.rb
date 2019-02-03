@@ -418,5 +418,9 @@ module Webui::WebuiHelper
       'default_face.png'
     end
   end
+
+  def home_title
+    @configuration ? @configuration['title'] : 'Open Build Service'
+  end
 end
 # rubocop:enable Metrics/ModuleLength
