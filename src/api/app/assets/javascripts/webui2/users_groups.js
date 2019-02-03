@@ -17,14 +17,15 @@ function changeUserRole(obj) { // jshint ignore:line
         url = $('#involved-users').data("remove");
     }
 
-    spinner.removeClass('d-none');
-
     $.ajax({
         url: url,
         type: 'POST',
         data: data,
-        complete: function () {
-            spinner.addClass('d-none');
+        beforeSend: function() {
+          spinner.removeClass('d-none');
+        },
+        complete: function() {
+          spinner.addClass('d-none');
         }
     });
 }
