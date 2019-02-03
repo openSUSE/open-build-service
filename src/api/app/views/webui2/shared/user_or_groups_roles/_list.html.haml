@@ -1,4 +1,4 @@
-- if type == 'user' && !User.current.is_nobody?
+- unless User.current.is_nobody?
   :ruby
     mail_subject = "#{home_title} - #{project}"
     mail_subject += "/#{package}" if package
@@ -21,7 +21,7 @@
     %td.text-nowrap
       - if mail_subject && record.email
         = mail_to(record.email, subject: mail_subject) do
-          %i.far.fa-envelope{ title: 'Send email to user' }
+          %i.far.fa-envelope{ title: "Send email to #{type}" }
       - if user_is_maintainer
         = link_to('#', class: "remove-#{type}",
           data: { toggle: 'modal', target: '#delete-role-modal',
