@@ -1,3 +1,7 @@
+- if type == 'user' && !User.current.is_nobody?
+  :ruby
+    mail_subject = "#{home_title} - #{project}"
+    mail_subject += "/#{package}" if package
 - records.each do |record|
   %tr{ id: "#{type}-#{valid_xml_id(record.to_s)}" }
     %td.align-middle
@@ -15,11 +19,7 @@
             = link_to(project_users_path(project: project)) do
               %i.fa.fa-cubes.text-secondary{ title: 'inherited from project' }
     %td.text-nowrap
-      - if type == 'user' && !User.current.is_nobody?
-        :ruby
-          home_title = @configuration ? @configuration['title'] : 'Open Build Service'
-          mail_subject = "#{home_title} - #{project}"
-          mail_subject += "/#{package}" if package
+      - if mail_subject && record.email
         = mail_to(record.email, subject: mail_subject) do
           %i.far.fa-envelope{ title: 'Send email to user' }
       - if user_is_maintainer
