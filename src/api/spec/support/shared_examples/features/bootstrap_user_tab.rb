@@ -48,7 +48,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find_field('user_reviewer_user_tab_user', visible: false)).not_to be_checked
       expect(find_field('user_downloader_user_tab_user', visible: false)).not_to be_checked
       expect(find_field('user_reader_user_tab_user', visible: false)).not_to be_checked
-      expect(page).to have_selector('#user-user_tab_user a.remove-user')
+      expect(page).to have_selector("a.remove-user[data-object='user_tab_user']")
     end
 
     scenario 'Add non existent user' do
@@ -147,7 +147,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find_field('group_reviewer_existing_group', visible: false)).not_to be_checked
       expect(find_field('group_downloader_existing_group', visible: false)).not_to be_checked
       expect(find_field('group_reader_existing_group', visible: false)).not_to be_checked
-      expect(page).to have_selector('#group-existing_group a.remove-group')
+      expect(page).to have_selector("a.remove-group[data-object='existing_group']")
     end
 
     scenario 'Add non existent group' do
