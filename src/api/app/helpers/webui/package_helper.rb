@@ -84,23 +84,12 @@ module Webui::PackageHelper
     ::Cloud::UploadJob.new(filename: filename, arch: architecture).uploadable?
   end
 
-  def badge_for_diff_state(state)
-    case state
-    when 'added'
-      'badge-success'
-    when 'deleted'
-      'badge-danger'
-    when 'changed'
-      'badge-warning'
-    else
-      'badge-primary'
-    end
+  def expand_diff?(filename, state)
+    state != 'deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
-  def expand_diff?(filename, state)
-    state != 'deleted' &&
-      !filename.include?('/') &&
-      (filename == '_patchinfo' || filename.ends_with?('.spec') || filename.ends_with?('.changes'))
+  def viewable_file?(filename)
+    !Package.is_binary_file?(filename) && !filename.include?('/')
   end
 
   def calculate_revision_on_state(revision, state)
