@@ -26,6 +26,7 @@ gem 'haml-rails'
 # to avoid tilt downgrade
 gem 'tilt', '>= 1.4.1'
 # to use markdown in the comment system
+gem 'coderay'
 gem 'redcarpet'
 # for nested attribute forms
 gem 'cocoon'
