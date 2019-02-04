@@ -71,4 +71,110 @@ RSpec.describe Webui::RequestHelper do
       it { expect(calculate_filename(new_filename, file_element)).to eq("#{filename} -> #{new_filename}") }
     end
   end
+
+  context 'source diffs' do
+    let(:source_diff) do
+      {
+        'old' => {
+          'project' => 'home:Admin',
+          'package' => 'obs-server',
+          'rev' => 12
+        },
+        'new' => {
+          'project' => 'home:tux',
+          'package' => 'koji',
+          'rev' => 13
+        }
+      }
+    end
+
+    describe '#diff_label' do
+      it { expect(diff_label(source_diff['old'])).to eq('home:Admin / obs-server (rev 12)') }
+    end
+
+    describe '#diff_data' do
+      context "when it's a delete request" do
+        subject { diff_data(:delete, source_diff) }
+
+        it { is_expected.to match(project: 'home:Admin', package: 'obs-server', rev: 12) }
+      end
+
+      context "when it's not a delete request" do
+        subject { diff_data(:submit, source_diff) }
+
+        it { is_expected.to match(project: 'home:tux', package: 'koji', rev: 13) }
+      end
+    end
+  end
+
+  describe '#request_action_header' do
+    let(:creator) { create(:confirmed_user, login: 'request_creator') }
+    let(:requester) { create(:confirmed_user, login: 'requester') }
+    let(:target_package) { create(:package) }
+    let(:source_package) { create(:package) }
+    let(:action) do
+      {
+        type: :delete,
+        tprj: target_package.project.name,
+        tpkg: target_package.name,
+        sprj: source_package.project.name,
+        spkg: source_package.name
+      }
+    end
+
+    context 'when action is :delete' do
+      let(:expected_regex) do
+        Regexp.new("Delete package .*#{project_show_path(target_package.project)}.* \/ .*" +
+                   package_show_path(target_package.project, target_package).to_s)
+      end
+
+      subject { request_action_header(action, creator.login) }
+
+      it { is_expected.to match(expected_regex) }
+    end
+
+    context 'when action is :add_role' do
+      let(:expected_regex) do
+        Regexp.new("#{creator.realname} \\(request_creator\\).* wants the user .*#{requester.realname} \\(requester\\).* " \
+                   "to get the role maintainer for package .*#{target_package.project}.* / .*#{target_package}")
+      end
+
+      subject { request_action_header(action.merge(type: :add_role, user: requester.login, role: 'maintainer'), creator.login) }
+
+      it { is_expected.to match(expected_regex) }
+    end
+
+    context 'when action is :change_devel' do
+      let(:expected_regex) do
+        Regexp.new("Set the devel project to package .*#{source_package.project}.* / .*#{source_package}.* " \
+                   "for package .*#{target_package.project}.* / .*#{target_package}")
+      end
+
+      subject { request_action_header(action.merge(type: :change_devel), creator.login) }
+
+      it { is_expected.to match(expected_regex) }
+    end
+
+    context 'when action is :maintenance_incident' do
+      let(:expected_regex) do
+        Regexp.new("Submit update from package .*#{source_package.project}.* / .*#{source_package}.* to package " \
+                   ".*#{target_package.project}.* / .*#{target_package}")
+      end
+
+      subject { request_action_header(action.merge(type: :maintenance_incident), creator.login) }
+
+      it { is_expected.to match(expected_regex) }
+    end
+
+    context 'when action is :maintenance_release' do
+      let(:expected_regex) do
+        Regexp.new("Release package .*#{source_package.project}.* / .*#{source_package}.* to package " \
+                   ".*#{target_package.project}.* / .*#{target_package}.* ")
+      end
+
+      subject { request_action_header(action.merge(type: :maintenance_release), creator.login) }
+
+      it { is_expected.to match(expected_regex) }
+    end
+  end
 end

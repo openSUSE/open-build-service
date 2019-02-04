@@ -7,6 +7,7 @@ require_dependency 'authenticator'
 
 class Package < ApplicationRecord
   include FlagHelper
+  include Flag::Validations
   include CanRenderModel
   include HasRelationships
   include Package::Errors
@@ -1367,10 +1368,6 @@ class Package < ApplicationRecord
 
   def fixtures_name
     "#{project.name}_#{name}".tr(':', '_')
-  end
-
-  def api_obj
-    self
   end
 
   #### WARNING: these operations run in build object, not this package object

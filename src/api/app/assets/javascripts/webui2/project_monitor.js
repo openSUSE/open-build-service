@@ -1,6 +1,11 @@
 function setupPopover() {
   $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
 }
+
+function setAllLinks(event) {
+  $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);
+}
+
 function setupProjectMonitor() { // jshint ignore:line
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
     scrollX: true,
@@ -19,7 +24,11 @@ function setupProjectMonitor() { // jshint ignore:line
 
   setupPopover();
 
-  $('.monitor-no-filter-link').on('click', function () {
-    $(this).siblings().children('input:checked').prop('checked', false);
+  $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
+
+  $('.monitor-filter-link').on('click', { checked: true }, setAllLinks);
+
+  $('.dropdown-menu.keep-open').on('click', function (e) {
+    e.stopPropagation();
   });
 }

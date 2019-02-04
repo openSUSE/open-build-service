@@ -7,11 +7,8 @@
   href: "#revision_details_#{index + 1}",
   title: 'Go down to the next diff' }
     %i.fas.fa-chevron-down
-  - link_options = { project: project, package: package, filename: filename, rev: calculate_revision_on_state(revision, state) }
-  - if !@linkinfo && (has_content && !Package.is_binary_file?(filename) && !filename.include?('/'))
-    = link_to package_view_file_path(link_options),
-      class: 'btn btn-sm btn-outline-secondary',
-      title: 'View the whole file' do
+  - if file_view_path && has_content && !@linkinfo && viewable_file?(filename)
+    = link_to(file_view_path, class: 'btn btn-sm btn-outline-secondary', title: 'View the whole file') do
       %span.d-none.d-sm-none.d-md-block View file
       %i.far.fa-file.d-block.d-sm-block.d-md-none
   - else

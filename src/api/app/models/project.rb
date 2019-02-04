@@ -3,6 +3,7 @@ require_dependency 'has_relationships'
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper
+  include Flag::Validations
   include CanRenderModel
   include HasRelationships
   include HasRatings
@@ -35,6 +36,7 @@ class Project < ApplicationRecord
     end
   end
 
+  has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy
 
@@ -177,6 +179,10 @@ class Project < ApplicationRecord
                            description: image_template_package['description'])
     end
     project
+  end
+
+  def patchinfos
+    packages.joins(:package_kinds).where(package_kinds: { kind: 'patchinfo' })
   end
 
   def init
@@ -1584,10 +1590,6 @@ class Project < ApplicationRecord
 
   def has_remote_repositories?
     DownloadRepository.where(repository_id: repositories.select(:id)).exists?
-  end
-
-  def api_obj
-    self
   end
 
   def to_s

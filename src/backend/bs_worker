@@ -650,7 +650,7 @@ if ($exitrestart) {
   }
   my $state = lockstate();
   $state->{'state'} = 'idle' unless $state->{'state'};
-  if ($state->{'state'} eq 'building' || $state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+  if ($state->{'state'} eq 'building' || $state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'badhost') {
     $state->{'state'} = 'discarded';
     $state->{'nextstate'} = $exitrestart eq 'exit' ? 'exit' : 'rebooting';
   } else {
@@ -2841,10 +2841,7 @@ sub dobuild {
   /^\Q$helperarch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$hostarch}};
 
   my $starttime = time();
-  my @lt = localtime($starttime);
-  my $timestring = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0];
-  
-  print "$timestring: building '$packid' for project '$projid' repository '$repoid' arch '$arch'";
+  print BSUtil::isotime($starttime).": building '$packid' for project '$projid' repository '$repoid' arch '$arch'";
   print " using helper $helper" if $helper;
   print "\n";
 
@@ -3114,7 +3111,7 @@ sub dobuild {
   qsystem(@args);
 
   print "\n";
-  print "$timestring: build finished '$packid' for project '$projid' repository '$repoid' arch '$arch'";
+  print BSUtil::isotime(time()).": finished '$packid' for project '$projid' repository '$repoid' arch '$arch'";
   print " using helper $helper" if $helper;
   print "\n";
 
@@ -3261,6 +3258,15 @@ sub getstate {
   die("not building a job\n") if ($jobid || $needbuilding) && $state->{'state'} ne 'building';
   die("building a different job\n") if $jobid && $jobid ne $state->{'jobid'};
   return $state;
+}
+
+sub append_nonfatal {
+  my ($file, $str) = @_;
+  local *F;
+  if (open(F, '>>', $file)) {
+    print F $str;
+    close F;
+  }
 }
 
 sub stdreply {
@@ -3511,7 +3517,7 @@ sub periodic {
     die("$statedir/worker/bs_worker: $!\n");    # oops
   }
 
-  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'badhost') {
     $rekillcnt++;
     if ($state->{'state'} eq 'discarded' && $state->{'nextstate'}) {
       # signal early that we're going down
@@ -3522,7 +3528,7 @@ sub periodic {
       # re-kill after 2 minutes, maybe build is stuck somewhere
       $rekillcnt = 0;
       $state = lockstate();
-      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
+      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'badhost') {
         kill_job();
       }
       unlockstate();
@@ -3531,10 +3537,10 @@ sub periodic {
     $rekillcnt = 0;
   }
 
-  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building') {
+  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building' || $state->{'state'} eq 'badhost') {
     if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
       $state = lockstate();
-      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building') {
+      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building' || $state->{'state'} eq 'badhost') {
         if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
           # our worker process is gone, should never happen...
           kill_job();   # just in case...
@@ -3573,11 +3579,7 @@ sub periodic {
 	  warn("could not kill job\n");
 	  last;
 	}
-	local *F;
-	if (open(F, '>>', "$buildroot/.build.log")) {
-	  print F "\n\nJob seems to be stuck here, killed. (after $maxidle seconds of inactivity)\n";
-	  close F;
-	}
+	append_nonfatal("$buildroot/.build.log", "\n\nJob seems to be stuck here, killed. (after $maxidle seconds of inactivity)\n");
 	$state->{'state'} = 'killed';
 	commitstate($state);
 	$locked = 0;
@@ -3586,7 +3588,8 @@ sub periodic {
 	my $kill_job;
 	$kill_job = "kvm memory page bug" if $tail =~ /BUG: unable to handle kernel NULL pointer dereference at/;
 	$kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
-	$kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
+# leads to false positive on i586 kernels
+#	$kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
 	$kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
 	if ($kill_job) {
 	  next unless $locked;
@@ -3595,7 +3598,7 @@ sub periodic {
 	    warn("could not kill job\n");
 	    last;
 	  }
-	  $state->{'state'} = 'discarded';
+	  $state->{'state'} = 'badhost';
 	  commitstate($state);
 	  $locked = 0;
 	}
@@ -3691,17 +3694,12 @@ eval {
   $ex = dobuild($buildinfo);
 };
 if ($@) {
-  local *F;
-  if (open(F, '>>', "$buildroot/.build.log")) {
-    print F $@;
-    print F "(worker was $workerid)\n" if $workerid;
-    close(F);
-  }
-  print "$@";
+  append_nonfatal("$buildroot/.build.log", $workerid ? "$@(worker was $workerid)\n" : $@);
+  print $@;
   $ex = 1;
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
-  $ex = 3 if ( $@ =~ /^500 / );
+  $ex = 3 if $@ =~ /^500 /;
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
@@ -3755,9 +3753,10 @@ if ($state->{'state'} eq 'discarded') {
   exit(0);
 }
 
-if ($state->{'state'} ne 'building') {
-  # something is wrong, consider job bad
-  $ex = 1;
+if ($state->{'state'} eq 'badhost') {
+  $ex = 3;
+} elsif ($state->{'state'} ne 'building') {
+  $ex = 1;	# something is wrong, consider job bad
 }
 
 if (! -s "$buildroot/.build.log") {
@@ -3880,6 +3879,11 @@ if (!$ex) {
 }
 push @send, {name => 'meta', filename => "$buildroot/.build.meta"} if -e "$buildroot/.build.meta";
 push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+if ($code eq 'badhost') {
+  # only transmit the logfile in the badhost case
+  @send = ();
+  push @send, {name => 'logfile', filename => "$buildroot/.build.log"} if -s "$buildroot/.build.log";
+}
 
 if (!$testmode) {
   my $param = {
@@ -3894,11 +3898,6 @@ if (!$testmode) {
   my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}", "code=$code", "now=$now");
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "kiwitree=1" if $kiwitree && $code eq 'succeeded';
-  if ($code eq 'badhost') {
-    # only transmit the logfile in the badhost case
-    @send = ();
-    push @send, {name => 'logfile', filename => "$buildroot/.build.log"} if -s "$buildroot/.build.log";
-  }
   eval {
     my $res = BSRPC::rpc($param, undef, @args);
   };

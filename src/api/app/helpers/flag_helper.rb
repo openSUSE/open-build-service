@@ -40,6 +40,9 @@ module FlagHelper
     # translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
+    # we need to catch duplicates - and prefer the last
+    flags_to_create = {}
+
     # select each build flag from xml
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
@@ -52,17 +55,18 @@ module FlagHelper
 
           repo = xmlflag['repository']
 
-          # instantiate new flag object
-          flags.new(status: status, position: position, flag: flagtype) do |flag|
-            # set the flag attributes
-            flag.repo = repo
-            flag.architecture = arch
-          end
+          key = "#{repo}-#{arch}"
+          # overwrite duplicates - but prefer disables
+          next if flags_to_create[key] && flags_to_create[key][:status] == 'disable'
+          flags_to_create[key] = { status: status, position: position, repo: repo, architecture: arch }
           position += 1
         end
       end
     end
 
+    flags_to_create.values.each do |flag|
+      flags.build(flag.merge(flag: flagtype))
+    end
     position
   end
 

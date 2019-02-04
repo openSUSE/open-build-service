@@ -13,14 +13,14 @@
           %thead.header
             %tr
               %th
-              - @repohash.sort.each do |repo, archlist|
+              - @repoarray.each do |repo, archlist|
                 - next if archlist.empty?
                 %th.text-center{ colspan: archlist.length }
                   = repo
             %tr
               %th
-              - @repohash.sort.each do |repo, archlist|
-                - archlist.sort.each do |arch|
+              - @repoarray.each do |repo, archlist|
+                - archlist.each do |arch|
                   %th.text-center
                     = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
                     = arch
@@ -29,9 +29,10 @@
               %tr
                 %td
                   = link_to word_break(packname, 40), controller: :package, action: :show, package: packname, project: @project.to_s
-                - @repohash.sort.each do |repo, archlist|
-                  - archlist.sort.each do |arch|
+                - @repoarray.each do |repo, archlist|
+                  - archlist.each do |arch|
                     %td.text-center
                       = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
-:javascript
+
+- content_for :ready_function do
   setupProjectMonitor();

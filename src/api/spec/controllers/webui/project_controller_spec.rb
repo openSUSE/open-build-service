@@ -376,10 +376,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with patchinfo' do
       before do
         login admin_user
-        # Avoid fetching from backend directly
-        allow(Directory).to receive(:hashed).and_return(Xmlhash::XMLHash.new('entry' => { 'name' => '_patchinfo' }))
-        # Avoid writing to the backend
-        allow_any_instance_of(Package).to receive(:sources_changed)
         Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
         get :show, params: { project: apache_project }
       end
@@ -1220,7 +1216,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:buildresult_unavailable)).to be_nil }
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
-          it { expect(assigns(:repohash)).to eq('openSUSE_Tumbleweed' => ['i586', 'x86_64'], 'openSUSE_42.2' => ['s390x']) }
+          it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', ['i586', 'x86_64']]]) }
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
                                                    'openSUSE_42.2' => { 's390x' => 'outdated_published' })
@@ -1296,100 +1292,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:call_edit_comment_form) { get :edit_comment_form, params: { project: user.home_project } }
 
       it { expect { call_edit_comment_form }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
-    end
-  end
-
-  describe 'GET #package_buildresult' do
-    context 'with xhr request' do
-      context 'with project' do
-        let(:fake_buildresult) do
-          Xmlhash::XMLHash.new(
-            'state' => 'c0a974eb305112d2fdf45f9ecc54a86b', 'result' => [
-              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'i586', 'code' => 'published',
-                                   'state' => 'published', 'status' => [
-                                     Xmlhash::XMLHash.new('package' => 'apache', 'code' => 'succeeded'),
-                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
-                                   ]),
-              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'x86_64', 'code' => 'published',
-                                   'state' => 'published', 'status' => [
-                                     Xmlhash::XMLHash.new('package' => 'apache', 'code' => 'succeeded'),
-                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
-                                   ])
-            ]
-          )
-        end
-        let(:repohash) do
-          { 'home_coolo_standard' => ['i586', 'x86_64'] }
-        end
-
-        let(:statushash) do
-          { 'home_coolo_standard' => {
-            'i586' => {
-              'apache' => { 'package' => 'apache', 'code' => 'succeeded' },
-              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
-            },
-            'x86_64' => {
-              'apache' => { 'package' => 'apache', 'code' => 'succeeded' },
-              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
-            }
-          } }
-        end
-        before do
-          allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
-          get :package_buildresult, params: { project: user.home_project }, xhr: true
-        end
-
-        it { expect(assigns(:repohash)).to eq(repohash) }
-        it { expect(assigns(:statushash)).to eq(statushash) }
-        it { expect(response).to have_http_status(:ok) }
-      end
-
-      context 'with project and package' do
-        let(:fake_buildresult) do
-          Xmlhash::XMLHash.new(
-            'state' => 'c0a974eb305112d2fdf45f9ecc54a86b', 'result' => [
-              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'i586', 'code' => 'published',
-                                   'state' => 'published', 'status' => [
-                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
-                                   ]),
-              Xmlhash::XMLHash.new('project' => 'home:tom', 'repository' => 'home_coolo_standard', 'arch' => 'x86_64', 'code' => 'published',
-                                   'state' => 'published', 'status' => [
-                                     Xmlhash::XMLHash.new('package' => 'obs-server', 'code' => 'succeeded')
-                                   ])
-            ]
-          )
-        end
-        let(:repohash) do
-          { 'home_coolo_standard' => ['i586', 'x86_64'] }
-        end
-
-        let(:statushash) do
-          { 'home_coolo_standard' => {
-            'i586' => {
-              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
-            },
-            'x86_64' => {
-              'obs-server' => { 'package' => 'obs-server', 'code' => 'succeeded' }
-            }
-          } }
-        end
-        let(:package) { create(:package, name: 'obs-server', project: user.home_project) }
-
-        before do
-          allow(Buildresult).to receive(:find_hashed).and_return(fake_buildresult)
-          get :package_buildresult, params: { project: user.home_project, package: package }, xhr: true
-        end
-
-        it { expect(assigns(:repohash)).to eq(repohash) }
-        it { expect(assigns(:statushash)).to eq(statushash) }
-        it { expect(response).to have_http_status(:ok) }
-      end
-    end
-
-    context 'without xhr request' do
-      let(:call_package_buildresult) { get :package_buildresult, params: { project: user.home_project } }
-
-      it { expect { call_package_buildresult }.to raise_error(ActionController::RoutingError, 'Expected AJAX call') }
     end
   end
 

@@ -103,12 +103,7 @@
   <% @actions.each_with_index do |action, action_index| %>
       <div class="action_display" style="<%= 'display: none;' if action_index > 0 %>" id="action_display_<%= action_index %>">
         <p>
-          <% if action[:type] == :submit %>
-              <b>Submit
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg], rev: action[:srev] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
+          <b><%= request_action_header(action, @bs_request.creator) %></b>
               <% if @can_handle_request && @is_target_maintainer %>
                   <% if !action[:creator_is_target_maintainer] %>
                       <%# TODO: Make this work for each submit action individually: %>
@@ -137,53 +132,10 @@
                           <% end %>
                       <% end %>
                   <% end %>
-              <% end %>
 
-          <% elsif action[:type] == :delete %>
-              <b>Delete
-                <% if action[:trepo] %>
-                    repository <%= link_to action[:trepo], :controller => :repositories, :action => :index, :project => action[:tprj], :repository => action[:trepo] %>
-                    in
-                <% end %>
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif [:add_role, :set_bugowner].include? action[:type]  %>
-              <b>
-                <%= user_with_realname_and_icon @bs_request.creator %>
-                wants
-                <%= requester_str(@bs_request.creator, action[:user], action[:group]) %>
-                to
-                <%= creator_intentions(action[:role]) %>
-                for
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif action[:type] == :change_devel %>
-              <b>
-                Set the devel project to
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
-                for
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-          <% elsif action[:type] == :maintenance_incident %>
-              <b>
-                Submit update from
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg], homeproject: @req['creator'] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
-              <% if action[:releaseproject] %>
-                  <br/><i>
-          Release in
-          <%= action[:releaseproject] %>
-        </i>
-              <% end %>
-          <% elsif action[:type] == :maintenance_release %>
-              <b>
-                Release
-                <%= project_or_package_link project: action[:sprj], package: action[:spkg] %>
-                to
-                <%= project_or_package_link project: action[:tprj], package: action[:tpkg] %>
-              </b>
+            <% if action[:type] == :maintenance_incident && action[:releaseproject] %>
+              <br/><i>Release in <%= action[:releaseproject] %></i>
+            <% end %>
           <% end %>
         </p>
 
@@ -193,23 +145,14 @@
                   <% if sourcediff[:error] %>
                       <%= content_tag(:p, content_tag(:i, sourcediff[:error], class: :error)) %>
                   <% else %>
-                      <% if action[:type] == :delete
-                           t = sourcediff['old']
-                         else
-                           t = sourcediff['new']
-                         end
-                         project, package, rev = t['project'], t['package'], t['rev'] %>
-
+                      <% diff = diff_data(action[:type], sourcediff) %>
                       <% if action[:sourcediff].length != 1 %>
                           <h4>
-                            <%= sourcediff['new']['project'] %> / <%= sourcediff['new']['package'] %>
-                            (rev <%= sourcediff['new']['rev'] %>) -
-                            <%= sourcediff['old']['project'] %> / <%= sourcediff['old']['package'] %>
-                            (rev <%= sourcediff['old']['rev'] %>)
+                            <%= diff_label(sourcediff['new']) %> - <%= diff_label(sourcediff['old']) %>
                           </h4>
                       <% end %>
                       <%#TODO: Redo source/target link display %>
-                      <%= render(:partial => 'shared/sourcediff', locals: { filenames: sourcediff['filenames'], files: sourcediff['files'], :source => { project: project, package: package, :rev => rev }, :css_id => "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", :editor_width => '550px' }) %>
+                      <%= render(partial: 'shared/sourcediff', locals: { filenames: sourcediff['filenames'], files: sourcediff['files'], source: diff, css_id: "diff_action_#{action_index}_#{action[:type]}_#{sourcediff_index}", editor_width: '550px' }) %>
                   <% end %>
                 </div>
                 <div class="grid_6 omega">
@@ -318,17 +261,14 @@
         </div>
         <% @my_open_reviews.each_with_index do |review, index| %>
             <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
-              <%= form_tag(:action => 'modify_review') do %>
-                  <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => 'width: 99%', :class => 'review_comment', :placeholder => 'Please comment on your decision') %></p>
+              <%= form_tag(action: 'modify_review') do %>
+                  <p><%= text_area_tag('comment', review[:reason], size: '80x2', style: 'width: 99%', class: 'review_comment', placeholder: 'Please comment on your decision') %></p>
 
                   <p>
-                    <%= hidden_field_tag("review_request_number_#{index}", @number) %>
-                    <%= hidden_field_tag("review_by_user_#{index}", review[:by_user]) if review[:by_user] %>
-                    <%= hidden_field_tag("review_by_group_#{index}", review[:by_group]) if review[:by_group] %>
-                    <%= hidden_field_tag("review_by_project_#{index}", review[:by_project]) if review[:by_project] %>
-                    <%= hidden_field_tag("review_by_package_#{index}", review[:by_package]) if review[:by_package] %>
-                    <%= submit_tag 'Approve', name: 'accepted', id: "review_accept_button_#{index}", title: 'Give this request your blessing, it will continue.' %>
-                    <%= submit_tag 'Disregard', name: 'declined', id: "review_decline_button_#{index}", title: 'Veto this request, it will be declined.' %>
+                    <%= hidden_field_tag("request_number", @number) %>
+                    <%= hidden_review_payload(review) %>
+                    <%= submit_tag 'Approve', name: 'new_state', class: 'review_accept_button', title: 'Give this request your blessing, it will continue.' %>
+                    <%= submit_tag 'Disregard', name: 'new_state', title: 'Veto this request, it will be declined.' %>
                   </p>
               <% end %>
             </div>
