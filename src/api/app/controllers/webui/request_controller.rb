@@ -126,13 +126,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    changestate = nil
-    ['accepted', 'declined', 'revoked', 'new'].each do |s|
-      if params.key?(s)
-        changestate = s
-        break
-      end
-    end
+    changestate = (['accepted', 'declined', 'revoked', 'new'] & params.keys).last
 
     if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
@@ -140,23 +134,20 @@ class Webui::RequestController < Webui::WebuiController
         if changestate != 'accepted'
           flash[:error] = 'Will not add maintainer for not accepted requests'
         else
-          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
-          if tpkg
-            target = Package.find_by_project_and_name(tprj, tpkg)
-          else
-            target = Project.find_by_name(tprj)
-          end
-          if target.can_be_modified_by?(User.current)
-            # the request action type might be permitted in future, but that doesn't mean we
-            # are allowed to modify the object
-            target.add_maintainer(@bs_request.creator)
-          end
+          # split into project and package
+          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_')
+          target = if tpkg
+                     Package.find_by_project_and_name(tprj, tpkg)
+                   else
+                     Project.find_by_name(tprj)
+                   end
+          # the request action type might be permitted in future, but that doesn't mean we
+          # are allowed to modify the object
+          target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.current)
         end
       end
-
       accept_request if changestate == 'accepted'
     end
-
     redirect_to(request_show_path(params[:number]))
   end
 
