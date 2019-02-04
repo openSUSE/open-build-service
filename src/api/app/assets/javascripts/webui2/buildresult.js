@@ -2,7 +2,7 @@ function updateRpmlintResult(index) { // jshint ignore:line
   $('#rpm'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: '/package/rpmlint_result',
-    data: $('#buildresult-box').data(),
+    data: $('#buildresult' + index + '-box').data(),
     success: function(data) {
       $('#rpm' + index + ' .result').html(data);
     },
@@ -16,11 +16,11 @@ function updateRpmlintResult(index) { // jshint ignore:line
 }
 
 function updateBuildResult(index) { // jshint ignore:line
-  var ajaxDataShow = $('#buildresult-box').data();
+  var ajaxDataShow = $('#buildresult' + index + '-box').data();
   ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
   $('#build'+index+'-reload').addClass('fa-spin');
   $.ajax({
-    url: $('#buildresult-urls').data('buildresultUrl'),
+    url: $('#buildresult' + index + '-urls').data('buildresultUrl'),
     data: ajaxDataShow,
     success: function(data) {
       $('#build' + index + ' .result').html(data);
