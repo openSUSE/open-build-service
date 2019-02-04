@@ -1,11 +1,11 @@
-- @pagetitle = "File #{@filename} of Package #{@package}"
+- @pagetitle = "File #{truncate(@filename, length: 50)} of Package #{truncate(@package.name, length: 50)}"
 - content_for(:content_for_head, javascript_include_tag('webui2/cm2/default'))
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
-    %h3
-      = @pagetitle
+    %h3.text-word-break-all
+      File #{@filename} of Package #{@package}
       - if @rev
         (Revision #{@rev})
     - if @rev

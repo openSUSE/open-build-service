@@ -1,5 +1,5 @@
 :ruby
-  @pagetitle = "Show #{@project} / #{@package}"
+  @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
   devel_package = @package.develpackage
 
 .card.mb-3
@@ -69,7 +69,7 @@
                                                   spider_bot: @spider_bot }
   .comments
     .card
-      %h5.card-header
+      %h5.card-header.text-word-break-all
         Comments for
         = @package.name
         %span.badge.badge-primary{ id: "comment-counter-package-#{@package.id}" }

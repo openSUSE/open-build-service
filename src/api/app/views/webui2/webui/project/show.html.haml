@@ -59,7 +59,7 @@
           = render partial: 'project_inherited_packages', locals: { project: @project, inherited_packages: @ipackages }
   .comments
     .card
-      %h5.card-header
+      %h5.card-header.text-word-break-all
         Comments for #{@project}
         %span.badge.badge-primary{ id: "comment-counter-project-#{@project.id}" }
           = @comments.length

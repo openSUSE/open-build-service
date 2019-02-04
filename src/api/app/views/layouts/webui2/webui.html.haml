@@ -38,7 +38,7 @@
         .col-auto.ml-auto#personal-navigation
           = render partial: "layouts/webui2/personal_navigation"
 
-    .container.sticky-top.flash-and-announcement
+    .container.sticky-top.flash-and-announcement.text-word-break-all
       - unless @hide_announcement_notification
         #announcement= render partial: 'layouts/webui2/announcement'
       #flash= render partial: "layouts/webui2/flash", object: flash
