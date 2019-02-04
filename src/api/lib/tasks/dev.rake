@@ -146,6 +146,8 @@ namespace :dev do
       end
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
+      require 'active_support/testing/time_helpers'
+      include ActiveSupport::Testing::TimeHelpers
 
       Rails.cache.clear
       Rake::Task['db:drop'].invoke
@@ -184,7 +186,7 @@ namespace :dev do
       Backend::Connection.put("#{backend_url}/ctris-0.42.tar.bz2", File.read('../../dist/t/spec/fixtures/ctris-0.42.tar.bz2'))
 
       leap = create(:project, name: 'openSUSE:Leap:15.0')
-      create(:package_with_file, name: 'apache2', project: leap)
+      leap_apache = create(:package_with_file, name: 'apache2', project: leap)
       leap_repository = create(:repository, project: leap, name: 'openSUSE_Tumbleweed')
       create(:path_element, link: tw_repository, repository: leap_repository)
 
@@ -200,7 +202,48 @@ namespace :dev do
       )
 
       # Create factory dashboard projects
-      create(:project, name: 'openSUSE:Factory')
+      factory = create(:project, name: 'openSUSE:Factory')
+      checker = create(:confirmed_user, login: 'repo-checker')
+      create(:relationship, project: factory, user: checker, role: Role.hashed['reviewer'])
+      osrt = create(:group, title: 'review-team')
+      reviewhero = create(:confirmed_user, login: 'reviewhero')
+      osrt.users << reviewhero
+      osrt.save
+      create(:relationship, project: factory, group: osrt, role: Role.hashed['reviewer'])
+      tw_apache = create(:package_with_file, name: 'apache2', project: factory)
+
+      req = travel_to(90.minutes.ago) do
+        req = create(
+          :bs_request_with_submit_action,
+          creator: iggy,
+          target_package: tw_apache,
+          source_package: leap_apache,
+          review_by_user: checker
+        )
+        User.current = iggy
+        req.reviews.create(by_group: osrt.title)
+        req
+      end
+
+      travel_to(88.minutes.ago) do
+        User.current = checker
+        req.change_review_state(:accepted, by_user: checker.login, comment: 'passed')
+      end
+
+      travel_to(20.minutes.ago) do
+        # accepting last review - new state
+        User.current = reviewhero
+        req.change_review_state(:accepted, by_group: osrt.title, comment: 'looks good')
+      end
+
+      comment = travel_to(85.minutes.ago) do
+        create(:comment, commentable: req)
+      end
+      create(:comment, commentable: req, parent: comment)
+
+      User.current = iggy
+      req.addreview(by_user: admin.login, comment: 'is this really fine?')
+
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
       create(:project, name: 'openSUSE:Factory:Staging:A', description: 'requests:')

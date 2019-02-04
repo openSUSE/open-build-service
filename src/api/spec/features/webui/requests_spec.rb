@@ -132,8 +132,8 @@ RSpec.feature 'Requests', type: :feature, js: true do
         login reviewer
         visit request_show_path(1)
         click_link('review_descision_link_0')
-        fill_in 'review_comment_0', with: 'Ok for the project'
-        click_button 'review_accept_button_0'
+        fill_in 'comment', with: 'Ok for the project'
+        click_button 'Approve'
         expect(page).to have_text('Ok for the project')
         expect(Review.first.state).to eq(:accepted)
         expect(BsRequest.first.state).to eq(:new)

@@ -235,24 +235,22 @@ RSpec.describe Webui::RequestController, vcr: true do
     RSpec.shared_examples 'a valid review' do |new_state|
       let(:params_hash) do
         {
-          review_comment_0: 'yeah',
-          review_request_number_0: request_with_review.number,
-          review_by_user_0: reviewer
+          comment: 'yeah',
+          request_number: request_with_review.number,
+          by_user: reviewer
         }
       end
+      let(:expected_state) { new_state == 'Approve' ? :accepted : :declined }
 
       before do
-        subject.update(state: 'declined') if new_state == 'new'
-
-        params_hash[new_state.to_sym] = 'non-important string'
-        post :modify_review, params: params_hash
+        post :modify_review, params: params_hash.update(new_state: new_state)
         request_with_review.reload
       end
 
       subject { request_with_review.reviews.last }
 
       it { expect(response).to redirect_to(request_show_path(number: request_with_review.number)) }
-      it { expect(subject.state).to eq(new_state) }
+      it { expect(subject.state).to eq(expected_state) }
       it { expect(flash[:success]).to eq('Successfully submitted review') }
     end
 
@@ -261,36 +259,35 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
 
     context 'with valid parameters' do
-      it_behaves_like 'a valid review', :accepted
-      it_behaves_like 'a valid review', :new
-      it_behaves_like 'a valid review', :declined
+      it_behaves_like 'a valid review', 'Approve'
+      it_behaves_like 'a valid review', 'Disregard'
     end
 
     context 'with invalid parameters' do
       it 'without request' do
-        post :modify_review, params: { review_comment_0: 'yeah',
-                                       review_request_number_0: 1899,
-                                       review_by_user_0: reviewer,
-                                       accepted: 'Approve' }
+        post :modify_review, params: { comment: 'yeah',
+                                       request_number: 1899,
+                                       by_user: reviewer,
+                                       new_state: 'Approve' }
         expect(flash[:error]).to eq('Unable to load request')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without state' do
-        post :modify_review, params: { review_comment_0: 'yeah',
-                                       review_request_number_0: request_with_review.number,
-                                       review_by_user_0: reviewer }
+        post :modify_review, params: { comment: 'yeah',
+                                       request_number: request_with_review.number,
+                                       by_user: reviewer }
         expect(flash[:error]).to eq('Unknown state to set')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without permissions' do
-        post :modify_review, params: { review_comment_0: 'yeah',
-                                       review_request_number_0: request_with_review.number,
-                                       review_by_user_0: submitter,
-                                       accepted: 'Approve' }
+        post :modify_review, params: { comment: 'yeah',
+                                       request_number: request_with_review.number,
+                                       by_user: submitter,
+                                       new_state: 'Approve' }
         expect(flash[:error]).to eq("Not permitted to change review state: review state change is not permitted for #{reviewer.login}")
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
@@ -298,10 +295,10 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'with invalid transition' do
         request_with_review.update_attributes(state: 'declined')
-        post :modify_review, params: { review_comment_0: 'yeah',
-                                       review_request_number_0: request_with_review.number,
-                                       review_by_user_0: reviewer,
-                                       accepted: 'Approve' }
+        post :modify_review, params: { comment: 'yeah',
+                                       request_number: request_with_review.number,
+                                       by_user: reviewer,
+                                       new_state: 'Approve' }
         expect(flash[:error]).to eq('Not permitted to change review state: The request is neither in state review nor new')
         expect(request_with_review.reload.state).to eq(:declined)
       end

@@ -80,22 +80,6 @@ module HasAttributes
                                          Nokogiri::XML::Node::SaveOptions::FORMAT)
   end
 
-  private
-
-  def matches_binary_filter?(filter, binary)
-    return true unless filter
-    return false if binary != filter
-    # switch between all and NULL binary
-    filter != '' || binary == ''
-  end
-
-  def render?(attr, filter_attrib_type, filter_binary)
-    if filter_attrib_type
-      return false unless attr.attrib_type == filter_attrib_type
-    end
-    return matches_binary_filter?(filter_binary, attr.binary)
-  end
-
   def render_main_attributes(builder, opts)
     attribs.each do |attr|
       next unless render?(attr, opts[:attrib_type], opts[:binary])
@@ -112,6 +96,22 @@ module HasAttributes
         render_single_attribute(attr, opts[:with_default], builder)
       end
     end
+  end
+
+  private
+
+  def matches_binary_filter?(filter, binary)
+    return true unless filter
+    return false if binary != filter
+    # switch between all and NULL binary
+    filter != '' || binary == ''
+  end
+
+  def render?(attr, filter_attrib_type, filter_binary)
+    if filter_attrib_type
+      return false unless attr.attrib_type == filter_attrib_type
+    end
+    return matches_binary_filter?(filter_binary, attr.binary)
   end
 
   def render_single_attribute(attr, with_default, builder)

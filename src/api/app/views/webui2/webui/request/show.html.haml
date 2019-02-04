@@ -1,3 +1,9 @@
+- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
+
+- if @not_full_diff
+  = render partial: 'webui2/shared/truncated_diff_hint',
+  locals: { path: request_show_path(number: @number, full_diff: true) }
+
 .card.mb-3
   .card-header.d-flex.justify-content-between
     %h5
@@ -5,11 +11,17 @@
   .card-body
     -# description content
 .card.mb-3
-  .card-header.d-flex.justify-content-between
-    %h5
-      Diff
+  .bg-light
+    %ul.nav.nav-tabs{ role: 'tablist' }
+      - @actions.each_with_index do |action, index|
+        %li.nav-item
+          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: "nav-link text-nowrap #{('active' if index.zero?)}",
+            data: { toggle: 'tab' }, role: 'tab')
   .card-body
-    -# Diff content and build results
+    .tab-content
+      - @actions.each_with_index do |action, index|
+        .tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if index.zero?) }
+          = render('sourcediff_tab', action: action, request_creator: @bs_request.creator, index: index)
 .row
   .col-md-8
     .card

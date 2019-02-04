@@ -872,30 +872,11 @@ class BsRequest < ApplicationRecord
     ret
   end
 
-  def review_matches_user?(review, user)
-    return false unless user
-    return user.login == review.by_user if review.by_user
-    return user.is_in_group?(review.by_group) if review.by_group
-    if review.by_project
-      p = nil
-      m = 'change_project'
-      if review.by_package
-        p = Package.find_by_project_and_name(review.by_project, review.by_package)
-        m = 'change_package'
-      else
-        p = Project.find_by_name(review.by_project)
-      end
-      return false unless p
-      return user.has_local_permission?(m, p)
-    end
-    false
-  end
-
   def reviews_for_user_and_others(user)
     user_reviews = []
     other_open_reviews = []
     reviews.where(state: 'new').find_each do |review|
-      if review_matches_user?(review, user)
+      if review.matches_user?(user)
         user_reviews << review.webui_infos
       else
         other_open_reviews << review.webui_infos

@@ -36,7 +36,7 @@ module ObsFactory
         'medkit'
       when 'legal-team', 'legal-auto' then
         'graduation-cap'
-      when 'leaper' then
+      when 'leaper', 'origin-manager' then
         'code-fork'
       when 'sle-changelog-checker' then
         'tags'

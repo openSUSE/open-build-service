@@ -43,32 +43,19 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def modify_review
-    opts = {}
-    state = nil
-    request = nil
-    params.each do |key, value|
-      state = key if  key.in?(['accepted', 'declined', 'new'])
-      request = BsRequest.find_by_number(value) if key.starts_with?('review_request_number_')
-
-      # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
-      # HTML ids. Thus we have to parse 'params' a bit:
-      opts[:comment] = value if key.starts_with?('review_comment_')
-      opts[:by_user] = value if key.starts_with?('review_by_user_')
-      opts[:by_group] = value if key.starts_with?('review_by_group_')
-      opts[:by_project] = value if key.starts_with?('review_by_project_')
-      opts[:by_package] = value if key.starts_with?('review_by_package_')
-    end
+    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package)
+    request = BsRequest.find_by_number(params[:request_number])
 
     if request.nil?
       flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_show_path(User.current))
       return
-    elsif state.nil?
+    elsif !new_state.in?(['accepted', 'declined'])
       flash[:error] = 'Unknown state to set'
     else
       begin
-        request.permission_check_change_review!(opts)
-        request.change_review_state(state, opts)
+        request.permission_check_change_review!(review_params)
+        request.change_review_state(new_state, review_params)
       rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
         flash[:error] = "Not permitted to change review state: #{e.message}"
       rescue APIError => e
@@ -139,13 +126,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    changestate = nil
-    ['accepted', 'declined', 'revoked', 'new'].each do |s|
-      if params.key?(s)
-        changestate = s
-        break
-      end
-    end
+    changestate = (['accepted', 'declined', 'revoked', 'new'] & params.keys).last
 
     if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
@@ -153,23 +134,20 @@ class Webui::RequestController < Webui::WebuiController
         if changestate != 'accepted'
           flash[:error] = 'Will not add maintainer for not accepted requests'
         else
-          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
-          if tpkg
-            target = Package.find_by_project_and_name(tprj, tpkg)
-          else
-            target = Project.find_by_name(tprj)
-          end
-          if target.can_be_modified_by?(User.current)
-            # the request action type might be permitted in future, but that doesn't mean we
-            # are allowed to modify the object
-            target.add_maintainer(@bs_request.creator)
-          end
+          # split into project and package
+          tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_')
+          target = if tpkg
+                     Package.find_by_project_and_name(tprj, tpkg)
+                   else
+                     Project.find_by_name(tprj)
+                   end
+          # the request action type might be permitted in future, but that doesn't mean we
+          # are allowed to modify the object
+          target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.current)
         end
       end
-
       accept_request if changestate == 'accepted'
     end
-
     redirect_to(request_show_path(params[:number]))
   end
 
@@ -311,6 +289,15 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   private
+
+  def new_state
+    case params[:new_state]
+    when 'Approve'
+      'accepted'
+    when 'Disregard'
+      'declined'
+    end
+  end
 
   def set_superseded_request
     return unless params[:diff_to_superseded]

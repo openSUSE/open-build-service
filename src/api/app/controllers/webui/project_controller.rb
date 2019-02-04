@@ -2,7 +2,6 @@ class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::RequestHelper
   include Webui::ProjectHelper
-  include Webui::LoadBuildresults
   include Webui::ManageRelationships
   include Webui2::ProjectController
 
@@ -193,13 +192,7 @@ class Webui::ProjectController < Webui::WebuiController
   def show
     @bugowners_mail = @project.bugowner_emails
 
-    # An incident has a patchinfo if there is a package 'patchinfo' with file '_patchinfo', try to find that:
-    @has_patchinfo = false
-    if @packages.map { |p| p[0] }.include?('patchinfo')
-      Directory.hashed(project: @project.name, package: 'patchinfo').elements('entry') do |e|
-        @has_patchinfo = true if e['name'] == '_patchinfo'
-      end
-    end
+    @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
     render :show, status: params[:nextstatus] if params[:nextstatus]
@@ -388,98 +381,21 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    @legend = Buildresult::STATUS_DESCRIPTION
-
-    @name_filter = params[:pkgname]
-    @lastbuild_switch = params[:lastbuild]
-    if params[:defaults]
-      defaults = (begin
-                    Integer(params[:defaults])
-                  rescue ArgumentError
-                    1
-                  end) > 0
-    else
-      defaults = true
-    end
-    params['expansionerror'] = 1 if params['unresolvable']
-    monitor_set_filter(defaults)
-
-    find_opt = { project: @project, view: 'status', code: @status_filter,
-                 arch: @arch_filter, repository: @repo_filter }
-    find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
-
-    @buildresult = Buildresult.find_hashed(find_opt)
-    if @buildresult.empty?
-      flash[:warning] = "No build results for project '#{@project}'"
-      redirect_to action: :show, project: params[:project]
-      return
-    end
-
-    unless @buildresult.key?('result')
+    unless (buildresult = monitor_buildresult)
       @buildresult_unavailable = true
       return
     end
 
-    fill_status_cache
+    monitor_parse_buildresult(buildresult)
 
-    @localpackages = {}
-    @project.packages.each do |package|
-      @localpackages[package.name] = 1
+    # extract repos
+    repohash = {}
+    @statushash.each do |repo, arch_hash|
+      repohash[repo] = arch_hash.keys.sort!
     end
+    @repoarray = repohash.sort
 
-    @packagenames = @packagenames.flatten.uniq.sort!
-
-    ## Filter for PackageNames ####
-    @packagenames.select! { |name| filter_matches?(name, @name_filter) } if @name_filter.present?
-
-    packagename_hash = {}
-    @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
-
-    # filter out repos without current packages
-    @statushash.each do |repo, hash|
-      hash.each do |arch, packages|
-        has_packages = false
-        packages.each do |p, _|
-          if packagename_hash.key?(p)
-            has_packages = true
-            break
-          end
-        end
-        @repohash[repo].delete(arch) unless has_packages
-      end
-    end
     switch_to_webui2
-  end
-
-  # should be in the package controller, but all the helper functions to render the result of a build are in the project
-  def package_buildresult
-    check_ajax
-    begin
-      @buildresult = Buildresult.find_hashed(project: params[:project], package: params[:package], view: 'status', lastbuild: 1)
-    rescue Backend::Error # wild work around for backend bug (sends 400 for 'not found')
-    end
-    @repohash = {}
-    @statushash = {}
-
-    if @buildresult
-      @buildresult.elements('result') do |result|
-        repo = result['repository']
-        arch = result['arch']
-
-        @repohash[repo] ||= []
-        @repohash[repo] << arch
-
-        # package status cache
-        @statushash[repo] ||= {}
-        @statushash[repo][arch] = {}
-
-        stathash = @statushash[repo][arch]
-        result.elements('status') do |status|
-          stathash[status['package']] = status
-        end
-      end
-    end
-    render layout: false
   end
 
   def toggle_watch
@@ -636,6 +552,88 @@ class Webui::ProjectController < Webui::WebuiController
 
   private
 
+  def monitor_buildresult
+    @legend = Buildresult::STATUS_DESCRIPTION
+
+    @name_filter = params[:pkgname]
+    @lastbuild_switch = params[:lastbuild]
+    if params[:defaults]
+      defaults = (begin
+                    Integer(params[:defaults])
+                  rescue ArgumentError
+                    1
+                  end) > 0
+    else
+      defaults = true
+    end
+    params['expansionerror'] = 1 if params['unresolvable']
+    monitor_set_filter(defaults)
+
+    find_opt = { project: @project, view: 'status', code: @status_filter,
+                 arch: @arch_filter, repository: @repo_filter }
+    find_opt[:lastbuild] = 1 if @lastbuild_switch.present?
+
+    buildresult = Buildresult.find_hashed(find_opt)
+    if buildresult.empty?
+      flash[:warning] = "No build results for project '#{@project}'"
+      redirect_to action: :show, project: params[:project]
+      return
+    end
+
+    return unless buildresult.key?('result')
+    buildresult
+  end
+
+  def monitor_parse_buildresult(buildresult)
+    @packagenames = Set.new
+    @statushash = {}
+    @repostatushash = {}
+    @repostatusdetailshash = {}
+    @failures = 0
+
+    buildresult.elements('result') do |result|
+      monitor_parse_result(result)
+    end
+
+    # convert to sorted array
+    @packagenames = @packagenames.to_a.sort!
+  end
+
+  def monitor_parse_result(result)
+    repo = result['repository']
+    arch = result['arch']
+
+    return unless @repo_filter.nil? || @repo_filter.include?(repo)
+    return unless @arch_filter.nil? || @arch_filter.include?(arch)
+
+    # package status cache
+    @statushash[repo] ||= {}
+    stathash = @statushash[repo][arch] = {}
+
+    result.elements('status') do |status|
+      package = status['package']
+      next if @name_filter.present? && !filter_matches?(package, @name_filter)
+      stathash[package] = status
+      @packagenames.add(package)
+      if status['code'].in?(['unresolvable', 'failed', 'broken'])
+        @failures += 1
+      end
+    end
+
+    # repository status cache
+    @repostatushash[repo] ||= {}
+    @repostatusdetailshash[repo] ||= {}
+
+    return unless result.key?('state')
+    if result.key?('dirty')
+      @repostatushash[repo][arch] = 'outdated_' + result['state']
+    else
+      @repostatushash[repo][arch] = result['state']
+    end
+
+    @repostatusdetailshash[repo][arch] = result['details'] if result.key?('details')
+  end
+
   def set_project_by_id
     @project = Project.find(params[:id])
   end
@@ -728,7 +726,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def monitor_set_filter(defaults)
     @avail_status_values = Buildresult.avail_status_values
-    @filter_out = ['disabled', 'excluded', 'unknown']
     @status_filter = []
     @avail_status_values.each do |s|
       id = s.delete(' ')
@@ -737,30 +734,24 @@ class Webui::ProjectController < Webui::WebuiController
       else
         next unless defaults
       end
-      next if defaults && @filter_out.include?(s)
+      next if defaults && ['disabled', 'excluded', 'unknown'].include?(s)
       @status_filter << s
     end
 
-    @avail_arch_values = []
-    @avail_repo_values = []
-
-    @project.api_obj.repositories.each do |r|
-      @avail_repo_values << r.name
-      @avail_arch_values << r.architectures.pluck(:name)
-    end
-    @avail_arch_values = @avail_arch_values.flatten.uniq.sort!
-    @avail_repo_values = @avail_repo_values.flatten.uniq.sort!
+    repos = @project.repositories
+    @avail_repo_values = repos.select(:name).distinct.order(:name).pluck(:name)
+    @avail_arch_values = repos.joins(:architectures).select('architectures.name').distinct.order('architectures.name').pluck('architectures.name')
 
     @arch_filter = []
     @avail_arch_values.each do |s|
-      archid = valid_xml_id('arch_' + s)
-      @arch_filter << s if defaults || (params.key?(archid) && params[archid])
+      archid = valid_xml_id("arch_#{s}")
+      @arch_filter << s if defaults || params[archid]
     end
 
     @repo_filter = []
     @avail_repo_values.each do |s|
-      repoid = valid_xml_id('repo_' + s)
-      @repo_filter << s if defaults || (params.key?(repoid) && params[repoid])
+      repoid = valid_xml_id("repo_#{s}")
+      @repo_filter << s if defaults || params[repoid]
     end
   end
 

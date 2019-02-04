@@ -23,6 +23,6 @@ RSpec.describe RemoveDuplicatedFlags, type: :migration do
       RemoveDuplicatedFlags.new.up
     end
 
-    it { expect(project.flags).to contain_exactly(flag_3, flag_2) }
+    it { expect(project.reload.flags).to contain_exactly(flag_3, flag_2) }
   end
 end

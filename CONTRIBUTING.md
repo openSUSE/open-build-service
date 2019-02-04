@@ -174,7 +174,7 @@ environment. All the tools needed for this are available for Linux, MacOS and
 Windows.
 
 **Please note** that the OBS backend uses advanced filesystem features
-that require an case sensitive filesystem (default in Linux, configurable in MacOS/Windows),
+that require an case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
 make sure you run all this from a filesystem that supports this.
 
 1. Install [docker](https://www.docker.com) and [docker-compose](https://docs.docker.com/compose/).

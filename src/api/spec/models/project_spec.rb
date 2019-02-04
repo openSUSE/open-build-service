@@ -3,6 +3,7 @@ require 'rantly/rspec_extensions'
 # WARNING: If you need to make a Backend call uncomment the following line
 # CONFIG['global_write_through'] = true
 
+# rubocop:disable Metrics/BlockLength
 RSpec.describe Project, vcr: true do
   let!(:project) { create(:project, name: 'openSUSE_41') }
   let(:remote_project) { create(:remote_project, name: 'openSUSE.org') }
@@ -583,4 +584,44 @@ RSpec.describe Project, vcr: true do
       expect(project_release.packages.where(name: 'my_release_target')).to exist
     end
   end
+
+  describe '#update_from_xml' do
+    let(:project) { create(:project) }
+    let(:invalid_meta_xml) do
+      <<-XML_DATA
+      <project name="#{project.name}">
+        <title>Mine</title>
+        <description/>
+        <build>
+          <enable/>
+          <disable/>
+          <enable arch="i586"/>
+          <disable arch="x86_64"/>
+          <disable/>
+          <enable/>
+          <enable arch="x86_64"/>
+        </build>
+      </project>
+      XML_DATA
+    end
+
+    let(:new_xml) do
+      project.update_from_xml!(Xmlhash.parse(invalid_meta_xml))
+      project.save!
+      Xmlhash.parse(project.render_xml)
+    end
+
+    it 'ignores duplicated flags' do
+      expect(new_xml['build']['disable']).to contain_exactly({}, 'arch' => 'x86_64')
+    end
+
+    it 'erases all enable flags shadowed' do
+      expect(new_xml['build']['enable'].to_s).to eq('{"arch"=>"i586"}')
+    end
+
+    it 'updates basics' do
+      expect(new_xml).to include('title' => 'Mine', 'description' => {}, 'name' => project.name)
+    end
+  end
 end
+# rubocop:enable Metrics/BlockLength
