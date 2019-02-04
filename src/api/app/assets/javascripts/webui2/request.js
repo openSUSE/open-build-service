@@ -67,44 +67,7 @@ function setupRequestDialog() { // jshint ignore:line
   updateSupersedeAndDevelPackageDisplay();
 }
 
-function requestAddAcceptRequestButton() { // jshint ignore:line
-  $('#accept_request_button').click(function () {
-    var additionalElement;
-
-    /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
-    if ($('.submitter_is_maintainer_checkbox').size() !== 0 &&
-      $('.submitter_is_maintainer_checkbox').is(':checked')) {
-      additionalElement = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
-        '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
-        '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>';
-      $('#request_handle_form p:last').append(additionalElement);
-    }
-    if ($('.forward_checkbox').size() !== 0 &&
-      $('.forward_checkbox').is(':checked')) {
-      $('.forward_checkbox').each(function () {
-        additionalElement = '<input id="' + $(this).attr('id') +
-          '" name="' + $(this).attr('name') +
-          '" type="hidden" value="' + $(this).attr('value') + '"/>';
-        $('#request_handle_form p:last').append(additionalElement);
-      });
-    }
-  });
-}
-
-function requestShowReview() { // jshint ignore:line
-  var index;
-  $('.review_descision_link').click(function (event) {
-    $('#review_descision_select li.selected').attr('class', '');
-    $(event.target).parent().attr('class', 'selected');
-    $('.review_descision_display').hide();
-    index = event.target.id.split('review_descision_link_')[1];
-    $('#review_descision_display_' + index).show();
-    return false;
-  });
-}
-
 function requestAddReviewAutocomplete() { // jshint ignore:line
-
   $('#review_type').change(function () {
     switch ($('#review_type option:selected').attr('value')) {
       case "user":
@@ -187,20 +150,5 @@ function requestAddReviewAutocomplete() { // jshint ignore:line
     minChars: 0,
     matchCase: true,
     max: 50
-  });
-}
-
-function setupActionLink() { // jshint ignore:line
-  var index;
-  $('.action_select_link').click(function (event) {
-    $('#action_select li.selected').attr('class', '');
-    $(event.target).parent().attr('class', 'selected');
-    $('.action_display').hide();
-    index = event.target.id.split('action_select_link_')[1];
-    $('#action_display_' + index).show();
-    // It is necessary to refresh the CodeMirror editors after switching tabs to initialise the dimensions again.
-    // Otherwise the editors are empty after calling show().
-    editors.forEach( function(editor) { editor.refresh(); });
-    return false;
   });
 }
