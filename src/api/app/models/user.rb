@@ -31,6 +31,9 @@ class User < ApplicationRecord
   has_secure_password validations: false
 
   has_many :watched_projects, dependent: :destroy, inverse_of: :user
+
+  has_many :watch_items, dependent: :nullify
+
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy

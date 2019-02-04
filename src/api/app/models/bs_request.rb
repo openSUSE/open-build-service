@@ -100,6 +100,8 @@ class BsRequest < ApplicationRecord
   belongs_to :staging_project, class_name: 'Project', foreign_key: 'staging_project_id'
   has_one :request_exclusion, class_name: 'Staging::RequestExclusion', foreign_key: 'bs_request_id', dependent: :destroy
 
+  has_many :watch_items, as: :item, dependent: :destroy
+
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true
   validate :check_supersede_state

@@ -59,6 +59,8 @@ class Package < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
+  has_many :watch_items, as: :item, dependent: :destroy
+
   before_destroy :delete_on_backend
   before_destroy :close_requests
   before_destroy :update_project_for_product

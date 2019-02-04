@@ -80,6 +80,8 @@ class Project < ApplicationRecord
 
   has_one :staging, class_name: 'Staging::Workflow', inverse_of: :project
 
+  has_many :watch_items, as: :item, dependent: :destroy
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }

@@ -335,6 +335,12 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    # TODO: Will probably need a js "index" too
+    controller 'webui/watch_items' do
+      post 'watch_item/create' => :create
+      delete 'watch_item/destroy' => :destroy
+    end
+
     controller 'webui/request' do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
