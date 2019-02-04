@@ -225,10 +225,14 @@ class Review < ApplicationRecord
   end
 
   def reviewable_by?(opts)
-    by_user && by_user == opts[:by_user] ||
-      by_group && by_group == opts[:by_group] ||
-      by_project && by_project == opts[:by_project] ||
-      by_package && by_package == opts[:by_package]
+    return by_user == opts[:by_user] if by_user
+    return by_group == opts[:by_group] if by_group
+    reviewable_by = by_project == opts[:by_project]
+    if by_package
+      reviewable_by && by_package == opts[:by_package]
+    else
+      reviewable_by
+    end
   end
 
   def change_state(new_state, comment)
