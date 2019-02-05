@@ -18,6 +18,13 @@ function setupProjectMonitor() { // jshint ignore:line
     }
   });
 
+  $('#table-spinner').addClass('d-none');
+  $('#project-monitor .obs-dataTable').removeClass('invisible');
+
+  $('#filter-button').on('click', function () {
+    $('#table-spinner').removeClass('d-none');
+  });
+
   $('#project-monitor-table').on('draw.dt', function () {
     setupPopover();
   });
