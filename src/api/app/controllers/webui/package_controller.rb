@@ -951,7 +951,10 @@ class Webui::PackageController < Webui::WebuiController
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
       switch_to_webui2 if params[:switch].present?
-      render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
+      render partial: 'buildstatus', locals: { buildresults: @buildresults,
+                                               index: @index,
+                                               project: @project,
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, []) }
     else
       switch_to_webui2 if params[:switch].present?
       render partial: 'no_repositories', locals: { project: @project }
