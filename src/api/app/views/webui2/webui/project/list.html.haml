@@ -42,7 +42,8 @@
         %p
           %i No projects found
       - else
-        %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json) } }
+        %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json,
+                                                                                                                              show_all: @show_all) } }
           %thead
             %tr
               %th Name

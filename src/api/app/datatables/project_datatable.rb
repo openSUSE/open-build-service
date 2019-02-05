@@ -19,8 +19,12 @@ class ProjectDatatable < AjaxDatatablesRails::ActiveRecord
     }
   end
 
+  def show_all
+    @show_all ||= options[:show_all]
+  end
+
   def get_raw_records
-    Project.all
+    show_all ? Project.all : Project.filtered_for_list
   end
 
   def data
