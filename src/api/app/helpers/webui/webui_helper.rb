@@ -408,7 +408,7 @@ module Webui::WebuiHelper
   def image_tag_for(object, size: 500)
     return unless object
     alt = "#{object.name}'s avatar"
-    image_tag(gravatar_icon(object.email, size), alt: alt, width: '100%', title: object.name)
+    image_tag(gravatar_icon(object.email, size), alt: alt, title: object.name, size: size, class: 'img-fluid')
   end
 
   def gravatar_icon(email, size)
@@ -417,6 +417,10 @@ module Webui::WebuiHelper
     else
       'default_face.png'
     end
+  end
+
+  def home_title
+    @configuration ? @configuration['title'] : 'Open Build Service'
   end
 end
 # rubocop:enable Metrics/ModuleLength

@@ -8,7 +8,7 @@
     = favicon_link_tag
     %title
       = "#{@pagetitle} - " if @pagetitle
-      = @configuration ? @configuration['title'] : 'Open Build Service'
+      = home_title
     = stylesheet_link_tag 'webui2/webui2'
     = javascript_include_tag 'webui2/application'
 
