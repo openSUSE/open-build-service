@@ -890,7 +890,7 @@ sub send_dispatched {
   my $param = {
     'uri' => "$server/workerdispatched",
     'request' => 'POST',
-    'timeout' => 300,
+    'timeout' => 600,
   };
   BSRPC::rpc($param, undef, @args);
 }
@@ -3459,22 +3459,6 @@ sub startbuild {
     }
   }
 
-  if (!$testmode && $buildinfo->{'masterdispatched'}) {
-    $buildinfo->{'jobid'} = $jobid = $buildinfo->{'masterdispatched'};
-    eval {
-      send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo);
-    };
-    if ($@) {
-      unlink('job');
-      if ($@ =~ /no such job/ || $@ =~ /wrong job/) {
-	warn($@);
-        # not an error for the master dispatcher
-        return "<status code=\"ok\">\n  <details>better luck next time...</details>\n</status>\n";
-      }
-      die($@);
-    }
-  }
-
   $buildinfo->{'nobadhost'} = $cgi->{'nobadhost'} if $cgi->{'nobadhost'};
 
   # make the BSServer::server() call return
@@ -3685,7 +3669,16 @@ my ($state, $buildinfo, $registerserver) = BSServer::server($conf);
 print "got job, run build...\n";
 BSServer::done(1);
 
-mkdir_p($buildroot) if ( ! -e $buildroot);
+if (!$testmode && $buildinfo->{'masterdispatched'}) {
+  $buildinfo->{'jobid'} = $buildinfo->{'masterdispatched'};
+  eval { send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo) };
+  if ($@) {
+    unlink('job');
+    die($@);
+  }
+}
+
+mkdir_p($buildroot) unless -e $buildroot;
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
 unlink("$buildroot/.build.log");
