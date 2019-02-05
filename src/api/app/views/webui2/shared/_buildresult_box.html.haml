@@ -1,5 +1,5 @@
 :ruby
-  index ||= ''
+  index ||= '0'
   ajax_data = {}
   ajax_data['switch'] = 'true' # FIXME: Remove this when request show is available in bootstrap
   ajax_data['project'] = h(project) if defined?(project)
@@ -35,3 +35,6 @@
 :javascript
   updateBuildResult('#{index}');
   if ($('#rpm#{index}').length === 1) updateRpmlintResult('#{index}');
+
+- content_for(:ready_function) do
+  subscribeAjaxEvents("#{index}");

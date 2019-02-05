@@ -947,13 +947,14 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     if @project.repositories.any?
-      show_all = params[:show_all] == 'true'
       @index = params[:index]
+      show_all = params["show_all_#{@index}"] == 'true'
       @buildresults = @package.buildresult(@project, show_all)
       switch_to_webui2 if params[:switch].present?
       render partial: 'buildstatus', locals: { buildresults: @buildresults,
                                                index: @index,
                                                project: @project,
+                                               package: @package,
                                                collapsed_repositories: params.fetch(:collapsedRepositories, []) }
     else
       switch_to_webui2 if params[:switch].present?

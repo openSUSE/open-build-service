@@ -1,7 +1,11 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
+
   .mt-3.small.custom-control-checkbox
+    -# FIXME: Remove `switch: true` under `data-params` when request show is available in Bootstrap
     = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
-                    onchange: "updateBuildResult('#{index}')")
+                    data: { remote: true,
+                            url: package_buildresult_path,
+                            params: { index: 0, switch: true, project: project, package: package }.to_param })
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
     = label_tag "show_all_#{index}" do
       %u.custom-label #{label_message} excluded/disabled results

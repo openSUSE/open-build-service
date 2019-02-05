@@ -36,6 +36,15 @@ function updateBuildResult(index) { // jshint ignore:line
   });
 }
 
+function subscribeAjaxEvents(index) {
+  // TODO: Handle 'ajax:error'
+  $('#show_all_' + index).on('ajax:success', function(_event, data, _status, _xhr) {
+    $('#build' + index + ' .result').html(data);
+    // Since the element on which we bind the 'ajax:success' is rendered again on the line just above, it needs to be bound again...
+    subscribeAjaxEvents(index);
+  });
+}
+
 function updateArchDisplay(index) { // jshint ignore:line
   $('.rpmlint_arch_select_' + index).hide();
   $('#rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value')).show();
