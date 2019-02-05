@@ -218,7 +218,9 @@ class Webui::ProjectController < Webui::WebuiController
   def buildresult
     switch_to_webui2 if params[:switch].present?
     check_ajax
-    render partial: 'buildstatus', locals: { project: @project, buildresults: @project.buildresults }
+    render partial: 'buildstatus', locals: { project: @project,
+                                             buildresults: @project.buildresults,
+                                             collapsed_repositories: params.fetch(:collapsedRepositories, []) }
   end
 
   def delete_dialog
