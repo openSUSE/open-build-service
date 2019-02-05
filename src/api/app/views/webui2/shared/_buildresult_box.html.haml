@@ -21,7 +21,9 @@
   .card-body
     .tab-content
       .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
-        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ onclick: "updateBuildResult('#{index}')", accesskey: 'r', title: 'Refresh Build Results' }
+        - ajax_url = defined?(package) ? package_buildresult_path : project_buildresult_path
+        %button.btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ accesskey: 'r', title: 'Refresh Build Results',
+                                                                   data: { remote: true, url: ajax_url, params: ajax_data.to_param } }
           Refresh
           %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
         .result

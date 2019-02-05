@@ -946,6 +946,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def buildresult
+    # TODO: Check if webui is still working
     if @project.repositories.any?
       @index = params[:index]
       show_all = params["show_all_#{@index}"] == 'true'

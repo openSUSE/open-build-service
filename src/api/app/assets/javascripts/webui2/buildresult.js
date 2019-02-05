@@ -36,11 +36,35 @@ function updateBuildResult(index) { // jshint ignore:line
   });
 }
 
+// TODO: Handle 'ajax:error', 'ajax:complete' and DRY binding code
 function subscribeAjaxEvents(index) {
-  // TODO: Handle 'ajax:error'
   $('#show_all_' + index).on('ajax:success', function(_event, data, _status, _xhr) {
     $('#build' + index + ' .result').html(data);
-    // Since the element on which we bind the 'ajax:success' is rendered again on the line just above, it needs to be bound again...
+    // Since the element on which we bind this event is rendered again on the line just above, it needs to be bound again...
+    subscribeAjaxEvents(index);
+  });
+
+  $('button.build-refresh').on('ajax:before', function(_event) {
+    var button = $(this);
+    var buttonParams = button.data('params');
+    console.log(buttonParams);
+    // var serializedCollapsedRepositories = $('.result div.collapse:not(.show)').map(function(_index, domElement) { return $.param((({ repository }) => ({ repository }))($(domElement).data())); }).get().join('&');
+    // button.data('params', buttonParams + '&' + serializedCollapsedRepositories);
+    console.log(button.data);
+  });
+
+  // $('button.build-refresh').on('ajax:beforeSend', function(_event, _xhr, settings) {
+  //   var button = $(this);
+  //   console.log(_event);
+  //   console.log(_xhr);
+  //   console.log(settings);
+  //   button.data('collapsedRepositories', $('.result div.collapse:not(.show)').map(function(_index, domElement) { return $(domElement).data('repository'); }).get());
+  //   console.log(button.data());
+  // });
+
+  $('button.build-refresh').on('ajax:success', function(_event, data, _status, _xhr) {
+    $('#build' + index + ' .result').html(data);
+    // Since the element on which we bind this event is rendered again on the line just above, it needs to be bound again...
     subscribeAjaxEvents(index);
   });
 }
