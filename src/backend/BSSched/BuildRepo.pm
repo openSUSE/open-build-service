@@ -307,11 +307,8 @@ sub fctx_gbininfo2full {
       my $r = $f{$fn};
       $r->{'packid'} = $packid;
       $r->{'filename'} = $fn;
-      if ($packid eq '_volatile') {
-        # volatile may have multiple architectures and multiple versions...
-        my $or = $full{$r->{'name'}};
-        $full{$r->{'name'}} = $r if $or && $or->{'packid'} eq '_volatile' && volatile_cmp($r, $or);
-      }
+      my $or = $full{$r->{'name'}};
+      $full{$r->{'name'}} = $r if $or && $or->{'packid'} eq $packid && volatile_cmp($r, $or);
       $full{$r->{'name'}} ||= $r;		# first one wins
     }
   }
@@ -523,10 +520,14 @@ sub fctx_integrate_package_into_full {
     # sort by file name, but put imported stuff last
     for my $fn (sort { ($old->{$a}->{'imported'} || 0) <=> ($old->{$b}->{'imported'} || 0) || $a cmp $b} keys %$old) {
       my $r = $old->{$fn};
+      my $ofn = $oldfull{$r->{'name'}};
+      $oldfull{$r->{'name'}} = $fn if $ofn && $old->{$ofn} && volatile_cmp($r, $old->{$ofn});
       $oldfull{$r->{'name'}} ||= $fn;
     }
     for my $fn (sort { ($new->{$a}->{'imported'} || 0) <=> ($new->{$b}->{'imported'} || 0) || $a cmp $b} keys %$new) {
       my $r = $new->{$fn};
+      my $ofn = $newfull{$r->{'name'}};
+      $newfull{$r->{'name'}} = $fn if $ofn && $new->{$ofn} && volatile_cmp($r, $new->{$ofn});
       $newfull{$r->{'name'}} ||= $fn;
     }
 
