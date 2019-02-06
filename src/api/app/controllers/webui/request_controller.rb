@@ -11,6 +11,8 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :set_superseded_request, only: :show
 
+  before_action :check_ajax, only: :sourcediff
+
   def add_reviewer_dialog
     @request_number = params[:number]
     render_dialog('requestAddReviewAutocomplete')
@@ -112,7 +114,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def sourcediff
-    check_ajax
     render partial: 'shared/editor', locals: { text: params[:text],
                                                mode: 'diff', style: { read_only: true },
                                                height: 'auto', width: '750px',
