@@ -2,7 +2,7 @@
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
       .modal-header
-        %h5.modal-title#add-reviewer-modal-label Add a reviewer to request #{@request_number}
+        %h5.modal-title#add-reviewer-modal-label Add a reviewer to request #{params['number']}
       .modal-body
         = form_tag(action: 'add_reviewer') do
           = hidden_field_tag(:number, params['number'])
