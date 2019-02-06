@@ -35,13 +35,31 @@
 .row
   .col-md-8
     .card.mb-3
-      .card-header.d-flex.justify-content-between
-        %h5
-          Comments for request #{@number}
-          %span.badge.badge-primary
-            = @comments.size
-      .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @bs_request }
+      .bg-light
+        %ul.nav.nav-tabs{ role: 'tablist' }
+          %li.nav-item
+            = link_to('#comments', class: 'nav-link text-nowrap active', data: { toggle: 'tab' }, role: 'tab') do
+              Comments for request #{@number}
+              %span.badge.badge-primary
+                = @comments.size
+          - if @superseding
+            - @superseding.includes(:comments).each do |superseded|
+              - if superseded.comments.any?
+                %li.nav-item
+                  = link_to("#superseded-#{superseded.number}", title: "This request was superseded by request #{superseded.superseded_by}",
+                    class: 'nav-link text-nowrap', data: { toggle: 'tab' }, role: 'tab') do
+                    Comments for request #{superseded.number}
+                    %span.badge.badge-primary
+                      = superseded.comments.size
+      .card-body
+        .tab-content
+          .tab-pane.fade.show.active#comments
+            = render partial: 'webui2/webui/comment/show', locals: { commentable: @bs_request }
+          - if @superseding
+            - @superseding.includes(:comments).each do |superseded|
+              - if superseded.comments.any?
+                .tab-pane.fade.show{ id: "superseded-#{superseded.number}" }
+                  = render partial: 'webui2/webui/comment/show', locals: { commentable: superseded }
     .card.mb-3
       .bg-light
         %ul.nav.nav-tabs{ role: 'tablist' }
@@ -70,7 +88,6 @@
           - @my_open_reviews.each_with_index do |review, index|
             .tab-pane.fade.show{ id: "review-#{index}" }
               = render('review_tab', review: review, request_number: @number)
-
   .col-md-4
     .card
       .card-header.d-flex.justify-content-between
