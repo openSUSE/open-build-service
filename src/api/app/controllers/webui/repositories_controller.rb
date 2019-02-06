@@ -3,6 +3,7 @@ class Webui::RepositoriesController < Webui::WebuiController
   before_action :set_repository, only: [:state]
   before_action :set_architectures, only: [:index, :change_flag]
   before_action :find_repository_parent, only: [:index, :create_flag, :remove_flag, :toggle_flag, :change_flag]
+  before_action :check_ajax, only: :change_flag
   after_action :verify_authorized, except: [:index, :distributions, :state]
 
   # GET /repositories/:project(/:package)
@@ -253,7 +254,6 @@ class Webui::RepositoriesController < Webui::WebuiController
   # TODO: when removing bento, remove the extra 'change' from the route, for
   # now we need to avoid the clash with create_flag
   def change_flag
-    check_ajax
     required_parameters :flag, :command
     set_webui2_views
     authorize @main_object, :update?

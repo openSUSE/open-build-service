@@ -4,6 +4,7 @@ module Webui
       before_action -> { feature_active?(:kiwi_image_editor) }
       before_action :set_image, except: [:import_from_package]
       before_action :authorize_update, except: [:import_from_package]
+      before_action :check_ajax, only: :build_result
 
       def import_from_package
         package = Package.find(params[:package_id])
@@ -89,7 +90,6 @@ module Webui
       end
 
       def build_result
-        check_ajax
         if @image.package.project.repositories.any?
           @build_results = @image.build_results
           render partial: 'build_status'
