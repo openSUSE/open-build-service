@@ -1248,26 +1248,6 @@ CREATE TABLE `user_registrations` (
   CONSTRAINT `user_registrations_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-CREATE TABLE `user_watchlist_items` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_watchlist_id` bigint(20) DEFAULT NULL,
-  `item_id` int(11) DEFAULT NULL,
-  `item_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_user_watchlist_items_on_user_watchlist_id` (`user_watchlist_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE `user_watchlists` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_id` bigint(20) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_user_watchlists_on_user_id` (`user_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
@@ -1467,8 +1447,6 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181201065026'),
 ('20190111130416'),
 ('20190115131711'),
-('20190131150422'),
-('20190204082958'),
 ('20190204162828');
 
 
