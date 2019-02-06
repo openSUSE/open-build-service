@@ -69,40 +69,9 @@ function setupRequestDialog() { // jshint ignore:line
 
 function requestAddReviewAutocomplete() { // jshint ignore:line
   $('#review_type').change(function () {
-    switch ($('#review_type option:selected').attr('value')) {
-      case "user":
-      {
-        $('#review_user_span').show();
-        $('#review_group_span').hide();
-        $('#review_project_span').hide();
-        $('#review_package_span').hide();
-      }
-        break;
-      case "group":
-      {
-        $('#review_user_span').hide();
-        $('#review_group_span').show();
-        $('#review_project_span').hide();
-        $('#review_package_span').hide();
-      }
-        break;
-      case "project":
-      {
-        $('#review_user_span').hide();
-        $('#review_group_span').hide();
-        $('#review_project_span').show();
-        $('#review_package_span').hide();
-      }
-        break;
-      case "package":
-      {
-        $('#review_user_span').hide();
-        $('#review_group_span').hide();
-        $('#review_project_span').show();
-        $('#review_package_span').show();
-      }
-        break;
-    }
+    $('span').addClass('d-none');
+    var selected = $('#review_type option:selected').attr('value');
+    $('.' + selected).removeClass('d-none');
   });
 
   $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50,
