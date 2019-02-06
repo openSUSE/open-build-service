@@ -1,43 +1,34 @@
 class Webui::WatchItemsController < ApplicationController
-  before_action :find_item_and_user, only: [:create]
+  before_action :check_item_and_user, only: [:create]
+  before_action :check_item_to_destroy, only: [:destroy]
 
   # TODO: Add a JSON response that includes item name, url,...
   # or whatever other information that we need in the JS watchlist
 
   def create
+    watch_item = WatchItem.new(item: @item, user: @user)
     respond_to do |format|
-      if @item.blank? || @user.blank?
-        format.json { render json: 'Item not found', status: :unprocessable_entity }
+      if watch_item.save
+        format.json { render json: @user.watch_items }
       else
-        watch_item = WatchItem.new(item: @item, user: @user)
-        if watch_item.save
-          format.json { render json: @user.watch_items }
-        else
-          format.json { render json: { error: watch_item.errors.to_json, status: :unprocessable_entity } }
-        end
+        format.json { render json: { error: watch_item.errors.to_json, status: :unprocessable_entity } }
       end
     end
   end
 
   def destroy
     respond_to do |format|
-      item_to_destroy = WatchItem.find(params[:id])
-      if item_to_destroy.blank?
-        format.json { render json: 'Item not found', status: :unprocessable_entity }
+      if @item_to_destroy.destroy
+        format.json { render json: @item_to_destroy.user.watch_items }
       else
-        user = item_to_destroy.user
-        if item_to_destroy.destroy
-          format.json { render json: user.watch_items }
-        else
-          format.json { render json: watchlist.errors, status: :unprocessable_entity }
-        end
+        format.json { render json: @item_to_destroy.errors, status: :unprocessable_entity }
       end
     end
   end
 
   private
 
-  def find_item_and_user
+  def check_item_and_user
     @item = case params[:item_type]
             when 'project'
               Project.find(params[:item_id])
@@ -51,5 +42,17 @@ class Webui::WatchItemsController < ApplicationController
             else
               User.current
             end
+    not_found_response if @item.blank? || @user.blank?
+  end
+
+  def check_item_to_destroy
+    @item_to_destroy = WatchItem.find(params[:id])
+    not_found_response if @item_to_destroy.blank?
+  end
+
+  def not_found_response
+    respond_to do |format|
+      format.json { render json: 'Item not found', status: :unprocessable_entity }
+    end
   end
 end
