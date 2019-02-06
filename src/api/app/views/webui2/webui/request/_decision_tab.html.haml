@@ -1,7 +1,7 @@
 = form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
   = hidden_field_tag(:number, request_number)
   %p
-    = text_area_tag(:reason, nil, placeholder: 'Please add a comment', row: 4, class: 'w-100 form-control')
+    = text_area_tag(:reason, nil, placeholder: 'Please add a comment', rows: 4, class: 'w-100 form-control')
   - if single_action_request
     - if state.in?(['new', 'review']) && !action[:creator_is_target_maintainer]
       .custom-control.custom-checkbox
