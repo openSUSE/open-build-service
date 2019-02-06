@@ -122,21 +122,6 @@ function requestAddReviewAutocomplete() { // jshint ignore:line
   });
 }
 
-function setupActionLink() { // jshint ignore:line
-  var index;
-  $('.action_select_link').click(function (event) {
-    $('#action_select li.selected').attr('class', '');
-    $(event.target).parent().attr('class', 'selected');
-    $('.action_display').hide();
-    index = event.target.id.split('action_select_link_')[1];
-    $('#action_display_' + index).show();
-    // It is necessary to refresh the CodeMirror editors after switching tabs to initialise the dimensions again.
-    // Otherwise the editors are empty after calling show().
-    editors.forEach( function(editor) { editor.refresh(); });
-    return false;
-  });
-}
-
 function collapseHistory(parent) { //jshint ignore:line
   var fullReqDescription = parent.find('#show-full-req-description');
   parent.find('#req-description').toggleClass('collapsed-history uncollapsed-history');
