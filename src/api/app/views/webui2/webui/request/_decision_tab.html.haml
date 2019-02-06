@@ -2,12 +2,19 @@
   = hidden_field_tag(:number, request_number)
   %p
     = text_area_tag(:reason, nil, placeholder: 'Please add a comment', row: 4, class: 'w-100 form-control')
-  - if state.in?(['new', 'review']) && maintainer_option && !action[:creator_is_target_maintainer]
-    .custom-control.custom-checkbox
-      = check_box_tag('add_submitter_as_maintainer_0', "#{action[:tprj]}_#_#{action[:tpkg]}", false, class: 'custom-control-input')
-      %label.custom-control-label{ for: 'add_submitter_as_maintainer_0' }
-        Add #{link_to(request_creator, user_show_path(request_creator))} as maintainer for
-        #{project_or_package_link(project: action[:tprj], package: action[:tpkg], short: true)}
+  - if single_action_request
+    - if state.in?(['new', 'review']) && !action[:creator_is_target_maintainer]
+      .custom-control.custom-checkbox
+        = check_box_tag('add_submitter_as_maintainer_0', "#{action[:tprj]}_#_#{action[:tpkg]}", false, class: 'custom-control-input')
+        %label.custom-control-label{ for: 'add_submitter_as_maintainer_0' }
+          Add #{link_to(request_creator, user_show_path(request_creator))} as maintainer for
+          #{project_or_package_link(project: action[:tprj], package: action[:tpkg], short: true)}
+    - (action[:forward] || []).each_with_index do |forward, index|
+      .custom-control.custom-checkbox
+        = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", false, class: 'custom-control-input')
+        %label.custom-control-label{ for: "forward-#{index}" }
+          Forward submit request to
+          #{project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
   %hr
   - if state.in?(['new', 'review'])
     - confirmation = (state == 'review' ? { confirm: 'Do you really want to approve this request, despite of open review requests?' } : {})

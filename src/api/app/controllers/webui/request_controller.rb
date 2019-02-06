@@ -349,7 +349,7 @@ class Webui::RequestController < Webui::WebuiController
     flash[:notice] = "Request #{params[:number]} accepted"
 
     # Check if we have to forward this request to other projects / packages
-    params.keys.grep(/^forward_.*/).each do |fwd|
+    params.keys.grep(/^forward.*/).each do |fwd|
       forward_request_to(fwd)
     end
   end
