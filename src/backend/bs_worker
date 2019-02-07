@@ -890,7 +890,7 @@ sub send_dispatched {
   my $param = {
     'uri' => "$server/workerdispatched",
     'request' => 'POST',
-    'timeout' => 300,
+    'timeout' => 600,
   };
   BSRPC::rpc($param, undef, @args);
 }
@@ -3365,7 +3365,7 @@ sub killjob {
   my ($cgi, $jobid) = @_;
   my $state = getstate($jobid, 1);
   die("could not kill job\n") unless kill_job();
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nKilled Job\n");
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nKilled job\n");
   $state->{'state'} = 'killed';
   commitstate($state);
   return "<status=\"ok\" />\n";
@@ -3375,8 +3375,18 @@ sub discardjob {
   my ($cgi, $jobid) = @_;
   my $state = getstate($jobid, 1);
   die("could not kill job\n") unless kill_job();
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nDiscarded Job\n");
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nDiscarded job\n");
   $state->{'state'} = 'discarded';
+  commitstate($state);
+  return "<status=\"ok\" />\n";
+}
+
+sub badhostjob {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid, 1);
+  die("could not kill job\n") unless kill_job();
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nTriggered badhost state for job\n");
+  $state->{'state'} = 'badhost';
   commitstate($state);
   return "<status=\"ok\" />\n";
 }
@@ -3385,7 +3395,7 @@ sub sysrqjob {
   my ($cgi, $jobid) = @_;
   my $state = getstate($jobid, 1);
   die("could not send sysrq\n") unless sysrq_job($cgi->{'sysrq'});
-  BSUtil::appendstr("$buildroot/.build.log", "\n\nSend sysrq $cgi->{'sysrq'} to Job\n");
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nSent sysrq $cgi->{'sysrq'} to job\n");
   return "<status=\"ok\" />\n";
 }
 
@@ -3446,22 +3456,6 @@ sub startbuild {
       die("400 cannot build anything\n") if $res == 3;
       die("400 cannot build this repository\n") if $res == 2;
       die("400 cannot build this package\n");
-    }
-  }
-
-  if (!$testmode && $buildinfo->{'masterdispatched'}) {
-    $buildinfo->{'jobid'} = $jobid = $buildinfo->{'masterdispatched'};
-    eval {
-      send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo);
-    };
-    if ($@) {
-      unlink('job');
-      if ($@ =~ /no such job/ || $@ =~ /wrong job/) {
-	warn($@);
-        # not an error for the master dispatcher
-        return "<status code=\"ok\">\n  <details>better luck next time...</details>\n</status>\n";
-      }
-      die($@);
     }
   }
 
@@ -3598,6 +3592,7 @@ sub periodic {
 	    warn("could not kill job\n");
 	    last;
 	  }
+	  append_nonfatal("$buildroot/.build.log", "\n\nDetected $kill_job, retrying on another host\n");
 	  $state->{'state'} = 'badhost';
 	  commitstate($state);
 	  $locked = 0;
@@ -3649,6 +3644,7 @@ my $dispatches = [
   '/logfile $jobid:? nostream:? start:? end:? view:?' => \&getlogfile,
   '/kill $jobid:?' => \&killjob,
   '/discard $jobid:?' => \&discardjob,
+  '/badhost $jobid:?' => \&badhostjob,
   '/sysrq $jobid:? sysrq:?' => \&sysrqjob,
   'PUT:/build $jobid:? buildcode:? workercode:? port:? registerserver:? nobadhost:? *:?' => \&startbuild,
 ];
@@ -3673,7 +3669,16 @@ my ($state, $buildinfo, $registerserver) = BSServer::server($conf);
 print "got job, run build...\n";
 BSServer::done(1);
 
-mkdir_p($buildroot) if ( ! -e $buildroot);
+if (!$testmode && $buildinfo->{'masterdispatched'}) {
+  $buildinfo->{'jobid'} = $buildinfo->{'masterdispatched'};
+  eval { send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo) };
+  if ($@) {
+    unlink('job');
+    die($@);
+  }
+}
+
+mkdir_p($buildroot) unless -e $buildroot;
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
 unlink("$buildroot/.build.log");

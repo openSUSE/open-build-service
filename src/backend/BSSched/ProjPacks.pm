@@ -1428,7 +1428,11 @@ sub orderpackids {
         push @s, [ "$_$mbflavor", "$1$mbflavor", $2 - 1000000];
       }
     } else {
-      push @s, [ "$_$mbflavor", "$_$mbflavor", 99999999 ];
+      if ($kind eq 'maintenance_release') {
+        push @s, [ "$_$mbflavor", '', 99999999999999 ];
+      } else {
+        push @s, [ "$_$mbflavor", "$_$mbflavor", 99999999999999 ];
+      }
     }
   }
   @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
