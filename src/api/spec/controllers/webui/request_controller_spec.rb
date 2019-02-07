@@ -57,32 +57,6 @@ RSpec.describe Webui::RequestController, vcr: true do
       it { expect(response).to redirect_to(user_show_path(User.current)) }
     end
 
-    context 'when there are package maintainers' do
-      # The hint will only be shown, when the target package has at least one
-      # maintainer. So we'll gonna add a maintainer to the target package.
-      let!(:relationship_package_user) { create(:relationship_package_user, user: submitter, package: target_package) }
-
-      before do
-        login receiver
-        get :show, params: { number: bs_request.number }
-      end
-
-      it 'shows a hint to project maintainers' do
-        expect(assigns(:show_project_maintainer_hint)).to be_truthy
-      end
-    end
-
-    context 'when there are no package maintainers' do
-      before do
-        login receiver
-        get :show, params: { number: bs_request.number }
-      end
-
-      it 'does not show a hint to project maintainers by default' do
-        expect(assigns(:show_project_maintainer_hint)).to be_falsey
-      end
-    end
-
     context 'handling diff sizes' do
       let(:diff_header_size) { 4 }
       # Taken from package_with_binary_diff factory files (bigfile_archive.tar.gz and bigfile_archive_2.tar.gz)

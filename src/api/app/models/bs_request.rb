@@ -902,7 +902,6 @@ class BsRequest < ApplicationRecord
     result['is_target_maintainer'] = is_target_maintainer?(User.current)
 
     result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)
-
     result['actions'] = webui_actions(opts)
     result
   end

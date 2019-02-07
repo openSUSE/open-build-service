@@ -74,37 +74,9 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     diff_limit = params[:full_diff] ? 0 : nil
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @id = @req['id']
-    @number = @req['number']
-    @state = @req['state'].to_s
-    @accept_at = @req['accept_at']
-    @is_author = @req['creator'] == User.current
-    @superseded_by = @req['superseded_by']
-    @superseding = @req['superseding']
-    @is_target_maintainer = @req['is_target_maintainer']
 
-    @my_open_reviews = @req['my_open_reviews']
-    @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = @state.in?(['new', 'review']) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
-    @can_handle_request = @state.in?(['new', 'review', 'declined']) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
-
-    @history = @bs_request.history_elements.includes(:user)
-    @actions = @req['actions']
-
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@req)
-
-    # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = get_target_package_maintainers(@actions) || []
-
-    # search for a project, where the user is not a package maintainer but a project maintainer and show
-    # a hint if that package has some package maintainers (issue#1970)
-    projects = @actions.map { |action| action[:tprj] }.uniq
-    maintainer_role = Role.find_by_title('maintainer')
-
-    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
-      projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
+    @request_webui_info = ::RequestControllerService::RequestForWebuiFetcher.call(@bs_request, diff_limit,
+                                                                                  @diff_to_superseded, User.current)
 
     @comments = @bs_request.comments
     @comment = Comment.new
