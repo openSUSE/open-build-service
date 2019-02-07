@@ -72,7 +72,8 @@
       %h5.card-header
         Comments for
         = @project.name
-        (#{ @comments.length})
+        %span.badge.badge-primary
+          = @comments.length
       .card-body#comments
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
 
