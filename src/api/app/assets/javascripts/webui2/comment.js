@@ -33,4 +33,8 @@ function reloadCommentBindings() {
 
 $(document).ready(function(){
   reloadCommentBindings();
+
+  $('.comments').on('keyup click', '.comment-field', function() {
+    sz(this);
+  });
 });
