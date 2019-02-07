@@ -11,13 +11,6 @@ function sz(t) { // jshint ignore:line
 }
 
 function reloadCommentBindings() {
-  $('.togglable_comment').click(function () {
-      var toggleid = $(this).data("toggle");
-      $("#" + toggleid).toggle();
-      $("#" + toggleid).toggleClass('d-none');
-      $("#" + toggleid + ' .comment_reply_body').focus();
-  });
-
   // prevent duplicate comment submissions
   $('.comment_new').submit(function() {
       $(this).find('input[type="submit"]').prop('disabled', true);
