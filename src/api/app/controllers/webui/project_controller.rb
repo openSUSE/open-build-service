@@ -35,6 +35,7 @@ class Webui::ProjectController < Webui::WebuiController
                                                      :remove_maintained_project]
 
   before_action :set_maintained_project, only: [:remove_maintained_project]
+  before_action :check_ajax, only: [:buildresult, :edit_comment_form]
 
   after_action :verify_authorized, only: [:save_new, :new_incident]
 
@@ -217,7 +218,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def buildresult
     switch_to_webui2 if params[:switch].present?
-    check_ajax
     render partial: 'buildstatus', locals: { project: @project, buildresults: @project.buildresults }
   end
 
@@ -440,7 +440,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def edit_comment_form
-    check_ajax
     switch_to_webui2
   end
 

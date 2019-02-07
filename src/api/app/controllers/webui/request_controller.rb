@@ -11,6 +11,8 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :set_superseded_request, only: :show
 
+  before_action :check_ajax, only: :sourcediff
+
   def add_reviewer_dialog
     @request_number = params[:number]
     render_dialog('requestAddReviewAutocomplete')
@@ -19,14 +21,18 @@ class Webui::RequestController < Webui::WebuiController
   def add_reviewer
     begin
       opts = {}
+      # bento_only
+      # user, group, project, package are bento only
+      # and should be removed as soon the Bootstrap
+      # migration is finished
       case params[:review_type]
-      when 'user' then
+      when 'review-user', 'user'
         opts[:by_user] = params[:review_user]
-      when 'group' then
+      when 'review-group', 'group'
         opts[:by_group] = params[:review_group]
-      when 'project' then
+      when 'review-project', 'project'
         opts[:by_project] = params[:review_project]
-      when 'package' then
+      when 'review-package', 'package'
         opts[:by_project] = params[:review_project]
         opts[:by_package] = params[:review_package]
       end
@@ -100,16 +106,6 @@ class Webui::RequestController < Webui::WebuiController
     @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
       projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
 
-    @request_before = nil
-    @request_after = nil
-
-    index = session[:request_numbers].try(:index, @bs_request.number)
-    if index
-      @request_before = session[:request_numbers][index - 1] if index > 0
-      # will be nil for after end
-      @request_after = session[:request_numbers][index + 1]
-    end
-
     @comments = @bs_request.comments
     @comment = Comment.new
 
@@ -118,7 +114,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def sourcediff
-    check_ajax
     render partial: 'shared/editor', locals: { text: params[:text],
                                                mode: 'diff', style: { read_only: true },
                                                height: 'auto', width: '750px',
@@ -349,7 +344,7 @@ class Webui::RequestController < Webui::WebuiController
     flash[:notice] = "Request #{params[:number]} accepted"
 
     # Check if we have to forward this request to other projects / packages
-    params.keys.grep(/^forward_.*/).each do |fwd|
+    params.keys.grep(/^forward.*/).each do |fwd|
       forward_request_to(fwd)
     end
   end

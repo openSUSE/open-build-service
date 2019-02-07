@@ -31,7 +31,7 @@ class ChannelBinary < ApplicationRecord
               channel_binary_lists.project_id = ? and package = ? and packages.project_id IN (?)
             )
     SQL
-    ChannelBinary.find_by_sql([query, project.id, package, maintained_projects])
+    ChannelBinary.find_by_sql([query, project.id, Package.striping_multibuild_suffix(package), maintained_projects])
   end
 
   def create_channel_package_into(project, comment = nil)

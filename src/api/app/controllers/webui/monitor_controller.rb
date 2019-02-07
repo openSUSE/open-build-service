@@ -2,6 +2,7 @@ class Webui::MonitorController < Webui::WebuiController
   before_action :set_default_architecture
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
+  before_action :check_ajax, only: [:update_building, :events]
 
   def self.addarrays(arr1, arr2)
     # we assert that both have the same size
@@ -54,7 +55,6 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def update_building
-    check_ajax
     workers = {}
     max_time = 4 * 3600
     @workerstatus.elements('idle') do |b|
@@ -77,7 +77,6 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def events
-    check_ajax
     data = {}
 
     arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture))
