@@ -30,6 +30,7 @@ class ChannelTest < ActiveSupport::TestCase
         </binaries>
         <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
           <binary name="package" package="pack2" supportstatus="l3" />
+          <binary name="flavor" package="pack2:multibuild" supportstatus="l3" />
           <binary name="another_package_in_same_list" />
         </binaries>
       </channel>'
@@ -53,7 +54,7 @@ class ChannelTest < ActiveSupport::TestCase
       assert_equal true, ct.disabled
       assert_equal 1, @channel.channel_binary_lists.size # two identical xml lists became one in db
       cbl = @channel.channel_binary_lists.first
-      assert_equal 3, cbl.channel_binaries.size
+      assert_equal 4, cbl.channel_binaries.size
       assert_equal 'package', cbl.channel_binaries.first.name
       assert_equal 'l3', cbl.channel_binaries.first.supportstatus
       assert_nil cbl.channel_binaries.first.binaryarch
