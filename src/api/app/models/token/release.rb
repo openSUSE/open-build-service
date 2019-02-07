@@ -1,25 +1,6 @@
-class Token < ApplicationRecord
-  belongs_to :user
-  belongs_to :package, inverse_of: :tokens
-
-  has_secure_token :string
-
-  validates :user, presence: true
-
-  def token_name
-    self.class.token_name
-  end
-
-  def self.token_type(action)
-    case action
-    when 'rebuild'
-      Token::Rebuild
-    when 'release'
-      Token::Release
-    else
-      # default is Token::Service
-      Token::Service
-    end
+class Token::Release < Token
+  def self.token_name
+    'release'
   end
 end
 

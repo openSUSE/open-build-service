@@ -168,6 +168,7 @@ POST /person/<userid>/token
   cmd: create
   project: create a token for a specific project
   package: create a token for a specific package
+  operation: runservice(default), rebuild, release
 
 XmlResult: status
 
