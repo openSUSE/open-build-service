@@ -1,7 +1,6 @@
 .row
   .col
-    %b
-      = request_action_header(action, request_creator)
+    = request_action_header(action, request_creator)
 - if action[:type] == :maintenance_incident && action[:releaseproject]
   %i
     Release in #{action[:releaseproject]}
