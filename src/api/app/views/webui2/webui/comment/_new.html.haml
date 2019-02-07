@@ -11,4 +11,4 @@
     = hidden_field_tag :commentable_id, commentable.id
     ~ f.text_area :body, rows: '4', placeholder: 'Add a new comment (markdown markup supported)',
       required: 'required', class: 'w-100 mb-3 form-control comment-field'
-    = f.submit 'Add comment', class: 'btn btn-primary'
+    = f.submit 'Add comment', class: 'btn btn-primary', data: { disable_with: 'Creating comment...' }

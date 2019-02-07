@@ -17,4 +17,5 @@
       ~ f.text_area :body, rows: '4', class: 'form-control comment-field',
         id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true
       = f.hidden_field :parent_id, value: comment.id, id: "reply_parent_id_#{comment.id}"
-      = f.submit 'Add reply', id: "add_reply_#{comment.id}", class: 'btn btn-outline-primary my-2'
+      = f.submit 'Add reply', id: "add_reply_#{comment.id}", class: 'btn btn-outline-primary my-2',
+        data: { disable_with: 'Creating comment...' }

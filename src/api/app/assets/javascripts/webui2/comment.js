@@ -11,11 +11,6 @@ function sz(t) { // jshint ignore:line
 }
 
 function reloadCommentBindings() {
-  // prevent duplicate comment submissions
-  $('.comment_new').submit(function() {
-      $(this).find('input[type="submit"]').prop('disabled', true);
-  });
-
   $('.comment_new').on('ajax:complete', function(event, data) {
     $('#comments').html(data.responseText);
 
