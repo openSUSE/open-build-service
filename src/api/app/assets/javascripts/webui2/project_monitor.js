@@ -15,7 +15,8 @@ function setupProjectMonitor() { // jshint ignore:line
     search: {
       regex: true,
       smart: false,
-    }
+    },
+    columnDefs: [{ width: 150, targets: 0 }]
   });
 
   $('#table-spinner').addClass('d-none');
