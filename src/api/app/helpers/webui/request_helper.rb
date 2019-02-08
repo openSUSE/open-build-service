@@ -162,7 +162,8 @@ module Webui::RequestHelper
         target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
       }
     when :delete
-      target_repository = link_to(action[:trepo], repository_index_path(project: action[:tprj], repository: action[:trepo])) if action[:trepo]
+      target_repository = "repository #{link_to(action[:trepo], repositories_path(project: action[:tprj], repository: action[:trepo]))} for " if action[:trepo]
+
       'Delete %{target_repository}%{target_container}' % {
         target_repository: target_repository,
         target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
