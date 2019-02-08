@@ -14,11 +14,14 @@ RSpec.feature 'Comments', type: :feature, js: true do
   end
 
   scenario 'can be answered' do
+    skip_if_bootstrap
+
     login user
     visit project_show_path(user.home_project)
-    find("#reply_link_id_#{comment.id}").click
+
+    find('a', text: 'Reply').click
     fill_in("reply_body_#{comment.id}", with: 'Reply Body')
-    click_button("add_reply_#{comment.id}")
+    click_button('Add reply')
 
     expect(page).to have_text('Reply Body')
   end

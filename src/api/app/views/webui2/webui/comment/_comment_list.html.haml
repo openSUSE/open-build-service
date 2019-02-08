@@ -1,7 +1,7 @@
 - commentable.comments.without_parent.includes(:user).each do |comment|
   = render partial: 'webui2/webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
 
-.comment_new
+.comment_new.mt-3
   = render partial: 'webui2/webui/comment/new', locals: { commentable: commentable }
 
 :javascript
