@@ -2,6 +2,7 @@ class SendEventEmailsJob < ApplicationJob
   queue_as :mailers
 
   def perform
+    User.current = User.find_nobody!
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
       subscribers = event.subscribers
 

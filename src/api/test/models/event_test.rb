@@ -69,10 +69,10 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'create request' do
-    User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
+    User.current = users(:Iggy)
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_user: 'tom', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform
@@ -128,10 +128,10 @@ class EventTest < ActionDispatch::IntegrationTest
 
   test 'package maintainer mail' do
     ActionMailer::Base.deliveries.clear
-    User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
+    User.current = users(:Iggy)
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform
@@ -145,6 +145,7 @@ class EventTest < ActionDispatch::IntegrationTest
 
     # now verify another review sends other emails
     ActionMailer::Base.deliveries.clear
+    User.current = users(:Iggy)
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?')
       SendEventEmailsJob.new.perform

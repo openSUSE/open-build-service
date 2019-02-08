@@ -51,22 +51,19 @@ class EventMailerTest < ActionMailer::TestCase
   end
 
   test 'group emails' do
-    User.current = users(:Iggy)
-
-    # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
     Timecop.travel(2013, 8, 20, 12, 0, 0)
-    myid = req.number
     SendEventEmailsJob.new.perform # empty queue
+
+    User.current = users(:Iggy)
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_group: 'test_group', comment: 'does it look ok?')
-      # trigger the send job
       SendEventEmailsJob.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
 
-    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
+    assert_equal "Request #{req.number} requires review (submit Apache/BranchPack)", email.subject
     assert_equal ['test_group@testsuite.org'], email.to
   end
 
