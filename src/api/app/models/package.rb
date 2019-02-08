@@ -603,6 +603,7 @@ class Package < ApplicationRecord
 
       issue_change.keys.each do |tracker|
         t = IssueTracker.find_by_name(tracker)
+        next unless t
 
         # create new issues
         issue_change[tracker].keys.each do |name|
