@@ -11,3 +11,15 @@ table.table-fixed {
   width: 100% !important;
   margin-left: 0 !important;
 }
+
+// TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/17
+table.dataTable.table-sm .sorting:before,
+table.dataTable.table-sm .sorting_asc:before,
+table.dataTable.table-sm .sorting_desc:before {
+  top: initial;
+  right: 1em;
+  bottom: 0.3em;
+}
+.DTFC_LeftBodyLiner{
+  overflow-y: hidden !important;
+}
