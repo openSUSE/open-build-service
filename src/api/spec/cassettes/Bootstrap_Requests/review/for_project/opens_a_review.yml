@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 08 Feb 2019 13:51:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 08 Feb 2019 13:51:13 GMT
+recorded_with: VCR 4.0.0
