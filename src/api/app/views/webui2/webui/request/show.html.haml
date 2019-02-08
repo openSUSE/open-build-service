@@ -66,7 +66,7 @@
     .tab-content
       .tab-pane.fade.show.active{ id: 'decision' }
         - if @can_handle_request
-          = render('decision_tab', request_number: @number, request_creator: @req['creator'],
+          = render('decision_tab', request_number: @number, request_creator: @req['creator'], is_target_maintainer: @is_target_maintainer,
             state: @state, is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
         - else
           %p
