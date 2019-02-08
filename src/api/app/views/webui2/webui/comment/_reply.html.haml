@@ -11,11 +11,4 @@
         Delete
 - unless User.current.is_nobody?
   .collapse{ id: "reply_form_of_#{comment.id}" }
-    = form_for @comment, method: :post, remote: true, html: { class: 'new-comment-form' } do |f|
-      = hidden_field_tag :commentable_type, commentable.class
-      = hidden_field_tag :commentable_id, commentable.id
-      ~ f.text_area :body, rows: '4', class: 'form-control comment-field',
-        id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true
-      = f.hidden_field :parent_id, value: comment.id, id: "reply_parent_id_#{comment.id}"
-      = f.submit 'Add reply', id: "add_reply_#{comment.id}", class: 'btn btn-outline-primary my-2',
-        data: { disable_with: 'Creating comment...' }
+    = render(partial: 'webui/comment/comment_field', locals: { comment: comment.children.new, commentable: commentable })
