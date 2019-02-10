@@ -30,8 +30,8 @@
       - if BsRequest::FINAL_REQUEST_STATES.include?(request_state)
         Auto-accept was set to
         %span.fuzzy-time{ title: "#{l accept_at}" }
-        = l accept_at, format: :only_date
-        \.
+        = succeed '.' do
+          = l accept_at, format: :only_date
       - elsif accept_at.past?
         This request will be automatically accepted when it enters the 'new' state.
       - else
