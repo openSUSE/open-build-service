@@ -121,3 +121,18 @@ function requestAddReviewAutocomplete() { // jshint ignore:line
     max: 50
   });
 }
+
+function collapseHistory(parent) { //jshint ignore:line
+  var fullReqDescription = parent.find('#show-full-req-description');
+  parent.find('#req-description').toggleClass('collapsed-history uncollapsed-history');
+  fullReqDescription.toggleClass("collapsed-link uncollapsed-link");
+
+  var showText = (fullReqDescription.attr('title') === 'show more' ) ?  'show less': 'show more';
+  fullReqDescription.attr('title', showText);
+}
+
+function handleCollapseForHistory(origin) {  //jshint ignore:line
+  $('.req-description-box').on('click', origin, function() {
+    collapseHistory($(this).parents('.req-description-box'));
+  });
+}

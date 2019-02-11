@@ -405,10 +405,10 @@ module Webui::WebuiHelper
     link_to(label, path, class: html_class)
   end
 
-  def image_tag_for(object, size: 500)
+  def image_tag_for(object, size: 500, custom_class: 'img-fluid')
     return unless object
     alt = "#{object.name}'s avatar"
-    image_tag(gravatar_icon(object.email, size), alt: alt, title: object.name, size: size, class: 'img-fluid')
+    image_tag(gravatar_icon(object.email, size), alt: alt, size: size, title: object.name, class: custom_class)
   end
 
   def gravatar_icon(email, size)

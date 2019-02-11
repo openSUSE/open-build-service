@@ -82,7 +82,7 @@ sub get_bins {
       push @d, grep {/^_blob\./} @dd;
       $havebinlink = 1;
     }
-    push @d, $bin if $bin =~ /\.rpm$/;
+    push @d, $bin if $bin =~ /\.(:?rpm|deb)$/;
   }
   @d = BSUtil::unify(@d) if $havebinlink;
   return @d;
@@ -479,7 +479,7 @@ sub build {
         $m .= "$bin\0$s[9]/$s[7]/$s[1]\0" if @s;
       }
       my $d;
-      if ($bin =~ /\.rpm$/) {
+      if ($bin =~ /\.(:?rpm|deb)$/) {
 	eval {
 	  $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'unstrippedsource' => 1);
 	  BSVerify::verify_nevraquery($d);

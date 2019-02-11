@@ -114,7 +114,6 @@ RSpec.describe Webui::RequestHelper do
     let(:source_package) { create(:package) }
     let(:action) do
       {
-        type: :delete,
         tprj: target_package.project.name,
         tpkg: target_package.name,
         sprj: source_package.project.name,
@@ -128,9 +127,21 @@ RSpec.describe Webui::RequestHelper do
                    package_show_path(target_package.project, target_package).to_s)
       end
 
-      subject { request_action_header(action, creator.login) }
+      subject { request_action_header(action.merge(type: :delete), creator.login) }
 
       it { is_expected.to match(expected_regex) }
+
+      context 'with a target repository' do
+        let(:target_repository) { create(:repository, project: target_package.project) }
+        let(:expected_regex) do
+          Regexp.new("Delete repository .*#{Regexp.escape(repositories_path(project: target_repository.project, repository: target_repository.name))}.* for package .*" \
+                     "#{project_show_path(target_package.project)}.* \/ .*#{package_show_path(target_package.project, target_package)}")
+        end
+
+        subject { request_action_header(action.merge(type: :delete, trepo: target_repository.name), creator.login) }
+
+        it { is_expected.to match(expected_regex) }
+      end
     end
 
     context 'when action is :add_role' do

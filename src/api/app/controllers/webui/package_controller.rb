@@ -951,7 +951,10 @@ class Webui::PackageController < Webui::WebuiController
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
       switch_to_webui2 if params[:switch].present?
-      render partial: 'buildstatus', locals: { buildresults: @buildresults, index: @index, project: @project }
+      render partial: 'buildstatus', locals: { buildresults: @buildresults,
+                                               index: @index,
+                                               project: @project,
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, []) }
     else
       switch_to_webui2 if params[:switch].present?
       render partial: 'no_repositories', locals: { project: @project }
@@ -1040,11 +1043,12 @@ class Webui::PackageController < Webui::WebuiController
   def edit; end
 
   def binary_download
+    package_name = params[:package]
     architecture = Architecture.find_by_name(params[:arch]).name
     filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
     repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
 
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package,
+    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: package_name,
                                                                  user: User.current, arch: architecture,
                                                                  repository: repository, filename: filename)
 
