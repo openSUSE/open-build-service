@@ -20,15 +20,10 @@
   .card-body
     %h3= @pagetitle
     %ul.list-inline
-      - if @show_all
-        %li.list-inline-item.mr-3
-          = link_to(projects_path) do
-            %i.fas.fa-toggle-on.text-primary
-            Exclude #{::Configuration.unlisted_projects_filter_description}
-      - else
-        %li.list-inline-item.mr-3
-          = link_to(projects_path(show_all: true)) do
-            %i.fas.fa-toggle-off.text-primary
+      %li.list-inline-item.mr-3
+        = link_to('#', class: 'toggle-projects') do
+          %i.fas.fa-toggle-off.text-primary#toggle-icon
+          %span#toggle-text
             Include #{::Configuration.unlisted_projects_filter_description}
       - unless User.current.is_nobody?
         %li.list-inline-item
@@ -37,18 +32,14 @@
             Add New Project
           = render partial: 'new_project_modal', locals: { configuration: @configuration }
 
-    - cachekey = Digest::MD5.hexdigest(@projects.join)
-    - projecturl = project_show_path('REPLACEIT')
     #project-list
-      - if @projects.blank?
-        %p
-          %i No projects found
-      - else
-        #projects-table-wrapper{ 'data-url' => projecturl }
-          %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-table
-          - content_for :head_javascript do
-            - cache ['list_public_arrays', cachekey] do
-              var mainProjects = [ #{escape_nested_list(@projects)} ];
-              var exclProjects = [];
-          - content_for :ready_function do
-            renderProjectsTable();
+      %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                      all: 'false' } }
+        %thead
+          %tr
+            %th Name
+            %th Title
+        %tbody
+
+- content_for :ready_function do
+  initializeProjectDatatable();
