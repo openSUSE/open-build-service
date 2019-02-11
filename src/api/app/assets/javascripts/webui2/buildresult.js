@@ -18,6 +18,7 @@ function updateRpmlintResult(index) { // jshint ignore:line
 function updateBuildResult(index) { // jshint ignore:line
   var ajaxDataShow = $('#buildresult' + index + '-box').data();
   ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
+  ajaxDataShow.collapsedRepositories = $('.result div.collapse:not(.show)').map(function(_index, domElement) { return $(domElement).data('repository'); }).get();
   $('#build'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: $('#buildresult' + index + '-urls').data('buildresultUrl'),

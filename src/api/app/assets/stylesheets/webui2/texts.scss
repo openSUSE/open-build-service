@@ -27,3 +27,7 @@
 .ml-0_6 {
   margin-left: 0.6rem !important;
 }
+
+@mixin uncollapsedText($lineHeight: 1.2em) {
+  line-height: $lineHeight;
+}
