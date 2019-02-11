@@ -75,19 +75,13 @@ class Webui::RequestController < Webui::WebuiController
   def show
     diff_limit = params[:full_diff] ? 0 : nil
     @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @id = @req['id']
-    @number = @req['number']
-    @state = @req['state'].to_s
-    @accept_at = @req['accept_at']
-    @is_author = @req['creator'] == User.current
-    @superseded_by = @req['superseded_by']
-    @superseding = @req['superseding']
+    @is_author = @bs_request.creator == User.current.login
     @is_target_maintainer = @req['is_target_maintainer']
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = @state.in?(['new', 'review']) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
-    @can_handle_request = @state.in?(['new', 'review', 'declined']) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
+    @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
     @history = @bs_request.history_elements.includes(:user)
     @actions = @req['actions']
@@ -96,16 +90,11 @@ class Webui::RequestController < Webui::WebuiController
     @not_full_diff = BsRequest.truncated_diffs?(@req)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
-    @package_maintainers = get_target_package_maintainers(@actions) || []
+    @package_maintainers = target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    projects = @actions.map { |action| action[:tprj] }.uniq
-    maintainer_role = Role.find_by_title('maintainer')
-
-    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) &&
-      projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) })
-
+    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) && any_project_maintained_by_current_user?)
     @comments = @bs_request.comments
     @comment = Comment.new
 
@@ -285,6 +274,12 @@ class Webui::RequestController < Webui::WebuiController
 
   private
 
+  def any_project_maintained_by_current_user?
+    projects = @bs_request.bs_request_actions.select(:target_project).distinct.pluck(:target_project)
+    maintainer_role = Role.find_by_title('maintainer')
+    projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) }
+  end
+
   def new_state
     case params[:new_state]
     when 'Approve'
@@ -310,9 +305,11 @@ class Webui::RequestController < Webui::WebuiController
     redirect_back(fallback_location: user_show_path(User.current)) && return
   end
 
-  def get_target_package_maintainers(actions)
-    actions = actions.uniq { |action| action[:tpkg] }
-    actions.flat_map { |action| Package.find_by_project_and_name(action[:tprj], action[:tpkg]).try(:maintainers) }.compact.uniq
+  def target_package_maintainers
+    distinct_bs_request_actions = @bs_request.bs_request_actions.select(:target_project, :target_package).distinct
+    distinct_bs_request_actions.flat_map do |action|
+      Package.find_by_project_and_name(action.target_project, action.target_package).try(:maintainers)
+    end.compact.uniq
   end
 
   def change_state(newstate, params)
