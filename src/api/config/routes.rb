@@ -243,9 +243,9 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
-      get 'project/list_public' => :index
-      get 'project/list_all' => :index, show_all: true
-      get 'project/list' => :index
+      get 'project/list_public' => :index, as: 'project_list_public'
+      get 'project/list_all' => :index, show_all: true, as: 'project_list_all'
+      get 'project/list' => :index, as: 'project_list'
       get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
@@ -260,7 +260,7 @@ OBSApi::Application.routes.draw do
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
-      get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
+      get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons, as: :linking_projects
       get 'project/add_person/:project' => :add_person, constraints: cons
@@ -286,14 +286,14 @@ OBSApi::Application.routes.draw do
       post 'project/remove_role/:project' => :remove_role, constraints: cons, as: 'project_remove_role'
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
-      get 'project/monitor/(:project)' => :monitor, constraints: cons, as: 'project_monitor'
+      get 'project/monitor/:project' => :monitor, constraints: cons, as: 'project_monitor'
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
-      get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
+      get 'project/status/:project' => :status, constraints: cons, as: 'project_status'
       get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects
       get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
       post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
