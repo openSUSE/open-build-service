@@ -383,6 +383,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
+    switch_to_webui2
     unless (buildresult = monitor_buildresult)
       @buildresult_unavailable = true
       return
@@ -396,8 +397,6 @@ class Webui::ProjectController < Webui::WebuiController
       repohash[repo] = arch_hash.keys.sort!
     end
     @repoarray = repohash.sort
-
-    switch_to_webui2
   end
 
   def toggle_watch
