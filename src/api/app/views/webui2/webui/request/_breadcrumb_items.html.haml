@@ -1,4 +1,4 @@
 = render partial: 'webui/main/breadcrumb_items'
 - if current_page?(request_show_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Request #{@number}
+    Request #{@bs_request.number}

@@ -1,13 +1,14 @@
 %h3
-  %p #{pagetitle} (#{state})
+  %p Request #{bs_request.number} (#{bs_request.state})
 
 #description-text
-  - if description.blank?
+  - if bs_request.description.blank?
     %i No description set
   - else
-    = description_wrapper(toggle_sliced_text(description))
+    = description_wrapper(toggle_sliced_text(bs_request.description))
 - if can_add_reviews
   %p
-    = link_to(add_reviewer_dialog_path(number: number), data: { toggle: 'modal', target: '#add-reviewer-modal' }) do
+    = link_to(add_reviewer_dialog_path(number: bs_request.number),
+              data: { toggle: 'modal', target: '#add-reviewer-modal' }) do
       %i.fas.fa-plus-circle.text-primary
       Add a Review
