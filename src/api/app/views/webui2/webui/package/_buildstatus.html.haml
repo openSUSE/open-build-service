@@ -13,9 +13,9 @@
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
+          - repository_name = result.repository.tr('.', '_')
+          - expanded = !collapsed_repositories.include?(repository_name)
           - if result.repository != previous_repo
-            - repository_name = result.repository.tr('.', '_')
-            - expanded = !collapsed_repositories.include?(repository_name)
             .row.py-1.bg-light
               .col{ title: result.repository.to_s }
                 = link_to(word_break(result.repository, 22),
