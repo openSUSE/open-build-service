@@ -8,11 +8,6 @@ module OBSApi
       { host: ::Configuration.first.obs_url }
     end
 
-    def block_code(code, language)
-      language ||= :plaintext
-      CodeRay.scan(code, language).div
-    end
-
     def preprocess(fulldoc)
       # request#12345 links
       fulldoc.gsub!(/(sr|req|request)#(\d+)/i) { |s| "[#{s}](#{request_show_url(number: Regexp.last_match(2))})" }
