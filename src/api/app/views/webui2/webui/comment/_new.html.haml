@@ -6,7 +6,7 @@
     = link_to('signup', user_register_user_url)
     in order to comment
 - else
-  = form_for @comment, action: 'webui2_create', method: :post, remote: true do |f|
+  = form_for @comment, action: 'webui2_create', method: :post, remote: true, html: { class: 'new-comment-form' } do |f|
     = hidden_field_tag :commentable_type, commentable.class
     = hidden_field_tag :commentable_id, commentable.id
     ~ f.text_area :body, rows: '4', placeholder: 'Add a new comment (markdown markup supported)',

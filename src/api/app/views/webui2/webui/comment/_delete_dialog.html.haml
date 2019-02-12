@@ -8,7 +8,7 @@
       .modal-body
         %p Please confirm deletion of comment
 
-        = form_tag(comment_path(comment), method: :delete, remote: true) do
+        = form_tag(comment_path(comment), method: :delete, remote: true, class: 'delete-comment-form', data: { comment_id: comment.id }) do
           .modal-footer
             %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel

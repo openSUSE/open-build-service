@@ -14,7 +14,9 @@ module Webui2::CommentsController
         flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
         status = :unprocessable_entity
       end
-      format.js { render 'webui2/webui/comment/create', status: status }
+      format.html do
+        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      end
     end
   end
 
@@ -32,7 +34,9 @@ module Webui2::CommentsController
         flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
         status = :unprocessable_entity
       end
-      format.js { render 'webui2/webui/comment/destroy', status: status }
+      format.html do
+        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      end
     end
   end
 end
