@@ -40,6 +40,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, only: [:save_new, :new_incident]
 
   def index
+    return if switch_to_webui2
     @show_all = (params[:show_all].to_s == 'true')
     projects = Project.all
     projects = projects.filtered_for_list unless @show_all
@@ -51,7 +52,6 @@ class Webui::ProjectController < Webui::WebuiController
     if @spider_bot
       render :list_simple, status: params[:nextstatus]
     else
-      switch_to_webui2
       render :list, status: params[:nextstatus]
     end
   end
@@ -383,6 +383,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
+    switch_to_webui2
     unless (buildresult = monitor_buildresult)
       @buildresult_unavailable = true
       return
@@ -396,8 +397,6 @@ class Webui::ProjectController < Webui::WebuiController
       repohash[repo] = arch_hash.keys.sort!
     end
     @repoarray = repohash.sort
-
-    switch_to_webui2
   end
 
   def toggle_watch

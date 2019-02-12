@@ -3,36 +3,40 @@
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project }
   .card-body#project-monitor
-    = render partial: 'monitor_control',
-      locals: { project: @project, activate_client_search: @activate_client_search,
-      status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
-      repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter }
-    .row.mt-4
-      .col-md-12.obs-dataTable.invisible
-        %table.table.table-sm.table-striped.table-bordered.text-nowrap.w-100#project-monitor-table
-          %thead.header
-            %tr
-              %th
-              - @repoarray.each do |repo, archlist|
-                - next if archlist.empty?
-                %th.text-center{ colspan: archlist.length }
-                  = repo
-            %tr
-              %th
-              - @repoarray.each do |repo, archlist|
-                - archlist.each do |arch|
-                  %th.text-center
-                    = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
-                    = arch
-          %tbody
-            - @packagenames.each do |packname|
+
+    - if @buildresult_unavailable
+      %p Unavailable Build Results.
+    - else
+      = render partial: 'monitor_control',
+        locals: { project: @project, activate_client_search: @activate_client_search,
+        status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
+        repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter }
+      .row.mt-4
+        .col-md-12.obs-dataTable.invisible
+          %table.table.table-sm.table-striped.table-bordered.text-nowrap#project-monitor-table
+            %thead.header
               %tr
-                %td
-                  = link_to word_break(packname, 40), controller: :package, action: :show, package: packname, project: @project.to_s
+                %th
+                - @repoarray.each do |repo, archlist|
+                  - next if archlist.empty?
+                  %th.text-center{ colspan: archlist.length }
+                    = repo
+              %tr
+                %th
                 - @repoarray.each do |repo, archlist|
                   - archlist.each do |arch|
-                    %td.text-center
-                      = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
+                    %th.text-center
+                      = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
+                      = arch
+            %tbody
+              - @packagenames.each do |packname|
+                %tr
+                  %td
+                    = link_to word_break(packname, 40), controller: :package, action: :show, package: packname, project: @project.to_s
+                  - @repoarray.each do |repo, archlist|
+                    - archlist.each do |arch|
+                      %td.text-center
+                        = webui2_arch_repo_table_cell(repo, arch, packname, nil, false)
 
-- content_for :ready_function do
-  setupProjectMonitor();
+      - content_for :ready_function do
+        setupProjectMonitor();

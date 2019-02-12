@@ -1,7 +1,9 @@
 class PathElement < ApplicationRecord
+  # FIXME: This should be called parent
   belongs_to :repository, foreign_key: 'parent_id', inverse_of: :path_elements
   acts_as_list scope: [:parent_id]
 
+  # FIXME: This should be called repository
   belongs_to :link, class_name: 'Repository', foreign_key: 'repository_id', inverse_of: :links
 
   validates :link, :repository, presence: true
