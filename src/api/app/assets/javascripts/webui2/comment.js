@@ -10,19 +10,23 @@ function sz(t) { // jshint ignore:line
   if (b > t.rows) t.rows = b;
 }
 
-function reloadCommentBindings() {
-  $('.comment_new').on('ajax:complete', function(event, data) {
-    $('#comments').html(data.responseText);
-
-    // as the comments get loaded again, the jQuery bindings are lost. We need to reload them.
-    reloadCommentBindings();
-  });
-}
-
 $(document).ready(function(){
-  reloadCommentBindings();
-
-  $('.comments').on('keyup click', '.comment-field', function() {
+  $('.comments-list').on('keyup click', '.comment-field', function() {
     sz(this);
+  });
+
+  $('.comments-list').on('ajax:complete', '.new-comment-form', function(_, data) {
+    $(this).closest('.comments-list').html(data.responseText);
+  });
+
+  $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
+    var $this = $(this),
+        $form = $('#delete-comment-modal-' + $this.data('commentId'));
+
+    $form.modal('hide');
+    // We have to wait until the modal is hidden to properly remove the dialog UI
+    $form.on('hidden.bs.modal', function () {
+      $this.closest('.comments-list').html(data.responseText);
+    });
   });
 });

@@ -11,7 +11,7 @@
         Delete
 - unless User.current.is_nobody?
   .collapse{ id: "reply_form_of_#{comment.id}" }
-    = form_for @comment, method: :post, remote: true do |f|
+    = form_for @comment, method: :post, remote: true, html: { class: 'new-comment-form' } do |f|
       = hidden_field_tag :commentable_type, commentable.class
       = hidden_field_tag :commentable_id, commentable.id
       ~ f.text_area :body, rows: '4', class: 'form-control comment-field',
