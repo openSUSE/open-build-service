@@ -21,16 +21,18 @@ $(function ($) {
     },1);
   });
 
-  $('#expand-diffs').on('click', function () {
-    var details = $('details.card.details-with-codemirror');
+  $('.expand-diffs').on('click', function () {
+    var forPackage = $(this).data('package');
+    var details = $('details.card.details-with-codemirror[data-package="' + forPackage + '"]');
     details.attr('open', 'open');
-    $('.CodeMirror').each(function(){
+    details.find('.CodeMirror').each(function(){
       $(this)[0].CodeMirror.refresh();
     });
   });
 
-  $('#collapse-diffs').on('click', function () {
-    var details = $('details.card.details-with-codemirror');
+  $('.collapse-diffs').on('click', function () {
+    var forPackage = $(this).data('package');
+    var details = $('details.card.details-with-codemirror[data-package="' + forPackage + '"]');
     details.attr('open', null);
   });
 });
