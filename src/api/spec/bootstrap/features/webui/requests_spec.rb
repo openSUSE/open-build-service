@@ -37,7 +37,18 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     end
 
     describe 'request description field' do
-      skip('Te overview doesn\'t have the new collapse feature') do
+      scenario 'superseded requests' do
+        visit request_show_path(bs_request)
+        within 'li', text: "Supersedes #{superseded_bs_request.number}" do
+          find('a', text: superseded_bs_request.number).click
+        end
+        expect(page).to have_text('In state superseded')
+        within 'li', text: "Superseded by #{bs_request.number}" do
+          find('a', text: bs_request.number)
+        end
+      end
+
+      skip('The overview doesn\'t have the new collapse feature') do
         it_behaves_like 'expandable element' do
           let(:element) { 'pre#description-text' }
         end
