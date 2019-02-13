@@ -29,6 +29,7 @@ module Webui::BuildresultHelper
     end
   end
 
+  # NOTE: There is a JavaScript version of this method in project_monitor.js
   def webui2_arch_repo_table_cell(repo, arch, package_name, status = nil, enable_help = true)
     status ||= @statushash[repo][arch][package_name] || { 'package' => package_name }
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
