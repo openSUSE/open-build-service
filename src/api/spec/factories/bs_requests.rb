@@ -144,5 +144,15 @@ FactoryBot.define do
     factory :bs_request_with_maintenance_incident_action do
       type { :maintenance_incident }
     end
+
+    factory :superseded_bs_request, parent: :set_bugowner_request do
+      transient do
+        superseded_by_request { nil }
+      end
+
+      after(:create) do |request, evaluator|
+        request.update(state: :superseded, superseded_by: evaluator.superseded_by_request.number)
+      end
+    end
   end
 end
