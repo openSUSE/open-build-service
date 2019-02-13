@@ -12,9 +12,9 @@
       .col-12
         - if @filenames.present?
           .btn-group.float-right
-            %button.btn.btn-sm.btn-outline-secondary#expand-diffs
+            %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: @package } }
               Expand all
-            %button.btn.btn-sm.btn-outline-secondary#collapse-diffs
+            %button.btn.btn-sm.btn-outline-secondary.collapse-diffs{ data: { package: @package } }
               Collapse all
         - if @opackage
           %h3
@@ -34,7 +34,8 @@
                 filename: filename,
                 file: @files[filename],
                 index: index,
-                last: @filenames.last == filename }
+                last: @filenames.last == filename,
+                package: @package }
         - else
           .mb-2
             %p.lead No source changes.
