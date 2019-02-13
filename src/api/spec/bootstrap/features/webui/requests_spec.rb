@@ -23,6 +23,23 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
   end
 
   context 'request show page' do
+    let!(:superseded_bs_request) do
+      request = create(:set_bugowner_request)
+      request.update(state: :superseded, superseded_by: bs_request.number)
+      request
+    end
+    let!(:comment_1) { create(:comment, commentable: bs_request) }
+    let!(:comment_2) { create(:comment, commentable: superseded_bs_request) }
+
+    scenario 'show request comments' do
+      visit request_show_path(bs_request)
+      expect(page).to have_text(comment_1.body)
+      expect(page).not_to have_text(comment_2.body)
+      find('a', text: "Comments for request #{superseded_bs_request.number}").click
+      expect(page).to have_text(comment_2.body)
+      expect(page).not_to have_text(comment_1.body)
+    end
+
     describe 'request description field' do
       skip('Te overview doesn\'t have the new collapse feature') do
         it_behaves_like 'expandable element' do
