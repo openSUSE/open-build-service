@@ -15,18 +15,18 @@
   - else
     - buildresults.each do |repository, build_results|
       - repository_name = repository.tr('.', '_')
-      - expanded = !collapsed_repositories.include?(repository_name)
+      - expanded = collapsed_repositories['project'] ? collapsed_repositories['project'].exclude?(repository_name) : true
       .d-flex.flex-column
         .d-flex.flex-row.py-1.bg-light.pl-3
           = link_to(word_break(repository, 12),
             project_repository_state_path(project: project.name, repository: repository),
             title: "Repository #{repository}")
-          = link_to('#', aria: { controls: "collapse-#{repository_name}", expanded: expanded }, class: 'ml-1',
-                    data: { toggle: 'collapse' }, href: ".collapse-#{repository_name}", role: 'button') do
+          = link_to('#', aria: { controls: "collapse-project-#{repository_name}", expanded: expanded }, class: 'ml-1',
+                    data: { toggle: 'collapse' }, href: ".collapse-project-#{repository_name}", role: 'button') do
             %i.fas.fa-chevron-left.expander{ title: 'Show build results for this repository' }
             %i.fas.fa-chevron-down.collapser{ title: 'Hide build results for this repository' }
 
-        .collapse{ class: "collapse-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
+        .collapse{ class: "collapse-project-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
           - build_results.sort_by(&:architecture).each do |build_result|
             .row.py-1
               .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap{ title: "#{repository} summary" }

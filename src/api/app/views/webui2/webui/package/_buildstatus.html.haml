@@ -13,20 +13,23 @@
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
-          - repository_name = result.repository.tr('.', '_')
-          - expanded = !collapsed_repositories.include?(repository_name)
+          :ruby
+            repository_name = result.repository.tr('.', '_')
+            package_name = package.tr('.:', '_')
+            expanded = collapsed_repositories[package_name] ? collapsed_repositories[package_name].exclude?(repository_name) : true
           - if result.repository != previous_repo
             .row.py-1.bg-light
               .col{ title: result.repository.to_s }
                 = link_to(word_break(result.repository, 22),
                   package_binaries_path(project: project, package: package, repository: result.repository),
                   data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
-                = link_to('#', aria: { controls: "collapse-#{repository_name}", expanded: expanded }, class: 'ml-1',
-                          data: { toggle: 'collapse' }, href: ".collapse-#{repository_name}", role: 'button') do
+                = link_to('#', aria: { controls: "collapse-#{package_name}-#{repository_name}", expanded: expanded }, class: 'ml-1',
+                          data: { toggle: 'collapse' }, href: ".collapse-#{package_name}-#{repository_name}", role: 'button') do
                   %i.fas.fa-chevron-left.expander{ title: 'Show build results for this repository' }
                   %i.fas.fa-chevron-down.collapser{ title: 'Hide build results for this repository' }
 
-          .collapse{ class: "collapse-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
+          .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
+                     data: { repository: repository_name, main: package_name } }
             .row.py-1
               .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap
                 - if !result.is_repository_in_db
