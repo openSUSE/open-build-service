@@ -72,10 +72,11 @@
       %h5.card-header
         Comments for
         = @project.name
-        %span.badge.badge-primary
+        %span.badge.badge-primary{ id: "comment-counter-package-#{@package.id}" }
           = @comments.length
       .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package }
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @package,
+          comment_counter_id: "#comment-counter-package-#{@package.id}" }
 
 - unless User.current.is_nobody?
   - if @current_rev
