@@ -1,0 +1,27 @@
+.bg-light
+  %ul.nav.nav-tabs{ role: 'tablist' }
+    %li.nav-item
+      = link_to('#comments', class: 'nav-link text-nowrap active', data: { toggle: 'tab' }, role: 'tab') do
+        Comments for request #{bs_request.number}
+        %span.badge.badge-primary{ id: "comment-counter-request-#{bs_request.number}" }
+          = comments.size
+    - if superseding
+      - superseding.includes(:comments).each do |superseded|
+        - if superseded.comments.any?
+          %li.nav-item
+            = link_to("#superseded-#{superseded.number}", title: "This request was superseded by request #{superseded.superseded_by}",
+              class: 'nav-link text-nowrap', data: { toggle: 'tab' }, role: 'tab') do
+              Comments for request #{superseded.number}
+              %span.badge.badge-primary{ id: "comment-counter-request-#{superseded.number}" }
+                = superseded.comments.size
+.card-body
+  .tab-content
+    .tab-pane.fade.show.active{ id: 'comments' }
+      = render partial: 'webui2/webui/comment/show', locals: { commentable: bs_request,
+        comment_counter_id: "#comment-counter-request-#{bs_request.number}" }
+    - if superseding
+      - superseding.includes(:comments).each do |superseded|
+        - if superseded.comments.any?
+          .tab-pane.fade.show{ id: "superseded-#{superseded.number}" }
+            = render partial: 'webui2/webui/comment/show', locals: { commentable: superseded,
+              comment_counter_id: "#comment-counter-request-#{superseded.number}" }
