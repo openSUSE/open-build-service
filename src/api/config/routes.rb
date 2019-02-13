@@ -287,6 +287,12 @@ OBSApi::Application.routes.draw do
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
       get 'project/monitor/:project' => :monitor, constraints: cons, as: 'project_monitor'
+      # For backward compatibility
+      get 'project/monitor', to: redirect { |_path_parameters, request|
+        url_string = request.query_parameters.except(:project).to_param
+        url_string = '?' << url_string unless url_string.empty?
+        "/project/monitor/#{request.query_parameters[:project]}#{url_string}"
+      }, constraints: ->(request) { request.query_parameters['project'].present? }
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
