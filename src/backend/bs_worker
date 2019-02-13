@@ -3887,7 +3887,13 @@ push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 if ($code eq 'badhost') {
   # only transmit the logfile in the badhost case
   @send = ();
-  push @send, {name => 'logfile', filename => "$buildroot/.build.log"} if -s "$buildroot/.build.log";
+  if (-s "$buildroot/.build.log") {
+    push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+  } elsif (-e "$buildroot/.build.log") {
+    push @send, {name => 'logfile', data => "empty build log?\n"};
+  } else {
+    push @send, {name => 'logfile', data => "no build log?\n"};
+  }
 }
 
 if (!$testmode) {
