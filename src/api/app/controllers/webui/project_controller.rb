@@ -220,7 +220,7 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2 if params[:switch].present?
     render partial: 'buildstatus', locals: { project: @project,
                                              buildresults: @project.buildresults,
-                                             collapsed_repositories: params.fetch(:collapsedRepositories, []) }
+                                             collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
   end
 
   def delete_dialog

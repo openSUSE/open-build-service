@@ -954,7 +954,7 @@ class Webui::PackageController < Webui::WebuiController
       render partial: 'buildstatus', locals: { buildresults: @buildresults,
                                                index: @index,
                                                project: @project,
-                                               collapsed_repositories: params.fetch(:collapsedRepositories, []) }
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       switch_to_webui2 if params[:switch].present?
       render partial: 'no_repositories', locals: { project: @project }

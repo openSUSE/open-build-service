@@ -14,12 +14,6 @@ RSpec.describe Webui::MarkdownHelper do
       )
     end
 
-    it 'applies code syntactical color on defining language' do
-      expect(render_as_markdown("```ruby\n #comment\n ```")).to include(
-        '<span style="color:#777">#comment</span>'
-      )
-    end
-
     it 'does not crash due to invalid URIs' do
       expect(render_as_markdown("anbox[400000+22d000]\r\n(the number)")).to eq(
         "<p>anbox<a href='the number'>400000+22d000</a></p>\n"

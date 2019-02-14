@@ -16,9 +16,16 @@ function updateRpmlintResult(index) { // jshint ignore:line
 }
 
 function updateBuildResult(index) { // jshint ignore:line
+  var elements = {};
+  $('.result div.collapse:not(.show)').map(function(_index, domElement) {
+    var main = $(domElement).data('main') ? $(domElement).data('main') : 'project';
+    if (elements[main] === undefined) { elements[main] = []; }
+    elements[main].push($(domElement).data('repository'));
+  });
+
   var ajaxDataShow = $('#buildresult' + index + '-box').data();
   ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
-  ajaxDataShow.collapsedRepositories = $('.result div.collapse:not(.show)').map(function(_index, domElement) { return $(domElement).data('repository'); }).get();
+  ajaxDataShow.collapsedRepositories = elements;
   $('#build'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: $('#buildresult' + index + '-urls').data('buildresultUrl'),
