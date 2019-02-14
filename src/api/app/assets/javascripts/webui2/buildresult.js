@@ -5,6 +5,17 @@ function updateArchDisplay(index) { // jshint ignore:line
   $('#rpm' + index + ' #rpmlint_arch_select_' + repoKey).show();
 }
 
+function rpmlintShowMore(index) { // jshint ignore:line
+  var $logContent = $('#rpm' + index + ' .rpmlint-result');
+  var $this = $('#rpm' + index + ' .rpm-show-more');
+  $this.text('show more');
+  $logContent.addClass('max-height');
+  $this.addClass('d-none');
+  if ($logContent[0].offsetHeight < $logContent[0].scrollHeight) {
+    $this.removeClass('d-none');
+  }
+}
+
 function initBuildResult(index, rpmlint) { // jshint ignore:line
   $(document).on( 'click', '.build-refresh, .rpm-refresh', function(){
     $(this).find('i').addClass('fa-spin');
@@ -26,6 +37,19 @@ function initBuildResult(index, rpmlint) { // jshint ignore:line
       var repository = $("select[name='repository']:visible option:selected").attr('value');
 
       $(this).data('params','repository=' + repository);
+    });
+
+    $(document).on('click', '.rpm-show-more', function() {
+      var $this = $(this);
+      var $text = $this.text();
+      var $logContent = $this.parents('.result').find('.rpmlint-result');
+
+      $logContent.toggleClass('max-height');
+      if ($logContent.hasClass('max-height')) {
+        $this.text($text.replace("less", "more"));
+      } else {
+        $this.text($text.replace("more", "less"));
+      }
     });
   }
 }

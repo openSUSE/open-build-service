@@ -1,6 +1,9 @@
 .rpmlint-result {
   font-size: .7rem;
-  max-height: 35rem;
+  overflow-y: hidden;
+  &.max-height {
+    max-height: 35rem;
+  }
 }
 
 .custom-label {

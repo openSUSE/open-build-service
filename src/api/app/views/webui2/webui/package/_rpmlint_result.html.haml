@@ -13,7 +13,10 @@
                                        id: "rpmlint_arch_select_#{repository}",
                                        class: 'rpmlint_arch_select custom-select custom-select-sm',
                                        data: { remote: true, url: rpm_log_url })
-  %pre.rpmlint-result.text-pre-wrap
+  %pre.rpmlint-result.text-pre-wrap.max-height
     = render partial: 'rpmlint_log', locals: { log: log }
+
+  = link_to('javascript:void(0)', class: 'small d-none rpm-show-more') do
+    show more
 - else
   = render partial: 'no_repositories', locals: { project: project }
