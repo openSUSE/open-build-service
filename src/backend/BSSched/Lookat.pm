@@ -125,7 +125,8 @@ sub changed2lookat {
   my $rprpdeps = $gctx->{'rprpdeps'};
   for my $prp (keys %$changed_med) {
     $lookat_next->{$prp} = 1;
-    $lookat_next->{$_} = 1 for @{$rprpdeps->{$prp} || []};
+    my $alllocked = $gctx->{'alllocked'};
+    $lookat_next->{$_} = 1 for grep {!$alllocked->{$_}} @{$rprpdeps->{$prp} || []};
   }
 
   #my $prpdeps = $gctx->{'prpdeps'};
