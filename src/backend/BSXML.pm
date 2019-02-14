@@ -1771,6 +1771,10 @@ our $buildstatistics = [
 	  [ 'preinstall' => $time ],
 	  [ 'install' => $time ],
 	  [ 'main' => $time ],
+	  [ 'postchecks' => $time ],
+	  [ 'rpmlint' => $time ],
+	  [ 'buildcmp' => $time ],
+	  [ 'deltarpms' => $time ],
 	  [ 'download' => $time ],
       ],
       [ 'download' =>
