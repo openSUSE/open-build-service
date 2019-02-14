@@ -1,13 +1,11 @@
-// Expand the comment textarea to fit the text
-// as it's being typed.
-function sz(t) { // jshint ignore:line
-  var a = t.value.split('\n');
-  var b = 1;
-  for (var x = 0; x < a.length; x++) {
-    if (a[x].length >= t.cols) b += Math.floor(a[x].length / t.cols);
+function resizeTextarea(textarea) { // jshint ignore:line
+  var textLines = textarea.value.split('\n');
+  var neededRows = 1;
+  for (var x = 0; x < textLines.length; x++) {
+    if (textLines[x].length >= textarea.cols) neededRows += Math.floor(textLines[x].length / textarea.cols);
   }
-  b += a.length;
-  if (b > t.rows) t.rows = b;
+  neededRows += textLines.length;
+  if (neededRows > textarea.rows) textarea.rows = neededRows;
 }
 
 function updateCommentCounter(selector, count) {
@@ -18,7 +16,7 @@ function updateCommentCounter(selector, count) {
 
 $(document).ready(function(){
   $('.comments-list').on('keyup click', '.comment-field', function() {
-    sz(this);
+    resizeTextarea(this);
   });
 
   $('.comments-list').on('ajax:complete', '.new-comment-form', function(_, data) {
