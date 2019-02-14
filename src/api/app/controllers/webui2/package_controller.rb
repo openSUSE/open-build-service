@@ -7,6 +7,19 @@ module Webui2::PackageController
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
+  def webui2_buildresult
+    if @project.repositories.any?
+      show_all = params['show_all'] == 'true'
+      @buildresults = @package.buildresult(@project, show_all)
+    end
+
+    @index = params[:index]
+
+    respond_to do |format|
+      format.js { render 'buildstatus' }
+    end
+  end
+
   def webui2_submit_request_dialog
     respond_to do |format|
       format.js { render 'submit_request_dialog' }
@@ -14,11 +27,27 @@ module Webui2::PackageController
   end
 
   def webui2_rpmlint_result
-    if @repo_list.empty?
-      render partial: 'no_repositories', locals: { project: @project }
-    else
-      render partial: 'rpmlint_result', locals: { index: params[:index], project: @project, package: @package,
-                                                  repository_list: @repo_list, repo_arch_hash: @repo_arch_hash }
+    if @repo_list.present?
+      @repo_list.sort!
+      repository_name = @repo_list[0][1]
+      architecture_name = @repo_arch_hash[repository_name].last
+      log_result(@project.name, @package.name, repository_name, architecture_name)
+    end
+
+    @index = params[:index]
+
+    respond_to do |format|
+      format.js { render 'rpmlint_result' }
+    end
+  end
+
+  def webui2_rpmlint_log
+    log_result(params[:project], params[:package], params[:repository], params[:architecture])
+
+    @index = params[:index]
+
+    respond_to do |format|
+      format.js { render 'rpmlint_log' }
     end
   end
 
@@ -30,5 +59,13 @@ module Webui2::PackageController
                                                       project: @project.name,
                                                       repository: @repository,
                                                       architecture: params[:arch]).results
+  end
+
+  private
+
+  def log_result(project_name, package_name, repository_name, architecture_name)
+    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(project_name, package_name, repository_name, architecture_name)
+    @log.encode!(xml: :text)
+  rescue Backend::NotFoundError
   end
 end

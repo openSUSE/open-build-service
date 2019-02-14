@@ -1,15 +1,19 @@
-- index ||= ''
+- if repository_list.present?
+  - index ||= '0'
+  - rpm_log_url = rpmlint_log_path(project: project, package: package, index: index, format: :js)
 
-.mt-3.mb-3{ id: "rpmlin-log-#{index}", data: { project: project.name, package: package.name } }
-  - unless repository_list.empty?
-    .form-inline
-      = select_tag("rpmlint_repo_select_#{index}", options_for_select(repository_list.sort),
-                   class: 'custom-select custom-select-sm', onchange: "updateArchDisplay('#{index}')")
-      - repo_arch_hash.each do |repository, architectures|
-        = select_tag("rpmlint_arch_select_#{index}_#{repository}", options_for_select(architectures.reverse),
-                     class: "rpmlint_arch_select_#{index} custom-select custom-select-sm", onchange: "updateRpmlintDisplay('#{index}')")
-%pre.rpmlint-result.text-pre-wrap{ id: "rpmlint_display_#{index}" }
-
-:javascript
-  updateArchDisplay('#{index}');
-
+  .mt-3.mb-3
+    - unless repository_list.empty?
+      .form-inline{ data: { index: index } }
+        = select_tag('repository', options_for_select(repository_list),
+                                   class: 'rpmlint_repo_select custom-select custom-select-sm',
+                                   data: { remote: true, url: rpm_log_url })
+        - repo_arch_hash.each do |repository, architectures|
+          = select_tag('architecture', options_for_select(architectures.reverse),
+                                       id: "rpmlint_arch_select_#{repository}",
+                                       class: 'rpmlint_arch_select custom-select custom-select-sm',
+                                       data: { remote: true, url: rpm_log_url })
+  %pre.rpmlint-result.text-pre-wrap
+    = render partial: 'rpmlint_log', locals: { log: log }
+- else
+  = render partial: 'no_repositories', locals: { project: project }

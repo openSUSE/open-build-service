@@ -1,0 +1,3 @@
+var index = #{@index}
+$('#rpm' + index + ' .rpmlint-result').html("#{escape_javascript(render(partial: 'rpmlint_log', locals: { log: @log }))}");
+$('#rpm' + index + ' .rpm-refresh i').removeClass('fa-spin');

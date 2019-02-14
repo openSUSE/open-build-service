@@ -1,0 +1,19 @@
+var index = #{@index}
+$('[data-toggle="popover"]').popover('dispose');
+
+- if @project.repositories.any?
+  var elements = [];
+  $('.result div.collapse:not(.show)').map(function(_index, domElement) { elements.push($(domElement).data('element')); });
+
+  - locals_hash = { buildresults: @buildresults, index: @index, project: @project, package: @package }
+  $('#build' + index + ' .result').html("#{escape_javascript(render(partial: 'buildstatus', locals: locals_hash))}");
+  $('#build' + index + ' .build-refresh').data('params', 'show_all=#{@buildresults.show_all}');
+
+  $.each(elements, function(_index, element) { $('a[aria-controls="' + element + '"]').click(); })
+
+- else
+  $('#build' + index + ' .result').html("#{escape_javascript(render(partial: 'no_repositories', locals: { project: @project }))}");
+
+$('#build' + index + ' .build-refresh i').removeClass('fa-spin');
+$('[data-toggle="popover"]').popover({ trigger: 'hover click' });
+

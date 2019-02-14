@@ -1,64 +1,31 @@
-function updateRpmlintResult(index) { // jshint ignore:line
-  $('#rpm'+index+'-reload').addClass('fa-spin');
-  $.ajax({
-    url: '/package/rpmlint_result',
-    data: $('#buildresult' + index + '-box').data(),
-    success: function(data) {
-      $('#rpm' + index + ' .result').html(data);
-    },
-    error: function() {
-      $('#rpm'+ index + ' .result').html('<p>No rpmlint results available</p>');
-    },
-    complete: function() {
-      $('#rpm' + index + '-reload').removeClass('fa-spin');
-    }
-  });
-}
-
-function updateBuildResult(index) { // jshint ignore:line
-  var elements = {};
-  $('.result div.collapse:not(.show)').map(function(_index, domElement) {
-    var main = $(domElement).data('main') ? $(domElement).data('main') : 'project';
-    if (elements[main] === undefined) { elements[main] = []; }
-    elements[main].push($(domElement).data('repository'));
-  });
-
-  var ajaxDataShow = $('#buildresult' + index + '-box').data();
-  ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
-  ajaxDataShow.collapsedRepositories = elements;
-  $('#build'+index+'-reload').addClass('fa-spin');
-  $.ajax({
-    url: $('#buildresult' + index + '-urls').data('buildresultUrl'),
-    data: ajaxDataShow,
-    success: function(data) {
-      $('#build' + index + ' .result').html(data);
-    },
-    error: function() {
-      $('#build' + index + ' .result').html('<p>No build results available</p>');
-    },
-    complete: function() {
-      $('#build' + index + '-reload').removeClass('fa-spin');
-      $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
-    }
-  });
-}
-
 function updateArchDisplay(index) { // jshint ignore:line
-  $('.rpmlint_arch_select_' + index).hide();
-  $('#rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value')).show();
-  updateRpmlintDisplay(index);
+  var repoKey = $('#rpm' + index + ' .rpmlint_repo_select option:selected').attr('value');
+
+  $('#rpm' + index + ' .rpmlint_arch_select').hide();
+  $('#rpm' + index + ' #rpmlint_arch_select_' + repoKey).show();
 }
 
-function updateRpmlintDisplay(index) {
-  var ajaxDataShow = $('#rpmlin-log-' + index).data();
-  var repoKey = $('#rpmlint_repo_select_' + index + ' option:selected').attr('value');
-  ajaxDataShow.repository = $('#rpmlint_repo_select_' + index + ' option:selected').html();
-  ajaxDataShow.architecture = $('#rpmlint_arch_select_' + index + '_' + repoKey + ' option:selected').attr('value');
-  $.ajax({
-    url: '/package/rpmlint_log',
-    data: ajaxDataShow,
-    success: function (data) {
-      $('#rpmlint_display_' + index).html(data);
-    }
+function initBuildResult(index, rpmlint) { // jshint ignore:line
+  $(document).on( 'click', '.build-refresh, .rpm-refresh', function(){
+    $(this).find('i').addClass('fa-spin');
   });
+
+  $('#build0 .build-refresh').click();
+
+  if (rpmlint) {
+    $('#rpm0 .rpm-refresh').click();
+    $(document).on('ajax:before', '.rpmlint_repo_select', function(){
+      var index = $(this).parents('.form-inline').data('index');
+      var architecture = $("select[name='architecture']:visible option:selected").attr('value');
+
+      updateArchDisplay(index);
+      $(this).data('params','architecture=' + architecture);
+    });
+
+    $(document).on('ajax:before', '.rpmlint_arch_select', function() {
+      var repository = $("select[name='repository']:visible option:selected").attr('value');
+
+      $(this).data('params','repository=' + repository);
+    });
+  }
 }

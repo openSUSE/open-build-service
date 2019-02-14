@@ -1,0 +1,7 @@
+var index = #{@index}
+
+- locals_hash = { index: @index, project: @project, package: @package, repository_list: @repo_list, repo_arch_hash: @repo_arch_hash, log: @log }
+$('#rpm' + index + ' .result').html("#{escape_javascript(render(partial: 'rpmlint_result', locals: locals_hash))}");
+updateArchDisplay(index);
+
+$('#rpm' + index + ' .rpm-refresh i').removeClass('fa-spin');

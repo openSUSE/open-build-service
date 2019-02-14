@@ -1,14 +1,14 @@
 :ruby
-  index ||= ''
-  ajax_data = {}
-  ajax_data['switch'] = 'true' # FIXME: Remove this when request show is available in bootstrap
-  ajax_data['project'] = h(project) if defined?(project)
-  ajax_data['package'] = h(package) if defined?(package)
-  ajax_data['index'] = h(index) if defined?(index)
+  index ||= 0
+  url = project_buildresult_path(project: project, index: index, format: :js)
+  if defined?(package)
+    url = package_buildresult_path(project: project, package: package, index: index, format: :js)
+    rpm_result_url = rpmlint_result_path(project: project, package: package, index: index, format: :js)
+  end
 
 .card
-  .bg-light{ id: "buildresult#{index}-urls", data: { buildresult_url: defined?(package) ? package_buildresult_path : project_buildresult_path } }
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap{ id: "buildresult#{index}-box", role: 'tablist', data: ajax_data }
+  .bg-light
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap{ role: 'tablist' }
       %li.nav-item
         = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
           data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
@@ -21,17 +21,17 @@
   .card-body
     .tab-content
       .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
-        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ onclick: "updateBuildResult('#{index}')", accesskey: 'r', title: 'Refresh Build Results' }
+        %button.btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ accesskey: 'r', title: 'Refresh Build Results',
+                                                                   data: { url: url, remote: true, params: 'show_all=false' } }
           Refresh
-          %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+          %i.fas.fa-sm.fa-sync-alt
         .result
       - if defined?(package)
         .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
-          .btn.btn-sm.btn-outline-primary.mb-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
+          %button.btn.btn-sm.btn-outline-primary.mb-2.rpm-refresh{ title: 'Refresh Rpmlint Results', data: { url: rpm_result_url, remote: true } }
             Refresh
-            %i.fas.fa-sm.fa-sync-alt{ id: "rpm#{index}-reload" }
+            %i.fas.fa-sm.fa-sync-alt
           .result
 
-:javascript
-  updateBuildResult('#{index}');
-  if ($('#rpm#{index}').length === 1) updateRpmlintResult('#{index}');
+- content_for(:ready_function) do
+  initBuildResult('#{index}', $('#rpm#{index}'));

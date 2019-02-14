@@ -946,6 +946,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def buildresult
+    return if switch_to_webui2
+
     if @project.repositories.any?
       show_all = params[:show_all] == 'true'
       @index = params[:index]
@@ -956,7 +958,6 @@ class Webui::PackageController < Webui::WebuiController
                                                project: @project,
                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
-      switch_to_webui2 if params[:switch].present?
       render partial: 'no_repositories', locals: { project: @project }
     end
   end
@@ -981,7 +982,7 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    return if params[:switch].present? && switch_to_webui2
+    return if switch_to_webui2
 
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }
@@ -991,10 +992,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log
+    return if switch_to_webui2
+
     begin
       @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
-      switch_to_webui2
       render partial: 'rpmlint_log'
     rescue Backend::NotFoundError
       render plain: 'No rpmlint log'

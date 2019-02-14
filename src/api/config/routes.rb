@@ -140,7 +140,7 @@ OBSApi::Application.routes.draw do
         get 'package/devel_project/:project/:package' => :devel_project, constraints: cons, as: 'package_devel_project'
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
-        get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
+        get 'package/rpmlint_log' => :rpmlint_log, constraints: cons, as: 'rpmlint_log'
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
         # compat route
