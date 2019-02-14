@@ -18,10 +18,10 @@
     %hr
   - if state.in?(['new', 'review']) && is_target_maintainer
     - confirmation = (state == 'review' ? { confirm: 'Do you really want to approve this request, despite of open review requests?' } : {})
-    = submit_tag 'Accept request', name: 'accepted', class: 'btn btn-primary', data: confirmation
+    = submit_tag 'Accept request', name: 'accepted', class: 'btn btn-primary mr-2', data: confirmation
     - unless is_author
-      = submit_tag 'Decline request', name: 'declined', class: 'btn btn-danger'
+      = submit_tag 'Decline request', name: 'declined', class: 'btn btn-danger mr-2'
   - if is_author && state.in?(['new', 'review', 'declined'])
-    = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger'
+    = submit_tag 'Revoke request', name: 'revoked', class: 'btn btn-danger mr-2'
   - if state == 'declined'
     = submit_tag 'Reopen request', name: 'new', class: 'btn btn-warning'

@@ -4,6 +4,10 @@
   = render partial: 'webui2/shared/truncated_diff_hint',
   locals: { path: request_show_path(number: @number, full_diff: true) }
 
+= render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
+                                                     number: @bs_request.number,
+                                                     diff_to_superseded: @diff_to_superseded,
+                                                     superseding: @bs_request.superseding }
 - @pagetitle = "Request #{@number}"
 .card.mb-3
   .card-header.d-flex.justify-content-between
