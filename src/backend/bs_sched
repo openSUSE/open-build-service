@@ -446,6 +446,7 @@ my $gctx = {
 					# maps prp => [ prp, prp ... ]
   'relatedprpdeps' => {},		# prpdeps filtered for related projects
   'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
+  'alllocked' => {},			# prps where all packages are locked
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
