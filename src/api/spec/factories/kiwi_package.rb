@@ -6,9 +6,9 @@ FactoryBot.define do
 
     package_group { create(:kiwi_package_group, image: image) }
 
-    name        { Faker::Cat.name }
-    arch        { Faker::Cat.name }
-    replaces    { Faker::Cat.name }
+    name        { Faker::Creature::Cat.name }
+    arch        { Faker::Creature::Cat.name }
+    replaces    { Faker::Creature::Cat.name }
     bootinclude { Faker::Boolean.boolean(0.4) }
     bootdelete  { Faker::Boolean.boolean(0.2) }
   end
