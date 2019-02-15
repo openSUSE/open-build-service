@@ -49,7 +49,7 @@
           - @my_open_reviews.each_with_index do |review, index|
             %li.nav-item
               %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab' }
-                Review for #{review[:who]}
+                Review for #{reviewer(review)}
       .card-body
         - if @can_handle_request && @show_project_maintainer_hint
           .alert.alert-warning

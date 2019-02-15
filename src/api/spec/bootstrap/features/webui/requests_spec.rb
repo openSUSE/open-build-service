@@ -142,7 +142,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
 
         login reviewer
         visit request_show_path(1)
-        click_link("Review for #{submitter}")
+        click_link("Review for #{reviewer}")
         fill_in 'comment', with: 'Ok for the project'
         click_button 'Approve'
         expect(page).to have_text('Ok for the project')
