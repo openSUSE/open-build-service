@@ -76,7 +76,7 @@ class Webui::RequestController < Webui::WebuiController
     diff_limit = params[:full_diff] ? 0 : nil
     @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
     @is_author = @bs_request.creator == User.current.login
-    @is_target_maintainer = @req['is_target_maintainer']
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.current)
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']

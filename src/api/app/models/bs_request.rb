@@ -888,7 +888,6 @@ class BsRequest < ApplicationRecord
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
     result = {}
-    result['is_target_maintainer'] = is_target_maintainer?(User.current)
 
     result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)
 
