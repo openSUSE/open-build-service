@@ -143,13 +143,13 @@ OBSApi::Application.routes.draw do
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
         get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
-        # compat route
+        # For backward compatibility
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
         get 'package/edit/:project/:package' => :edit, constraints: cons, as: :package_edit
-        # compat routes
+        # For backward compatibility
         get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
         get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
-        # compat route
+        # For backward compatibility
         get 'package/files/:project/:package' => :show, constraints: cons
       end
     end
@@ -287,6 +287,12 @@ OBSApi::Application.routes.draw do
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
       get 'project/monitor/:project' => :monitor, constraints: cons, as: 'project_monitor'
+      # For backward compatibility
+      get 'project/monitor', to: redirect { |_path_parameters, request|
+        url_string = request.query_parameters.except(:project).to_param
+        url_string = '?' << url_string unless url_string.empty?
+        "/project/monitor/#{request.query_parameters[:project]}#{url_string}"
+      }, constraints: ->(request) { request.query_parameters['project'].present? }
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
@@ -452,7 +458,7 @@ OBSApi::Application.routes.draw do
 
   ### /worker
   get 'worker/_status' => 'worker/status#index', as: :worker_status
-  get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # FIXME3.0: drop this compat route
+  get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # For backward compatibility
   get 'worker/:worker' => 'worker/capability#show'
   post 'worker' => 'worker/command#run'
 
