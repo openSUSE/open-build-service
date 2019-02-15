@@ -22,6 +22,10 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
 
+    get '/search/released/binary/id', params: { match: "build/@binaryid = '5bb6f78d6a24f084e58e476955f615ec'" }
+    assert_response :success
+    assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
+
     # full content
     get '/search/released/binary', params: { match: "@name = 'package'" }
     assert_response :success

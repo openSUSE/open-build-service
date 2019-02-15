@@ -153,6 +153,8 @@ class XpathEngine
         'updateinfo/@id' => { cpart: 'binary_updateinfo' },
         'updateinfo/@version' => { cpart: 'binary_updateinfo_version' },
         'operation' => { cpart: 'operation' },
+        'build/@time' => { cpart: 'binary_buildtime' },
+        'build/@binaryid' => { cpart: 'binary_id' },
         'modify/@time' => { cpart: 'modify_time' },
         'obsolete/@time' => { cpart: 'obsolete_time' },
         'repository/@project' => { cpart: 'release_projects.name' },
