@@ -1,6 +1,6 @@
 module Webui2::PackageController
   def webui2_show
-    @comments = @package.comments.includes(:user, :children)
+    @comments = @package.comments.includes(:user)
   end
 
   def webui2_save

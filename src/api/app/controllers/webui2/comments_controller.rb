@@ -2,8 +2,6 @@ module Webui2::CommentsController
   def webui2_create
     comment = @commented.comments.new(permitted_params)
     User.current.comments << comment
-    # required for the form construction
-    @comment = Comment.new
     @commentable = comment.commentable
 
     respond_to do |format|
@@ -14,7 +12,9 @@ module Webui2::CommentsController
         flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
         status = :unprocessable_entity
       end
-      format.js { render 'webui2/webui/comment/create', status: status }
+      format.html do
+        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      end
     end
   end
 
@@ -22,7 +22,6 @@ module Webui2::CommentsController
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
     @commentable = comment.commentable
-    @comment = Comment.new # Needed for the new comment form
 
     respond_to do |format|
       if comment.blank_or_destroy
@@ -32,7 +31,9 @@ module Webui2::CommentsController
         flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
         status = :unprocessable_entity
       end
-      format.js { render 'webui2/webui/comment/destroy', status: status }
+      format.html do
+        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+      end
     end
   end
 end

@@ -8,13 +8,12 @@
       = link_to("#comment-#{comment.id}", title: l(comment.created_at.utc), name: "comment-#{comment.id}") do
         #{time_ago_in_words(comment.created_at)} ago
     = render_as_markdown(comment)
-    = render partial: 'webui2/webui/comment/links', locals: { comment: comment }
     = render partial: 'webui2/webui/comment/reply', locals: { comment: comment, level: 0, commentable: commentable }
     - if level <= 3
-      - comment.children.each do |children|
+      - comment.children.includes(:user).each do |children|
         = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
 
 - if level > 3
-  - comment.children.each do |children|
+  - comment.children.includes(:user).each do |children|
     = render partial: 'webui2/webui/comment/content', locals: { comment: children, commentable: commentable, level: level + 1 }
 
