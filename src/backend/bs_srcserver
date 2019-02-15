@@ -6331,8 +6331,8 @@ sub cloudupload_pubkey {
     $pubkeyinfo = BSSrcServer::Signkey::subjectpublickeyinfo($pk);
   } else {
     $pubkeyinfo = BSSrcServer::Signkey::pubkeyinfo($pk);
-    $pubkeyinfo->{'_content'} = $pk;
   }
+  $pubkeyinfo->{'_content'} = $pk;
   return ($pubkeyinfo, $BSXML::pubkeyinfo);
 }
 
