@@ -9,4 +9,4 @@
 
     = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: 100 }
 
-= render partial: 'request_history_element', collection: history, as: :element
+= render partial: 'request_history_element', collection: bs_request.history_elements.includes(:user), as: :element

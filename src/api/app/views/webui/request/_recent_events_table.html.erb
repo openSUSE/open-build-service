@@ -17,7 +17,7 @@
       <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= toggle_sliced_text(@bs_request.description, 48) %></pre></td>
     </tr>
     <!-- and now everything from the history log -->
-    <% @history.each do |element| %>
+    <% @bs_request.history_elements.includes(:user).each do |element| %>
       <tr>
         <td class="nowrap" style="width: 1%;">
           <%= user_with_realname_and_icon element.user.login, short: true %>

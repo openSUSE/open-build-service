@@ -4,7 +4,7 @@
       = link_to('#comments', class: 'nav-link text-nowrap active', data: { toggle: 'tab' }, role: 'tab') do
         Comments for request #{bs_request.number}
         %span.badge.badge-primary{ id: "comment-counter-request-#{bs_request.number}" }
-          = comments.size
+          = bs_request.comments.size
     - bs_request.superseding.includes(:comments).each do |superseded|
       - if superseded.comments.any?
         %li.nav-item

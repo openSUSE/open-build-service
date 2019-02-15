@@ -83,7 +83,6 @@ class Webui::RequestController < Webui::WebuiController
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
     @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
-    @history = @bs_request.history_elements.includes(:user)
     @actions = @req['actions']
 
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
@@ -95,8 +94,6 @@ class Webui::RequestController < Webui::WebuiController
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
     @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) && any_project_maintained_by_current_user?)
-    @comments = @bs_request.comments
-    @comment = Comment.new
 
     switch_to_webui2
   end
