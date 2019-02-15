@@ -1,0 +1,8 @@
+- if text.present?
+  .obs-collapsible-textbox
+    - if text.length > threshold
+      .obs-collapsible-text.obs-collapsed
+        = simple_format(text, class: 'm-0 p-0 small')
+      %a.obs-collapsible-link.obs-collapsed.text-center.d-block{ title: 'Show more' }
+    - else
+      = simple_format(text, class: 'm-0 p-0 small')

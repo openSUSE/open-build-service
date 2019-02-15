@@ -1,0 +1,28 @@
+.obs-collapsible-textbox {
+  word-break: break-all;
+  white-space: pre-line;
+  font-size: 14px;
+  padding-right: 1em;
+
+  .obs-collapsible-text {
+    &.obs-collapsed {
+      @include collapsedText($lineHeight: 1.2em, $lineCount: 3);
+    }
+
+    &.obs-uncollapsed {
+      @include uncollapsedText($lineHeight: 1.2em);
+    }
+  }
+
+  .obs-collapsible-link {
+    @extend .fa;
+
+    &.obs-collapsed:after {
+      content: '\f078';
+    }
+
+    &.obs-uncollapsed:after {
+      content: '\f077';
+    }
+  }
+}

@@ -13,11 +13,10 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     scenario 'expanding a text field' do
       visit request_show_path(bs_request)
       within(element) do
-        # FIXME: find a better way to check if the content is collapsed or not
-        find(id: 'show-full-req-description').click
-        expect(find(id: 'req-description').native.css_value('max-height')).to eq('none')
-        find(id: 'show-full-req-description').click
-        expect(find(id: 'req-description').native.css_value('max-height')).not_to eq('none')
+        find('a[title="Show more"]').click
+        expect(page).to have_css('div.obs-uncollapsed')
+        find('a[title="Show less"]').click
+        expect(page).to have_css('div.obs-collapsed')
       end
     end
   end
@@ -57,7 +56,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
 
     describe 'request history entries' do
       it_behaves_like 'expandable element' do
-        let(:element) { '.req-description-box' }
+        let(:element) { '.media-body > .obs-collapsible-textbox' }
       end
     end
   end
