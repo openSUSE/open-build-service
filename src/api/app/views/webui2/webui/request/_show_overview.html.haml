@@ -2,10 +2,10 @@
   %p Request #{bs_request.number} (#{bs_request.state})
 
 #description-text
-  - if bs_request.description.blank?
-    %i No description set
+  - if bs_request.description.present?
+    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: 500 }
   - else
-    = description_wrapper(toggle_sliced_text(bs_request.description))
+    %i No description set
 - if can_add_reviews
   %p
     = link_to(add_reviewer_dialog_path(number: bs_request.number),
