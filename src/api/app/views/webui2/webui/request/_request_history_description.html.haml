@@ -1,8 +1,0 @@
-- if text.present?
-  .req-description-box
-    - if text.length > 100
-      .collapsed-history#req-description
-        = simple_format(text, class: 'm-0 p-0 small')
-      %a.collapsed-link.text-center.d-block#show-full-req-description{ title: 'show more' }
-    - else
-      = simple_format(text, class: 'm-0 p-0 small')

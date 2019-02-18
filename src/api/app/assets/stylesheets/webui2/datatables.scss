@@ -24,5 +24,8 @@ table.dataTable.table-sm {
     bottom: 0.3em;
   }
 
-  td { white-space: normal !important; }
+  td { 
+    white-space: normal !important;
+    word-break: break-all;
+  }
 }

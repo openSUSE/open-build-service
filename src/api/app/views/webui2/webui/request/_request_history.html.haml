@@ -7,10 +7,6 @@
 
     %p.m-0.p-0.small created request
 
-    = render partial: 'request_history_description', locals: { text: bs_request.description }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: 100 }
 
 = render partial: 'request_history_element', collection: history, as: :element
-
-= content_for :ready_function do
-  handleCollapseForHistory('#req-description');
-  handleCollapseForHistory('#show-full-req-description');

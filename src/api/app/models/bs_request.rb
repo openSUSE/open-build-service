@@ -888,17 +888,6 @@ class BsRequest < ApplicationRecord
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
     result = {}
-    result['id'] = id
-    result['number'] = number
-
-    result['description'] = description
-    result['priority'] = priority
-    result['state'] = state
-    result['creator'] = User.find_by_login(creator)
-    result['created_at'] = created_at
-    result['accept_at'] = accept_at if accept_at
-    result['superseded_by'] = superseded_by if superseded_by
-    result['superseding'] = superseding unless superseding.empty?
     result['is_target_maintainer'] = is_target_maintainer?(User.current)
 
     result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)

@@ -13,18 +13,41 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     scenario 'expanding a text field' do
       visit request_show_path(bs_request)
       within(element) do
-        # FIXME: find a better way to check if the content is collapsed or not
-        find(id: 'show-full-req-description').click
-        expect(find(id: 'req-description').native.css_value('max-height')).to eq('none')
-        find(id: 'show-full-req-description').click
-        expect(find(id: 'req-description').native.css_value('max-height')).not_to eq('none')
+        find('a[title="Show more"]').click
+        expect(page).to have_css('div.obs-uncollapsed')
+        find('a[title="Show less"]').click
+        expect(page).to have_css('div.obs-collapsed')
       end
     end
   end
 
   context 'request show page' do
+    let!(:superseded_bs_request) { create(:superseded_bs_request, superseded_by_request: bs_request) }
+    let!(:comment_1) { create(:comment, commentable: bs_request) }
+    let!(:comment_2) { create(:comment, commentable: superseded_bs_request) }
+
+    scenario 'show request comments' do
+      visit request_show_path(bs_request)
+      expect(page).to have_text(comment_1.body)
+      expect(page).not_to have_text(comment_2.body)
+      find('a', text: "Comments for request #{superseded_bs_request.number}").click
+      expect(page).to have_text(comment_2.body)
+      expect(page).not_to have_text(comment_1.body)
+    end
+
     describe 'request description field' do
-      skip('Te overview doesn\'t have the new collapse feature') do
+      scenario 'superseded requests' do
+        visit request_show_path(bs_request)
+        within 'li', text: "Supersedes #{superseded_bs_request.number}" do
+          find('a', text: superseded_bs_request.number).click
+        end
+        expect(page).to have_text('In state superseded')
+        within 'li', text: "Superseded by #{bs_request.number}" do
+          find('a', text: bs_request.number)
+        end
+      end
+
+      skip('The overview doesn\'t have the new collapse feature') do
         it_behaves_like 'expandable element' do
           let(:element) { 'pre#description-text' }
         end
@@ -33,7 +56,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
 
     describe 'request history entries' do
       it_behaves_like 'expandable element' do
-        let(:element) { '.req-description-box' }
+        let(:element) { '.media-body > .obs-collapsible-textbox' }
       end
     end
   end
@@ -118,7 +141,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
 
         login reviewer
         visit request_show_path(1)
-        click_link("Review for #{submitter}")
+        click_link("Review for #{reviewer}")
         fill_in 'comment', with: 'Ok for the project'
         click_button 'Approve'
         expect(page).to have_text('Ok for the project')
