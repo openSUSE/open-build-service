@@ -1,41 +1,41 @@
-// Expand the comment textarea to fit the text
-// as it's being typed.
-function sz(t) { // jshint ignore:line
-  var a = t.value.split('\n');
-  var b = 1;
-  for (var x = 0; x < a.length; x++) {
-    if (a[x].length >= t.cols) b += Math.floor(a[x].length / t.cols);
+function resizeTextarea(textarea) { // jshint ignore:line
+  var textLines = textarea.value.split('\n');
+  var neededRows = 1;
+  for (var x = 0; x < textLines.length; x++) {
+    if (textLines[x].length >= textarea.cols) neededRows += Math.floor(textLines[x].length / textarea.cols);
   }
-  b += a.length;
-  if (b > t.rows) t.rows = b;
+  neededRows += textLines.length;
+  if (neededRows > textarea.rows) textarea.rows = neededRows;
 }
 
-function reloadCommentBindings() {
-  $('a.supersed_comments_link').on('click', function(){
-    var link = $(this).text();
-    $(this).text(link === 'Show outdated comments' ? 'Hide outdated comments' : 'Show outdated comments');
-    $(this).parent().siblings('.superseded_comments').toggle();
-  });
-  $('.togglable_comment').click(function () {
-      var toggleid = $(this).data("toggle");
-      $("#" + toggleid).toggle();
-      $("#" + toggleid).toggleClass('d-none');
-      $("#" + toggleid + ' .comment_reply_body').focus();
-  });
+function updateCommentCounter(selector, count) {
+  var oldValue = $(selector).text();
 
-  // prevent duplicate comment submissions
-  $('.comment_new').submit(function() {
-      $(this).find('input[type="submit"]').prop('disabled', true);
-  });
-
-  $('.comment_new').on('ajax:complete', function(event, data) {
-    $('#comments').html(data.responseText);
-
-    // as the comments get loaded again, the jQuery bindings are lost. We need to reload them.
-    reloadCommentBindings();
-  });
+  $(selector).text(parseInt(oldValue) + count);
 }
 
 $(document).ready(function(){
-  reloadCommentBindings();
+  $('.comments-list').on('keyup click', '.comment-field', function() {
+    resizeTextarea(this);
+  });
+
+  $('.comments-list').on('ajax:complete', '.new-comment-form', function(_, data) {
+    var $commentsList = $(this).closest('.comments-list');
+
+    $commentsList.html(data.responseText);
+    updateCommentCounter($commentsList.data('comment-counter'), 1);
+  });
+
+  $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
+    var $this = $(this),
+        $commentsList = $this.closest('.comments-list'),
+        $form = $('#delete-comment-modal-' + $this.data('commentId'));
+
+    $form.modal('hide');
+    // We have to wait until the modal is hidden to properly remove the dialog UI
+    $form.on('hidden.bs.modal', function () {
+      updateCommentCounter($commentsList.data('comment-counter'), -1);
+      $commentsList.html(data.responseText);
+    });
+  });
 });

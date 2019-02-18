@@ -1,8 +1,7 @@
 - content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
 
 - if @not_full_diff
-  = render partial: 'webui2/shared/truncated_diff_hint',
-  locals: { path: request_show_path(number: @number, full_diff: true) }
+  = render partial: 'webui2/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
 
 = render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
                                                      number: @bs_request.number,
@@ -16,12 +15,9 @@
   .card-body
     .row
       .col-md-8
-        = render partial: 'show_overview', locals: { pagetitle: @pagetitle, description: @req['description'],
-                                                     can_add_reviews: @can_add_reviews, number: @number, state: @state }
+        = render partial: 'show_overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
       .col-md-4
-        = render partial: 'show_side_links', locals: { request_creator: @req['creator'], request_created_at: @req['created_at'],
-                                                       request_state: @state, package_maintainers: @package_maintainers,
-                                                       superseding: @superseding, superseded_by: @superseded_by, accept_at: @accept_at,
+        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers,
                                                        other_open_reviews: @other_open_reviews, my_open_reviews: @my_open_reviews }
 
 .card.mb-3
@@ -39,11 +35,7 @@
 .row
   .col-md-8
     .card.mb-3
-      .card-header.d-flex.justify-content-between
-        %h5
-          Comments for request #{@number} (#{@comments.size})
-      .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @bs_request }
+      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request }
     .card.mb-3
       .bg-light
         %ul.nav.nav-tabs{ role: 'tablist' }
@@ -53,7 +45,7 @@
           - @my_open_reviews.each_with_index do |review, index|
             %li.nav-item
               %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab' }
-                Review for #{review[:who]}
+                Review for #{reviewer(review)}
       .card-body
         - if @can_handle_request && @show_project_maintainer_hint
           .alert.alert-warning
@@ -63,15 +55,15 @@
         .tab-content
           .tab-pane.fade.show.active{ id: 'decision' }
             - if @can_handle_request
-              = render('decision_tab', request_number: @number, request_creator: @req['creator'],
-                       is_target_maintainer: @is_target_maintainer, state: @state,
+              = render('decision_tab', request_number: @bs_request.number, request_creator: @bs_request.creator,
+                       is_target_maintainer: @is_target_maintainer, state: @bs_request.state.to_s,
                        is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
             - else
               %p
                 There's nothing to be done right now
           - @my_open_reviews.each_with_index do |review, index|
             .tab-pane.fade.show{ id: "review-#{index}" }
-              = render('review_tab', review: review, request_number: @number)
+              = render('review_tab', review: review, request_number: @bs_request.number)
 
   .col-md-4
     .card

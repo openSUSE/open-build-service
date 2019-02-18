@@ -52,13 +52,10 @@ class BsRequestTest < ActiveSupport::TestCase
     req = BsRequest.new_from_xml(load_backend_file('request/add_role'))
     req.save!
 
+    assert_equal req.state, :review
+    assert_equal req.creator, 'Iggy'
     wi = req.webui_infos(diffs: false)
-    assert_equal wi['number'], req.number
-    assert_equal wi['description'], ''
-    assert_equal wi['state'], :review
-    assert_equal wi['creator'].login, 'Iggy'
     assert_equal wi['is_target_maintainer'], false
-    assert_equal wi['my_open_reviews'], []
 
     wia = wi['actions'][0]
     assert_equal wia[:type], :add_role
@@ -68,14 +65,10 @@ class BsRequestTest < ActiveSupport::TestCase
 
     User.current = users(:fred)
 
+    assert_equal req.state, :review
+    assert_equal req.creator, 'Iggy'
     wi = req.webui_infos(diffs: false)
-    assert_equal wi['id'], req.id
-    assert_equal wi['number'], req.number
-    assert_equal wi['description'], ''
-    assert_equal wi['state'], :review
-    assert_equal wi['creator'].login, 'Iggy'
     assert_equal wi['is_target_maintainer'], true
-    assert_equal wi['my_open_reviews'], []
 
     req.destroy
   end

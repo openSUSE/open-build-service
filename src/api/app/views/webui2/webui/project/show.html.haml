@@ -60,9 +60,12 @@
   .comments
     .card
       %h5.card-header
-        Comments for #{@project} (#{@comments.length})
+        Comments for #{@project}
+        %span.badge.badge-primary{ id: "comment-counter-project-#{@project.id}" }
+          = @comments.length
       .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @project }
+        = render partial: 'webui2/webui/comment/show', locals: { commentable: @project,
+          comment_counter_id: "#comment-counter-project-#{@project.id}" }
 
 - unless User.current.is_nobody?
   - if @project.is_locked? && User.current.can_modify?(@project, true)

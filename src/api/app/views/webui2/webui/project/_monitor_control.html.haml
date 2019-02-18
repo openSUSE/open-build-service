@@ -1,7 +1,6 @@
 .row
   .col-md-12
-    = form_tag(project_monitor_path, method: :get) do
-      = hidden_field_tag :project, project
+    = form_tag(project_monitor_path, project: project, method: :get) do
       = hidden_field_tag :defaults, 0
       %span.dropdown#project-monitor-status-dropdown
         %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }

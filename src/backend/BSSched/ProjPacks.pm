@@ -861,6 +861,7 @@ sub setup_projects {
     $gctx->{'channeldata'} = {};
     $gctx->{'channelids'} = {};
     $gctx->{'project_prps'} = {};
+    $gctx->{'alllocked'} = {};
   } else {
     for my $projid (@$projids_todo) {
       # just updating some projects, delete all the entries we currently have
@@ -884,6 +885,7 @@ sub setup_projects {
 	delete $gctx->{'prpsearchpath'}->{$prp};
 	delete $gctx->{'prpdeps'}->{$prp};
 	delete $gctx->{'relatedprpdeps'}->{$prp};
+	delete $gctx->{'alllocked'}->{$prp};
       }
       # remove project from various projid indexed hashes
       delete $gctx->{'expandedprojlink'}->{$projid};
@@ -1027,6 +1029,20 @@ sub setup_projects {
       # get list of related prp
       my @related_prps = grep { $prp ne $_ && is_related($projid, $_) } @{$prpdeps->{$prp} || []};
       $relatedprpdeps->{$prp} = \@related_prps if @related_prps;
+
+      # check if all packages are locked
+      my $alllocked;
+      if ($proj->{'locked'} && BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
+	$alllocked = 1;
+	for my $pack (grep {$_->{'locked'}} values(%{$proj->{'package'} || {}})) {
+	  $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'locked'}, 1, $myarch);
+	}
+      }
+      if ($alllocked) {
+	$gctx->{'alllocked'}->{$prp} = 1;
+      } else {
+	delete $gctx->{'alllocked'}->{$prp};
+      }
     }
     $gctx->{'project_prps'}->{$projid} = [ sort keys %myprps ] if %myprps;
   }

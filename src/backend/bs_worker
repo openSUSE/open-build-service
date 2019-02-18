@@ -3149,37 +3149,36 @@ sub dobuild {
       my $iosectors = 0;
       my $iorequests = 0;
       open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
-      while(<FILE>) {
+      my %timekeys = (
+	'TIME_preinstall' => 'preinstall',
+	'TIME_install' => 'install',
+	'TIME_main_build' => 'main',
+	'TIME_postchecks' => 'postchecks',
+	'TIME_rpmlint' => 'rpmlint',
+	'TIME_buildcmp' => 'buildcmp',
+	'TIME_deltarpms' => 'deltarpms',
+      );
+      while (<FILE>) {
         chomp;
-        my ($key, $value) = split( ": ", $_ );
+        my ($key, $value) = split(": ", $_);
         if ($key eq "MAX_mb_used_on_disk" ){
-          $stats->{'disk'}->{'usage'}->{'size'}->{'unit'} = "M";
-          $stats->{'disk'}->{'usage'}->{'size'}->{'_content'} = $value;
+          $stats->{'disk'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
         } elsif ($key eq "MAX_mb_used_memory" ){
-          $stats->{'memory'}->{'usage'}->{'size'}->{'unit'} = "M";
-          $stats->{'memory'}->{'usage'}->{'size'}->{'_content'} = $value;
+          $stats->{'memory'}->{'usage'}->{'size'} = { 'unit' => 'M', '_content' => $value };
         } elsif ($key eq "IO_requests_read" || $key eq "IO_requests_write" ){
           $iorequests += $value;
           $stats->{'disk'}->{'usage'}->{'io_requests'} = $iorequests;
         } elsif ($key eq "IO_sectors_read" || $key eq "IO_sectors_write" ){
           $iosectors += $value;
           $stats->{'disk'}->{'usage'}->{'io_sectors'} = $iosectors;
-        } elsif ($key eq "TIME_preinstall" ){
-          $stats->{'times'}->{'preinstall'}->{'time'}->{'unit'} = "s";
-          $stats->{'times'}->{'preinstall'}->{'time'}->{'_content'} = $value;
-        } elsif ($key eq "TIME_install" ){
-          $stats->{'times'}->{'install'}->{'time'}->{'unit'} = "s";
-          $stats->{'times'}->{'install'}->{'time'}->{'_content'} = $value;
-        } elsif ($key eq "TIME_main_build" ){
-          $stats->{'times'}->{'main'}->{'time'}->{'unit'} = "s";
-          $stats->{'times'}->{'main'}->{'time'}->{'_content'} = $value;
+        } elsif ($timekeys{$key}) {
+          $stats->{'times'}->{$timekeys{$key}}->{'time'} = { 'unit' => 's', '_content' => $value };
         }
       }
       close FILE;
     }
   }
-  $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
-  $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
+  $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
   mkdir_p("$buildroot/.build.packages/OTHER");
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
@@ -3887,7 +3886,13 @@ push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
 if ($code eq 'badhost') {
   # only transmit the logfile in the badhost case
   @send = ();
-  push @send, {name => 'logfile', filename => "$buildroot/.build.log"} if -s "$buildroot/.build.log";
+  if (-s "$buildroot/.build.log") {
+    push @send, {name => 'logfile', filename => "$buildroot/.build.log"};
+  } elsif (-e "$buildroot/.build.log") {
+    push @send, {name => 'logfile', data => "empty build log?\n"};
+  } else {
+    push @send, {name => 'logfile', data => "no build log?\n"};
+  }
 }
 
 if (!$testmode) {

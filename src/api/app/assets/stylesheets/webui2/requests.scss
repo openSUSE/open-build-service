@@ -19,21 +19,3 @@
   font-size: 14px;
   padding-right: 1em;
 }
-
-.collapsed-history {
-  @include collapsedText($lineHeight: 1.2em, $lineCount: 3);
-}
-
-.uncollapsed-history {
-  @include uncollapsedText($lineHeight: 1.2em);
-}
-
-.collapsed-link:after {
-  @extend .fa;
-  content: '\f078';
-}
-
-.uncollapsed-link:after {
-  @extend .fa;
-  content: '\f077';
-}
