@@ -130,15 +130,33 @@ sub blob_upload {
 
 sub blob_download {
   my ($blobid, $filename) = @_;
+  my $stdout_receiver = sub {
+    while(1) {
+      my $s = BSHTTP::read_data($_[0], 8192);
+      return {} if $s eq '';
+      print($s) || die("write: $!\n");
+    }
+  };
   my $param = {
     'uri' => "$registryserver/v2/$repository/blobs/$blobid",
     'authenticator' => $registry_authenticator,
     'timeout' => $registry_timeout,
-    'receiver' =>  \&BSHTTP::file_receiver,
+    'receiver' => $filename eq '-' ? $stdout_receiver : \&BSHTTP::file_receiver,
     'filename' => $filename,
     'maxredirects' => 1,
   };
   BSRPC::rpc($param);
+}
+
+sub blob_fetch {
+  my ($blobid) = @_;
+  my $param = {
+    'uri' => "$registryserver/v2/$repository/blobs/$blobid",
+    'authenticator' => $registry_authenticator,
+    'timeout' => $registry_timeout,
+    'maxredirects' => 1,
+  };
+  return BSRPC::rpc($param);
 }
 
 sub manifest_exists {
@@ -434,7 +452,7 @@ while (@ARGV) {
   }
 }
 
-$registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+$registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
 if ($list_mode) {
   ($registryserver, $repository) = @ARGV;
@@ -451,7 +469,14 @@ if ($list_mode) {
     my ($mani, $maniid, $mani_json) = get_manifest_for_tag($ARGV[2]);
     print "$mani_json\n" if $mani_json;
   } elsif (@ARGV == 4) {
-    blob_download($ARGV[2], $ARGV[3]);
+    if ($ARGV[3] eq 'config' || $ARGV[3] eq 'config.json') {
+      my ($mani) = get_manifest_for_tag($ARGV[2]);
+      my $config = blob_fetch($mani->{'config'}->{'digest'});
+      $config = JSON::XS->new->utf8->canonical->pretty->encode(JSON::XS::decode_json($config)) if $ARGV[3] eq 'config';
+      print $config;
+    } else {
+      blob_download($ARGV[2], $ARGV[3]);
+    }
   } else {
     die_with_usage();
   }
