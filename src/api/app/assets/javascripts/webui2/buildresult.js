@@ -40,8 +40,17 @@ function rpmlintEvents() {
   });
 }
 
+function requestEvents() {
+  $(document).on('click', '.request-tab', function(){
+    var $id = $(this).attr('href');
+
+    $($id + ' .build-refresh').click();
+    $($id + ' .rpm-refresh').click();
+  });
+}
+
 function initBuildResult(index, rpmlint) { // jshint ignore:line
-  $(document).on( 'click', '.build-refresh, .rpm-refresh', function(){
+  $(document).on('click', '.build-refresh, .rpm-refresh', function(){
     $(this).find('i').addClass('fa-spin');
   });
 
@@ -49,4 +58,5 @@ function initBuildResult(index, rpmlint) { // jshint ignore:line
   $('#rpm0 .rpm-refresh').click();
 
   if (rpmlint) rpmlintEvents();
+  if ($('.request-tab').length > 1) { requestEvents(); }
 }

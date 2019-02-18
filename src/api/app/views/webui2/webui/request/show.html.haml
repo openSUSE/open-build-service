@@ -29,7 +29,7 @@
     %ul.nav.nav-tabs{ role: 'tablist' }
       - @actions.each_with_index do |action, index|
         %li.nav-item
-          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: "nav-link text-nowrap #{('active' if index.zero?)}",
+          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: "request-tab nav-link text-nowrap #{('active' if index.zero?)}",
             data: { toggle: 'tab' }, role: 'tab')
   .card-body
     .tab-content
