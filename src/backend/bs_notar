@@ -132,7 +132,7 @@ if ($digestfile) {
   ($registryserver, $notaryserver, $gun, @tags) = @ARGV;
 }
 
-my $notary_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+my $notary_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
 if ($list_mode) {
   my $what = $ARGV[2] || 'root';
@@ -150,7 +150,7 @@ if ($list_mode) {
     $data = $data->{'signed'};
     for my $keyid (@{$data->{'roles'}->{'root'}->{'keyids'}}) {
       my $k = $data->{'keys'}->{$keyid};
-      die("bad keytype\n") unless $k->{'keytype'} eq 'rsa-x509';
+      die("bad keytype $k->{'keytype'}\n") unless $k->{'keytype'} eq 'rsa-x509' || $k->{'keytype'} eq 'ecdsa-x509';
       print MIME::Base64::decode_base64($k->{'keyval'}->{'public'});
     }
     exit(0);
@@ -212,7 +212,7 @@ if ($digestfile) {
   my $repo = $gun;
   $repo =~ s/^[^\/]+\///;
 
-  my $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => 1);
+  my $registry_authenticator = BSBearer::generate_authenticator($dest_creds, 'verbose' => (-c STDOUT ? 1 : 0));
 
   for my $tag (@tags) {
     my $param = {
