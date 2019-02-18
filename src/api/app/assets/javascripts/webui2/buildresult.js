@@ -49,14 +49,23 @@ function requestEvents() {
   });
 }
 
-function initBuildResult(index, rpmlint) { // jshint ignore:line
-  $(document).on('click', '.build-refresh, .rpm-refresh', function(){
-    $(this).find('i').addClass('fa-spin');
-  });
+function buildResultEvents(){
+  $(document).on('ajax:before', '.build-refresh, .show_excluded', function(){
+    var elements = [];
+    var $parent = $(this).parents('.build');
 
+    $($parent).find('.result div.collapse:not(.show)').map(function(_index, domElement) { elements.push($(domElement).data('element')); });
+    $(this).data('params', $(this).data('params') + '&collapsed=' + elements);
+    $($parent).find('.build-refresh i').addClass('fa-spin');
+    $('[data-toggle="popover"]').popover('dispose');
+  });
+}
+
+function initBuildResult(rpmlint) { // jshint ignore:line
   $('#build0 .build-refresh').click();
   $('#rpm0 .rpm-refresh').click();
 
+  buildResultEvents();
   if (rpmlint) rpmlintEvents();
   if ($('.request-tab').length > 1) { requestEvents(); }
 }

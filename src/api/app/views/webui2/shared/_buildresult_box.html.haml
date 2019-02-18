@@ -20,7 +20,7 @@
             RPM Lint
   .card-body
     .tab-content
-      .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+      .tab-pane.fade.show.active.build{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
         %button.btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ accesskey: 'r', title: 'Refresh Build Results',
                                                                    data: { url: url, remote: true, params: 'show_all=false' } }
           Refresh
@@ -34,4 +34,4 @@
           .result
 
 - content_for(:ready_function) do
-  initBuildResult('#{index}', $('#rpm#{index}'));
+  initBuildResult($('#rpm#{index}'));

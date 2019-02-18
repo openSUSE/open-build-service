@@ -20,6 +20,7 @@ module Webui2::ProjectController
 
   def webui2_buildresult
     @buildresults = @project.buildresults
+    @collapsed_repositories = params.fetch(:collapsed, [])
 
     respond_to do |format|
       format.js { render 'buildstatus' }

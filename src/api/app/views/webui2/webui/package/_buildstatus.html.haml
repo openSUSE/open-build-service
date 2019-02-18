@@ -5,7 +5,7 @@
                                        package: package,
                                        index: index,
                                        show_all: !buildresults.show_all,
-                                       format: :js), remote: true do
+                                       format: :js), remote: true, class: 'show_excluded' do
       %u.custom-label #{link_message} excluded/disabled results
 
 - buildresults.results.each_pair do |package, results|
@@ -18,18 +18,19 @@
           :ruby
             repository_name = result.repository.tr('.', '_')
             package_name = package.tr('.:', '_')
+            expanded = collapsed_repositories.exclude?("collapse-#{package_name}-#{repository_name}")
           - if result.repository != previous_repo
             .row.py-1.bg-light
               .col{ title: result.repository.to_s }
                 = link_to(word_break(result.repository, 22),
                   package_binaries_path(project: project, package: package, repository: result.repository),
                   data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
-                = link_to('#', aria: { controls: "collapse-#{package_name}-#{repository_name}", expanded: true }, class: 'ml-1',
+                = link_to('#', aria: { controls: "collapse-#{package_name}-#{repository_name}", expanded: expanded }, class: 'ml-1',
                           data: { toggle: 'collapse' }, href: ".collapse-#{package_name}-#{repository_name}", role: 'button') do
                   %i.fas.fa-chevron-left.expander{ title: 'Show build results for this repository' }
                   %i.fas.fa-chevron-down.collapser{ title: 'Hide build results for this repository' }
 
-          .collapse{ class: "collapse-#{package_name}-#{repository_name} show",
+          .collapse{ class: "collapse-#{package_name}-#{repository_name} #{expanded ? ' show' : ''}",
                      data: { element: "collapse-#{package_name}-#{repository_name}" } }
             .row.py-1
               .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap

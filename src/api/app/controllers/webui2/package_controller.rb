@@ -11,6 +11,7 @@ module Webui2::PackageController
     if @project.repositories.any?
       show_all = params['show_all'] == 'true'
       @buildresults = @package.buildresult(@project, show_all)
+      @collapsed_repositories = params.fetch(:collapsed, [])
     end
 
     @index = params[:index]
