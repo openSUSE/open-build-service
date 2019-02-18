@@ -44,4 +44,5 @@
 //= require webui2/staging_workflow.js
 //= require webui2/project.js
 //= require webui2/project_monitor.js
+//= require webui2/collapsible_text
 //= require rails-timeago
