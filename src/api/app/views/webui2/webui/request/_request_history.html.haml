@@ -5,7 +5,7 @@
     %h6.mt-0.mb-1
       #{bs_request.creator} (#{fuzzy_time(bs_request.created_at)})
 
-    %p.m-0.p-0.small created request
+    %p.m-0.p-0 created request
 
     = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: 100 }
 

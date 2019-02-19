@@ -70,7 +70,7 @@
       .card-header.d-flex.justify-content-between
         %h5
           Request History
-      .card-body
+      .card-body.small
         = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
 
 - unless User.current.is_nobody?
