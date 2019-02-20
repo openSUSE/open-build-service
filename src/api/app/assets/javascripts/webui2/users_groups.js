@@ -44,3 +44,15 @@ function setDataTableForUsersAndGroups() { // jshint ignore:line
         paging: false
     });
 }
+
+function initializeGroupTokenfield() { // jshint ignore:line
+  var $tokenfield = $('#group-members.tag-input');
+
+  $tokenfield.tagsInput({
+    placeholder: 'Add a member',
+    autocomplete: {
+      minLength: 2,
+      source: $tokenfield.data('source')
+    }
+  });
+}
