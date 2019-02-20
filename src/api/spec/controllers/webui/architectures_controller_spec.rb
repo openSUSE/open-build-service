@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Webui::ArchitecturesController do
+RSpec.describe Webui::ArchitecturesController, js: true do
   let(:admin_user) { create(:admin_user) }
 
   before do
@@ -15,6 +15,34 @@ RSpec.describe Webui::ArchitecturesController do
     end
 
     it { expect(assigns(:architectures)).to match_array(Architecture.all) }
+  end
+
+  describe 'PATCH #update' do
+    let(:arch) { Architecture.find_by(name: 'x86_64') }
+
+    context 'enabling availability' do
+      before do
+        arch.update!(available: false)
+      end
+
+      subject! { patch :update, params: { id: arch.id, available: 'true', format: :js } }
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(flash[:success]).to eq("Updated architecture 'x86_64'") }
+      it { expect(arch.reload).to have_attributes(available: true) }
+    end
+
+    context 'disabling availability' do
+      before do
+        arch.update!(available: true)
+      end
+
+      subject! { patch :update, params: { id: arch.id, available: 'false', format: :js } }
+
+      it { is_expected.to have_http_status(:success) }
+      it { expect(flash[:success]).to eq("Updated architecture 'x86_64'") }
+      it { expect(arch.reload).to have_attributes(available: false) }
+    end
   end
 
   describe 'POST #bulk_update_availability' do

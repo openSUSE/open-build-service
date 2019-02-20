@@ -88,9 +88,10 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/architectures' do
-      get 'architectures' => :index
-      patch 'architectures/bulk_update_availability' => :bulk_update_availability, as: 'bulk_update_availability'
+      patch 'architectures/bulk_update_availability' => :bulk_update_availability, as: :bulk_update_availability
     end
+
+    resources :architectures, only: [:index, :update], controller: 'webui/architectures'
 
     controller 'webui/monitor' do
       get 'monitor/' => :index
