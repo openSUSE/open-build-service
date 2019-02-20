@@ -6,6 +6,19 @@ RSpec.shared_examples 'bootstrap user tab' do
   let!(:package) { nil }
   let!(:project) { nil }
 
+  def toggle_checkbox(html_id)
+    # Workaround: Bootstrap's custom-control causes the checkbox's input field to be at
+    # a different location than it visually appears. For browsers this is not an issue, but
+    # capybara throws an error because "is not clickable at point (596, 335). Other element
+    # would receive the click".
+    # Thus we have to remove bootstraps custom-control classes.
+    page.execute_script("$('##{html_id}').removeClass('custom-control-input')")
+    page.execute_script("$('label[for=#{html_id}]').removeClass('custom-control-label')")
+    find_field(html_id).click
+    # FIXME: Needed to wait for the Ajax call to perform
+    sleep(1)
+  end
+
   describe 'user roles' do
     let!(:bugowner_user_role) do
       create(:relationship,
@@ -35,7 +48,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find_field('user_reviewer_user_tab_user', visible: false)).not_to be_checked
       expect(find_field('user_downloader_user_tab_user', visible: false)).not_to be_checked
       expect(find_field('user_reader_user_tab_user', visible: false)).not_to be_checked
-      expect(page).to have_selector('#user-user_tab_user a.remove-user')
+      expect(page).to have_selector("a.remove-user[data-object='user_tab_user']")
     end
 
     scenario 'Add non existent user' do
@@ -84,11 +97,7 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Remove user from package / project' do
-      expect(page).to have_css('a', text: "#{reader.realname} (reader_user)")
-
-      within('#user-reader_user') do
-        click_on(class: 'remove-user')
-      end
+      find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
       click_button('Delete')
 
@@ -97,19 +106,15 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add role to user' do
-      # check checkbox
-      find_field('user_reviewer_user_tab_user', visible: false).sibling('span').click
-      sleep 1 # FIXME: Needed to wait for the Ajax call to perform
+      toggle_checkbox('user_reviewer_user_tab_user')
 
-      visit project_path
+      visit project_path # project_users_path
       click_link('Users')
       expect(find_field('user_reviewer_user_tab_user', visible: false)).to be_checked
     end
 
     scenario 'Remove role from user' do
-      # uncheck checkbox
-      find_field('user_bugowner_user_tab_user', visible: false).sibling('span').click
-      sleep 1 # FIXME: Needed to wait for the Ajax call to perform
+      toggle_checkbox('user_bugowner_user_tab_user')
 
       visit project_path
       click_link('Users')
@@ -142,7 +147,7 @@ RSpec.shared_examples 'bootstrap user tab' do
       expect(find_field('group_reviewer_existing_group', visible: false)).not_to be_checked
       expect(find_field('group_downloader_existing_group', visible: false)).not_to be_checked
       expect(find_field('group_reader_existing_group', visible: false)).not_to be_checked
-      expect(page).to have_selector('#group-existing_group a.remove-group')
+      expect(page).to have_selector("a.remove-group[data-object='existing_group']")
     end
 
     scenario 'Add non existent group' do
@@ -190,19 +195,15 @@ RSpec.shared_examples 'bootstrap user tab' do
     end
 
     scenario 'Add role to group' do
-      # check checkbox
-      find_field('group_reviewer_existing_group', visible: false).sibling('span').click
-      sleep 1 # FIXME: Needed to wait for the Ajax call to perform
+      toggle_checkbox('group_reviewer_existing_group')
 
       visit project_path
       click_link('Users')
-      expect(find_field('group_reviewer_existing_group', visible: false)).to be_checked
+      expect(find('#group_reviewer_existing_group', visible: false)).to be_checked
     end
 
     scenario 'Remove role from group' do
-      # uncheck checkbox
-      find_field('group_bugowner_existing_group', visible: false).sibling('span').click
-      sleep 1 # FIXME: Needed to wait for the Ajax call to perform
+      toggle_checkbox('group_bugowner_existing_group')
 
       visit project_path
       click_link('Users')
