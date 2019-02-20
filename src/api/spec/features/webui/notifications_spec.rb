@@ -3,6 +3,9 @@ require 'browser_helper'
 RSpec.feature 'Notifications', type: :feature, js: true do
   RSpec.shared_examples 'updatable' do
     scenario 'notifications' do
+      # TODO: Enable after migration is finished
+      skip_if_bootstrap
+
       login user
       visit path
 

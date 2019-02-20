@@ -17,6 +17,9 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
     end
 
     scenario 'add/delete repository from distribution' do
+      # TODO: Enable after migration is finished
+      skip_if_bootstrap
+
       # Create interconnect
       visit(repositories_distributions_path(project: admin_user.home_project))
       click_button('Save changes')
