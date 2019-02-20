@@ -2,9 +2,15 @@ class Webui::ConfigurationController < Webui::WebuiController
   before_action :require_admin
   before_action :set_configuration, only: [:update]
 
-  def index; end
+  def index
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+  end
 
-  def interconnect; end
+  def interconnect
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+  end
 
   def create_interconnect
     @project = RemoteProject.new(project_params)

@@ -7,6 +7,9 @@ RSpec.feature 'Groups', type: :feature, js: true do
   let!(:another_group) { create(:group, title: 'test_group_b') }
 
   scenario 'visit group page' do
+    # TODO: Enable after migration is finished
+    skip_if_bootstrap
+
     login admin
     visit groups_path
 
@@ -26,6 +29,9 @@ RSpec.feature 'Groups', type: :feature, js: true do
   end
 
   scenario 'add a user' do
+    # TODO: Enable after migration is finished
+    skip_if_bootstrap
+
     login admin
     visit groups_path
 
