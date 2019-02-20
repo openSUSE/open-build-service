@@ -27,7 +27,7 @@ class Webui::ConfigurationController < Webui::WebuiController
   def update
     respond_to do |format|
       if @configuration.update(configuration_params)
-        format.html { redirect_to configuration_path, notice: 'Configuration was successfully updated.' }
+        format.html { redirect_to configuration_path, success: 'Configuration was successfully updated.' }
       else
         format.html do
           redirect_back(fallback_location: root_path, error: "Configuration can't be saved: #{@configuration.errors.full_messages.to_sentence}")

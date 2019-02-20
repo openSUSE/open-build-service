@@ -4,3 +4,39 @@
 .card.mb-3
   = render partial: 'tabs'
   .card-body
+    %h3.mb-4 Configure your Open Build Service instance
+    = form_for(@configuration, url: { action: :update }) do |f|
+      .h5 Frontpage Greeting
+      %p.text-muted
+        Change the text that is displayed as greeting on the frontpage
+      .form-group
+        = f.label :title
+        %abbr.text-danger{ title: 'required' } *
+        = f.text_field :title, required: true, autofocus: true, class: 'form-control'
+      .form-group
+        = f.label :description
+        %abbr.text-danger{ title: 'required' } *
+        ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
+
+      .h5.mt-4 Base Configuration
+      %p.text-muted
+        %i.fas.fa-exclamation-triangle.text-warning
+        Backend restart is needed after a change here.
+      .form-group
+        = f.label :name
+        %abbr.text-danger{ title: 'required' } *
+        = f.text_field :name, required: true, class: 'form-control'
+        %small.text-muted
+          The instance name which gets generated into each package. Short string only, no white spaces recommended.
+      .form-group
+        = f.label :unlisted_projects_filter_description
+        = f.text_field :unlisted_projects_filter_description, class: 'form-control'
+        %small.text-muted
+          The description that will appear in projects list for explaining the exclusion filter.
+      .form-group
+        = f.label :unlisted_projects_filter
+        = f.text_field :unlisted_projects_filter, class: 'form-control'
+        %small.text-muted
+          The exclusion filter itself. Is a Regular Expression (eg: ^home:.*)
+
+      = f.submit 'Update', class: 'btn btn-primary'
