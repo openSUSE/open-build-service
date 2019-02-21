@@ -40,22 +40,22 @@
     %input{ onclick: "javascript:usePackman()", type: "button", value: "PackMan" }/
   %h3
     Add custom OBS instance
-  = form_tag  action: :interconnect do
+  = form_for(@interconnect, as: :project, url: interconnects_path) do |f|
     %table#instance
       %tr
         %td
           %strong Local Project Name:
-        %td= text_field_tag( "project[name]", name, size: 80 )
+        %td= f.text_field :name, size: 80, required: true
       %tr
         %td
           %strong Remote OBS api url:
-        %td= text_field_tag( "project[remoteurl]", remoteurl, size: 80 )
+        %td= f.text_field :remoteurl, size: 80, required: true
       %tr
         %td
           %strong Title:
-        %td= text_field_tag( "project[title]", "Remote OBS instance", size: 80 )
+        %td= f.text_field :title, size: 80, required: true
       %tr
         %td
           %strong Description:
-        %td= text_field_tag( "project[description]", "This project is representing a remote build service instance.", size: 80 )
-    %p= submit_tag
+        %td= f.text_field :description, size: 80, required: true
+    %p= f.submit
