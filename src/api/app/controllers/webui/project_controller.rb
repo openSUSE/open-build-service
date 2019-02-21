@@ -37,7 +37,12 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :set_maintained_project, only: [:remove_maintained_project]
   before_action :check_ajax, only: [:buildresult, :edit_comment_form]
 
-  after_action :verify_authorized, only: [:save_new, :new_incident]
+  after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages, :autocomplete_repositories,
+                                            :users, :subprojects, :new, :new_incident, :incident_request_dialog, :release_request_dialog, :show,
+                                            :packages_simple, :linking_projects, :buildresult, :delete_dialog, :requests, :monitor, :status,
+                                            :maintained_projects, :add_maintained_project_dialog, :maintenance_incidents, :unlock_dialog,
+                                            :incident_request_dialog, :new_incident_request, :release_request_dialog, :new_release_request,
+                                            :remove_target_request, :remove_target_request_dialog, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
     return if switch_to_webui2
@@ -115,9 +120,13 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  def new_package; end
+  def new_package
+    authorize @project, :update?
+  end
 
   def new_package_branch
+    authorize @project, :update?
+
     @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
   end
 
@@ -363,6 +372,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def move_path
+    authorize @project, :update?
+
     params.require(:direction)
     repository = @project.repositories.find(params[:repository])
     path_element = repository.path_elements.find(params[:path])
@@ -416,6 +427,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def clear_failed_comment
+    # FIXME: This should authorize destroy for all the attributes
     authorize @project, :update?
 
     packages = Package.where(project: @project, name: params[:package])
@@ -444,6 +456,7 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
+  # FIXME: This should authorize create on this attribute
   def edit_comment
     @package = @project.find_package(params[:package])
 
