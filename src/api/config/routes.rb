@@ -79,9 +79,7 @@ OBSApi::Application.routes.draw do
       get 'configuration' => :index
       patch 'configuration' => :update
     end
-    scope :configuration do
-      resources :interconnects, only: [:new, :create], controller: 'webui/interconnects'
-    end
+    resources :interconnects, only: [:new, :create], controller: 'webui/interconnects'
 
     controller 'webui/subscriptions' do
       get 'notifications' => :index

@@ -46,4 +46,5 @@
 //= require webui2/project.js
 //= require webui2/project_monitor.js
 //= require webui2/collapsible_text
+//= require webui2/interconnect
 //= require rails-timeago
