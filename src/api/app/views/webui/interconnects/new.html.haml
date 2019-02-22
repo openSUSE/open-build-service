@@ -1,59 +1,56 @@
-= content_for :head_javascript do
-  :plain
-    function useOpenSUSE(){
-      document.getElementById('project_name').value = "openSUSE.org";
-      document.getElementById('project_remoteurl').value = "https://api.opensuse.org/public";
-      document.getElementById('project_title').value = "Standard OBS instance at build.opensuse.org";
-      document.getElementById('project_description').value = "This instance delivers the default build targets for OBS.";
-    }
-    function useTizen(){
-      document.getElementById('project_name').value = "tizen.org";
-      document.getElementById('project_remoteurl').value = "https://api.tizen.org/public";
-      document.getElementById('project_title').value = "Official Tizen Project OBS instance at build.tizen.org";
-      document.getElementById('project_description').value = "This instance can be used to access resources from the Tizen project.";
-    }
-    function usePackman(){
-      document.getElementById('project_name').value = "Packman";
-      document.getElementById('project_remoteurl').value = "https://pmbs-api.links2linux.de/public";
-      document.getElementById('project_title').value = "Packman Build Service PMBS";
-      document.getElementById('project_description').value = "This instance can be used to access resources from Packman.";
-    }
-
-- name = nil
-- remoteurl = nil
 - @pagetitle = "Interconnect"
 - @crumb_list = [@pagetitle]
 - @layouttype = 'custom'
+
 .grid_16.alpha.omega.box.box-shadow
   = render partial: 'tabs'
   %p
     Connect a remote Open Build Service instance
   %h3
     Use a public OBS for default base distributions
-  - unless Project.exists?(name: "openSUSE.org")
-    %input{ onclick: "javascript:useOpenSUSE()", type: "button", value: "openSUSE" }/
-  - unless Project.exists?(name: "tizen.org")
-    %input{ onclick: "javascript:useTizen()", type: "button", value: "Tizen" }/
-  - unless Project.exists?(name: "Packman")
-    %input{ onclick: "javascript:usePackman()", type: "button", value: "PackMan" }/
+  .remote-links
+    = button_tag('openSUSE', class: 'interconnect',
+                             data: { name: 'openSUSE.org',
+                                     remoteurl: 'https://api.opensuse.org/public',
+                                     title: 'Standard OBS instance at build.opensuse.org',
+                                     description: 'This instance delivers the default build targets for OBS.' },
+                             disabled: Project.exists?(name: 'openSUSE.org'))
+    = button_tag('Tizen', class: 'interconnect',
+                          data: { name: 'tizen.org',
+                                  remoteurl: 'https://api.tizen.org/public',
+                                  title: 'Official Tizen Project OBS instance at build.tizen.org',
+                                  description: 'This instance can be used to access resources from the Tizen project.' },
+                          disabled: Project.exists?(name: 'tizen.org'))
+    = button_tag('Packman', class: 'interconnect',
+                            data: { name: 'Packman',
+                                    remoteurl: 'https://pmbs-api.links2linux.de/public',
+                                    title: 'Packman Build Service PMBS',
+                                    description: 'this instance can be used to access resources from packman.' },
+                            disabled: Project.exists?(name: 'Packman'))
   %h3
     Add custom OBS instance
-  = form_for(@interconnect, as: :project, url: interconnects_path) do |f|
-    %table#instance
-      %tr
-        %td
-          %strong Local Project Name:
-        %td= f.text_field :name, size: 80, required: true
-      %tr
-        %td
-          %strong Remote OBS api url:
-        %td= f.text_field :remoteurl, size: 80, required: true
-      %tr
-        %td
-          %strong Title:
-        %td= f.text_field :title, size: 80, required: true
-      %tr
-        %td
-          %strong Description:
-        %td= f.text_field :description, size: 80, required: true
-    %p= f.submit
+  = form_for(@interconnect, as: :project, url: interconnects_path, html: { class: 'interconnect-form' }) do |f|
+    .form-group
+      = f.label :name do
+        %strong Local Project Name
+        %abbr{ title: 'required' } *
+      = f.text_field :name, required: true, placeholder: 'Add a name for your project'
+    .form-group
+      = f.label :remoteurl do
+        %strong Remote OBS api url
+        %abbr{ title: 'required' } *
+      = f.text_field :remoteurl, required: true, placeholder: 'Add an OBS api url'
+    .form-group
+      = f.label :title do
+        %strong Title
+        %abbr{ title: 'required' } *
+      = f.text_field :title, required: true, placeholder: 'Remote OBS instance'
+    .form-group
+      = f.label :description do
+        %strong Description
+        %abbr{ title: 'required' } *
+      = f.text_field :description, required: true, placeholder: 'This project is representing a remote build service instance.'
+    = f.submit data: { disable_with: 'Creating...' }
+
+:javascript
+  initInterconnect();
