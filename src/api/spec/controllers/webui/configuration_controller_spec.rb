@@ -27,7 +27,7 @@ RSpec.describe Webui::ConfigurationController do
       end
 
       it { expect(response).to redirect_to(configuration_path) }
-      it { expect(flash[:notice]).to eq('Configuration was successfully updated.') }
+      it { expect(flash[:success]).to eq('Configuration was successfully updated.') }
       it { expect(::Configuration.first.name).to eq('obs') }
       it { expect(::Configuration.first.title).to eq('OBS') }
       it { expect(::Configuration.first.description).to eq('something') }
