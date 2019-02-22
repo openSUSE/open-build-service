@@ -30,10 +30,9 @@ class Webui::ArchitecturesController < Webui::WebuiController
   def bulk_update_availability
     result = ::ArchitecturesControllerService::ArchitectureUpdater.new(params).call
 
-    ::Configuration.write_to_backend
-
     respond_to do |format|
       if result.valid?
+        ::Configuration.write_to_backend
         format.js do
           flash.now[:success] = 'Updated availability for all architectures.'
           render 'webui2/webui/architectures/bulk_update_availability'
