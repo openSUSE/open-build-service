@@ -1,22 +1,22 @@
 .modal.fade{ id: 'request-delete-repository', tabindex: -1, role: 'dialog', aria: { labelledby: 'request-delete-repository-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      .modal-header
-        %h5.modal-title
-          Do you really want to request the deletion of repository
-          = succeed '?' do
-            %span.repository
-      .modal-body
-        %p
-          Please confirm deletion of
-          = surround "'" do
-            %span.repository
-          repository
-      .modal-footer
-        = form_tag(nil, method: :post) do
+      = form_tag(nil, method: :post) do
+        .modal-header
+          %h5.modal-title
+            Do you really want to request the deletion of repository
+            = succeed '?' do
+              %span.repository
+        .modal-body
+          %p
+            Please confirm deletion of
+            = surround "'" do
+              %span.repository
+            repository
           .form-group
             = label_tag :description
             = text_area_tag :description, '', row: 3, class: 'form-control'
+        .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
 = content_for :ready_function do
   :plain
