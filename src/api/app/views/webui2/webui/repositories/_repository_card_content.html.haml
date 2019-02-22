@@ -42,7 +42,7 @@
     - elsif !User.current.is_nobody?
       .col
         = link_to('#', title: 'Request Delete Repository', data: { toggle: 'modal', target: '#request-delete-repository',
-          action: project_remove_target_request_path(project: project, target: repository), repository: repository.name }) do
+          action: project_remove_target_request_path(project: project, repository: repository.name), repository: repository.name }) do
           %i.fas.fa-user-times.text-danger
 
 = render partial: 'edit_repository_modal', locals: { repository: repository, project: project, available_architectures: available_architectures }
