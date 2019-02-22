@@ -18,7 +18,7 @@
         .alert.alert-dismissible.fade.show{ class: "alert-#{flash_header}" }
           %i.fas{ class: "fa-#{flash_icon}" }
           = flash_content(flash[flash_type])
-          = link_to('more info', '#', class: 'btn-more alert-link') if @more_info
+          = link_to('more info', 'javascript:void(0)', class: 'btn-more alert-link') if @more_info
           - if @more_info
             .more_info.d-none
               %div{ class: flash_header }
