@@ -30,13 +30,11 @@
     Connect a remote Open Build Service instance
   %h3
     Use a public OBS for default base distributions
-  - unless Project.exists?("openSUSE.org")
-    - name = "openSUSE.org"
-    - remoteurl = "https://api.opensuse.org/public"
+  - unless Project.exists?(name: "openSUSE.org")
     %input{ onclick: "javascript:useOpenSUSE()", type: "button", value: "openSUSE" }/
-  - unless Project.exists?("tizen.org")
+  - unless Project.exists?(name: "tizen.org")
     %input{ onclick: "javascript:useTizen()", type: "button", value: "Tizen" }/
-  - unless Project.exists?("Packman")
+  - unless Project.exists?(name: "Packman")
     %input{ onclick: "javascript:usePackman()", type: "button", value: "PackMan" }/
   %h3
     Add custom OBS instance
