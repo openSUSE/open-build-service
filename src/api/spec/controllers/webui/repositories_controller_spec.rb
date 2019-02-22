@@ -100,7 +100,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         get :distributions, params: { project: apache_project }
       end
 
-      it { is_expected.to redirect_to(configuration_interconnect_path) }
+      it { is_expected.to redirect_to(new_interconnect_path) }
       it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
       it { expect(assigns(:distributions)).to be_empty }
     end

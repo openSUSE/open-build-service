@@ -78,8 +78,9 @@ OBSApi::Application.routes.draw do
     controller 'webui/configuration' do
       get 'configuration' => :index
       patch 'configuration' => :update
-      get 'configuration/interconnect' => :interconnect
-      post 'configuration/interconnect' => :create_interconnect
+    end
+    scope :configuration do
+      resources :interconnects, only: [:new, :create], controller: 'webui/interconnects'
     end
 
     controller 'webui/subscriptions' do
