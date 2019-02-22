@@ -6,3 +6,4 @@ exclude_patterns:
   - "src/api/db/"
   - "docs/api/restility"
   - "src/api/app/assets/javascripts/webui"
+  - "src/api/vendor/assets/"
