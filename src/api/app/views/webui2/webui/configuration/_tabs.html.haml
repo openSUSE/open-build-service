@@ -1,0 +1,17 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      = tab_link('Configuration', configuration_path)
+    %li.nav-item
+      = tab_link('Architectures', architectures_path)
+    %li.nav-item
+      = tab_link('Manage Users', users_path)
+    %li.nav-item
+      = tab_link('Manage Groups', groups_path)
+    %li.nav-item
+      = tab_link('Notifications', notifications_path)
+    %li.nav-item
+      = tab_link('Interconnect', configuration_interconnect_path)
+    %li.nav-item.dropdown
+      %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+      .dropdown-menu.dropdown-menu-right

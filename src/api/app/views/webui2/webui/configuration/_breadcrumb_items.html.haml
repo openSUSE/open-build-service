@@ -1,0 +1,11 @@
+= render partial: 'webui/main/breadcrumb_items'
+
+- if current_page?(configuration_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Configuration
+- else
+  %li.breadcrumb-item
+    = link_to('Configuration', configuration_path)
+  - if current_page?(configuration_interconnect_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Interconnect
