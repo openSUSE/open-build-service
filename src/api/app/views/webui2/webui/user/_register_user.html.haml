@@ -1,0 +1,11 @@
+.modal.fade#signup-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'signup-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#signup-modal-label
+          Sign Up for an Open Build Service account
+      = render 'webui2/shared/sign_up' do
+        .modal-body
+          = render partial: 'webui2/shared/sign_up_form_input'
+        .modal-footer
+          = render partial: 'webui2/shared/dialog_action_buttons'

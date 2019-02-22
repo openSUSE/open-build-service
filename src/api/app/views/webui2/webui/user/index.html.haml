@@ -4,3 +4,8 @@
 .card.mb-3
   = render partial: 'webui/configuration/tabs'
   .card-body
+    = link_to('#', data: { toggle: 'modal', target: '#signup-modal' }, title: 'Create new user') do
+      %i.fas.fa-user-plus
+      Create new user
+
+= render partial: 'register_user'
