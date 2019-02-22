@@ -1,11 +1,17 @@
-= render partial: 'webui/main/breadcrumb_items'
-%li.breadcrumb-item
-  = link_to 'Groups', groups_path
-- if current_page?(group_show_path)
+- if current_page?(groups_path)
+  -# This page is only reachable from the configuration, so it's based on configuration
+  = render partial: 'webui/configuration/breadcrumb_items'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    = @group
+    Manage Groups
 - else
+  = render partial: 'webui/main/breadcrumb_items'
   %li.breadcrumb-item
-    = link_to @group, group_show_path(@group)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    Edit
+    = link_to 'Groups', groups_path
+  - if current_page?(group_show_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      = @group
+  - else
+    %li.breadcrumb-item
+      = link_to @group, group_show_path(@group)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Edit

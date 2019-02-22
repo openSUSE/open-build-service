@@ -4,6 +4,9 @@ class Webui::ArchitecturesController < Webui::WebuiController
 
   def index
     @architectures = Architecture.order(:name)
+
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
   end
 
   def bulk_update_availability
