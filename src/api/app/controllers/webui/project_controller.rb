@@ -86,12 +86,12 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def subprojects
+    return if switch_to_webui2 && (Rails.env.development? || Rails.env.test?)
     @subprojects = @project.subprojects.order(:name)
     @parentprojects = @project.ancestors.order(:name)
     parent = @project.parent
     @parent_name = parent.name unless parent.nil?
     @siblings = @project.siblingprojects
-    switch_to_webui2
   end
 
   def new
