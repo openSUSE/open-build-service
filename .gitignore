@@ -57,6 +57,12 @@ docker-files/home/.irb_history
 docker-files/home/.pry_history
 contrib/rabbitmqadmin
 
+# Dependencies
+src/api/node_modules
+
+# ESLint cache
+.eslintcache
+
 # All the other crap that fits nowhere specifically
 *~
 *.bak

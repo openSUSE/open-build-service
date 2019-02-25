@@ -66,7 +66,9 @@ namespace :dev do
   task :lint do
     Rake::Task['haml_lint'].invoke
     Rake::Task['dev:lint:rubocop:all'].invoke
-    sh 'jshint ./app/assets/javascripts/'
+    # Install ESLint if needed, then lint all JavaScript files, even those with extensions like js.coffee or js.erb (this explains the * after .js)
+    # With --quiet, only errors are reported
+    sh '(test -f node_modules/.bin/eslint || npm ci) && node_modules/.bin/eslint --quiet --cache --format unix ./app/assets/javascripts/**/*.js*'
   end
 
   namespace :lint do

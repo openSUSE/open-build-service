@@ -1,0 +1,8 @@
+# We don't lint third-party JavaScript files
+vendor/assets/javascripts/
+# We don't lint minified JavaScript files
+app/assets/javascripts/**/*.min.js
+# We don't lint CodeMirror files
+app/assets/javascripts/webui2/cm2/
+# We don't lint JavaScript files from the backend docs
+lib/backend/doc/js/

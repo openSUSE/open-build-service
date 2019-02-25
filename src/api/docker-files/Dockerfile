@@ -6,8 +6,8 @@
 FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-base
 ARG CONTAINER_USERID
 
-# for lint task
-RUN npm install -g jshint
+# Install ESLint to lint JavaScript
+RUN npm install --save-dev eslint
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend

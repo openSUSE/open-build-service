@@ -81,7 +81,7 @@ follow what we ask in the pull request template that comes up if you open a new 
 
 Please make sure to mind our continuous integration cycle that includes:
 
-- code style linting with tools like rubocop, jshint, haml-lint etc.
+- code style linting with tools like rubocop, ESLint, haml-lint etc.
 - static code analysis with [codeclimate](https://codeclimate.com/github/openSUSE/open-build-service)
 - security code analysis with [hakiri](https://hakiri.io/github/openSUSE/open-build-service/)
 - automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)

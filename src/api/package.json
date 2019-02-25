@@ -1,0 +1,7 @@
+{
+  "name": "open-build-service",
+  "version": "0.0.0",
+  "devDependencies": {
+    "eslint": "^6.4.0"
+  }
+}

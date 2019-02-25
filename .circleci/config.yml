@@ -68,8 +68,8 @@ jobs:
       - restore_cache:
           key: v4-lint
       - run:
-          name: Install jshint
-          command: sudo npm install -g jshint
+          name: Install ESLint
+          command: sudo npm ci
       - run:
           name: Run linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
@@ -78,6 +78,7 @@ jobs:
           paths:
             - src/api/tmp/rubocop_cache_root_dir
             - src/api/tmp/rubocop_cache_rails_dir
+            - src/api/.eslintcache
       - run: rm -rf src/api/tmp/rubocop*
       - run:
           name: Setup application
