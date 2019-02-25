@@ -10,7 +10,7 @@ class Webui::SubscriptionsController < Webui::WebuiController
 
   def update
     subscriptions_form.update!(params[:subscriptions])
-    flash[:notice] = 'Notifications settings updated'
+    flash[:success] = 'Notifications settings updated'
   rescue ActiveRecord::RecordInvalid
     flash[:error] = 'Notifications settings could not be updated due to an error'
   ensure
