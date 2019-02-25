@@ -1,0 +1,36 @@
+#flash.sticky-top {
+  top: 1rem;
+  z-index: 1030;
+}
+
+.alert-success {
+  @extend .alert-success;
+
+  i.fas {
+    @extend .fa-check-circle;
+  }
+}
+
+.alert-error {
+  @extend .alert-danger;
+
+  i.fas {
+    @extend .fa-exclamation-circle;
+  }
+}
+
+.alert-alert {
+  @extend .alert-warning;
+
+  i.fas {
+    @extend .fa-exclamation-triangle;
+  }
+}
+
+.alert-notice {
+  @extend .alert-info;
+
+  i.fas {
+    @extend .fa-info-circle;
+  }
+}
