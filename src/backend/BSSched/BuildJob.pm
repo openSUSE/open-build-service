@@ -748,7 +748,7 @@ sub nextbcnt {
 =cut
 
 sub create_jobdata {
-  my ($ctx, $packid, $pdata, $info, $subpacks) = @_;
+  my ($ctx, $packid, $pdata, $info, $buildtype, $subpacks) = @_;
 
   my $gctx = $ctx->{'gctx'};
   my $bconf = $ctx->{'conf'};
@@ -781,14 +781,21 @@ sub create_jobdata {
     $release = '0' unless defined $release;
     $release =~ s/.*-//;
     if (exists($bconf->{'release'})) {
-      if (defined($bconf->{'release'})) {
-	$binfo->{'release'} = $bconf->{'release'};
+      my $bconfrelease = $bconf->{'release'};
+      if (@{$bconf->{'release@'} || []} > 1) {
+	my @bconfrelease = @{$bconf->{'release'}};
+	$bconfrelease = shift @bconfrelease;
+	for (@{$bconfrelease}) {
+	  $bconfrelease = $1 if /^\Q$buildtype\E:(.*)/;
+	}
+      }
+      if (defined($bconfrelease)) {
+	$binfo->{'release'} = $bconfrelease;
 	$binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
 	$binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
       }
-    } else {
-      $binfo->{'release'} = "$release.$bcnt" if $ctx->{'dobuildinfo'};
     }
+    $binfo->{'release'} = "$release.$bcnt" if $ctx->{'dobuildinfo'} && !defined($binfo->{'release'});
   }
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
@@ -1030,7 +1037,7 @@ sub create {
   unshift @bdeps, @{$ctx->{'extrabdeps'}} if $ctx->{'extrabdeps'};
 
   # fill job data
-  my $binfo = create_jobdata($ctx, $packid, $pdata, $info, $subpacks);
+  my $binfo = create_jobdata($ctx, $packid, $pdata, $info, $buildtype, $subpacks);
   $binfo->{'bdep'} = \@bdeps;
   $binfo->{'path'} = $searchpath;
   $binfo->{'syspath'} = $syspath if $syspath;
