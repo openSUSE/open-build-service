@@ -2,7 +2,8 @@ class SendEventEmailsJob < ApplicationJob
   queue_as :mailers
 
   def perform
-    User.current = User.find_nobody!
+    # previous_user = User.current
+    # User.current = User.find_nobody!
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
       subscribers = event.subscribers
 
@@ -20,6 +21,7 @@ class SendEventEmailsJob < ApplicationJob
         event.update_attributes(mails_sent: true)
       end
     end
+    # User.current = previous_user
     true
   end
 

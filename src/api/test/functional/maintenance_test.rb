@@ -1400,6 +1400,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(parent: { tag: 'state' }, tag: 'comment', content: 'All reviewers accepted request')
 
     SendEventEmailsJob.new.perform
+    login_king
     ActionMailer::Base.deliveries.clear
 
     # leave a comment
@@ -1412,6 +1413,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'test_group@testsuite.org'], email.to.sort
 
+    login_king
     EventSubscription.create(eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
                              user: users(:maintenance_assi), channel: :instant_email)
 
@@ -1420,10 +1422,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
       User.current = User.find_by_login('king')
+      binding.pry
       SendEventEmailsJob.new.perform
       User.current = nil
     end
 
+    login_king
     email = ActionMailer::Base.deliveries.last
     assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'homer@nospam.net', 'test_group@testsuite.org'], email.to.sort
 

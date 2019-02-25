@@ -7,6 +7,7 @@ class EventSubscription
     end
 
     def subscriptions
+      # binding.pry
       receivers_and_subscriptions = {}
 
       event.class.receiver_roles.flat_map do |receiver_role|
