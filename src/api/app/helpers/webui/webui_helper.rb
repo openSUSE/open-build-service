@@ -398,9 +398,9 @@ module Webui::WebuiHelper
     short + long
   end
 
-  def tab_link(label, path, active = false)
+  def tab_link(label, path, active = false, permit = true)
     html_class = 'nav-link text-nowrap'
-    html_class << ' active' if active || request.path.include?(path)
+    html_class << ' active' if active || (request.path.include?(path) && permit)
 
     link_to(label, path, class: html_class)
   end
