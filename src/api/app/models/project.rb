@@ -239,8 +239,7 @@ class Project < ApplicationRecord
   def siblingprojects
     parent_name = parent.try(:name)
     return [] unless parent_name
-    Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).
-      order(:name).select do |sib|
+    Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).select do |sib|
       sib if parent_name == sib.possible_ancestor_names.first
     end
   end
