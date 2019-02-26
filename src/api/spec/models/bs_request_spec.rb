@@ -177,6 +177,15 @@ RSpec.describe BsRequest, vcr: true do
 
           expect_no_message
         end
+
+        it 'allows multiple reviews by user' do
+          request.addreview(by_user: reviewer, comment: 'does it still look ok?')
+          request.change_review_state(:accepted, by_user: reviewer.login)
+          # one of the reviews is accepted, but the other stays open
+          expect(request.state).to be(:review)
+          request.change_review_state(:accepted, by_user: reviewer.login)
+          expect(request.state).to be(:new)
+        end
       end
     end
   end

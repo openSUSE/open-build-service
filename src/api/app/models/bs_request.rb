@@ -707,7 +707,9 @@ class BsRequest < ApplicationRecord
   end
 
   def find_review_for_opts(opts)
-    reviews.reverse.find { |review| review.reviewable_by?(opts) }
+    matching_reviews = reviews.order(id: :desc).select { |review| review.reviewable_by?(opts) }
+    # prefer not yet accepted review
+    matching_reviews.find { |review| review.state != :accepted } || matching_reviews.first
   end
 
   def supersede_request(history_arguments, superseded_opt)
