@@ -37,9 +37,13 @@
           = render partial: "layouts/webui2/breadcrumbs"
         .col-auto.ml-auto#personal-navigation
           = render partial: "layouts/webui2/personal_navigation"
-    .container.sticky-top#flash
-      = render partial: "layouts/webui2/flash", object: flash
+
+    .container.sticky-top.flash-and-announcement
+      - unless @hide_announcement_notification
+        #announcement= render partial: 'layouts/webui2/announcement'
+      #flash= render partial: "layouts/webui2/flash", object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
+
     .container.flex-grow#content
       = yield
     .container-fluid.py-4.mt-4.text-dark#footer
