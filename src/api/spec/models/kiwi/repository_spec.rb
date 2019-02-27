@@ -111,7 +111,10 @@ RSpec.describe Kiwi::Repository, type: :model do
 
     # We specific the context of the inclusion validation because of a bug in shoulda_matcher.
     # Remove `.on(:save)` when it's solved.
-    it { is_expected.to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save) }
+    it do
+      expect(subject).to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save)
+                                                          .with_message(/is not included in the list/)
+    end
     it do
       expect(subject).to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100)
                                                             .with_message(/must be between 0 and 99/)

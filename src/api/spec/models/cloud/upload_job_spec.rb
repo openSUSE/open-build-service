@@ -34,7 +34,10 @@ RSpec.describe Cloud::UploadJob, type: :model, vcr: true do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_inclusion_of(:arch).in_array(['x86_64']) }
+    it do
+      expect(subject).to validate_inclusion_of(:arch).in_array(['x86_64']).
+        with_message(/is not a valid cloud architecture/)
+    end
     it { is_expected.to validate_inclusion_of(:target).in_array(['ec2']) }
     it { is_expected.to validate_presence_of :user }
     it { is_expected.to allow_value('foo.raw.xz').for(:filename) }

@@ -132,7 +132,7 @@ group :test do
   # for mocking and stubbing
   gem 'mocha', '> 0.13.0', require: false
   # for testing common Rails functionality with simple one-liners
-  gem 'shoulda-matchers', '~> 3.1'
+  gem 'shoulda-matchers', '~> 4.0'
   # assigns has been extracted to a gem
   gem 'rails-controller-testing'
   # To generate random data
