@@ -24,7 +24,7 @@
           = submit_tag 'Update', class: 'btn btn-primary'
           = link_to('Reset to default', user_notifications_path(default_form: true), remote: true)
 
-.card
+.card.mt-3
   .card-body
     %h3 RSS Feed
     = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
