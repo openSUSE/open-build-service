@@ -276,7 +276,6 @@ Naming/AccessorMethodName:
     - 'app/controllers/source_controller.rb'
     - 'app/controllers/statistics_controller.rb'
     - 'app/controllers/webui/patchinfo_controller.rb'
-    - 'app/datatables/project_datatable.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request_action.rb'
     - 'app/models/bs_request_action_maintenance_release.rb'

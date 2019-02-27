@@ -1,18 +1,12 @@
 .card-body
   - if packages.present?
     .obs-dataTable
-      %table.table.table-sm.table-fixed.table-striped.table-bordered#packages-table
+      %table.table.table-sm.table-fixed.table-striped.table-bordered#packages-table{ data: { source: package_index_path(project: project) } }
         %thead
           %tr
             %th.w-75 Name
             %th.w-25 Changed
         %tbody
-          - packages.each do |package|
-            %tr
-              %td
-                = link_to(package.first, package_show_path(package: package.first, project: project))
-              %td{ data: { order: "-#{package.second}" } }
-                = time_ago_in_words(Time.at(package.second.to_i))
   - else
     %p This project does not contain any packages
 
@@ -28,3 +22,16 @@
             = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
               %i.fas.fa-code-branch.text-primary
               Branch Existing Package
+
+= content_for :ready_function do
+  :plain
+    initializeDataTable('#packages-table', {
+      "processing": true,
+      "serverSide": true,
+      "ajax": $('#packages-table').data("source"),
+      "pagingType": "full_numbers",
+      "columns": [
+        {"data": "name"},
+        {"data": "changed"}
+      ]
+    });
