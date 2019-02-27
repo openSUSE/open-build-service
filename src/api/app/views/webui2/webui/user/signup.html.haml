@@ -1,0 +1,12 @@
+:ruby
+  @pagetitle = 'Sign Up'
+
+.card
+  .card-body
+    .row
+      .col-lg-6
+        - if can_register
+          %h5.card-title  Sign Up for an Open Build Service account
+          = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
+        - else
+          %p Sorry, sign up is disabled
