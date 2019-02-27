@@ -349,22 +349,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       allow_any_instance_of(Project).to receive(:number_of_build_problems).and_return(0)
     end
 
-    context 'without nextstatus param' do
-      before do
-        get :show, params: { project: apache_project }
-      end
-
-      it { expect(response).to have_http_status(:ok) }
-    end
-
-    context 'with nextstatus param' do
-      before do
-        get :show, params: { project: apache_project, nextstatus: 500 }
-      end
-
-      it { expect(response).to have_http_status(:internal_server_error) }
-    end
-
     context 'without patchinfo' do
       before do
         get :show, params: { project: apache_project }

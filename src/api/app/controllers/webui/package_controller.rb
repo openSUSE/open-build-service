@@ -154,9 +154,7 @@ class Webui::PackageController < Webui::WebuiController
     rescue Backend::Error
     end
 
-    flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
-    redirect_to controller: 'package', action: :binaries, project: @project,
-                package: @package, repository: @repository, nextstatus: 404
+    raise ActionController::RoutingError, 'Not Found'
   end
 
   def binary
@@ -166,17 +164,11 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
-    rescue Backend::Error => e
-      flash[:error] = "File #{@filename} can not be downloaded from #{@project}: #{e.summary}"
-      redirect_to controller: :package, action: :binaries, project: @project,
-                  package: @package, repository: @repository.name, nextstatus: 404
-      return
+    rescue Backend::Error
+      raise ActionController::RoutingError, 'Not Found'
     end
     unless @fileinfo
-      flash[:error] = "File \"#{@filename}\" could not be found in #{@repository.name}/#{@arch.name}"
-      redirect_to controller: :package, action: :binaries, project: @project,
-                  package: @package, repository: @repository.name, nextstatus: 404
-      return
+      raise ActionController::RoutingError, 'Not Found'
     end
 
     url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
@@ -197,9 +189,7 @@ class Webui::PackageController < Webui::WebuiController
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
     if results_from_backend.empty?
-      flash[:error] = "Package \"#{@package_name}\" has no build result for repository #{@repository}"
-      redirect_to(controller: :package, action: :show, project: @project, package: @package, nextstatus: 404)
-      return
+      raise ActionController::RoutingError, 'Not Found'
     end
 
     @buildresults = []
