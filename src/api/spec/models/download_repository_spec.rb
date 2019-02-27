@@ -8,7 +8,10 @@ RSpec.describe DownloadRepository do
     it { is_expected.to validate_presence_of(:repotype) }
     it { is_expected.to validate_presence_of(:repository) }
     it { is_expected.to validate_uniqueness_of(:arch).scoped_to(:repository_id) }
-    it { is_expected.to validate_inclusion_of(:repotype).in_array(['rpmmd', 'susetags', 'deb', 'arch', 'mdk']) }
+    it do
+      expect(subject).to validate_inclusion_of(:repotype).in_array(['rpmmd', 'susetags', 'deb', 'arch', 'mdk']).
+        with_message(/is not a valid repotype/)
+    end
 
     describe 'architecture_inclusion validation' do
       subject(:download_repository) { create(:download_repository) }
