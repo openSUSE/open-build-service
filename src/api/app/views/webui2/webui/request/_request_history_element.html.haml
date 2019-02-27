@@ -8,4 +8,4 @@
       = link_to(element.description, request_show_path(element.description_extension))
     - else
       = simple_format(element.description, class: 'm-0 p-0 small')
-    = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment, threshold: 100 }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment, threshold: { text_length: 100, line_count: 3 } }
