@@ -50,6 +50,10 @@ FactoryBot.define do
       state { 'deleted' }
     end
 
+    factory :locked_user do
+      state { 'locked' }
+    end
+
     factory :user_nobody do
       login { '_nobody_' }
     end
