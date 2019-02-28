@@ -502,11 +502,15 @@ RSpec.describe User do
   describe 'autocomplete methods' do
     let!(:foobar) { create(:confirmed_user, login: 'foobar') }
     let!(:fobaz) { create(:confirmed_user, login: 'fobaz') }
+    let!(:deleted_user) { create(:deleted_user) }
+    let!(:locked_user) { create(:locked_user) }
 
     context '#autocomplete_login' do
       it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
       it { expect(User.autocomplete_login('bar')).to match_array([]) }
-      it { expect(User.autocomplete_login(nil)).to match_array(User.all.pluck(:login)) }
+      it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
+      it { expect(User.autocomplete_login(deleted_user.login)).to match_array([]) }
+      it { expect(User.autocomplete_login(locked_user.login)).to match_array([]) }
     end
 
     context '#autocomplete_token' do
