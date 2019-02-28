@@ -98,14 +98,14 @@ sub wait_for_buildresults {
   my @states_list = qw/broken scheduled succeeded building failed signing
                        finished unresolvable/;
   my $re = join q{|}, @states_list;
-  my $regex = qr{($re)([*])?$}xsm;    ## no critic
+  my $regex = qr{($re)([*])?}xsm;    ## no critic
   while (1) {
     my $states = {};
 
     # initialize to avoid warnings
     $states->{$_} = 0 for @states_list;
     my $recalculation = 0;
-    my @result        = `osc r`;
+    my @result        = `osc r -v`;
     for my $line (@result) {
       if ($line =~ $regex) {
 	if (($2 || q{}) eq q{*}) {
