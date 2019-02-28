@@ -1576,7 +1576,6 @@ sub workerstate {
 	  close F;
         }
       }
-      unlink("$workersdir/building/$idlename");
     }
     my $worker = {
       'hostarch' => $harch,
@@ -2066,7 +2065,8 @@ sub putjob {
   $idlename =~ s/\//_/g;
   if (!($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver)) {
     print "oops, we are not building ($idlename)?\n" unless -e "$workersdir/building/$idlename";
-    unlink("$workersdir/building/$idlename");
+    mkdir_p("$workersdir/down") unless -d "$workersdir/down";
+    rename("$workersdir/building/$idlename", "$workersdir/down/$idlename");
   }
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'badhost') {
