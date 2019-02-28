@@ -176,6 +176,12 @@ RSpec.describe Staging::StagingProject, vcr: true do
       it { expect(staging_project.missing_checks).to contain_exactly('check_1') }
       it { expect(staging_project.checks).to be_empty }
     end
+
+    context 'with disabled repository' do
+      let!(:flag) { create(:build_flag, status: 'disable', project: staging_project, repo: repository.name) }
+      it { expect(staging_project.disabled_repositories).to contain_exactly(repository) }
+      it { expect(staging_project.overall_state).to eq(:building) }
+    end
   end
 
   describe '#assign_managers_group' do
