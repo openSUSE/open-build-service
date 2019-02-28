@@ -379,6 +379,26 @@ RSpec.describe ObsFactory::StagingProject do
 
       it { expect(subject.build_state).to eq(:acceptable) }
     end
+
+    context 'with repositories' do
+      let!(:standard_repo) { create(:repository, project: staging_a) }
+
+      before do
+        allow_any_instance_of(ObsFactory::StagingProject).to receive(:building_repositories).and_return([])
+      end
+
+      context 'with disabled project' do
+        let!(:flag) { create(:build_flag, status: 'disable', project: staging_a) }
+        it { expect(staging_project_a.disabled_repositories).to contain_exactly(standard_repo) }
+        it { expect(staging_project_a.build_state).to eq(:building) }
+      end
+
+      context 'with disabled repo' do
+        let!(:flag) { create(:build_flag, status: 'disable', project: staging_a, repo: standard_repo.name) }
+        it { expect(staging_project_a.disabled_repositories).to contain_exactly(standard_repo) }
+        it { expect(staging_project_a.build_state).to eq(:building) }
+      end
+    end
   end
 
   describe '#overall_state' do

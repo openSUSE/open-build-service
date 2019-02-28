@@ -117,6 +117,13 @@ module ObsFactory
       @building_repositories
     end
 
+    # Repositories referenced in the staging project that are disabled (as a whole)
+    #
+    # @return [Array] Array of repositories
+    def disabled_repositories
+      project.repositories.select { |repository| project.disabled_for?('build', repository.name, nil) }
+    end
+
     # Requests with open reviews but that are not selected into the staging
     # project
     #
@@ -200,7 +207,7 @@ module ObsFactory
     end
 
     def build_state
-      return :building if building_repositories.present?
+      return :building if building_repositories.present? || disabled_repositories.present?
       return :failed if broken_packages.present?
       :acceptable
     end
@@ -283,6 +290,7 @@ module ObsFactory
           @building_repositories << current_repo
         end
       end
+      # filter out unresolvables while there is work going on
       if @building_repositories.present?
         @broken_packages = @broken_packages.reject { |p| p['state'] == 'unresolvable' }
       end
