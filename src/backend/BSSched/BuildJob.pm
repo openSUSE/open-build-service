@@ -783,9 +783,9 @@ sub create_jobdata {
     if (exists($bconf->{'release'})) {
       my $bconfrelease = $bconf->{'release'};
       if (@{$bconf->{'release@'} || []} > 1) {
-	my @bconfrelease = @{$bconf->{'release'}};
+	my @bconfrelease = @{$bconf->{'release@'}};
 	$bconfrelease = shift @bconfrelease;
-	for (@{$bconfrelease}) {
+	for (@bconfrelease) {
 	  $bconfrelease = $1 if /^\Q$buildtype\E:(.*)/;
 	}
       }
