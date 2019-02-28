@@ -390,11 +390,11 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'without build results' do
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_raise(Backend::NotFoundError)
-        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
       end
 
-      it { expect(flash[:error]).to eq("Package \"#{source_package}\" has no build result for repository #{repo_for_source_project.name}") }
-      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package, nextstatus: 404)) }
+      let(:get_binaries) { get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name } }
+
+      it { expect { get_binaries }.to raise_error(ActionController::RoutingError) }
     end
 
     context 'with build results and no binaries' do
@@ -562,21 +562,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'GET #show' do
     context 'require_package before_action' do
       context 'with an invalid package' do
-        before do
-          get :show, params: { project: user.home_project, package: 'no_package' }
-        end
-
-        it 'returns 302 status' do
-          expect(response.status).to eq(302)
-        end
-
-        it 'redirects to project show path' do
-          expect(response).to redirect_to(project_show_path(project: user.home_project, nextstatus: 404))
-        end
-
-        it 'shows error flash message' do
-          expect(flash[:error]).to eq("Package \"no_package\" not found in project \"#{user.home_project}\"")
-        end
+        it { expect { get :show, params: { project: user.home_project, package: 'no_package' } }.to raise_error(ActionController::RoutingError) }
       end
     end
 
@@ -920,12 +906,9 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'with an unexistent package' do
-      before do
-        post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta }
-      end
+      let(:post_save_meta) { post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta } }
 
-      it { expect(flash[:error]).to eq("Package \"blah\" not found in project \"#{source_project.name}\"") }
-      it { expect(response).to redirect_to(project_show_path(project: source_project, nextstatus: 404)) }
+      it { expect { post_save_meta }.to raise_error(ActionController::RoutingError) }
     end
 
     context 'when connection with the backend fails' do
@@ -1383,15 +1366,9 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'when backend does not return statistics' do
-      before do
-        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
-      end
+      let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
 
-      it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
-      it {
-        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
-                                                              repository: repository.name, nextstatus: 404))
-      }
+      it { expect { get_statistics }.to raise_error(ActionController::RoutingError) }
     end
 
     context 'when backend raises an exception' do
@@ -1399,15 +1376,11 @@ RSpec.describe Webui::PackageController, vcr: true do
         allow(Backend::Api::BuildResults::Status).to receive(:statistics).
           with(source_project, source_package.name, repository.name, 'i586').
           and_raise(Backend::NotFoundError)
-
-        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
       end
 
-      it { expect(flash[:error]).to eq("No statistics of a successful build could be found in #{repository}/i586") }
-      it {
-        expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package,
-                                                              repository: repository.name, nextstatus: 404))
-      }
+      let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
+
+      it { expect { get_statistics }.to raise_error(ActionController::RoutingError) }
     end
   end
 
@@ -1462,7 +1435,6 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'GET #binary' do
     let(:architecture) { 'x86_64' }
     let(:package_binaries_page) { package_binaries_path(package: source_package, project: source_project, repository: repo_for_source_project.name) }
-    let(:package_binaries_page_with_status) { package_binaries_path(package: source_package, project: source_project, repository: repo_for_source_project.name, nextstatus: 404) }
     let(:fake_fileinfo) { { sumary: 'fileinfo', description: 'fake' } }
 
     before do
@@ -1472,21 +1444,33 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with a failure in the backend' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
-        get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
       end
 
-      it { expect(flash[:error]).to eq('File filename.txt can not be downloaded from home:tom: fake message') }
-      it { is_expected.to redirect_to(package_binaries_page_with_status) }
+      let(:get_binary) do
+        get :binary, params: { package: source_package,
+                               project: source_project,
+                               repository: repo_for_source_project.name,
+                               arch: 'x86_64',
+                               filename: 'filename.txt' }
+      end
+
+      it { expect { get_binary }.to raise_error(ActionController::RoutingError) }
     end
 
     context 'without file info' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
-        get :binary, params: { package: source_package, project: source_project, repository: repo_for_source_project.name, arch: 'x86_64', filename: 'filename.txt' }
       end
 
-      it { expect(flash[:error]).to eq("File \"filename.txt\" could not be found in #{repo_for_source_project.name}/x86_64") }
-      it { is_expected.to redirect_to(package_binaries_page_with_status) }
+      let(:get_binary) do
+        get :binary, params: { package: source_package,
+                               project: source_project,
+                               repository: repo_for_source_project.name,
+                               arch: 'x86_64',
+                               filename: 'filename.txt' }
+      end
+
+      it { expect { get_binary }.to raise_error(ActionController::RoutingError) }
     end
 
     context 'without a valid architecture' do

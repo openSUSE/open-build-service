@@ -15,12 +15,9 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         allow(::ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
           -> { OpenStruct.new(valid?: true, config: '') }
         }
-
-        get :show, params: { project: apache_project }
       end
 
-      it { expect(flash[:error]).to eq(nil) }
-      it { expect(response).not_to redirect_to(projects_path(nextstatus: 404)) }
+      it { expect { get :show, params: { project: apache_project } }.not_to raise_error(ActionController::RoutingError) }
     end
 
     context 'Can not load project config' do
@@ -28,11 +25,9 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         allow(::ProjectConfigurationService::ProjectConfigurationPresenter).to receive(:new) {
           -> { OpenStruct.new(valid?: false, errors: 'yada yada') }
         }
-        get :show, params: { project: apache_project }
       end
 
-      it { expect(flash[:error]).not_to eq(nil) }
-      it { expect(response).to redirect_to(projects_path(nextstatus: 404)) }
+      it { expect { get :show, params: { project: apache_project } }.to raise_error(ActionController::RoutingError) }
     end
   end
 
