@@ -203,6 +203,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def packages_simple; end
 
+  # bento_only
   def linking_projects
     @linking_projects = @project.linked_by_projects.pluck(:name)
     render_dialog
