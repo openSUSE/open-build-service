@@ -67,6 +67,7 @@
         = render partial: 'webui2/webui/comment/show', locals: { commentable: @project,
           comment_counter_id: "#comment-counter-project-#{@project.id}" }
 
+= render partial: 'linking_projects_dialog', locals: { project: @project, linking_projects: @linking_projects }
 - unless User.current.is_nobody?
   - if @project.is_locked? && User.current.can_modify?(@project, true)
     = render partial: 'unlock_project_dialog', locals: { project: @project }
