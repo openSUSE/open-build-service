@@ -81,7 +81,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     expect(page).to have_text('Do you really want to request the deletion of package ')
     within('#delete-request-modal') do
       fill_in('description', with: 'Hey, why not?')
-      click_button('Accept')
+      click_button('Create')
     end
 
     expect(page).to have_text('Created delete request')
@@ -160,7 +160,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     within('#edit-modal') do
       fill_in('title', with: 'test title')
       fill_in('description', with: 'test description')
-      click_button('Accept')
+      click_button('Update')
     end
 
     expect(find('#flash')).to have_text("Package data for '#{package}' was saved successfully")
