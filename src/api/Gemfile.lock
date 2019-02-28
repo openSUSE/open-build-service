@@ -73,7 +73,7 @@ GEM
     bullet (5.9.0)
       activesupport (>= 3.0.0)
       uniform_notifier (~> 1.11)
-    bunny (2.13.0)
+    bunny (2.14.1)
       amq-protocol (~> 2.3, >= 2.3.0)
     bunny-mock (1.7.0)
       bunny (>= 1.7)
