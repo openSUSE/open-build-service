@@ -1120,6 +1120,9 @@ class Project < ApplicationRecord
   def do_project_release(params)
     User.current ||= User.find_by_login(params[:user])
 
+    # uniq timestring for all targets
+    time_now = Time.now.utc
+
     packages.each do |pkg|
       next if pkg.name == '_product' # will be handled via _product:*
       pkg.project.repositories.each do |repo|
@@ -1129,7 +1132,7 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.target_name, repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true)
         end
       end
     end

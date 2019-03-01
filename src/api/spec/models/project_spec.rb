@@ -583,7 +583,7 @@ RSpec.describe Project, vcr: true do
 
     before do
       login user
-      allow_any_instance_of(Package).to receive(:target_name).and_return('my_release_target')
+      allow_any_instance_of(Package).to receive(:release_target_name).and_return('my_release_target')
     end
 
     it "uses the package's release target name when releasing the package" do

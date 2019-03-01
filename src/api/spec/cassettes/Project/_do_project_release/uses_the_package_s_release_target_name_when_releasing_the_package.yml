@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tux" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/my_package_release/_meta?user=_nobody_
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tux/my_package_release/_meta
+    uri: http://backend:5352/source/home:tux/my_package_release/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/my_package_release/somefile.txt
@@ -148,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="5" vrev="5">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1529321053</time>
+          <time>1551449314</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/my_package_release/somefile.txt
@@ -187,24 +187,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="6" vrev="6">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1529321053</time>
+          <time>1551449314</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tux:staging/_meta
+    uri: http://backend:5352/source/home:tux:staging/_meta?user=_nobody_
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:staging">
-          <title>The Glory and the Dream</title>
+          <title>A Summer Bird-Cage</title>
           <description/>
         </project>
     headers:
@@ -226,52 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '116'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:staging">
-          <title>The Glory and the Dream</title>
+          <title>A Summer Bird-Cage</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tux:staging/_config
-    body:
-      encoding: UTF-8
-      string: Corrupti nesciunt ut dolorum qui incidunt architecto labore. Eveniet
-        autem et est ut quam. Consequatur officia voluptatem in ea vitae occaecati
-        error. Autem distinctio porro id est nihil nulla est. Ducimus quos ut est
-        possimus earum in.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:13 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tux:staging?cmd=suspendproject
@@ -306,7 +270,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -314,8 +278,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -336,16 +300,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -353,8 +317,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -375,16 +339,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux:staging/my_release_target?cmd=copy&comment=Release%20from%20home:tux%20/%20my_package_release&expand=1&noservice=1&opackage=my_package_release&oproject=home:tux&user=tux&withacceptinfo=1&withvrev=1
@@ -416,16 +380,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="3">
+        <revision rev="1" vrev="7">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1529321054</time>
+          <time>1551449315</time>
           <user>tux</user>
           <comment>Release from home:tux / my_package_release</comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -433,8 +397,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -455,16 +419,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>The Monkey's Raincoat</title>
-          <description>Qui et alias eos vel.</description>
+          <title>His Dark Materials</title>
+          <description>Vitae explicabo deserunt vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target
@@ -494,11 +458,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1529224252" />
+        <directory name="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1551444109" />
         </directory>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target?view=info
@@ -528,11 +492,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
+        <sourceinfo package="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target
@@ -562,11 +526,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1529224252" />
+        <directory name="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1551444109" />
         </directory>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux:staging/my_release_target?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -589,24 +553,24 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '333'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '331'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="cfc6a784fe5b44542f5241922b377239">
-          <old project="home:tux:staging" package="my_release_target" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tux:staging" package="my_release_target" rev="1" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" />
+        <sourcediff key="fe1ee31568c3b1d86d5b5c0a5221db2d">
+          <old project="home:tux:staging" package="my_package_release" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tux:staging" package="my_package_release" rev="1" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tux:staging?cmd=resumeproject
@@ -641,5 +605,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Mon, 18 Jun 2018 11:24:14 GMT
+  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
 recorded_with: VCR 4.0.0
