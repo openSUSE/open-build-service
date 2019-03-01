@@ -20,7 +20,7 @@ module Webui
                                                      use_source: false, follow_project_links: true, follow_multibuild: true)
         @is_link = @package.is_link? || @package.is_local_link?
       rescue APIError
-        raise ActionController::RoutingError, 'Not Found'
+        raise ActiveRecord::RecordNotFound, 'Not Found'
       end
 
       def set_repository

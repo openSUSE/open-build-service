@@ -17,7 +17,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         }
       end
 
-      it { expect { get :show, params: { project: apache_project } }.not_to raise_error(ActionController::RoutingError) }
+      it { expect { get :show, params: { project: apache_project } }.not_to raise_error }
     end
 
     context 'Can not load project config' do
@@ -27,7 +27,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         }
       end
 
-      it { expect { get :show, params: { project: apache_project } }.to raise_error(ActionController::RoutingError) }
+      it { expect { get :show, params: { project: apache_project } }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
 
