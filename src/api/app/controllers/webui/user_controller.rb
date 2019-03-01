@@ -4,9 +4,12 @@ class Webui::UserController < Webui::WebuiController
   before_action :require_admin, only: [:edit, :index, :update, :delete]
 
   def index
-    @users = User.all_without_nobody.includes(:owner).
-             select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
-
+    respond_to do |format|
+      format.html do
+        @users = User.list unless switch_to_webui2?
+      end
+      format.json { render json: UserConfigurationDatatable.new(params, view_context: view_context) }
+    end
     # TODO: Remove the statement after migration is finished
     switch_to_webui2 if Rails.env.development? || Rails.env.test?
   end

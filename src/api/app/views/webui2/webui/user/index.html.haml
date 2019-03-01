@@ -4,37 +4,18 @@
   = render partial: 'webui/configuration/tabs'
   .card-body
     %h3= @pagetitle
-    %table.responsive.table.table-sm.table-striped.table-bordered#user-table
+    %table.responsive.table.table-sm.table-striped.table-bordered#user-table{ data: { source: users_path } }
       %thead
         %tr
           %td
             User
-          - if Configuration.ldap_enabled?
-            %td
-              Local User
+          %td
+            Local User
           %td
             State
           %td
             Actions
       %tbody
-        - @users.each do |user|
-          %tr
-            %td
-              = image_tag_for(user, size: 20)
-              = link_to(display_name(user), user_show_path(user))
-            - if Configuration.ldap_enabled?
-              %td
-                = user.ignore_auth_services?
-            %td
-              = user.state
-            %td
-              = link_to(user_edit_path(user.login)) do
-                %i.fas.fa-edit.text-secondary{ title: 'Edit User' }
-              = mail_to(user.email) do
-                %i.far.fa-envelope.text-secondary{ title: 'Send Email to User' }
-              = link_to(user_delete_path(user: { login: user.login }),
-                method: :delete, data: { confirm: 'Are you sure?' }) do
-                %i.fas.fa-times-circle.text-danger{ title: 'Delete user' }
 
     .pt-4
       = link_to(user_register_user_path) do
@@ -42,4 +23,4 @@
         Create User
 
 - content_for :ready_function do
-  initializeDataTable('#user-table', { pageLength: 50, columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });
+  initializeUserConfigurationDatatable("#{::Configuration.ldap_enabled?}");

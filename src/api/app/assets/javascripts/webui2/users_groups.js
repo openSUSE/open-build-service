@@ -1,3 +1,17 @@
+function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:line
+  projectsDatatable( // jshint ignore:line
+    '#user-table',
+    {
+      pageLength: 50,
+      columns: [
+        { 'data': 'name' },
+        { 'data': 'local_user', 'visible': ldapEnabled === 'true' },
+        { 'data': 'state'},
+        { 'data': 'actions', 'orderable': false, 'searchable': false }
+      ]
+    }
+  );
+}
 
 function changeUserRole(obj) { // jshint ignore:line
     var type = obj.data("type");

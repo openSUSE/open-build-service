@@ -1,4 +1,27 @@
 module Webui::UserHelper
+  def user_actions(user)
+    safe_join(
+      [
+        link_to(user_edit_path(user.login)) do
+          content_tag(:i, nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
+        end,
+        mail_to(user.email) do
+          content_tag(:i, nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
+        end,
+        link_to(user_delete_path(user: { login: user.login }), method: :delete, data: { confirm: 'Are you sure?' }) do
+          content_tag(:i, nil, class: 'fas fa-times-circle text-danger pr-1', title: 'Delete User')
+        end
+      ]
+    )
+  end
+
+  def user_name_with_icon(user)
+    capture do
+      concat(image_tag_for(user, size: 20))
+      concat(link_to(display_name(user), user_show_path(user), class: 'pl-1'))
+    end
+  end
+
   # This method is migrated to Webui2 (and refactored) with the name: image_tag_for
   # @param [User] user object
   def user_image_tag(user, opt = {})
