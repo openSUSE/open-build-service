@@ -220,7 +220,7 @@ class Webui::WebuiController < ActionController::Base
 
     return if @package
 
-    raise(ActionController::RoutingError, 'Not Found') unless request.xhr?
+    raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
 
     render nothing: true, status: :not_found
   end

@@ -394,7 +394,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       let(:get_binaries) { get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name } }
 
-      it { expect { get_binaries }.to raise_error(ActionController::RoutingError) }
+      it { expect { get_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'with build results and no binaries' do
@@ -562,7 +562,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'GET #show' do
     context 'require_package before_action' do
       context 'with an invalid package' do
-        it { expect { get :show, params: { project: user.home_project, package: 'no_package' } }.to raise_error(ActionController::RoutingError) }
+        it { expect { get :show, params: { project: user.home_project, package: 'no_package' } }.to raise_error(ActiveRecord::RecordNotFound) }
       end
     end
 
@@ -908,7 +908,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'with an unexistent package' do
       let(:post_save_meta) { post :save_meta, params: { project: source_project, package: 'blah', meta: valid_meta } }
 
-      it { expect { post_save_meta }.to raise_error(ActionController::RoutingError) }
+      it { expect { post_save_meta }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'when connection with the backend fails' do
@@ -1368,7 +1368,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'when backend does not return statistics' do
       let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
 
-      it { expect { get_statistics }.to raise_error(ActionController::RoutingError) }
+      it { expect { get_statistics }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'when backend raises an exception' do
@@ -1380,7 +1380,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
 
-      it { expect { get_statistics }.to raise_error(ActionController::RoutingError) }
+      it { expect { get_statistics }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
 
@@ -1454,7 +1454,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                                filename: 'filename.txt' }
       end
 
-      it { expect { get_binary }.to raise_error(ActionController::RoutingError) }
+      it { expect { get_binary }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'without file info' do
@@ -1470,7 +1470,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                                filename: 'filename.txt' }
       end
 
-      it { expect { get_binary }.to raise_error(ActionController::RoutingError) }
+      it { expect { get_binary }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'without a valid architecture' do
