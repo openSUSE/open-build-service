@@ -48,10 +48,8 @@ module Backend
         # Lists failed package builds in a project
         # @return [String]
         def self.failed_results(project_name)
-          Rails.cache.fetch("failed_results-#{project_name}") do
-            response = http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable] }, expand: [:code])
-            Xmlhash.parse(response)
-          end
+          response = http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable] }, expand: [:code])
+          Xmlhash.parse(response)
         end
 
         # Returns the log's size for a build
