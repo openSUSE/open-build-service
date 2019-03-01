@@ -374,6 +374,7 @@ OBSApi::Application.routes.draw do
 
       post 'user/register' => :register
       get 'user/register_user' => :register_user
+      get 'user/signup' => :signup
 
       post 'user/save' => :save, constraints: cons
       get 'user/save_dialog' => :save_dialog

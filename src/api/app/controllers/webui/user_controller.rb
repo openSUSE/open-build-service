@@ -60,7 +60,9 @@ class Webui::UserController < Webui::WebuiController
     redirect_back(fallback_location: { action: 'show', user: @displayed_user })
   end
 
-  def edit; end
+  def edit
+    switch_to_webui2
+  end
 
   def update
     other_user = User.find_by(login: user_params[:login])
@@ -120,7 +122,13 @@ class Webui::UserController < Webui::WebuiController
     end
   end
 
-  def register_user; end
+  def register_user
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+  end
+
+  def signup
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+  end
 
   def password_dialog
     render_dialog
