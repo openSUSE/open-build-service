@@ -298,6 +298,36 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
               'overall_state' => 'failed'
             )
           end
+
+          RSpec.shared_examples 'disabled checks' do
+            it 'returns testing' do
+              get :show, params: { project: factory, project_name: 'D' }, format: :json
+              expect(response).to have_http_status(:success)
+
+              json_hash = JSON.parse(response.body)
+              rewritten_hash = check.serializable_hash
+              rewritten_hash['state'] = 'pending'
+              rewritten_hash['url'] = nil
+
+              expect(json_hash).to include(
+                'missing_checks' => [],
+                'checks' => [rewritten_hash],
+                'overall_state' => 'testing'
+              )
+            end
+          end
+
+          context 'with disabled project' do
+            let!(:flag) { create(:build_flag, status: 'disable', project: factory_staging_d) }
+
+            it_behaves_like 'disabled checks'
+          end
+
+          context 'with disabled repository' do
+            let!(:flag) { create(:build_flag, status: 'disable', project: factory_staging_d, repo: images_repository.name) }
+
+            it_behaves_like 'disabled checks'
+          end
         end
 
         context 'published repo has succeeded check' do
