@@ -33,8 +33,8 @@
 
   - if linking_projects.present?
     %li
-      %i.fa.fa-info-circle.text-info
-      = link_to(linking_projects_path(project), remote: true) do
+      = link_to('#', data: { toggle: 'modal', target: '#linking-projects-modal' }) do
+        %i.fa.fa-info-circle.text-info
         = pluralize(linking_projects.size, 'linking project')
 
   - if project_maintenance_project

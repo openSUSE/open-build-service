@@ -247,7 +247,7 @@ class Review < ApplicationRecord
     arguments = { review: self, comment: comment, user: User.current }
     if new_state == :accepted
       HistoryElement::ReviewAccepted.create(arguments)
-    elsif new_state == :declsined
+    elsif new_state == :declined
       HistoryElement::ReviewDeclined.create(arguments)
     elsif new_state == :new
       HistoryElement::ReviewReopened.create(arguments)

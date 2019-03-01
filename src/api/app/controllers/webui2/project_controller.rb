@@ -5,10 +5,10 @@ module Webui2::ProjectController
     @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
 
     if @spider_bot
-      render :list_simple, status: params[:nextstatus]
+      render :list_simple
     else
       respond_to do |format|
-        format.html { render :list, status: params[:nextstatus] }
+        format.html { render :list }
         format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all) }
       end
     end

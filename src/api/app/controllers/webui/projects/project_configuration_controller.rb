@@ -10,8 +10,7 @@ module Webui
 
         switch_to_webui2
         return if @content
-        flash[:error] = result.errors
-        redirect_to projects_path(nextstatus: 404)
+        raise ActionController::RoutingError, 'Not Found'
       end
 
       def update

@@ -85,4 +85,8 @@ module Webui::UserHelper
       "the group #{requester_group}"
     end
   end
+
+  def user_is_configurable(configuration, user)
+    configuration.ldap_enabled? && !user.ignore_auth_services?
+  end
 end

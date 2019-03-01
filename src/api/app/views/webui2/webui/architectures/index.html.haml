@@ -26,6 +26,7 @@
 - content_for :ready_function do
   :plain
     $('#architectures').on('ajax:before ajax:complete', '.custom-control-input, .filter-button', function() {
+      $(this).prop('disabled', function(_, previousValue) { return !previousValue; });
       $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
     });
     $('.filter-button').on('ajax:success', function() {

@@ -4,3 +4,6 @@
 .card.mb-3
   = render partial: 'webui/configuration/tabs'
   .card-body
+    = link_to(user_register_user_path) do
+      %i.fas.fa-plus-circle.text-primary
+      Create User

@@ -50,9 +50,9 @@ class Webui::ProjectController < Webui::WebuiController
     @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
 
     if @spider_bot
-      render :list_simple, status: params[:nextstatus]
+      render :list_simple
     else
-      render :list, status: params[:nextstatus]
+      render :list
     end
   end
 
@@ -196,13 +196,13 @@ class Webui::ProjectController < Webui::WebuiController
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
-    render :show, status: params[:nextstatus] if params[:nextstatus]
 
     switch_to_webui2
   end
 
   def packages_simple; end
 
+  # bento_only
   def linking_projects
     @linking_projects = @project.linked_by_projects.pluck(:name)
     render_dialog

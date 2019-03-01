@@ -12,13 +12,13 @@
  *= require peek
 */
 
-@import 'colors';
-@import 'links';
+@import 'bootstrap_variables/breakpoints';
+@import 'bootstrap_variables/colors';
+@import 'bootstrap_variables/spacers';
+@import 'bootstrap';
 @import "font-awesome-sprockets";
 @import 'font-awesome';
-@import 'spacers';
-@import 'bootstrap';
-@import 'breakpoints';
+@import 'links';
 @import 'sticky-footer';
 @import 'datatables';
 @import 'card-component';

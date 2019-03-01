@@ -296,9 +296,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       begin
         @main_object = @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false, follow_project_links: true)
       rescue APIError
-        flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-        redirect_to project_show_path(project: @project, nextstatus: 404)
-        return
+        raise ActionController::RoutingError, 'Not Found'
       end
     else
       @main_object = @project

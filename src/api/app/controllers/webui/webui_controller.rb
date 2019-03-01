@@ -220,12 +220,9 @@ class Webui::WebuiController < ActionController::Base
 
     return if @package
 
-    if request.xhr?
-      render nothing: true, status: :not_found
-    else
-      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to project_show_path(project: @project, nextstatus: 404)
-    end
+    raise(ActionController::RoutingError, 'Not Found') unless request.xhr?
+
+    render nothing: true, status: :not_found
   end
 
   def feature_active?(feature)

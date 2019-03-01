@@ -22,7 +22,7 @@
       .card.mb-3
         %h5.card-header New here? Sign up!
         .card-body
-          = render partial: 'webui2/shared/sign_up'
+          = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
     = render partial: 'sponsors'
     - if @status_messages.present? || User.current.is_admin?
       = render partial: 'status_messages'
