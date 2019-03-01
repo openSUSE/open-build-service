@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>Tender Is the Night</title>
+          <title>In a Glass Darkly</title>
           <description/>
         </project>
     headers:
@@ -29,26 +29,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '120'
+      - '118'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging">
-          <title>Tender Is the Night</title>
+          <title>In a Glass Darkly</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_5/_meta?user=user_5
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_5">
+        <project name="home:user_1">
           <title/>
           <description/>
-          <person userid="user_5" role="maintainer"/>
+          <person userid="user_1" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -73,21 +73,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_5">
+        <project name="home:user_1">
           <title></title>
           <description></description>
-          <person userid="user_5" role="maintainer" />
+          <person userid="user_1" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_5
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Infinite Jest</title>
+          <title>The Painted Veil</title>
           <description/>
         </project>
     headers:
@@ -109,25 +109,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '106'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory">
-          <title>Infinite Jest</title>
+          <title>The Painted Veil</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_5
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Behold the Man</title>
-          <description>Aut repellendus dicta quas.</description>
+          <title>An Instant In The Wind</title>
+          <description>Eum voluptatem aliquid fuga.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,25 +148,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Behold the Man</title>
-          <description>Aut repellendus dicta quas.</description>
+          <title>An Instant In The Wind</title>
+          <description>Eum voluptatem aliquid fuga.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_5
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Behold the Man</title>
-          <description>Aut repellendus dicta quas.</description>
+          <title>An Instant In The Wind</title>
+          <description>Eum voluptatem aliquid fuga.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -187,24 +187,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="openSUSE:Factory">
-          <title>Behold the Man</title>
-          <description>Aut repellendus dicta quas.</description>
+          <title>An Instant In The Wind</title>
+          <description>Eum voluptatem aliquid fuga.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=user_5
+    uri: http://backend:5352/source/project_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>Beyond the Mexique Bay</title>
+        <project name="project_1">
+          <title>A Time of Gifts</title>
           <description/>
         </project>
     headers:
@@ -226,25 +226,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '101'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>Beyond the Mexique Bay</title>
+        <project name="project_1">
+          <title>A Time of Gifts</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_5
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Everything is Illuminated</title>
-          <description>Sunt eligendi eaque maiores.</description>
+        <package name="package_1" project="project_1">
+          <title>Fair Stood the Wind for France</title>
+          <description>Debitis possimus voluptates velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -265,25 +265,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Everything is Illuminated</title>
-          <description>Sunt eligendi eaque maiores.</description>
+        <package name="package_1" project="project_1">
+          <title>Fair Stood the Wind for France</title>
+          <description>Debitis possimus voluptates velit.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_5
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Everything is Illuminated</title>
-          <description>Sunt eligendi eaque maiores.</description>
+        <package name="package_1" project="project_1">
+          <title>Fair Stood the Wind for France</title>
+          <description>Debitis possimus voluptates velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -304,19 +304,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Everything is Illuminated</title>
-          <description>Sunt eligendi eaque maiores.</description>
+        <package name="package_1" project="project_1">
+          <title>Fair Stood the Wind for France</title>
+          <description>Debitis possimus voluptates velit.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_project/_attribute?meta=1&user=user_5
+    uri: http://backend:5352/source/project_1/_project/_attribute?meta=1&user=user_1
     body:
       encoding: UTF-8
       string: |
@@ -342,29 +342,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="8">
-          <srcmd5>c71953c1e476563ea18f12866646d8c5</srcmd5>
-          <time>1548314213</time>
-          <user>user_5</user>
+        <revision rev="10">
+          <srcmd5>c5c9bbb4016545eb46ccea0a92fa8831</srcmd5>
+          <time>1551452708</time>
+          <user>user_1</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_6/_meta?user=user_6
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_6">
+        <project name="home:user_2">
           <title/>
           <description/>
-          <person userid="user_6" role="maintainer"/>
+          <person userid="user_2" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -389,21 +389,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_6">
+        <project name="home:user_2">
           <title></title>
           <description></description>
-          <person userid="user_6" role="maintainer" />
+          <person userid="user_2" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:53 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_6
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>That Good Night</title>
+          <title>Ring of Bright Water</title>
           <description>      requests:
                 - { id: 1 }
         </description>
@@ -427,26 +427,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:A">
-          <title>That Good Night</title>
+          <title>Ring of Bright Water</title>
           <description>      requests:
                 - { id: 1 }
         </description>
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:54 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_6
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:B/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>Taming a Sea Horse</title>
+          <title>The Doors of Perception</title>
           <description>Factory staging project B</description>
         </project>
     headers:
@@ -468,16 +468,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="openSUSE:Factory:Staging:B">
-          <title>Taming a Sea Horse</title>
+          <title>The Doors of Perception</title>
           <description>Factory staging project B</description>
         </project>
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:54 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:08 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
@@ -510,7 +510,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:54 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:09 GMT
 - request:
     method: get
     uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?code=unresolvable
@@ -543,5 +543,71 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Thu, 24 Jan 2019 07:16:54 GMT
+  recorded_at: Fri, 01 Mar 2019 15:05:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:05:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:B/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:05:09 GMT
 recorded_with: VCR 4.0.0
