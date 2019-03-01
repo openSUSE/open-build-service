@@ -44,7 +44,6 @@ module ObsFactory
     # @return [String] description of the Project object
     delegate :description, to: :project
 
-    delegate :checks, to: :project
     delegate :missing_checks, to: :project
 
     # Checks if the project is adi staging project
@@ -207,9 +206,23 @@ module ObsFactory
     end
 
     def build_state
-      return :building if building_repositories.present? || disabled_repositories.present?
+      return :building if building_repositories.present?
       return :failed if broken_packages.present?
       :acceptable
+    end
+
+    def checks
+      # for stagings we ignore 'old' checks in disabled repositories
+      repos = disabled_repositories
+      project.checks.each do |check|
+        next unless repos.include?(check.status_report.checkable)
+        # we can't simply ignore them as missing_checks is calculated
+        # independently, so we would be left without missing checks
+        # but without checks - so better mark them as 'old/pending',
+        # but only in memory, not in the database.
+        check.state = :pending
+        check.url = nil
+      end
     end
 
     def check_state
