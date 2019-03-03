@@ -14,7 +14,6 @@ module Event
       repository_name = payload['repo']
       architecture_name = payload['arch']
       Rails.cache.delete("build_id-#{project_name}-#{repository_name}-#{architecture_name}")
-      Rails.cache.delete("failed_results-#{project_name}")
     end
   end
 end

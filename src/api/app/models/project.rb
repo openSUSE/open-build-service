@@ -238,10 +238,11 @@ class Project < ApplicationRecord
 
   def siblingprojects
     parent_name = parent.try(:name)
-    return [] unless parent_name
-    Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).select do |sib|
+    return Project.none unless parent_name
+    projects_id = Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).select do |sib|
       sib if parent_name == sib.possible_ancestor_names.first
-    end
+    end.pluck(:id)
+    Project.where(id: projects_id)
   end
 
   def maintained_project_names
@@ -1119,6 +1120,9 @@ class Project < ApplicationRecord
   def do_project_release(params)
     User.current ||= User.find_by_login(params[:user])
 
+    # uniq timestring for all targets
+    time_now = Time.now.utc
+
     packages.each do |pkg|
       next if pkg.name == '_product' # will be handled via _product:*
       pkg.project.repositories.each do |repo|
@@ -1128,7 +1132,7 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.target_name, repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true)
         end
       end
     end

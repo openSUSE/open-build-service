@@ -19,11 +19,5 @@ module Event
       h['References'] = mid
       h
     end
-
-    private
-
-    def clear_caches
-      Rails.cache.delete("failed_results-#{payload['project']}")
-    end
   end
 end

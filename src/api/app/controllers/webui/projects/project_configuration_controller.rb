@@ -10,7 +10,7 @@ module Webui
 
         switch_to_webui2
         return if @content
-        raise ActionController::RoutingError, 'Not Found'
+        raise ActiveRecord::RecordNotFound, 'Not Found'
       end
 
       def update
