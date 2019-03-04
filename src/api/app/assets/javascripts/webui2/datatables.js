@@ -10,16 +10,16 @@ function initializeDataTable(cssSelector, params){ // jshint ignore:line
     language: { search: '', searchPlaceholder: "Search..." },
   };
   var newParams = $.extend(defaultParams, params);
-  $(cssSelector).dataTable(newParams);
+  $(cssSelector).DataTable(newParams);
 }
 
-function initializeRemoteDatatable(cssSelector, params) {
+function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
   var defaultParams = {
     language: { search: '', searchPlaceholder: "Search..." },
-    "processing": true,
-    "serverSide": true,
-    "ajax": $(cssSelector).data("source"),
-    "pagingType": "full_numbers"
+    processing: true,
+    serverSide: true,
+    ajax: $(cssSelector).data('source'),
+    pagingType: 'full_numbers'
   };
   var newParams = $.extend(defaultParams, params);
 
