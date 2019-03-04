@@ -992,6 +992,16 @@ sub fn {
   return ref($dir) ? $dir->($f) : "$dir/$f";
 }
 
+sub identicalcontent {
+  my ($pold, $of, $pnew, $f) = @_;
+  my $ofn = fn($pold, $of);
+  my $fn = fn($pnew, $f);
+  my @os = stat($ofn);
+  my @s = stat($fn);
+  return 1 if @s && @os && $s[0] == $os[0] && $s[1] == $os[1];
+  return BSUtil::identicalfile($ofn, $fn);
+}
+
 sub srcdiff {
   my ($pold, $old, $pnew, $new, %opts) = @_;
 
@@ -1018,12 +1028,9 @@ sub srcdiff {
     }
     my @xold = grep {/\.$extra$/} sort keys %$old;
     my @xnew = grep {/\.$extra$/} sort keys %$new;
+    next unless @xnew || @xold;
     my %xold = map {$_ => 1} @xold;
-    if (@xnew || @xold) {
-      $d .= "\n";
-      $d .= "$extra files:\n";
-      $d .= "-------".('-' x length($extra))."\n";
-    }
+    my $dd = '';
     my $diffarg = '-ub';
     $diffarg = '-U0' if $extra eq 'changes';
     for my $f (@xnew) {
@@ -1031,15 +1038,21 @@ sub srcdiff {
       if ($xold{$f}) {
 	$of = $f;
 	delete $xold{$of};
-	next if $old->{$of} eq $new->{$f};
+	next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
       }
-      $d .= "\n++++++ new $extra file:\n" unless defined $of;
+      $dd .= "\n++++++ new $extra file:\n" unless defined $of;
       my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts, 'diffarg' => $diffarg, 'fmax' => undef);
-      $d .= adddiffheader($r, $of, $f);
+      $dd .= adddiffheader($r, $of, $f);
     }
     if (%xold) {
-      $d .= "\n++++++ deleted $extra files:\n";
-      $d .= "--- $_\n" for sort keys %xold;
+      $dd .= "\n++++++ deleted $extra files:\n";
+      $dd .= "--- $_\n" for sort keys %xold;
+    }
+    if ($dd ne '') {
+      $d .= "\n";
+      $d .= "$extra files:\n";
+      $d .= "-------".('-' x length($extra))."\n";
+      $d .= ">$dd<";
     }
     @old = grep {!/\.$extra$/} @old;
     @new = grep {!/\.$extra$/} @new;
@@ -1056,7 +1069,7 @@ sub srcdiff {
     if (defined $of) {
       delete $oold{$of};
       $d .= "\n++++++ $of -> $f\n" if $of ne $f;
-      next if $old->{$of} eq $new->{$f};
+      next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
       $d .= "\n++++++ $f\n" if $of eq $f;
     } else {
       $d .= "\n++++++ $f (new)\n";
@@ -1094,7 +1107,7 @@ sub unifieddiff {
       push @added, $_;
     } elsif (!defined($new->{$_})) {
       push @deleted, $_;
-    } elsif ($old->{$_} ne $new->{$_}) {
+    } elsif ($old->{$_} ne $new->{$_} || !identicalcontent($pold, $_, $pnew, $_)) {
       push @changed, $_;
     }
   }
