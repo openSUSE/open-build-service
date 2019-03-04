@@ -390,6 +390,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     monitor_parse_buildresult(buildresult)
+    @shown_entries = params.fetch('shown-entries', 50)
 
     # extract repos
     repohash = {}
