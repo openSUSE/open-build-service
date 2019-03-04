@@ -410,7 +410,7 @@ GEM
     sysexits (1.2.0)
     tdigest (0.1.1)
       rbtree (~> 0.4.2)
-    temple (0.8.0)
+    temple (0.8.1)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     test-unit (3.3.0)
