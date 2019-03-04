@@ -249,6 +249,7 @@ sub server {
     BSDispatch::compile($conf);
   }
   if ($request) {
+    $conf->{'authorize'} = sub {};
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
     my $fd;
     open($fd, '>&STDOUT') || die;
