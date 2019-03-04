@@ -3,7 +3,7 @@
 .card.mb-3
   = render partial: 'webui/configuration/tabs'
   .card-body
-    %h3 Manage Groups
+    %h3= @pagetitle
     %table.responsive.table.table-sm.table-striped.table-bordered.w-100#manage-groups-table
       %thead
         %tr
@@ -18,7 +18,7 @@
             %td
               = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_show_path(user), title: user.login) }, ', ')
             %td
-              = link_to(group_edit_title_path(title: group), title: 'Edit') do
+              = link_to(group_edit_title_path(title: group), title: 'Edit Group') do
                 %i.fas.fa-edit.text-secondary
 
     .pt-4

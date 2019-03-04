@@ -1,14 +1,14 @@
 - @pagetitle = "Edit Group #{@group}"
 
 .card.mb-3
-  = render partial: 'webui/configuration/tabs'
   .card-body
     %h3= @pagetitle
-    = form_tag(group_update_path(title: @group)) do
-      .form-group.col-md-6.pl-0
-        = label_tag(:members)
-        = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input', data: { source: user_autocomplete_path })
-      = submit_tag('Save', class: 'btn btn-primary')
+    .col-lg-6.pl-0
+      = form_tag(group_update_path(title: @group)) do
+        .form-group
+          = label_tag(:members)
+          = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input', data: { source: user_autocomplete_path })
+        = submit_tag('Save', class: 'btn btn-primary')
 
 = content_for(:ready_function) do
   initializeGroupTokenfield();
