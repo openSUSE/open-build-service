@@ -1,18 +1,8 @@
-# NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
-class UserConfigurationDatatable < AjaxDatatablesRails::ActiveRecord
-  extend Forwardable
-
+class UserConfigurationDatatable < Datatable
   def_delegator :@view, :user_actions
   def_delegator :@view, :user_name_with_icon
 
-  def initialize(params, opts = {})
-    @view = opts[:view_context]
-    super
-  end
-
   def view_columns
-    # Declare strings in this format: ModelName.column_name
-    # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'User.login', cond: :like },
       local_user: { source: 'User.ignore_auth_services' },
