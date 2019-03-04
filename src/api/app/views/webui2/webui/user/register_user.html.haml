@@ -1,12 +1,10 @@
-:ruby
-  @pagetitle = 'Create User'
+- @pagetitle = 'Create User'
 
-.card
+.card.mb-3
   .card-body
-    .row
-      .col-lg-6
-        - if can_register
-          %h5.card-title  Create User
-          = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Create' }
-        - else
-          %p Sorry, sign up is disabled
+    .col-lg-6.pl-0
+      - if can_register
+        %h3= @pagetitle
+        = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Create' }
+      - else
+        %p Sorry, sign up is disabled
