@@ -3,7 +3,7 @@
 
 #description-text
   - if bs_request.description.present?
-    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: 500 }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: { text_length: 1000, line_count: 10 } }
   - else
     %i No description set
 - if can_add_reviews
