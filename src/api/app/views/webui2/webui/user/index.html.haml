@@ -44,4 +44,4 @@
                     %i.fas.fa-times-circle.text-danger{ title: 'Delete user' }
 
 - content_for :ready_function do
-  $('#user-table').dataTable({ pageLength: 50 });
+  initializeDataTable('#user-table', { pageLength: 50, columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });
