@@ -9,8 +9,8 @@ class Webui::GroupsController < Webui::WebuiController
     authorize Group, :index?
     @groups = Group.all.includes(:users)
 
-    # TODO: Remove the environment check after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2
   end
 
   def show
