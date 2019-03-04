@@ -7,7 +7,7 @@ RSpec.describe IssueTrackerUpdateIssuesJob, type: :job, vcr: true do
     let(:issue_tracker) { double(IssueTracker, id: 1) }
 
     before do
-      allow(IssueTracker).to receive(:find).and_return(issue_tracker)
+      allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:update_issues)
     end
 
