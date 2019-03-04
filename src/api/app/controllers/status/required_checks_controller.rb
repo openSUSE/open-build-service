@@ -78,16 +78,15 @@ class Status::RequiredChecksController < ApplicationController
   end
 
   def set_checkable
-    if params[:repository_name]
-      @checkable = @project.repositories.find_by!(name: params[:repository_name])
+    @checkable = checkable
+  end
 
-      if params[:architecture_name]
-        @checkable = @checkable.repository_architectures.find_by!(architecture: Architecture.find_by!(name: params[:architecture_name]))
-      end
-
-      return
-    end
-    @checkable = @project
+  def checkable
+    return @project unless params[:repository_name]
+    repo = @project.repositories.find_by!(name: params[:repository_name])
+    return repo unless params[:architecture_name]
+    architecture = Architecture.find_by!(name: params[:architecture_name])
+    repo.repository_architectures.find_by!(architecture: architecture)
   end
 
   # Use callbacks to share common setup or constraints between actions.
