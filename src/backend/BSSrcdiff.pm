@@ -23,6 +23,7 @@
 package BSSrcdiff;
 
 use Digest::MD5;
+use Digest::SHA;
 use Fcntl;
 eval { require Diff::LibXDiff };
 
@@ -176,7 +177,8 @@ sub opentar {
 #   type: [-dlbcp] type of file
 #   size: size in bytes
 #   mode: mode as rwx... string
-#   info: md5sum for plain files, link target for symlinks
+#   info: sha256sum for plain files, link target for symlinks
+#   md5: md5sum for plain files
 
 sub listtar {
   my ($tar, $gemdata) = @_;
@@ -191,7 +193,8 @@ sub listtar {
     my $mode = $2;
     my $size = $3;
     my $name = $4;
-    my $info;
+    my $info = '';
+    my $md5;
     if ($type eq 'l') {
       next unless $name =~ /^(.*) -> (.*)$/;
       $name = $1;
@@ -203,13 +206,14 @@ sub listtar {
       $name =~ s/\/$//;
     } elsif ($type eq '-') {
       if ($size == 0) {
-	$info = 'd41d8cd98f00b204e9800998ecf8427e';
+	$md5 = 'd41d8cd98f00b204e9800998ecf8427e';
+	$info = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
       } else {
 	$fc++;		# need 2nd pass
       }
     }
-    push @c, {'type' => $type, 'name' => $name, 'size' => $size, 'mode' => $mode};
-    $c[-1]->{'info'} = $info if defined $info;
+    push @c, {'type' => $type, 'name' => $name, 'size' => $size, 'mode' => $mode, 'info' => $info};
+    $c[-1]->{'md5'} = $md5 if defined $md5;
   }
   close(F) || die("tar: $!\n");
   if ($fc) {
@@ -217,6 +221,7 @@ sub listtar {
     for my $c (@c) {
       next unless $c->{'type'} eq '-' && $c->{'size'};
       my $ctx = Digest::MD5->new;
+      my $ctx256 = Digest::SHA->new(256);
       my $s = $c->{'size'};
       while ($s > 0) {
 	my $b;
@@ -224,9 +229,11 @@ sub listtar {
 	$l = sysread(F, $b, $l);
 	die("tar read error\n") unless $l;
 	$ctx->add($b);
+	$ctx256->add($b);
 	$s -= $l;
       }
-      $c->{'info'} = $ctx->hexdigest();
+      $c->{'md5'} = $ctx->hexdigest();
+      $c->{'info'} = $ctx256->hexdigest();
     }
     close(F) || die("tar: $!\n");
   }
@@ -343,6 +350,7 @@ sub listextractcpio {
     $name = substr($name, 0, $nsize);
     $name =~ s/\0.*//s;
     my $type = $mode & 0xf000;
+    my $info = '';
     if ($type == 0x1000) {
       $type = 'p';
     } elsif ($type == 0x2000) {
@@ -353,6 +361,7 @@ sub listextractcpio {
       $type = 'b';
     } elsif ($type == 0x8000) {
       $type = '-';
+      $info = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855';
     } elsif ($type == 0xa000) {
       $type = 'l';
     } elsif ($type == 0xc000) {
@@ -368,18 +377,20 @@ sub listextractcpio {
     die("ridiculous long symlink\n") if $type eq 'l' && $fsize > 8192;
     my $fsizepad = 0;
     $fsizepad = 4 - ($fsize & 3) if $fsize & 3;
-    my $info = $type eq 'l' ? '' : 'd41d8cd98f00b204e9800998ecf8427e';
+    my $md5 = $type eq '-' ? 'd41d8cd98f00b204e9800998ecf8427e' : undef;
     my $tomem = $x && exists($x->{'content'});
     if ($x && !$tomem) {
       open(G, '>', $x->{'extract'}) || die("$x->{'extract'}: $!\n");
     }
     if ($fsize > 0) {
       my $ctx = Digest::MD5->new;
+      my $ctx256 = Digest::SHA->new(256);
       while ($fsize > 0) {
         my $chunk = $fsize > 16384 ? 16384 : $fsize;
 	my $data;
 	die("cpio read error body\n") unless (read(F, $data, $chunk) || 0) == $chunk;
 	$ctx->add($data);
+	$ctx256->add($data);
 	$info .= $data if $type eq 'l';
 	if ($tomem) {
 	  $x->{'content'} .= $data;
@@ -388,10 +399,12 @@ sub listextractcpio {
 	}
 	$fsize -= $chunk;
       }
-      $info = $ctx->hexdigest() unless $type eq 'l';
+      $info = $ctx256->hexdigest() if $type eq '-';
+      $md5 = $ctx->hexdigest() if $type eq '-';
     }
     close(G) if $x && !$tomem;
-    $c[-1]->{'info'} = $info if $type eq '-' || $type eq 'l';
+    $c[-1]->{'info'} = $info;
+    $c[-1]->{'md5'} = $md5 if $type eq '-';
     die("cpio read error bodypad\n") unless (read(F, $name, $fsizepad) || 0) == $fsizepad;
   }
   close(F);
@@ -698,21 +711,21 @@ sub extractit {
 sub findren {
   my ($old, $new) = @_;
 
-  my %l1md5;
+  my %l1info;
   for my $f (grep {!$new->{$_}} sort keys %$old) {
     my $l = $old->{$f};
     next unless $l->{'type'} eq '-' && $l->{'size'};
-    $l1md5{$l->{'info'}} = $f;
+    $l1info{$l->{'info'}} = $f;
   }
   my %ren;
   for my $f (grep {!$old->{$_}} sort keys %$new) {
     my $l = $new->{$f};
     next unless $l->{'type'} eq '-' && $l->{'size'};
-    next unless exists $l1md5{$l->{'info'}};
-    my $of = $l1md5{$l->{'info'}};
+    next unless exists $l1info{$l->{'info'}};
+    my $of = $l1info{$l->{'info'}};
     $ren{$of} = $f;
     $ren{$f} = $of;
-    delete $l1md5{$l->{'info'}};	# used up
+    delete $l1info{$l->{'info'}};	# used up
   }
   return \%ren;
 }
@@ -831,7 +844,7 @@ sub tardiff {
     if ($ren->{$f}) {
       if (!$l1) {
 	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed from $ren->{$f})\n"};
-	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
+	$r->{'new'} = {'name' => $f, 'md5' => $l2->{'md5'}, 'size' => $l2->{'size'}};
 	push @ret, $r;
 	$lcnt += $r->{'lines'};
 	next;
@@ -840,8 +853,8 @@ sub tardiff {
       # no need to diff if identical
       if ($l1->{'type'} eq $l2->{'type'} && $l1->{'info'} eq $l2->{'info'}) {
 	my $r = {'name' => $f, 'lines' => 1, '_content' => "(renamed to $ren->{$f})\n"};
-	$r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}};
-	$r->{'new'} = {'name' => $ren->{$f}, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}};
+	$r->{'old'} = {'name' => $f, 'md5' => $l1->{'md5'}, 'size' => $l1->{'size'}};
+	$r->{'new'} = {'name' => $ren->{$f}, 'md5' => $l2->{'md5'}, 'size' => $l2->{'size'}};
 	$lcnt += $r->{'lines'};
 	next;
       }
@@ -855,8 +868,8 @@ sub tardiff {
     $fmax = $tfmax if defined($tfmax) && (!defined($fmax) || $fmax > $tfmax);
     my $r = filediff_fixup($l1, $l2, %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
     $r->{'name'} = $f;
-    $r->{'old'} = {'name' => $f, 'md5' => $l1->{'info'}, 'size' => $l1->{'size'}} if $l1;
-    $r->{'new'} = {'name' => $f, 'md5' => $l2->{'info'}, 'size' => $l2->{'size'}} if $l2;
+    $r->{'old'} = {'name' => $f, 'md5' => $l1->{'md5'}, 'size' => $l1->{'size'}} if $l1;
+    $r->{'new'} = {'name' => $f, 'md5' => $l2->{'md5'}, 'size' => $l2->{'size'}} if $l2;
     if ($ren->{$f}) {
       $r->{'new'}->{'name'} = $ren->{$f};
       $r->{'_content'} = "(renamed to $ren->{$f})\n" . ($r->{'content'} || '');
@@ -979,6 +992,16 @@ sub fn {
   return ref($dir) ? $dir->($f) : "$dir/$f";
 }
 
+sub identicalcontent {
+  my ($pold, $of, $pnew, $f) = @_;
+  my $ofn = fn($pold, $of);
+  my $fn = fn($pnew, $f);
+  my @os = stat($ofn);
+  my @s = stat($fn);
+  return 1 if @s && @os && $s[0] == $os[0] && $s[1] == $os[1];
+  return BSUtil::identicalfile($ofn, $fn);
+}
+
 sub srcdiff {
   my ($pold, $old, $pnew, $new, %opts) = @_;
 
@@ -1005,12 +1028,9 @@ sub srcdiff {
     }
     my @xold = grep {/\.$extra$/} sort keys %$old;
     my @xnew = grep {/\.$extra$/} sort keys %$new;
+    next unless @xnew || @xold;
     my %xold = map {$_ => 1} @xold;
-    if (@xnew || @xold) {
-      $d .= "\n";
-      $d .= "$extra files:\n";
-      $d .= "-------".('-' x length($extra))."\n";
-    }
+    my $dd = '';
     my $diffarg = '-ub';
     $diffarg = '-U0' if $extra eq 'changes';
     for my $f (@xnew) {
@@ -1018,15 +1038,21 @@ sub srcdiff {
       if ($xold{$f}) {
 	$of = $f;
 	delete $xold{$of};
-	next if $old->{$of} eq $new->{$f};
+	next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
       }
-      $d .= "\n++++++ new $extra file:\n" unless defined $of;
+      $dd .= "\n++++++ new $extra file:\n" unless defined $of;
       my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts, 'diffarg' => $diffarg, 'fmax' => undef);
-      $d .= adddiffheader($r, $of, $f);
+      $dd .= adddiffheader($r, $of, $f);
     }
     if (%xold) {
-      $d .= "\n++++++ deleted $extra files:\n";
-      $d .= "--- $_\n" for sort keys %xold;
+      $dd .= "\n++++++ deleted $extra files:\n";
+      $dd .= "--- $_\n" for sort keys %xold;
+    }
+    if ($dd ne '') {
+      $d .= "\n";
+      $d .= "$extra files:\n";
+      $d .= "-------".('-' x length($extra))."\n";
+      $d .= ">$dd<";
     }
     @old = grep {!/\.$extra$/} @old;
     @new = grep {!/\.$extra$/} @new;
@@ -1043,7 +1069,7 @@ sub srcdiff {
     if (defined $of) {
       delete $oold{$of};
       $d .= "\n++++++ $of -> $f\n" if $of ne $f;
-      next if $old->{$of} eq $new->{$f};
+      next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
       $d .= "\n++++++ $f\n" if $of eq $f;
     } else {
       $d .= "\n++++++ $f (new)\n";
@@ -1081,7 +1107,7 @@ sub unifieddiff {
       push @added, $_;
     } elsif (!defined($new->{$_})) {
       push @deleted, $_;
-    } elsif ($old->{$_} ne $new->{$_}) {
+    } elsif ($old->{$_} ne $new->{$_} || !identicalcontent($pold, $_, $pnew, $_)) {
       push @changed, $_;
     }
   }
@@ -1143,44 +1169,44 @@ sub datadiff {
       my $r = filediff(undef, fn($pnew, $f), %opts);
       delete $r->{'state'};
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
-    } elsif ($old->{$of} ne $new->{$f}) {
-      if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
-	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
-        if (@r == 0 && $f ne $of) {
-	  # (almost) identical tars but renamed
-	  my @os = stat(fn($pold, $of));
-          my @s = stat(fn($pnew, $f));
-          push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
-        }
-        if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
-	  # tardiff was too big
-	  my @os = stat(fn($pold, $of));
-          my @s = stat(fn($pnew, $f));
-          push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
-          @r = ();
-        }
-	for my $r (@r) {
-	  my $n = delete($r->{'name'});
-	  my $state = delete($r->{'state'}) || 'changed';
-	  $r->{'old'}->{'name'} = "$of/$r->{'old'}->{'name'}" if $r->{'old'};
-	  $r->{'new'}->{'name'} = "$f/$r->{'new'}->{'name'}" if $r->{'new'};
-	  $r->{'old'} ||= $r->{'new'};
-	  $r->{'new'} ||= $r->{'old'};
-	  push @changed, {'state' => $state, 'diff' => $r, 'old' => $r->{'old'}, 'new' => $r->{'new'}};
-	  delete $r->{'old'};
-	  delete $r->{'new'};
-	}
-      } else {
-	my @os = stat(fn($pold, $of));
-        my @s = stat(fn($pnew, $f));
-	my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
-	delete $r->{'state'};
-	push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      next;
+    }
+    my @os = stat(fn($pold, $of));
+    my @s = stat(fn($pnew, $f));
+    if ($old->{$of} eq $new->{$f}) {
+      # identical md5
+      if ((@s && @os && $s[0] == $os[0] && $s[1] == $os[1]) || BSUtil::identicalfile(fn($pold, $of), fn($pnew, $f))) {
+	# identical content
+	push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}} if $f ne $of;
+	next;
       }
-    } elsif ($f ne $of) {
-      my @os = stat(fn($pold, $of));
-      my @s = stat(fn($pnew, $f));
-      push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+    }
+    if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
+      my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
+      if (@r == 0 && $f ne $of) {
+	# (almost) identical tars but renamed
+	push @changed, {'state' => 'renamed', 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+      }
+      if (@r == 1 && !$r[0]->{'old'} && !$r[0]->{'new'}) {
+	# tardiff was too big
+	push @changed, {'state' => 'changed', 'diff' => $r[0], 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
+	@r = ();
+      }
+      for my $r (@r) {
+	my $n = delete($r->{'name'});
+	my $state = delete($r->{'state'}) || 'changed';
+	$r->{'old'}->{'name'} = "$of/$r->{'old'}->{'name'}" if $r->{'old'};
+	$r->{'new'}->{'name'} = "$f/$r->{'new'}->{'name'}" if $r->{'new'};
+	$r->{'old'} ||= $r->{'new'};
+	$r->{'new'} ||= $r->{'old'};
+	push @changed, {'state' => $state, 'diff' => $r, 'old' => $r->{'old'}, 'new' => $r->{'new'}};
+	delete $r->{'old'};
+	delete $r->{'new'};
+      }
+    } else {
+      my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
+      delete $r->{'state'};
+      push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     }
   }
   for my $of (grep {!$done{$_}} sort(keys %$old)) {

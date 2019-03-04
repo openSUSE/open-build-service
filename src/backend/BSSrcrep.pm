@@ -88,6 +88,16 @@ sub filepath {
   return "$srcrep/$packid/$md5-$filename";
 }
 
+sub tmpsha256 {
+  my ($tmpfile) = @_;
+  local *F;
+  open(F, '<', $tmpfile) || die("$tmpfile: $!\n");
+  my $ctx = Digest::SHA->new(256);
+  $ctx->addfile(*F);
+  close F;
+  return $ctx->hexdigest();
+}
+
 sub filesha256 {
   my ($projid, $packid, $filename, $md5) = @_;
   local *F;
@@ -139,21 +149,16 @@ sub addfile {
       }
     }
     adddeltastoreevent($projid, $packid, "$md5-$filename") if $filename =~ /\.obscpio$/s;
-  } else {
-    # get the sha256 sum for the uploaded file
-    open(F, '<', $tmpfile) || die("$tmpfile: $!\n");
-    my $ctx = Digest::SHA->new(256);
-    $ctx->addfile(*F);
-    close F;
-    my $upload_sha = $ctx->hexdigest();
-    # get the sha256 sum for the already existing file
-    my $existing_sha = filesha256($projid, $packid, $filename, $md5);
-    # if the sha sum is different, but the md5 and filename are the same someone might
-    # try to sneak in code.
-    unlink($tmpfile);
-    if ($upload_sha ne $existing_sha) {
-      die("SHA missmatch for same md5sum in $packid for file $filename with sum $md5\n");
-    }
+    return $md5;
+  }
+  # get the sha256 sum for the uploaded file and the already existing file
+  my $upload_sha = tmpsha256($tmpfile);
+  my $existing_sha = filesha256($projid, $packid, $filename, $md5);
+  unlink($tmpfile);
+  # if the sha sum is different, but the md5 and filename are the same someone might
+  # try to sneak in code.
+  if ($upload_sha ne $existing_sha) {
+    die("Different content with same md5sum $md5: $projid/$packid/$filename\n");
   }
   return $md5;
 }
@@ -169,16 +174,26 @@ sub copyfiles {
   mkdir_p("$srcrep/$packid");
   for my $f (sort keys %$files) {
     next if $except && $except->{$f};
-    next if -e "$srcrep/$packid/$files->{$f}-$f";
     if ($f =~ /\.obscpio$/s) {
       copyonefile($projid, $packid, $f, $oprojid, $opackid, $f, $files->{$f});
       next;
     }
-    link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
-    die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
+    if (! -e "$srcrep/$packid/$files->{$f}-$f") {
+      next if link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
+      die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
+    }
+    my @s1 = stat(_);
+    my @s2 = stat("$srcrep/$opackid/$files->{$f}-$f");
+    next if @s1 && @s2 && $s1[0] == $s2[0] && $s1[1] == $s2[1];
+    if (!BSUtil::identicalfile("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f")) {
+      die("Different content with same md5sum $files->{$f}: $projid/$packid/$f - $oprojid/$opackid/$f\n");
+    }
   }
 }
 
+#
+# link/copy a file from $projid/$opackid into a tmp file (expanding obscpio)
+#
 sub copyonefile_tmp {
   my ($projid, $packid, $file, $md5, $tmpname) = @_;
   if ($file =~ /\.obscpio$/s) {
@@ -190,19 +205,43 @@ sub copyonefile_tmp {
 
 sub copyonefile {
   my ($projid, $packid, $file, $oprojid, $opackid, $ofile, $md5) = @_;
-  return if -e "$srcrep/$packid/$md5-$file";
+  return if $packid eq $opackid && $file eq $ofile;
   if ($file =~ /\.obscpio$/s) {
+    if (-e "$srcrep/$packid/$md5-$file") {
+      my @s1 = stat(_);
+      my @s2 = stat("$srcrep/$opackid/$md5-$ofile");
+      return if @s1 && @s2 && $s1[0] == $s2[0] && $s1[1] == $s2[1];
+      my $sha1 = filesha256($projid, $packid, $file, $md5);
+      my $sha2 = filesha256($oprojid, $opackid, $ofile, $md5);
+      return if $sha1 eq $sha2;		# same content, all is well
+    }
     mkdir_p($uploaddir);
     my $tmpname = "$uploaddir/copyonefile.$$";
     copyonefile_tmp($oprojid, $opackid, $ofile, $md5, $tmpname);
-    link($tmpname, "$srcrep/$packid/$md5-$file");
-    die("link error $tmpname $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
+    if (! -e "$srcrep/$packid/$md5-$file") {
+      if (link($tmpname, "$srcrep/$packid/$md5-$file")) {
+        unlink($tmpname);
+        adddeltastoreevent($projid, $packid, "$md5-$file");
+        return;
+      }
+      die("link error $tmpname $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
+    }
+    my $sha1 = filesha256($projid, $packid, $file, $md5);
+    my $sha2 = tmpsha256($tmpname);
     unlink($tmpname);
-    adddeltastoreevent($projid, $packid, "$md5-$file");
-    return;
+    return if $sha1 eq $sha2;
+    die("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
   }
-  link("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file");
-  die("link error $srcrep/$opackid/$md5-$ofile $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
+  if (! -e "$srcrep/$packid/$md5-$file") {
+    return if link("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file");
+    die("link error $srcrep/$opackid/$md5-$ofile $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
+  }
+  my @s1 = stat(_);
+  my @s2 = stat("$srcrep/$opackid/$md5-$ofile");
+  return if @s1 && @s2 && $s1[0] == $s2[0] && $s1[1] == $s2[1];
+  if (!BSUtil::identicalfile("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file")) {
+    die("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
+  }
 }
 
 # hmm, should this really be here?

@@ -789,6 +789,36 @@ sub identical {
   return 1;
 }
 
+sub identicalfile {
+  my ($f1, $f2) = @_;
+  my ($fd1, $fd2);
+  open($fd1, '<', $f1) || die("$f1: $!\n");
+  open($fd2, '<', $f2) || die("$f2: $!\n");
+  my $r = 1;
+  while (1) {
+    my $c1 = '';
+    while (length($c1) < 65536) {
+      my $r1 = sysread($fd1, $c1, 65536 - length($c1), length($c1));
+      die("sysread $f1: $!\n") unless defined $r1;
+      last unless $r1;
+    }
+    my $c2 = '';
+    while (length($c2) < 65536) {
+      my $r2 = sysread($fd2, $c2, 65536 - length($c2), length($c2));
+      die("sysread $f2: $!\n") unless defined $r2;
+      last unless $r2;
+    }
+    if ($c1 ne $c2) {
+      $r = 0;
+      last;
+    }
+    last if length($c1) < 65536;	# eof reached
+  }
+  close($fd1);
+  close($fd2);
+  return $r;
+}
+
 =head2 isotime - convert time to iso format
 
  BSUtil::isotime($time);
