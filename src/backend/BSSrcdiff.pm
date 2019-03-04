@@ -491,6 +491,7 @@ sub filediff_libxdiff {
 sub filediff {
   my ($f1, $f2, %opts) = @_;
 
+  return undef if $opts{'nodiff'};
   if (!defined($f1) && !defined($f2)) {
     return { 'lines' => 0 , '_content' => ''};
   }
@@ -1052,40 +1053,43 @@ sub srcdiff {
       $d .= "\n";
       $d .= "$extra files:\n";
       $d .= "-------".('-' x length($extra))."\n";
-      $d .= ">$dd<";
+      $d .= $dd;
     }
     @old = grep {!/\.$extra$/} @old;
     @new = grep {!/\.$extra$/} @new;
   }
 
   my %oold = map {$_ => 1} @old;
-  if ($d ne '' && (@new || @old)) {
-    $d .= "\n";
-    $d .= "other changes:\n";
-    $d .= "--------------\n";
-  }
+  my $dd = '';
   for my $f (@new) {
     my $of = exists($sim->{$f}) ? $sim->{$f} : defined($old->{$f}) ? $f : undef;
     if (defined $of) {
       delete $oold{$of};
-      $d .= "\n++++++ $of -> $f\n" if $of ne $f;
+      $dd .= "\n++++++ $of -> $f\n" if $of ne $f;
       next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
-      $d .= "\n++++++ $f\n" if $of eq $f;
+      $dd .= "\n++++++ $f\n" if $of eq $f;
     } else {
-      $d .= "\n++++++ $f (new)\n";
+      $dd .= "\n++++++ $f (new)\n";
     }
     if ($opts{'doarchive'} && $f =~ /\.(?:tar|tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem|obscpio|livebuild)$/) {
       if (defined $of) {
 	my @r = tardiff(fn($pold, $of), fn($pnew, $f), %opts);
 	for my $r (@r) {
-	  $d .= adddiffheader($r, $r->{'name'}, $r->{'name'});
+	  $dd .= adddiffheader($r, $r->{'name'}, $r->{'name'});
 	}
       }
       next;
     }
     my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
-    $d .= adddiffheader($r, $of, $f);
+    $dd .= adddiffheader($r, $of, $f);
   }
+  if ($d ne '' && $dd ne '') {
+    $d .= "\n";
+    $d .= "other changes:\n";
+    $d .= "--------------\n";
+  }
+  $d .= "$dd";
+
   if (%oold) {
     $d .= "\n++++++ deleted files:\n";
     $d .= "--- $_\n" for sort keys %oold;
@@ -1167,7 +1171,6 @@ sub datadiff {
     if (!defined($old->{$of})) {
       my @s = stat(fn($pnew, $f));
       my $r = filediff(undef, fn($pnew, $f), %opts);
-      delete $r->{'state'};
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       next;
     }
@@ -1193,27 +1196,30 @@ sub datadiff {
 	@r = ();
       }
       for my $r (@r) {
-	my $n = delete($r->{'name'});
-	my $state = delete($r->{'state'}) || 'changed';
+	delete($r->{'name'});
 	$r->{'old'}->{'name'} = "$of/$r->{'old'}->{'name'}" if $r->{'old'};
 	$r->{'new'}->{'name'} = "$f/$r->{'new'}->{'name'}" if $r->{'new'};
 	$r->{'old'} ||= $r->{'new'};
 	$r->{'new'} ||= $r->{'old'};
-	push @changed, {'state' => $state, 'diff' => $r, 'old' => $r->{'old'}, 'new' => $r->{'new'}};
-	delete $r->{'old'};
-	delete $r->{'new'};
+	push @changed, {'state' => ($r->{'state'} || 'changed'), 'diff' => $r, 'old' => delete($r->{'old'}), 'new' => delete($r->{'new'})};
       }
     } else {
       my $r = filediff(fn($pold, $of), fn($pnew, $f), %opts);
-      delete $r->{'state'};
       push @changed, {'state' => 'changed', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     }
   }
   for my $of (grep {!$done{$_}} sort(keys %$old)) {
     my @os = stat(fn($pold, $of));
     my $r = filediff(fn($pold, $of), undef, %opts);
-    delete $r->{'state'};
     push @added, {'state' => 'deleted', 'diff' => $r, 'old' => {'name' => $of, 'md5' => $old->{$of}, 'size' => $os[7]}};
+  }
+  # fixup diff
+  for (@changed, @added, @deleted) {
+    if ($_->{'diff'}) {
+      delete $_->{'diff'}->{'state'};
+    } else {
+      delete $_->{'diff'};
+    }
   }
   return [ @changed, @added, @deleted ];
 }
