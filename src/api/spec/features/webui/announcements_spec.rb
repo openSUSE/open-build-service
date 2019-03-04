@@ -6,8 +6,6 @@ RSpec.feature 'Announcements for users', type: :feature, js: true do
   let!(:announcement_b) { create(:announcement, title: 'New terms of services B', content: 'Lorem ipsum B') }
 
   scenario "logged in users see a 'new announcements' notification and can acknowledge it" do
-    skip_if_bootstrap
-
     login(user)
     visit '/'
     expect(page).to have_text('There has been new announcements!')
