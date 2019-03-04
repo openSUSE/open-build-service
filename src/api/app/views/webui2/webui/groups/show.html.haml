@@ -44,7 +44,7 @@
 
       .tab-pane#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
         %h3 Group Members
-        = render(partial: 'webui2/shared/group_members_table', locals: { group: @group })
+        = render(partial: 'webui2/shared/group_members', locals: { group: @group })
 
 = content_for :ready_function do
   :plain
@@ -52,4 +52,3 @@
     if (hash) {
       $('.nav-tabs a[href="' + hash.replace('tab-', '') + '"]').tab('show');
     }
-    initializeDataTable('#group-members-table');

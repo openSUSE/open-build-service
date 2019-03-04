@@ -1,0 +1,19 @@
+- if policy(group).update?
+  %ul.list-inline
+    %li.list-inline-item
+      = link_to(group_edit_title_path(title: group), class: 'nav-link') do
+        %i.fas.fa-edit.text-secondary
+        Edit Group
+
+- if group.users.blank?
+  %p
+    This group does not have members.
+- else
+  .d-flex.flex-row.flex-wrap
+    - group.users.each do |user|
+      .card.mb-3.mr-2.group-member
+        = link_to(user_show_path(user)) do
+          = image_tag_for(user, size: '100', custom_class: 'card-img-top')
+          .card-body.p-1
+            %p.card-text.text-center
+              = truncate(user.login, length: 20)

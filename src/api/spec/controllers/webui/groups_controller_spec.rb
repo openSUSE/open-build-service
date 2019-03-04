@@ -107,7 +107,7 @@ RSpec.describe Webui::GroupsController do
           post :create, params: { group: { title: 'my_group', members: users_to_add.map(&:login).join(',') } }
 
           expect(response).to redirect_to(groups_path)
-          expect(flash[:success]).to eq("Group 'my_group' successfully updated.")
+          expect(flash[:success]).to eq("Group 'my_group' successfully created.")
           expect(Group.where(title: 'my_group')).to exist
         end
       end

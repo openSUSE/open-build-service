@@ -766,6 +766,7 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/api/script
 /srv/www/obs/api/bin
 /srv/www/obs/api/test
+/srv/www/obs/api/vendor/assets
 /srv/www/obs/docs
 
 /srv/www/obs/api/config/locales
