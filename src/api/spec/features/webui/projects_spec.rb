@@ -63,7 +63,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
     scenario 'with invalid data (validation fails)' do
       fill_in 'name', with: 'cool stuff'
-      click_button('Accept')
+      is_bootstrap? ? click_button('Create') : click_button('Accept')
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -73,7 +73,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       create(:package, name: 'coolstuff', project: user.home_project)
 
       fill_in 'name', with: 'coolstuff'
-      click_button('Accept')
+      is_bootstrap? ? click_button('Create') : click_button('Accept')
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -105,7 +105,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Create Package')
 
       fill_in 'name', with: 'coolstuff'
-      click_button('Accept')
+      is_bootstrap? ? click_button('Create') : click_button('Accept')
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: 'coolstuff'))

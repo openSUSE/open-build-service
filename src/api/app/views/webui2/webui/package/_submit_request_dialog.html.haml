@@ -49,7 +49,7 @@
             instead.
 
       .modal-footer
-        = render partial: 'webui2/shared/dialog_action_buttons'
+        = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
 
 :javascript
   setupRequestDialog();

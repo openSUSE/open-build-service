@@ -23,4 +23,4 @@
             = check_box_tag :disable_publishing, 1, false, class: 'custom-control-input', type: 'checkbox'
             %label.custom-control-label{ for: 'disable_publishing' } Disable build results publishing
           .modal-footer
-            = render partial: 'webui2/shared/dialog_action_buttons'
+            = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
