@@ -1,5 +1,5 @@
 function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:line
-  projectsDatatable( // jshint ignore:line
+  initializeRemoteDatatable( // jshint ignore:line
     '#user-table',
     {
       pageLength: 50,
