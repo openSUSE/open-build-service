@@ -13,14 +13,14 @@
     %table.compact#user-table
       %thead
         %tr
-          %td
+          %th
             User
           - if Configuration.ldap_enabled?
-            %td
+            %th
               Local User
-          %td
+          %th
             State
-          %td
+          %th
             Actions
       %tbody
         - @users.each do |user|
