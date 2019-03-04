@@ -12,9 +12,8 @@
     = @displayed_user
 - when 'show'
   = render partial: 'webui/main/breadcrumb_items'
-  - if action_name == 'show'
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Home of #{@displayed_user}
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Home of #{@displayed_user}
 - when 'register_user'
   = render partial: 'webui/configuration/breadcrumb_items'
   %li.breadcrumb-item
