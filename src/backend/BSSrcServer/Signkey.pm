@@ -140,7 +140,7 @@ sub pubkeyinfo {
   $pubkey->{'keysize'} = $keysize if $keysize;
   $pubkey->{'userid'} = $userid if defined $userid;
   if ($fingerprint) {
-    $pubkey->{'keyid'} = substr($fingerprint, -8, 8);
+    $pubkey->{'keyid'} = substr($fingerprint, -16, 16);
     $fingerprint =~ s/(....)/$1 /g;
     $fingerprint =~ s/ $//;
     $pubkey->{'fingerprint'} = $fingerprint;
