@@ -16,7 +16,9 @@ task(importrequests: :environment) do
       next
     end
     r = BsRequest.new_from_xml(xml)
-    unless r.save
+    if r.save
+      Rails.logger.info "Request ##{lastrq} imported"
+    else
       Rails.logger.error "Request ##{lastrq} could not be saved:\n%s" \
                          % r.errors.full_messages.join("\n")
     end
