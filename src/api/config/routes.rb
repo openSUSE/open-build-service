@@ -835,6 +835,16 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    scope :built_repositories do
+      resources :projects, only: [], param: :name, path: '', constraints: cons do
+        resources :repositories, only: [], param: :name, path: '', constraints: cons do
+          resources :architectures, only: [], param: :name, path: '', constraints: cons do
+            resources :required_checks, only: [:index, :create, :destroy], param: :name
+          end
+        end
+      end
+    end
+
     controller :reports do
       scope :published do
         get ':project_name/:repository_name/reports/:report_uuid' => :show, constraints: cons

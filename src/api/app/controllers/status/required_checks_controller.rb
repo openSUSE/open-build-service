@@ -17,6 +17,7 @@ class Status::RequiredChecksController < ApplicationController
 
   # GET /status_reports/projects/:project_name/required_checks
   # GET /status_reports/repositories/:project_name/:repository_name/required_checks
+  # GET /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks
   def index
     authorize @checkable
     @required_checks = @checkable.required_checks
@@ -24,6 +25,7 @@ class Status::RequiredChecksController < ApplicationController
 
   # POST /status_reports/projects/:project_name/required_checks/:name
   # POST /status_reports/repositories/:project_name/:repository_name/required_checks/:name
+  # POST /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
   def create
     authorize @checkable
     @required_checks = @checkable.required_checks |= names
@@ -41,6 +43,7 @@ class Status::RequiredChecksController < ApplicationController
 
   # DELETE /status_reports/projects/:project_name/required_checks/:name
   # DELETE /status_reports/repositories/:project_name/:repository_name/required_checks/:name
+  # DELETE /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
   def destroy
     authorize @checkable
     @checkable.required_checks -= [params[:name]]
@@ -75,18 +78,15 @@ class Status::RequiredChecksController < ApplicationController
   end
 
   def set_checkable
-    if params[:repository_name]
-      @checkable = @project.repositories.find_by(name: params[:repository_name])
-      return if @checkable
+    @checkable = checkable
+  end
 
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: "Repository '#{params[:repository_name]}/#{params[:project_name]}' not found."
-      )
-    else
-      @checkable = @project
-    end
+  def checkable
+    return @project unless params[:repository_name]
+    repo = @project.repositories.find_by!(name: params[:repository_name])
+    return repo unless params[:architecture_name]
+    architecture = Architecture.find_by!(name: params[:architecture_name])
+    repo.repository_architectures.find_by!(architecture: architecture)
   end
 
   # Use callbacks to share common setup or constraints between actions.
