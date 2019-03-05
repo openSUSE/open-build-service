@@ -976,7 +976,7 @@ sub createrepo_staticlinks {
     for (ls("$extrep/$arch")) {
       unlink "$extrep/$arch/$_" if -l "$extrep/$arch/$_" && ! -e "$extrep/$arch/$_";
       my $link;
-      if (/^(.*)-Build\d\d\d\d(-Media\d?(\.license)?)$/s) {
+      if (/^(.*)-Build(?:\d\d\d\d|\d+\.\d+)(-Media\d?(\.license)?)$/s) {
         $link = "$1$2"; # no support for versioned links
       } else {
         next unless -f "$extrep/$arch/$_";
@@ -993,7 +993,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
         $link = "${1}_${3}.snap";
         $link = "${1}_${3}_$2.snap" if $versioned;
-      } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
+      } elsif (/^(.*)-Build(?:\d\d\d\d|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
       } elsif (/^(.*)-(\d+\.\d+\.\d+)?(-\w+)?(\.(?:libvirt|virtualbox))?-Build\d+\..*((?:\.|-)(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256)?)$/s) {
