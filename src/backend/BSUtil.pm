@@ -44,6 +44,9 @@ our $fdatasync_before_rename;
 # the current debug level
 my $debuglevel;
 
+# the critical log callback
+my $critlogger;
+
 =head1 FUNCTIONS / METHODS
 
 =cut
@@ -885,6 +888,30 @@ sub printlog {
   return if $level && !($debuglevel && $debuglevel >= $level);
   $msg = "[debug $level] $msg" if $level;
   printf "%s: %-7s %s\n", isotime(time), "[$$]", $msg;
+}
+
+sub setcritlogger {
+  my ($logger) = @_;
+  my ($oldlogger) = $critlogger;
+  $critlogger = $logger;
+  return $oldlogger;
+}
+
+sub logcritical {
+  my ($msg) = @_;
+  chomp $msg;
+  printf "%s: %-7s CRITICAL %s\n", isotime(time), "[$$]", $msg;
+  eval {
+    $critlogger->($msg) if $critlogger;
+  };
+  warn($@) if $@;
+}
+
+sub diecritcal {
+  my ($msg) = @_;
+  chomp $msg;
+  logcritical($msg);
+  die("$msg\n");
 }
 
 1;
