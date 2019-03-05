@@ -10,12 +10,16 @@ task(importrequests: :environment) do
   while lastrq > 0
     begin
       xml = Backend::Api::Request.info(lastrq)
-    rescue Backend::Error
+    rescue Backend::Error => err
+      Rails.logger.error "Request ##{lastrq} could not be retrieved:\n#{err}"
       lastrq -= 1
       next
     end
     r = BsRequest.new_from_xml(xml)
-    puts "Request ##{lastrq}:", r.errors.full_messages.join("\n") unless r.save
+    unless r.save
+      Rails.logger.error "Request ##{lastrq} could not be saved:\n%s" \
+                         % r.errors.full_messages.join("\n")
+    end
     lastrq -= 1
   end
 end
