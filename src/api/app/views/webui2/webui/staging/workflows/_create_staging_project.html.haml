@@ -10,4 +10,4 @@
             = text_field_tag(:staging_project_name, nil, placeholder: "Eg: #{staging_workflow.project}:Staging:A", class: 'form-control')
 
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons'
+          = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }

@@ -7,9 +7,9 @@ class Webui::GroupsController < Webui::WebuiController
 
   def index
     authorize Group, :index?
-    @groups = Group.all.includes(:groups_users, :users)
+    @groups = Group.all.includes(:users)
 
-    # TODO: Remove the statement after migration is finished
+    # TODO: Remove the environment check after migration is finished
     switch_to_webui2 if Rails.env.development? || Rails.env.test?
   end
 
@@ -19,9 +19,15 @@ class Webui::GroupsController < Webui::WebuiController
 
   def new
     authorize Group, :create?
+
+    # TODO: Remove the environment check after migration is finished
+    switch_to_webui2 if Rails.env.development? || Rails.env.test?
   end
 
   def edit
+    # TODO: Remove the environment check after migration is finished
+    return if switch_to_webui2 && (Rails.env.development? || Rails.env.test?)
+
     authorize @group, :update?
     @roles = Role.global_roles
     @members = @group.users.pluck(:login).map! { |login| { 'name' => login } }
@@ -32,7 +38,7 @@ class Webui::GroupsController < Webui::WebuiController
 
     group = Group.new(title: group_params[:title])
     if group.save && group.replace_members(group_params[:members])
-      flash[:success] = "Group '#{group.title}' successfully updated."
+      flash[:success] = "Group '#{group}' successfully created."
       redirect_to controller: :groups, action: :index
     else
       redirect_back(fallback_location: root_path, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}")
@@ -40,7 +46,6 @@ class Webui::GroupsController < Webui::WebuiController
   end
 
   def update
-    return if switch_to_webui2
     authorize @group, :update?
 
     if @group.replace_members(group_params[:members])

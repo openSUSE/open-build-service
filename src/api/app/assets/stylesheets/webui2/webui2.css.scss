@@ -18,6 +18,7 @@
 @import 'bootstrap';
 @import "font-awesome-sprockets";
 @import 'font-awesome';
+@import 'tokenfield';
 @import 'links';
 @import 'sticky-footer';
 @import 'datatables';
@@ -51,6 +52,7 @@
 @import 'collapsible-text';
 @import 'architectures';
 @import 'flash';
+@import 'groups';
 
 html {
     overflow-y: scroll !important;

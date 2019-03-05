@@ -19,7 +19,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
       fill_in 'description', with: very_long_description
-      click_button 'Accept'
+      click_button 'Create'
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page).to have_current_path(package_show_path(project: user.home_project_name, package: 'coolstuff'))
@@ -37,7 +37,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
     fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
-    click_button 'Accept'
+    click_button 'Update'
 
     visit project_show_path(project: project)
     expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
