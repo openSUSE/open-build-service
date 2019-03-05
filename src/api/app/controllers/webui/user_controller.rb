@@ -8,7 +8,7 @@ class Webui::UserController < Webui::WebuiController
              select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
 
     # TODO: Remove the statement after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def show

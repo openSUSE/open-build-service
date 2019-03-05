@@ -6,7 +6,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
     @architectures = Architecture.order(:name)
 
     # TODO: Remove the statement after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def update
