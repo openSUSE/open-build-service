@@ -862,9 +862,9 @@ eval {
         $ev_queue->process_events();
       };
       if ($@) {
-        warn($@);
-        BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
-        exit(1);
+	BSUtil::logcritical($@);
+	BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
+	exit(1);
       }
       next;
     }
@@ -1174,7 +1174,7 @@ eval {
 };
 
 if ($@) {
-  warn($@);
+  BSUtil::logcritical($@);
   my $ev_queue = BSSched::EventQueue->new($gctx);
   BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
   exit(1);
