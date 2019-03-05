@@ -167,6 +167,13 @@ sub setdue {
   BSUtil::ping("$myeventdir/.ping");
 }
 
+sub critlogger {
+  my ($conf, $msg) = @_; 
+  return unless $conf && $conf->{'critlogfile'};
+  my $logstr = sprintf "%s: %-7s %s\n", BSUtil::isotime(time), "[$$]", $msg;
+  BSUtil::appendstr($conf->{'critlogfile'}, $logstr);
+}
+
 sub run {
   my ($name, $args, $conf) = @_;
   my $logfile;
@@ -224,6 +231,7 @@ sub run {
   $conf->{'filechecks'}->{"$rundir/$runname.exit"} ||= \&fc_exit;
   $conf->{'filechecks'}->{"$rundir/$runname.restart"} ||= \&fc_restart;
   $conf->{'logfile'} = $logfile if $logfile;
+  $conf->{'critlogfile'} ||= "$bsdir/log/$name.crit.log";
 
   compile_dispatches($conf);
 
@@ -233,6 +241,7 @@ sub run {
     }
   }
 
+  BSUtil::setcritlogger(sub { critlogger($conf, $_[0]) });
   BSUtil::printlog("$name started");
   $conf->{'run'}->($conf);
 }
