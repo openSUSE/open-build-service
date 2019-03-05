@@ -46,24 +46,20 @@ function prepareFlagPopover() {
   return clone;
 }
 
-function setupFlagPopupType(flagType) {
-  $('#flag_table_' + flagType + ' .flag-popup').popover({
-    trigger: 'click',
-    html: true,
-    content: prepareFlagPopover
-  });
+function initializeFlagPopovers(cssSelector) {
+  initializePopovers(cssSelector, { trigger: 'click', html: true, content: prepareFlagPopover }); // jshint ignore:line
 }
 
 function replaceFlagTable(data, flagType) {
   $('#flag_table_' + flagType).html(data);
-  setupFlagPopupType(flagType);
+  initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
 }
 
 function setupFlagPopup() { // jshint ignore:line
-  setupFlagPopupType('build');
-  setupFlagPopupType('useforbuild');
-  setupFlagPopupType('debuginfo');
-  setupFlagPopupType('publish');
+  ['build', 'useforbuild', 'debuginfo', 'publish'].forEach(function(flagType) {
+    initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
+  });
+
   $(document).on('click', '.popover_flag_action', function(e) {
     var flagType = $(this).parent().data('flag');
     var data = {
