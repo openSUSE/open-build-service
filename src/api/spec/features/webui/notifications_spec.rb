@@ -3,9 +3,6 @@ require 'browser_helper'
 RSpec.feature 'Notifications', type: :feature, js: true do
   RSpec.shared_examples 'updatable' do
     scenario 'notifications' do
-      # TODO: Enable after migration is finished
-      skip_if_bootstrap
-
       login user
       visit path
 
@@ -21,7 +18,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       end
 
       click_button 'Update'
-      expect(page).to have_content(title)
+      expect(page).to have_current_path(path)
 
       # for global Notification settings there is no user_id set
       user_id = user.is_admin? ? nil : user.id
@@ -39,7 +36,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
   context 'update as admin user' do
     it_behaves_like 'updatable' do
-      let(:title) { 'Global Notification Settings' }
+      let(:title) { is_bootstrap? ? 'Notifications' : 'Global Notification Settings' }
       let(:user) { create(:admin_user, login: 'king') }
       let(:path) { notifications_path }
     end
