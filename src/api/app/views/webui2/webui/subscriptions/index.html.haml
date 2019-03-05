@@ -6,8 +6,12 @@
   .card-body
     %h3.card-title
       Events
-    %p.card-text
-      Choose default notification settings for events (checked means direct email).
-      = form_tag(notifications_path, method: :put, id: 'notification_form') do
-        = render partial: 'subscriptions_form'
-        %p= submit_tag('Update', class: 'btn btn-primary', data: { disable_with: 'Updating...' })
+    .card-text#notifications
+      %p Choose default notification settings for events (checked means direct email).
+      = render partial: 'subscriptions_form', locals: { path: notifications_path, subscriptions_form: @subscriptions_form }
+
+- content_for :ready_function do
+  :plain
+    $('#notifications').on('ajax:before ajax:complete', '.custom-control-input', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
+    });

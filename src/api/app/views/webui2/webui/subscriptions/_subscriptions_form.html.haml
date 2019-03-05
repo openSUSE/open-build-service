@@ -1,5 +1,5 @@
 - i = 0
-- @subscriptions_form.subscriptions_by_event.each do |event_class, subscriptions|
+- subscriptions_form.subscriptions_by_event.each do |event_class, subscriptions|
   .card.bg-light.mb-2
     .card-body
       %h5.card-title= event_class.description
@@ -8,10 +8,10 @@
         - subscriptions.each do |subscription|
           = fields_for "subscriptions[#{i}]", subscription do |f|
             .form-group.custom-control.custom-checkbox.mr-3
-              = f.check_box :channel, { class: 'custom-control-input',
-                data: { eventtype: subscription.eventtype, receiver_role: subscription.receiver_role } },
-                EventSubscription.channels.keys[1], EventSubscription.channels.keys[0]
+              = check_box_tag "subscriptions[#{i}][channel]", EventSubscription.channels.keys[1],
+                EventSubscription.channels.keys[0] != subscription.channel, class: 'custom-control-input',
+                data: { url: path, method: :put, remote: true,
+                params: "subscriptions[#{i}][eventtype]=#{subscription.eventtype}&subscriptions[#{i}][receiver_role]=#{subscription.receiver_role}" }
               = f.label :channel, EventSubscription::RECEIVER_ROLE_TEXTS[subscription.receiver_role], class: 'custom-control-label'
-              = f.hidden_field :eventtype
-              = f.hidden_field :receiver_role
+              %i.fas.fa-spinner.invisible
             - i += 1

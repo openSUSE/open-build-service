@@ -14,7 +14,10 @@ class Webui::SubscriptionsController < Webui::WebuiController
   rescue ActiveRecord::RecordInvalid
     flash[:error] = 'Notifications settings could not be updated due to an error'
   ensure
-    redirect_to action: :index
+    respond_to do |format|
+      format.html { redirect_to action: :index }
+      format.js { render 'webui2/webui/subscriptions/update' }
+    end
   end
 
   private

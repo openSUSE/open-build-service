@@ -16,7 +16,7 @@ class EventSubscription
           subscription_params[:eventtype],
           subscription_params[:receiver_role]
         )
-        subscription.channel = subscription_params[:channel]
+        subscription.channel = subscription_params[:channel] || 'disabled'
         subscription.save!
       end
     end
