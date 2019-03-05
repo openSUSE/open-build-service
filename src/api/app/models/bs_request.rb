@@ -295,7 +295,12 @@ class BsRequest < ApplicationRecord
     new = created_at ? nil : 1
     sanitize! if new && !@skip_sanitize
     super
-    notify if new
+    if new
+      reviews.each do |review|
+        review.save!
+      end
+      notify
+    end
   end
 
   def history_elements
