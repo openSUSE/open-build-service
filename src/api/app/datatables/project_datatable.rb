@@ -1,18 +1,8 @@
-# NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
-class ProjectDatatable < AjaxDatatablesRails::ActiveRecord
-  extend Forwardable
-
+class ProjectDatatable < Datatable
   def_delegator :@view, :link_to
   def_delegator :@view, :project_show_path
 
-  def initialize(params, opts = {})
-    @view = opts[:view_context]
-    super
-  end
-
   def view_columns
-    # Declare strings in this format: ModelName.column_name
-    # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Project.name', cond: :like },
       title: { source: 'Project.title', cond: :like }

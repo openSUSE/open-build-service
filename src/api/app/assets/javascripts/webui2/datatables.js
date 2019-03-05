@@ -6,9 +6,22 @@
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
 function initializeDataTable(cssSelector, params){ // jshint ignore:line
-    var defaultParams = {
-        language: { search: '', searchPlaceholder: "Search..." },
-    };
-    var newParams = $.extend(defaultParams, params);
-    $(cssSelector).DataTable(newParams);
+  var defaultParams = {
+    language: { search: '', searchPlaceholder: "Search..." },
+  };
+  var newParams = $.extend(defaultParams, params);
+  $(cssSelector).DataTable(newParams);
+}
+
+function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
+  var defaultParams = {
+    language: { search: '', searchPlaceholder: "Search..." },
+    processing: true,
+    serverSide: true,
+    ajax: $(cssSelector).data('source'),
+    pagingType: 'full_numbers'
+  };
+  var newParams = $.extend(defaultParams, params);
+
+  $(cssSelector).dataTable(newParams);
 }

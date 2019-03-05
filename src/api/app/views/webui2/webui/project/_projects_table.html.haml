@@ -9,4 +9,4 @@
   %tbody
 
 - content_for :ready_function do
-  projectsDatatable("##{table_id}", {});
+  initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, { data: 'title' }] });
