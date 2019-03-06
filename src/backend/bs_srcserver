@@ -2446,7 +2446,12 @@ sub getfilelist {
 
   # show state of current source service run, if defined
   my $serviceinfo;
-  if ($li->{'xservicemd5'} || $li->{'lservicemd5'}) {
+  if ($files->{'_link'} && $cgi->{'emptylink'}) {
+    # ignore all service runs if emptylink is used
+    delete $li->{'xservicemd5'};
+    delete $li->{'lservicemd5'};
+    delete $li->{'lxservicemd5'};
+  } elsif ($li->{'xservicemd5'} || $li->{'lservicemd5'}) {
     # new style
     $serviceinfo = {};
     $serviceinfo->{'lsrcmd5'} = $li->{'lservicemd5'} if $li->{'lservicemd5'};
