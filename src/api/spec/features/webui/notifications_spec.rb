@@ -34,6 +34,10 @@ RSpec.feature 'Notifications', type: :feature, js: true do
     end
   end
 
+  before do
+    skip_if_bootstrap
+  end
+
   context 'update as admin user' do
     it_behaves_like 'updatable' do
       let(:title) { is_bootstrap? ? 'Notifications' : 'Global Notification Settings' }
