@@ -2912,14 +2912,14 @@ sub sourcediff {
   my %xobscpio;
   mkdir_p($uploaddir);
   my $xobscpio = sub {
-    return BSRevision::revfilename($_[0], $_[1], $_[2]) if $_[1] !~ /\.obscpio$/;
-    my $tmp = "$uploaddir/sourcediff.obscpio.$$.$_[2]-$_[1]";
+    return BSRevision::revfilename($_[0], $_[1], $_[2]) if $_[3] || $_[1] !~ /\.obscpio$/;
+    my $tmp = "$uploaddir/sourcediff.obscpio.$$.$_[2]-$_[1]-$_[0]->{'package'}";
     BSSrcrep::copyonefile_tmp($_[0]->{'project'}, $_[0]->{'package'}, $_[1], $_[2], $tmp) unless $xobscpio{$tmp};
     $xobscpio{$tmp} = 1;
     return $tmp;
   };
-  my $ofn = sub { $xobscpio->($orev, $_[0], $ofiles->{$_[0]}) };
-  my $fn  = sub { $xobscpio->($rev, $_[0], $files->{$_[0]}) };
+  my $ofn = sub { $xobscpio->($orev, $_[0], $ofiles->{$_[0]}, $_[1]) };
+  my $fn  = sub { $xobscpio->($rev, $_[0], $files->{$_[0]}, $_[1]) };
   my %opts = ('edir' => $tmpdir, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax, 'doarchive' => 1, 'similar' => 1);
   if ($cgi->{'nodiff'}) {
     delete $opts{'doarchive'};
