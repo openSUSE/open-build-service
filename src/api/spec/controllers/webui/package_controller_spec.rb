@@ -47,7 +47,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     let(:target_package) { package.name }
 
     RSpec.shared_examples 'a response of a successful submit request' do
-      it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
+      it { expect(flash[:success]).to match("Created .+submit request \\d.+to .+#{target_project}") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: target_package)).to exist }
     end
@@ -92,7 +92,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :submit_request, params: { project: source_project, package: package, targetproject: target_project, supersede_request_numbers: [42] }
       end
 
-      it { expect(flash[:notice]).to match(" Superseding failed: Couldn't find request with id '42'") }
+      it { expect(flash[:success]).to match(" Superseding failed: Couldn't find request with id '42'") }
       it_should_behave_like 'a response of a successful submit request'
     end
 
@@ -195,7 +195,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         }
       end
 
-      it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
+      it { expect(flash[:success]).to eq("Package data for '#{source_package.name}' was saved successfully") }
       it { expect(source_package.reload.title).to eq('New title for package') }
       it { expect(source_package.reload.description).to eq('New description for package') }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
@@ -271,7 +271,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
       end
 
-      it { expect(flash[:notice]).to eq('Successfully branched package') }
+      it { expect(flash[:success]).to eq('Successfully branched package') }
       it 'redirects to the branched package' do
         expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
                                                           package: 'new_package_name'))
@@ -295,7 +295,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       end
 
-      it { expect(flash[:notice]).to eq('Successfully branched package') }
+      it { expect(flash[:success]).to eq('Successfully branched package') }
       it 'redirects to the branched package' do
         expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
                                                           package: source_package.name))
@@ -323,7 +323,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         login(admin)
         post :remove, params: { project: target_project, package: target_package }
 
-        expect(flash[:notice]).to eq('Package was successfully removed.')
+        expect(flash[:success]).to eq('Package was successfully removed.')
         expect(target_project.packages).to be_empty
       end
     end
@@ -334,7 +334,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:found) }
-      it { expect(flash[:notice]).to eq('Package was successfully removed.') }
+      it { expect(flash[:success]).to eq('Package was successfully removed.') }
       it 'deletes the package' do
         expect(user.home_project.packages).to be_empty
       end
@@ -360,7 +360,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         end
 
         it 'deletes the package' do
-          expect(flash[:notice]).to eq('Package was successfully removed.')
+          expect(flash[:success]).to eq('Package was successfully removed.')
           expect(user.home_project.packages).to be_empty
         end
       end
@@ -643,7 +643,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         remove_file_post
       end
 
-      it { expect(flash[:notice]).to eq("File 'the_file' removed successfully") }
+      it { expect(flash[:success]).to eq("File 'the_file' removed successfully") }
       it { expect(assigns(:package)).to eq(source_package) }
       it { expect(assigns(:project)).to eq(user.home_project) }
       it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: source_package)) }
@@ -797,7 +797,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(a_request(:post, post_url)).to have_been_made.once }
-      it { expect(flash[:notice]).to eq('Services successfully triggered') }
+      it { expect(flash[:success]).to eq('Services successfully triggered') }
       it { is_expected.to redirect_to(action: :show, project: source_project, package: service_package) }
     end
 
@@ -1267,7 +1267,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :trigger_rebuild, params: { project: source_project, package: source_package }
       end
 
-      it { expect(flash[:notice]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
@@ -1301,7 +1301,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :wipe_binaries, params: { project: source_project, package: source_package, repository: repository.name }
       end
 
-      it { expect(flash[:notice]).to eq("Triggered wipe binaries for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(flash[:success]).to eq("Triggered wipe binaries for #{source_project.name}/#{source_package.name} successfully.") }
       it { expect(response).to redirect_to(package_binaries_path(project: source_project, package: source_package, repository: repository.name)) }
     end
   end
@@ -1335,7 +1335,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :abort_build, params: { project: source_project, package: source_package }
       end
 
-      it { expect(flash[:notice]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
+      it { expect(flash[:success]).to eq("Triggered abort build for #{source_project.name}/#{source_package.name} successfully.") }
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
@@ -1669,7 +1669,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'valid package name' do
         it { expect(response).to redirect_to(package_show_path(source_project, package_name)) }
-        it { expect(flash[:notice]).to eq("Package 'new-package' was created successfully") }
+        it { expect(flash[:success]).to eq("Package 'new-package' was created successfully") }
         it { expect(Package.find_by(name: package_name).flags).to be_empty }
       end
 

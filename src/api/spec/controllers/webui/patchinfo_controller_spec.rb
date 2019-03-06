@@ -225,7 +225,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
       it { expect(@patchinfo['summary']).to eq('long enough summary is ok') }
       it { expect(@patchinfo['description']).to eq('long enough description is also ok' * 5) }
-      it { expect(flash[:notice]).to eq("Successfully edited #{patchinfo_package.name}") }
+      it { expect(flash[:success]).to eq("Successfully edited #{patchinfo_package.name}") }
       it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
     end
 
@@ -263,7 +263,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
-      it { expect(flash[:notice]).to eq('Patchinfo was successfully removed.') }
+      it { expect(flash[:success]).to eq('Patchinfo was successfully removed.') }
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
     end
 

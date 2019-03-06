@@ -121,7 +121,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
         @package.sources_changed(wait_for_update: true) # wait for indexing for special files
 
-        flash[:notice] = "Successfully edited #{@package}"
+        flash[:success] = "Successfully edited #{@package}"
       rescue Timeout::Error
         flash[:error] = 'Timeout when saving file. Please try again.'
       end
@@ -164,7 +164,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     authorize @package, :destroy?
 
     if @package.check_weak_dependencies? && @package.destroy
-      redirect_to(project_show_path(@project), notice: 'Patchinfo was successfully removed.')
+      redirect_to(project_show_path(@project), success: 'Patchinfo was successfully removed.')
     else
       redirect_to(patchinfo_show_path(package: @package, project: @project),
                   notice: "Patchinfo can't be removed: #{@package.errors.full_messages.to_sentence}")
