@@ -3,19 +3,36 @@ class Webui::InterconnectsController < Webui::WebuiController
 
   def new
     @interconnect = RemoteProject.new(default_values)
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def create
+    switch_to_webui2
+
     @project = RemoteProject.new(project_params)
 
-    if @project.valid? && @project.store
-      flash[:notice] = "Project '#{@project.name}' was created successfully"
-      logger.debug "New remote project with url #{@project.remoteurl}"
-      redirect_to project_show_path(project: @project.name)
-    else
-      redirect_back(fallback_location: root_path, error: "Project can't be saved: #{@project.errors.full_messages.to_sentence}")
+    respond_to do |format|
+      if @project.valid? && @project.store
+        logger.debug "New remote project with url #{@project.remoteurl}"
+        message = "Project '#{@project}' was successfully created."
+        format.html do
+          flash[:notice] = message
+          redirect_to project_show_path(project: @project)
+        end
+        format.js do
+          flash.now[:success] = message
+          render :create, status: :ok
+        end
+      else
+        message = "Failed to create project '#{@project}': #{@project.errors.full_messages.to_sentence}"
+        format.html do
+          redirect_back(fallback_location: root_path, error: message)
+        end
+        format.js do
+          flash.now[:error] = message
+          render :create, status: :unprocessable_entity
+        end
+      end
     end
   end
 
