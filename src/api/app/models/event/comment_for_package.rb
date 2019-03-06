@@ -7,7 +7,7 @@ module Event
     payload_keys :project, :package, :sender
 
     def subject
-      "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
+      "New comment in package #{payload['project']}/#{payload['package']} by #{payload['commenter']}"
     end
   end
 end

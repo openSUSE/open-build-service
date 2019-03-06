@@ -7,7 +7,7 @@ module Event
     receiver_roles :maintainer, :bugowner, :watcher
 
     def subject
-      "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
+      "New comment in project #{payload['project']} by #{payload['commenter']}"
     end
   end
 end

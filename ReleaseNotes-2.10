@@ -109,6 +109,11 @@ Intentional changes:
    - GET 'public/status/save_new_message'
    - GET 'public/status/delete_message'
 
+  * The 'commenter' and 'commenters' payload of Comment events used to contain user ids.
+    They now contain the user login name instead.
+    Run the data migrations to convert events in the old format:
+    'rails data:migrate RAILS_ENV=production'
+
 Other changes
 =============
 
