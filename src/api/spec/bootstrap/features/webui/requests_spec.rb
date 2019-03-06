@@ -133,6 +133,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_link 'Add a Review'
         find(:id, 'review_type').select('User')
         fill_in 'review_user', with: reviewer.login
+        fill_in 'Comment for reviewer:', with: 'Please review'
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1 (review)')
@@ -142,8 +143,12 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login reviewer
         visit request_show_path(1)
         click_link("Review for #{reviewer}")
-        fill_in 'comment', with: 'Ok for the project'
-        click_button 'Approve'
+        within '#review-0' do
+          expect(page).to have_text("#{submitter.realname} (#{submitter.login}) requested:")
+          expect(page).to have_text('Please review')
+          fill_in 'comment', with: 'Ok for the project'
+          click_button 'Approve'
+        end
         expect(page).to have_text('Ok for the project')
         expect(Review.first.state).to eq(:accepted)
         expect(BsRequest.first.state).to eq(:new)
