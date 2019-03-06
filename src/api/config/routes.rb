@@ -101,6 +101,8 @@ OBSApi::Application.routes.draw do
       get 'monitor/events' => :events, as: :monitor_events
     end
 
+    resources :package, only: [:index], controller: 'webui/package', constraints: cons
+
     defaults format: 'html' do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons

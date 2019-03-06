@@ -17,6 +17,7 @@ class ProjectDatatable < Datatable
     @projects ||= options[:projects]
   end
 
+  # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
     if projects
       projects
@@ -24,6 +25,7 @@ class ProjectDatatable < Datatable
       show_all ? Project.all : Project.filtered_for_list
     end
   end
+  # rubocop:enable Naming/AccessorMethodName
 
   def data
     records.map do |record|

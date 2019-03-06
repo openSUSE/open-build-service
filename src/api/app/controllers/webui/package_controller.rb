@@ -8,7 +8,7 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
   include Webui2::PackageController
 
-  before_action :set_project, only: [:show, :users, :linking_packages, :dependency, :binary, :binaries,
+  before_action :set_project, only: [:show, :index, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                      :add_person, :add_group, :rdiff, :save_new,
                                      :save, :delete_dialog,
@@ -34,7 +34,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_architecture, only: [:binary, :binary_download]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :linking_packages, :linking_packages, :dependency,
+  before_action :require_login, except: [:show, :index, :linking_packages, :linking_packages, :dependency,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
                                          :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result,
@@ -49,6 +49,12 @@ class Webui::PackageController < Webui::WebuiController
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
   after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+
+  def index
+    switch_to_webui2
+
+    render json: PackageDatatable.new(params, view_context: view_context, project: @project)
+  end
 
   def show
     if request.bot?
