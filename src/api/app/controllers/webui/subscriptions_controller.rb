@@ -5,7 +5,7 @@ class Webui::SubscriptionsController < Webui::WebuiController
     @subscriptions_form = subscriptions_form
 
     # TODO: Remove the statement after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def update

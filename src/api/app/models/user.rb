@@ -70,6 +70,10 @@ class User < ApplicationRecord
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
 
+  scope :list, lambda {
+    all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
+  }
+
   validates :login, :state, presence: { message: 'must be given' }
 
   validates :login,

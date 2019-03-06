@@ -1,7 +1,3 @@
-function setupPopover() {
-  $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
-}
-
 function setAllLinks(event) {
   $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);
 }
@@ -87,10 +83,10 @@ function setupProjectMonitor() { // jshint ignore:line
   });
 
   $('#project-monitor-table').on('draw.dt', function () {
-    setupPopover();
+    initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
   });
 
-  setupPopover();
+  initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
 

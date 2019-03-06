@@ -187,6 +187,13 @@ sub isrunning {
   return $@ && "$@" =~ /bind:/ ? 1 : 0;
 }
 
+sub critlogger {
+  my ($conf, $msg) = @_;
+  return unless $conf && $conf->{'critlogfile'};
+  my $logstr = sprintf "%s: %-7s %s\n", BSUtil::isotime(time), "[$$]", $msg;
+  BSUtil::appendstr($conf->{'critlogfile'}, $logstr);
+}
+
 sub server {
   my ($name, $args, $conf, $aconf) = @_;
   my $logfile;
@@ -244,6 +251,7 @@ sub server {
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow.log" if $conf->{'slowrequestthr'};
     $conf->{'slowrequestlog2'} ||= "$bsdir/log/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
+    $conf->{'critlogfile'} ||= "$bsdir/log/$name.crit.log";
     $conf->{'name'} = $name;
     $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
@@ -298,6 +306,7 @@ sub server {
     $conf->{'handoffpath'} = $aconf->{'socketpath'};
     unlink("$aconf->{'socketpath'}.lock");
   }
+  BSUtil::setcritlogger(sub { critlogger($conf, $_[0]) });
   if ($aconf) {
     if (!$conf || xfork() == 0) {
       $isajax = 1;
@@ -310,7 +319,7 @@ sub server {
         $aconf->{'run'}->($aconf);
       };
       writestr("$rundir/$name.AJAX.died", undef, $@);
-      die("AJAX: died $@\n");
+      BSUtil::diecritical("AJAX died: $@");
     }
   }
   mkdir_p($rundir);

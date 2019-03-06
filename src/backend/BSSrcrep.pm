@@ -158,7 +158,7 @@ sub addfile {
   # if the sha sum is different, but the md5 and filename are the same someone might
   # try to sneak in code.
   if ($upload_sha ne $existing_sha) {
-    die("Different content with same md5sum $md5: $projid/$packid/$filename\n");
+    BSUtil::diecritical("Different content with same md5sum $md5: $projid/$packid/$filename");
   }
   return $md5;
 }
@@ -186,7 +186,7 @@ sub copyfiles {
     my @s2 = stat("$srcrep/$opackid/$files->{$f}-$f");
     next if @s1 && @s2 && $s1[0] == $s2[0] && $s1[1] == $s2[1];
     if (!BSUtil::identicalfile("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f")) {
-      die("Different content with same md5sum $files->{$f}: $projid/$packid/$f - $oprojid/$opackid/$f\n");
+      BSUtil::diecritical("Different content with same md5sum $files->{$f}: $projid/$packid/$f - $oprojid/$opackid/$f\n");
     }
   }
 }
@@ -230,7 +230,7 @@ sub copyonefile {
     my $sha2 = tmpsha256($tmpname);
     unlink($tmpname);
     return if $sha1 eq $sha2;
-    die("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
+    BSUtil::diecritical("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
   }
   if (! -e "$srcrep/$packid/$md5-$file") {
     return if link("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file");
@@ -240,7 +240,7 @@ sub copyonefile {
   my @s2 = stat("$srcrep/$opackid/$md5-$ofile");
   return if @s1 && @s2 && $s1[0] == $s2[0] && $s1[1] == $s2[1];
   if (!BSUtil::identicalfile("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file")) {
-    die("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
+    BSUtil::diecritical("Different content with same md5sum $md5: $projid/$packid/$file - $oprojid/$opackid/$ofile\n");
   }
 }
 

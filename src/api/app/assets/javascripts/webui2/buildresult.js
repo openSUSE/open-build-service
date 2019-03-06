@@ -38,7 +38,7 @@ function updateBuildResult(index) { // jshint ignore:line
     },
     complete: function() {
       $('#build' + index + '-reload').removeClass('fa-spin');
-      $('[data-toggle="popover"]').popover({ trigger: 'hover click' });
+      initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
     }
   });
 }

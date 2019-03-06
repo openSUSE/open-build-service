@@ -601,7 +601,7 @@ fi
 %postun -n obs-api
 %insserv_cleanup
 %service_del_postun %{obs_api_support_scripts}
-%restart_on_update apache2
+%service_del_postun -r apache2
 
 %files
 %defattr(-,root,root)
