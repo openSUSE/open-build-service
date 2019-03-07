@@ -296,7 +296,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       begin
         @main_object = @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false, follow_project_links: true)
       rescue APIError
-        raise ActionController::RoutingError, 'Not Found'
+        raise ActiveRecord::RecordNotFound, 'Not Found'
       end
     else
       @main_object = @project
