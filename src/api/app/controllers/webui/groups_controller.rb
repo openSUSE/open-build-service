@@ -20,13 +20,13 @@ class Webui::GroupsController < Webui::WebuiController
   def new
     authorize Group, :create?
 
-    # TODO: Remove the environment check after migration is finished
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    # TODO: Remove the statement after migration is finished
+    switch_to_webui2
   end
 
   def edit
-    # TODO: Remove the environment check after migration is finished
-    return if switch_to_webui2 && (Rails.env.development? || Rails.env.test?)
+    # TODO: Remove the statement after migration is finished
+    return if switch_to_webui2
 
     authorize @group, :update?
     @roles = Role.global_roles
