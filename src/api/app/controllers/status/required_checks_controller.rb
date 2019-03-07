@@ -17,15 +17,15 @@ class Status::RequiredChecksController < ApplicationController
 
   # GET /status_reports/projects/:project_name/required_checks
   # GET /status_reports/repositories/:project_name/:repository_name/required_checks
-  # GET /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks
+  # GET /status_reports/built_repositories/:project_name/:repository_name/:architecture_name/required_checks
   def index
     authorize @checkable
     @required_checks = @checkable.required_checks
   end
 
-  # POST /status_reports/projects/:project_name/required_checks/:name
-  # POST /status_reports/repositories/:project_name/:repository_name/required_checks/:name
-  # POST /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
+  # POST /status_reports/projects/:project_name/required_checks
+  # POST /status_reports/repositories/:project_name/:repository_name/required_checks
+  # POST /status_reports/built_repositories/:project_name/:repository_name/:architecture_name/required_checks
   def create
     authorize @checkable
     @required_checks = @checkable.required_checks |= names
@@ -43,7 +43,7 @@ class Status::RequiredChecksController < ApplicationController
 
   # DELETE /status_reports/projects/:project_name/required_checks/:name
   # DELETE /status_reports/repositories/:project_name/:repository_name/required_checks/:name
-  # DELETE /status_reports/repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
+  # DELETE /status_reports/built_repositories/:project_name/:repository_name/:architecture_name/required_checks/:name
   def destroy
     authorize @checkable
     @checkable.required_checks -= [params[:name]]
