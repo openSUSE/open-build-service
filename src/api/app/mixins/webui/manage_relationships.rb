@@ -8,6 +8,7 @@ module Webui::ManageRelationships
   end
 
   def save_person
+    authorize main_object, :update?
     begin
       Relationship.add_user(main_object, load_obj, Role.find_by_title!(params[:role]), nil, true) # report error on duplicate
       main_object.store
@@ -27,6 +28,7 @@ module Webui::ManageRelationships
   end
 
   def save_group
+    authorize main_object, :update?
     begin
       Relationship.add_group(main_object, load_obj, Role.find_by_title!(params[:role]), nil, true) # report error on duplicate
       main_object.store
@@ -46,6 +48,7 @@ module Webui::ManageRelationships
   end
 
   def remove_role
+    authorize main_object, :update?
     begin
       main_object.remove_role(load_obj, Role.find_by_title(params[:role]))
       main_object.store
