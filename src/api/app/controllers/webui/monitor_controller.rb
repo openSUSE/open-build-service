@@ -6,24 +6,6 @@ class Webui::MonitorController < Webui::WebuiController
 
   DEFAULT_SEARCH_RANGE = 24
 
-  def self.addarrays(arr1, arr2)
-    # we assert that both have the same size
-    ret = []
-    if arr1
-      arr1.length.times do |i|
-        time1, value1 = arr1[i]
-        time2, value2 = arr2[i]
-        value2 ||= 0
-        value1 ||= 0
-        time1 ||= 0
-        time2 ||= 0
-        ret << [(time1 + time2) / 2, value1 + value2]
-      end
-    end
-    ret << 0 if ret.length.zero?
-    ret
-  end
-
   def old; end
 
   def index
@@ -101,14 +83,15 @@ class Webui::MonitorController < Webui::WebuiController
     end
 
     data['squeue_low'] = comb
-    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
+    max = add_arrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
     data['events_max'] = max * 2
     data['jobs_max'] = maximumvalue(data['waiting']) * 2
 
     render json: data
   end
 
-  private 
+  private
+
   def gethistory(key, range)
     upper_range_limit = DEFAULT_SEARCH_RANGE * 365
     # define an upper-limit to range to avoid long running queries
