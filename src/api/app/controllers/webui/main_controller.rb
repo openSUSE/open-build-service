@@ -14,7 +14,7 @@ class Webui::MainController < Webui::WebuiController
       if busy.empty?
         busy = values
       elsif values.present?
-        busy = Webui::MonitorController.addarrays(busy, values)
+        busy = add_arrays(busy, values)
       end
     end
     busy

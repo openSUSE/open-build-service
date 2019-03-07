@@ -322,6 +322,24 @@ class Webui::WebuiController < ActionController::Base
     @pending_announcement = Announcement.last
   end
 
+  def add_arrays(arr1, arr2)
+    # we assert that both have the same size
+    ret = []
+    if arr1
+      arr1.length.times do |i|
+        time1, value1 = arr1[i]
+        time2, value2 = arr2[i]
+        value2 ||= 0
+        value1 ||= 0
+        time1 ||= 0
+        time2 ||= 0
+        ret << [(time1 + time2) / 2, value1 + value2]
+      end
+    end
+    ret << 0 if ret.length.zero?
+    ret
+  end
+
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       interface: :webui
