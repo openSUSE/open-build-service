@@ -62,7 +62,7 @@
                          is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
             - @my_open_reviews.each_with_index do |review, index|
               .tab-pane.fade.show{ id: "review-#{index}", class: ('active' unless @can_handle_request) }
-                = render('review_tab', review: review, request_number: @bs_request.number)
+                = render('review_tab', review: review, bs_request: @bs_request)
 
   .col-md-4
     .card

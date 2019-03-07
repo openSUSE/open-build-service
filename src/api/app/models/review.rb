@@ -189,6 +189,7 @@ class Review < ApplicationRecord
     ret = _get_attributes
     # XML has this perl format, don't use that here
     ret[:when] = created_at
+    ret[:id] = id
     ret
   end
 
