@@ -14,7 +14,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
     end
 
     scenario 'with valid data' do
-      expect(page).to have_text("Create New Package for #{user.home_project_name}")
+      expect(page).to have_text("Create Package for #{user.home_project_name}")
 
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
