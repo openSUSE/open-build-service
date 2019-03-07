@@ -108,6 +108,7 @@ class Webui::MonitorController < Webui::WebuiController
     render json: data
   end
 
+  private 
   def gethistory(key, range)
     upper_range_limit = DEFAULT_SEARCH_RANGE * 365
     # define an upper-limit to range to avoid long running queries
