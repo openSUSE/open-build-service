@@ -356,7 +356,7 @@ class Webui::PackageController < Webui::WebuiController
       supersede_notice = 'Superseding failed: '
       supersede_notice += supersede_errors.join('. ')
     end
-    flash[:notice] = "Created <a href='#{request_show_path(req.number)}'>submit request #{req.number}</a>\
+    flash[:success] = "Created <a href='#{request_show_path(req.number)}'>submit request #{req.number}</a>\
                       to <a href='#{project_show_path(target_project_name)}'>#{target_project_name}</a>
                       #{supersede_notice}"
     redirect_to(action: 'show', project: project_name, package: package_name)
@@ -512,7 +512,7 @@ class Webui::PackageController < Webui::WebuiController
       @package.flags.build(flag: :publish, status: :disable)
     end
     if @package.save
-      flash[:notice] = "Package '#{@package.name}' was created successfully"
+      flash[:success] = "Package '#{@package.name}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package_name
     else
       flash[:notice] = "Failed to create package '#{@package}'"
@@ -601,7 +601,7 @@ class Webui::PackageController < Webui::WebuiController
     if request.env['HTTP_REFERER'] == image_templates_url && branched_package_object.kiwi_image?
       redirect_to(import_kiwi_image_path(branched_package_object.id))
     else
-      flash[:notice] = 'Successfully branched package'
+      flash[:success] = 'Successfully branched package'
       redirect_to(package_show_path(project: created_project_name, package: created_package_name))
     end
   rescue BranchPackage::DoubleBranchPackageError => exception
@@ -626,7 +626,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.title = params[:title]
     @package.description = params[:description]
     if @package.save
-      flash[:notice] = "Package data for '#{@package.name}' was saved successfully"
+      flash[:success] = "Package data for '#{@package.name}' was saved successfully"
       redirect_to action: :show, project: params[:project], package: params[:package]
     else
       flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
@@ -646,7 +646,7 @@ class Webui::PackageController < Webui::WebuiController
     @package.check_weak_dependencies? unless params[:force]
     if @package.errors.empty?
       @package.destroy
-      redirect_to(project_show_path(@project), notice: 'Package was successfully removed.')
+      redirect_to(project_show_path(@project), success: 'Package was successfully removed.')
     else
       redirect_to(package_show_path(project: @project, package: @package),
                   notice: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
@@ -658,7 +658,7 @@ class Webui::PackageController < Webui::WebuiController
 
     begin
       Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.current.to_s)
-      flash[:notice] = 'Services successfully triggered'
+      flash[:success] = 'Services successfully triggered'
     rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message
     rescue Backend::Error => e
@@ -741,7 +741,7 @@ class Webui::PackageController < Webui::WebuiController
     filename = params[:filename]
     begin
       @package.delete_file(filename)
-      flash[:notice] = "File '#{filename}' removed successfully"
+      flash[:success] = "File '#{filename}' removed successfully"
     rescue Backend::NotFoundError
       flash[:notice] = "Failed to remove file '#{filename}'"
     end
@@ -903,7 +903,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     if @package.abort_build(params)
-      flash[:notice] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
+      flash[:success] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
       redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
@@ -915,7 +915,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     if @package.rebuild(params)
-      flash[:notice] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
+      flash[:success] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
       redirect_to package_show_path(project: @project, package: @package)
     else
       flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
@@ -927,7 +927,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     if @package.wipe_binaries(params)
-      flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
+      flash[:success] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
     else
       flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
     end

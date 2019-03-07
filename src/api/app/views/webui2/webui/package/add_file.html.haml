@@ -1,10 +1,10 @@
-- @pagetitle = "Upload file to #{@project.name}/#{@package.name}"
+- @pagetitle = "Upload file to #{truncate(@package.name, length: 50)}/#{truncate(@package.name, length: 50)}"
 
 .card
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     %h3
-      = @pagetitle
+      Upload file to #{@project.name}/#{@package.name}
     = form_tag({ action: :save_file, project: @project, package: @package }, multipart: true) do
       .form-group.package-add-file
         %label{ for: :filename }

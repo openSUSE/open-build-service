@@ -10,17 +10,17 @@ module Event
 
     def expanded_payload
       p = payload.dup
-      p['commenter'] = User.find(p['commenter'])
+      p['commenter'] = User.find_by(login: p['commenter'])
       p
     end
 
     def originator
-      User.find(payload['commenter'])
+      User.find_by(login: payload['commenter'])
     end
 
     def commenters
-      return [] unless payload['commenters']
-      User.find(payload['commenters'])
+      return User.none unless payload['commenters']
+      User.where(login: payload['commenters'])
     end
 
     def custom_headers

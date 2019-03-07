@@ -1,14 +1,11 @@
 # NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
-class PackageDatatable < AjaxDatatablesRails::ActiveRecord
-  extend Forwardable
-
+class PackageDatatable < Datatable
   def_delegator :@view, :link_to
   def_delegator :@view, :package_show_path
   def_delegator :@view, :time_ago_in_words
 
   def initialize(params, opts = {})
     @project = opts[:project]
-    @view = opts[:view_context]
     super
   end
 

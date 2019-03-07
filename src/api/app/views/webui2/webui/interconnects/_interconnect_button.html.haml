@@ -1,0 +1,23 @@
+.list-group-item
+  .d-flex.w-100.justify-content-between
+    %h5.mb-1{ class: "#{'text-muted' unless exists}" }= title
+    %small.text-primary.connected{ class: "#{'d-none' unless exists}" } Connected
+    - unless exists
+      - params = "project[name]=#{name}&project[remoteurl]=#{remoteurl}&project[title]=#{title}&project[description]=#{description}"
+      = button_tag data: { url: interconnects_path,
+                           params: params,
+                           remote: true,
+                           disable_with: 'Connecting...',
+                           method: :post },
+                   class: 'btn btn-sm btn-primary interconnect' do
+        Connect
+  .interconnect-info.text-muted
+    %i.fa.fa-cubes.fa-xs{ class: "#{'text-secondary' if exists}" }
+    - if exists
+      = link_to(name, project_show_path(project: name), class: 'small m-0')
+    - else
+      %small= name
+
+  %p.text-muted
+    %i.fas.fa-link.fa-xs
+    %small= remoteurl

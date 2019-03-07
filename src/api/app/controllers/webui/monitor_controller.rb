@@ -4,6 +4,8 @@ class Webui::MonitorController < Webui::WebuiController
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
   before_action :check_ajax, only: [:update_building, :events]
 
+  DEFAULT_SEARCH_RANGE = 24
+
   def self.addarrays(arr1, arr2)
     # we assert that both have the same size
     ret = []
@@ -81,7 +83,7 @@ class Webui::MonitorController < Webui::WebuiController
 
     arch = Architecture.find_by(name: params.fetch(:arch, @default_architecture))
 
-    range = params[:range]
+    range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
       data[prefix] = gethistory("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
@@ -107,6 +109,10 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def gethistory(key, range)
+    upper_range_limit = DEFAULT_SEARCH_RANGE * 365
+    # define an upper-limit to range to avoid long running queries
+    range = [upper_range_limit, range.to_i].min
+
     cachekey = "#{key}-#{range}"
     Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
       StatusHistory.history_by_key_and_hours(key, range).sort_by { |a| a[0] }

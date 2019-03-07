@@ -27,7 +27,7 @@ class Comment < ApplicationRecord
   end
 
   def create_notification(params = {})
-    params[:commenter] = user.id
+    params[:commenter] = user.login
     params[:comment_body] = body
     params[:commenters] = involved_users
 
@@ -52,15 +52,15 @@ class Comment < ApplicationRecord
   def involved_users
     users = Set.new
     users_mentioned = Set.new
-    Comment.where(commentable: commentable).find_each do |comment|
+    Comment.where(commentable: commentable).includes(:user).find_each do |comment|
       # take the one making the comment
-      users << comment.user_id
+      users << comment.user.login
       # check if users are mentioned (regexp borrowed from user model - with whitespace removed)
-      comment.body.scan(%r{@([\w\^\-\.#\*\+&'"]*)}).each do |user|
-        users_mentioned << user[0]
+      comment.body.scan(%r{@([\w\^\-\.#\*\+&'"]*)}).each do |user_login|
+        users_mentioned << user_login.first
       end
     end
-    users += User.where(login: users_mentioned.to_a).pluck(:id)
+    users += User.where(login: users_mentioned).pluck(:login)
     users.to_a
   end
 

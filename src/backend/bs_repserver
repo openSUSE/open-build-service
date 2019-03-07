@@ -2387,7 +2387,7 @@ sub copybuild {
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
 	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
-	$nbin =~ s/-([^-]+)(-Media(?:\d?)(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
+	$nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
 	$nbin =~ s/-Build\d+\.\d+\./$setrelease./; # kiwi appliance builds
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }

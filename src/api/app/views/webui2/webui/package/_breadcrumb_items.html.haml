@@ -1,6 +1,6 @@
 = render partial: 'webui/project/breadcrumb_items'
-%li.breadcrumb-item
-  = link_to @package, package_show_path(@project, @package)
+%li.breadcrumb-item.text-word-break-all
+  = link_to truncate(@package.name, length: 50), package_show_path(@project, @package)
 - if current_page?(package_add_file_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Add File
@@ -31,5 +31,5 @@
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Statistics
 - if current_page?(package_view_file_path)
-  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-    = @filename
+  %li.breadcrumb-item.active.text-word-break-all{ 'aria-current' => 'page' }
+    = truncate(@filename, length: 50)

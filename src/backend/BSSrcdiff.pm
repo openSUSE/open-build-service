@@ -995,6 +995,7 @@ sub fn {
 
 sub identicalcontent {
   my ($pold, $of, $pnew, $f) = @_;
+  return 1 if fn($pold, $of, 1) eq fn($pnew, $f, 1);
   my $ofn = fn($pold, $of);
   my $fn = fn($pnew, $f);
   my @os = stat($ofn);
@@ -1122,6 +1123,7 @@ sub unifieddiff {
     my $of = defined($sim->{$f}) ? $sim->{$f} : $f;
     if ($f ne $of) {
       $d .= "Index: $of -> $f\n" . ("=" x 67) . "\n";
+      next if $old->{$of} eq $new->{$f} && identicalcontent($pold, $of, $pnew, $f);
     } else {
       $d .= "Index: $f\n" . ("=" x 67) . "\n";
     }
@@ -1174,6 +1176,7 @@ sub datadiff {
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
       next;
     }
+    next if $f eq $of && $old->{$of} eq $new->{$f} && fn($pold, $of, 1) eq fn($pnew, $f, 1);
     my @os = stat(fn($pold, $of));
     my @s = stat(fn($pnew, $f));
     if ($old->{$of} eq $new->{$f}) {
