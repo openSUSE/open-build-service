@@ -397,7 +397,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new_package_branch' do
     it 'branches the package' do
-      login user
+      login admin_user
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, params: { project: apache_project }
       expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map { |r| [r.id, r.name, r.title] })
@@ -1026,6 +1026,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
       let(:repository) { create(:repository, project: apache_project) }
       let(:path_element) { create(:path_element, repository: repository) }
 
+      before do
+        login admin_user
+      end
+
       context 'without direction' do
         it { expect { post :move_path, params: { project: apache_project } }.to raise_error ActionController::ParameterMissing }
       end
@@ -1104,6 +1108,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     context 'with non existing project' do
+      before do
+        login admin_user
+      end
+
       it { expect { post :move_path, params: { project: 'non:existent:project' } }.to raise_error ActiveRecord::RecordNotFound }
     end
   end
