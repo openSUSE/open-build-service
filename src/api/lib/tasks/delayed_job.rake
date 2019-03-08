@@ -20,8 +20,7 @@ task(importrequests: :environment) do
       if r.save
         Rails.logger.info "Request ##{lastrq} imported"
       else
-        Rails.logger.error "Request ##{lastrq} could not be saved:\n%s" \
-                           % r.errors.full_messages.join("\n")
+        Rails.logger.error format("Request ##{lastrq} could not be saved:\n%<error>s", error: r.errors.full_messages.join("\n"))
       end
     rescue ActiveRecord::RecordNotUnique
       Rails.logger.debug "Request ##{lastrq} already imported"
