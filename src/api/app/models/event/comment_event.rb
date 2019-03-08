@@ -10,7 +10,7 @@ module Event
 
     def expanded_payload
       p = payload.dup
-      p['commenter'] = User.find_by(login: p['commenter'])
+      p['commenter'] = User.find_by(login: p['commenter']) || User.find(p['commenter'])
       p
     end
 

@@ -1,6 +1,12 @@
 = form_tag(action: 'modify_review') do
-  = hidden_field_tag('request_number', request_number)
+  = hidden_field_tag('request_number', bs_request.number)
   = hidden_review_payload(review)
+  %p
+    = user_name_with_icon(User.find_by(login: review[:who]))
+    requested:
+  .ml-4
+    %p
+      #{simple_format(review_request_reason(bs_request, review))}
   %p
     = text_area_tag('comment', review[:reason], rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
   %p

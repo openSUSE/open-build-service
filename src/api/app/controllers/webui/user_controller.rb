@@ -126,11 +126,11 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def register_user
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def signup
-    switch_to_webui2 if Rails.env.development? || Rails.env.test?
+    switch_to_webui2
   end
 
   def password_dialog

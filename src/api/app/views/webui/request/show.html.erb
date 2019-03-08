@@ -253,6 +253,8 @@
         <% @my_open_reviews.each_with_index do |review, index| %>
             <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
               <%= form_tag(action: 'modify_review') do %>
+                  <p><%= user_with_realname_and_icon(review[:who], short: true) %> requested:</p>
+                  <p><%= simple_format(review_request_reason(@bs_request, review)) %></p>
                   <p><%= text_area_tag('comment', review[:reason], size: '80x2', style: 'width: 99%', class: 'review_comment', placeholder: 'Please comment on your decision') %></p>
 
                   <p>
