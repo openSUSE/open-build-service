@@ -316,6 +316,8 @@ class BsRequest < ApplicationRecord
 
   def check_creator
     errors.add(:creator, 'No creator defined') unless creator
+    # Allow admins to create requests for deleted or inactive users
+    return if User.current.is_admin?
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
     raise APIError unless User.current.can_modify_user?(user)
