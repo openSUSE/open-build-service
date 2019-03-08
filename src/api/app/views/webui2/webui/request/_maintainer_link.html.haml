@@ -1,0 +1,5 @@
+- if maintainers.size <= 3
+  #{'Package maintainer'.pluralize(maintainers.size)}:
+  = list_maintainers(maintainers)
+- else
+  #{maintainers.size} package #{link_to('maintainers', '#', class: 'show_dialog', data: { toggle: 'modal', target: '#show-maintainers-modal' })}
