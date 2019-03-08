@@ -13,16 +13,18 @@
               %span.nowrap{ title: package_file['dep'] }
                 = truncate(package_file['dep'], length: 30)
             %td
-              - package_file.elements('requiredby') do |package_binary|
-                = link_to package_binary['name'], action:               :dependency,
-                                                  project:              project,
-                                                  package:              package,
-                                                  repository:           repository.try(:name) || repository,
-                                                  arch:                 architecture.try(:name) || architecture,
-                                                  dependant_project:    package_binary['project'],
-                                                  dependant_repository: package_binary['repository'],
-                                                  dependant_name:       package_binary['name'],
-                                                  filename:             filename
+              %ul.list-unstyled
+                - package_file.elements('requiredby') do |package_binary|
+                  %li
+                    = link_to package_binary['name'], action: :dependency,
+                                                      project: project,
+                                                      package: package,
+                                                      repository: repository.try(:name) || repository,
+                                                      arch: architecture.try(:name) || architecture,
+                                                      dependant_project: package_binary['project'],
+                                                      dependant_repository: package_binary['repository'],
+                                                      dependant_name: package_binary['name'],
+                                                      filename: filename
         - unless fileinfo['provides_ext']
           %tr
             %td{ colspan: '2' }
@@ -42,16 +44,18 @@
               %span.nowrap{ title: package_file['dep'] }
                 = truncate(package_file['dep'], length: 30)
             %td
-              - package_file.elements('providedby') do |package_binary|
-                = link_to package_binary['name'], action:               :dependency,
-                                                  project:              project,
-                                                  package:              package,
-                                                  repository:           repository.try(:name) || repository,
-                                                  arch:                 architecture.try(:name) || architecture,
-                                                  dependant_project:    package_binary['project'],
-                                                  dependant_repository: package_binary['repository'],
-                                                  dependant_name:       package_binary['name'],
-                                                  filename:             filename
+              %ul.list-unstyled
+                - package_file.elements('providedby') do |package_binary|
+                  %li
+                    = link_to package_binary['name'], action: :dependency,
+                                                      project: project,
+                                                      package: package,
+                                                      repository: repository.try(:name) || repository,
+                                                      arch: architecture.try(:name) || architecture,
+                                                      dependant_project: package_binary['project'],
+                                                      dependant_repository: package_binary['repository'],
+                                                      dependant_name: package_binary['name'],
+                                                      filename: filename
         - unless fileinfo['requires_ext']
           %tr
             %td{ colspan: '2' }
@@ -71,16 +75,18 @@
               %span.nowrap{ title: package_file['dep'] }
                 = truncate(package_file['dep'], length: 30)
             %td
-              - package_file.elements('providedby') do |package_binary|
-                = link_to package_binary['name'], action:               :dependency,
-                                                  project:              project,
-                                                  package:              package,
-                                                  repository:           repository.try(:name) || repository,
-                                                  arch:                 architecture.try(:name) || architecture,
-                                                  dependant_project:    package_binary['project'],
-                                                  dependant_repository: package_binary['repository'],
-                                                  dependant_name:       package_binary['name'],
-                                                  filename:             filename
+              %ul.list-unstyled
+                - package_file.elements('providedby') do |package_binary|
+                  %li
+                    = link_to package_binary['name'], action: :dependency,
+                                                      project: project,
+                                                      package: package,
+                                                      repository: repository.try(:name) || repository,
+                                                      arch: architecture.try(:name) || architecture,
+                                                      dependant_project: package_binary['project'],
+                                                      dependant_repository: package_binary['repository'],
+                                                      dependant_name: package_binary['name'],
+                                                      filename: filename
         - unless fileinfo['recommends_ext']
           %tr
             %td{ colspan: '2' }
