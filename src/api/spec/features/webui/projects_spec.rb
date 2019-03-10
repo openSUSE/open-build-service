@@ -92,11 +92,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
       # Use direct path instead
       visit "/project/new_package/#{global_project}"
 
-      fill_in 'name', with: 'coolstuff'
-      click_button('Accept')
-
-      expect(page).to have_text("You can't create packages in #{global_project}")
-      expect(page.current_path).to eq("/project/new_package/#{global_project}")
+      expect(page).to have_text('Sorry, you are not authorized to update this Project')
+      expect(page.current_path).to eq(root_path)
     end
 
     scenario 'as admin' do
