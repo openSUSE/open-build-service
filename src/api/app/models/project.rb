@@ -1165,7 +1165,7 @@ class Project < ApplicationRecord
 
   private :bsrequest_repos_map
 
-  # NOTE: This has to cover project name validations in backend/BSVerify.pm (verify_projid)
+  # NOTE: This has to cover project name validations in src/backend/BSVerify.pm (verify_projid)
   def self.valid_name?(name)
     return false unless name.is_a?(String)
     return false if name == '0'
