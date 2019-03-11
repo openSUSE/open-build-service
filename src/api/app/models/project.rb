@@ -16,6 +16,8 @@ class Project < ApplicationRecord
 
   before_destroy :cleanup_before_destroy
   after_destroy_commit :delete_on_backend
+  after_save :update_staging_workflow_on_backend
+  after_destroy :update_staging_workflow_on_backend
 
   after_save :discard_cache
   after_rollback :reset_cache
@@ -1704,6 +1706,13 @@ class Project < ApplicationRecord
 
   def calculate_missing_checks
     combined_status_reports.map(&:missing_checks).flatten
+  end
+
+  def update_staging_workflow_on_backend
+    return unless staging_workflow_id
+
+    staging_workflow = Staging::Workflow.find(staging_workflow_id)
+    staging_workflow.write_to_backend
   end
 end
 # rubocop:enable Metrics/ClassLength

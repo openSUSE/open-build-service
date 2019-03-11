@@ -283,7 +283,8 @@ XmlResult: status
 DELETE /source/<project>
 
   Deletes specified project. All packages of this project are deleted as if a
-  DELETE request were issued for each package.
+  DELETE request were issued for each package. If it is a staging project, its
+  associated staging workflow will be also updated in the backend.
 
 Parameters:
   force: If force = 1, the project is deleted even if repositories of other
