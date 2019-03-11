@@ -76,6 +76,7 @@ use BSRepServer::Containerinfo;
 use BSRepServer::Containertar;
 use BSRepServer::Remote;
 use BSRepServer::Registry;
+use BSRepServer::YMP;
 use BSDispatcher::Constraints;
 use BSCando;
 use Build;
@@ -3528,23 +3529,6 @@ sub listpublished {
   return @r;
 }
 
-sub findympbinary {
-  my ($binarydir, $binaryname) = @_;
-  for my $b (ls($binarydir)) {
-    next unless $b =~ /\.(?:$binsufsre)$/;
-    next unless $b =~ /^\Q$binaryname\E/;
-    if ($b =~ /(.+)-[^-]+-[^-]+\.[a-zA-Z][^\.\-]*\.rpm$/) {
-      my $bn = $1;
-      next unless $binaryname =~ /^\Q$bn\E/;
-    }
-    my $data = Build::query("$binarydir/$b", 'evra' => 1);
-    if ($data->{'name'} eq $binaryname || "$data->{'name'}-$data->{'version'}" eq $binaryname) {
-      return "$binarydir/$b";
-    }
-  }
-  return undef;
-}
-
 sub publisheddir {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my @res = ();
@@ -3580,7 +3564,7 @@ sub publisheddir {
       for my $a (@archs) {
 	next if $a eq 'repodata' || $a eq 'repocache';
 	next unless -d "$extrep/$a";
-	$binary = findympbinary("$extrep/$a", $binaryname);
+	$binary = BSRepServer::YMP::findympbinary("$extrep/$a", $binaryname);
 	last if $binary;
       }
       $binary ||= "$extrep/$binaryname";
@@ -3589,7 +3573,8 @@ sub publisheddir {
 	my $projpackxml = BSServer::read_data(10000000);
 	$projpack = BSUtil::fromxml($projpackxml, $BSXML::projpack, 1);
       }
-      return makeymp($projid, $repoid, $binary, $projpack);
+      my $ymp = BSRepServer::YMP::makeymp($projid, $repoid, $binary, $projpack);
+      return ($ymp, $BSXML::ymp, 'Content-Type: text/x-suse-ymp');
     }
     @res = ls("$extrep/$arch");
   }
@@ -3598,95 +3583,11 @@ sub publisheddir {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
-sub makeymp {
-  my ($projid, $repoid, $binary, $projpackin) = @_;
-
-  my $binaryname;
-  my $data;
-  if ($binary =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
-    $binaryname = $1;
-  } elsif ($binary =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.deb$/) {
-    $binaryname = $1;
-  } elsif ($binary =~ /(?:^|\/)([^\/]+)\.(?:rpm|deb)$/) {
-    $binaryname = $1;
-  } else {
-    my $binarydir;
-    ($binarydir, $binaryname) = $binary =~ /^(.*)\/([^\/]*)$/;
-    $binary = findympbinary($binarydir, $binaryname) || $binary;
-  }
-  $data = Build::query($binary, 'description' => 1);
-  #die("no such binary\n") unless $data;
-  my $projpack;
-  if ($projpackin && $projpackin->{'project'}->[0]->{'name'} eq $projid) {
-    $projpack = $projpackin;
-  } else {
-    my @args = ("project=$projid", "repository=$repoid");
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', @args);
-  }
-  my $proj = $projpack->{'project'}->[0];
-  die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
-  my $repo = $proj->{'repository'}->[0];
-  die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
-  my @nprojids = grep {$_ ne $projid} map {$_->{'project'}} @{$repo->{'path'} || []};
-  my %nprojpack;
-  if ($projpackin) {
-    $nprojpack{$_->{'name'}} ||= $_ for @{$projpackin->{'project'} || []};
-  }
-  @nprojids = grep {!$nprojpack{$_}} @nprojids;
-  if (@nprojids) {
-    my @args = map {"project=$_"} @nprojids;
-    my $nprojpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', @args);
-    $nprojpack{$_->{'name'}} ||= $_ for @{$nprojpack->{'project'} || []};
-  }
-  my $ymp = {};
-  $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
-  $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
-  my @group;
-  $ymp->{'group'} = \@group;
-  my @repos;
-  my @pa = @{$repo->{'path'} || []};
-  while (@pa) {
-    my $pa = shift @pa;
-    my $r = {};
-    $r->{'recommended'} = @pa || !@repos ? 'true' : 'false';
-    $r->{'name'} = $pa->{'project'};
-    if ($pa->{'project'} eq $projid) {
-      $r->{'summary'} = $proj->{'title'};
-      $r->{'description'} = $proj->{'description'};
-    } elsif ($nprojpack{$pa->{'project'}}) {
-      $r->{'summary'} = $nprojpack{$pa->{'project'}}->{'title'};
-      $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
-    }
-    my $url = BSUrlmapper::get_downloadurl("$pa->{'project'}/$pa->{'repository'}");
-    next unless defined $url;
-    $r->{'url'} = $url;
-    push @repos, $r;
-  }
-  my $pkg = {};
-  if ($data) {
-    $pkg->{'name'} = str2utf8xml($data->{'name'});
-    $pkg->{'description'} = str2utf8xml($data->{'description'});
-  } else {
-    $pkg->{'name'} = str2utf8xml($binaryname);
-    $pkg->{'description'} = "The $pkg->{'name'} package";
-  }
-  if (defined $data->{'summary'}) {
-    $pkg->{'summary'} = str2utf8xml($data->{'summary'});
-  } else {
-    $pkg->{'summary'} = "The $pkg->{'name'} package";
-  }
-  my $inner_group = {};
-  $inner_group->{'repositories'} = {'repository' => \@repos };
-  $inner_group->{'software'} = {'item' => [$pkg]};
-  push @group, $inner_group;
-  return ($ymp, $BSXML::ymp, 'Content-Type: text/x-suse-ymp');
-}
-
-sub fileinfo {
+sub publishedfileinfo {
   my ($cgi, $filepath, $filename) = @_;
-  my $res = {'filename' => $filename};
+  my @s = stat($filepath);
+  die("filename: $!\n") unless -f _;
   my $q = {};
-  die("filename: $!\n") unless -f $filepath;
   if ($filename =~ /\.(?:$binsufsre)$/) {
     $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'alldeps' => 1);
     data2utf8xml($q);
@@ -3707,10 +3608,10 @@ sub fileinfo {
       }
     }
   }
-  my @s = stat($filepath);
   $q->{'size'} = $s[7]  unless defined $q->{'size'};
   $q->{'mtime'} = $s[9] unless defined $q->{'mtime'};
-  for (qw{name epoch version size mtime release arch summary description provides requires recommends suggests}) {
+  my $res = { 'filename' => $filename };
+  for (qw{name epoch version release arch size mtime summary description provides requires recommends suggests}) {
     $res->{$_} = $q->{$_} if defined $q->{$_};
   }
   return ($res, $BSXML::fileinfo);
@@ -3730,11 +3631,12 @@ sub publishedfile {
       my $projpackxml = BSServer::read_data(10000000);
       $projpack = BSUtil::fromxml($projpackxml, $BSXML::projpack, 1);
     }
-    return makeymp($projid, $repoid, "$extrep/$filename", $projpack);
+    my $ymp = BSRepServer::YMP::makeymp($projid, $repoid, "$extrep/$filename", $projpack);
+    return ($ymp, $BSXML::ymp, 'Content-Type: text/x-suse-ymp');
   }
   die("404 no such file\n") unless -f "$extrep/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
-    return fileinfo($cgi, "$extrep/$filename", $filename);
+    return publishedfileinfo($cgi, "$extrep/$filename", $filename);
   }
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $filename =~ /\.rpm$/;
