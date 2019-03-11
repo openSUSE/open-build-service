@@ -601,18 +601,24 @@ class XpathEngine
     # Note that this can result in bloated SQL statements, so some trust in the query optimization
     # capabilities of your DBMS is neeed :-)
 
-    if expr.first.in?([:child, :attribute])
-      # for incorrect writings of not(@name) as existens check
-      # we used to support it :/
-      @condition_values_needed = 2 if expr.first == :attribute
+    case expr.first
+    when :attribute
+      # existens check to an attribute
+      # (is defined as opposite of boolean())
+      #  https://www.w3.org/TR/xpath-functions-31/#func-not
       cond = evaluate_expr(expr, root)
+      condition = "ISNULL(#{cond})"
+    when :child
+      cond = evaluate_expr(expr, root)
+      condition = "(NOT #{cond} OR ISNULL(#{cond}))"
     else
       @condition_values_needed = 2
       parse_predicate(root, expr)
       cond = @conditions.pop
+      condition = "(NOT #{cond} OR ISNULL(#{cond}))"
     end
-    condition = "(NOT #{cond} OR ISNULL(#{cond}))"
     @condition_values_needed = 1
+
     # logger.debug "-- condition : [#{condition}]"
     @conditions << condition
   end
