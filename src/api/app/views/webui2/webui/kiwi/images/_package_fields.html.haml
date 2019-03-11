@@ -22,9 +22,8 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
 
       .modal-body
         %p
-          = f.label :name, 'Name:'
-          = f.text_field :name, data: { ajaxurl: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'),
-          default: f.object.name }, class: 'form-control'
+          = render partial: 'webui/autocomplete', locals: { html_id: :name, label: 'Name:'.html_safe,
+                                                              source: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'), default: f.object.name }
           = f.label :arch, 'Arch:'
           = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
           = f.label :replaces, 'Replaces:'
@@ -43,3 +42,4 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
 - if f.object.name.blank?
   :javascript
     $("#add-package").modal('show');
+    setupAutocomplete();

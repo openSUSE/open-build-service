@@ -1,7 +1,5 @@
 - @layouttype = 'custom'
 - @package = @image.package
-= content_for :ready_function do
-  isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
 
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
   .row
@@ -36,3 +34,64 @@
       .btn.btn-danger.btn-lg.ml-3#kiwi-image-update-form-revert{ class: "#{'disabled' unless flash[:error]}" }
         %i.fas.fa-undo
         Revert
+
+= content_for :ready_function do
+  :plain
+    isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
+    // Save image
+    $('#kiwi-image-update-form-save').click(saveImage);
+    $('#kiwi_image_use_project_repositories').click(function(){
+      $('#kiwi-repositories-list, #use-project-repositories-text').toggleClass('d-none');
+      enableSave();
+    });
+
+    $('[id^="kiwi_image_profiles_attributes_"]').click(enableSave);
+
+    // Revert image
+    $('#kiwi-image-update-form-revert').click(function(){
+      if (!$(this).hasClass('disabled')) {
+        if (window.confirm('Attention! All unsaved data will be lost! Continue?')) {
+          window.location.reload();
+        }
+      }
+    });
+
+    // Enable save button
+    $('.remove_fields').click(enableSave);
+
+    // Edit dialog for Description
+    $('.close-description-dialog').click(closeKiwiDescriptionDialog);
+
+    // Edit dialog for Description
+    $('.close-preferences-dialog').click(closeKiwiPreferencesDialog);
+
+    // Edit dialog for Repositories and Packages
+    $('.repository_edit').click(editRepositoryDialog);
+    $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeKiwiDialog);
+    $('.revert-dialog').click(revertDialog);
+
+    // After inserting new repositories add the Callbacks
+    $('#kiwi-repositories-list').on('cocoon:after-insert', function(e, addedFields) {
+      var lastOrder = 0;
+      var orders = $(this).find("[id$='order']");
+      var lastNode = $(orders[orders.length - 2]);
+      if (lastNode.length > 0) {
+        lastOrder = parseInt(lastNode.val());
+      }
+      $(addedFields).find("[id$='order']").val(lastOrder + 1);
+      $(addedFields).find('.repository_edit').click(editRepositoryDialog);
+      $(addedFields).find('.close-dialog').click(closeKiwiDialog);
+      $(addedFields).find('.revert-dialog').click(revertDialog);
+      $('#no-repositories').addClass('d-none');
+    });
+
+    showOnAddition($('#kiwi-repositories-list'), $('#no-repositories'));
+
+    // After inserting new packages add the Callbacks
+    $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
+      $(addedFields).find('.close-dialog').click(closeKiwiDialog);
+      $(addedFields).find('.revert-dialog').click(revertDialog);
+      $('#no-packages').addClass('d-none');
+    });
+
+    showOnAddition($('#kiwi-packages-list'), $('#no-packages'));

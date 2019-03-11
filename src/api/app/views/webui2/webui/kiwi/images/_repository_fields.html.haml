@@ -30,8 +30,8 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
                                                                     class: 'repository-dropdown custom-select',
                                                                     data: { source: url_for(controller: '/webui/project',
                                                                     action: :autocomplete_repositories) }
-          = label_tag 'Alias:'
-          = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
+            = label_tag 'Alias:'
+            = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
         .collapse#collapse-expert
           = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
           = f.label :repo_type, 'Type:'
@@ -69,3 +69,4 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
 - if f.object.source_path.blank?
   :javascript
     $("#add-repository").modal('show');
+    setupAutocomplete();
