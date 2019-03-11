@@ -3682,11 +3682,11 @@ sub makeymp {
   return ($ymp, $BSXML::ymp, 'Content-Type: text/x-suse-ymp');
 }
 
-sub fileinfo {
+sub publishedfileinfo {
   my ($cgi, $filepath, $filename) = @_;
-  my $res = {'filename' => $filename};
+  my @s = stat($filepath);
+  die("filename: $!\n") unless -f _;
   my $q = {};
-  die("filename: $!\n") unless -f $filepath;
   if ($filename =~ /\.(?:$binsufsre)$/) {
     $q = Build::query($filepath, 'evra' => 1, 'description' => 1, 'weakdeps' => 1, 'alldeps' => 1);
     data2utf8xml($q);
@@ -3707,10 +3707,10 @@ sub fileinfo {
       }
     }
   }
-  my @s = stat($filepath);
   $q->{'size'} = $s[7]  unless defined $q->{'size'};
   $q->{'mtime'} = $s[9] unless defined $q->{'mtime'};
-  for (qw{name epoch version size mtime release arch summary description provides requires recommends suggests}) {
+  my $res = { 'filename' => $filename };
+  for (qw{name epoch version release arch size mtime summary description provides requires recommends suggests}) {
     $res->{$_} = $q->{$_} if defined $q->{$_};
   }
   return ($res, $BSXML::fileinfo);
@@ -3734,7 +3734,7 @@ sub publishedfile {
   }
   die("404 no such file\n") unless -f "$extrep/$filename";
   if ($cgi->{'view'} && $cgi->{'view'} eq 'fileinfo') {
-    return fileinfo($cgi, "$extrep/$filename", $filename);
+    return publishedfileinfo($cgi, "$extrep/$filename", $filename);
   }
   my $type = 'application/octet-stream';
   $type = 'application/x-rpm' if $filename =~ /\.rpm$/;
