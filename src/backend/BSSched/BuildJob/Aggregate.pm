@@ -402,7 +402,7 @@ sub build {
 	    if ($bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}) {
 	      my @regtags = @{$bconf->{'substitute'}->{"aggregate-container-add-tag:$packid"}};
 	      for my $tag (@regtags) {
-		$tag = "$tag:latest" unless $tag =~ /^:[^:\/]+$/s;
+		$tag = "$tag:latest" unless $tag =~ /:[^:\/]+$/s;
 		push @{$r->{'provides'}}, "container:$tag" unless grep {$_ eq "container:$tag"} @{$r->{'provides'} || []};
 		push @{$containerinfo->{'tags'}}, $tag unless grep {$_ eq $tag} @{$containerinfo->{'tags'} || []};
 	      }
