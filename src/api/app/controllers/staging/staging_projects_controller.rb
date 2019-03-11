@@ -2,6 +2,7 @@ class Staging::StagingProjectsController < ApplicationController
   before_action :require_login, except: [:index, :show]
 
   before_action :set_main_project
+  before_action :set_staging_project, only: [:show, :destroy]
 
   def index
     if @main_project.staging
@@ -12,9 +13,7 @@ class Staging::StagingProjectsController < ApplicationController
     end
   end
 
-  def show
-    @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:name])
-  end
+  def show; end
 
   def copy
     authorize @main_project.staging
@@ -24,9 +23,27 @@ class Staging::StagingProjectsController < ApplicationController
     render_ok
   end
 
+  def destroy
+    authorize @main_project.staging
+
+    if @staging_project.destroy
+      render_ok
+    else
+      render_error(
+        status: 400,
+        errorcode: 'invalid_request',
+        message: "Error while deleting staging project: #{result.errors.join(' ')}"
+      )
+    end
+  end
+
   private
 
   def set_main_project
     @main_project = Project.find_by!(name: params[:staging_main_project_name])
+  end
+
+  def set_staging_project
+    @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:name])
   end
 end

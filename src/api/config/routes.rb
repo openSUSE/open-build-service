@@ -762,7 +762,7 @@ OBSApi::Application.routes.draw do
 
   # StagingWorkflow API
   resources :staging, only: [], param: 'main_project_name' do
-    resources :staging_projects, only: [:index, :show], controller: 'staging/staging_projects', param: :name do
+    resources :staging_projects, only: [:index, :show, :destroy], controller: 'staging/staging_projects', param: :name do
       post 'copy/:staging_project_copy_name' => :copy
 
       get 'staged_requests' => 'staging/staged_requests#index', constraints: cons

@@ -138,4 +138,19 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
                                                                                                            user.id)
     end
   end
+
+  describe 'DELETE #destroy' do
+    subject { delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, name: staging_project.name }, format: :xml }
+
+    before do
+      login(user)
+      staging_project
+    end
+
+    it 'deletes the staging project' do
+      expect { subject }.to change(Staging::StagingProject, :count).by(-1)
+    end
+
+    it { is_expected.to have_http_status(:success) }
+  end
 end
