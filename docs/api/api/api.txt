@@ -1933,11 +1933,16 @@ XmlResult: required_checks
 == Staging
   WARNING: This API is currently in beta and unstable
 
-=== Staging Projects
+=== Staging Workflow
 
 <staging_workflow_project>: The name of the staging workflow project, e.g. openSUSE:Factory
 <staging_project>: The name of the staging project, e.g. openSUSE:Factory:Staging:A
 <staging_project_copy_name>: The name of the staging project's copy, e.g. openSUSE:Factory:Staging:B
+
+POST /staging/<staging_workflow_project>/workflow
+  Create a staging workflow for a given project.
+XmlBody: create_staging_workflow
+XmlResult: status_ok
 
 GET /staging/<staging_workflow_project>/staging_projects
   Get the overall state of all staging projects belonging to a staging workflow project
