@@ -11,7 +11,7 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
     context 'with valid staging_project' do
       before do
         login user
-        post :create, params: { staging_main_project_name: project, format: :xml },
+        post :create, params: { staging_workflow_project: project, format: :xml },
                       body: "<workflow managers='#{group}'/>"
       end
 
@@ -22,7 +22,7 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
     context 'invalid user' do
       before do
         login other_user
-        post :create, params: { staging_main_project_name: project, format: :xml },
+        post :create, params: { staging_workflow_project: project, format: :xml },
                       body: "<workflow managers='#{group}'/>"
       end
 
@@ -33,7 +33,7 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
     context 'non-existent project' do
       before do
         login user
-        post :create, params: { staging_main_project_name: 'imaginary_project', format: :xml },
+        post :create, params: { staging_workflow_project: 'imaginary_project', format: :xml },
                       body: "<workflow managers='#{group}'/>"
       end
 
@@ -43,7 +43,7 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
     context 'without group' do
       before do
         login user
-        post :create, params: { staging_main_project_name: project, format: :xml }
+        post :create, params: { staging_workflow_project: project, format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }

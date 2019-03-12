@@ -46,13 +46,13 @@ class Staging::ExcludedRequestsController < ApplicationController
   end
 
   def set_project
-    @project = Project.get_by_name(params[:staging_main_project_name])
+    @project = Project.get_by_name(params[:staging_workflow_project])
   end
 
   def set_staging_workflow
     @staging_workflow = @project.staging
     return if @staging_workflow
 
-    raise InvalidParameterError, "Project #{params[:staging_main_project_name]} doesn't have an asociated Staging Workflow"
+    raise InvalidParameterError, "Project #{params[:staging_workflow_project]} doesn't have an asociated Staging Workflow"
   end
 end

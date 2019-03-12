@@ -22,7 +22,7 @@ class Staging::WorkflowsController < ApplicationController
   private
 
   def set_project
-    @project = Project.get_by_name(params[:staging_main_project_name])
+    @project = Project.get_by_name(params[:staging_workflow_project])
 
     return if @project
     render_error(
