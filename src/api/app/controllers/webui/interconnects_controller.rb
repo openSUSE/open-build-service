@@ -21,7 +21,7 @@ class Webui::InterconnectsController < Webui::WebuiController
         end
         format.js do
           flash.now[:success] = message
-          render :create, status: :ok
+          render :create, status: :ok, locals: { interconnect: project_params }
         end
       else
         message = "Failed to create project '#{@project}': #{@project.errors.full_messages.to_sentence}"
