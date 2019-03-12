@@ -761,17 +761,17 @@ OBSApi::Application.routes.draw do
   end
 
   # StagingWorkflow API
-  resources :staging, only: [], param: 'main_project_name' do
-    resource :workflow, only: :create, controller: 'staging/workflows', constraints: cons
-    resources :staging_projects, only: [:index, :show], controller: 'staging/staging_projects', param: :name do
+  resources :staging, only: [], param: 'main_project_name', module: 'staging' do
+    resource :workflow, only: :create, constraints: cons
+    resources :staging_projects, only: [:index, :show], param: :name do
       post 'copy/:staging_project_copy_name' => :copy
 
-      get 'staged_requests' => 'staging/staged_requests#index', constraints: cons
-      resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
+      get 'staged_requests' => 'staged_requests#index', constraints: cons
+      resource :staged_requests, only: [:create, :destroy], constraints: cons
     end
 
-    resources :excluded_requests, controller: 'staging/excluded_requests', only: [:index], constraints: cons
-    resource :excluded_requests, controller: 'staging/excluded_requests', only: [:create, :destroy], constraints: cons
+    resources :excluded_requests, only: [:index], constraints: cons
+    resource :excluded_requests, only: [:create, :destroy], constraints: cons
   end
 
   controller :source_attribute do
