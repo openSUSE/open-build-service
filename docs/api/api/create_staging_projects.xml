@@ -1,0 +1,4 @@
+<workflow>
+  <staging_project>example2</staging_project>
+  <staging_project>example1</staging_project>
+</workflow>
