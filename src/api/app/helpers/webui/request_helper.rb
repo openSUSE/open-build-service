@@ -198,4 +198,10 @@ module Webui::RequestHelper
   def review_request_reason(bs_request, review)
     bs_request.request_history_elements.where(description_extension: review[:id]).pluck(:comment).first.presence || 'No reason given'
   end
+
+  def list_maintainers(maintainers)
+    maintainers.pluck(:login).map do |maintainer|
+      user_with_realname_and_icon(maintainer, short: true)
+    end.to_sentence.html_safe
+  end
 end
