@@ -144,8 +144,6 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit request_show_path(1)
         click_link("Review for #{reviewer}")
         within '#review-0' do
-          expect(page).to have_text("#{submitter.realname} (#{submitter.login}) requested:")
-          expect(page).to have_text('Please review')
           fill_in 'comment', with: 'Ok for the project'
           click_button 'Approve'
         end
@@ -203,6 +201,42 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button('Accept')
         expect(page).to have_css('#flash', text: 'Unable add review to')
+      end
+    end
+
+    describe 'for reviewer' do
+      let(:review_group) { create(:group) }
+      let(:reviewer) { create(:confirmed_user) }
+
+      before do
+        review_group.users << reviewer
+        review_group.save!
+      end
+
+      context 'for project reviews' do
+        before do
+          create(:review, by_group: review_group, bs_request: bs_request)
+        end
+
+        it 'does not show any request reason' do
+          login reviewer
+          visit request_show_path(bs_request)
+          expect(find('#review-0')).not_to have_text('requested:')
+        end
+      end
+
+      context 'for manual reviews' do
+        before do
+          create(:review, by_group: review_group, bs_request: bs_request, creator: receiver, reason: 'Does this make sense?')
+        end
+
+        it 'shows request reason' do
+          login reviewer
+          visit request_show_path(bs_request)
+          within '#review-0' do
+            expect(page).to have_text("#{receiver.realname} (#{receiver.login}) requested:\nDoes this make sense?")
+          end
+        end
       end
     end
   end

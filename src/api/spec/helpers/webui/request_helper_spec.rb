@@ -188,40 +188,4 @@ RSpec.describe Webui::RequestHelper do
       it { is_expected.to match(expected_regex) }
     end
   end
-
-  describe '#review_request_reason' do
-    let(:bs_request) do
-      create(:bs_request_with_submit_action,
-             target_package: target_package,
-             source_package: source_package)
-    end
-    let(:review) { bs_request.reviews.first }
-    let(:user) { create(:confirmed_user) }
-
-    subject { review_request_reason(bs_request, review) }
-
-    context 'when review has no request reason' do
-      before do
-        bs_request.addreview(by_user: user)
-      end
-
-      it { is_expected.to eq('No reason given') }
-    end
-
-    context 'when review has a request reason' do
-      before do
-        bs_request.addreview(by_user: user, comment: 'Please have a look.')
-      end
-
-      it { is_expected.to eq('Please have a look.') }
-    end
-
-    context 'when the request reason is empty' do
-      before do
-        bs_request.addreview(by_user: user, comment: '')
-      end
-
-      it { is_expected.to eq('No reason given') }
-    end
-  end
 end
