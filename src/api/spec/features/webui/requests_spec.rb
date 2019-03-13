@@ -188,6 +188,41 @@ RSpec.feature 'Requests', type: :feature, js: true do
         expect(page).to have_css('#flash-messages', text: 'Unable add review to')
       end
     end
+
+    describe 'for reviewer' do
+      let(:review_group) { create(:group) }
+      let(:reviewer) { create(:confirmed_user) }
+
+      before do
+        review_group.users << reviewer
+        review_group.save!
+      end
+
+      context 'for project reviews' do
+        before do
+          create(:review, by_group: review_group, bs_request: bs_request)
+        end
+
+        it 'renders the review tab' do
+          login reviewer
+          visit request_show_path(bs_request)
+          expect(find('#review_descision_display_0')).not_to have_text('requested:')
+        end
+      end
+
+      context 'for manual reviews' do
+        before do
+          create(:review, by_group: review_group, bs_request: bs_request,
+                          creator: receiver, reason: 'Does this make sense?')
+        end
+
+        it 'renders the review tab' do
+          login reviewer
+          visit request_show_path(bs_request)
+          expect(find('#review_descision_display_0')).to have_text("#{receiver.login} requested:\nDoes this make sense?")
+        end
+      end
+    end
   end
 
   describe 'shows the correct auto accepted message' do
