@@ -1,7 +1,11 @@
 class Staging::ExcludedRequestsController < ApplicationController
-  before_action :require_login
+  before_action :require_login, except: [:index]
   before_action :set_project
   before_action :set_staging_workflow, :set_requests_xml_hash
+
+  def index
+    @request_exclusions = @staging_workflow.request_exclusions
+  end
 
   def create
     authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy

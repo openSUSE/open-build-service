@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true do
+  render_views
+
   let(:user) { create(:confirmed_user, login: 'user') }
   let(:other_user) { create(:confirmed_user, login: 'other_user') }
   let(:project) { user.home_project }
@@ -18,9 +20,22 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
            review_by_group: group)
   end
 
-  before { login(manager) }
+  describe 'GET #index' do
+    before do
+      get :index, params: { staging_main_project_name: staging_workflow.project.name, format: :xml }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+    it 'returns the excluded_requests xml' do
+      assert_select 'excluded_requests' do
+        assert_select 'request', 0
+      end
+    end
+  end
 
   describe 'POST #create' do
+    before { login(manager) }
+
     context 'succeeds' do
       before do
         post :create, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
@@ -73,6 +88,8 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
   end
 
   describe 'DELETE #destroy' do
+    before { login(manager) }
+
     let(:request_exclusion) { create(:request_exclusion, bs_request: bs_request, number: bs_request.number, staging_workflow: staging_workflow) }
 
     context 'succeeds' do
