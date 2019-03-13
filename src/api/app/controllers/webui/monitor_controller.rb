@@ -2,6 +2,8 @@ class Webui::MonitorController < Webui::WebuiController
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
   before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
 
+  DEFAULT_SEARCH_RANGE = 24
+
   class << self
     private_class_method
     def addarrays(arr1, arr2)
@@ -81,6 +83,10 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def gethistory(key, range, cache = 1)
+    upper_range_limit = DEFAULT_SEARCH_RANGE * 365
+    # define an upper-limit to range to avoid long running queries
+    range = [upper_range_limit, range.to_i].min
+
     cachekey = key + "-#{range}"
     Rails.cache.delete(cachekey, shared: true) unless cache
     Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
@@ -95,7 +101,8 @@ class Webui::MonitorController < Webui::WebuiController
     required_parameters :arch, :range
 
     arch = params[:arch]
-    range = params[:range]
+    range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
+
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
       data[prefix] = gethistory(prefix + '_' + arch, range, !discard_cache?).map { |time, value| [time * 1000, value] }
     end
