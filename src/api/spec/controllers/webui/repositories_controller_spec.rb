@@ -12,11 +12,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       get :index, params: { project: apache_project }
     end
 
-    it { expect(assigns(:build).to_s).to eq(apache_project.get_flags('build').to_s) }
-    it { expect(assigns(:debuginfo).to_s).to eq(apache_project.get_flags('debuginfo').to_s) }
-    it { expect(assigns(:publish).to_s).to eq(apache_project.get_flags('publish').to_s) }
-    it { expect(assigns(:useforbuild).to_s).to eq(apache_project.get_flags('useforbuild').to_s) }
-    it { expect(assigns(:architectures)).to eq(apache_project.architectures.uniq) }
+    it { expect(assigns(:architectures)).to be_empty }
   end
 
   describe 'GET #state' do
@@ -25,20 +21,11 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         get :state, params: { project: user.home_project, repository: repo_for_user_home.name }
       end
 
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
       it { expect(assigns(:repository)).to eq(repo_for_user_home) }
-      it { expect(assigns(:archs)).to match_array(repo_for_user_home.architectures.pluck(:name)) }
     end
 
     context 'with a non valid repository param' do
-      before do
-        request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to :back
-        get :state, params: { project: user.home_project, repository: 'non_valid_repo_name' }
-      end
-
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
       it { expect(assigns(:repository)).to be_falsey }
-      it { is_expected.to redirect_to(root_url) }
     end
   end
 
@@ -112,7 +99,6 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         get :distributions, params: { project: apache_project }
       end
 
-      it { is_expected.to redirect_to(configuration_interconnect_path) }
       it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
       it { expect(assigns(:distributions)).to be_empty }
     end
@@ -133,7 +119,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       end
 
       it { expect(action).to redirect_to(root_url) }
-      it { expect { action }.to_not change(Repository, :count) }
+      it { expect { action }.not_to change(Repository, :count) }
     end
 
     context 'with a non valid target repository' do
@@ -160,7 +146,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
         target_repo = create(:repository, project: another_project)
         post :create, params: {
           project: user.home_project, repository: 'valid_name',
-            target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
+          target_project: another_project, target_repo: target_repo.name, architectures: ['i586']
         }
       end
 
@@ -185,58 +171,86 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
   end
 
   describe 'POST #create_dod_repository' do
-    before do
-      login user
-    end
-
-    context 'with an existing repository' do
-      let(:existing_repository) { create(:repository) }
-
+    context 'as regular user' do
       before do
-        post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: existing_repository.name, arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+        login user
       end
 
-      it { expect(assigns(:error)).to start_with('Repository with name') }
-      it { expect(response).to have_http_status(:success) }
+      context 'with valid repository data' do
+        before do
+          post :create_dod_repository, xhr: true,
+                                       params: {
+                                         project: user.home_project, name: 'NewRepo', arch: Architecture.first.name,
+                                         url: 'http://whatever.com', repotype: 'rpmmd'
+                                       }
+        end
+
+        it { expect(response.body).to eq('{"error":"Sorry, you are not authorized to create this DownloadRepository."}') }
+      end
     end
 
-    context 'with no valid repository type' do
+    context 'as admin' do
       before do
-        post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'invalid_repo_type'
-          }
+        login admin_user
       end
 
-      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
-      it { expect(response).to have_http_status(:success) }
-    end
+      context 'with an existing repository' do
+        let(:existing_repository) { create(:repository) }
 
-    context 'with no valid repository Architecture' do
-      before do
-        post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: 'non_existent_arch', url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+        before do
+          post :create_dod_repository, xhr: true,
+                                       params: {
+                                         project: user.home_project, name: existing_repository.name, arch: Architecture.first.name,
+                                         url: 'http://whatever.com', repotype: 'rpmmd'
+                                       }
+        end
+
+        it { expect(assigns(:error)).to start_with('Repository with name') }
+        # FIXME: Remove 'have_http_status(:success)' after old webui got dropped
+        it { expect(response).to have_http_status(:success).or(have_http_status(:redirect)) }
       end
 
-      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
-      it { expect(response).to have_http_status(:success) }
-    end
+      context 'with no valid repository type' do
+        before do
+          post :create_dod_repository, xhr: true,
+                                       params: {
+                                         project: user.home_project, name: 'NewRepo', arch: Architecture.first.name,
+                                         url: 'http://whatever.com', repotype: 'invalid_repo_type'
+                                       }
+        end
 
-    context 'with valid repository data' do
-      before do
-        post :create_dod_repository, xhr: true,
-          params: {
-            project: user.home_project, name: 'NewRepo', arch: Architecture.first.name, url: 'http://whatever.com', repotype: 'rpmmd'
-          }
+        it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+        # FIXME: Remove 'have_http_status(:success)' after old webui got dropped
+        it { expect(response).to have_http_status(:success).or(have_http_status(:redirect)) }
       end
 
-      it { expect(assigns(:error)).to be_nil }
-      it { expect(response).to have_http_status(:success) }
+      context 'with no valid repository Architecture' do
+        before do
+          post :create_dod_repository, xhr: true,
+                                       params: {
+                                         project: user.home_project, name: 'NewRepo', arch: 'non_existent_arch',
+                                         url: 'http://whatever.com', repotype: 'rpmmd'
+                                       }
+        end
+
+        it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+        # FIXME: Remove 'have_http_status(:success)' after old webui got dropped
+        it { expect(response).to have_http_status(:success).or(have_http_status(:redirect)) }
+      end
+
+      context 'with valid repository data' do
+        before do
+          post :create_dod_repository, xhr: true,
+                                       params: {
+                                         project: user.home_project, name: 'NewRepo', arch: Architecture.first.name,
+                                         url: 'http://whatever.com', repotype: 'rpmmd'
+                                       }
+        end
+
+        it { expect(assigns(:error)).to be_nil }
+        # FIXME: Remove 'have_http_status(:success)' after old webui got dropped
+        it { expect(response).to have_http_status(:success).or(have_http_status(:redirect)) }
+      end
     end
   end
 
