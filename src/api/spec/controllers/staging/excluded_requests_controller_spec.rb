@@ -21,14 +21,28 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
   end
 
   describe 'GET #index' do
+    let!(:request_exclusion_1) { create(:request_exclusion, bs_request: bs_request, staging_workflow: staging_workflow, description: 'Request 1') }
+    let(:source_package_2) { create(:package, name: 'source_package_2', project: source_project) }
+    let(:bs_request_2) do
+      create(:bs_request_with_submit_action,
+             creator: other_user,
+             target_package: target_package,
+             source_package: source_package,
+             review_by_group: group)
+    end
+    let!(:request_exclusion_2) { create(:request_exclusion, bs_request: bs_request_2, staging_workflow: staging_workflow, description: 'Request 2') }
+
     before do
       get :index, params: { staging_main_project_name: staging_workflow.project.name, format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
     it 'returns the excluded_requests xml' do
-      assert_select 'excluded_requests' do
-        assert_select 'request', 0
+      assert_select 'excluded_requests', 1 do
+        assert_select 'request', 2 do
+          assert_select "[description='Request 1']"
+          assert_select "[description='Request 2']"
+        end
       end
     end
   end
