@@ -232,7 +232,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     docker-compose run  --rm backend make -C src/backend test
     ```
 
-11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment).
+11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
 
 # Happy Hacking! - :heart: Your Open Build Service Team
 

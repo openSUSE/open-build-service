@@ -1957,6 +1957,9 @@ XmlResult: status_ok
 <request>: The number of the request, e.g. 12345
 <description>: A string of text (url encoded)
 
+GET /staging/<project>/excluded_requests
+  Get the list of excluded request for this Staging
+
 POST /staging/<project>/excluded_requests/<request>?description=<description>
   Exclude this request from this Staging
 

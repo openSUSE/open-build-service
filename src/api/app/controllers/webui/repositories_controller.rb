@@ -132,7 +132,10 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # POST /project/create_dod_repository
   def create_dod_repository
-    authorize @project, :update?
+    download_on_demand = DownloadRepository.new(arch: params[:arch],
+                                                url: params[:url], repotype: params[:repotype])
+    authorize download_on_demand, :create?
+
     if Repository.find_by_name(params[:name])
       @error = "Repository with name '#{params[:name]}' already exists."
     end

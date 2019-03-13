@@ -769,6 +769,7 @@ OBSApi::Application.routes.draw do
       resource :staged_requests, controller: 'staging/staged_requests', only: [:create, :destroy], constraints: cons
     end
 
+    resources :excluded_requests, controller: 'staging/excluded_requests', only: [:index], constraints: cons
     resource :excluded_requests, controller: 'staging/excluded_requests', only: [:create, :destroy], constraints: cons
   end
 
