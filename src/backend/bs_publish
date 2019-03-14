@@ -2584,6 +2584,7 @@ publishprog_done:
 
   # update repoinfo with status
   if (!$dbgsplit && $state ne '') {
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     $repoinfo->{'code'} = 'succeeded';
     $repoinfo->{'starttime'} = $starttime;
     $repoinfo->{'endtime'} = time();
