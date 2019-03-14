@@ -1267,9 +1267,12 @@ class Package < ApplicationRecord
     doc = Xmlhash.parse(answer)
     doc.elements('revision') do |s|
       Rails.cache.write(['history', self, s['rev']], s)
+      Rails.cache.write(['history_md5', self, s.get('srcmd5')], s)
     end
   end
 
+  # the revision might match a backend revision that is not in _history
+  # e.g. on expanded links - in this case we return nil
   def commit(rev = nil)
     if rev && rev.to_i < 0
       # going backward from not yet known current revision, find out ...
@@ -1279,13 +1282,12 @@ class Package < ApplicationRecord
     end
     rev ||= self.rev
 
-    cache_key = ['history', self, rev]
-    c = Rails.cache.read(cache_key)
-    return c if c
+    commit = fetch_rev_from_history_cache(rev)
+    return commit if commit
 
     parse_all_history
     # now it has to be in cache
-    Rails.cache.read(cache_key)
+    fetch_rev_from_history_cache(rev)
   end
 
   def self.verify_file!(pkg, name, content)
@@ -1475,6 +1477,10 @@ class Package < ApplicationRecord
     new_activity > 100 ? 100 : new_activity
 
     self.activity_index = new_activity
+  end
+
+  def fetch_rev_from_history_cache(rev)
+    Rails.cache.read(['history', self, rev]) || Rails.cache.read(['history_md5', self, rev])
   end
 end
 
