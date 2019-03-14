@@ -445,6 +445,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Maintained Projects')
       click_link('Add project to maintenance')
       fill_in('Project to maintain:', with: project.name)
+      expect(page).to have_text('1 result is available')
       click_button('Accept')
 
       expect(page).to have_text("Added #{project.name} to maintenance")
