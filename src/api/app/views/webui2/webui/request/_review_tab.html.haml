@@ -3,7 +3,7 @@
   = hidden_review_payload(review)
   - if review[:creator]
     %p
-      = user_name_with_icon(User.find_by(login: review[:creator]))
+      = user_with_realname_and_icon(User.find_by(login: review[:creator]))
       requested:
     .ml-4
       %p= simple_format(review[:reason] || 'No reason given')

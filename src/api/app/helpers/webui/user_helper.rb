@@ -15,13 +15,6 @@ module Webui::UserHelper
     )
   end
 
-  def user_name_with_icon(user)
-    capture do
-      concat(image_tag_for(user, size: 20))
-      concat(link_to(display_name(user), user_show_path(user), class: 'pl-1'))
-    end
-  end
-
   # This method is migrated to Webui2 (and refactored) with the name: image_tag_for
   # @param [User] user object
   def user_image_tag(user, opt = {})
