@@ -1,9 +1,10 @@
-.comments {
+#comments {
   .media .media-body {
     pre, code {
       @extend .p-2;
       @extend .bg-light;
       @extend .text-pre-wrap;
     }
+    code { line-height: 1.5rem; }
   }
 }
