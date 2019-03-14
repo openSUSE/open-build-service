@@ -25,7 +25,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
       it 'assigns the managers group' do
-        expect(Staging::StagingProject.find_by_name('home:tom:My:Projects').groups).to contain_exactly(subject.managers_group)
+        expect(Project.find_by_name('home:tom:My:Projects').groups).to contain_exactly(subject.managers_group)
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       end
 
       it { expect(Project.where(name: 'Apache')).not_to exist }
-      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Staging::StagingProject.') }
+      it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Project.') }
     end
 
     context 'when it fails to save' do
