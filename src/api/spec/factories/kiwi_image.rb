@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :kiwi_image, class: Kiwi::Image do
-    name { Faker::Name.name }
+    name { Faker::Name.first_name }
     md5_last_revision { nil }
 
     before(:create) do |image|
