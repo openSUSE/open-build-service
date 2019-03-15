@@ -216,8 +216,21 @@ class User < ApplicationRecord
     user
   end
 
+  # The currently logged in user (might be nil). It's reset after
+  # every request and normally set during authentification
   def self.current
     Thread.current[:user]
+  end
+
+  def self.nobody
+    Thread.current[:nobody] ||= find_nobody!
+  end
+
+  # Currently logged in user or nobody user if there is no user logged in.
+  # Use this to check permissions, but don't treat it as logged in user. Check
+  # is_nobody? on the returned object
+  def self.current_or_nobody
+    current || nobody
   end
 
   def self.current=(user)

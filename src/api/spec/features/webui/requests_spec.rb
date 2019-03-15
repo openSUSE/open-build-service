@@ -121,6 +121,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         click_link 'Add a review'
         find(:id, 'review_type').select('User')
         fill_in 'review_user', with: reviewer.login
+        expect(page).to have_text('1 result is available')
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1 (review)')
@@ -146,6 +147,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         click_link 'Add a review'
         find(:id, 'review_type').select('Group')
         fill_in 'review_group', with: review_group.title
+        expect(page).to have_text('1 result is available')
         click_button('Accept')
         expect(page).to have_text("Open review for #{review_group.title}")
       end
@@ -158,6 +160,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         click_link 'Add a review'
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: submitter.home_project
+        expect(page).to have_text('1 result is available')
         click_button('Accept')
         expect(page).to have_text("Review for #{submitter.home_project}")
       end
@@ -172,6 +175,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
         find(:id, 'review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
         fill_in 'review_package', with: package.name
+        expect(page).to have_text('1 result is available')
         click_button('Accept')
         expect(page).to have_text("Review for #{submitter.home_project} / #{package.name}")
       end
