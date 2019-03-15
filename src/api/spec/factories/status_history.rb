@@ -7,7 +7,7 @@ FactoryBot.define do
     end
 
     key { "#{source}_#{architecture}" }
-    time { Random.rand(0..365).days.ago.to_i }
+    time { Random.rand(0..8000).hours.ago.to_i }
     value { Random.rand(range) }
   end
 end

@@ -68,7 +68,8 @@ RSpec.describe Webui::MonitorController do
       create_list(:status_history, 10, source: 'waiting', range: 10_000..42_000)
       # i586
       create_list(:status_history, 5, source: 'squeue_high', architecture: 'i586')
-      get :events, params: { arch: 'x86_64', range: 8761 }, xhr: true
+      # the factory creates the events 0..8000 hours ago
+      get :events, params: { arch: 'x86_64', range: 8100 }, xhr: true
       @json_response = JSON.parse(response.body)
     end
 
