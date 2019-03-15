@@ -142,14 +142,21 @@ module StagingProject
 
   def state
     return :empty unless staged_requests.exists?
-    return :unacceptable if untracked_requests.present? || staged_requests.obsolete.present?
+    return :unacceptable if unacceptable_state?
+    return :review if review_state?
+    general_state
+  end
 
-    overall_state = build_state
-    overall_state = check_state if overall_state == :acceptable
+  def unacceptable_state?
+    untracked_requests.present? || staged_requests.obsolete.present?
+  end
 
-    return :review if overall_state == :acceptable && missing_reviews.present?
+  def review_state?
+    general_state == :acceptable && missing_reviews.present?
+  end
 
-    overall_state
+  def general_state
+    build_state == :acceptable ? check_state : build_state
   end
 
   def build_state
