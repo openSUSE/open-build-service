@@ -83,3 +83,6 @@ require 'support/migration'
 
 # support rabbitmq
 require 'support/rabbitmq'
+
+# avoid duplicated attribute namespaces
+require 'support/faker'
