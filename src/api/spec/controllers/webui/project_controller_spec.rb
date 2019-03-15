@@ -4,8 +4,6 @@ require 'webmock/rspec'
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
-
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::ProjectController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }
@@ -1487,4 +1485,3 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength
