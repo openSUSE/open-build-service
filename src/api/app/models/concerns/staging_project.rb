@@ -94,28 +94,13 @@ module StagingProject
     return @missing_reviews if @missing_reviews
 
     @missing_reviews = []
-    attribs = [:by_group, :by_user, :by_package, :by_project]
 
-    staged_requests.includes(:reviews).find_each do |request|
-      request.reviews.where.not(state: :accepted).find_each do |review|
-        # We skip reviews for the staging project since these reviews are used
-        # by the openSUSE release tools _after_ the overall_state switched to
-        # 'accepted'.
-        next if review.by_project == name
-        # FIXME: this loop (and the inner if) would not be needed
-        # if every review only has one valid by_xxx.
-        # I'm keeping it to mimic the python implementation.
-        # Instead, we could have something like
-        # who = review.by_group || review.by_user || review.by_project || review.by_package
-        attribs.each do |att|
-          who = review.send(att)
-          next unless who
-
-          @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who, review_type: att.to_s }
-          # No need to duplicate reviews
-          break
-        end
-      end
+    Review.includes(:bs_request).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
+      # We skip reviews for the staging project since these reviews are used
+      # by the openSUSE release tools _after_ the overall_state switched to
+      # 'accepted'.
+      next if review.by_project == name
+      extract_missing_reviews(review.bs_request, review)
     end
     @missing_reviews
   end
@@ -229,6 +214,23 @@ module StagingProject
 
   def add_managers_group
     assign_managers_group(staging_workflow.managers_group)
+  end
+
+  def extract_missing_reviews(request, review)
+    # FIXME: this loop (and the inner if) would not be needed
+    # if every review only has one valid by_xxx.
+    # I'm keeping it to mimic the python implementation.
+    # Instead, we could have something like
+    # who = review.by_group || review.by_user || review.by_project || review.by_package
+
+    [:by_group, :by_user, :by_package, :by_project].each do |review_by|
+      who = review.send(review_by)
+      next unless who
+
+      @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who, review_type: review_by.to_s }
+      # No need to duplicate reviews
+      break
+    end
   end
 end
 # rubocop:enable Metrics/ModuleLength
