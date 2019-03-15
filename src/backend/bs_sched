@@ -1114,7 +1114,7 @@ eval {
       unlink("$gdst/:repodone");
     }
 
-    if (!$wasfinished && $gctx->{'rrelatedprpdeps'}->{$prp}) {
+    if (!$wasfinished && $gctx->{'rrelatedprpdeps'}->{$prp} && $lookattype ne 'low') {
       # check for related prps
       print "    checking related prps\n";
       for my $aprp (@{$gctx->{'rrelatedprpdeps'}->{$prp}}) {
