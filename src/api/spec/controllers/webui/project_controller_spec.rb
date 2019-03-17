@@ -869,8 +869,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         post :edit_comment, params: { project: user.home_project, package: package, text: text, last_comment: 'Last comment', format: 'js' }
       end
 
-      it { expect(assigns(:comment)).to eq('Last comment') }
-      it { expect(assigns(:error)).to eq("Can't create attributes in home_package") }
+      it { expect(response).to redirect_to(session_new_path) }
     end
   end
 
