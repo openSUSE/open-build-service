@@ -32,9 +32,11 @@ Style/UnneededInterpolation:
 
 ##################### Metrics ##################################
 
+# Disabled due Rspec.describe and routes.draw can't be split
 Metrics/BlockLength:
   Exclude:
     - 'config/routes.rb'
+    - 'spec/**/*'
 
 ##################### Rails ##################################
 

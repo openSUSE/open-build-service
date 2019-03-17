@@ -4,8 +4,6 @@ require 'nokogiri'
 # and start a test backend. Some of the BsRequestAction methods
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
-
-# rubocop:disable Metrics/BlockLength
 RSpec.describe BsRequest, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
@@ -672,4 +670,3 @@ RSpec.describe BsRequest, vcr: true do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength

@@ -4,8 +4,6 @@ require 'rantly/rspec_extensions'
 # WARNING: If you change #file_exists or #has_file test make sure
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
-
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Package, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:home_project) { user.home_project }
@@ -793,4 +791,3 @@ RSpec.describe Package, vcr: true do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength
