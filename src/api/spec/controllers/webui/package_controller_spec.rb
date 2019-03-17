@@ -1,7 +1,5 @@
 require 'webmock/rspec'
 require 'rails_helper'
-
-# rubocop:disable Metrics/BlockLength
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: 'admin') }
   let(:user) { create(:confirmed_user, login: 'tom') }
