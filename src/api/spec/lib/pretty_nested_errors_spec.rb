@@ -25,7 +25,8 @@ class Spoke < ApplicationRecord
   belongs_to :wheel
 end
 
-RSpec.describe PrettyNestedErrors do
+# the migration type disables transaction database cleaner, which won't work with tables created
+RSpec.describe PrettyNestedErrors, type: :migration do
   let(:bicycle) do
     Bicycle.new(
       name: 'My Favorite Bicycle',

@@ -1,7 +1,7 @@
 require 'rails_helper'
 require Rails.root.join('db/data/20170831143534_convert_notifications_event_payload_to_json.rb')
 
-RSpec.describe ConvertNotificationsEventPayloadToJson do
+RSpec.describe ConvertNotificationsEventPayloadToJson, type: :migration do
   describe '.up' do
     let!(:yaml) { "---\nhello: world\nhow:\n- are\n- you\n- today?\nim: fine thanks\n" }
     let!(:notification) { create(:notification, type: 'Notification::RssFeedItem') }
