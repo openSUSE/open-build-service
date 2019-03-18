@@ -357,24 +357,49 @@ sub getgbininfo {
   return (BSUtil::tostorable($gbininfo), 'Content-Type: application/octet-stream');
 }
 
+sub getbinarychecksums {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+
+  my $r = "$reporoot/$prp/$arch/:repo";
+  if (-s "$r/.newchecksums") {
+    my $checksums = BSUtil::retrieve("$r/.checksums", 1) || {};
+    my $newchecksums = BSUtil::retrieve("$r/.newchecksums", 1) || {};
+    $checksums->{$_} = delete $newchecksums->{$_} for keys %$newchecksums;
+    return (BSUtil::tostorable($checksums), 'Content-Type: application/octet-stream');
+  }
+  my $fd;
+  if (!open($fd, '<', "$r/.checksums")) {
+    return (BSUtil::tostorable({}), 'Content-Type: application/octet-stream');
+  }
+  BSServer::reply_file($fd, 'Content-Type: application/octet-stream');
+  return undef;
+}
+
+sub getrepositorystatus {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+
+  my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
+  my $status = { 'code' => $schedulerstate->{'code'} };
+  $status->{'details'} = $schedulerstate->{'details'} if $schedulerstate->{'details'};
+  if ($schedulerstate->{'buildid'}) {
+    $status->{'buildid'} = $schedulerstate->{'buildid'};
+  } elsif ($schedulerstate->{'oldbuildid'}) {
+    $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
+  }
+  return ($status, $BSXML::buildstatus);
+}
+
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
-  die "must specify view\n" unless $cgi->{'view'};
-  if ($cgi->{'view'} eq 'status') {
-    my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
-    my $status = { 'code' => $schedulerstate->{'code'} };
-    $status->{'details'} = $schedulerstate->{'details'} if $schedulerstate->{'details'};
-    if ($schedulerstate->{'buildid'}) {
-      $status->{'buildid'} = $schedulerstate->{'buildid'};
-    } elsif ($schedulerstate->{'oldbuildid'}) {
-      $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
-    }
-    return ($status, $BSXML::buildstatus);
-  }
-  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
-  return getgbininfo($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'gbininfo' || $cgi->{'view'} eq 'gbininfocode';
-  die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
-  return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'});
+  my $view = $cgi->{'view'};
+  die "must specify view\n" unless $view;
+  return getrepositorystatus($cgi, $projid, $repoid, $arch) if $view eq 'status';
+  return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums';
+  $cgi->{'withcode'} = 1 if $view  eq 'binaryversionscode' || $view  eq 'gbininfocode';
+  return getgbininfo($cgi, $projid, $repoid, $arch) if $view eq 'gbininfo' || $view eq 'gbininfocode';
+  return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'}) if $view eq 'binaryversions' || $view eq 'binaryversionscode';
+  die("unknown view '$view'\n");
 }
 
 # the worker thinks that out packagebinaryversionlist contains bogus entries

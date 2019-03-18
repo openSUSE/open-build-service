@@ -1445,6 +1445,19 @@ sub prpasort {
   return sort { $h{$a} cmp $h{$b} } @p;
 }
 
+sub sendbadpackagebinaryversionlist {
+  my ($server, $projid, $repoid, $arch, $packid) = @_;
+  eval {
+    my @args = ("project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+    push @args, "workerid=$workerid" if defined $workerid;
+    BSRPC::rpc({
+      'uri' => "$server/badpackagebinaryversionlist",
+      'timeout' => $gettimeout,
+    }, undef, @args);
+  };
+  warn($@) if $@;
+}
+
 # this specialized version of getbinaries only works for
 # kiwi product builds
 sub getbinaries_kiwiproduct {
@@ -1502,6 +1515,7 @@ sub getbinaries_kiwiproduct {
   my %cachenew;
   my @cacheold;
   my $downloadsizek = 0;
+  my %chksumfiles;
 
   my @prpaps = sort keys %prpaps;
   if ($buildinfo->{'package'} =~ /-([^-]+)$/) {
@@ -1522,7 +1536,6 @@ sub getbinaries_kiwiproduct {
     my $prp = "$projid/$repoid";
     my $ddir = "$srcdir/repos/$prp";
     mkdir_p($ddir);
-    my $res;
     my $server =  $prp2server{"$projid/$repoid"} || $buildinfo->{'reposerver'};
     my %knownmd5;
     my $bvl;
@@ -1560,13 +1573,15 @@ sub getbinaries_kiwiproduct {
 	warn($@) if $@;
       }
     }
-    my @good;
-    my @bad;
+    my @done;
+    my @todo;
+
+    # try the cache first
     if ($bvl) {
       for my $bv (@{$bvl->{'binary'} || []}) {
 	my $bin = $bv->{'name'};
 	if ($bin =~ /appdata\.xml$/) {
-	  push @bad, $bv;	# currently not in cache
+	  push @todo, $bv;	# currently not in cache
 	  $downloadsizek += $bv->{'sizek'};
 	  next;
 	}
@@ -1584,24 +1599,26 @@ sub getbinaries_kiwiproduct {
 	  my $leadsigmd5 = '';
 	  my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
 	  if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
-	    push @good, "$rarch/$bin";
+	    push @done, "$rarch/$bin";
 	    push @cacheold, [$cacheid, $s[7]];
 	    $knownmd5{"$rarch/$bin"} = $id;
 	  } else {
 	    unlink "$ddir/$rarch/$bin.new.rpm";
-	    push @bad, $bv;
+	    push @todo, $bv;
 	    $downloadsizek += $bv->{'sizek'};
 	  }
 	} else {
-	  push @bad, $bv;
+	  push @todo, $bv;
 	  $downloadsizek += $bv->{'sizek'};
 	}
       }
     }
-    #print "(cache: ".@good." hits, ".@bad." misses)";
-    $binariesdownload += @bad;
-    $binariescachehits += @good;
-    if ($bvl && @bad) {
+    #print "(cache: ".@done." hits, ".@todo." misses)";
+    $binariesdownload += @todo;
+    $binariescachehits += @done;
+
+    # 2nd try: download individual missing binaries
+    if ($bvl && @todo) {
       if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
 	# reserve space
 	manage_cache($cachesize - $downloadsizek * 1024, \@cacheold, [ values %cachenew ]);
@@ -1614,7 +1631,7 @@ sub getbinaries_kiwiproduct {
 	my @args;
 	push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
 	push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-	push @args, map {"binary=$_->{'name'}"} @bad;
+	push @args, map {"binary=$_->{'name'}"} @todo;
 	BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	  'directory' => $ddir,
@@ -1636,7 +1653,7 @@ sub getbinaries_kiwiproduct {
       };
       if ($@) {
 	# delete everything as a file might be incomplete
-	for my $bv (@bad) {
+	for my $bv (@todo) {
 	  my $bin = $bv->{'name'};
 	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	    unlink("$ddir/$1/$bin.new.rpm");
@@ -1645,7 +1662,7 @@ sub getbinaries_kiwiproduct {
 	  }
 	}
       }
-      for my $bv (splice @bad) {
+      for my $bv (splice @todo) {
 	my $bin = $bv->{'name'};
 	my $rarch;
 	if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
@@ -1656,55 +1673,47 @@ sub getbinaries_kiwiproduct {
 	next unless $rarch;
 	my @s = stat("$ddir/$rarch/$bin.new.rpm");
 	if (!@s) {
-	  push @bad, $bv;
+	  push @todo, $bv;
 	  next;
 	}
 	if (!$bv->{'hdrmd5'}) {
-	  push @good, "$rarch/$bin";
+	  push @done, "$rarch/$bin";
 	  next;
 	}
 	my $leadsigmd5 = '';
 	my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
 	if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
-	  push @good, "$rarch/$bin";
+	  push @done, "$rarch/$bin";
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
 	  $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
 	  $knownmd5{"$rarch/$bin"} = $id;
 	} else {
 	  unlink "$ddir/$rarch/$bin.new.rpm";
-	  push @bad, $bv;
+	  push @todo, $bv;
 	}
       }
-      #print "(still ".@bad." misses)";
+      #print "(still ".@todo." misses)";
     }
-    if ($bvl && !@bad) {
-      for (@good) {
+    if ($bvl && !@todo) {
+      # got all entries, commit
+      for (@done) {
 	rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
 	$kiwiorigins->{"obs://$prp/$_"} = $prpap;
       }
-      $res = [ map {{'name' => $_}} @good ];
-    } else {
+    }
+
+    # 3nd try: download the complete package
+    if (!$bvl || @todo) {
       %knownmd5 = ();
-      for (@good) {
+      for (@done) {
 	unlink("$ddir/$_.new.rpm");
 	delete $cachenew{"$ddir/$_"};
       }
-      if ($bvl && $server ne $buildinfo->{'srcserver'}) {
-	# the bvl entry seems to be wrong. tell our server about that.
-	eval {
-	  my @bargs = ("project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
-	  push @bargs, "workerid=$workerid" if defined $workerid;
-	  BSRPC::rpc({
-	    'uri' => "$server/badpackagebinaryversionlist",
-	    'timeout' => $gettimeout,
-	  }, undef, @bargs);
-	};
-	warn($@) if $@;
-      }
+
       my @args;
       push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
       push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
-      $res = BSRPC::rpc({
+      my $res = BSRPC::rpc({
 	'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	'directory' => $ddir,
 	'timeout' => $gettimeout,
@@ -1725,35 +1734,66 @@ sub getbinaries_kiwiproduct {
 	},
 	'receiver' => \&BSHTTP::cpio_receiver,
       }, undef, @args);
+      die unless $res;
+      @done = map {$_->{'name'}} @$res;
       if ($cachedir) {
-	for my $f (@{$res || []}) {
-	  my @s = stat("$ddir/$f->{'name'}");
+	for my $f (@done) {
+	  my @s = stat("$ddir/$f");
 	  next unless @s;
-	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
+	  my $id = Build::queryhdrmd5("$ddir/$f");
 	  next unless $id;
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id$rpmhdrs_only");
-	  $cachenew{"$ddir/$f->{'name'}"} = [$cacheid, $s[7], "$ddir/$f->{'name'}"];
-	  $knownmd5{$f->{'name'}} = $id;
+	  $cachenew{"$ddir/$f"} = [$cacheid, $s[7], "$ddir/$f"];
+	  $knownmd5{$f} = $id;
 	}
 	#print "(put ".@cachenew." entries)";
       }
+      # the bvl entry seems to be wrong. tell our server about that.
+      sendbadpackagebinaryversionlist($server, $projid, $repoid, $arch, $packid) if $bvl && $server ne $buildinfo->{'srcserver'};
     }
-    die unless $res;
-    my @todometa;
-    my @todometa_f;
-    for my $f (@$res) {
-      my (undef, $name) = split('/', $f->{'name'}, 2);
+
+    # add all entries to meta hash
+    for my $f (@done) {
+      my (undef, $name) = split('/', $f, 2);
       next unless defined($name) && $name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
       my ($n, $rarch) = ($1, $2);
-      my $id = $knownmd5{$f->{'name'}};
-      $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
+      my $id = $knownmd5{$f};
+      $id ||= Build::queryhdrmd5("$ddir/$f");
       $id ||= 'deaddeaddeaddeaddeaddeaddeaddead';
       $meta{"$prpap/$name"} = "$id  $prpap/$n.$rarch";
+    }
+
+    if (@done && !$chksumfiles{"$prp/$arch"}) {
+      # get checksums file
+      eval {
+        BSRPC::rpc({
+	  'uri' => "$server/build/$projid/$repoid/$arch",
+	  'timeout' => $gettimeout,
+	  'receiver' => \&BSHTTP::file_receiver,
+	  'filename' => "$ddir/.checksums.$arch",
+	}, undef, 'view=binarychecksums');
+        $chksumfiles{"$prp/$arch"} = "$ddir/.checksums.$arch" if -s "$ddir/.checksums.$arch";
+      };
     }
   }
   $binariesdownloadsize += $downloadsizek;
 
   manage_cache($cachesize, \@cacheold, [ values %cachenew ]) if $cachedir;
+
+  # merge checksum files
+  unlink("$srcdir/repos/.createrepo_checksums");
+  if (%chksumfiles) {
+    if (open(CHKSUMS, '>', "$srcdir/repos/.createrepo_checksums")) {
+      for my $chksumfile (sort keys %chksumfiles) {
+	my $chksums = BSUtil::retrieve($chksumfile, 1) || {};
+        for my $packid (sort keys %$chksums) {
+          print CHKSUMS $chksums->{$packid};
+	}
+      }
+      close CHKSUMS;
+    }
+    unlink("$srcdir/repos/.createrepo_checksums") unless -s "$srcdir/repos/.createrepo_checksums";
+  }
 
   # create meta
   my @meta = map {$meta{$_}} sort {substr($meta{$a}, 34) cmp substr($meta{$b}, 34) || $a cmp $b} keys %meta;
