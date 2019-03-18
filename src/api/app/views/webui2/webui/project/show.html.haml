@@ -76,7 +76,7 @@
     = render partial: 'delete_project_dialog', locals: { project: @project }
 
     - if show_package_actions?
-      = render partial: 'new_package_modal', locals: { project: @project }
+      = render partial: 'create_package_modal', locals: { project: @project }
       = render partial: 'new_package_branch_modal', locals: { project: @project, remote_projects: @remote_projects }
 
     - if can_be_released?(@project, @packages, @open_release_requests, @has_patchinfo)

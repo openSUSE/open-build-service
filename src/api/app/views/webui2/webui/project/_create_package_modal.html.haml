@@ -3,7 +3,7 @@
     .modal-content
       .modal-header
         %h5.modal-title#new-package-modal-label
-          Create New Package for #{project.name}
+          Create Package for #{project.name}
       .modal-body
         = form_tag(save_new_package_path(project)) do
           .form-group

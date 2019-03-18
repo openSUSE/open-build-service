@@ -44,7 +44,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       login user
       visit project_show_path(project: user.home_project)
       click_link('Create Package')
-      expect(page).to have_text("Create New Package for #{user.home_project_name}")
+      expect(page).to have_text("Create Package for #{user.home_project_name}")
     end
 
     scenario 'with valid data' do
