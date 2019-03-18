@@ -15,7 +15,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
   describe 'GET #index' do
     context 'existing staging_workflow' do
       before do
-        get :index, params: { staging_main_project_name: staging_workflow.project.name, format: :xml }
+        get :index, params: { staging_workflow_project: staging_workflow.project.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -23,7 +23,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
 
     context 'not existing staging_workflow' do
       before do
-        get :index, params: { staging_main_project_name: project_without_staging.name, format: :xml }
+        get :index, params: { staging_workflow_project: project_without_staging.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:bad_request) }
@@ -33,7 +33,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
   describe 'GET #show' do
     context 'not existing project' do
       before do
-        get :show, params: { staging_main_project_name: staging_workflow.project.name, name: 'does-not-exist', format: :xml }
+        get :show, params: { staging_workflow_project: staging_workflow.project.name, name: 'does-not-exist', format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -84,7 +84,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
         bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        get :show, params: { staging_main_project_name: staging_workflow.project.name, name: staging_project.name, format: :xml }
+        get :show, params: { staging_workflow_project: staging_workflow.project.name, name: staging_project.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -111,12 +111,12 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
   end
 
   describe 'POST #copy' do
-    let(:staging_main_project_name) { staging_workflow.project.name }
+    let(:staging_workflow_project) { staging_workflow.project.name }
     let(:original_staging_project_name) { staging_workflow.staging_projects.first.name }
     let(:staging_project_copy_name) { "#{original_staging_project_name}-copy" }
     let(:params) do
       {
-        staging_main_project_name: staging_main_project_name,
+        staging_workflow_project: staging_workflow_project,
         staging_project_name: original_staging_project_name,
         staging_project_copy_name: staging_project_copy_name
       }
@@ -132,7 +132,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
     end
 
     it 'queues a StagingProjectCopyJob job' do
-      expect { post :copy, format: :xml, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_main_project_name,
+      expect { post :copy, format: :xml, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow_project,
                                                                                                            original_staging_project_name,
                                                                                                            staging_project_copy_name,
                                                                                                            user.id)
