@@ -2,6 +2,9 @@
   @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
   devel_package = @package.develpackage
 
+  content_for(:meta_title, @package.title.presence || @package.name)
+  content_for(:meta_description, @package.description)
+
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body

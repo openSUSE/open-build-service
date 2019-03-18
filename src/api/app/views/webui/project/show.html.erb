@@ -2,6 +2,8 @@
 <% @layouttype = 'custom' %>
 <% project_bread_crumb 'Overview' %>
 
+<% content_for(:meta_title, @project.title.presence || @project) %>
+<% content_for(:meta_description, @project.description) %>
 <% content_for :content_for_head do -%>
     <%= auto_discovery_link_tag(:atom, commits_feed_path(project: @project, format: 'atom'), { title: "Commits for #{@project}" }) %>
 <% end %>
