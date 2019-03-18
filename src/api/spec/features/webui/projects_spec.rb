@@ -311,6 +311,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
+      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
       # This needs global write through
       click_button('Accept')
 
@@ -347,6 +348,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
+      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
       # This needs global write through
       click_button('Accept')
 
