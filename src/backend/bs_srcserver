@@ -4016,8 +4016,9 @@ sub getjobhistory_project {
 
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
-  if ($cgi->{'view'}) {
-    die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode' || $cgi->{'view'} eq 'status';
+  my $view = $cgi->{'view'};
+  if ($view) {
+    die("unknown view '$view'\n") unless $view eq 'binaryversions' || $view eq 'binaryversionscode' || $view eq 'status' || $view eq 'binarychecksums';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my @args = BSRPC::args($cgi, 'view', 'package');
