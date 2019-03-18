@@ -180,39 +180,43 @@ module StagingProject
 
     buildresult.elements('result') do |result|
       building = ['published', 'unpublished'].exclude?(result['state']) || result['dirty'] == 'true'
-
-      result.elements('status') do |status|
-        code = status.get('code')
-
-        if code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
-          @broken_packages << { package: status['package'],
-                                project: name,
-                                state: code,
-                                details: status['details'],
-                                repository: result['repository'],
-                                arch: result['arch'] }
-        end
-      end
-
-      if building
-        current_repo = result.slice('repository', 'arch', 'code', 'state', 'dirty')
-        current_repo[:tobuild] = 0
-        current_repo[:final] = 0
-
-        buildresult = Buildresult.find_hashed(project: name, view: 'summary', repository: current_repo['repository'], arch: current_repo['arch'])
-        buildresult = buildresult.get('result').get('summary')
-        buildresult.elements('statuscount') do |status_count|
-          if status_count['code'].in?(['excluded', 'broken', 'failed', 'unresolvable', 'succeeded', 'excluded', 'disabled'])
-            current_repo[:final] += status_count['count'].to_i
-          else
-            current_repo[:tobuild] += status_count['count'].to_i
-          end
-        end
-        @building_repositories << current_repo
-      end
+      add_broken_packages(result, building)
+      add_building_repositories(result) if building
     end
 
     @broken_packages.reject! { |package| package['state'] == 'unresolvable' } if @building_repositories.present?
+  end
+
+  def add_broken_packages(result, building)
+    result.elements('status') do |status|
+      code = status.get('code')
+
+      if code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
+        @broken_packages << { package: status['package'],
+                              project: name,
+                              state: code,
+                              details: status['details'],
+                              repository: result['repository'],
+                              arch: result['arch'] }
+      end
+    end
+  end
+
+  def add_building_repositories(result)
+    current_repo = result.slice('repository', 'arch', 'code', 'state', 'dirty')
+    current_repo[:tobuild] = 0
+    current_repo[:final] = 0
+
+    buildresult = Buildresult.find_hashed(project: name, view: 'summary', repository: current_repo['repository'], arch: current_repo['arch'])
+    buildresult = buildresult.get('result').get('summary')
+    buildresult.elements('statuscount') do |status_count|
+      if status_count['code'].in?(['excluded', 'broken', 'failed', 'unresolvable', 'succeeded', 'excluded', 'disabled'])
+        current_repo[:final] += status_count['count'].to_i
+      else
+        current_repo[:tobuild] += status_count['count'].to_i
+      end
+    end
+    @building_repositories << current_repo
   end
 
   def update_staging_workflow_on_backend
