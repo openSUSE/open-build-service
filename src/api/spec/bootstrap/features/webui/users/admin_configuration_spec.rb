@@ -33,6 +33,7 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
   end
 
   scenario 'create user' do
+    expect(page).to have_text('5 entries')
     click_link('Create User')
 
     fill_in 'Username:', with: 'tux'
