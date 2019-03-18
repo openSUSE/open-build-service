@@ -6,7 +6,7 @@
       - if @configuration['download_url']
         = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
                                                                        download_url: @configuration['download_url'] }
-      - unless @buildresults.empty?
+      - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
           = link_to('#', data: { toggle: 'modal', target: '#delete-all-binaries-modal' }, title: 'Delete all built binaries') do
             %i.fas.fa-times-circle.text-danger
