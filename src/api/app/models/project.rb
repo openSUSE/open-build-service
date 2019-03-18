@@ -10,6 +10,7 @@ class Project < ApplicationRecord
   include HasAttributes
   include MaintenanceHelper
   include Project::Errors
+  include StagingProject
 
   TYPES = ['standard', 'maintenance', 'maintenance_incident',
            'maintenance_release'].freeze
