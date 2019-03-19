@@ -979,8 +979,9 @@ sub create {
   # make sure we have the preinstalls and vminstalls
   my @missing = grep {!$ctx->{'dep2pkg'}->{$_}} (@pdeps, @vmdeps);
   if (@missing) {
-    @missing = sort(BSUtil::unify(@missing));
-    return ('unresolvable', "missing pre/vminstalls: ".join(', ', @missing));
+    my $missing = join(', ', sort(BSUtil::unify(@missing)));
+    print "        missing pre/vminstalls: $missing\n" if $ctx->{'verbose'};
+    return ('unresolvable', "missing pre/vminstalls: $missing");
   }
 
   # kill those ancient other jobs
