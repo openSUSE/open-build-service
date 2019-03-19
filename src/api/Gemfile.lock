@@ -77,7 +77,7 @@ GEM
       amq-protocol (~> 2.3, >= 2.3.0)
     bunny-mock (1.7.0)
       bunny (>= 1.7)
-    byebug (11.0.0)
+    byebug (11.0.1)
     capybara (3.14.0)
       addressable
       mini_mime (>= 0.1.3)
