@@ -33,7 +33,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     let!(:request_exclusion_2) { create(:request_exclusion, bs_request: bs_request_2, staging_workflow: staging_workflow, description: 'Request 2') }
 
     before do
-      get :index, params: { staging_main_project_name: staging_workflow.project.name, format: :xml }
+      get :index, params: { staging_workflow_project: staging_workflow.project.name, format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -52,7 +52,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'succeeds' do
       before do
-        post :create, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                       body: "<excluded_requests><request number='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
 
@@ -65,7 +65,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: project does not exist' do
       before do
-        post :create, params: { staging_main_project_name: 'i_do_not_exist', format: :xml },
+        post :create, params: { staging_workflow_project: 'i_do_not_exist', format: :xml },
                       body: "<excluded_requests><request number='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
 
@@ -75,7 +75,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
     context 'fails: project without staging_workflow' do
       let(:project_without_staging) { create(:project, name: 'no_staging') }
       before do
-        post :create, params: { staging_main_project_name: project_without_staging, format: :xml },
+        post :create, params: { staging_workflow_project: project_without_staging, format: :xml },
                       body: "<excluded_requests><request number='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
 
@@ -84,7 +84,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: no description, invalid request exclusion' do
       before do
-        post :create, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                       body: "<excluded_requests><request number='#{bs_request.number}'/></excluded_requests>"
       end
 
@@ -93,7 +93,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: non-existant bs_request number, invalid request exclusion' do
       before do
-        post :create, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                       body: "<excluded_requests><request number='43_543'/></excluded_requests>"
       end
 
@@ -110,7 +110,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
       before { request_exclusion }
 
       subject do
-        delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -125,7 +125,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
 
     context 'fails: request not excluded' do
       before do
-        delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
@@ -136,7 +136,7 @@ RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true
       before do
         request_exclusion
         allow_any_instance_of(ActiveRecord::Relation).to receive(:destroy_all).and_return([])
-        delete :destroy, params: { staging_main_project_name: staging_workflow.project.name, format: :xml },
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 

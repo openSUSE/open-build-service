@@ -1,0 +1,939 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_36">
+          <staging_project name="home:tom:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="701">
+          <srcmd5>b2986a92cbef7d6cfa4b5c41cfaeaba0</srcmd5>
+          <time>1552905493</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="group_36" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="group_36" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_36">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="702">
+          <srcmd5>d3dc403b3bbd9c1401b638e11d486c21</srcmd5>
+          <time>1552905493</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="group_36" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="group_36" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <group groupid="group_36" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '176'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+          <group groupid="group_36" role="reviewer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_36">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+          <staging_project name="home:tom:Staging:XYZ"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="703">
+          <srcmd5>a5c3e38a776d77d6a78474167fff0550</srcmd5>
+          <time>1552905493</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/_config?user=factory%20bot
+    body:
+      encoding: UTF-8
+      string: 'Prefer: foo'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: 'Prefer: foo'
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:XYZ">
+          <title>The Moving Finger</title>
+          <description/>
+          <group groupid="group_36" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:Staging:XYZ">
+          <title>The Moving Finger</title>
+          <description></description>
+          <group groupid="group_36" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_29/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_29" project="home:tom:Staging:XYZ">
+          <title>Fame Is the Spur</title>
+          <description>Et adipisci et in.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_29" project="home:tom:Staging:XYZ">
+          <title>Fame Is the Spur</title>
+          <description>Et adipisci et in.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_29/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_29" project="home:tom:Staging:XYZ">
+          <title>Fame Is the Spur</title>
+          <description>Et adipisci et in.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_29" project="home:tom:Staging:XYZ">
+          <title>Fame Is the Spur</title>
+          <description>Et adipisci et in.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_29/_config
+    body:
+      encoding: UTF-8
+      string: Perferendis quidem magnam. Illum quaerat quia. Ut nam maiores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>d5cbf3c3a9ada1fcd487206adc6f860e</srcmd5>
+          <version>unknown</version>
+          <time>1552905493</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:Staging:XYZ/package_29/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Temporibus consequuntur recusandae. Et dolor nihil. Maiores ad fugiat.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6" vrev="6">
+          <srcmd5>bf0ec336727b85c579c9ebd3d091eb9f</srcmd5>
+          <version>unknown</version>
+          <time>1552905493</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_26/_meta?user=user_26
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_26">
+          <title/>
+          <description/>
+          <person userid="user_26" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_26">
+          <title></title>
+          <description></description>
+          <person userid="user_26" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_21/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_21">
+          <title>Of Human Bondage</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_21">
+          <title>Of Human Bondage</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_22/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_22">
+          <title>In a Glass Darkly</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_22">
+          <title>In a Glass Darkly</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_23/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_23">
+          <title>The Monkey's Raincoat</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_23">
+          <title>The Monkey's Raincoat</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_36">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+          <staging_project name="home:tom:Staging:XYZ"/>
+          <staging_project name="home:tom:new_project"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '167'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="704">
+          <srcmd5>04f21b281bb410a0657af4c5d73273bc</srcmd5>
+          <time>1552905494</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_project/_staging_workflow?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tom" managers="group_36">
+          <staging_project name="home:tom:Staging:A"/>
+          <staging_project name="home:tom:Staging:B"/>
+          <staging_project name="home:tom:Staging:XYZ"/>
+          <staging_project name="home:tom:new_project"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '167'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="705">
+          <srcmd5>04f21b281bb410a0657af4c5d73273bc</srcmd5>
+          <time>1552905494</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:new_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:new_project">
+          <title>The Moving Finger</title>
+          <description/>
+          <person userid="user_26" role="maintainer"/>
+          <group groupid="group_36" role="maintainer"/>
+          <group groupid="group_37" role="maintainer"/>
+          <sourceaccess>
+            <disable/>
+          </sourceaccess>
+          <repository name="staging_repository">
+            <download arch="x86_64" url="http://suse.com" repotype="rpmmd"/>
+            <path project="project_21" repository="repository_19"/>
+            <path project="project_22" repository="repository_20"/>
+            <path project="project_23" repository="repository_21"/>
+            <path project="home:tom:new_project" repository="home_tom_new_project_sles_12"/>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="home_tom_new_project_sles_12">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '822'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:new_project">
+          <title>The Moving Finger</title>
+          <description></description>
+          <person userid="user_26" role="maintainer" />
+          <group groupid="group_36" role="maintainer" />
+          <group groupid="group_37" role="maintainer" />
+          <sourceaccess>
+            <disable />
+          </sourceaccess>
+          <repository name="staging_repository">
+            <download arch="x86_64" repotype="rpmmd" url="http://suse.com" />
+            <path project="project_21" repository="repository_19" />
+            <path project="project_22" repository="repository_20" />
+            <path project="project_23" repository="repository_21" />
+            <path project="home:tom:new_project" repository="home_tom_new_project_sles_12" />
+            <arch>x86_64</arch>
+          </repository>
+          <repository name="home_tom_new_project_sles_12">
+            <arch>x86_64</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:new_project/_config?comment=Copying%20project%20home:tom:Staging:XYZ&user=tom
+    body:
+      encoding: UTF-8
+      string: 'Prefer: foo'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:new_project/_config
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: 'Prefer: foo'
+    http_version: 
+  recorded_at: Mon, 18 Mar 2019 10:38:14 GMT
+recorded_with: VCR 4.0.0
