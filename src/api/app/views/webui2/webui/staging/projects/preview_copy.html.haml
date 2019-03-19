@@ -17,5 +17,5 @@
             = label_tag(:staging_project_copy_name, 'Name of the Staging Project Copy:')
             = text_field_tag(:staging_project_copy_name, nil, placeholder: "Eg: #{@staging_project}-copy", class: 'form-control')
 
-          = submit_tag('Copy', class: 'btn btn-primary')
           = link_to('Back', edit_staging_workflow_path(@staging_workflow), class: 'btn btn-secondary', role: 'button')
+          = submit_tag('Copy', class: 'btn btn-primary')
