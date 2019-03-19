@@ -1,9 +1,9 @@
 <staging_projects>
   <staging_project name="home:user_2:Staging:A" state="empty">
     <staged_requests count="0"/>
-    <untracked_requests count="0">
+    <untracked_requests count="0"/>
     <requests_to_review count="0"/>
-    <obsolete_requests count="0">
+    <obsolete_requests count="0"/>
     <missing_reviews count="0"/>
     <broken_package count="0"/>
     <checks count="0"/>
