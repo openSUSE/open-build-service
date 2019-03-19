@@ -9,6 +9,14 @@
     <%= favicon_link_tag %>
 
     <title><%= "#{@pagetitle} - " if @pagetitle -%><%= home_title %></title>
+    <meta property="og:title" content="<%= meta_title %>"/>
+    <meta property="og:site_name" content="<%= home_title %>"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="<%= request.original_url %>"/>
+    <meta property="og:image" content="<%= meta_image %>"/>
+    <% if meta_description %>
+      <meta property="og:description" content="<%= meta_description %>"/>
+    <% end %>
 
     <%= stylesheet_link_tag 'webui/application' %>
     <% if content_for?(:head_style) -%>

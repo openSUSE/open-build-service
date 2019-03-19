@@ -1,3 +1,7 @@
+:ruby
+  content_for(:meta_title, @project.title.presence || @project)
+  content_for(:meta_description, @project.description)
+
 - @pagetitle = "Show #{@project}"
 
 .card.mb-3

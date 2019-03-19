@@ -3,6 +3,9 @@
 <% dpackage = @package.develpackage %>
 <% package_bread_crumb %>
 
+<% content_for(:meta_title, @package.title.presence || @package.name) %>
+<% content_for(:meta_description, @package.description) %>
+
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">

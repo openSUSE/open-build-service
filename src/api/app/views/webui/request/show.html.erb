@@ -2,6 +2,10 @@
 <% @layouttype = 'custom' %>
 <% @crumb_list = ["Request #{@bs_request.number}"] %>
 
+<% content_for(:meta_title, "#{@pagetitle} (#{@bs_request.state})") %>
+<% content_for(:meta_description, @bs_request.description) %>
+<% content_for(:meta_image, gravatar_url((User.find_by_login(@bs_request.creator).email))) %>
+
 <div class="grid_16 alpha omega box box-shadow">
   <%= render :partial => 'tabs' %>
   <div class="grid_10 alpha">
