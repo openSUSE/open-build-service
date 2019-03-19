@@ -1944,6 +1944,11 @@ POST /staging/<staging_workflow_project>/workflow
 XmlBody: create_staging_workflow
 XmlResult: status_ok
 
+PUT /staging/<staging_workflow_project>/workflow
+  Update the managers group of a staging workflow.
+XmlBody: update_staging_workflow
+XmlResult: status_ok
+
 DELETE /staging/<staging_workflow_project>/workflow
   Delete a staging workflow associated to a given project.
 XmlResult: status_ok
