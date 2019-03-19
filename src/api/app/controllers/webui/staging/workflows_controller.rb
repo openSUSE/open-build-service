@@ -29,6 +29,10 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     end
 
     if staging_workflow.save
+      staging_workflow.staging_projects.each do |staging_project|
+        staging_project.create_project_log_entry(User.current)
+      end
+
       flash[:success] = "Staging for #{@project} was successfully created"
       redirect_to staging_workflow_path(staging_workflow)
     else
