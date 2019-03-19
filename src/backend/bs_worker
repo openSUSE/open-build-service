@@ -1766,12 +1766,21 @@ sub getbinaries_kiwiproduct {
     if (@done && !$chksumfiles{"$prp/$arch"}) {
       # get checksums file
       eval {
-        BSRPC::rpc({
-	  'uri' => "$server/build/$projid/$repoid/$arch",
-	  'timeout' => $gettimeout,
-	  'receiver' => \&BSHTTP::file_receiver,
-	  'filename' => "$ddir/.checksums.$arch",
-	}, undef, 'view=binarychecksums');
+	if ($server eq $buildinfo->{'srcserver'}) {
+	  my $chk = BSRPC::rpc({
+	    'uri' => "$server/build/$projid/$repoid/$arch",
+	    'timeout' => $gettimeout,
+	  }, $BSXML::packagebinarychecksums, 'view=binarychecksums');
+	  $chk = { map { $_->{'name'} => $_->{'_content'} } @{$chk->{'binarychecksums'} || []} };
+	  BSUtil::store("$ddir/.checksums.$arch", undef, $chk);
+	} else {
+	  BSRPC::rpc({
+	    'uri' => "$server/build/$projid/$repoid/$arch",
+	    'timeout' => $gettimeout,
+	    'receiver' => \&BSHTTP::file_receiver,
+	    'filename' => "$ddir/.checksums.$arch",
+	  }, undef, 'view=rawbinarychecksums');
+	}
         $chksumfiles{"$prp/$arch"} = "$ddir/.checksums.$arch" if -s "$ddir/.checksums.$arch";
       };
     }
