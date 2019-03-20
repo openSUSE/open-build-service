@@ -50,7 +50,8 @@
                   My decision
             - @my_open_reviews.each_with_index do |review, index|
               %li.nav-item
-                %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab' }
+                %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
+                  class: ('active' if index.zero? && !@can_handle_request) }
                   Review for #{reviewer(review)}
         .card-body
           - if @can_handle_request && @show_project_maintainer_hint
@@ -65,7 +66,7 @@
                          is_target_maintainer: @is_target_maintainer, state: @bs_request.state.to_s,
                          is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
             - @my_open_reviews.each_with_index do |review, index|
-              .tab-pane.fade.show{ id: "review-#{index}", class: ('active' unless @can_handle_request) }
+              .tab-pane.fade.show{ id: "review-#{index}", class: ('active' if index.zero? && !@can_handle_request) }
                 = render('review_tab', review: review, bs_request: @bs_request)
 
   .col-md-4
