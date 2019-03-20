@@ -773,6 +773,14 @@ our $packagebinaryversionlist = [
      ]],
 ];
 
+our $packagebinarychecksums = [
+    'packagebinarychecksums' =>
+     [[ 'binarychecksums' =>
+	    'package',
+	    '_content',
+     ]],
+];
+
 our $worker = [
     'worker' =>
 	'hostarch',

@@ -362,17 +362,21 @@ sub getbinarychecksums {
   my $prp = "$projid/$repoid";
 
   my $r = "$reporoot/$prp/$arch/:repo";
-  if (-s "$r/.newchecksums") {
+  if ($cgi->{'view'} eq 'binarychecksums' || -s "$r/.newchecksums") {
     my $checksums = BSUtil::retrieve("$r/.checksums", 1) || {};
     my $newchecksums = BSUtil::retrieve("$r/.newchecksums", 1) || {};
     $checksums->{$_} = delete $newchecksums->{$_} for keys %$newchecksums;
+    if ($cgi->{'view'} eq 'binarychecksums') {
+      my @res = map { {'package' => $_, '_content' => $checksums->{$_}} } sort keys %$checksums;
+      return ({ 'binarychecksums' => \@res }, $BSXML::packagebinarychecksums);
+    }
     return (BSUtil::tostorable($checksums), 'Content-Type: application/octet-stream');
   }
   my $fd;
   if (!open($fd, '<', "$r/.checksums")) {
     return (BSUtil::tostorable({}), 'Content-Type: application/octet-stream');
   }
-  BSServer::reply_file($fd, 'Content-Type: application/octet-stream');
+  BSWatcher::reply_file($fd, 'Content-Type: application/octet-stream');
   return undef;
 }
 
@@ -395,7 +399,7 @@ sub getpackagelist_build {
   my $view = $cgi->{'view'};
   die "must specify view\n" unless $view;
   return getrepositorystatus($cgi, $projid, $repoid, $arch) if $view eq 'status';
-  return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums';
+  return getbinarychecksums($cgi, $projid, $repoid, $arch) if $view eq 'binarychecksums' || $view eq 'rawbinarychecksums';
   $cgi->{'withcode'} = 1 if $view  eq 'binaryversionscode' || $view  eq 'gbininfocode';
   return getgbininfo($cgi, $projid, $repoid, $arch) if $view eq 'gbininfo' || $view eq 'gbininfocode';
   return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'}) if $view eq 'binaryversions' || $view eq 'binaryversionscode';
