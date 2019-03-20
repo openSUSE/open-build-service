@@ -1,3 +1,4 @@
+collabora/publish-asc-files.patch
 database.yml-settings.patch
 gemfile-tweaks.patch
 drop-test-and-development-depends.patch
