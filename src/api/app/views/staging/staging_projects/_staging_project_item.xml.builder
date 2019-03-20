@@ -16,4 +16,9 @@ builder.staging_project(name: staging_project.name, state: staging_project.overa
   render(partial: 'broken_packages', locals: { broken_packages: staging_project.broken_packages, count: staging_project.broken_packages.count, builder: builder })
   render(partial: 'checks', locals: { checks: staging_project.checks, builder: builder })
   render(partial: 'missing_checks', locals: { missing_checks: staging_project.missing_checks, builder: builder })
+  builder.history(count: staging_project.project_log_entries.where(event_type: [:staged_request, :unstaged_request]).count) do
+    render(partial: 'history_elements', locals: { builder: builder,
+                                                  elements: staging_project.project_log_entries.where(event_type:
+                                                                                                      [:staged_request, :unstaged_request]).includes(:bs_request) })
+  end
 end

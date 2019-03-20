@@ -9,6 +9,14 @@
     %title
       = "#{@pagetitle} - " if @pagetitle
       = home_title
+    %meta{ property: "og:title", content: meta_title }
+    %meta{ property: "og:site_name", content: home_title }
+    %meta{ property: "og:type", content: 'website' }
+    %meta{ property: "og:url", content: request.original_url }
+    %meta{ property: "og:image", content: meta_image }
+    - if meta_description
+      %meta{ property: "og:description", content: meta_description }
+    
     = stylesheet_link_tag 'webui2/webui2'
     = javascript_include_tag 'webui2/application'
 

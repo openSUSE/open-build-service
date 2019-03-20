@@ -105,6 +105,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
           assert_select 'broken_packages', 1 do
             assert_select 'entry', 2
           end
+          assert_select 'history', 1
         end
       end
     end

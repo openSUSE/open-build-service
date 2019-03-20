@@ -1,6 +1,10 @@
 - @pagetitle = "Home of #{@displayed_user}"
 - @layouttype = 'custom'
 - @crumb_list = [@pagetitle]
+
+- content_for(:meta_title, @pagetitle)
+- content_for(:meta_image, gravatar_url(@displayed_user.email))
+
 / user
 .grid_4.alpha.box.box-shadow#userinfo
   / avatar

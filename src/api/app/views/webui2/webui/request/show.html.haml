@@ -1,4 +1,8 @@
-- content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
+:ruby
+  content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
+  content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
+  content_for(:meta_description, @bs_request.description)
+  content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
 
 - if @not_full_diff
   = render partial: 'webui2/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }

@@ -1,4 +1,8 @@
-- @pagetitle = "Home of #{@displayed_user}"
+:ruby
+  @pagetitle = "Home of #{@displayed_user}"
+
+  content_for(:meta_title, @pagetitle)
+  content_for(:meta_image, gravatar_url(@displayed_user.email))
 
 .row
   .col-12.col-md-4.col-lg-3
