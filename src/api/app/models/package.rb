@@ -11,7 +11,6 @@ class Package < ApplicationRecord
   include CanRenderModel
   include HasRelationships
   include Package::Errors
-  include HasRatings
   include HasAttributes
 
   BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',

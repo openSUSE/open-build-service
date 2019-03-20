@@ -115,11 +115,6 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 0, @package.flags.of_type('publish').size
   end
 
-  def test_rating
-    # pretty silly
-    assert_equal 0, @package.rating[:count]
-  end
-
   def test_render
     xml = packages(:kde4_kdelibs).render_xml
     assert_equal Xmlhash.parse(xml), 'name' => 'kdelibs',

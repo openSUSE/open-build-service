@@ -1754,24 +1754,6 @@ GET /statistics/most_active?type=<type>&limit=<limit>
 XmlResult: most_active
 
 
-GET /statistics/highest_rated?limit=<limit>
-  Get list of highest rated projects and packages. Results are sorted by score.
-  Only items with more than 3 ratings will show up in this list.
-XmlResult: highest_rated
-
-
-GET /statistics/rating/<project>/<package>
-  Get rating of a specific project or package. Also returns what score the
-  logged in user gave and how many ratings there are already for the specified
-  object.
-XmlResult: rating
-
-
-PUT /statistics/rating/<project>/<package>
-  Rate this project / package.
-XmlResult: rating
-
-
 GET /statistics/download_counter?limit=<limit>
   Get download counters for top downloaded files including to which project,
   package, repository and architecture they belong.

@@ -12,68 +12,6 @@ class StatisticsController < ApplicationController
     render plain: 'This is the statistics controller.<br/>See the api documentation for details.'
   end
 
-  def min_votes_for_rating
-    CONFIG['min_votes_for_rating']
-  end
-
-  def highest_rated
-    # set automatic action_cache expiry time limit
-    # response.time_to_live = 10.minutes
-
-    ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' \
-                                'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
-    ratings = ratings.to_a.delete_if { |r| r.count.to_i < min_votes_for_rating }
-    if @limit
-      @ratings = ratings[0..@limit - 1]
-    else
-      @ratings = ratings
-    end
-  end
-
-  def rating
-    @project = params[:project]
-    @package = params[:package]
-
-    object = Project.get_by_name(@project)
-    object = Package.get_by_project_and_name(@project, @package, use_source: false, follow_project_links: false) if @package
-
-    if request.get?
-
-      @rating = object.rating(User.current.id)
-      return
-
-    elsif request.put?
-
-      # try to get previous rating of this user for this object
-      previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, User.current.id).first
-      data = Xmlhash.parse(request.raw_post)
-      if previous_rating
-        # update previous rating
-        previous_rating.score = data.to_i
-        previous_rating.save
-      else
-        # create new rating entry
-        begin
-          rating = Rating.new
-          rating.score = data.to_i
-          rating.object_type = object.class.name
-          rating.object_id = object.id
-          rating.user_id = User.current.id
-          rating.save
-        rescue
-          render_error status: 400, errorcode: 'error setting rating',
-                       message: 'rating not saved'
-          return
-        end
-      end
-      render_ok
-      return
-    end
-
-    render_error status: 400, errorcode: 'invalid_method',
-                 message: 'only GET or PUT method allowed for this action'
-  end
-
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
     render_error status: 400, errorcode: 'not_supported', message: 'download stats need a re-implementation'

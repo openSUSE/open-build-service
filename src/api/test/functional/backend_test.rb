@@ -16,7 +16,7 @@ class BackendTests < ActionDispatch::IntegrationTest
           'collection_objects_with_tags_by_user', 'configuration', 'directory_view', 'download_counter',
           'download_counter_summary', 'download_stats', 'group', 'highest_rated', 'issue_tracker',
           'latest_added', 'latest_updated', 'message', 'messages', 'most_active', 'newest_stats',
-          'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
+          'packageresult', 'projectresult', 'projects', 'redirect_stats', 'status_message',
           'status_messages', 'tagcloud', 'taglist', 'tags', 'updated_timestamp', 'distributions',
           'productlist', 'binary_released', 'check', 'required_checks', 'status_report',
           'staged_requests', 'remove_staged_requests', 'status_ok', 'staging_project',

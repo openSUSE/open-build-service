@@ -6,7 +6,6 @@ class Project < ApplicationRecord
   include Flag::Validations
   include CanRenderModel
   include HasRelationships
-  include HasRatings
   include HasAttributes
   include MaintenanceHelper
   include Project::Errors
