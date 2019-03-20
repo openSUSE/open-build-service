@@ -152,8 +152,12 @@ class RequestController < ApplicationController
     end
 
     # cache the diff (in the backend)
-    @req.bs_request_actions.each do |a|
-      BsRequestActionWebuiInfosJob.perform_later(a)
+    @req.bs_request_actions.each do |action|
+      # cleanup implicit home branches.
+      # FIXME3.0: remove this, the clients should do this automatically meanwhile
+      action.set_sourceupdate_default(User.session!)
+      # cache the diff (in the backend)
+      BsRequestActionWebuiInfosJob.perform_later(action)
     end
 
     render xml: @req.render_xml

@@ -739,15 +739,6 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      # source update checks
-      if action_type.in?([:submit, :maintenance_incident])
-        # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
-        if sourceupdate.nil? && target_project
-          if User.current.branch_project_name(target_project) == source_project
-            self.sourceupdate = 'cleanup'
-          end
-        end
-      end
       if action_type == :submit && tprj.is_a?(Project)
         at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
@@ -902,6 +893,11 @@ class BsRequestAction < ApplicationRecord
 
   def is_target_maintainer?(user)
     user && user.can_modify?(target_package_object || target_project_object)
+  end
+
+  def set_sourceupdate_default(user)
+    return if sourceupdate || [:submit, :maintenance_incident].exclude?(action_type)
+    update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
   end
 
   private
