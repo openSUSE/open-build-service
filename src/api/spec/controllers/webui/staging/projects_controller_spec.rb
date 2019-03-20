@@ -29,6 +29,24 @@ RSpec.describe Webui::Staging::ProjectsController do
       end
     end
 
+    context 'an existent non-staging project' do
+      let!(:existent_project) { create(:project, name: "#{project}:new-staging", maintainer: user) }
+
+      before do
+        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: existent_project.name }
+      end
+
+      subject { staging_workflow }
+
+      it { expect(Project.count).to eq(4) }
+      it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(flash[:success]).not_to be_nil }
+      it 'assigns the managers group' do
+        expect(Project.find_by_name(existent_project.name).groups).to contain_exactly(subject.managers_group)
+      end
+    end
+
     context 'an existent staging project' do
       before do
         post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:Staging:A' }
