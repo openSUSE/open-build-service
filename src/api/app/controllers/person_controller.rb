@@ -189,8 +189,6 @@ class PersonController < ApplicationController
     UnregisteredUser.register(login: login, realname: realname, email:
         email, password: password, note: note, status: status)
 
-    # This may fail when no notification is configured. Not important, so no exception handling for now
-    # IchainNotifier.deliver_approval(newuser)
     render_ok
   rescue Exception => e
     # Strip passwords from request environment and re-raise exception
