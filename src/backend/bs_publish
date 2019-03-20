@@ -38,6 +38,7 @@ use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
+use JSON::XS ();
 use File::Temp qw/tempfile/;
 
 use BSConfiguration;
@@ -1025,6 +1026,98 @@ sub deleterepo_staticlinks {
 
 ##########################################################################
 
+sub createrepo_vagrant {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+  my %boxes;
+  my $noversion = grep {$_ eq 'noversion'} @{$options || []};
+  for my $box (grep {/^[^\.].*\.box$/} sort(ls($extrep))) {
+    next if -l "$extrep/$box"; # skip symlinks
+    # kiwi uses the following format:
+    # name.arch-verson.format_name
+    #   OBS appends "[profile-]BuildXXX" to the version
+    #   format_name is "vagrant.<provider>.box" for vagrant builds
+    my $xbox = $box;
+    # split off format_name with provider
+    next unless $xbox =~ s/\.vagrant\.([^\.]+)\.box//;
+    my $provider = $1;
+    # split off release
+    next unless $xbox =~ s/-Build([^-]*)$//;
+    my $release = $1;
+    if ($noversion) {
+      # split off profile
+      my $profile = '';
+      $profile = $1 if $xbox =~ s/(-[^0-9-][^-]*)$//;
+      # split off version
+      next unless $xbox =~ s/-([^-]*)$//;
+      my $version = $1;
+      $profile = '' if $profile eq "-$provider";
+      # add to boxes (last one wins)
+      $boxes{"$xbox$profile"}->{"$version.$release"}->{$provider} = $box;
+    } else {
+      # strip profile if it is the same as the provider
+      $xbox =~ s/-\Q$provider\E$//;
+      # add to boxes (last one wins)
+      $boxes{$xbox}->{$release}->{$provider} = $box;
+    }
+  }
+  my $downloadurl = BSUrlmapper::get_downloadurl("$projid/$repoid");
+  if (!%boxes || !$downloadurl) {
+    deleterepo_vagrant($extrep);
+    return;
+  }
+  # write json
+  mkdir_p("$extrep/boxes.new");
+  BSUtil::cleandir("$extrep/boxes.new");
+  for my $name (sort keys %boxes) {
+    my $json = { 'description' => "$name Vagrant Box", 'short_description' => "$name Vagrant Box", 'name' => $name };
+    my $boxversions = $boxes{$name};
+    my @versions;
+    for my $version (sort {0 - Build::Rpm::verscmp($a, $b)} keys %{$boxversions}) {
+      my $boxproviders = $boxes{$name}->{$version};
+      my @providers;
+      for my $provider (sort keys %$boxproviders) {
+	my $url = "${downloadurl}$boxproviders->{$provider}";
+	push @providers, { 'name' => $provider, 'url' => $url };
+      }
+      my $description = "$name Vagrant images";
+      my $description_html = $description;
+      $description_html =~ s/\&/&amp;/g;
+      $description_html =~ s/\</&lt;/g;
+      $description_html =~ s/\>/&gt;/g;
+      $description_html =~ s/\"/&quot;/g;
+      push @versions, {
+	'version' => $version,
+	'status' => 'active',
+	'description_html' => "<p>$description_html</p>\n",
+	'description_markdown' => "$description\n",
+	'providers' => \@providers,
+      };
+    }
+    $json->{'versions'} = \@versions;
+    $json = JSON::XS->new->utf8->canonical->pretty->encode($json);
+    writestr("$extrep/boxes.new/$name.json", undef, $json);
+  }
+  # commit
+  BSUtil::cleandir("$extrep/boxes.old");
+  rmdir("$extrep/boxes.old");
+  rename("$extrep/boxes", "$extrep/boxes.old");
+  rename("$extrep/boxes.new", "$extrep/boxes");
+  BSUtil::cleandir("$extrep/boxes.old");
+  rmdir("$extrep/boxes.old");
+  BSUtil::cleandir("$extrep/boxes.new");
+  rmdir("$extrep/boxes.new");
+}
+
+sub deleterepo_vagrant {
+  my ($extrep) = @_;
+  if (-d "$extrep/boxes") {
+    BSUtil::cleandir("$extrep/boxes");
+    rmdir("$extrep/boxes");
+  }
+}
+
+##########################################################################
+
 sub createpatterns_rpmmd {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -1360,7 +1453,7 @@ sub deleterepo {
   my @db_deleted;
   for my $arch (@archs) {
     next if $arch =~ /^\./;
-    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr' || $arch eq 'boxes';
     my $r = "$extrep/$arch";
     next unless -d $r;
     for my $bin (ls($r)) {
@@ -1958,7 +2051,7 @@ sub publish {
   }
   for my $arch (@archs) {
     next if $arch =~ /^\./;
-    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr' || $arch eq 'boxes';
     next if $arch =~ /\.repo$/;
     next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key';
     next if $containerextras{$arch};		# keep the old readme/symlink
@@ -2468,6 +2561,11 @@ sub publish {
     createrepo_arch($extrep, $projid, $xrepoid, $data, $repotype{'arch'});
   } else {
     deleterepo_arch($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'vagrant'}) {
+    createrepo_vagrant($extrep, $projid, $xrepoid, $data, $repotype{'vagrant'});
+  } else {
+    deleterepo_vagrant($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'staticlinks'}) {
     createrepo_staticlinks($extrep, $projid, $xrepoid, $data, $repotype{'staticlinks'});
