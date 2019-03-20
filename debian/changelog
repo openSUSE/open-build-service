@@ -1,3 +1,10 @@
+open-build-service (2.7.4-3co2) UNRELEASED; urgency=medium
+
+  * Add patch to publish Debian upstream tarball signature to the
+    repositories
+
+ -- Lucas Kanashiro <lucas.kanashiro@collabora.com>  Wed, 20 Mar 2019 10:31:43 -0300
+
 open-build-service (2.7.4-3co1) stretch; urgency=medium
 
   [ Andrew Lee (李健秋) ]

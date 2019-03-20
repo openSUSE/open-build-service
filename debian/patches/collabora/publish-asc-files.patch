@@ -1,0 +1,16 @@
+Description: Publish Debian upstream tarball signatures to repository
+Author: Lucas Kanashiro <lucas.kanashiro@collabora.com>
+Last-Updated: 2019-03-20
+
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -1477,6 +1477,9 @@ sub publish {
+ 	  $p = "$bin";
+ 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
+ 	  $p = "$bin";
++        } elsif ($bin =~ /\.orig\.tar\.(gz|xz|bz2)\.asc$/) {
++          # Debian upsteram tarball signature
++          $p = "$bin";
+ 	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vdi|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
+ 	  $p = "$bin";
+         } elsif ($bin =~ /^(.*)\.packages$/) {
