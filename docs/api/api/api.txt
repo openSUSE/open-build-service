@@ -1823,42 +1823,6 @@ XmlResult: status_message
 DELETE /status/message/<id>
   Delete a status message. User needs to have appropriate permissions.
 
-
-== Messages (for projects/packages)
-
-<id>: message id
-<limit>: limit count of messages. optional, defaults to unlimited.
-
-
-GET /message/<id>
-  Get (one) message specified by id.
-XmlResult: messages
-
-
-GET /message/?limit=<limit>
-  Get a list of messages, independent of project or package.
-  All entries are ordered by creation time (latest first).
-XmlResult: messages
-
-
-GET /message/?project=<project>
-  Get a list of messages for this package.
-  All entries are ordered by creation time (latest first).
-XmlResult: messages
-
-
-GET /message/?project=<project>&package=<package>
-  Get a list of messages for this package.
-  All entries are ordered by creation time (latest first).
-XmlResult: messages
-
-
-PUT /message/?project=<project>&package=<package>
-  Append message to the specified package (or project, if package parameter
-  is omitted).
-XmlBody :message
-XmlResult: message
-
 == Status Checks
   WARNING: This API is currently in beta and unstable
 

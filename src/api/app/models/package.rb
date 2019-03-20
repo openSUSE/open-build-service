@@ -34,8 +34,6 @@ class Package < ApplicationRecord
     @commit_opts = {}
   end
 
-  has_many :messages, as: :db_object, dependent: :delete_all
-
   has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
   belongs_to :develpackage, class_name: 'Package', foreign_key: 'develpackage_id'

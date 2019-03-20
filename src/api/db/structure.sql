@@ -781,22 +781,6 @@ CREATE TABLE `maintenance_incidents` (
   KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
-CREATE TABLE `messages` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `db_object_id` int(11) DEFAULT NULL,
-  `db_object_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `send_mail` tinyint(1) DEFAULT NULL,
-  `sent_at` datetime DEFAULT NULL,
-  `private` tinyint(1) DEFAULT NULL,
-  `severity` int(11) DEFAULT NULL,
-  `text` text COLLATE utf8mb4_unicode_ci,
-  PRIMARY KEY (`id`),
-  KEY `object` (`db_object_id`) USING BTREE,
-  KEY `user` (`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `type` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -1435,6 +1419,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181113095753'),
 ('20181201065026'),
 ('20190111130416'),
-('20190115131711');
+('20190115131711'),
+('20190320185348');
 
 

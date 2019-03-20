@@ -25,7 +25,6 @@ SAFE_TESTS = [
   'test/functional/comments_controller_test.rb',
   'test/functional/group_test.rb',
   'test/functional/person_controller_test.rb',
-  'test/functional/message_controller_test.rb',
   'test/functional/request_events_test.rb',
   'test/functional/request_controller_test.rb',
   'test/functional/search_controller_test.rb'
