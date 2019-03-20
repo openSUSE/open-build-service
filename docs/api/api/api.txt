@@ -1944,6 +1944,10 @@ POST /staging/<staging_workflow_project>/workflow
 XmlBody: create_staging_workflow
 XmlResult: status_ok
 
+DELETE /staging/<staging_workflow_project>/workflow
+  Delete a staging workflow associated to a given project.
+XmlResult: status_ok
+
 GET /staging/<staging_workflow_project>/staging_projects
   Get the overall state of all staging projects belonging to a staging workflow project
 XmlResult: staging_projects
