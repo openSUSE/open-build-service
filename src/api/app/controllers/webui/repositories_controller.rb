@@ -177,6 +177,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     authorize @main_object, :update?
 
     @flag = @main_object.flags.new(status: params[:status], flag: params[:flag])
+    authorize @flag, :create?
     @flag.architecture = Architecture.find_by_name(params[:architecture])
     @flag.repo = params[:repository] if params[:repository].present?
 
