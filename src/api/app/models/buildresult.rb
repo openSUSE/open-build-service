@@ -85,9 +85,10 @@ class Buildresult
         state: state
       )
 
+      Struct.new('StatusCount', :code, :count)
       build.summary = []
       result['summary'].elements('statuscount').each do |count|
-        build.summary << StatusCount.new(code: count['code'], count: count['count'])
+        build.summary << Struct::StatusCount.new(count['code'], count['count'])
       end
 
       build.summary.sort! { |a, b| code2index(a.code) <=> code2index(b.code) }
