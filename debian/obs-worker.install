@@ -1,0 +1,3 @@
+# systemd stuff
+debian/systemd/obsworker@.service	/lib/systemd/system/
+debian/systemd/obsworker.service.d/tasks.conf	/lib/systemd/obsworker.service.d/
