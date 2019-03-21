@@ -2,8 +2,9 @@ open-build-service (2.7.4-3co2) UNRELEASED; urgency=medium
 
   * Add patch to publish Debian upstream tarball signature to the
     repositories
+  * Add patch to publish Ubuntu ddeb files to the repositories
 
- -- Lucas Kanashiro <lucas.kanashiro@collabora.com>  Wed, 20 Mar 2019 10:31:43 -0300
+ -- Lucas Kanashiro <lucas.kanashiro@collabora.com>  Thu, 21 Mar 2019 15:20:54 -0300
 
 open-build-service (2.7.4-3co1) stretch; urgency=medium
 
