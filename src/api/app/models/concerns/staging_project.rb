@@ -9,6 +9,7 @@ module StagingProject
     after_save :update_staging_workflow_on_backend, if: :staging_project?
     after_destroy :update_staging_workflow_on_backend, if: :staging_project?
     before_create :add_managers_group, if: :staging_project?
+    before_update :add_managers_group, if: proc { |project| project.staging_workflow_id_changed? && project.staging_workflow_id_was.nil? }
 
     scope :staging_projects, -> { where.not(staging_workflow: nil) }
   end

@@ -10,16 +10,26 @@ module Webui
 
       def create
         authorize @staging_workflow
-        staging_project = @staging_workflow.staging_projects.build(name: params[:staging_project_name])
+
+        staging_project = Project.where.not(id: @staging_workflow.project_id)
+                                 .find_or_initialize_by(name: params[:staging_project_name])
         authorize(staging_project, :create?)
+
+        redirect_to edit_staging_workflow_path(@staging_workflow)
+
+        if staging_project.staging_workflow_id?
+          flash[:error] = "\"#{staging_project}\" is already assigned to a staging workflow"
+          return
+        end
+
+        staging_project.staging_workflow = @staging_workflow
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
-        else
-          flash[:error] = "#{staging_project} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
+          return
         end
 
-        redirect_to edit_staging_workflow_path(@staging_workflow)
+        flash[:error] = "#{staging_project} couldn't be created: #{staging_project.errors.full_messages.to_sentence}"
       end
 
       def show
