@@ -1,0 +1,5 @@
+Useful git remotes
+==================
+
+git remote add salsa https://salsa.debian.org/ruby-team/open-build-service.git
+git remote add upstream https://github.com/openSUSE/open-build-service/
