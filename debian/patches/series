@@ -1,4 +1,5 @@
 backend-publish-udebs-in-repo.patch
+publish-ddeb-files.patch
 collabora/publish-asc-files.patch
 database.yml-settings.patch
 gemfile-tweaks.patch
@@ -35,4 +36,3 @@ collabora/backend-Handle-ERROR_WANT_-READ-WRITE-from-ssl-reads.patch
 collabora/backend-Support-https-urls-for-package-downloads.patch
 collabora/BSConfig-Make-every-architecture-its-own-relsync-pool.patch
 collabora/BSConfig-Read-a-BSConfig.local.pm-if-it-exists.patch
-collabora/publish-ddeb-files.patch

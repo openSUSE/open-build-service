@@ -11,7 +11,7 @@ in OBS will also produce packages with this name. Treat them the same as
  1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/src/backend/bs_publish b/src/backend/bs_publish
-index 6a7a1d5..df545f2 100755
+index b4235a4..2d79abb 100755
 --- a/src/backend/bs_publish
 +++ b/src/backend/bs_publish
 @@ -66,7 +66,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
@@ -50,7 +50,7 @@ index 6a7a1d5..df545f2 100755
        $n = $1;
      } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
        $n = $1;
-@@ -867,7 +867,7 @@ sub createrepo_staticlinks {
+@@ -798,7 +798,7 @@ sub createrepo_staticlinks {
        if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
          $link = "$1.rpm";
          $link = "$1-$2.rpm" if $versioned;
@@ -59,12 +59,12 @@ index 6a7a1d5..df545f2 100755
          $link = "$1.$3";
          $link = "${1}_$2.$3" if $versioned;
        } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
-@@ -1507,7 +1507,7 @@ sub publish {
+@@ -1438,7 +1438,7 @@ sub publish {
        if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
  	$p = "$1/$bin";
  	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
 -      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u?deb$/) {
 +      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
- 	$p = "$arch/$bin";
+ 	$p = "$1/$bin";
        } elsif ($bin =~ /\.exe$/) {
  	$p = "$bin";
