@@ -1,6 +1,6 @@
 backend-publish-udebs-in-repo.patch
 publish-ddeb-files.patch
-collabora/publish-asc-files.patch
+publish-asc-files.patch
 database.yml-settings.patch
 gemfile-tweaks.patch
 drop-test-and-development-depends.patch
