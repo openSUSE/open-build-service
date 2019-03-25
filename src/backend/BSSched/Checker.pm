@@ -312,15 +312,18 @@ sub wipeobsolete {
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
   my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
   my $hadobsolete;
+  my $prjlocked = 0;
+  $prjlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $prjlocked, $myarch) if $projpacks->{$projid}->{'lock'};
+  
   for my $packid (grep {!/^[:\.]/} ls($gdst)) {
     next if $packid eq '_volatile';
     my $reason;
-    if (!$pdatas->{$packid}) {
+    my $pdata = $pdatas->{$packid};
+    if (!$pdata) {
       next if $packid eq '_deltas';
       next if $projpacks->{$projid}->{'missingpackages'};
       $reason = 'obsolete';
     } else {
-      my $pdata = $pdatas->{$packid};
       if (($pdata->{'error'} || '') eq 'excluded') {
 	$reason = 'excluded';
       } else {
@@ -338,6 +341,12 @@ sub wipeobsolete {
 	next unless $reason;
       }
     }
+    my $locked = $prjlocked;
+    $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata && $pdata->{'lock'};
+    if ($locked) {
+      print "      - $packid: is $reason, but locked\n";
+      next;
+    }
     my @files = ls("$gdst/$packid");
     my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
     if (@ifiles) {
@@ -353,7 +362,7 @@ sub wipeobsolete {
     # hmm, need to exclude patchinfos here. cheating.
     $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
     # don't wipe imports if we're excluded
-    my $importarch = $pdatas->{$packid} && @ifiles ? '' : undef;
+    my $importarch = $pdata && @ifiles ? '' : undef;
     BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, $dstcache, $importarch);
     # delete other files
     unlink("$gdst/:logfiles.success/$packid");
