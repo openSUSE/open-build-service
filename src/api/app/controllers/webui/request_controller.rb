@@ -359,8 +359,8 @@ class Webui::RequestController < Webui::WebuiController
     end
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
-    request_link = ActionController::Base.helpers.link_to(forwarded_request.number, request_show_path(forwarded_request.number))
-    flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
+    request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
+    flash[:notice] += " and forwarded to #{target_link} (#{request_link})"
   end
 
   def request_action_attributes(type)
