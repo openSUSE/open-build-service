@@ -255,7 +255,7 @@ class Webui::RequestController < Webui::WebuiController
     else
       begin
         request.setincident(params[:incident_project])
-        flash[:notice] = "Set target of request #{request.number} to incident #{params[:incident_project]}"
+        flash[:success] = "Set target of request #{request.number} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
       rescue APIError => e
@@ -325,7 +325,7 @@ class Webui::RequestController < Webui::WebuiController
       }
       begin
         request.change_state(opts)
-        flash[:notice] = "Request #{newstate}!"
+        flash[:success] = "Request #{newstate}!"
         return true
       rescue APIError => e
         flash[:error] = "Failed to change state: #{e.message}!"
@@ -337,7 +337,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def accept_request
-    flash[:notice] = "Request #{params[:number]} accepted"
+    flash[:success] = "Request #{params[:number]} accepted"
 
     # Check if we have to forward this request to other projects / packages
     params.keys.grep(/^forward.*/).each do |fwd|
@@ -360,7 +360,7 @@ class Webui::RequestController < Webui::WebuiController
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
     request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
-    flash[:notice] += " and forwarded to #{target_link} (#{request_link})"
+    flash[:success] += " and forwarded to #{target_link} (#{request_link})"
   end
 
   def request_action_attributes(type)

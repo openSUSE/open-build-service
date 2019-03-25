@@ -377,7 +377,7 @@ RSpec.describe Webui::RequestController, vcr: true do
                                          description: 'blah blah blah' }
         end.not_to change(BsRequest, :count)
         expect(bs_request.reload.state).to eq(:accepted)
-        expect(flash[:notice]).to match('Request \\d accepted')
+        expect(flash[:success]).to match('Request \\d accepted')
         expect(flash[:error]).to eq('Unable to forward submit request: some error')
       end
     end
