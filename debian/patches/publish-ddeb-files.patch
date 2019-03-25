@@ -1,0 +1,70 @@
+From: Lucas Kanashiro <lucas.kanashiro@collabora.com>
+Date: Fri, 22 Mar 2019 10:34:26 -0300
+Subject: Publish Ubuntu ddeb files to the repositories
+
+For historical reasons, Ubuntu uses the extension .ddeb instead of .deb
+for detached debug symbols (-dbgsym) packages. Ubuntu derivatives built
+in OBS will also produce packages with this name. Treat them the same as
+.deb and .udeb packages.
+---
+ src/backend/bs_publish | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/backend/bs_publish b/src/backend/bs_publish
+index b4235a4..2d79abb 100755
+--- a/src/backend/bs_publish
++++ b/src/backend/bs_publish
+@@ -66,7 +66,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
+ 
+ my $myeventdir = "$eventdir/publish";
+ 
+-my @binsufs = qw{rpm udeb deb pkg.tar.gz pkg.tar.xz};
++my @binsufs = qw{rpm udeb ddeb deb pkg.tar.gz pkg.tar.xz};
+ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+ my @binsufsrsync = map {"--include=*.$_"} @binsufs;
+ 
+@@ -123,7 +123,7 @@ sub fillpkgdescription {
+       $hit = $p;
+       last;
+     }
+-    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.u?deb$/) {
++    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.[ud]?deb$/) {
+       $hit = $p;
+       last;
+     }
+@@ -209,7 +209,7 @@ sub updatebinaryindex {
+     my $n;
+     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+       $n = $1;
+-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
++    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.[ud]?deb$/) {
+       $n = $1;
+     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
+       $n = $1;
+@@ -223,7 +223,7 @@ sub updatebinaryindex {
+     my $n;
+     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
+       $n = $1;
+-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
++    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.[ud]?deb$/) {
+       $n = $1;
+     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
+       $n = $1;
+@@ -798,7 +798,7 @@ sub createrepo_staticlinks {
+       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
+         $link = "$1.rpm";
+         $link = "$1-$2.rpm" if $versioned;
+-      } elsif (/^(.*)_([^_]*)-[^_]*\.(u?deb)$/s) {
++      } elsif (/^(.*)_([^_]*)-[^_]*\.([ud]?deb)$/s) {
+         $link = "$1.$3";
+         $link = "${1}_$2.$3" if $versioned;
+       } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
+@@ -1438,7 +1438,7 @@ sub publish {
+       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
+ 	$p = "$1/$bin";
+ 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
+-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u?deb$/) {
++      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
+ 	$p = "$1/$bin";
+       } elsif ($bin =~ /\.exe$/) {
+ 	$p = "$bin";
