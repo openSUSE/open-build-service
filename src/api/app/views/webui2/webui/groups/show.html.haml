@@ -33,7 +33,7 @@
     .tab-content
       .tab-pane.show.active#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
         %h3 Group Members
-        = render(partial: 'webui2/shared/group_members', locals: { group: @group })
+        = render(partial: 'group_members', locals: { group: @group })
 
       .tab-pane#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
         %h3 Incoming Reviews
