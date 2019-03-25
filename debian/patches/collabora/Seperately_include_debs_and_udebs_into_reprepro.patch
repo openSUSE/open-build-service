@@ -1,4 +1,3 @@
-From c59be3deddd70f6a99eb803112aeb86b45396461 Mon Sep 17 00:00:00 2001
 From: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
 Date: Mon, 2 Dec 2013 15:15:50 +0100
 Subject: Seperately include debs and udebs into reprepro
@@ -6,14 +5,18 @@ Subject: Seperately include debs and udebs into reprepro
 Split out the calls for including debs and udebs into reprepro. This
 ensure the deb package still get properly included if the udeb isn't
 available (mostly for older builds)
+---
+ src/backend/bs_publish | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
+diff --git a/src/backend/bs_publish b/src/backend/bs_publish
+index 0d631df..52db29d 100755
 --- a/src/backend/bs_publish
 +++ b/src/backend/bs_publish
-@@ -631,10 +631,21 @@
+@@ -631,9 +631,21 @@ sub updaterepo_reprepro {
            '--ignore=wrongdistribution',
            '--ignore=updatedarchall',
  	  '--ignore=unusedarch',
--	  '-T', 'deb|udeb',
 +	  '-T', 'deb',
            '-C', $component,
            'include', $codename,

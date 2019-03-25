@@ -1,3 +1,4 @@
+backend-publish-udebs-in-repo.patch
 collabora/publish-asc-files.patch
 database.yml-settings.patch
 gemfile-tweaks.patch
@@ -22,7 +23,6 @@ handle-links-properly.patch
 dist-Use-2.7-packages-for-testing.patch
 collabora/Add_global_configuration_for_a_shared_reprepro.patch
 collabora/Add_--ignore=unusedarch_to_reprepro_params.patch
-collabora/publish_Also_accept_udebs_into_reprepro_repository.patch
 collabora/Seperately_include_debs_and_udebs_into_reprepro.patch
 collabora/BSConfig.pm.template_include_a_skeleton_reprepro.patch
 collabora/Include_ddebs_in_reprepro_too_and_fix_inclusion_of_udebs.patch
