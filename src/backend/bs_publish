@@ -1029,7 +1029,7 @@ sub deleterepo_staticlinks {
 sub createrepo_vagrant {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
   my %boxes;
-  my $noversion = grep {$_ eq 'noversion'} @{$options || []};
+  my $withversion = grep {$_ eq 'withversion'} @{$options || []};
   for my $box (grep {/^[^\.].*\.box$/} sort(ls($extrep))) {
     next if -l "$extrep/$box"; # skip symlinks
     # kiwi uses the following format:
@@ -1043,7 +1043,7 @@ sub createrepo_vagrant {
     # split off release
     next unless $xbox =~ s/-Build([^-]*)$//;
     my $release = $1;
-    if ($noversion) {
+    if (!$withversion) {
       # split off profile
       my $profile = '';
       $profile = $1 if $xbox =~ s/(-[^0-9-][^-]*)$//;
