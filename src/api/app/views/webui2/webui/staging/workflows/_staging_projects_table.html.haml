@@ -3,10 +3,7 @@
     %tr.text-center
       %th Staging Project
       %th Requests
-      - unless display_actions_column
-        %th Problems
-      - if display_actions_column
-        %th Actions
+      %th Problems
   %tbody
     - staging_projects.each do |staging_project|
       %tr
@@ -15,17 +12,8 @@
         %td.requests
           = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project,
                                                                             users_hash: users_hash, groups_hash: groups_hash }
-        - unless display_actions_column
-          %td
-            = render partial: 'problems', locals: { staging_project: staging_project }
-        - if display_actions_column
-          %td.text-center
-            = link_to(staging_workflow_staging_project_preview_copy_path(staging_workflow, staging_project), title: 'Copy Staging Project') do
-              %i.fas.fa-clone.text-secondary
-            = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
-              %i.fas.fa-times-circle.text-danger
-
-            = render partial: 'delete_staging_project_modal', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
+        %td
+          = render partial: 'problems', locals: { staging_project: staging_project }
 
 - content_for :ready_function do
   $('#staging-projects-datatable').DataTable({responsive: true, paging: false, ordering: false, searching: false, info: false});
