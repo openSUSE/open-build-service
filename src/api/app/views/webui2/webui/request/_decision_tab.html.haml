@@ -11,7 +11,7 @@
           #{project_or_package_link(project: action[:tprj], package: action[:tpkg], short: true)}
     - (action[:forward] || []).each_with_index do |forward, index|
       .custom-control.custom-checkbox
-        = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", false, class: 'custom-control-input')
+        = check_box_tag("forward-#{index}", "#{forward[:project]}_#_#{forward[:package]}", true, class: 'custom-control-input')
         %label.custom-control-label{ for: "forward-#{index}" }
           Forward submit request to
           #{project_or_package_link(project: forward[:project], package: forward[:package], short: true)}
