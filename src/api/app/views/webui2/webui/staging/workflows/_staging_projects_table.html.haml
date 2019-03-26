@@ -3,7 +3,8 @@
     %tr.text-center
       %th Staging Project
       %th Requests
-      %th Problems
+      - unless display_actions_column
+        %th Problems
       - if display_actions_column
         %th Actions
   %tbody
@@ -14,8 +15,9 @@
         %td.requests
           = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project,
                                                                             users_hash: users_hash, groups_hash: groups_hash }
-        %td
-          = render partial: 'problems', locals: { staging_project: staging_project }
+        - unless display_actions_column
+          %td
+            = render partial: 'problems', locals: { staging_project: staging_project }
         - if display_actions_column
           %td.text-center
             = link_to(staging_workflow_staging_project_preview_copy_path(staging_workflow, staging_project), title: 'Copy Staging Project') do
