@@ -190,6 +190,10 @@ class Group < ApplicationRecord
   def any_confirmed_users?
     !users.where(state: 'confirmed').empty?
   end
+
+  def maintainer?(user)
+    group_maintainers.where(user: user).exists?
+  end
 end
 
 # == Schema Information
