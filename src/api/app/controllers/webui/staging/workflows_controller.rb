@@ -57,10 +57,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     authorize @staging_workflow
 
     @project = @staging_workflow.project
-    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
-
-    @groups_hash = ::Staging::Workflow.load_groups
-    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).order(:name)
   end
 
   def destroy
