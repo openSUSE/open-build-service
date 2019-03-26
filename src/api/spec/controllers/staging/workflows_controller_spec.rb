@@ -50,4 +50,47 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
       it { expect(project.staging).to be_nil }
     end
   end
+
+  describe 'DELETE #destroy' do
+    context 'with valid staging_project with staging_workflow' do
+      before do
+        login user
+        staging_workflow
+        delete :destroy, params: { staging_workflow_project: project, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(project.reload.staging).to be_nil }
+    end
+
+    context 'with invalid user' do
+      before do
+        login user
+        staging_workflow
+        login other_user
+        delete :destroy, params: { staging_workflow_project: project, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(project.reload.staging).not_to(be_nil) }
+    end
+
+    context 'with non-existent project' do
+      before do
+        login user
+        delete :destroy, params: { staging_workflow_project: 'imaginary_project', format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    context 'with project without staging_workflow' do
+      before do
+        login user
+        delete :destroy, params: { staging_workflow_project: project, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+  end
 end

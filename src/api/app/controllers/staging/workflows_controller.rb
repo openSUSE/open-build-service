@@ -19,6 +19,21 @@ class Staging::WorkflowsController < ApplicationController
     end
   end
 
+  def destroy
+    staging_workflow = @project.staging
+    unless staging_workflow
+      render_error(
+        status: 404,
+        errorcode: 'not_found',
+        message: "Project '#{@project}' doesn't have staging workflow."
+      )
+      return
+    end
+    authorize staging_workflow
+
+    staging_workflow.destroy!
+  end
+
   private
 
   def set_project
