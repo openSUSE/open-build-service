@@ -1,24 +1,27 @@
 ---
 http_interactions:
 - request:
-    method: get
-    uri: http://backend:5352/build/global_project/_result?code=unresolvable&view=status
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'global_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -27,16 +30,205 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '135'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'global_project' does not exist</summary>
-          <details>404 project 'global_project' does not exist</details>
-        </status>
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer" />
+        </project>
     http_version: 
-  recorded_at: Tue, 24 May 2016 11:41:31 GMT
+  recorded_at: Wed, 27 Mar 2019 13:05:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/global_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="global_project">
+          <title>Death Be Not Proud</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="global_project">
+          <title>Death Be Not Proud</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/global_project/_config
+    body:
+      encoding: UTF-8
+      string: "          <project name=\"global_project\">\n            <title/>\n
+        \           <description/>\n            \n          </project>\n"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:15 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/global_project/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:18 GMT
 - request:
     method: get
     uri: http://backend:5352/build/global_project/_result?view=summary
@@ -54,8 +246,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'global_project' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -64,14 +256,68 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Wed, 27 Mar 2019 13:05:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1205'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'global_project' does not exist</summary>
-          <details>404 project 'global_project' does not exist</details>
-        </status>
+        <workerstatus clients="2">
+          <idle workerid="4ce61a595de6:1" hostarch="x86_64" />
+          <idle workerid="4ce61a595de6:2" hostarch="x86_64" />
+          <waiting arch="i586" jobs="0" />
+          <waiting arch="x86_64" jobs="0" />
+          <blocked arch="i586" jobs="0" />
+          <blocked arch="x86_64" jobs="0" />
+          <buildavg arch="i586" buildavg="1200" />
+          <buildavg arch="x86_64" buildavg="1200" />
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1553691872" />
+            <daemon type="servicedispatch" state="running" starttime="1553691878" />
+            <daemon type="service" state="running" starttime="1553691878" />
+            <daemon type="scheduler" arch="i586" state="running" starttime="1553691878">
+              <queue high="0" med="0" low="5" next="0" />
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1553691878">
+              <queue high="0" med="0" low="5" next="0" />
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1553691876" />
+            <daemon type="dispatcher" state="running" starttime="1553691878" />
+            <daemon type="publisher" state="running" starttime="1553691878" />
+            <daemon type="signer" state="running" starttime="1553691878" />
+          </partition>
+        </workerstatus>
     http_version: 
-  recorded_at: Tue, 24 May 2016 11:41:31 GMT
-recorded_with: VCR 3.0.1
+  recorded_at: Wed, 27 Mar 2019 13:05:19 GMT
+recorded_with: VCR 4.0.0

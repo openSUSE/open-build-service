@@ -39,7 +39,13 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_maintained_project, only: [:remove_maintained_project]
 
-  after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
+  after_action :verify_authorized, except: [:add_maintained_project_dialog, :autocomplete_incidents, :autocomplete_packages, :autocomplete_projects,
+                                            :autocomplete_repositories, :buildresult, :delete_dialog, :edit_comment, :edit_comment_form,
+                                            :incident_request_dialog, :index, :linking_projects, :maintained_projects, :maintenance_incidents, :meta,
+                                            :monitor, :new, :new_incident, :new_incident_request, :new_release_request, :package_buildresult,
+                                            :packages_simple, :prjconf, :rebuild_time, :rebuild_time_png, :release_request_dialog,
+                                            :release_request_dialog, :remove_target_request, :remove_target_request_dialog, :requests, :show,
+                                            :status, :subprojects, :toggle_watch, :unlock_dialog, :users]
 
   def index
     @show_all = (params[:show_all].to_s == 'true')
@@ -113,9 +119,13 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  def new_package; end
+  def new_package
+    authorize @project, :update?
+  end
 
   def new_package_branch
+    authorize @project, :update?
+
     @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
   end
 
@@ -410,6 +420,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def move_path
+    authorize @project, :update?
+
     params.require(:direction)
     repository = @project.repositories.find(params[:repository])
     path_element = repository.path_elements.find(params[:path])

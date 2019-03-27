@@ -78,7 +78,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'creating packages in projects not owned by user, eg. global namespace' do
     let(:other_user) { create(:confirmed_user, login: 'other_user') }
-    let(:global_project) { create(:project, name: 'global_project') }
+    let!(:global_project) { create(:project, name: 'global_project') }
 
     scenario 'as non-admin user' do
       login other_user
@@ -88,11 +88,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
       # Use direct path instead
       visit "/project/new_package/#{global_project}"
 
-      fill_in 'name', with: 'coolstuff'
-      click_button 'Save changes'
-
-      expect(page).to have_text("You can't create packages in #{global_project}")
-      expect(page.current_path).to eq("/project/new_package/#{global_project}")
+      expect(page).to have_text('Sorry, you are not authorized to update this Project')
+      expect(page.current_path).to eq(root_path)
     end
 
     scenario 'as admin' do
