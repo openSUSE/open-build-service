@@ -210,19 +210,22 @@ class Webui::WebuiController < ActionController::Base
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
     @project ||= params[:project]
-    if params[:package].present?
-      begin
-        @package = Package.get_by_project_and_name(@project.to_param, params[:package],
-                                                   use_source: false, follow_project_links: true, follow_multibuild: true)
-      rescue APIError # why it's not found is of no concern :)
+
+    return if params[:package].blank?
+
+    begin
+      @package = Package.get_by_project_and_name(@project.to_param, params[:package],
+                                                 follow_project_links: true, follow_multibuild: true)
+    rescue APIError => error
+      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(error.class)
+        flash[:error] = "You don't have access to the sources of this package: \"#{params[:package]}\""
+        redirect_back(fallback_location: project_show_path(@project))
+        return
       end
+
+      raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
+      render nothing: true, status: :not_found
     end
-
-    return if @package
-
-    raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
-
-    render nothing: true, status: :not_found
   end
 
   def feature_active?(feature)
