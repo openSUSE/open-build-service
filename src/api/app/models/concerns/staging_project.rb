@@ -143,15 +143,33 @@ module StagingProject
   end
 
   def merge_staged_requests
+    clear_memoized_data
     return unless overall_state == :acceptable
+
+    accepted_packages = []
     staged_requests.each do |staged_request|
-      # staged_request.reviews.accept
-      staged_request.change_state(newstate: 'accepted', comment: "Merged from Staging Project #{name}")
-      # staged_request.destroy # Remove the relationship
+      if staged_request.reviews.where(by_project: name).exists?
+        staged_request.change_review_state(:accepted, by_project: name, comment: "Merged from Staging Project #{name}.")
+      end
+      staged_request.change_state(newstate: 'accepted', comment: "Merged from Staging Project #{name}.")
+      accepted_packages.concat(staged_request.bs_request_actions.map(&:target_package))
     end
+
+    packages.where(name: accepted_packages).find_each(&:destroy)
+    staged_requests.delete_all
+
+    clear_memoized_data
   end
 
   private
+
+  def clear_memoized_data
+    @broken_packages = []
+    @building_repositories = []
+    @requests_to_review = nil
+    @problems = nil
+    @overall_state = nil
+  end
 
   def cache_problems
     problems = {}
