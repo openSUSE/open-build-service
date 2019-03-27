@@ -1,10 +1,21 @@
-open-build-service (2.7.4-3co2) UNRELEASED; urgency=medium
+open-build-service (2.7.4-3co2) stretch; urgency=medium
 
+  [ Lucas Kanashiro ]
   * Add patch to publish Debian upstream tarball signature to the
     repositories
   * Add patch to publish Ubuntu ddeb files to the repositories
+  * Backport upstream udeb support
 
- -- Lucas Kanashiro <lucas.kanashiro@collabora.com>  Thu, 21 Mar 2019 15:20:54 -0300
+  [ Héctor Orón Martínez ]
+  * debian/README.source: add new file
+  * worker: override DefaultTasksMax
+  * debian/patches/CVE-2017-5188.patch: update
+
+  [ Andrew Lee (李健秋) ]
+  * Make passenger rubyapp runs as obsapi user.
+  * Update correct group permission for rb_sysopen
+
+ -- Héctor Orón Martínez <hector.oron@collabora.co.uk>  Wed, 27 Mar 2019 18:05:54 +0100
 
 open-build-service (2.7.4-3co1) stretch; urgency=medium
 
