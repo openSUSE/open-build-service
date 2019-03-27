@@ -142,6 +142,15 @@ module StagingProject
     project_log_entry.save!
   end
 
+  def merge_staged_requests
+    return unless overall_state == :acceptable
+    staged_requests.each do |staged_request|
+      # staged_request.reviews.accept
+      staged_request.change_state(newstate: 'accepted', comment: "Merged from Staging Project #{name}")
+      # staged_request.destroy # Remove the relationship
+    end
+  end
+
   private
 
   def cache_problems
