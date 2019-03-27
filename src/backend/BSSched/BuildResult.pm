@@ -794,32 +794,30 @@ sub remove_from_volatile {
 =cut
 
 sub wipe {
-  my ($gctx, $prp, $packid, $dstcache) = @_;
+  my ($gctx, $prp, $packid, $prpsearchpath, $dstcache) = @_;
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
-  # delete repository done flag
-  unlink("$gdst/:repodone");
-  # delete full entries
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
   my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
 
-  my $prjlocked = 0;
-  my $pkglocked = 0;
-  $prjlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, 0, $myarch) if $projpacks->{$projid}->{'lock'};
-  $pkglocked = BSUtil::enabled($repoid, $pdata->{$packid}->{'lock'}, 0, $myarch) if $pdata->{$packid}->{'lock'};
-  if ($prjlocked || $pkglocked) {
-    print "Ignore wipe event, package $projid/$packid is locked!\n";
+  my $locked = 0;
+  $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
+  $locked = BSUtil::enabled($repoid, $pdata->{$packid}->{'lock'}, $locked, $myarch) if $pdata->{$packid}->{'lock'};
+  if ($locked) {
+    print "ignoring wipe, package $projid/$packid is locked!\n";
     return;
   }
+  # delete repository done flag
+  unlink("$gdst/:repodone");
+  # delete full entries
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $importarch = '';					# keep those imports
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
   delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
@@ -861,6 +859,89 @@ sub set_dstcache_prp {
     } else {
       BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if %$fullcache;
     }
+  }
+}
+
+=head2 wipeobsolete - remove an obsolete package from the repo
+
+This is similar to wipe(), but also removes the .history file
+
+=cut
+
+sub wipeobsolete {
+  my ($gctx, $prp, $packid, $prpsearchpath, $dstcache, $reason, $allarch) = @_;
+
+  my $projpacks = $gctx->{'projpacks'};
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  my @files = ls("$gdst/$packid");
+  return 0 unless @files;
+  my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
+  if (@ifiles) {
+    # only imported stuff?
+    return 0 unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
+  }
+  print "      - $packid: $reason\n" if $reason;
+  my ($projid, $repoid) = split('/', $prp, 2);
+  # delete repository done flag
+  unlink("$gdst/:repodone");
+  # delete full entries
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";	# hmm, need to exclude patchinfos here. cheating.
+  # don't wipe imports if we're obsoleting just one arch
+  my $importarch = !$allarch && @ifiles ? '' : undef;
+  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, $dstcache, $importarch);
+  delete $gctx->{'repounchanged'}->{$prp};
+  # delete other files
+  unlink("$gdst/:logfiles.success/$packid");
+  unlink("$gdst/:logfiles.fail/$packid");
+  unlink("$gdst/:meta/$packid");
+  if (@ifiles) {
+    # keep those imports
+    for my $f (@files) {
+      next if $f eq '.bininfo';
+      next if $f =~ /^::import::/ || $f =~ /^\.meta\.success\.import\./;
+      if (-d "$gdst/$packid/$f") {
+        BSUtil::cleandir("$gdst/$packid/$f");
+        rmdir("$gdst/$packid/$f");
+      } else {
+        unlink("$gdst/$packid/$f");
+      }
+    }
+  } else {
+    BSUtil::cleandir("$gdst/$packid");
+  }
+  rmdir("$gdst/$packid");
+  return 1;
+}
+
+=head2 wipeobsoleterepo - remove an obsolete repo
+
+Note that :repo and :repoinfo must be already gone
+
+=cut
+
+sub wipeobsoleterepo {
+  my ($gctx, $prp) = @_;
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  return unless -d $gdst;
+  for my $dir (ls($gdst)) {
+    if (-d "$gdst/$dir") {
+      BSUtil::cleandir("$gdst/$dir");
+      rmdir("$gdst/$dir") || die("rmdir $gdst/$dir: $!\n");
+    } else {
+      unlink("$gdst/$dir") || die("unlink $gdst/$dir: $!\n");
+    }
+  }
+  # we unfortunately have a race: the reposerver may touch the :schedulerstate.dirty file
+  while (!rmdir($gdst)) {
+    die("$gdst: $!\n") unless -e "$gdst/:schedulerstate.dirty";
+    print "rep server created dirty file $gdst/:schedulerstate.dirty, retry ...\n";
+    unlink("$gdst/:schedulerstate.dirty");
   }
 }
 
