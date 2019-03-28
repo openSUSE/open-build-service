@@ -142,35 +142,21 @@ module StagingProject
   end
 
   def state
-    return :empty unless staged_requests.exists?
-    return :unacceptable if unacceptable_state?
-    return :review if review_state?
-    general_state
-  end
-
-  def unacceptable_state?
-    untracked_requests.present? || staged_requests.obsolete.present?
-  end
-
-  def review_state?
-    general_state == :acceptable && missing_reviews.present?
-  end
-
-  def general_state
-    build_state == :acceptable ? check_state : build_state
-  end
-
-  def build_state
-    return :building if building_repositories.present? || disabled_repositories.present?
-    return :failed if broken_packages.present?
-
+    return :empty if staged_requests.blank?
+    return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
+    bc_state = build_or_check_state
+    return bc_state if bc_state
+    return :review if missing_reviews.present?
     :acceptable
   end
 
-  def check_state
+  def build_or_check_state
+    # build_state
+    return :building if building_repositories.present? || disabled_repositories.present?
+    return :failed if broken_packages.present?
+    # check_state
     return :testing if missing_checks.present? || checks.pending.exists?
-    return :failed if checks.failed.exists?
-    return :acceptable
+    :failed if checks.failed.exists?
   end
 
   def set_buildinfo
