@@ -58,7 +58,7 @@ class Group < ApplicationRecord
         # user has already a role in this package
         cache.delete(user.id)
       else
-        GroupMaintainer.create(user: user, group: self).save
+        GroupMaintainer.create(user: user, group: self)
       end
     end
     cache.each do |login_id, _|
@@ -77,7 +77,7 @@ class Group < ApplicationRecord
           # user has already a role in this package
           cache.delete(user.id)
         else
-          GroupsUser.create(user: user, group: self).save
+          GroupsUser.create(user: user, group: self)
         end
       end
     end
