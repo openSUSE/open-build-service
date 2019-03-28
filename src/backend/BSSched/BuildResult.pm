@@ -20,7 +20,10 @@ package BSSched::BuildResult;
 #   calculate_exportfilter
 #   set_suf_and_filter_exports
 #   update_dst_full
+#   set_dstcache_prp
 #   wipe
+#   wipeobsolete
+#   wipeobsoleterepo
 #
 # static functions
 #   compile_exportfilter
@@ -28,6 +31,7 @@ package BSSched::BuildResult;
 #   repofromfiles
 #   read_bininfo
 #   read_gbininfo
+#   rebuild_gbininfo
 #   findmeta
 #   remove_from_volatile
 #
