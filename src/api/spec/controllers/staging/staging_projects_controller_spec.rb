@@ -234,5 +234,12 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
       it { expect(subject).to have_http_status(:bad_request) }
       it { expect { subject }.not_to change(Project, :count) }
     end
+
+    context 'fails: body is empty' do
+      subject { post :create, params: { staging_workflow_project: staging_workflow_project, format: :xml }, body: nil }
+
+      it { expect(subject).to have_http_status(:bad_request) }
+      it { expect { subject }.not_to change(Project, :count) }
+    end
   end
 end
