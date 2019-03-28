@@ -157,7 +157,7 @@ sub set_repo_state {
 
 =cut
 
-sub wipe {
+sub wipeobsoleterepo {
   my ($ctx) = @_;
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};

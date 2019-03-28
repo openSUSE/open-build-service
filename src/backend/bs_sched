@@ -944,7 +944,7 @@ eval {
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
-        $ctx->wipe();
+        $ctx->wipeobsoleterepo();
       }
       rmdir("$reporoot/$projid");		# in case this was the last repo
       next;
