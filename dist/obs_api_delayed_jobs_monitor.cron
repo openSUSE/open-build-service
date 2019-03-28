@@ -1,1 +1,0 @@
-*/10 * * * * /usr/bin/bundle.ruby2.5 exec /srv/www/obs/api/script/delayed_job_monitor.rb > /dev/null
