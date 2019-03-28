@@ -19,8 +19,7 @@ class Staging::StagingProjectsController < ApplicationController
 
   def create
     authorize @staging_workflow
-    xml_request = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-    result = ::Staging::StagingProjectCreator.new(xml_request[:staging_project], @staging_workflow).call
+    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow).call
 
     if result.valid?
       render_ok

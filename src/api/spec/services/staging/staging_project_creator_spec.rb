@@ -4,7 +4,15 @@ RSpec.describe ::Staging::StagingProjectCreator do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
   let!(:staging_workflow) { create(:staging_workflow, project: project) }
-  let(:staging_project_creator) { ::Staging::StagingProjectCreator.new(staging_projects, staging_workflow) }
+  let(:staging_project_creator) { ::Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow) }
+
+  let(:staging_projects) do
+    lambda do |project_names|
+      Builder::XmlMarkup.new.workflow do |workflow|
+        project_names.each { |project_name| workflow.staging_project(project_name) }
+      end
+    end
+  end
 
   before do
     User.current = user
@@ -15,7 +23,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
   describe '#call' do
     context 'succeeds' do
       context 'with non-existent projects' do
-        let(:staging_projects) { ["#{project}:Staging:C", "#{project}:Staging:D"] }
+        let(:project_names) { ["#{project}:Staging:C", "#{project}:Staging:D"] }
 
         describe '#valid?' do
           it { expect(subject).to be_valid }
@@ -30,7 +38,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
 
       context 'with an existent project' do
         let!(:other_project) { create(:project, name: "#{project}:other_project") }
-        let(:staging_projects) { ["#{project}:Staging:C", other_project.to_s] }
+        let(:project_names) { ["#{project}:Staging:C", other_project.to_s] }
 
         describe '#valid?' do
           it { expect(subject).to be_valid }
@@ -46,7 +54,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
 
     context 'fails' do
       context 'with projects assgined to a staging workflow' do
-        let(:staging_projects) { ["#{project}:Staging:A", "#{project}:Staging:D"] }
+        let(:project_names) { ["#{project}:Staging:A", "#{project}:Staging:D"] }
 
         describe '#valid?' do
           it { expect(subject).not_to be_valid }
@@ -62,7 +70,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
       end
 
       context 'with a staging workflow main project' do
-        let(:staging_projects) { ["#{project}:Staging:D", project.to_s] }
+        let(:project_names) { ["#{project}:Staging:D", project.to_s] }
 
         describe '#valid?' do
           it { expect(subject).not_to be_valid }
@@ -78,7 +86,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
       end
 
       context 'without an existing parent project' do
-        let(:staging_projects) { ['NoneFatherProject:Staging:D', "#{project}:Staging:D"] }
+        let(:project_names) { ['NoneFatherProject:Staging:D', "#{project}:Staging:D"] }
 
         describe '#valid?' do
           it { expect(subject).not_to be_valid }
