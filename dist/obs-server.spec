@@ -706,7 +706,6 @@ usermod -a -G docker obsservicerun
 /srv/www/obs/overview
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
-%config(noreplace) /etc/cron.d/obs_api_delayed_jobs_monitor
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
 %attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
 
