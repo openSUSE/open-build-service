@@ -6,7 +6,7 @@ RSpec.describe IssueTracker do
     let!(:issue_tracker) { create(:issue_tracker, enable_fetch: true) }
 
     before do
-      allow(IssueTracker).to receive(:find).and_return(issue_tracker)
+      allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:update_issues)
     end
 

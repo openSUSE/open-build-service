@@ -11,7 +11,7 @@ RSpec.describe Issue, vcr: true do
     let!(:issue) { create(:issue, issue_tracker: issue_tracker) }
 
     before do
-      allow(IssueTracker).to receive(:find).and_return(issue_tracker)
+      allow(IssueTracker).to receive(:find_by).and_return(issue_tracker)
       allow(issue_tracker).to receive(:fetch_issues)
     end
 
