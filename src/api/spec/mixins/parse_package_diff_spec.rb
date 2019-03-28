@@ -121,7 +121,7 @@ RSpec.describe ParsePackageDiff do
 
       let(:issue_tracker) { IssueTracker.first }
       let(:issue) { create(:issue, issue_tracker: issue_tracker) }
-      let(:deleted_issue) { create(:issue, name: 'deleted', issue_tracker: issue_tracker) }
+      let(:deleted_issue) { create(:issue, name: 1234, issue_tracker: issue_tracker) }
 
       subject { instance_with_parse_package_diff_support.sorted_filenames_from_sourcediff(package_diff).first['issues'] }
 

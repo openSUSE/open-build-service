@@ -6,7 +6,7 @@ FactoryBot.define do
     url { Faker::Internet.url('example.com') }
     show_url { Faker::Internet.url('example.com') }
     regex { 'gh#(\d+)' }
-    label { Faker::Lorem.word }
+    label { 'gh#@@@' }
     issues_updated { Time.now }
   end
 end
