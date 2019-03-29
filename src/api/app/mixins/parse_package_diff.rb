@@ -4,7 +4,7 @@ module ParsePackageDiff
     sourcediff.get('issues').elements('issue') do |issue|
       next unless issue['name']
       next if issue['state'] == 'deleted'
-      i = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'])
+      i = Issue.find_by_name_and_tracker(issue['name'], issue['tracker'], nonfatal: 1)
       ret[issue['label']] = i.webui_infos if i
     end
     ret

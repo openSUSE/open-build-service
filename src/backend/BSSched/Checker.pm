@@ -164,37 +164,23 @@ sub wipe {
   my $prp = $ctx->{'prp'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+
+  # first delete the publish area
   BSSched::PublishRepo::prpfinished($ctx);
-  for my $dir (ls($gdst)) {
-    # need lock for deleting publish area
-    next if $dir eq ':repo' || $dir eq ':repoinfo';
-    if (-d "$gdst/$dir") {
-      BSUtil::cleandir("$gdst/$dir");
-      rmdir("$gdst/$dir") || die("$gdst/$dir: $!\n");
-    } else {
-      unlink("$gdst/$dir") || die("$gdst/$dir: $!\n");
-    }
-  }
+  # then delete the build area
+  BSSched::BuildResult::wipeobsoleterepo($gctx, $prp);
+
   $gctx->{'changed_med'}->{$prp} = 2; 
   BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
-
   BSSched::BuildJob::killbuilding($ctx->{'gctx'}, $prp);
-  BSSched::PublishRepo::prpfinished($ctx);
-  # now that :repo is gone we can remove the directory
-  while (!rmdir($gdst)) {
-    die("$gdst: $!\n") unless -e "$gdst/:schedulerstate.dirty";
-    print "rep server created dirty file $gdst/:schedulerstate.dirty, retry ...\n";
-    unlink("$gdst/:schedulerstate.dirty");
-  }
-  # XXX this should be rewritten if :repoinfo lives somewhere else
-  my $repo = (grep {$_->{'name'} eq $repoid} @{($ctx->{'gctx'}->{'projpacks'}->{$projid} || {})->{'repository'} || []})[0];
+
+  # now that our arch is gone we can try to remove the prp directory
+  my $proj = $gctx->{'projpacks'}->{$projid} || {};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   if (!$repo) {
     # this repo doesn't exist any longer!
     my $reporoot = $gctx->{'reporoot'};
-    my $others;
-    for (ls("$reporoot/$prp")) {
-      $others = 1 if -d "$reporoot/$prp/$_";
-    }
+    my $others = grep {-d "$reporoot/$prp/$_"} ls("$reporoot/$prp");
     if (!$others) {
       # cannot delete repoinfo because it may contain splitdbg data
       # we rely on the publisher to clean up
@@ -344,40 +330,13 @@ sub wipeobsolete {
     my $locked = $prjlocked;
     $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata && $pdata->{'lock'};
     if ($locked) {
-      print "      - $packid: is $reason, but locked\n";
+      print "      - $packid: $reason, but locked\n";
       next;
     }
-    my @files = ls("$gdst/$packid");
-    my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
-    if (@ifiles) {
-      # only imported stuff?
-      next unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
-    }
-    print "      - $packid: is $reason\n";
+    my $allarch = $pdata ? 0 : 1;		# wiping all archs?
+    next unless BSSched::BuildResult::wipeobsolete($gctx, $prp, $packid, $ctx->{'prpsearchpath'}, $dstcache, $reason, $allarch);
     $hadobsolete = 1;
     delete $ctx->{'lastcheck'}->{$packid};
-    # delete full entries
-    my $useforbuildenabled = 1;
-    $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
-    # hmm, need to exclude patchinfos here. cheating.
-    $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
-    # don't wipe imports if we're excluded
-    my $importarch = $pdata && @ifiles ? '' : undef;
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, $dstcache, $importarch);
-    # delete other files
-    unlink("$gdst/:logfiles.success/$packid");
-    unlink("$gdst/:logfiles.fail/$packid");
-    unlink("$gdst/:meta/$packid");
-    if (@ifiles) {
-      for (@files) {
-	next if $_ eq '.bininfo';
-	next if /^::import::/ || /^\.meta\.success\.import\./;
-	unlink("$gdst/$packid/$_");
-      }
-    } else {
-      BSUtil::cleandir("$gdst/$packid");
-    }
-    rmdir("$gdst/$packid");
     BSSched::BuildJob::killbuilding($gctx, $prp, $packid);
   }
   BSSched::BuildResult::set_dstcache_prp($gctx, $dstcache);
