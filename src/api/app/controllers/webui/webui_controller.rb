@@ -259,8 +259,13 @@ class Webui::WebuiController < ActionController::Base
     if params[:package].present?
       begin
         @package = Package.get_by_project_and_name(@project.to_param, params[:package],
-                                                   use_source: false, follow_project_links: true, follow_multibuild: true)
-      rescue APIException # why it's not found is of no concern :)
+                                                   follow_project_links: true, follow_multibuild: true)
+      rescue APIException => exception
+        flash[:error] = if exception.is_a?(Package::ReadSourceAccessError)
+          "You don't have access to the sources of this package: \"#{params[:package]}\""
+        else
+          "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
+        end
       end
     end
 
@@ -269,7 +274,6 @@ class Webui::WebuiController < ActionController::Base
     if request.xhr?
       render nothing: true, status: :not_found
     else
-      flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to project_show_path(project: @project, nextstatus: 404)
     end
   end

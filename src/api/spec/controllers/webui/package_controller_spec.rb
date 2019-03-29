@@ -627,8 +627,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :revisions, params: { project: source_project, package: package }
       end
 
-      it { expect(flash[:error]).to eq('Could not access revisions') }
-      it { expect(response).to redirect_to(package_show_path(project: source_project.name, package: package.name)) }
+      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{package}\"") }
+      it { expect(response).to redirect_to(project_show_path(project: source_project.name, nextstatus: 404)) }
     end
 
     context 'with source access' do
