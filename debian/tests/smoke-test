@@ -1,0 +1,144 @@
+#!/bin/sh
+
+exec 2>&1
+set -exu
+
+# set up obs-api app
+/usr/share/obs/api/script/rake-tasks.sh setup
+
+# create certificate
+make-ssl-cert generate-default-snakeoil --force-overwrite
+
+# update apache2 config
+sed -ri 's/(\s*)ServerName api/\1Servername localhost/' /etc/apache2/sites-available/obs.conf
+service apache2 restart
+
+# configure obs-server
+sed -i "s/frontend = undef/frontend = 'localhost'/g" /etc/obs/BSConfig.pm
+
+# configure obs-worker
+sed -i 's/obs:5352/localhost:5352/g' /etc/default/obsworker
+sed -i 's/obs:5252/localhost:5252/g' /etc/default/obsworker
+sed -i 's/INSTANCES="0"/INSTANCES="1"/g' /etc/default/obsworker
+
+
+# start worker
+service obsworker start
+
+mkdir "$AUTOPKGTEST_TMP"/data
+cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
+<project name="Debian:9">
+<title>Debian 9 DoD</title>
+<description>Debian 9 DoD</description>
+<person userid="Admin" role="maintainer"/>
+<repository name="main">
+<download arch="x86_64" url="http://deb.debian.org/debian/stretch/main" repotype="deb"/>
+<arch>x86_64</arch>
+</repository>
+</project>
+EOF
+
+cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prjconf_Debian_9
+Repotype: debian
+
+# create initial user
+Preinstall: base-passwd
+Preinstall: user-setup
+
+# required for preinstall images
+Preinstall: perl
+
+# preinstall essentials + dependencies
+Preinstall: base-files base-passwd bash bsdutils coreutils dash debconf
+Preinstall: debianutils diffutils dpkg e2fslibs e2fsprogs findutils gawk
+Preinstall: gcc-6-base grep gzip hostname initscripts init-system-helpers
+Preinstall: insserv libacl1 libattr1 libblkid1 libbz2-1.0 libc-bin libc6
+Preinstall: libcomerr2 libdb5.3 libgcc1 liblzma5 libmount1 libncurses5
+Preinstall: libpam-modules libpcre3 libsmartcols1
+Preinstall: libpam-modules-bin libpam-runtime libpam0g libreadline7
+Preinstall: libselinux1 libsemanage-common libsemanage1 libsepol1 libsigsegv2
+Preinstall: libslang2 libss2 libtinfo5 libustr-1.0-1 libuuid1 login lsb-base
+Preinstall: mount multiarch-support ncurses-base ncurses-bin passwd perl-base
+Preinstall: readline-common sed sensible-utils sysv-rc sysvinit-utils
+Preinstall: tar tzdata util-linux zlib1g
+
+Runscripts: base-passwd user-setup base-files gawk
+
+VMinstall: libdevmapper1.02.1
+
+Order: user-setup:base-files
+
+# Essential packages (this should also pull the dependencies)
+Support: base-files base-passwd bash bsdutils coreutils dash debianutils
+Support: diffutils dpkg e2fsprogs findutils grep gzip hostname libc-bin
+Support: login mount ncurses-base ncurses-bin perl-base sed
+Support: sysvinit-utils tar util-linux
+
+# Build-essentials
+Required: build-essential
+Prefer: build-essential:make
+
+# build script needs fakeroot
+Support: fakeroot
+# lintian support would be nice, but breaks too much atm
+#Support: lintian
+
+# helper tools in the chroot
+Support: less kmod net-tools procps psmisc strace vim
+
+%define debian_version 900
+
+Macros:
+%debian_version 900
+EOF
+
+cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
+<project name="test">
+<title>test</title>
+<description>test</description>
+<person userid="Admin" role="maintainer"/>
+<repository name="Debian_9.0">
+<path project="Debian:9" repository="main"/>
+<arch>x86_64</arch>
+</repository>
+</project>
+EOF
+
+cat << EOF > /root/.oscrc
+[general]
+
+apiurl = https://localhost
+
+[https://localhost]
+user = Admin
+pass = opensuse
+
+# do not check self signed certificate
+sslcertck = 0
+EOF
+
+# create a test project and Debian DoD
+osc -A https://localhost/ ls
+osc -A https://localhost/ meta prj Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
+osc -A https://localhost/ meta prjconf Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prjconf_Debian_9
+osc -A https://localhost/ meta prj test -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
+
+# upload the hello package
+cd "$AUTOPKGTEST_TMP"
+osc -A https://localhost/ co test ; cd test
+mkdir hello ; cd hello ; apt-get source -d hello ; cd - ;
+osc add hello
+osc ci -m "New import" hello
+
+cd hello; sleep 250
+found=0
+for i in $(seq 1 10); do
+    echo "Round $i: checking binaries..."
+    output=$(osc -A https://localhost/ ls -b .)
+    case $output in
+        *"hello_"*"_amd64.deb"*) found=1 && break ;;
+        *) sleep 10
+    esac
+done
+
+[ "$found" -eq 1 ] || exit 1

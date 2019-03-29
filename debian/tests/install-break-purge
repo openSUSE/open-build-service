@@ -1,0 +1,14 @@
+#!/bin/sh
+
+packages=${1:-obs-api obs-server obs-worker obs-productconverter obs-utils}
+
+exec 2>&1
+set -exu
+
+export DEBIAN_FRONTEND=noninteractive
+
+# if install failed for some reason or the user broke the configuration
+# we should still be able to cleanup things
+rm -rf /etc/obs
+
+apt-get purge -qy $packages
