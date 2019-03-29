@@ -10,5 +10,5 @@
   %p
     = text_area_tag('comment', '', rows: 4, class: 'w-100 form-control', placeholder: 'Please comment on your decision')
   %p
-    = submit_tag 'Disregard', name: 'new_state', title: 'Veto this request, it will be declined.', class: 'btn btn-danger mr-2'
-    = submit_tag 'Approve', name: 'new_state', title: 'Give this request your blessing, it will continue.', class: 'btn btn-primary'
+    = submit_tag 'Approve', name: 'new_state', title: 'Give this request your blessing, it will continue.', class: 'btn btn-primary mr-2'
+    = submit_tag 'Disregard', name: 'new_state', title: 'Veto this request, it will be declined.', class: 'btn btn-danger'
