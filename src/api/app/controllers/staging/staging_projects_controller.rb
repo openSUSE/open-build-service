@@ -1,8 +1,9 @@
 class Staging::StagingProjectsController < ApplicationController
   before_action :require_login, except: [:index, :show]
-
   before_action :set_main_project
   before_action :set_staging_workflow, only: :create
+
+  validate_action create: { method: :post, request: :staging_project }
 
   def index
     if @main_project.staging
