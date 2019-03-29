@@ -18,9 +18,15 @@ RSpec.describe ::Staging::StagingProjectCreator do
     User.current = user
   end
 
-  subject { staging_project_creator.call }
+  describe '#staging_projects' do
+    let(:project_names) { ["#{project}:Staging:C", "#{project}:Staging:D"] }
+
+    it { expect(staging_project_creator.staging_projects).not_to be_nil }
+  end
 
   describe '#call' do
+    subject { staging_project_creator.call }
+
     context 'succeeds' do
       context 'with non-existent projects' do
         let(:project_names) { ["#{project}:Staging:C", "#{project}:Staging:D"] }

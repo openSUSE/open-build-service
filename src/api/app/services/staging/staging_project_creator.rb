@@ -10,19 +10,8 @@ module Staging
         errors << 'Staging projects are empty'
         return self
       end
-      staging_projects = Xmlhash.parse(@request_body).elements('staging_project').collect do |name|
-        project = Project.find_or_initialize_by(name: name)
-        project_validator = StagingProjectValidator.new(project).call
-
-        unless project_validator.valid?
-          errors << project_validator.errors
-          next
-        end
-
-        project.staging_workflow_id = @staging_workflow.id
-        project
-      end
-      staging_projects.each(&:store) if valid?
+      projects = staging_projects
+      projects.each(&:store) if valid?
       self
     end
 
@@ -34,10 +23,19 @@ module Staging
       errors.empty?
     end
 
-    private
+    def staging_projects
+      Xmlhash.parse(@request_body).elements('staging_project').collect do |name|
+        project = Project.find_or_initialize_by(name: name)
+        project_validator = StagingProjectValidator.new(project).call
 
-    def staging_project_names
-      [@staging_project_names].flatten
+        unless project_validator.valid?
+          errors << project_validator.errors
+          next
+        end
+
+        project.staging_workflow_id = @staging_workflow.id
+        project
+      end.compact
     end
   end
 end
