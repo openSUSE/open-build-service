@@ -2,6 +2,7 @@ class Staging::WorkflowsController < ApplicationController
   before_action :require_login
   before_action :set_project
   before_action :set_staging_workflow, only: :update
+  after_action :verify_authorized
 
   def create
     staging_workflow = @project.build_staging
