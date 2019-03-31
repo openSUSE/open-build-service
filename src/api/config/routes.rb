@@ -765,6 +765,7 @@ OBSApi::Application.routes.draw do
     resource :workflow, only: [:create, :destroy, :update], constraints: cons
     resources :staging_projects, only: [:index, :show], param: :name do
       post 'copy/:staging_project_copy_name' => :copy
+      post :accept
 
       get 'staged_requests' => 'staged_requests#index', constraints: cons
       resource :staged_requests, only: [:create, :destroy], constraints: cons

@@ -1,0 +1,566 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title/>
+          <description/>
+          <person userid="permitted_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '151'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title></title>
+          <description></description>
+          <person userid="permitted_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>The Man Within</title>
+          <description>Atque fuga quod tempore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>The Man Within</title>
+          <description>Atque fuga quod tempore.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>The Man Within</title>
+          <description>Atque fuga quod tempore.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>The Man Within</title>
+          <description>Atque fuga quod tempore.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-9">
+          <staging_project name="home:permitted_user:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="389">
+          <srcmd5>b17e86b9be7af0cd74c5ad312f17fb07</srcmd5>
+          <time>1554128385</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-9" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-9">
+          <staging_project name="home:permitted_user:Staging:A"/>
+          <staging_project name="home:permitted_user:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="390">
+          <srcmd5>acf8a6ad4127bb9bb492f8f736cf5d84</srcmd5>
+          <time>1554128385</time>
+          <user>_nobody_</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-9" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title/>
+          <description/>
+          <person userid="permitted_user" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title></title>
+          <description></description>
+          <person userid="permitted_user" role="maintainer" />
+          <group groupid="staging-workflow-managers-9" role="reviewer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>A Glass of Blessings</title>
+          <description>Accusantium occaecati saepe aspernatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>A Glass of Blessings</title>
+          <description>Accusantium occaecati saepe aspernatur.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>A Glass of Blessings</title>
+          <description>Accusantium occaecati saepe aspernatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>A Glass of Blessings</title>
+          <description>Accusantium occaecati saepe aspernatur.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:unpermitted_user">
+          <title/>
+          <description/>
+          <person userid="unpermitted_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:unpermitted_user">
+          <title></title>
+          <description></description>
+          <person userid="unpermitted_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>A Catskill Eagle</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>A Catskill Eagle</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Beneath the Bleeding</title>
+          <description>Cum minima sit est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Beneath the Bleeding</title>
+          <description>Cum minima sit est.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Beneath the Bleeding</title>
+          <description>Cum minima sit est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>Beneath the Bleeding</title>
+          <description>Cum minima sit est.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 01 Apr 2019 14:19:45 GMT
+recorded_with: VCR 4.0.0

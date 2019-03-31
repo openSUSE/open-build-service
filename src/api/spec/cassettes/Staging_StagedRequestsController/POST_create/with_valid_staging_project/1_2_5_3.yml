@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-12">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="412">
-          <srcmd5>ec4a9d81591c54b678f1dc5f60f6ee41</srcmd5>
-          <time>1554128396</time>
+        <revision rev="396">
+          <srcmd5>6a02d7b70a247a8b83f9da56bbaca709</srcmd5>
+          <time>1554128388</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-12" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -119,17 +119,17 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-18" role="maintainer" />
+          <group groupid="staging-workflow-managers-12" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-12">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -156,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="413">
-          <srcmd5>effd2e93855be6e3e127babc05813ca7</srcmd5>
-          <time>1554128396</time>
+        <revision rev="397">
+          <srcmd5>535cb0eeae32c2e97dbce9baa1760990</srcmd5>
+          <time>1554128388</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-12" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -202,10 +202,10 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-18" role="maintainer" />
+          <group groupid="staging-workflow-managers-12" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-18" role="reviewer"/>
+          <group groupid="staging-workflow-managers-12" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer" />
-          <group groupid="staging-workflow-managers-18" role="reviewer" />
+          <group groupid="staging-workflow-managers-12" role="reviewer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:unpermitted_user/_meta?user=unpermitted_user
@@ -289,7 +289,7 @@ http_interactions:
           <person userid="unpermitted_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -297,8 +297,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Hic sed iure voluptatem.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Aut tenetur eius explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -319,16 +319,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Hic sed iure voluptatem.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Aut tenetur eius explicabo.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -336,8 +336,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Hic sed iure voluptatem.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Aut tenetur eius explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -358,16 +358,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Hic sed iure voluptatem.</description>
+          <title>Blue Remembered Earth</title>
+          <description>Aut tenetur eius explicabo.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -375,7 +375,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Antic Hay</title>
+          <title>An Acceptable Time</title>
           <description/>
         </project>
     headers:
@@ -397,16 +397,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '100'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Antic Hay</title>
+          <title>An Acceptable Time</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -414,8 +414,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -436,16 +436,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -453,8 +453,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -475,16 +475,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '157'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:56 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
@@ -519,7 +519,7 @@ http_interactions:
         <collection>
         </collection>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -527,8 +527,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -549,16 +549,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=permitted_user
@@ -590,16 +590,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
+        <revision rev="2" vrev="2">
           <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
           <version>unknown</version>
-          <time>1554128397</time>
+          <time>1554128389</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -607,8 +607,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -629,16 +629,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '193'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>Antic Hay</title>
-          <description>Inventore ipsam veniam eligendi.</description>
+          <title>To Sail Beyond the Sunset</title>
+          <description>Laudantium fugit sunt exercitationem.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
@@ -668,12 +668,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="6" vrev="6" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package" rev="2" vrev="2" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" />
           <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1553774445" />
         </directory>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?view=info
@@ -703,12 +703,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="target_package" rev="6" vrev="6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="target_package" rev="2" vrev="2" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="source_project" package="source_package" />
         </sourceinfo>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package
@@ -738,12 +738,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="6" vrev="6" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+        <directory name="target_package" rev="2" vrev="2" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
           <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" />
           <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1553774445" />
         </directory>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -775,15 +775,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e5afa67061fba1846b49de36d143c418">
+        <sourcediff key="7768463d10ecf70129c915edc7873765">
           <old project="home:permitted_user:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:permitted_user:Staging:A" package="target_package" rev="6" srcmd5="8e451641a827df5f4f409d1d543fdb7b" />
+          <new project="home:permitted_user:Staging:A" package="target_package" rev="2" srcmd5="8e451641a827df5f4f409d1d543fdb7b" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -823,14 +823,14 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-12">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -857,15 +857,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="414">
-          <srcmd5>effd2e93855be6e3e127babc05813ca7</srcmd5>
-          <time>1554128397</time>
+        <revision rev="398">
+          <srcmd5>535cb0eeae32c2e97dbce9baa1760990</srcmd5>
+          <time>1554128389</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -875,7 +875,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-12" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -903,8 +903,8 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-18" role="maintainer" />
+          <group groupid="staging-workflow-managers-12" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Mon, 01 Apr 2019 14:19:57 GMT
+  recorded_at: Mon, 01 Apr 2019 14:19:49 GMT
 recorded_with: VCR 4.0.0

@@ -1,7 +1,7 @@
 class Staging::StagedRequestsController < ApplicationController
   before_action :require_login, except: [:index]
   before_action :set_staging_project
-  before_action :set_staging_workflow, :set_project, :set_xml_hash, only: [:create, :destroy]
+  before_action :set_staging_workflow, :set_project, :set_xml_hash, :check_overall_state, only: [:create, :destroy]
 
   def index
     @requests = @staging_project.staged_requests
@@ -75,5 +75,14 @@ class Staging::StagedRequestsController < ApplicationController
 
   def set_project
     @project = @staging_workflow.project
+  end
+
+  def check_overall_state
+    return if @staging_project.overall_state != :accepting
+    render_error(
+      status: 424,
+      errorcode: 'staging_project_not_in_acceptable_state',
+      message: "Can't change staged requests: Project '#{@project}' is being accepted."
+    )
   end
 end

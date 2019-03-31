@@ -273,7 +273,7 @@ RSpec.describe Project, vcr: true do
       end
     end
 
-    describe '#merge_staged_requests' do
+    describe '#accept_staged_requests' do
       let(:requester) { create(:confirmed_user, login: 'requester') }
       let(:target_package_2) { create(:package, name: 'target_package_2', project: target_project) }
       let!(:staged_request) do
@@ -305,7 +305,7 @@ RSpec.describe Project, vcr: true do
         User.current = user
       end
 
-      subject { staging_project.merge_staged_requests }
+      subject { staging_project.accept_staged_requests }
 
       context "when the staging project is in 'acceptable' state" do
         let!(:user_relationship) { create(:relationship, project: target_project, user: user) }
