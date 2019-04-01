@@ -38,60 +38,6 @@ cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
 </project>
 EOF
 
-cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prjconf_Debian_9
-Repotype: debian
-
-# create initial user
-Preinstall: base-passwd
-Preinstall: user-setup
-
-# required for preinstall images
-Preinstall: perl
-
-# preinstall essentials + dependencies
-Preinstall: base-files base-passwd bash bsdutils coreutils dash debconf
-Preinstall: debianutils diffutils dpkg e2fslibs e2fsprogs findutils gawk
-Preinstall: gcc-6-base grep gzip hostname initscripts init-system-helpers
-Preinstall: insserv libacl1 libattr1 libblkid1 libbz2-1.0 libc-bin libc6
-Preinstall: libcomerr2 libdb5.3 libgcc1 liblzma5 libmount1 libncurses5
-Preinstall: libpam-modules libpcre3 libsmartcols1
-Preinstall: libpam-modules-bin libpam-runtime libpam0g libreadline7
-Preinstall: libselinux1 libsemanage-common libsemanage1 libsepol1 libsigsegv2
-Preinstall: libslang2 libss2 libtinfo5 libustr-1.0-1 libuuid1 login lsb-base
-Preinstall: mount multiarch-support ncurses-base ncurses-bin passwd perl-base
-Preinstall: readline-common sed sensible-utils sysv-rc sysvinit-utils
-Preinstall: tar tzdata util-linux zlib1g
-
-Runscripts: base-passwd user-setup base-files gawk
-
-VMinstall: libdevmapper1.02.1
-
-Order: user-setup:base-files
-
-# Essential packages (this should also pull the dependencies)
-Support: base-files base-passwd bash bsdutils coreutils dash debianutils
-Support: diffutils dpkg e2fsprogs findutils grep gzip hostname libc-bin
-Support: login mount ncurses-base ncurses-bin perl-base sed
-Support: sysvinit-utils tar util-linux
-
-# Build-essentials
-Required: build-essential
-Prefer: build-essential:make
-
-# build script needs fakeroot
-Support: fakeroot
-# lintian support would be nice, but breaks too much atm
-#Support: lintian
-
-# helper tools in the chroot
-Support: less kmod net-tools procps psmisc strace vim
-
-%define debian_version 900
-
-Macros:
-%debian_version 900
-EOF
-
 cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
 <project name="test">
 <title>test</title>
@@ -120,7 +66,7 @@ EOF
 # create a test project and Debian DoD
 osc -A https://localhost/ ls
 osc -A https://localhost/ meta prj Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
-osc -A https://localhost/ meta prjconf Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prjconf_Debian_9
+osc -A https://localhost/ meta prjconf Debian:9 -c -F debian/examples/debian-stretch.prjconf
 osc -A https://localhost/ meta prj test -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
 
 # upload the hello package
