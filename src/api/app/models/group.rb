@@ -58,7 +58,7 @@ class Group < ApplicationRecord
         # user has already a role in this package
         cache.delete(user.id)
       else
-        GroupMaintainer.create(user: user, group: self).save
+        GroupMaintainer.create(user: user, group: self)
       end
     end
     cache.each do |login_id, _|
@@ -77,7 +77,7 @@ class Group < ApplicationRecord
           # user has already a role in this package
           cache.delete(user.id)
         else
-          GroupsUser.create(user: user, group: self).save
+          GroupsUser.create(user: user, group: self)
         end
       end
     end
@@ -189,6 +189,10 @@ class Group < ApplicationRecord
 
   def any_confirmed_users?
     !users.where(state: 'confirmed').empty?
+  end
+
+  def maintainer?(user)
+    group_maintainers.where(user: user).exists?
   end
 end
 
