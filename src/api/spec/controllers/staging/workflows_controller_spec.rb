@@ -5,7 +5,9 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
   let(:user) { create(:confirmed_user, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:group) { create(:group) }
-  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
+  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project, managers_group: group) }
+  let(:other_group) { create(:group) }
+  let(:other_project) { other_user.home_project }
 
   describe 'POST #create' do
     context 'with valid staging_project' do
@@ -88,6 +90,66 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
       before do
         login user
         delete :destroy, params: { staging_workflow_project: project, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+  end
+
+  describe 'PUT #update' do
+    let(:source_project) { create(:project, name: 'source_project') }
+    let(:target_package) { create(:package, name: 'target_package', project: project) }
+    let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+    let(:other_user) { create(:confirmed_user, login: 'other_user') }
+    let(:bs_request) do
+      create(:bs_request_with_submit_action,
+             creator: other_user,
+             target_package: target_package,
+             source_package: source_package)
+    end
+
+    context 'with a valid managers group' do
+      before do
+        login user
+        staging_workflow
+        bs_request
+        put :update, params: { staging_workflow_project: staging_workflow.project, format: :xml },
+                     body: "<workflow managers='#{other_group}'/>"
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(staging_workflow.reload.managers_group.title).to eq(other_group.title) }
+      it { expect(bs_request.reviews.find_by(by_group: group.title).state).to eq(:accepted) }
+      it { expect(bs_request.reviews.find_by(by_group: other_group.title).state).to eq(:new) }
+    end
+
+    context 'with a project that is not a staging workflow' do
+      before do
+        login user
+        put :update, params: { staging_workflow_project: other_project, format: :xml },
+                     body: "<workflow managers='#{group}'/>"
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    context 'invalid user' do
+      before do
+        staging_workflow
+        login other_user
+        put :update, params: { staging_workflow_project: staging_workflow.project, format: :xml },
+                     body: "<workflow managers='#{other_group}'/>"
+      end
+
+      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(staging_workflow.reload.managers_group.title).to eq(group.title) }
+    end
+
+    context 'non-existent group' do
+      before do
+        login user
+        put :update, params: { staging_workflow_project: staging_workflow.project, format: :xml },
+                     body: "<workflow managers='imaginary_group'/>"
       end
 
       it { expect(response).to have_http_status(:not_found) }

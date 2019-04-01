@@ -16,8 +16,8 @@ class Staging::Workflow < ApplicationRecord
   end
 
   has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
-    def stageable
-      managers_group_title = proxy_association.owner.managers_group.try(:title)
+    def stageable(managers_group_title = nil)
+      managers_group_title ||= proxy_association.owner.managers_group.try(:title)
       includes(:reviews).where(state: :review, staging_project_id: nil, reviews: { state: :new, by_group: managers_group_title })
     end
 
@@ -34,7 +34,7 @@ class Staging::Workflow < ApplicationRecord
 
   after_create :create_staging_projects
   after_create :add_reviewer_group
-  before_update :update_staging_projects_managers_group
+  before_update :update_managers_group
 
   def unassigned_requests
     target_of_bs_requests.stageable.where.not(id: excluded_requests)
@@ -86,12 +86,25 @@ class Staging::Workflow < ApplicationRecord
     end
   end
 
-  def update_staging_projects_managers_group
+  def add_reviewer_group
+    role = Role.find_by_title('reviewer')
+    project.relationships.find_or_create_by(group: managers_group, role: role)
+    project.store
+  end
+
+  def update_managers_group
     return unless changes[:managers_group_id]
 
     old_managers_group = Group.find(changes[:managers_group_id].first)
     new_managers_group = managers_group
 
+    # update reviewer group in backlog requests
+    target_of_bs_requests.stageable(old_managers_group.title).each do |bs_request|
+      bs_request.addreview(by_group: new_managers_group.title, comment: 'Staging manager group changed')
+      bs_request.change_review_state(:accepted, by_group: old_managers_group.title, comment: 'Staging manager group changed')
+    end
+
+    # update managers group in staging projects
     staging_projects.each do |staging_project|
       staging_project.unassign_managers_group(old_managers_group)
       staging_project.assign_managers_group(new_managers_group)
@@ -101,11 +114,15 @@ class Staging::Workflow < ApplicationRecord
     # FIXME: This assignation is need because after store a staging_project
     # the object is reloaded and we lost the changes.
     self.managers_group = new_managers_group
-  end
 
-  def add_reviewer_group
-    role = Role.find_by_title('reviewer')
-    project.relationships.find_or_create_by(group: managers_group, role: role)
+    # update reviewer group in staging workflow project
+    reviewer_role = Role.find_by_title('reviewer')
+    relationship = project.relationships.find_by(group: old_managers_group, role: reviewer_role)
+    if project.relationships.where(group: new_managers_group, role: reviewer_role).exists?
+      relationship.destroy
+    else
+      relationship.update(group: new_managers_group)
+    end
     project.store
   end
 end
