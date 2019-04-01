@@ -129,6 +129,19 @@ module StagingProject
     staging_workflow_id.present?
   end
 
+  def create_project_log_entry(user)
+    project_log_entry = ProjectLogEntry.find_or_initialize_by(
+      project: self,
+      user_name: user.login,
+      event_type: :staging_project_created
+    )
+
+    return unless project_log_entry.new_record?
+
+    project_log_entry.datetime = Time.now
+    project_log_entry.save!
+  end
+
   private
 
   def cache_problems

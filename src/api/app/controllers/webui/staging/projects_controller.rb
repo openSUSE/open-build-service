@@ -26,6 +26,8 @@ module Webui
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
+          staging_project.create_project_log_entry(User.current)
+
           return
         end
 
@@ -34,6 +36,10 @@ module Webui
 
       def show
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
+        @staging_project_log_entries = @staging_project.project_log_entries
+                                                       .where(event_type: [:staging_project_created, :staged_request, :unstaged_request])
+                                                       .includes(:bs_request)
+                                                       .order(datetime: :desc)
         @project = @staging_workflow.project
 
         @groups_hash = ::Staging::Workflow.load_groups
