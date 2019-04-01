@@ -1,0 +1,28 @@
+#
+# Open Build Service 2.9.6
+#
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download
+
+There is also an install medium which installs OBS on hard disk now.
+
+dist/README.UPDATERS file has information for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+Bugfixes
+========
+
+Frontend:
+  * Rails security update was patched (CVE-2019-5419).
+  * Added upper-limit to range to avoid long running queries in Webui::MonitorController.
+  * In WebUI, only admins are allowed to create DoD repositories.
+  * In WebUI, only admins are allowed to create sourceaccess/access repositories flags.
+  * Added missing authorization to move repository path in Webui::ProjectController
+  * Require sourceaccess by default in `require_package`.
+
