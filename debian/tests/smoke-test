@@ -69,20 +69,22 @@ osc -A https://localhost/ meta prj Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_m
 osc -A https://localhost/ meta prjconf Debian:9 -c -F debian/examples/debian-stretch.prjconf
 osc -A https://localhost/ meta prj test -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
 
-# upload the hello package
+# upload the summy native package
+cp -r debian/tests/obs-test-trivial-package "$AUTOPKGTEST_TMP"
 cd "$AUTOPKGTEST_TMP"
-osc -A https://localhost/ co test ; cd test
-mkdir hello ; cd hello ; apt-get source -d hello ; cd - ;
-osc add hello
-osc ci -m "New import" hello
+osc -A https://localhost/ co test
+mkdir -p test/dummy/dummy-1.0; cp -r obs-test-trivial-package/debian test/dummy/dummy-1.0; cd test;
+cd dummy; dpkg-source -b dummy-1.0; cd -;
+osc add dummy
+osc ci -m "New import" dummy
 
-cd hello; sleep 250
+cd dummy; sleep 250
 found=0
 for i in $(seq 1 10); do
-    echo "Round $i: checking binaries..."
+    echo "Round $i: checking binary..."
     output=$(osc -A https://localhost/ ls -b .)
     case $output in
-        *"hello_"*"_amd64.deb"*) found=1 && break ;;
+        *"dummy_1.0_all.deb"*) found=1 && break ;;
         *) sleep 10
     esac
 done
