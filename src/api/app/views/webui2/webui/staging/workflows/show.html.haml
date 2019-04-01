@@ -11,16 +11,21 @@
             %li.list-inline-item
               = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
                 %i.fas.fa-edit.text-info
-                Configure
+                Manage Projects
+            %li.list-inline-item
+              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#staging-managers-group-modal' }) do
+                %i.fas.fa-users.text-warning
+                Change Managers
+              = render partial: 'staging_managers_group', locals: { staging_workflow: @staging_workflow }
           - if policy(@staging_workflow).destroy?
             %li.list-inline-item
               = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do
                 %i.fas.fa-times-circle.text-danger
-                Delete
+                Delete Staging
               = render(partial: 'delete', locals: { project: @project })
 
         = render(partial: 'staging_projects_table',
-                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: false,
+                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects,
                            users_hash: @users_hash, groups_hash: @groups_hash })
 
   .col-xl-2

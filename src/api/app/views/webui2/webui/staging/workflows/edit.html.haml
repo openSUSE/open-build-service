@@ -1,4 +1,4 @@
-- @pagetitle = "Configure Staging for #{@project}"
+- @pagetitle = "Manage Staging Projects for #{@project}"
 
 .row
   .col-xl-12
@@ -6,19 +6,13 @@
       = render(partial: 'webui2/webui/project/tabs', locals: { project: @project })
       .card-body
         %h3= @pagetitle
-        %ul.list-inline.mb-0
+        %ul.list-inline
           %li.list-inline-item
             = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#create-staging-projects-modal' }) do
               %i.fas.fa-plus-circle.text-success
-              Create Project
-          %li.list-inline-item
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#staging-managers-group-modal' }) do
-              %i.fas.fa-users.text-warning
-              Managers
+              Create Staging Project
+            = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
+        .row
+          = render(partial: 'staging_project', collection: @staging_projects,
+                                               locals: { staging_workflow: @staging_workflow })
 
-        = render(partial: 'staging_projects_table',
-                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects, display_actions_column: true,
-                           users_hash: @users_hash, groups_hash: @groups_hash })
-
-        = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
-        = render partial: 'staging_managers_group', locals: { staging_workflow: @staging_workflow }
