@@ -3,6 +3,7 @@
 exec 2>&1
 set -exu
 
+# TODO: https://bugs.debian.org/926198
 # set up obs-api app
 /usr/share/obs/api/script/rake-tasks.sh setup
 
@@ -13,6 +14,7 @@ make-ssl-cert generate-default-snakeoil --force-overwrite
 sed -ri 's/(\s*)ServerName api/\1Servername localhost/' /etc/apache2/sites-available/obs.conf
 service apache2 restart
 
+# TODO: https://bugs.debian.org/926200
 # configure obs-server
 sed -i "s/frontend = undef/frontend = 'localhost'/g" /etc/obs/BSConfig.pm
 

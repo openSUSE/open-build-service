@@ -3,6 +3,7 @@
 exec 2>&1
 set -exu
 
+# TODO: https://bugs.debian.org/926198
 # set up obs-api app
 /usr/share/obs/api/script/rake-tasks.sh setup
 
