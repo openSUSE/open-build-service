@@ -1973,12 +1973,17 @@ XmlResult: status_ok
 
 GET /staging/<project>/excluded_requests
   Get the list of excluded request for this Staging
+XmlResult: excluded_requests
 
-POST /staging/<project>/excluded_requests/<request>?description=<description>
+POST /staging/<project>/excluded_requests
   Exclude this request from this Staging
+XmlBody: create_excluded_requests
+XmlResult: status_ok
 
-DELETE /staging/<project>/excluded_requests/<request>
+DELETE /staging/<project>/excluded_requests
   Stop excluding this request
+XmlBody: delete_excluded_requests
+XmlResult: status_ok
 
 === Staged Requests
 
