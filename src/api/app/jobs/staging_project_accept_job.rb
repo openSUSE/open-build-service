@@ -1,5 +1,5 @@
 class StagingProjectAcceptJob < ApplicationJob
-  queue_as :quick
+  queue_as :staging
 
   def perform(payload)
     current_user_before = User.current
