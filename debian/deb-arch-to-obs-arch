@@ -1,0 +1,24 @@
+#!/bin/sh
+
+eval "$(dpkg-architecture --print-set)"
+
+case "$DEB_HOST_ARCH" in
+    (i?86)
+        echo "i586"
+        ;;
+
+    (armel)
+        echo "armv5el"
+        ;;
+
+    (armhf)
+        echo "armv7hl"
+        ;;
+
+    # add any more special cases here
+
+    (*)
+        echo "$DEB_HOST_GNU_CPU"
+        ;;
+esac
+

@@ -21,9 +21,11 @@ sed -i 's/obs:5352/localhost:5352/g' /etc/default/obsworker
 sed -i 's/obs:5252/localhost:5252/g' /etc/default/obsworker
 sed -i 's/INSTANCES="0"/INSTANCES="1"/g' /etc/default/obsworker
 
-
 # start worker
 service obsworker start
+
+# Debian and OBS use different nomenclature for architectures
+obs_arch="$(debian/deb-arch-to-obs-arch)"
 
 mkdir "$AUTOPKGTEST_TMP"/data
 cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
@@ -32,8 +34,8 @@ cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
 <description>Debian 9 DoD</description>
 <person userid="Admin" role="maintainer"/>
 <repository name="main">
-<download arch="x86_64" url="http://deb.debian.org/debian/stretch/main" repotype="deb"/>
-<arch>x86_64</arch>
+<download arch="$obs_arch" url="http://deb.debian.org/debian/stretch/main" repotype="deb"/>
+<arch>$obs_arch</arch>
 </repository>
 </project>
 EOF
@@ -45,7 +47,7 @@ cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
 <person userid="Admin" role="maintainer"/>
 <repository name="Debian_9.0">
 <path project="Debian:9" repository="main"/>
-<arch>x86_64</arch>
+<arch>$obs_arch</arch>
 </repository>
 </project>
 EOF
