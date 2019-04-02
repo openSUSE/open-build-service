@@ -19,6 +19,10 @@ ul .table-list-group-item {
   background-color: transparent;
 }
 
+.bg-staging-state-accepting {
+  background-color: #ca57ce;
+}
+
 #staging-projects-datatable td,
 #staging-project-package-list {
   span.badge {
@@ -42,6 +46,11 @@ ul .table-list-group-item {
 
       &.state-acceptable {
         @extend .badge-success;
+      }
+
+      &.state-accepting {
+        @extend .bg-staging-state-accepting;
+        color: white;
       }
 
       &.state-testing {
