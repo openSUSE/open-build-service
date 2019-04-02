@@ -1,7 +1,9 @@
 class Staging::StagingProjectsController < ApplicationController
   before_action :require_login, except: [:index, :show]
-
   before_action :set_main_project
+  before_action :set_staging_workflow, only: :create
+
+  validate_action create: { method: :post, request: :staging_project }
 
   def index
     if @main_project.staging
@@ -14,6 +16,21 @@ class Staging::StagingProjectsController < ApplicationController
 
   def show
     @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:name])
+  end
+
+  def create
+    authorize @staging_workflow
+    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow).call
+
+    if result.valid?
+      render_ok
+    else
+      render_error(
+        status: 400,
+        errorcode: 'invalid_request',
+        message: "Staging Projects for #{@main_project} failed: #{result.errors.join(' ')}"
+      )
+    end
   end
 
   def copy
@@ -45,5 +62,9 @@ class Staging::StagingProjectsController < ApplicationController
 
   def set_main_project
     @main_project = Project.find_by!(name: params[:staging_workflow_project])
+  end
+
+  def set_staging_workflow
+    @staging_workflow = @main_project.staging
   end
 end

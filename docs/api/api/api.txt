@@ -3,10 +3,10 @@
 Version: 2.9
 
   Only authenticated users are allowed to access the API. Authentication is done
-  by sending a Basic HTTP Authorisation header. 
+  by sending a Basic HTTP Authorisation header.
 
   Do NOT simply add api calls here without discussion before.
-  
+
   The main base routes are:
   /source    : To handle all source submissions and project setups
   /build     : To access build results and their states
@@ -31,7 +31,7 @@ XmlResult: about
 
 GET /architectures
 
-  Get a list of all known architectures known to OBS in general. 
+  Get a list of all known architectures known to OBS in general.
   This is not the list of architectures provided by this instance, go
   to /configuration for this
 
@@ -155,7 +155,7 @@ Parameters:
   cmd: delete           # will mark the user as deleted and remove her home projects
 
 GET /person/<userid>/token
-  
+
   Lists all authentication token for a user
 
 XmlResult: tokenlist
@@ -460,7 +460,7 @@ Parameters:
 GET /source/<project>
 
   Read list of packages.
-  
+
 XmlResult: package directory.xsd
 
 Parameters:
@@ -599,7 +599,7 @@ POST /source/<project>/<package>?cmd=instantiate
 
 Parameters:
 
-  makeoriginolder: optional, can be used to modify source and target to guarantee that new version 
+  makeoriginolder: optional, can be used to modify source and target to guarantee that new version
                    stay older also on future updates in older code stream
 
 XmlResult: status
@@ -633,8 +633,8 @@ XmlResult: status
 
 POST /source/<project>/<package>?cmd=branch
 
-  Create a source link from a package of an existing project to a 
-  new subproject of the requesters home project. 
+  Create a source link from a package of an existing project to a
+  new subproject of the requesters home project.
   The default target is home:<user>:branches:<project>/<package>
   A possible defined devel project in the package meta data gets ignored.
 
@@ -732,10 +732,10 @@ XmlResult: status
 GET /source/<project>/<package>
 
   Get directory listing of all source files in the package
-  
-  
-Parameters: 
-  
+
+
+Parameters:
+
   rev: package source revision, optional
   linkrev: linked revision, optional
   expand: expand links, optional
@@ -751,7 +751,7 @@ GET /source/<project>/<package>/<filename>
 
 Result: Content of file
 
-Parameters: 
+Parameters:
 
   meta: switch to meta files
 
@@ -762,7 +762,7 @@ PUT /source/<project>/<package>/<filename>
 
 Parameters:
 
-  rev: if set to 'upload', multiple files can be uploaded one by one in one commit, before 
+  rev: if set to 'upload', multiple files can be uploaded one by one in one commit, before
        finishing the commit with cmd=commit (see below), optional
   comment: comment, optional
   keeplink: bool, optional
@@ -780,7 +780,7 @@ DELETE /source/<project>/<package>/<filename>
 
 XmlResult: status
 
-Parameters: 
+Parameters:
 
   meta: switch to meta files
 
@@ -816,8 +816,8 @@ POST /source/<project>/<package>
   time: set the time on undelete operation (admin only operation)
   wipe: wipe all build results of this package
 
-Parameters: 
-  
+Parameters:
+
   rev: package source revision, optional
   linkrev: linked revision, optional
   orev: origin package source revision as defined in opackage/project, optional
@@ -879,7 +879,7 @@ XmlResult: status
 
 
 GET /request
-  
+
   Get a list of requests. When using the "view=collection" you need also to filter
   either by user, project or package.
 
@@ -901,7 +901,7 @@ XmlResult: collection
 
 
 GET /request/<id>
-  
+
   Get a request
 
 Parameters:
@@ -913,7 +913,7 @@ XmlResult: request
 
 
 POST /request
-  
+
   Create a new request
 
 XmlResult: request
@@ -927,21 +927,21 @@ Parameters:
 
 
 PUT /request/<id>
-  
+
   Modify a request. NOTE: Only admins can change all parts of a request.
 
 XmlResult: request
 
 
 POST /request/<id>?cmd=diff
-  
+
   Shows the diff of all affected packages.
 
 Result: diff as text/plain
 
 
 POST /request/<id>
-  
+
   Modify a request
 
 XmlResult: request
@@ -957,7 +957,7 @@ XmlResult: request
   approve: pre-approve a request in review state. Will turn into accepted after last review
   cancelapproval: reset the approval
 
-Parameters: 
+Parameters:
   newstate: Define the new state
   priority: Define the new priority
   by_user: Specify the user of the new review
@@ -972,35 +972,35 @@ Parameters:
 
 
 GET /attribute/
-  
+
   List all attribute namespaces
 
 XmlResult: directory
 
 
 GET /attribute/<namespace>/
-  
+
   List all attributes under given namespace
 
 XmlResult: directory
 
 
 GET /attribute/<namespace>/_meta
-  
+
   shows namespace setup
 
 XmlResult: attribute_namespace_meta
 
 
 DELETE /attribute/<namespace>/_meta
-  
+
   Delete a attribute namespace and all attributes below
 
 XmlResult: status
 
 
 PUT /attribute/<namespace>/_meta
-  
+
   change attribute namespace meta
 
 XmlBody: attribute_namespace_meta_data
@@ -1009,21 +1009,21 @@ XmlResult: status
 
 
 GET /attribute/<namespace>/<name>/_meta
-  
+
   shows attribute setup
 
 XmlResult: attribute_meta
 
 
 DELETE /attribute/<namespace>/<name>/_meta
-  
+
   Delete a attribute and all its values in projects or packages
 
 XmlResult: status
 
 
 PUT /attribute/<namespace>/<name>/_meta
-  
+
   change attribute meta
 
 XmlBody: attribute_meta_data
@@ -1036,7 +1036,7 @@ XmlResult: status
 GET /comments/request/:id
 GET /comments/project/:name
 GET /comments/package/:project/:pname
-  
+
   Get all comments for the object
 
 XmlResult: directory
@@ -1118,7 +1118,7 @@ POST /build/<project>/<repository>/<arch>/_builddepinfo
   trigger a build.
     A changed dependency can be posted to let the server recalculate the order
   including the local dependency changes.
-  
+
 Parameters:
 
   package=<name>    filter package container, can be used multiple times
@@ -1174,7 +1174,7 @@ GET /build/<project>/_result
   Return build results for the packages, architectures and repositories
   specified by the parameters. If no parameters are given, all results for the
   project are returned.
-  
+
   The view parameter specifies which sections are included in the results.
   view=summary includes the summary of the status values. view=status includes
   detailed status information. view=binarylist includes the list of generated
@@ -1182,7 +1182,7 @@ GET /build/<project>/_result
   combine views the parameter can be given multiple times.
 
 Parameters:
-  
+
   package: package name, optional, multiple
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
@@ -1228,9 +1228,9 @@ XmlResult: buildstatus
 GET /build/<project>/<repository>/<arch>/<package>/_log
 
   Get build log.
-  
+
 Parameters:
-  
+
   nostream: do not hang if the build is currently running
   last: show log from last finished build
   start: start at a given number of bytes
@@ -1261,7 +1261,7 @@ POST /worker?cmd=checkconstraints
   are:
 
 Parameters:
-  
+
   project: project name
   package: package name
   arch: architecture
@@ -1290,7 +1290,7 @@ POST /build/<project>?cmd=rebuild
   unresolvable     - build needs unavailable binary packages
 
 Parameters:
-  
+
   package: package name, optional, multiple
   arch: architecture, optional, multiple
   repository: name of repository, optional, multiple
@@ -1377,7 +1377,7 @@ POST /trigger/runservice
 
 Parameters
   project: To be used together with "package" to identify the object.
-  package: 
+  package:
 
 XmlResult: status
 
@@ -1616,7 +1616,7 @@ XmlResult: collection
 
 GET /search/missing_owner
 
-  Search for missing definitions of specific role. 
+  Search for missing definitions of specific role.
   No parameter is required by default
 
 Parameters:
@@ -1708,7 +1708,7 @@ XmlResult: packageresult
 GET /result/<project>/<platform>/<package>/<arch>/log
 
   Read build log.
-  
+
 Result: Build log as text file.
 
 
@@ -1795,7 +1795,7 @@ XmlResult: redirect_stats
 
 GET /statistics/newest_stats
   Get the timestamp of the newest stats in build service. This is useful for the
-  create_stats_xml.rb script. Using this value it can import only those 
+  create_stats_xml.rb script. Using this value it can import only those
   statistics that changed from the last import of statistics.
   If there are no statistics yet, returns "1970-01-01T01:00:00+01:00"
 XmlResult: newest_stats
@@ -1967,6 +1967,11 @@ XmlResult: status_ok
 
 POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/accept
   Accept staging project. This accepts all staged requests and sets the project state back to 'empty'.
+XmlResult: status_ok
+
+POST /staging/<staging_workflow_project>/staging_projects
+  Create staging projects
+XmlBody: create_staging_projects
 XmlResult: status_ok
 
 === Excluded Requests

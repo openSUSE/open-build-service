@@ -195,4 +195,51 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
       end
     end
   end
+
+  describe 'POST #create' do
+    let(:staging_workflow_project) { staging_workflow.project.name }
+    let!(:other_project) { create(:project, name: "#{project}:other_project") }
+
+    before do
+      login(user)
+      staging_workflow
+    end
+
+    subject { post :create, params: { staging_workflow_project: staging_workflow_project, format: :xml }, body: body }
+
+    context 'succeeds' do
+      let(:body) do
+        <<~XML
+          <workflow>
+            <staging_project>#{project}:Staging:C</staging_project>
+            <staging_project>#{project}:other_project</staging_project>
+          </workflow>
+        XML
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect { subject }.to change(Project, :count).by(1) }
+    end
+
+    context 'fails: project already assigned to a staging workflow' do
+      let(:body) do
+        <<~XML
+          <workflow>
+            <staging_project>#{project}:Staging:A</staging_project>
+            <staging_project>#{project}:Staging:E</staging_project>
+          </workflow>
+        XML
+      end
+
+      it { expect(subject).to have_http_status(:bad_request) }
+      it { expect { subject }.not_to change(Project, :count) }
+    end
+
+    context 'fails: body is empty' do
+      subject { post :create, params: { staging_workflow_project: staging_workflow_project, format: :xml }, body: nil }
+
+      it { expect(subject).to have_http_status(:bad_request) }
+      it { expect { subject }.not_to change(Project, :count) }
+    end
+  end
 end
