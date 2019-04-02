@@ -60,6 +60,21 @@ FactoryBot.define do
       raise 'Do not pass a string as creator' if evaluator.creator.is_a?(String)
     end
 
+    after(:create) do |request, evaluator|
+      next unless request.staging_project && evaluator.staging_owner
+
+      User.current = evaluator.staging_owner
+      request.bs_request_actions.where(type: :submit).each do |action|
+        BranchPackage.new(
+          project: action.source_project,
+          package: action.source_package,
+          target_project: request.staging_project.name,
+          target_package: action.target_package
+        ).branch
+      end
+      User.current = evaluator.before_current_user
+    end
+
     transient do
       type { nil }
       source_project { nil }
@@ -77,6 +92,7 @@ FactoryBot.define do
       review_by_group { nil }
       review_by_project { nil }
       review_by_package { nil }
+      staging_owner { nil }
       creating_user do |evaluator|
         evaluator.creator.is_a?(User) ? evaluator.creator : User.find_by_login(evaluator.creator)
       end

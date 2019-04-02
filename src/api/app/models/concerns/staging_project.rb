@@ -142,7 +142,34 @@ module StagingProject
     project_log_entry.save!
   end
 
+  def accept_staged_requests
+    clear_memoized_data
+    return unless overall_state == :acceptable
+
+    accepted_packages = []
+    staged_requests.each do |staged_request|
+      if staged_request.reviews.where(by_project: name).exists?
+        staged_request.change_review_state(:accepted, by_project: name, comment: "Staging Project #{name} got accepted.")
+      end
+      staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{name} got accepted.")
+      accepted_packages.concat(staged_request.bs_request_actions.map(&:target_package))
+    end
+
+    packages.where(name: accepted_packages).find_each(&:destroy)
+    staged_requests.delete_all
+  ensure
+    clear_memoized_data
+  end
+
   private
+
+  def clear_memoized_data
+    @broken_packages = []
+    @building_repositories = []
+    @requests_to_review = nil
+    @problems = nil
+    @overall_state = nil
+  end
 
   def cache_problems
     problems = {}
@@ -155,6 +182,7 @@ module StagingProject
   end
 
   def state
+    return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
     return :empty if staged_requests.blank?
     return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
     bc_state = build_or_check_state

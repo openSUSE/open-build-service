@@ -24,6 +24,23 @@ class Staging::StagingProjectsController < ApplicationController
     render_ok
   end
 
+  def accept
+    staging_project = Project.find_by!(name: params[:staging_project_name])
+    authorize staging_project, :update?
+
+    if staging_project.overall_state != :acceptable
+      render_error(
+        status: 400,
+        errorcode: 'invalid_request',
+        message: 'Staging project is not in state acceptable.'
+      )
+      return
+    end
+
+    StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.current.login)
+    render_ok
+  end
+
   private
 
   def set_main_project

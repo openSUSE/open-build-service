@@ -139,4 +139,60 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
                                                                                                            user.id)
     end
   end
+
+  describe 'POST #accept' do
+    render_views
+
+    let(:params) { { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name } }
+
+    before do
+      login user
+      staging_workflow
+    end
+
+    context 'when staging project is not ready to be accepted' do
+      subject! do
+        post :accept, params: params, format: :xml
+      end
+
+      it { is_expected.to have_http_status(:bad_request) }
+      it { expect(response.body).to match('Staging project is not in state acceptable.') }
+    end
+
+    context 'when project is in state acceptable' do
+      let(:requester) { create(:confirmed_user, login: 'requester') }
+      let(:target_project) { create(:project, name: 'target_project') }
+      let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
+      let(:target_package) { create(:package, name: 'target_package', project: target_project) }
+      let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+      let!(:user_relationship) { create(:relationship, project: target_project, user: user) }
+      let!(:staged_request_1) do
+        create(
+          :bs_request_with_submit_action,
+          state: :new,
+          creator: requester,
+          description: 'Fixes issue #42',
+          target_package: target_package,
+          source_package: source_package,
+          staging_project: staging_project,
+          staging_owner: user
+        )
+      end
+
+      before do
+        allow(StagingProjectAcceptJob).to receive(:perform_later)
+        User.current = user
+      end
+
+      subject do
+        post :accept, params: params, format: :xml
+      end
+
+      it { is_expected.to have_http_status(:success) }
+      it "starts the 'accept' job for the staging projects" do
+        subject
+        expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)
+      end
+    end
+  end
 end

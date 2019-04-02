@@ -1965,6 +1965,10 @@ POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/copy
   Copy a staging project
 XmlResult: status_ok
 
+POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/accept
+  Accept staging project. This accepts all staged requests and sets the project state back to 'empty'.
+XmlResult: status_ok
+
 === Excluded Requests
 
 <project>: The name of the main project of a Staging, e.g. openSUSE_Tumbleweed

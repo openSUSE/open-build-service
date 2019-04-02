@@ -71,6 +71,20 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
       it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
     end
 
+    context 'with valid staging_project but staging project is being merged' do
+      before do
+        Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
+        login user
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+                      body: "<requests><number>#{bs_request.number}</number></requests>"
+      end
+
+      it { expect(response).to have_http_status(424) }
+      it 'responds with an error' do
+        assert_select 'status', code: 'staging_project_not_in_acceptable_state'
+      end
+    end
+
     context 'with valid staging_project' do
       before do
         login user
@@ -136,6 +150,20 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
         it { expect(response).to have_http_status(:bad_request) }
         it { expect(staging_project.packages).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
+      end
+    end
+
+    context 'with valid staging_project but staging project is being merged' do
+      before do
+        Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
+        login user
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+                         body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
+      end
+
+      it { expect(response).to have_http_status(424) }
+      it 'responds with an error' do
+        assert_select 'status', code: 'staging_project_not_in_acceptable_state'
       end
     end
   end

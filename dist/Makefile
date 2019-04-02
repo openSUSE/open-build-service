@@ -4,7 +4,7 @@ LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
 OBS_SBIN_SCRIPTS      := obs_admin obs_serverstatus obsscheduler obsworker obsstoragesetup
 SYSTEMD_TARGET_FILES  := obs-api-support
-SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsscheduler obsworker obsstoragesetup obsapisetup
+SYSTEMD_SERVICE_FILES := obs-clockwork obs-delayedjob-queue-project_log_rotate obs-delayedjob-queue-consistency_check obs-delayedjob-queue-default obs-delayedjob-queue-releasetracking obs-delayedjob-queue-issuetracking obs-delayedjob-queue-mailers obs-delayedjob-queue-staging obs-sphinx obsdeltastore obsdispatcher obsdodup obswarden obssrcserver obsrepserver obspublisher obssigner obsservice obsservicedispatch obsgetbinariesproxy obsclouduploadserver obsclouduploadworker obsscheduler obsworker obsstoragesetup obsapisetup
 SYSTEMD_SERVICE_FILES_WITHOUT_LINK := obs-delayedjob-queue-quick@
 
 FILLUPDIR             := /var/adm/fillup-templates
