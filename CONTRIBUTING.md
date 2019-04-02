@@ -177,9 +177,12 @@ Windows.
 that require an case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
 make sure you run all this from a filesystem that supports this.
 
-1. Install [docker](https://www.docker.com) and [docker-compose](https://docs.docker.com/compose/).
+1. Install [docker](https://www.docker.com) and [docker-compose (version >= 1.20.0)¹](https://docs.docker.com/compose/).
    There is documentation about this for [openSUSE](https://en.opensuse.org/SDB:Docker) and various
-   [other operating systems](https://docs.docker.com/engine/installation/)
+   [other operating systems](https://docs.docker.com/engine/installation/).
+
+   ¹ A version equal to or greater than _1.20.0_ is required for _docker-compose_ as we depend on the
+   `--use-aliases` flag for the command `docker-compose run` in our development environment.
 
 2. Install [rake](https://github.com/ruby/rake)
 
