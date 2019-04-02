@@ -21,7 +21,7 @@ class BackendTests < ActionDispatch::IntegrationTest
           'productlist', 'binary_released', 'check', 'required_checks', 'status_report',
           'staged_requests', 'remove_staged_requests', 'status_ok', 'staging_project',
           'staging_projects', 'create_staging_workflow', 'update_staging_workflow', 'accept_staging_projects',
-          'excluded_requests', 'create_excluded_requests', 'delete_excluded_requests'].include?(schema)
+          'excluded_requests', 'create_excluded_requests', 'delete_excluded_requests', 'create_staging_projects'].include?(schema)
         # no backend schema exists
         next
       elsif schema == 'aggregate'
