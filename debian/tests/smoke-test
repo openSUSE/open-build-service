@@ -73,18 +73,19 @@ osc -A https://localhost/ meta prj Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_m
 osc -A https://localhost/ meta prjconf Debian:9 -c -F debian/examples/debian-stretch.prjconf
 osc -A https://localhost/ meta prj test -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
 
-# upload the summy native package
+# upload the dummy native package
 cp -r debian/tests/obs-test-trivial-package "$AUTOPKGTEST_TMP"
 cd "$AUTOPKGTEST_TMP"
 osc -A https://localhost/ co test
 mkdir -p test/dummy/dummy-1.0; cp -r obs-test-trivial-package/debian test/dummy/dummy-1.0; cd test;
-cd dummy; dpkg-source -b dummy-1.0; cd -;
+cd dummy; dpkg-source -b dummy-1.0; cd "$AUTOPKGTEST_TMP"/test;
+rm -rf dummy/dummy-1.0
 osc add dummy
 osc ci -m "New import" dummy
 
-cd dummy; sleep 250
+cd dummy
 found=0
-for i in $(seq 1 10); do
+for i in $(seq 1 35); do
     echo "Round $i: checking binary..."
     output=$(osc -A https://localhost/ ls -b .)
     case $output in
