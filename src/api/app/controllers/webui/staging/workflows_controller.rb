@@ -29,6 +29,10 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     end
 
     if staging_workflow.save
+      staging_workflow.staging_projects.each do |staging_project|
+        staging_project.create_project_log_entry(User.current)
+      end
+
       flash[:success] = "Staging for #{@project} was successfully created"
       redirect_to staging_workflow_path(staging_workflow)
     else
@@ -57,10 +61,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     authorize @staging_workflow
 
     @project = @staging_workflow.project
-    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
-
-    @groups_hash = ::Staging::Workflow.load_groups
-    @users_hash = ::Staging::Workflow.load_users(@staging_projects)
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).order(:name)
   end
 
   def destroy

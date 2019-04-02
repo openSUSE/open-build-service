@@ -13,7 +13,6 @@ RSpec.feature 'Groups', type: :feature, js: true do
   def group_in_datatable(page, group)
     expect(page).to have_link(group.title, href: group_show_path(group))
     group.users.each { |user| expect(page).to have_link(user.login, href: user_show_path(user)) }
-    expect(page).to have_link('Edit', href: group_edit_title_path(group))
   end
 
   scenario 'visit groups index page' do
@@ -34,7 +33,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     expect(page).to have_content('All Requests')
     find('#group-members-tab').click
 
-    expect(page).to have_link('Edit Group', href: group_edit_title_path(group_1))
+    expect(page).to have_link('Add Member')
     group_1.users.each { |user| expect(page).to have_link(user.login, href: user_show_path(user)) }
   end
 
@@ -53,23 +52,44 @@ RSpec.feature 'Groups', type: :feature, js: true do
     group_in_datatable(page, Group.find_by(title: new_group_title))
   end
 
-  scenario 'edit a group' do
+  scenario 'remove a member from a group' do
+    visit group_show_path(group_1)
+
+    within(find('div.group-user', text: admin.login)) do
+      click_link('Remove member from group')
+    end
+
+    expect(page).to have_content("Removed user from group '#{group_1}'")
+    expect(group_1.reload.users.map(&:login)).to eq([user_1.login])
+  end
+
+  scenario 'give maintainer rights to a group member' do
+    visit group_show_path(group_1)
+
+    within(find('div.group-user', text: admin.login)) do
+      check('Maintainer', allow_label_click: true)
+    end
+
+    expect(page).to have_content("Gave maintainer rights to #{admin}")
+  end
+
+  scenario 'add a group member' do
+    visit group_show_path(group_2)
+
+    click_link('Add Member')
+
+    within('#add-group-user-modal') do
+      fill_in('user_login', with: admin.login)
+
+      expect do
+        click_button('Accept')
+        group_2.reload
+      end.to change { group_2.users.count }.by(1)
+    end
+
+    expect(page).to have_content("Added user '#{admin}' to group")
+
     visit groups_path
-
-    click_link('Edit', href: group_edit_title_path(group_1))
-
-    # Remove all users from tokenfield
-    all('button.tag-remove').each(&:click)
-    # Typing a comma after a user login selects it (just like clicking on the autocomplete menu popping up). It's a built-in feature of the tokenfield
-    fill_in('group-members_tag', with: "#{admin},")
-
-    expect do
-      click_button('Save')
-      group_1.reload
-    end.to change { group_1.users.count }.by(-1)
-    expect(page).to have_content("Group '#{group_1}' successfully updated.")
-
-    visit groups_path
-    group_in_datatable(page, group_1)
+    group_in_datatable(page, group_2)
   end
 end

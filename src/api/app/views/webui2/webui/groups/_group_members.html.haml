@@ -1,19 +1,47 @@
-- if policy(group).update?
+- write_access = policy(group).update?
+
+- if write_access
   %ul.list-inline
     %li.list-inline-item
-      = link_to(group_edit_title_path(title: group), class: 'nav-link') do
-        %i.fas.fa-edit.text-secondary
-        Edit Group
+      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
+        %i.fas.fa-plus-circle.text-primary
+        Add Member
+  = render partial: 'add_group_user_modal', locals: { group: group }
 
 - if group.users.blank?
   %p
     This group does not have members.
 - else
-  .d-flex.flex-row.flex-wrap
-    - group.users.each do |user|
-      .card.mb-3.mr-2.group-member
-        = link_to(user_show_path(user)) do
-          = image_tag_for(user, size: '100', custom_class: 'card-img-top')
-          .card-body.p-1
-            %p.card-text.text-center
-              = truncate(user.login, length: 20)
+  #group-users
+    .d-flex.flex-wrap
+      - group.users.each do |user|
+        .card.m-1.p-2.group-user
+          .row.no-gutters
+            .col-md-2
+              = image_tag_for(user, size: 80, custom_class: 'align-self-center')
+            .col-md-10
+              - if write_access
+                = link_to(group_user_path(group_title: group.title, user_login: user.login), data: { method: :delete, remote: true },
+                  class: 'group-member-removal float-right', title: 'Remove member from group') do
+                  %i.fas.fa-sm.fa-times-circle.text-danger
+              .card-body.ml-2
+                %b
+                  = link_to(user_show_path(user)) do
+                    = display_name(user)
+
+                .custom-control.custom-checkbox
+                  = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'custom-control-input group-maintainership',
+                    name: :maintainer, disabled: !write_access, data: { method: :patch,
+                    url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
+                  %label.custom-control-label{ for: "maintainer_#{user.login}" }
+                    Maintainer
+                  %i.fas.fa-spinner.fa-spin.d-none
+
+- content_for :ready_function do
+  :plain
+    $('#group-users').on('ajax:before ajax:complete', '.group-maintainership', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('d-none');
+    });
+    $('#group-users').on('ajax:success', '.group-member-removal', function() {
+      $(this).parents('.group-user').remove();
+    });

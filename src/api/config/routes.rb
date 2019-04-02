@@ -436,10 +436,15 @@ OBSApi::Application.routes.draw do
       get 'group/show/:title' => :show, constraints: { title: /[^\/]*/ }, as: 'group_show'
       get 'group/new' => :new
       post 'group/create' => :create
+      # TODO: bento_only: Drop group_edit_title and group_user_delete route
       get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
       post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }, as: :group_update
       get 'group/autocomplete' => :autocomplete
       delete 'group/:title/delete/:user' => :delete, constraints: { title: /[^\/]*/ }, as: :group_user_delete
+    end
+
+    resources :groups, only: [], param: :title, constraints: { title: /[^\/]*/ } do
+      resources :user, only: [:create, :destroy, :update], constraints: cons, param: :user_login, controller: 'webui/groups/users'
     end
 
     resources :comments, constraints: cons, only: [:create, :destroy], controller: 'webui/comments'
@@ -762,7 +767,7 @@ OBSApi::Application.routes.draw do
 
   # StagingWorkflow API
   resources :staging, only: [], param: 'workflow_project', module: 'staging' do
-    resource :workflow, only: [:create, :destroy], constraints: cons
+    resource :workflow, only: [:create, :destroy, :update], constraints: cons
     resources :staging_projects, only: [:index, :show], param: :name do
       post 'copy/:staging_project_copy_name' => :copy
 

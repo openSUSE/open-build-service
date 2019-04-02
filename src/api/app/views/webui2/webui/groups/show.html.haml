@@ -46,6 +46,7 @@
       .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
         %h3 All Requests
         = render(partial: 'webui2/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
+
 = content_for :ready_function do
   :plain
     var hash = document.location.hash;

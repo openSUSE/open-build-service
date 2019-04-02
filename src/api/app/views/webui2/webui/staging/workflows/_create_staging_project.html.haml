@@ -5,9 +5,12 @@
         .modal-header
           %h5.modal-title#create-staging-projects-modal-label Create Staging Project
         .modal-body
-          .form-group
-            = label_tag(:staging_project_name, 'Please enter a project you have permissions to')
-            = text_field_tag(:staging_project_name, nil, placeholder: "Eg: #{staging_workflow.project}:Staging:A", class: 'form-control')
+          = render partial: 'webui/autocomplete', locals: { html_id: 'staging_project_name',
+                                                            label: 'Please enter a project you have permissions to',
+                                                            source: url_for(controller: '/webui/project', action: 'autocomplete_projects') }
+          %small.text-muted
+            %i.fa.fa-info-circle.text-info{ title: 'Info' }
+            If the project already exists, it will simply be assigned to the Staging.
 
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }

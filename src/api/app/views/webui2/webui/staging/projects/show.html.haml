@@ -36,8 +36,6 @@
     .card.mb-3
       %h5.card-header History
       .card-body
-        = render partial: 'history_elements',
-                       locals: { elements: |
-                       @staging_project.project_log_entries.where(event_type: [:staged_request, :unstaged_request]).includes(:bs_request) } |
+        = render partial: 'history_elements', locals: { elements: @staging_project_log_entries }
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'

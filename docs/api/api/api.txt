@@ -1944,6 +1944,11 @@ POST /staging/<staging_workflow_project>/workflow
 XmlBody: create_staging_workflow
 XmlResult: status_ok
 
+PUT /staging/<staging_workflow_project>/workflow
+  Update the managers group of a staging workflow.
+XmlBody: update_staging_workflow
+XmlResult: status_ok
+
 DELETE /staging/<staging_workflow_project>/workflow
   Delete a staging workflow associated to a given project.
 XmlResult: status_ok
@@ -1968,12 +1973,17 @@ XmlResult: status_ok
 
 GET /staging/<project>/excluded_requests
   Get the list of excluded request for this Staging
+XmlResult: excluded_requests
 
-POST /staging/<project>/excluded_requests/<request>?description=<description>
+POST /staging/<project>/excluded_requests
   Exclude this request from this Staging
+XmlBody: create_excluded_requests
+XmlResult: status_ok
 
-DELETE /staging/<project>/excluded_requests/<request>
+DELETE /staging/<project>/excluded_requests
   Stop excluding this request
+XmlBody: delete_excluded_requests
+XmlResult: status_ok
 
 === Staged Requests
 

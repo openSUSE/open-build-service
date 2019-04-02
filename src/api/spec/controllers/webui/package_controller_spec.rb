@@ -590,10 +590,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :show, params: { project: user.home_project, package: source_package.name }
       end
 
-      it 'assigns @files' do
-        expect(assigns(:files)).to eq([])
-      end
-      it { expect(response).to have_http_status(:success) }
+      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{source_package}\"") }
+      it { expect(response).to redirect_to(project_show_path(user.home_project)) }
     end
 
     context 'revision handling' do
@@ -688,8 +686,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :revisions, params: { project: source_project, package: package }
       end
 
-      it { expect(flash[:error]).to eq('Could not access revisions') }
-      it { expect(response).to redirect_to(package_show_path(project: source_project.name, package: package.name)) }
+      it { expect(flash[:error]).to eq("You don't have access to the sources of this package: \"#{package}\"") }
+      it { expect(response).to redirect_to(project_show_path(project: source_project.name)) }
     end
 
     context 'with source access' do

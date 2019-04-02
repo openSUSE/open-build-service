@@ -1,6 +1,4 @@
 class Webui::GroupsController < Webui::WebuiController
-  include Webui2::GroupsController
-
   before_action :require_login, except: [:show, :autocomplete]
   before_action :set_group, only: [:show, :update, :edit, :delete]
   after_action :verify_authorized, except: [:show, :autocomplete]
@@ -24,10 +22,8 @@ class Webui::GroupsController < Webui::WebuiController
     switch_to_webui2
   end
 
+  # TODO: bento_only: For bootstrap views we use Groups::UsersController
   def edit
-    # TODO: Remove the statement after migration is finished
-    return if switch_to_webui2
-
     authorize @group, :update?
     @roles = Role.global_roles
     @members = @group.users.pluck(:login).map! { |login| { 'name' => login } }
