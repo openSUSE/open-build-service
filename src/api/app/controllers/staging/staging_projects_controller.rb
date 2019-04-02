@@ -20,7 +20,7 @@ class Staging::StagingProjectsController < ApplicationController
 
   def create
     authorize @staging_workflow
-    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow).call
+    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.current).call
 
     if result.valid?
       render_ok

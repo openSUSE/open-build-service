@@ -4,7 +4,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:project) { user.home_project }
   let!(:staging_workflow) { create(:staging_workflow, project: project) }
-  let(:staging_project_creator) { ::Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow) }
+  let(:staging_project_creator) { ::Staging::StagingProjectCreator.new(staging_projects[project_names], staging_workflow, user) }
 
   let(:staging_projects) do
     lambda do |project_names|
@@ -40,6 +40,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
         end
 
         it { expect { subject }.to change(Project, :count).by(2) }
+        it { expect { subject }.to change(ProjectLogEntry, :count).by(2) }
       end
 
       context 'with an existent project' do
@@ -55,6 +56,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
         end
 
         it { expect { subject }.to change(::Project, :count).by(1) }
+        it { expect { subject }.to change(ProjectLogEntry, :count).by(2) }
       end
     end
 
@@ -73,6 +75,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
         end
 
         it { expect { subject }.not_to change(Project, :count) }
+        it { expect { subject }.not_to change(ProjectLogEntry, :count) }
       end
 
       context 'with a staging workflow main project' do
@@ -89,6 +92,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
         end
 
         it { expect { subject }.not_to change(Project, :count) }
+        it { expect { subject }.not_to change(ProjectLogEntry, :count) }
       end
 
       context 'without an existing parent project' do
@@ -105,6 +109,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
         end
 
         it { expect { subject }.not_to change(Project, :count) }
+        it { expect { subject }.not_to change(ProjectLogEntry, :count) }
       end
     end
   end

@@ -1,8 +1,9 @@
 module Staging
   class StagingProjectCreator
-    def initialize(request_body, staging_workflow)
+    def initialize(request_body, staging_workflow, user)
       @request_body = request_body
       @staging_workflow = staging_workflow
+      @user = user
     end
 
     def call
@@ -10,8 +11,15 @@ module Staging
         errors << 'Staging projects are empty'
         return self
       end
+
       projects = staging_projects
-      projects.each(&:store) if valid?
+      if valid?
+        projects.each do |project|
+          project.store
+          project.create_project_log_entry(@user)
+        end
+      end
+
       self
     end
 
