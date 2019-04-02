@@ -1,7 +1,7 @@
 class Staging::WorkflowsController < ApplicationController
   before_action :require_login
   before_action :set_project
-  before_action :set_staging_workflow, only: :update
+  before_action :set_staging_workflow, only: [:update, :destroy]
   after_action :verify_authorized
 
   def create
@@ -22,18 +22,9 @@ class Staging::WorkflowsController < ApplicationController
   end
 
   def destroy
-    staging_workflow = @project.staging
-    unless staging_workflow
-      render_error(
-        status: 404,
-        errorcode: 'not_found',
-        message: "Project '#{@project}' doesn't have staging workflow."
-      )
-      return
-    end
-    authorize staging_workflow
+    authorize @staging_workflow
 
-    staging_workflow.destroy!
+    @staging_workflow.destroy!
   end
 
   def update
