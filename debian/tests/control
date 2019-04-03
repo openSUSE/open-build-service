@@ -1,0 +1,19 @@
+Test-Command: /bin/true
+Depends: obs-api, obs-server, obs-worker, obs-productconverter, obs-utils
+Restrictions: superficial
+
+Tests: install-purge-install
+Depends: obs-api, obs-server, obs-worker, obs-productconverter, obs-utils
+Restrictions: needs-root, isolation-machine, breaks-testbed
+
+Tests: install-break-purge
+Depends: obs-api, obs-server, obs-worker, obs-productconverter, obs-utils
+Restrictions: needs-root, isolation-machine, breaks-testbed
+
+Tests: setup-api-and-check
+Depends: obs-api, obs-server, default-mysql-server, ssl-cert, curl, apache2
+Restrictions: needs-root, isolation-machine, breaks-testbed
+
+Tests: smoke-test
+Depends: obs-api, obs-server, obs-worker, obs-utils, osc, default-mysql-server, ssl-cert, apache2, dpkg-dev
+Restrictions: needs-root, isolation-machine, breaks-testbed

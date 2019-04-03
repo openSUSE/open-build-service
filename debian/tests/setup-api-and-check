@@ -1,0 +1,18 @@
+#!/bin/sh
+
+exec 2>&1
+set -exu
+
+# TODO: https://bugs.debian.org/926198
+# set up obs-api app
+/usr/share/obs/api/script/rake-tasks.sh setup
+
+# create certificate
+make-ssl-cert generate-default-snakeoil --force-overwrite
+
+# update apache2 config
+sed -ri 's/(\s*)ServerName api/\1Servername localhost/' /etc/apache2/sites-available/obs.conf
+service apache2 restart
+
+# try to access the home page
+curl --insecure -s https://localhost | grep "Welcome - Open Build Service"

@@ -1,0 +1,97 @@
+#!/bin/sh
+
+exec 2>&1
+set -exu
+
+# TODO: https://bugs.debian.org/926198
+# set up obs-api app
+/usr/share/obs/api/script/rake-tasks.sh setup
+
+# create certificate
+make-ssl-cert generate-default-snakeoil --force-overwrite
+
+# update apache2 config
+sed -ri 's/(\s*)ServerName api/\1Servername localhost/' /etc/apache2/sites-available/obs.conf
+service apache2 restart
+
+# TODO: https://bugs.debian.org/926200
+# configure obs-server
+sed -i "s/frontend = undef/frontend = 'localhost'/g" /etc/obs/BSConfig.pm
+
+# configure obs-worker
+sed -i 's/obs:5352/localhost:5352/g' /etc/default/obsworker
+sed -i 's/obs:5252/localhost:5252/g' /etc/default/obsworker
+sed -i 's/INSTANCES="0"/INSTANCES="1"/g' /etc/default/obsworker
+
+# start worker
+service obsworker start
+
+# Debian and OBS use different nomenclature for architectures
+obs_arch="$(debian/deb-arch-to-obs-arch)"
+
+mkdir "$AUTOPKGTEST_TMP"/data
+cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
+<project name="Debian:9">
+<title>Debian 9 DoD</title>
+<description>Debian 9 DoD</description>
+<person userid="Admin" role="maintainer"/>
+<repository name="main">
+<download arch="$obs_arch" url="http://deb.debian.org/debian/stretch/main" repotype="deb"/>
+<arch>$obs_arch</arch>
+</repository>
+</project>
+EOF
+
+cat << EOF > "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
+<project name="test">
+<title>test</title>
+<description>test</description>
+<person userid="Admin" role="maintainer"/>
+<repository name="Debian_9.0">
+<path project="Debian:9" repository="main"/>
+<arch>$obs_arch</arch>
+</repository>
+</project>
+EOF
+
+cat << EOF > /root/.oscrc
+[general]
+
+apiurl = https://localhost
+
+[https://localhost]
+user = Admin
+pass = opensuse
+
+# do not check self signed certificate
+sslcertck = 0
+EOF
+
+# create a test project and Debian DoD
+osc -A https://localhost/ ls
+osc -A https://localhost/ meta prj Debian:9 -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_Debian_9
+osc -A https://localhost/ meta prjconf Debian:9 -c -F debian/examples/debian-stretch.prjconf
+osc -A https://localhost/ meta prj test -c -F "$AUTOPKGTEST_TMP"/data/test_meta_prj_test
+
+# upload the dummy native package
+cp -r debian/tests/obs-test-trivial-package "$AUTOPKGTEST_TMP"
+cd "$AUTOPKGTEST_TMP"
+osc -A https://localhost/ co test
+mkdir -p test/dummy/dummy-1.0; cp -r obs-test-trivial-package/debian test/dummy/dummy-1.0; cd test;
+cd dummy; dpkg-source -b dummy-1.0; cd "$AUTOPKGTEST_TMP"/test;
+rm -rf dummy/dummy-1.0
+osc add dummy
+osc ci -m "New import" dummy
+
+cd dummy
+found=0
+for i in $(seq 1 35); do
+    echo "Round $i: checking binary..."
+    output=$(osc -A https://localhost/ ls -b .)
+    case $output in
+        *"dummy_1.0_all.deb"*) found=1 && break ;;
+        *) sleep 10
+    esac
+done
+
+[ "$found" -eq 1 ] || exit 1

@@ -1,0 +1,11 @@
+#!/bin/sh
+
+packages=${1:-obs-api obs-server obs-worker obs-productconverter obs-utils}
+
+exec 2>&1
+set -exu
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get purge -qy $packages
+apt-get install -qy $packages
