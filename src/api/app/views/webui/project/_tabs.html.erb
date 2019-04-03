@@ -9,7 +9,7 @@
   <ul>
     <%= tab 'overview', 'Overview', controller: '/webui/project', action: :show %>
     <% if @is_maintenance_project && !@spider_bot %>
-      <%= tab 'incidents', 'Incidents', controller: '/webui/project', action: :maintenance_incidents %>
+      <%= tab 'incidents', 'Incidents', controller: '/webui/projects/maintenance_incidents', action: :index %>
       <%= tab 'maintained', 'Maintained Projects', controller: '/webui/project', action: :maintained_projects %>
     <% else %> <!-- also for incident project -->
       <%= tab 'repositories', "Repositories", controller: '/webui/repositories', action: :index unless @project.defines_remote_instance? || @spider_bot %>

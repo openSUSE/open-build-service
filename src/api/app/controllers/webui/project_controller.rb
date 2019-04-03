@@ -5,9 +5,9 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ManageRelationships
   include Webui2::ProjectController
 
-  before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
+  before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults]
 
-  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :new_incident_request,
+  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new,
                                        :new_release_request, :new_package_branch, :new_package]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
@@ -18,7 +18,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :edit, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
-                                     :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
+                                     :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
                                      :move_path, :clear_failed_comment, :pulse]
 
   before_action :set_project_by_id, only: [:update]
@@ -38,10 +38,10 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :check_ajax, only: [:buildresult, :edit_comment_form]
 
   after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages, :autocomplete_repositories,
-                                            :users, :subprojects, :new, :new_incident, :incident_request_dialog, :release_request_dialog, :show,
+                                            :users, :subprojects, :new, :incident_request_dialog, :release_request_dialog, :show,
                                             :packages_simple, :linking_projects, :buildresult, :delete_dialog, :requests, :monitor, :status,
-                                            :maintained_projects, :add_maintained_project_dialog, :maintenance_incidents, :unlock_dialog,
-                                            :incident_request_dialog, :new_incident_request, :release_request_dialog, :new_release_request,
+                                            :maintained_projects, :add_maintained_project_dialog, :unlock_dialog,
+                                            :incident_request_dialog, :release_request_dialog, :new_release_request,
                                             :remove_target_request, :remove_target_request_dialog, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
@@ -106,20 +106,6 @@ class Webui::ProjectController < Webui::WebuiController
     @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
   end
 
-  def new_incident
-    project = Project.get_by_name(params[:ns])
-    authorize project, :update?
-    incident = MaintenanceIncident.build_maintenance_incident(project, params[:noaccess].present?)
-
-    if incident
-      flash[:success] = "Created maintenance incident project #{incident.project.name}"
-      redirect_to(action: :show, project: incident.project.name) && return
-    else
-      flash[:error] = 'Incident projects shall only create below maintenance projects.'
-      redirect_to(action: 'show', project: params[:ns]) && return
-    end
-  end
-
   def new_package
     authorize @project, :update?
   end
@@ -134,28 +120,6 @@ class Webui::ProjectController < Webui::WebuiController
     # TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
     render_dialog
-  end
-
-  def new_incident_request
-    begin
-      BsRequest.transaction do
-        req = BsRequest.new
-        req.description = params[:description]
-
-        action = BsRequestActionMaintenanceIncident.new(source_project: params[:project])
-        req.bs_request_actions << action
-
-        req.set_add_revision
-        req.save!
-      end
-      flash[:success] = 'Created maintenance incident request'
-    rescue MaintenanceHelper::MissingAction,
-           BsRequestAction::UnknownProject,
-           BsRequestAction::UnknownTargetPackage => e
-      flash[:error] = e.message
-      redirect_back(fallback_location: { action: 'show', project: params[:project] }) && return
-    end
-    redirect_to action: 'show', project: params[:project]
   end
 
   def release_request_dialog
@@ -545,10 +509,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
-  end
-
-  def maintenance_incidents
-    @incidents = @project.maintenance_incidents
   end
 
   def unlock_dialog
