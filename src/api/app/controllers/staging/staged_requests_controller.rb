@@ -1,7 +1,9 @@
 class Staging::StagedRequestsController < ApplicationController
   before_action :require_login, except: [:index]
   before_action :set_staging_project
-  before_action :set_staging_workflow, :set_project, :set_xml_hash, :check_overall_state, only: [:create, :destroy]
+  before_action :set_staging_workflow, :set_project, :check_overall_state, only: [:create, :destroy]
+
+  validate_action create: { method: :post, request: :number, response: :number }, destroy: { method: :delete, request: :number, response: :number }
 
   def index
     @requests = @staging_project.staged_requests
@@ -51,12 +53,12 @@ class Staging::StagedRequestsController < ApplicationController
 
   private
 
-  def set_xml_hash
-    @xml_hash = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
+  def request_numbers
+    xml_hash.elements('number')
   end
 
-  def request_numbers
-    [@xml_hash[:number]].flatten
+  def xml_hash
+    Xmlhash.parse(request.body.read) || {}
   end
 
   def set_staging_project
