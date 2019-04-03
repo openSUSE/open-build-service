@@ -18,6 +18,7 @@ end
 end
 
 # set default configuration settings if no settings exist
+Configuration.skip_callback(:save, :after, :delayed_write_to_backend)
 Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |conf|
   conf.description = <<-EOT
   <p class="description">
@@ -160,6 +161,7 @@ at.allowed_values << AttribAllowedValue.new(value: 'BugownerOnly')
 update_all_attrib_type_descriptions
 
 puts 'Seeding issue trackers ...'
+IssueTracker.skip_callback(:save, :after, :delayed_write_to_backend)
 IssueTracker.where(name: 'boost').first_or_create(description: 'Boost Trac',
                                                   kind: 'trac',
                                                   regex: 'boost#(\d+)',
