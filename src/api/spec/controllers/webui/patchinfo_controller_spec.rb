@@ -53,7 +53,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     Package.destroy_all
   end
 
-  describe 'POST #new_patchinfo' do
+  describe 'POST #create' do
     before do
       other_user
       login user
@@ -61,7 +61,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'without permission to create the patchinfo package' do
       before do
-        post :new_patchinfo, params: { project: other_user.home_project }
+        post :create, params: { project: other_user.home_project }
       end
 
       it { expect(response).to have_http_status(:redirect) }
@@ -71,7 +71,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'when it fails to create the patchinfo package' do
       before do
         allow_any_instance_of(Patchinfo).to receive(:create_patchinfo).and_return(false)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: user.home_project }
       end
 
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -81,7 +81,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'when the patchinfo package file is not found' do
       before do
         allow_any_instance_of(Package).to receive(:patchinfo)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: user.home_project }
       end
 
       it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: 'patchinfo')) }
@@ -89,16 +89,15 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'when is successfull creating the patchinfo package' do
+      let(:project) { user.home_project }
+
       before do
         allow(Backend::Api::Build::Project).to receive(:binarylist).and_return(fake_build_results)
         allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: project }
       end
 
-      it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:binarylist)).to match_array(['fake_binary_002']) }
-      it { expect(assigns(:binaries)).to match_array(['fake_binary_001']) }
-      it { expect(assigns(:packager)).to eq(user.login) }
+      it { expect(response).to redirect_to(edit_patchinfo_path(project: project, package: 'patchinfo')) }
       it { expect(assigns(:file)).not_to be_nil }
     end
   end
@@ -218,7 +217,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context "when the patchinfo's xml is valid" do
       before do
-        post :new_patchinfo, params: { project: user.home_project } # this creates the patchinfo without summary and description
+        post :create, params: { project: user.home_project } # this creates the patchinfo without summary and description
         do_proper_post_save
         @patchinfo = Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed
       end

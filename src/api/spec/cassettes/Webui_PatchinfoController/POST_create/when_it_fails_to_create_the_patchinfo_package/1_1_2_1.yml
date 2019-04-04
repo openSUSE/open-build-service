@@ -40,7 +40,7 @@ http_interactions:
           <person userid="gilberto" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 09 Aug 2016 11:50:03 GMT
+  recorded_at: Fri, 05 Apr 2019 11:24:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:macario/_meta?user=macario
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="macario" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 09 Aug 2016 11:50:03 GMT
+  recorded_at: Fri, 05 Apr 2019 11:24:16 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:macario/_result?view=binarylist
@@ -89,10 +89,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -116,5 +114,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 09 Aug 2016 11:50:04 GMT
-recorded_with: VCR 3.0.1
+  recorded_at: Fri, 05 Apr 2019 11:24:16 GMT
+recorded_with: VCR 4.0.0

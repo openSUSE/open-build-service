@@ -12,13 +12,13 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
       click_link('Create Patchinfo')
-      expect(page).to have_current_path(patchinfo_new_patchinfo_path(project: project))
+      expect(page).to have_current_path(patchinfo_path(project: project))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 9
       fill_in 'description', with: 'A' * 30
       click_button 'Save Patchinfo'
-      expect(page).to have_text('|| Summary is too short (should have more than 10 signs)')
-      expect(page).to have_text('|| Description is too short (should have more than 50 signs and longer than summary)')
+      expect(page).to have_text('Summary is too short (should have more than 10 signs)')
+      expect(page).to have_text('Description is too short (should have more than 50 signs and longer than summary)')
     end
 
     scenario 'form complete' do
@@ -26,7 +26,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
       click_link('Create Patchinfo')
-      expect(page).to have_current_path(patchinfo_new_patchinfo_path(project: project))
+      expect(page).to have_current_path(patchinfo_path(project: project))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 15
       fill_in 'description', with: 'A' * 55

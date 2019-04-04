@@ -16,7 +16,7 @@
                           { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
                 <% else %>
                     <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
-                          patchinfo_new_patchinfo_path(project: incident.name, package: "patchinfo"),
+                          patchinfo_path(project: incident.name, package: "patchinfo"),
                           { style: 'color: red;', method: :post }) %>
                 <% end %>
               </td>

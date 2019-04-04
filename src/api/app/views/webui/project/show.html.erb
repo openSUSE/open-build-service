@@ -55,7 +55,7 @@
                 <% if !@has_patchinfo %>
                     <li>
                       <%= sprite_tag 'exclamation' %>
-                      <%= link_to_if(User.current.can_modify?(@project), 'Patchinfo missing', { controller: 'patchinfo', action: 'new_patchinfo', project: @project, package: 'patchinfo' }, method: :post) %>
+                      <%= link_to_if(User.current.can_modify?(@project), 'Patchinfo missing', patchinfo_path(project: @project, package: 'patchinfo'), method: :post) %>
                     </li>
                 <% end %>
                 <% if @open_release_requests.length > 0 %>
@@ -137,7 +137,7 @@
                           </li>
                       <% else %>
                           <li>
-                            <%= link_to(sprited_text('plugin_add', 'Create Patchinfo'), { controller: 'patchinfo', action: :new_patchinfo, project: @project }, method: :post) %>
+                            <%= link_to(sprited_text('plugin_add', 'Create Patchinfo'), patchinfo_path(project: @project), method: :post) %>
                           </li>
                       <% end %>
                       <% if !@is_incident_project && @releasetargets.length > 0 %>
