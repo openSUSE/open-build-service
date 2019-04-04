@@ -144,7 +144,7 @@ module StagingProject
 
   def accept_staged_requests
     clear_memoized_data
-    return unless overall_state == :acceptable
+    return unless overall_state.in?([:acceptable, :accepting])
 
     accepted_packages = []
     staged_requests.each do |staged_request|
@@ -182,6 +182,7 @@ module StagingProject
   end
 
   def state
+    # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.
     return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
     return :empty if staged_requests.blank?
     return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
