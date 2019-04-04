@@ -34,6 +34,7 @@ OBSApi::Application.routes.draw do
     package_name: %r{[^\/]*},
     project: %r{[^\/]*},
     project_name: %r{[^\/]*},
+    maintained_project: %r{[^\/]*},
     repository: %r{[^\/]*},
     repository_name: %r{[^\/]*},
     service: %r{\w[^\/]*},
@@ -330,6 +331,14 @@ OBSApi::Application.routes.draw do
     # \For backward compatibility
 
     resources :projects, only: [], param: :name do
+      resources :maintained_projects, controller: 'webui/projects/maintained_projects',
+                                      param: :maintained_project, only: [:destroy, :create], constraints: cons do
+        # TODO
+        # the index route points already to the ProjectController#maintained_projects
+        # It's bento only and as soon bento is gone, we can add index to the resource and delete it
+        get :index, as: :projects, on: :collection
+      end
+
       resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons do
         member do
           get 'key_dialog'
