@@ -17,8 +17,12 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       fill_in 'summary', with: 'A' * 9
       fill_in 'description', with: 'A' * 30
       click_button 'Save Patchinfo'
-      expect(page).to have_text('Summary is too short (should have more than 10 signs)')
-      expect(page).to have_text('Description is too short (should have more than 50 signs and longer than summary)')
+      # We check this field using 'minlength' HTML5 control. It opens a tooltip and the error message inside can vary depending on the browser,
+      # so we just check its presence and not its content like follows.
+      message = page.find('#summary').native.attribute('validationMessage')
+      expect(message).not_to be_empty
+      message = page.find('#description').native.attribute('validationMessage')
+      expect(message).not_to be_empty
     end
 
     scenario 'form complete' do

@@ -37,7 +37,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   end
 
   let(:fake_patchinfo_with_binaries) do
-    Patchinfo.new(
+    Patchinfo.new(data:
       '<patchinfo>
         <category>recommended</category>
         <rating>low</rating>
@@ -45,8 +45,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         <summary/>
         <description/>
         <binary>fake_binary_001</binary>
-      </patchinfo>'
-    )
+      </patchinfo>')
   end
 
   after do
@@ -165,35 +164,12 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       login user
     end
 
-    # This validation is performed at controller level and outside the model
-    context 'with a short summary' do
-      before do
-        put :update, params: {
-          project: user.home_project_name, package: patchinfo_package.name, summary: 'short', description: 'long description ' * 10
-        }
-      end
-
-      it { expect(flash[:error]).to eq('|| Summary is too short (should have more than 10 signs)') }
-      it { expect(response).to have_http_status(:success) }
-    end
-
-    # This validation is performed at controller level and outside the model
-    context 'with a short description' do
-      before do
-        put :update, params: {
-          project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok', description: 'short'
-        }
-      end
-
-      it { expect(flash[:error]).to eq(' || Description is too short (should have more than 50 signs and longer than summary)') }
-      it { expect(response).to have_http_status(:success) }
-    end
-
     context 'with an unknown issue tracker' do
       before do
         put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
           description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
+          packager: user.login,
           issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
         }
       end
@@ -211,7 +187,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         }
       end
 
-      it { expect(flash[:error]).to start_with('patchinfo is invalid: ') }
+      it { expect(flash[:error]).to start_with("Packager can't be blank") }
       it { expect(response).to have_http_status(:success) }
     end
 

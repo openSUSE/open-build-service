@@ -4,6 +4,7 @@
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo
   include ValidationHelper
+  include ActiveModel::Model
 
   class PatchinfoFileExists < APIError; end
   class IncompletePatchinfo < APIError; end
@@ -37,14 +38,23 @@ class Patchinfo
   CATEGORIES = (CATEGORY_COLORS.keys << '').freeze
 
   attr_reader :document
+  attr_writer :data
+  attr_accessor :summary, :description, :packager
+
+  validates :summary, length: { minimum: 10 }
+  validates :description, length: { minimum: 50 }
+  validates :packager, presence: true
 
   def hashed
     Xmlhash.parse(document.to_xml)
   end
 
   # patchinfo has two roles
-  def initialize(data = '<patchinfo/>')
-    @document = Nokogiri::XML(data, &:strict)
+  def initialize(attributes = {})
+    super
+
+    @data ||= '<patchinfo/>'
+    @document = Nokogiri::XML(@data, &:strict)
   end
 
   def is_repository_matching?(repo, rt)
