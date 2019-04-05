@@ -102,14 +102,14 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
   end
 
-  describe 'POST #updatepatchinfo' do
+  describe 'POST #update_issues' do
     before do
       login user
     end
 
     context 'without a valid patchinfo' do
       before do
-        post :updatepatchinfo, params: { project: user.home_project_name, package: other_package.name }
+        post :update_issues, params: { project: user.home_project_name, package: other_package.name }
       end
 
       it { expect(flash[:error]).to eq("Patchinfo not found for #{user.home_project_name}") }
@@ -118,8 +118,8 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'with a valid patchinfo' do
       it 'updates and redirects to edit' do
-        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name)
-        post :updatepatchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
+        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name, 'updated via update_issues call')
+        post :update_issues, params: { project: user.home_project_name, package: patchinfo_package.name }
         expect(response).to redirect_to(edit_patchinfo_path(project: user.home_project_name, package: patchinfo_package.name))
       end
     end

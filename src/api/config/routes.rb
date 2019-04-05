@@ -171,8 +171,7 @@ OBSApi::Application.routes.draw do
       get 'patchinfo/edit' => :edit, as: 'edit_patchinfo'
       put 'patchinfo/:project/:package' => :update, constraints: cons, as: 'update_patchinfo'
       delete 'patchinfo' => :destroy
-
-      post 'patchinfo/updatepatchinfo' => :updatepatchinfo
+      post 'patchinfo/update_issues/:project/:package' => :update_issues, as: 'update_issues_patchinfo'
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog

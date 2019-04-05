@@ -25,10 +25,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
-  def updatepatchinfo
+  def update_issues
     authorize @project, :update?
 
-    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
+    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package], 'updated via update_issues call')
     redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
