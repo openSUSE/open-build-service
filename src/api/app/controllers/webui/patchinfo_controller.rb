@@ -46,7 +46,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @packager = User.where(login: @packager).first
   end
 
-  def save
+  def update
     flash[:error] = nil
     # Note: At this point a patchinfo already got created by
     #       Patchinfo.new.create_patchinfo in the new_patchinfo action

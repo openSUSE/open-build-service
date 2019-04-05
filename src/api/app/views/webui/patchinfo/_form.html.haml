@@ -1,5 +1,5 @@
 = render partial: 'webui/package/tabs'
-= form_tag(patchinfo_save_path(project: @project, package: @package), id: 'patchinfo') do
+= form_tag(update_patchinfo_path(project: @project, package: @package), method: :put, id: 'patchinfo') do
   .section
     .grid_8.alpha
       .box.show_left.show_right
