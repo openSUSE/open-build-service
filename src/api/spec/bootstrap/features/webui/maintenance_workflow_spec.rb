@@ -84,7 +84,7 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
     # Step 4: The maintenance coordinator edits the patchinfo file
     ##############################################################
     # FIXME: Editing patchinfos should be it's own spec...
-    visit(patchinfo_edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
+    visit(edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
 
     # needed for patchinfo validation
     fill_in('summary', with: 'ProjectWithRepo_package is much better than the old one')

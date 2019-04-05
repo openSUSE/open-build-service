@@ -12,7 +12,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
       click_link('Create Patchinfo')
-      expect(page).to have_current_path(patchinfo_path(project: project))
+      expect(page).to have_current_path(edit_patchinfo_path(project: project, package: 'patchinfo'))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 9
       fill_in 'description', with: 'A' * 30
@@ -26,7 +26,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
       click_link('Create Patchinfo')
-      expect(page).to have_current_path(patchinfo_path(project: project))
+      expect(page).to have_current_path(edit_patchinfo_path(project: project, package: 'patchinfo'))
       expect(page).to have_text("Patchinfo-Editor for #{project.name}")
       fill_in 'summary', with: 'A' * 15
       fill_in 'description', with: 'A' * 55

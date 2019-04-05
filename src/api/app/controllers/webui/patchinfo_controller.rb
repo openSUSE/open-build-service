@@ -22,20 +22,19 @@ class Webui::PatchinfoController < Webui::WebuiController
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
-
-    read_patchinfo
-    @binaries.each { |bin| @binarylist.delete(bin) }
+    redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
   def updatepatchinfo
     authorize @project, :update?
 
     Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
-    redirect_to action: 'edit_patchinfo', project: @project, package: @package
+    redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
-  def edit_patchinfo
+  def edit
     read_patchinfo
+    # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
     @tracker = ::Configuration.default_tracker
     @binaries.each { |bin| @binarylist.delete(bin) }
   end
@@ -81,7 +80,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         issues.to_a.each do |issue|
           unless IssueTracker.find_by_name(issue[1])
             flash[:error] = "Unknown Issue tracker #{issue[1]}"
-            render action: 'edit_patchinfo', project: @project, package: @package
+            render action: :edit, project: @project, package: @package
             return
           end
           # people tend to enter entire cve strings instead of just the name
@@ -113,7 +112,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           Package.verify_file!(@package, '_patchinfo', xml)
         rescue APIError => e
           flash[:error] = "patchinfo is invalid: #{e.message}"
-          render action: 'edit_patchinfo', project: @project, package: @package
+          render action: :edit, project: @project, package: @package
           return
         end
 
@@ -153,7 +152,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       @zypp_restart_needed = params[:zypp_restart_needed]
       @block = params[:block]
       @block_reason = params[:block_reason]
-      render action: 'edit_patchinfo', project: @project, package: @package
+      render action: :edit, project: @project, package: @package
     end
   rescue Backend::Error
     flash[:error] = 'No permission to edit the patchinfo-file.'

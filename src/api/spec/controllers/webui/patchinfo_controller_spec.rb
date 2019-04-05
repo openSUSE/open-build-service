@@ -117,18 +117,18 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'with a valid patchinfo' do
-      it 'updates and redirects to edit_patchinfo' do
+      it 'updates and redirects to edit' do
         expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name)
         post :updatepatchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
-        expect(response).to redirect_to(action: 'edit_patchinfo', project: user.home_project_name, package: patchinfo_package.name)
+        expect(response).to redirect_to(edit_patchinfo_path(project: user.home_project_name, package: patchinfo_package.name))
       end
     end
   end
 
-  describe 'GET #edit_patchinfo' do
+  describe 'GET #edit' do
     before do
       login user
-      post :edit_patchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
+      post :edit, params: { project: user.home_project_name, package: patchinfo_package.name }
     end
 
     it { expect(response).to have_http_status(:success) }
