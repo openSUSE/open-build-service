@@ -252,14 +252,14 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
   end
 
-  describe 'GET #remove' do
+  describe 'GET #destroy' do
     before do
       login user
     end
 
     context 'if package can be removed' do
       before do
-        post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
+        delete :destroy, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
       it { expect(flash[:success]).to eq('Patchinfo was successfully removed.') }
@@ -269,7 +269,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "if package can't be removed" do
       before do
         allow_any_instance_of(Package).to receive(:check_weak_dependencies?).and_return(false)
-        post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
+        delete :destroy, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
       it { expect(flash[:notice]).to eq("Patchinfo can't be removed: ") }

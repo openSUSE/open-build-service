@@ -159,7 +159,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     redirect_to action: 'show', project: @project.name, package: @package.name
   end
 
-  def remove
+  def destroy
     authorize @package, :destroy?
 
     if @package.check_weak_dependencies? && @package.destroy
