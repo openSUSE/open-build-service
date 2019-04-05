@@ -6,6 +6,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_action :get_binaries, except: [:show, :delete, :new_tracker]
   before_action :require_exists, except: [:create, :new_tracker]
   before_action :require_login, except: [:show]
+  before_action :extract_patchinfo_data, only: [:edit, :show]
 
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
@@ -33,14 +34,12 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def edit
-    read_patchinfo
     # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
     @tracker = ::Configuration.default_tracker
     @binaries.each { |bin| @binarylist.delete(bin) }
   end
 
   def show
-    read_patchinfo
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @packager).first
@@ -217,7 +216,7 @@ class Webui::PatchinfoController < Webui::WebuiController
              'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
   end
 
-  def read_patchinfo
+  def extract_patchinfo_data
     @binaries = []
     patchinfo_xml = Xmlhash.parse(@file.document.to_xml)
     patchinfo_xml.elements('binary').each do |binaries|
