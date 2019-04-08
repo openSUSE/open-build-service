@@ -76,7 +76,7 @@ class Webui::UserController < Webui::WebuiController
     other_user.update(user_params.slice(:state, :ignore_auth_services))
     other_user.add_globalrole(Role.where(title: 'Admin')) if user_params[:make_admin]
     if other_user.save
-      flash[:notice] = "Updated user '#{other_user}'."
+      flash[:success] = "Updated user '#{other_user}'."
     else
       flash[:error] = "Updating user '#{other_user}' failed: #{other_user.errors.full_messages.to_sentence}"
     end
@@ -86,7 +86,7 @@ class Webui::UserController < Webui::WebuiController
   def delete
     other_user = User.find_by(login: user_params[:login])
     if other_user.delete
-      flash[:notice] = "Marked user '#{other_user}' as deleted."
+      flash[:success] = "Marked user '#{other_user}' as deleted."
     else
       flash[:error] = "Marking user '#{other_user}' as deleted failed: #{other_user.errors.full_messages.to_sentence}"
     end
@@ -151,7 +151,7 @@ class Webui::UserController < Webui::WebuiController
       user.password_confirmation = params[:repeat_password]
 
       if user.save
-        flash[:notice] = 'Your password has been changed successfully.'
+        flash[:success] = 'Your password has been changed successfully.'
         redirect_to action: :show, user: user
       else
         flash[:error] = "The password could not be changed. #{user.errors.full_messages.to_sentence}"

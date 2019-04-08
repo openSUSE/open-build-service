@@ -36,7 +36,7 @@ RSpec.describe Webui::InterconnectsController do
       end
 
       it { expect(response).to redirect_to(project_show_path('MyRemoteProject')) }
-      it { expect(flash[:notice]).to eq("Project 'MyRemoteProject' was successfully created.") }
+      it { expect(flash[:success]).to eq("Project 'MyRemoteProject' was successfully created.") }
       it { expect(RemoteProject.exists?(name: 'MyRemoteProject')).to be(true) }
     end
   end

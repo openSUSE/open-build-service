@@ -127,7 +127,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(edit_attribs_path(project: user.home_project_name, package: '', attribute: attribute_type_1_name)) }
-      it { expect(flash[:notice]).to eq('Attribute was successfully created.') }
+      it { expect(flash[:success]).to eq('Attribute was successfully created.') }
     end
 
     context 'with non editable values' do
@@ -136,7 +136,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(index_attribs_path(project: user.home_project_name, package: '')) }
-      it { expect(flash[:notice]).to eq('Attribute was successfully created.') }
+      it { expect(flash[:success]).to eq('Attribute was successfully created.') }
     end
 
     context 'fails at save' do
@@ -165,7 +165,7 @@ RSpec.describe Webui::AttributeController do
       end
 
       it { expect(response).to redirect_to(edit_attribs_path(attribute: attrib.fullname, project: user.home_project.to_s, package: '')) }
-      it { expect(flash[:notice]).to eq('Attribute was successfully updated.') }
+      it { expect(flash[:success]).to eq('Attribute was successfully updated.') }
       it { expect(attrib.attrib_type_id).to eq(new_attrib_type.id) }
     end
 
@@ -192,7 +192,7 @@ RSpec.describe Webui::AttributeController do
         delete :destroy, params: { id: attrib.id }
       end.to change(Attrib, :count).by(-1)
       expect(response).to redirect_to(root_path)
-      expect(flash[:notice]).to eq('Attribute sucessfully deleted!')
+      expect(flash[:success]).to eq('Attribute sucessfully deleted!')
     end
   end
 end

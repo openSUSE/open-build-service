@@ -20,7 +20,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
           post :create, params: params
         end
 
-        it { expect(flash[:notice]).to eq('Comment was successfully created.') }
+        it { expect(flash[:success]).to eq('Comment was successfully created.') }
         it { expect(commentable.comments.first.body).to eq("This #{commentable.model_name.singular} is AWESOME!") }
       end
 
@@ -77,7 +77,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         delete :destroy, params: { id: comment.id }
       end
 
-      it { expect(flash[:notice]).to eq('Comment deleted successfully.') }
+      it { expect(flash[:success]).to eq('Comment deleted successfully.') }
       it { expect(Comment.where(id: comment.id)).to eq([]) }
     end
 
@@ -86,7 +86,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         delete :destroy, params: { id: other_comment.id }
       end
 
-      it { expect(flash[:notice]).to eq(nil) }
+      it { expect(flash[:success]).to eq(nil) }
       it { expect(Comment.where(id: comment.id)).to eq([comment]) }
     end
 
@@ -96,7 +96,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
         delete :destroy, params: { id: other_comment.id }
       end
 
-      it { expect(flash[:notice]).to eq('Comment deleted successfully.') }
+      it { expect(flash[:success]).to eq('Comment deleted successfully.') }
       it { expect(Comment.where(id: other_comment.id)).to eq([]) }
     end
   end

@@ -83,7 +83,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(project)) }
-      it { expect(flash[:notice]).to eq('Project was successfully updated.') }
+      it { expect(flash[:success]).to eq('Project was successfully updated.') }
       it { expect(project.title).to eq('My projects title') }
       it { expect(project.description).to eq('My projects description') }
     end
@@ -328,7 +328,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       post :restore, params: { project: 'project_name' }
 
-      expect(flash[:notice]).to match(/restored/)
+      expect(flash[:success]).to match(/restored/)
       expect(response).to redirect_to(project_show_path(project: fake_project.name))
     end
 
@@ -512,7 +512,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(Project.count).to eq(1) }
         it { is_expected.to redirect_to(project_show_path(user.home_project)) }
-        it { expect(flash[:notice]).to eq('Project was successfully removed.') }
+        it { expect(flash[:success]).to eq('Project was successfully removed.') }
       end
 
       context 'not having a parent project' do
@@ -522,7 +522,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(Project.count).to eq(0) }
         it { is_expected.to redirect_to(action: :index) }
-        it { expect(flash[:notice]).to eq('Project was successfully removed.') }
+        it { expect(flash[:success]).to eq('Project was successfully removed.') }
       end
     end
 
@@ -534,7 +534,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(Project.count).to eq(1) }
       it { is_expected.to redirect_to(project_show_path(user.home_project)) }
-      it { expect(flash[:notice]).to start_with("Project can't be removed:") }
+      it { expect(flash[:error]).to start_with("Project can't be removed:") }
     end
   end
 
@@ -555,7 +555,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     shared_examples 'a valid project saved' do
-      it { expect(flash[:notice]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully") }
+      it { expect(flash[:success]).to start_with("Project '#{user.home_project_name}:my_project' was created successfully") }
       it { is_expected.to redirect_to(project_show_path("#{user.home_project_name}:my_project")) }
     end
 
@@ -614,7 +614,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).title).to eq('New Title') }
-      it { expect(flash[:notice]).to eq('Project was successfully updated.') }
+      it { expect(flash[:success]).to eq('Project was successfully updated.') }
       it { is_expected.to redirect_to(project_show_path(user.home_project)) }
     end
 
@@ -750,7 +750,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
-        it { expect(flash[:notice]).to eq('Successfully unlocked project') }
+        it { expect(flash[:success]).to eq('Successfully unlocked project') }
       end
 
       context 'with a project that has maintenance release requests' do
@@ -763,7 +763,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
         it do
-          expect(flash[:notice]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
+          expect(flash[:error]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
                                             " because there is a running release request: #{bs_request.id}")
         end
       end
@@ -776,7 +776,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
-        it { expect(flash[:notice]).to eq("Project can't be unlocked: is not locked") }
+        it { expect(flash[:error]).to eq("Project can't be unlocked: is not locked") }
       end
     end
   end
@@ -799,7 +799,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(user.home_project.maintained_projects.where(project: user.home_project)).not_to exist }
-        it { expect(flash[:notice]).to eq("Removed #{maintained_project.project.name} from maintenance") }
+        it { expect(flash[:success]).to eq("Removed #{maintained_project.project.name} from maintenance") }
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
 
@@ -848,7 +848,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { expect(user.home_project.maintained_projects.where(project: user.home_project)).to exist }
-        it { expect(flash[:notice]).to eq("Added #{user.home_project.name} to maintenance") }
+        it { expect(flash[:success]).to eq("Added #{user.home_project.name} to maintenance") }
         it { is_expected.to redirect_to(action: 'maintained_projects', project: user.home_project) }
       end
 
@@ -944,7 +944,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :clear_failed_comment, params: { project: user.home_project, package: package }
       end
 
-      it { expect(flash[:notice]).to eq('Cleared comments for packages.') }
+      it { expect(flash[:success]).to eq('Cleared comments for packages.') }
       it { expect(response).to redirect_to(project_status_path(user.home_project)) }
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
@@ -1041,7 +1041,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           it { expect(path_element.reload.position).to eq(position) }
-          it { expect(flash[:notice]).to eq('Path moved up successfully') }
+          it { expect(flash[:success]).to eq('Path moved up successfully') }
           it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
         end
 
@@ -1051,7 +1051,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
           end
 
           it { expect(path_element.reload.position).to eq(position) }
-          it { expect(flash[:notice]).to eq('Path moved down successfully') }
+          it { expect(flash[:success]).to eq('Path moved down successfully') }
           it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
         end
       end
@@ -1071,7 +1071,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
               move
             end
 
-            it { expect(flash[:notice]).to eq('Path moved up successfully') }
+            it { expect(flash[:success]).to eq('Path moved up successfully') }
             it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
           end
 
@@ -1092,7 +1092,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
               move
             end
 
-            it { expect(flash[:notice]).to eq('Path moved down successfully') }
+            it { expect(flash[:success]).to eq('Path moved down successfully') }
             it { expect(response).to redirect_to(action: :index, controller: :repositories, project: apache_project) }
           end
 

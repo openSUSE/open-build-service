@@ -16,7 +16,7 @@ class Webui::InterconnectsController < Webui::WebuiController
         logger.debug "New remote project with url #{@project.remoteurl}"
         message = "Project '#{@project}' was successfully created."
         format.html do
-          flash[:notice] = message
+          flash[:success] = message
           redirect_to project_show_path(project: @project)
         end
         format.js do
