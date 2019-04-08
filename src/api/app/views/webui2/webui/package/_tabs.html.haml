@@ -4,10 +4,10 @@
       = tab_link('Overview', package_show_path(project, package))
     - if package.name == 'patchinfo'
       %li.nav-item
-        = tab_link('Details', patchinfo_show_path)
+        = tab_link('Details', patchinfo_show_path(project, package))
     - unless @spider_bot
       %li.nav-item
-        = tab_link('Repositories', repositories_path)
+        = tab_link('Repositories', repositories_path(project, package))
       %li.nav-item
         = tab_link('Revisions', package_view_revisions_path(project, package))
       %li.nav-item
