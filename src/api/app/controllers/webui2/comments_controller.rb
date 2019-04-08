@@ -6,7 +6,7 @@ module Webui2::CommentsController
 
     respond_to do |format|
       if comment.save
-        flash.now[:notice] = 'Comment created successfully.'
+        flash.now[:success] = 'Comment created successfully.'
         status = :ok
       else
         flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
@@ -25,7 +25,7 @@ module Webui2::CommentsController
 
     respond_to do |format|
       if comment.blank_or_destroy
-        flash.now[:notice] = 'Comment deleted successfully.'
+        flash.now[:success] = 'Comment deleted successfully.'
         status = :ok
       else
         flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."

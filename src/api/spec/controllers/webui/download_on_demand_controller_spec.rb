@@ -56,7 +56,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
-      it { expect(flash[:notice]).to eq('Successfully created Download on Demand') }
+      it { expect(flash[:success]).to eq('Successfully created Download on Demand') }
       it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).to exist }
     end
@@ -98,7 +98,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
-      it { expect(flash[:notice]).to eq('Successfully removed Download on Demand') }
+      it { expect(flash[:success]).to eq('Successfully removed Download on Demand') }
       it { expect(DownloadRepository.where(id: dod_repository.id)).not_to exist }
     end
 
@@ -145,7 +145,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
-      it { expect(flash[:notice]).to eq('Successfully updated Download on Demand') }
+      it { expect(flash[:success]).to eq('Successfully updated Download on Demand') }
       it { expect(dod_repository.reload.url).to eq('http://opensuse.org') }
     end
 

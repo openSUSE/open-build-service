@@ -21,7 +21,7 @@ module Webui::ManageRelationships
     respond_to do |format|
       format.js { render json: {}, status: :ok }
       format.html do
-        flash[:notice] = "Added user #{params[:userid]} with role #{params[:role]}"
+        flash[:success] = "Added user #{params[:userid]} with role #{params[:role]}"
         redirect_to users_path
       end
     end
@@ -41,7 +41,7 @@ module Webui::ManageRelationships
     respond_to do |format|
       format.js { render json: {}, status: :ok }
       format.html do
-        flash[:notice] = "Added group #{params[:groupid]} with role #{params[:role]}"
+        flash[:success] = "Added group #{params[:groupid]} with role #{params[:role]}"
         redirect_to users_path
       end
     end
@@ -59,9 +59,9 @@ module Webui::ManageRelationships
       format.js { render json: {}, status: :ok }
       format.html do
         if params[:userid]
-          flash[:notice] = "Removed user #{params[:userid]}"
+          flash[:success] = "Removed user #{params[:userid]}"
         else
-          flash[:notice] = "Removed group '#{params[:groupid]}'"
+          flash[:success] = "Removed group '#{params[:groupid]}'"
         end
         redirect_to users_path
       end

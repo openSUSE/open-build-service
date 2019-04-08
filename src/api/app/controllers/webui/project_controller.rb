@@ -242,14 +242,14 @@ class Webui::ProjectController < Webui::WebuiController
     if @project.check_weak_dependencies?
       parent = @project.parent
       @project.destroy
-      flash[:notice] = 'Project was successfully removed.'
+      flash[:success] = 'Project was successfully removed.'
       if parent
         redirect_to project_show_path(parent)
       else
         redirect_to(action: :index)
       end
     else
-      redirect_to project_show_path(@project), notice: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
+      redirect_to project_show_path(@project), error: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
     end
   end
 
@@ -293,7 +293,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     if @project.valid? && @project.store
-      flash[:notice] = "Project '#{@project}' was created successfully"
+      flash[:success] = "Project '#{@project}' was created successfully"
       redirect_to action: 'show', project: @project.name
     else
       flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
@@ -308,7 +308,7 @@ class Webui::ProjectController < Webui::WebuiController
     if Project.deleted?(project.name)
       project = Project.restore(project.name)
 
-      flash[:notice] = "Project '#{project}' was restored successfully"
+      flash[:success] = "Project '#{project}' was restored successfully"
       redirect_to action: 'show', project: project.name
     else
       flash[:error] = 'Project was never deleted.'
@@ -320,7 +320,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        format.html { redirect_to(project_show_path(@project), notice: 'Project was successfully updated.') }
+        format.html { redirect_to(project_show_path(@project), success: 'Project was successfully updated.') }
       else
         flash[:error] = 'Failed to update project'
         format.html { render :edit }
@@ -390,7 +390,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     @project.store
-    redirect_to({ action: :index, controller: :repositories, project: @project }, notice: "Path moved #{params[:direction]} successfully")
+    redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Path moved #{params[:direction]} successfully")
   end
 
   def monitor
@@ -436,10 +436,10 @@ class Webui::ProjectController < Webui::WebuiController
       package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
     end
 
-    flash.now[:notice] = 'Cleared comments for packages'
+    flash.now[:success] = 'Cleared comments for packages'
 
     respond_to do |format|
-      format.html { redirect_to({ action: :status, project: @project }, notice: 'Cleared comments for packages.') }
+      format.html { redirect_to({ action: :status, project: @project }, success: 'Cleared comments for packages.') }
       if switch_to_webui2?
         format.js { render 'webui2/webui/project/clear_failed_comment' }
       else
@@ -529,7 +529,7 @@ class Webui::ProjectController < Webui::WebuiController
     if maintained_project
       @project.maintained_projects.create!(project: maintained_project)
       @project.store
-      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Added #{params[:maintained_project]} to maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, success: "Added #{params[:maintained_project]} to maintenance")
     else
       # TODO: Better redirect to the project (maintained project tab), where the user actually came from
       redirect_back(fallback_location: root_path, error: "Failed to add #{params[:maintained_project]} to maintenance")
@@ -541,7 +541,7 @@ class Webui::ProjectController < Webui::WebuiController
     maintained_project = MaintainedProject.find_by(project: @maintained_project)
     if maintained_project && @project.maintained_projects.destroy(maintained_project)
       @project.store
-      redirect_to({ action: 'maintained_projects', project: @project }, notice: "Removed #{@maintained_project} from maintenance")
+      redirect_to({ action: 'maintained_projects', project: @project }, success: "Removed #{@maintained_project} from maintenance")
     else
       redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
     end
@@ -558,9 +558,9 @@ class Webui::ProjectController < Webui::WebuiController
   def unlock
     authorize @project, :unlock?
     if @project.unlock(params[:comment])
-      redirect_to project_show_path(@project), notice: 'Successfully unlocked project'
+      redirect_to project_show_path(@project), success: 'Successfully unlocked project'
     else
-      redirect_to project_show_path(@project), notice: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
+      redirect_to project_show_path(@project), error: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
     end
   end
 

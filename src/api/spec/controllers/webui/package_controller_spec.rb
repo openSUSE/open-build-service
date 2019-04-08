@@ -348,7 +348,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       it 'does not delete the package and shows an error message' do
         post :remove, params: { project: user.home_project, package: source_package }
 
-        expect(flash[:notice]).to eq("Package can't be removed: used as devel package by #{target_project}/#{devel_project}")
+        expect(flash[:error]).to eq("Package can't be removed: used as devel package by #{target_project}/#{devel_project}")
         expect(user.home_project.packages).not_to be_empty
       end
 
@@ -651,7 +651,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         remove_file_post
       end
 
-      it { expect(flash[:notice]).to eq("Failed to remove file 'the_file'") }
+      it { expect(flash[:error]).to eq("Failed to remove file 'the_file'") }
     end
 
     it 'calls delete_file method' do
@@ -1654,7 +1654,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(response).to redirect_to(project_show_path(source_project)) }
-      it { expect(flash[:notice]).to eq("Failed to create package '#{package_name}'") }
+      it { expect(flash[:error]).to eq("Failed to create package '#{package_name}'") }
     end
 
     context 'package creation' do

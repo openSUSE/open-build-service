@@ -14,7 +14,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       if comment.save
-        format.html { redirect_back(fallback_location: root_path, notice: 'Comment was successfully created.') }
+        format.html { redirect_back(fallback_location: root_path, success: 'Comment was successfully created.') }
         format.json { render json: 'ok' }
         format.js { render partial: 'webui/comment/show', locals: { commentable: comment.commentable }, status: :ok }
       else
@@ -32,7 +32,7 @@ class Webui::CommentsController < Webui::WebuiController
 
     respond_to do |format|
       if comment.blank_or_destroy
-        flash[:notice] = 'Comment deleted successfully.'
+        flash[:success] = 'Comment deleted successfully.'
         format.json { render json: { flash: render_flash } }
       else
         flash[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."

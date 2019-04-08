@@ -11,7 +11,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
     status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.current)
 
     if status_message.save
-      flash[:notice] = 'Status message was successfully created.'
+      flash[:success] = 'Status message was successfully created.'
     else
       flash[:error] = "Could not create status message: #{status_message.errors.full_messages.to_sentence}"
     end
@@ -27,7 +27,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
     status_message = StatusMessage.find(params[:id])
 
     if status_message.delete
-      flash[:notice] = 'Status message was successfully deleted.'
+      flash[:success] = 'Status message was successfully deleted.'
     else
       flash[:error] = "Could not delete status message: #{status_message.errors.full_messages.to_sentence}"
     end

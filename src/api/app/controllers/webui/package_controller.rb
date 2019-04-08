@@ -515,7 +515,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = "Package '#{@package.name}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package_name
     else
-      flash[:notice] = "Failed to create package '#{@package}'"
+      flash[:error] = "Failed to create package '#{@package}'"
       redirect_to controller: :project, action: :show, project: params[:project]
     end
   end
@@ -649,7 +649,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to(project_show_path(@project), success: 'Package was successfully removed.')
     else
       redirect_to(package_show_path(project: @project, package: @package),
-                  notice: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
+                  error: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
   end
 
@@ -743,7 +743,7 @@ class Webui::PackageController < Webui::WebuiController
       @package.delete_file(filename)
       flash[:success] = "File '#{filename}' removed successfully"
     rescue Backend::NotFoundError
-      flash[:notice] = "Failed to remove file '#{filename}'"
+      flash[:error] = "Failed to remove file '#{filename}'"
     end
     redirect_to action: :show, project: @project, package: @package
   end
