@@ -141,7 +141,7 @@ module Webui::WebuiHelper
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
     if @project
-      if opts[:controller].to_s.ends_with?('pulse', 'meta')
+      if opts[:controller].to_s.ends_with?('pulse', 'meta', 'maintenance_incidents')
         opts[:project_name] = @project.name
       else
         opts[:project] = @project.to_s

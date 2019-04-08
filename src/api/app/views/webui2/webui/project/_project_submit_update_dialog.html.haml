@@ -6,7 +6,7 @@
       .modal-body
         %p This will submit your project as a Maintenance Incident Request.
 
-        = form_tag(project_new_incident_request_path) do
+        = form_tag(create_request_project_maintenance_incidents_path(project)) do
           = hidden_field_tag(:project, project.name)
 
           .form-group

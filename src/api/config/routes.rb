@@ -255,11 +255,9 @@ OBSApi::Application.routes.draw do
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons, as: 'project_new_package_branch'
       get 'project/incident_request_dialog' => :incident_request_dialog
-      post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
@@ -306,7 +304,6 @@ OBSApi::Application.routes.draw do
       get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
       post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
       post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
-      get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons, as: :project_maintenance_incidents
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
@@ -327,6 +324,9 @@ OBSApi::Application.routes.draw do
       get 'project/rebuild_time/:project/:repository/:arch', to: redirect('/projects/rebuild_time/%{project}/%{repository}/%{arch}')
       get 'project/rebuild_time_png/:project/:key', to: redirect('/projects/rebuild_time_png/%{project}/%{key}')
     end
+    controller 'webui/projects/maintenance_incidents' do
+      get 'project/maintenance_incidents/:project', to: redirect('/projects/%{project}/maintenance_incidents')
+    end
     # \For backward compatibility
 
     resources :projects, only: [], param: :name do
@@ -340,6 +340,11 @@ OBSApi::Application.routes.draw do
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
       resource :rebuild_time, controller: 'webui/projects/rebuild_times', only: [:show], constraints: cons do
         get 'rebuild_time_png'
+      end
+      resources :maintenance_incidents, controller: 'webui/projects/maintenance_incidents', only: [:index, :create], constraints: cons do
+        collection do
+          post 'create_request'
+        end
       end
     end
 

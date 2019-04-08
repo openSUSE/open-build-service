@@ -28,7 +28,7 @@
               <% else %>
                   <%= sprite_tag 'exclamation' %>
               <% end %>
-              <%= link_to(pluralize(@open_maintenance_incidents.count, "open incident"), action: 'maintenance_incidents', project: @project) %>
+              <%= link_to(pluralize(@open_maintenance_incidents.count, "open incident"), project_maintenance_incidents_path(@project)) %>
             </li>
             <li>
               <% if @maintained_projects.empty? %>
@@ -128,7 +128,7 @@
                       </li>
                   <% elsif @is_maintenance_project %>
                       <li>
-                        <%= link_to(sprited_text('brick_add', 'Create Maintenance Incident'), { controller: 'project', action: 'new_incident', ns: @project.name }, method: :post) %>
+                        <%= link_to(sprited_text('brick_add', 'Create Maintenance Incident'), project_maintenance_incidents_path(@project.name), method: :post) %>
                       </li>
                   <% else %>
                       <% if @has_patchinfo %>
