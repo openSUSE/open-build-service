@@ -5,7 +5,7 @@
       .box.show_left.show_right
         .box{ style: "background-color:#DDDDDD; margin-top: 0" }
           %h2{ style: "display: inline" }
-            Patchinfo-Editor for #{@project}
+            Edit Patchinfo for #{@project}
         .box.show_left.show_right
           %p
             %strong
@@ -131,7 +131,7 @@
               %strong Reason:
             = f.text_field :block_reason, style: 'width: 99%', disabled: true
         %div{ style: "margin-left:5px;" }
-          = submit_tag 'Save Patchinfo'
+          = submit_tag 'Save'
         = f.hidden_field :name
 - content_for :ready_function do
   patchinfoReady();

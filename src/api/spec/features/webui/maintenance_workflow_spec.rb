@@ -85,14 +85,14 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     check('patchinfo[block]')
     fill_in('patchinfo[block_reason]', with: 'locked!')
 
-    click_button('Save Patchinfo')
+    click_button('Save')
     expect(page).to have_css('#flash-messages', text: 'Successfully edited patchinfo')
     expect(find(:css, '.ui-state-error b')).to have_text('This update is currently blocked:')
 
     click_link('Edit patchinfo')
     uncheck('patchinfo[block]')
     expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
-    click_button 'Save Patchinfo'
+    click_button 'Save'
 
     logout
 
