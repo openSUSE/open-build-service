@@ -4,7 +4,7 @@
 <%= render :partial => 'tabs' %>
 
 <h3>
-  Patchinfos for project <%= @project %> 
+  Patchinfos for project <%= @project %>
 </h3>
 
 <% if @patchinfo.empty? %>
@@ -15,7 +15,7 @@
   <h3>Patchinfo</h3>
   <p>
     <% @patchinfo.each do |package| -%>
-      <%= link_to package, { :controller => 'patchinfo', :action => :edit_patchinfo, :project=> @project, :package => package}, :class => 'nowrap' %>
+      <%= link_to package, edit_patchinfo_path(project: @project, package: package), :class => 'nowrap' %>
     <% end%>
   </p>
 </div>

@@ -4,10 +4,11 @@ class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
   before_action :set_project
   before_action :get_binaries, except: [:show, :delete, :new_tracker]
-  before_action :require_exists, except: [:new_patchinfo, :new_tracker]
+  before_action :require_exists, except: [:create, :new_tracker]
   before_action :require_login, except: [:show]
+  before_action :extract_patchinfo_data, only: [:edit, :show]
 
-  def new_patchinfo
+  def create
     authorize @project, :update?, policy_class: ProjectPolicy
 
     unless @project.exists_package?('patchinfo')
@@ -22,32 +23,29 @@ class Webui::PatchinfoController < Webui::WebuiController
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
-
-    read_patchinfo
-    @binaries.each { |bin| @binarylist.delete(bin) }
+    redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
-  def updatepatchinfo
+  def update_issues
     authorize @project, :update?
 
-    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
-    redirect_to action: 'edit_patchinfo', project: @project, package: @package
+    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package], 'updated via update_issues call')
+    redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
-  def edit_patchinfo
-    read_patchinfo
+  def edit
+    # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
     @tracker = ::Configuration.default_tracker
     @binaries.each { |bin| @binarylist.delete(bin) }
   end
 
   def show
-    read_patchinfo
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @packager).first
   end
 
-  def save
+  def update
     flash[:error] = nil
     # Note: At this point a patchinfo already got created by
     #       Patchinfo.new.create_patchinfo in the new_patchinfo action
@@ -81,7 +79,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         issues.to_a.each do |issue|
           unless IssueTracker.find_by_name(issue[1])
             flash[:error] = "Unknown Issue tracker #{issue[1]}"
-            render action: 'edit_patchinfo', project: @project, package: @package
+            render action: :edit, project: @project, package: @package
             return
           end
           # people tend to enter entire cve strings instead of just the name
@@ -113,7 +111,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           Package.verify_file!(@package, '_patchinfo', xml)
         rescue APIError => e
           flash[:error] = "patchinfo is invalid: #{e.message}"
-          render action: 'edit_patchinfo', project: @project, package: @package
+          render action: :edit, project: @project, package: @package
           return
         end
 
@@ -153,14 +151,14 @@ class Webui::PatchinfoController < Webui::WebuiController
       @zypp_restart_needed = params[:zypp_restart_needed]
       @block = params[:block]
       @block_reason = params[:block_reason]
-      render action: 'edit_patchinfo', project: @project, package: @package
+      render action: :edit, project: @project, package: @package
     end
   rescue Backend::Error
     flash[:error] = 'No permission to edit the patchinfo-file.'
     redirect_to action: 'show', project: @project.name, package: @package.name
   end
 
-  def remove
+  def destroy
     authorize @package, :destroy?
 
     if @package.check_weak_dependencies? && @package.destroy
@@ -218,7 +216,7 @@ class Webui::PatchinfoController < Webui::WebuiController
              'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
   end
 
-  def read_patchinfo
+  def extract_patchinfo_data
     @binaries = []
     patchinfo_xml = Xmlhash.parse(@file.document.to_xml)
     patchinfo_xml.elements('binary').each do |binaries|

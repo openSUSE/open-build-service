@@ -14,7 +14,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
   end
 
   def do_proper_post_save
-    post :save, params: {
+    put :update, params: {
       project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
       description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil],
       issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'], category: 'recommended', rating: 'low', packager: user.login
@@ -53,7 +53,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     Package.destroy_all
   end
 
-  describe 'POST #new_patchinfo' do
+  describe 'POST #create' do
     before do
       other_user
       login user
@@ -61,7 +61,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'without permission to create the patchinfo package' do
       before do
-        post :new_patchinfo, params: { project: other_user.home_project }
+        post :create, params: { project: other_user.home_project }
       end
 
       it { expect(response).to have_http_status(:redirect) }
@@ -71,7 +71,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'when it fails to create the patchinfo package' do
       before do
         allow_any_instance_of(Patchinfo).to receive(:create_patchinfo).and_return(false)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: user.home_project }
       end
 
       it { expect(response).to redirect_to(project_show_path(user.home_project)) }
@@ -81,7 +81,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'when the patchinfo package file is not found' do
       before do
         allow_any_instance_of(Package).to receive(:patchinfo)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: user.home_project }
       end
 
       it { expect(response).to redirect_to(package_show_path(project: user.home_project, package: 'patchinfo')) }
@@ -89,28 +89,27 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'when is successfull creating the patchinfo package' do
+      let(:project) { user.home_project }
+
       before do
         allow(Backend::Api::Build::Project).to receive(:binarylist).and_return(fake_build_results)
         allow_any_instance_of(Package).to receive(:patchinfo).and_return(fake_patchinfo_with_binaries)
-        post :new_patchinfo, params: { project: user.home_project }
+        post :create, params: { project: project }
       end
 
-      it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:binarylist)).to match_array(['fake_binary_002']) }
-      it { expect(assigns(:binaries)).to match_array(['fake_binary_001']) }
-      it { expect(assigns(:packager)).to eq(user.login) }
+      it { expect(response).to redirect_to(edit_patchinfo_path(project: project, package: 'patchinfo')) }
       it { expect(assigns(:file)).not_to be_nil }
     end
   end
 
-  describe 'POST #updatepatchinfo' do
+  describe 'POST #update_issues' do
     before do
       login user
     end
 
     context 'without a valid patchinfo' do
       before do
-        post :updatepatchinfo, params: { project: user.home_project_name, package: other_package.name }
+        post :update_issues, params: { project: user.home_project_name, package: other_package.name }
       end
 
       it { expect(flash[:error]).to eq("Patchinfo not found for #{user.home_project_name}") }
@@ -118,18 +117,18 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     context 'with a valid patchinfo' do
-      it 'updates and redirects to edit_patchinfo' do
-        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name)
-        post :updatepatchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
-        expect(response).to redirect_to(action: 'edit_patchinfo', project: user.home_project_name, package: patchinfo_package.name)
+      it 'updates and redirects to edit' do
+        expect_any_instance_of(Patchinfo).to receive(:cmd_update_patchinfo).with(user.home_project_name, patchinfo_package.name, 'updated via update_issues call')
+        post :update_issues, params: { project: user.home_project_name, package: patchinfo_package.name }
+        expect(response).to redirect_to(edit_patchinfo_path(project: user.home_project_name, package: patchinfo_package.name))
       end
     end
   end
 
-  describe 'GET #edit_patchinfo' do
+  describe 'GET #edit' do
     before do
       login user
-      post :edit_patchinfo, params: { project: user.home_project_name, package: patchinfo_package.name }
+      post :edit, params: { project: user.home_project_name, package: patchinfo_package.name }
     end
 
     it { expect(response).to have_http_status(:success) }
@@ -161,7 +160,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
   end
 
-  describe 'POST #save' do
+  describe 'PUT #update' do
     before do
       login user
     end
@@ -169,7 +168,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     # This validation is performed at controller level and outside the model
     context 'with a short summary' do
       before do
-        post :save, params: {
+        put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name, summary: 'short', description: 'long description ' * 10
         }
       end
@@ -181,7 +180,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     # This validation is performed at controller level and outside the model
     context 'with a short description' do
       before do
-        post :save, params: {
+        put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok', description: 'short'
         }
       end
@@ -192,7 +191,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context 'with an unknown issue tracker' do
       before do
-        post :save, params: {
+        put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
           description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
           issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
@@ -205,7 +204,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context "when the patchinfo's xml is invalid" do
       before do
-        post :save, params: {
+        put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name,
           summary: 'long enough summary is ok', description: 'long enough description is also ok' * 5,
           issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil], issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
@@ -218,7 +217,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
     context "when the patchinfo's xml is valid" do
       before do
-        post :new_patchinfo, params: { project: user.home_project } # this creates the patchinfo without summary and description
+        post :create, params: { project: user.home_project } # this creates the patchinfo without summary and description
         do_proper_post_save
         @patchinfo = Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false).patchinfo.hashed
       end
@@ -253,14 +252,14 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
   end
 
-  describe 'GET #remove' do
+  describe 'GET #destroy' do
     before do
       login user
     end
 
     context 'if package can be removed' do
       before do
-        post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
+        delete :destroy, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
       it { expect(flash[:success]).to eq('Patchinfo was successfully removed.') }
@@ -270,7 +269,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context "if package can't be removed" do
       before do
         allow_any_instance_of(Package).to receive(:check_weak_dependencies?).and_return(false)
-        post :remove, params: { project: user.home_project_name, package: patchinfo_package.name }
+        delete :destroy, params: { project: user.home_project_name, package: patchinfo_package.name }
       end
 
       it { expect(flash[:notice]).to eq("Patchinfo can't be removed: ") }

@@ -199,14 +199,14 @@ class Patchinfo
     { targetproject: @pkg.project.name, targetpackage: @pkg.name }
   end
 
-  def cmd_update_patchinfo(project, package)
+  def cmd_update_patchinfo(project, package, message = 'updated via updatepatchinfo call')
     pkg = Package.get_by_project_and_name(project, package)
 
     # get existing file
     xml = pkg.patchinfo
     xml = update_patchinfo(pkg.project, xml)
 
-    Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.current.login, xml.document.to_xml, 'updated via updatepatchinfo call')
+    Backend::Api::Sources::Package.write_patchinfo(pkg.project.name, pkg.name, User.current.login, xml.document.to_xml, message)
     pkg.sources_changed
   end
 

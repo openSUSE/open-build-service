@@ -167,12 +167,12 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/patchinfo' do
-      post 'patchinfo/new_patchinfo' => :new_patchinfo
-      post 'patchinfo/updatepatchinfo' => :updatepatchinfo
-      get 'patchinfo/edit_patchinfo' => :edit_patchinfo
+      post 'patchinfo' => :create
+      get 'patchinfo/edit' => :edit, as: 'edit_patchinfo'
+      put 'patchinfo/:project/:package' => :update, constraints: cons, as: 'update_patchinfo'
+      delete 'patchinfo' => :destroy
+      post 'patchinfo/update_issues/:project/:package' => :update_issues, as: 'update_issues_patchinfo'
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
-      post 'patchinfo/save/:project/:package' => :save, constraints: cons, as: :patchinfo_save
-      post 'patchinfo/remove' => :remove
       get 'patchinfo/new_tracker' => :new_tracker
       get 'patchinfo/delete_dialog' => :delete_dialog
     end

@@ -51,21 +51,6 @@ $(document).on('click', 'a[data-add-issue]', function() {
   return false;
 });
 
-function update_patchinfo() {
-  $("#update_spinner").show();
-  $.ajax({
-    url: "updatepatchinfo",
-    type: "get",
-    data: {
-      project: $("input#project").val(),
-      package: $("input#package").val()
-    },
-    complete: function () {
-      $("#update_spinner").hide();
-    }
-  });
-}
-
 function change_issue_desc(issue) {
   var issuedesc = "#issue_desc_" + issue;
   var changedesc = "#change_desc_" + issue;

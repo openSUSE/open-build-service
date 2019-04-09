@@ -4,7 +4,7 @@
     .dialog-content
       %p
         Do you really want to delete #{package_link @package}?
-      = form_tag({ controller: :patchinfo, action: :remove}, method: :post) do
+      = form_tag(patchinfo_path, method: :delete) do
         %div
           = hidden_field_tag(:project, @project)
           = hidden_field_tag(:package, @package)
