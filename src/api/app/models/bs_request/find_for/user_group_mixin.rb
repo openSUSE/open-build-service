@@ -3,7 +3,7 @@ class BsRequest
     module UserGroupMixin
       private
 
-      def extend_query_for_maintainer(obj, requests, roles, inner_or)
+      def extend_query_for_maintainer(obj, roles, inner_or)
         if roles.empty? || roles.include?('maintainer')
           names = obj.involved_projects.pluck('name').map! { |p| quote(p) }
           inner_or << "bs_request_actions.target_project in (#{names.join(',')})" unless names.empty?
@@ -12,10 +12,10 @@ class BsRequest
             inner_or << "(bs_request_actions.target_project='#{ip.second}' and bs_request_actions.target_package='#{ip.first}')"
           end
         end
-        [requests, inner_or]
+        inner_or
       end
 
-      def extend_query_for_involved_reviews(obj, or_in_and, requests, review_states, inner_or)
+      def extend_query_for_involved_reviews(obj, or_in_and, review_states, inner_or)
         review_states.each do |review_state|
           # find requests where obj is maintainer in target project
           projects = obj.involved_projects.pluck('projects.name').map! { |project| quote(project) }
@@ -28,7 +28,7 @@ class BsRequest
 
           inner_or << "(reviews.state=#{quote(review_state)} and (#{or_in_and.join(' or ')}))"
         end
-        [requests, inner_or]
+        inner_or
       end
     end
   end

@@ -12,7 +12,7 @@ class BsRequest
           inner_or << "bs_requests.creator = #{quote(user.login)}"
         end
         # find requests where user is maintainer in target project
-        @relation, inner_or = extend_query_for_maintainer(user, @relation, roles, inner_or)
+        inner_or = extend_query_for_maintainer(user, roles, inner_or)
         if roles.empty? || roles.include?('reviewer')
           @relation = @relation.includes(:reviews).references(:reviews)
 
@@ -23,7 +23,7 @@ class BsRequest
           usergroups = user.groups.map { |group| "'#{group.title}'" }
           or_in_and << "reviews.by_group in (#{usergroups.join(',')})" if usergroups.present?
 
-          @relation, inner_or = extend_query_for_involved_reviews(user, or_in_and, @relation, review_states, inner_or)
+          inner_or = extend_query_for_involved_reviews(user, or_in_and, review_states, inner_or)
         end
         if inner_or.empty?
           @relation.none
