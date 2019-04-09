@@ -2,7 +2,7 @@ var editors = new Array();
 
 var unstaged = false;
 
-// Show a dialog when there are unsave changes (redo or undo) and the user is about to leave the page
+// Show a dialog when there are unsaved changes (redo or undo) and the user is about to leave the page
 window.onbeforeunload = function() {
   if (unstaged) {
     return true;
@@ -34,8 +34,7 @@ function use_codemirror(id, read_only, mode) {
     editor.setSelections(editor);
 
     editor.on('change', function (cm) {
-      var changed = true,
-          undoChanged = cm.historySize().undo > 0,
+      var undoChanged = cm.historySize().undo > 0,
           redoChanged = cm.historySize().redo > 0;
 
       cm.updateHistory(cm);
