@@ -9,7 +9,7 @@ class Webui::MonitorController < Webui::WebuiController
   def old; end
 
   def index
-    if request.post? && !params[:project].nil? && valid_project_name?(params[:project])
+    if request.post? && !params[:project].nil? && Project.valid_name?(params[:project])
       redirect_to project: params[:project]
     else
       begin
