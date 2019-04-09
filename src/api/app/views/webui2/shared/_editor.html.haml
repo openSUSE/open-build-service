@@ -9,14 +9,14 @@
     .sticky-top.bg-light{ id: "top_#{uid}" }
       .card-header.d-flex.justify-content-between
         .input-group.input-group-sm
-          %button.btn.btn-danger.btn-sm.disabled.save{ id: "save_#{uid}" }
+          %button.btn.btn-danger.btn-sm.save{ id: "save_#{uid}", disabled: true }
             %i.fa.fa-save
             Save
           .btn-group.pl-2
-            %button.btn.btn-secondary.btn-sm.disabled{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);" }
+            %button.btn.btn-secondary.btn-sm{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
               %i.fa.fa-undo
               Undo
-            %button.btn.btn-secondary.btn-sm.disabled{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);" }
+            %button.btn.btn-secondary.btn-sm{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
               %i.fa.fa-redo
               Redo
         %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
