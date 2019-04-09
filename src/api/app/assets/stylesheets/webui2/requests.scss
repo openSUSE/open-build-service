@@ -19,3 +19,15 @@
   font-size: 14px;
   padding-right: 1em;
 }
+
+.request-flag-new {
+  @extend .text-success;
+}
+
+.request-flag-review {
+  @extend .text-warning;
+}
+
+.request-flag-declined {
+  @extend .text-danger;
+}

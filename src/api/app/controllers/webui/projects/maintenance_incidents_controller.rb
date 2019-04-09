@@ -9,6 +9,7 @@ module Webui
 
       def index
         @incidents = @project.maintenance_incidents
+        switch_to_webui2
       end
 
       def create

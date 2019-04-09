@@ -1,0 +1,35 @@
+- @pagetitle = 'Maintenance Incidents'
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    %h3
+      Maintenance incidents
+      %span.badge.badge-primary
+        = @incidents.count
+
+    %table.w-100.responsive.table.table-sm.table-striped.table-bordered#incident-table
+      %thead
+        %tr
+          %th
+            Summary
+          %th
+            Category
+          %th
+            Packages
+          %th
+            Info
+          %th
+            Release Targets
+          %th
+            Build
+      %tbody
+        = render partial: 'webui/projects/maintenance_incidents/incident_table_entry', collection: @incidents
+
+- content_for :ready_function do
+  :plain
+    $('#incident-table').DataTable({
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
+      pageLength: -1,
+      responsive: true
+    });
