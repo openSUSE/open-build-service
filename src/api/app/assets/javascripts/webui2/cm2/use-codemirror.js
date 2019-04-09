@@ -2,6 +2,7 @@ var editors = new Array();
 
 var unstaged = false;
 
+// Show a dialog when there are unsave changes (redo or undo) and the user is about to leave the page
 window.onbeforeunload = function() {
   if (unstaged) {
     return true;
@@ -33,16 +34,16 @@ function use_codemirror(id, read_only, mode) {
     editor.setSelections(editor);
 
     editor.on('change', function (cm) {
-      var changed = true;
+      var changed = true,
+          undoChanged = cm.historySize().undo > 0,
+          redoChanged = cm.historySize().redo > 0;
+
       cm.updateHistory(cm);
-      if (cm.historySize().undo > 0 || cm.historySize().redo > 0) {
-        $("#save_" + id).removeClass('disabled');
-        unstaged = true;
-      }
-      else {
-        $("#save_" + id).addClass('disabled');
-        unstaged = false;
-      }
+
+      unstaged = undoChanged || redoChanged;
+      $("#undo_" + id).prop('disabled', !undoChanged);
+      $("#redo_" + id).prop('disabled', !redoChanged);
+      $("#save_" + id).prop('disabled', !undoChanged);
     });
     CodeMirror.signal(editor, 'cursorActivity', editor);
 
@@ -52,7 +53,7 @@ function use_codemirror(id, read_only, mode) {
     $('#save_' + id).click(function () {
       var data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
-      $("#loading_" + id).addClass("disabled").removeClass("d-none");
+      $("#loading_" + id).attr('disabled', true).removeClass("d-none");
       $.ajax({
         url: textarea.data('save-url'),
         type: (textarea.data('save-method') || 'put'),
@@ -62,14 +63,15 @@ function use_codemirror(id, read_only, mode) {
           // The filter is necessary because we don't return a flash everywhere atm
           $("#flash").show().html(data);
           unstaged = false;
-          $("#save_" + id).addClass('disabled');
+          $("#undo_" + id).prop('disabled', true);
+          $("#redo_" + id).prop('disabled', true);
+          $("#save_" + id).prop('disabled', true);
         },
         error: function (xhdr, textStatus, errorThrown) {
-          $("#loading_" + id).removeClass("disabled").addClass("d-none");
+          $("#loading_" + id).removeAttr('disabled').addClass("d-none");
           // The filter is necessary because we don't return a flash everywhere atm
           $("#flash").show().html(xhdr.responseText);
           unstaged = true;
-          $("#save_" + id).removeClass('disabled');
         }
       });
     });
