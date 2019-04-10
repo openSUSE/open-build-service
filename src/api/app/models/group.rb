@@ -180,6 +180,10 @@ class Group < ApplicationRecord
     BsRequest.find_for(group: title, search: search)
   end
 
+  def all_requests_count
+    BsRequest::FindFor::Group.new(group: title, relation: BsRequest.all).all_count
+  end
+
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key}") do
       incoming_requests.count +
