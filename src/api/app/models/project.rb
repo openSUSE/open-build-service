@@ -1375,7 +1375,7 @@ class Project < ApplicationRecord
   end
 
   def release_targets_ng
-    global_patchinfo_package = find_patchinfo_package
+    global_patchinfo_package = packages.with_kind(:patchinfo).first
 
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
@@ -1652,10 +1652,6 @@ class Project < ApplicationRecord
     end
 
     nil
-  end
-
-  def find_patchinfo_package
-    packages.find(&:is_patchinfo?)
   end
 
   def collect_patchinfo_data(patchinfo)
