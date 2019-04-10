@@ -27,6 +27,10 @@ module Clockwork
     SendEventEmailsJob.perform_later
   end
 
+  every(30.seconds, 'instrument delayed job queue', :if => lambda { |_| CONFIG['influxdb_hosts'] }) do
+    InstrumentationDelayedJobQueue.perform_later
+  end
+
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
