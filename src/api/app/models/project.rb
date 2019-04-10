@@ -36,6 +36,7 @@ class Project < ApplicationRecord
       where(['lower(packages.name) like lower(?)', "%#{search}%"]).order('length(name)', :name).limit(50)
     end
   end
+  has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
 
   has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
@@ -180,10 +181,6 @@ class Project < ApplicationRecord
                            description: image_template_package['description'])
     end
     project
-  end
-
-  def patchinfos
-    packages.joins(:package_kinds).where(package_kinds: { kind: 'patchinfo' })
   end
 
   def init
@@ -1375,7 +1372,7 @@ class Project < ApplicationRecord
   end
 
   def release_targets_ng
-    global_patchinfo_package = packages.with_kind(:patchinfo).first
+    global_patchinfo_package = patchinfos.first
 
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
