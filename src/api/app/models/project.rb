@@ -1382,7 +1382,7 @@ class Project < ApplicationRecord
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
     release_targets_ng = {}
-    repositories.each do |repo|
+    repositories.includes(:release_targets).each do |repo|
       repo.release_targets.each do |rt|
         release_targets_ng[rt.target_repository.project.name] = {
           reponame: repo.name,
