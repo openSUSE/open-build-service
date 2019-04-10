@@ -1373,6 +1373,10 @@ class Project < ApplicationRecord
 
   def release_targets_ng
     global_patchinfo_package = patchinfos.first
+    if global_patchinfo_package
+      xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
+      patchinfo = collect_patchinfo_data(xml)
+    end
 
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
@@ -1380,11 +1384,6 @@ class Project < ApplicationRecord
     release_targets_ng = {}
     repositories.each do |repo|
       repo.release_targets.each do |rt|
-        patchinfo = nil
-        if global_patchinfo_package
-          xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
-          patchinfo = collect_patchinfo_data(xml)
-        end
         release_targets_ng[rt.target_repository.project.name] = {
           reponame: repo.name,
           packages: [],
