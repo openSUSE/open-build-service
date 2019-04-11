@@ -553,8 +553,8 @@ getent passwd obsapidelayed >/dev/null || \
 %service_add_pre %{obs_api_support_scripts}
 
 %post -n obs-common
-%{fillup_and_insserv -n obs-server}
 %service_add_post obsstoragesetup.service
+%{fillup_and_insserv -n obs-server}
 
 %post -n obs-api
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
