@@ -53,7 +53,6 @@ class Staging::StagingProjectsController < ApplicationController
       )
       return
     end
-
     StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.current.login)
     render_ok
   end
