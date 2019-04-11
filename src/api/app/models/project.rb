@@ -36,6 +36,7 @@ class Project < ApplicationRecord
       where(['lower(packages.name) like lower(?)', "%#{search}%"]).order('length(name)', :name).limit(50)
     end
   end
+  has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
 
   has_many :package_kinds, through: :packages
   has_many :issues, through: :packages
@@ -180,10 +181,6 @@ class Project < ApplicationRecord
                            description: image_template_package['description'])
     end
     project
-  end
-
-  def patchinfos
-    packages.joins(:package_kinds).where(package_kinds: { kind: 'patchinfo' })
   end
 
   def init
@@ -1375,7 +1372,11 @@ class Project < ApplicationRecord
   end
 
   def release_targets_ng
-    global_patchinfo_package = find_patchinfo_package
+    global_patchinfo_package = patchinfos.first
+    if global_patchinfo_package
+      xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
+      patchinfo = collect_patchinfo_data(xml)
+    end
 
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
@@ -1383,11 +1384,6 @@ class Project < ApplicationRecord
     release_targets_ng = {}
     repositories.each do |repo|
       repo.release_targets.each do |rt|
-        patchinfo = nil
-        if global_patchinfo_package
-          xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
-          patchinfo = collect_patchinfo_data(xml)
-        end
         release_targets_ng[rt.target_repository.project.name] = {
           reponame: repo.name,
           packages: [],
@@ -1401,11 +1397,9 @@ class Project < ApplicationRecord
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     package_count = 0
-    packages.select(:name, :id).each do |pkg|
+    packages.where.not(id: global_patchinfo_package).select(:name, :id).each do |pkg|
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
-
-      next if pkg == global_patchinfo_package
 
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
@@ -1652,10 +1646,6 @@ class Project < ApplicationRecord
     end
 
     nil
-  end
-
-  def find_patchinfo_package
-    packages.find(&:is_patchinfo?)
   end
 
   def collect_patchinfo_data(patchinfo)

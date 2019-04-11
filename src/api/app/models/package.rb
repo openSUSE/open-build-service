@@ -92,6 +92,7 @@ class Package < ApplicationRecord
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
 
   scope :with_product_name, -> { where(name: '_product') }
+  scope :with_kind, ->(kind) { joins(:package_kinds).where(package_kinds: { kind: kind }) }
 
   validates :name, presence: true, length: { maximum: 200 }
   validates :releasename, length: { maximum: 200 }
