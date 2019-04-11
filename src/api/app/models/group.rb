@@ -102,8 +102,8 @@ class Group < ApplicationRecord
       end
       save!
     end
-  rescue ActiveRecord::RecordInvalid, NotFoundError => exception
-    errors.add(:base, exception.message)
+  rescue ActiveRecord::RecordInvalid, NotFoundError => e
+    errors.add(:base, e.message)
   end
 
   def remove_user(user)

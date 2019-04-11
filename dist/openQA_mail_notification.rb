@@ -25,8 +25,8 @@ def get_build_information(version)
     request = Net::HTTP::Get.new(uri.request_uri)
     response = http.request(request)
     JSON.parse(response.body)['jobs'].last
-  rescue Exception => ex
-    $stderr.puts "Error while fetching openQA data: #{ex.inspect}"
+  rescue Exception => e
+    $stderr.puts "Error while fetching openQA data: #{e.inspect}"
     abort
   end
 end

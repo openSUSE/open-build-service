@@ -104,8 +104,8 @@ module Suse
             # Only raise an exception for user-input validation!
             raise ValidationError, "#{schema_file} validation error: #{error}"
           end
-        rescue Nokogiri::XML::SyntaxError => error
-          raise ValidationError, "#{schema_file} validation error: #{error}"
+        rescue Nokogiri::XML::SyntaxError => e
+          raise ValidationError, "#{schema_file} validation error: #{e}"
         end
         true
       end

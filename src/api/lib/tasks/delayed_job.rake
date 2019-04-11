@@ -10,8 +10,8 @@ task(importrequests: :environment) do
   while lastrq > 0
     begin
       xml = Backend::Api::Request.info(lastrq)
-    rescue Backend::Error => err
-      Rails.logger.error "Request ##{lastrq} could not be retrieved:\n#{err}"
+    rescue Backend::Error => e
+      Rails.logger.error "Request ##{lastrq} could not be retrieved:\n#{e}"
       lastrq -= 1
       next
     end

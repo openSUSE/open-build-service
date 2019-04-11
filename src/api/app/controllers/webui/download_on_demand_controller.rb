@@ -14,8 +14,8 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.save!
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid, Backend::Error => exception
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be created: #{exception.message}")
+    rescue ActiveRecord::RecordInvalid, Backend::Error => e
+      redirect_back(fallback_location: root_path, error: "Download on Demand can't be created: #{e.message}")
       return
     end
 
