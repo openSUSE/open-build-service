@@ -124,6 +124,12 @@ Intentional changes:
     below /message/ are deprecated and will be removed in the next
     version.
 
+  * Deprecated Ratings. The following API routes are deprecated and will be removed
+    in the next version:
+    - GET /statistics/highest_rated?limit=<limit>
+    - GET /statistics/rating/<project>/<package>
+    - PUT /statistics/rating/<project>/<package>
+
 Other changes
 =============
 
