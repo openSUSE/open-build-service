@@ -1381,6 +1381,7 @@ class Project < ApplicationRecord
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
+    repo_name_to_project_name = {}
     release_targets_ng = {}
     repositories.includes(:release_targets).each do |repo|
       repo.release_targets.each do |rt|
@@ -1391,23 +1392,22 @@ class Project < ApplicationRecord
           package_issues: {},
           package_issues_by_tracker: {}
         }
+        repo_name_to_project_name[repo.name] = rt.target_repository.project.name
       end
     end
 
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     package_count = 0
-    packages.where.not(id: global_patchinfo_package).where("name like '%.%'").select(:name, :id).each do |pkg|
+    packages.where.not(id: global_patchinfo_package).where("name like '%.%'").select(:name, :id).each do |package|
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
-
-      # Here we try hard to find the release target our current package is build for:
-      rt_name = guess_release_target_from_package(pkg, release_targets_ng)
-
-      # Build-disabled packages can't be matched to release targets....
-      next unless rt_name
+      # Here we try to find the release target our current package is build for:
+      first_matching_build_target = package.flags.where(flag: :build, status: 'enable', repo: repo_name_to_project_name.keys).select(:repo).first
+      next unless first_matching_build_target
+      release_target_name = repo_name_to_project_name[first_matching_build_target]
       # Let's silently hope that an incident newer introduces new (sub-)packages....
-      release_targets_ng[rt_name][:packages] << pkg
+      release_targets_ng[release_target_name][:packages] << package
       package_count += 1
     end
 
@@ -1624,26 +1624,6 @@ class Project < ApplicationRecord
 
   def discard_cache
     Relationship.discard_cache
-  end
-
-  # Go through all enabled build flags and look for a repo name that matches a
-  # previously parsed release target name (from "release_targets_ng").
-  #
-  # If one was found return the project name, otherwise return nil.
-  def guess_release_target_from_package(package, parsed_targets)
-    # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-    # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-    target_mapping = {}
-    parsed_targets.each do |rt_key, rt_value|
-      target_mapping[rt_value[:reponame]] = rt_key
-    end
-
-    package.flags.where(flag: :build, status: 'enable').find_each do |flag|
-      rt_key = target_mapping[flag.repo]
-      return rt_key if rt_key
-    end
-
-    nil
   end
 
   def collect_patchinfo_data(patchinfo)
