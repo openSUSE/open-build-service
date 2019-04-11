@@ -120,6 +120,10 @@ Intentional changes:
     Run the data migrations to convert events in the old format:
     'rails data:migrate RAILS_ENV=production'
 
+  * Messages (for projects/packages) deprecated. The API routes
+    below /message/ are deprecated and will be removed in the next
+    version.
+
 Other changes
 =============
 
