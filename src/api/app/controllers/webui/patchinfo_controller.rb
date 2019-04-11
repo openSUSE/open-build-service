@@ -46,17 +46,8 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def update
-    flash[:error] = nil
-    # Note: At this point a patchinfo already got created by
-    #       Patchinfo.new.create_patchinfo in the new_patchinfo action
-    unless valid_summary?(params[:summary])
-      flash[:error] = '|| Summary is too short (should have more than 10 signs)'
-    end
-    unless valid_description?(params[:description])
-      flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
-    end
-
-    if flash[:error].nil?
+    patchinfo = Patchinfo.new(summary: params[:summary], description: params[:description], packager: params[:packager])
+    if patchinfo.valid?
       issues = []
       params[:issueid].to_a.each_with_index do |new_issue, index|
         issues << [
@@ -127,6 +118,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       redirect_to controller: 'patchinfo', action: 'show',
                   project: @project.name, package: @package
     else
+      flash[:error] = patchinfo.errors.full_messages.to_sentence
       @tracker = params[:tracker]
       @version = params[:version]
       @packager = params[:packager]
@@ -264,15 +256,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     return if patchinfo_xml.value('stopped').nil?
     @block = true
     @block_reason = patchinfo_xml.value('stopped')
-  end
-
-  def valid_summary?(name)
-    name && name.length > 10
-  end
-
-  def valid_description?(name)
-    name &&
-      name.length > [params[:summary].length, 50].max
   end
 
   def get_issue_summary(tracker, issueid)

@@ -88,7 +88,7 @@ class BinaryRelease < ApplicationRecord
         hash[:release_package_id] = rp.id if binary['project'] && rp
         if binary['patchinforef']
           begin
-            patchinfo = Patchinfo.new(Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
+            patchinfo = Patchinfo.new(data: Backend::Api::Sources::Project.patchinfo(binary['patchinforef']))
           rescue Backend::NotFoundError
             # patchinfo disappeared meanwhile
           end

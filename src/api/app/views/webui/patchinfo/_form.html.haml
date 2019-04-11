@@ -23,12 +23,12 @@
             %strong
               = image_tag('info.png', title: 'Enter a short summary. Mainpackage: shortdescription of the mainfix', alt: 'Summaryinfo')
               %label{ for: "summary" } Summary:
-            = text_area_tag 'summary', @summary, size: '60x1', required: true, min: 10
+            = text_area_tag 'summary', @summary, size: '60x1', required: true, minlength: 10
           %p
             %strong
               = image_tag('info.png', title: 'Enter a full description what the update fixes', alt: 'Descriptioninfo')
               %label{ for: "description" } Description:
-            = text_area_tag 'description', @description, size: '65x9', required: true, min: 10
+            = text_area_tag 'description', @description, size: '65x9', required: true, minlength: 50
           %p
             %strong
               = image_tag('info.png', title: 'Enter a version of this update', alt: 'Versioninfo')

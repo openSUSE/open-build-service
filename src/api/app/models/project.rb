@@ -1374,7 +1374,7 @@ class Project < ApplicationRecord
   def release_targets_ng
     global_patchinfo_package = patchinfos.first
     if global_patchinfo_package
-      xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
+      xml = Patchinfo.new(data: global_patchinfo_package.source_file('_patchinfo'))
       patchinfo = collect_patchinfo_data(xml)
     end
 

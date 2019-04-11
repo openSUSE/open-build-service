@@ -1216,7 +1216,7 @@ class Package < ApplicationRecord
   end
 
   def patchinfo
-    Patchinfo.new(source_file('_patchinfo'))
+    Patchinfo.new(data: source_file('_patchinfo'))
   rescue Backend::NotFoundError
     nil
   end
