@@ -131,9 +131,7 @@ class BsRequest < ApplicationRecord
 
   def self.list(opts)
     # All types means don't pass 'type'
-    if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
-      opts.delete(:types)
-    end
+    opts.delete(:types) if [opts[:types]].flatten.include?('all')
     # Do not allow a full collection to avoid server load
     if [:project, :user, :package].all? { |filter| opts[filter].blank? }
       raise 'This call requires at least one filter, either by user, project or package'
