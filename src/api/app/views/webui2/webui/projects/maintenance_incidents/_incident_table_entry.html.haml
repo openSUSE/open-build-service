@@ -25,7 +25,8 @@
     - stopped_release = release_target.dig(:patchinfo, :stopped)
     - if stopped_release
       %div
-        %i.fas.fa-clock.text-info{ title: "Stopped: #{stopped_release}" }
+        %i.fas.fa-clock.text-info
+        Stopped: #{stopped_release}
   %td
     - release_targets_ng.keys.each do |release_target_project|
       %div
