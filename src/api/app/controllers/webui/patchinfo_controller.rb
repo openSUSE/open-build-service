@@ -3,10 +3,10 @@ require 'builder'
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::PackageHelper
   before_action :set_project
-  before_action :get_binaries, except: [:show, :delete, :new_tracker]
+  before_action :get_binaries, except: [:show, :destroy, :new_tracker]
   before_action :require_exists, except: [:create, :new_tracker]
   before_action :require_login, except: [:show]
-  before_action :extract_patchinfo_data, only: [:edit, :show]
+  before_action :set_patchinfo, only: [:show, :edit]
 
   def create
     authorize @project, :update?, policy_class: ProjectPolicy
@@ -18,131 +18,46 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
     @package = @project.packages.find_by_name('patchinfo')
-    @file = @package.patchinfo
-    unless @file
+    unless @package.patchinfo
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
     end
     redirect_to edit_patchinfo_path(project: @project, package: @package)
   end
 
-  def update_issues
-    authorize @project, :update?
-
-    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package], 'updated via update_issues call')
-    redirect_to edit_patchinfo_path(project: @project, package: @package)
-  end
-
   def edit
     # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
     @tracker = ::Configuration.default_tracker
-    @binaries.each { |bin| @binarylist.delete(bin) }
+    @patchinfo.binaries.each { |bin| @binarylist.delete(bin) }
   end
 
   def show
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
-    @packager = User.where(login: @packager).first
+    @packager = User.where(login: @patchinfo.packager).first
   end
 
   def update
-    patchinfo = Patchinfo.new(summary: params[:summary], description: params[:description], packager: params[:packager])
-    if patchinfo.valid?
-      issues = []
-      params[:issueid].to_a.each_with_index do |new_issue, index|
-        issues << [
-          new_issue,
-          params[:issuetracker][index],
-          params[:issuesum][index]
-        ]
-      end
-      node = Builder::XmlMarkup.new(indent: 2)
-      attrs = {
-        incident: @package.project.name.gsub(/.*:/, '')
-      }
-      attrs[:version] = params[:version] if params[:version].present?
-      xml = node.patchinfo(attrs) do
-        params[:selected_binaries].to_a.each do |binary|
-          node.binary(binary) if binary.present?
-        end
-        node.name(params[:name]) if params[:name].present?
-        node.packager(params[:packager])
-        issues.to_a.each do |issue|
-          unless IssueTracker.find_by_name(issue[1])
-            flash[:error] = "Unknown Issue tracker #{issue[1]}"
-            render action: :edit, project: @project, package: @package
-            return
-          end
-          # people tend to enter entire cve strings instead of just the name
-          issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
-          node.issue(issue[2], tracker: issue[1], id: issue[0])
-        end
-        node.category(params[:category].try(:strip))
-        node.rating(params[:rating].try(:strip))
-        node.summary(params[:summary].try(:strip))
-        node.description(params[:description].gsub("\r\n", "\n"))
-        @file.hashed.elements('package') do |pkg|
-          node.package(pkg['_content'])
-        end
-        @file.hashed.elements('releasetarget') do |release_target|
-          attributes = { project: release_target['project'] }
-          attributes[:repository] = release_target['repository'] if release_target['repository']
-          node.releasetarget(attributes)
-        end
-        node.message params[:message].gsub("\r\n", "\n") if params[:message].present?
-        node.reboot_needed if params[:reboot]
-        node.relogin_needed if params[:relogin]
-        node.zypp_restart_needed if params[:zypp_restart_needed]
-        node.stopped params[:block_reason] if params[:block] == 'true'
-      end
+    authorize @package, :update?
+    @patchinfo = Patchinfo.new(patchinfo_params)
+    if @patchinfo.valid?
+      xml = @patchinfo.to_xml(@project, @package)
       begin
-        authorize @package, :update?
-
-        begin
-          Package.verify_file!(@package, '_patchinfo', xml)
-        rescue APIError => e
-          flash[:error] = "patchinfo is invalid: #{e.message}"
-          render action: :edit, project: @project, package: @package
-          return
-        end
-
+        Package.verify_file!(@package, '_patchinfo', xml)
         Backend::Api::Sources::Package.write_patchinfo(@package.project.name, @package.name, User.current.login, xml)
-
         @package.sources_changed(wait_for_update: true) # wait for indexing for special files
-
-        flash[:success] = "Successfully edited #{@package}"
-      rescue Timeout::Error
-        flash[:error] = 'Timeout when saving file. Please try again.'
+      rescue APIError, Timeout::Error => e
+        flash[:error] = "patchinfo is invalid: #{e.message}"
+        flash[:error] = 'Timeout when saving file. Please try again.' if e.is_a?(Timeout::Error)
+        render action: :edit, project: @project, package: @package
+        return
       end
 
-      redirect_to controller: 'patchinfo', action: 'show',
-                  project: @project.name, package: @package
+      flash[:success] = "Successfully edited #{@package}"
+      redirect_to controller: 'patchinfo', action: 'show', project: @project.name, package: @package
     else
-      flash[:error] = patchinfo.errors.full_messages.to_sentence
-      @tracker = params[:tracker]
-      @version = params[:version]
-      @packager = params[:packager]
-      @binaries = params[:selected_binaries] || []
-      @binarylist = params[:available_binaries] || []
-      @issues = []
-      params[:issueid].to_a.each_with_index do |new_issue, index|
-        @issues << [
-          new_issue,
-          params[:issuetracker][index],
-          params[:issueurl][index],
-          params[:issuesum][index]
-        ]
-      end
-      @category = params[:category]
-      @rating = params[:rating]
-      @summary = params[:summary]
-      @description = params[:description]
-      @message = params[:message]
-      @relogin = params[:relogin]
-      @reboot = params[:reboot]
-      @zypp_restart_needed = params[:zypp_restart_needed]
-      @block = params[:block]
-      @block_reason = params[:block_reason]
+      flash[:error] = @patchinfo.errors.full_messages.to_sentence
+      @patchinfo.binaries.to_a.each { |bin| @binarylist.delete(bin) }
       render action: :edit, project: @project, package: @package
     end
   rescue Backend::Error
@@ -165,6 +80,13 @@ class Webui::PatchinfoController < Webui::WebuiController
     render_dialog
   end
 
+  def update_issues
+    authorize @project, :update?
+
+    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package], 'updated via update_issues call')
+    redirect_to edit_patchinfo_path(project: @project, package: @package)
+  end
+
   def new_tracker
     # collection with all informations of the new issues
     issue_collection = []
@@ -178,12 +100,12 @@ class Webui::PatchinfoController < Webui::WebuiController
           issue_tracker = IssueTracker.find_by_name(issue.tracker)
           if issue_tracker
             issue.url = issue_tracker.show_url_for(issue.issue_id)
-            issue_summary = get_issue_summary(issue.tracker, issue.issue_id)
-            unless issue_summary
+            summary = IssueTracker::IssueSummary.new(issue.tracker, issue.issue_id)
+            unless summary.belongs_bug_to_tracker?
               invalid_format += "#{issue.tracker} "
               next
             end
-            issue.summary = issue_summary
+            issue.summary = summary.issue_summary
             issue_collection << issue.to_a
           else
             error << "#{issue.tracker} is not a valid tracker.\n"
@@ -206,63 +128,6 @@ class Webui::PatchinfoController < Webui::WebuiController
   def print_invalid_format(invalid_format)
     "#{invalid_format.strip} has no valid format. (Correct formats are e.g. " \
              'boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)'
-  end
-
-  def extract_patchinfo_data
-    @binaries = []
-    patchinfo_xml = Xmlhash.parse(@file.document.to_xml)
-    patchinfo_xml.elements('binary').each do |binaries|
-      @binaries << binaries
-    end
-    @packager = patchinfo_xml.value('packager')
-    @version = patchinfo_xml['version']
-
-    if params[:issueid]
-      @issues = params[:issue].to_a << params[:issueid]
-    else
-      @issues = []
-      patchinfo_xml.elements('issue') do |a|
-        if a['_content'].blank?
-          # old uploaded patchinfos could have broken tracker-names like "bnc "
-          # instead of "bnc". Catch these.
-          begin
-            a['_content'] = get_issue_summary(a['tracker'], a['id'])
-          rescue Backend::NotFoundError
-            a['_content'] = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
-          end
-        end
-
-        issue_tracker = IssueTracker.find_by_name(a['tracker']).
-                        try(:show_url_for, a['id']).to_s
-
-        @issues << [
-          a['tracker'],
-          a['id'],
-          issue_tracker,
-          a['_content']
-        ]
-      end
-    end
-    @category = patchinfo_xml.value('category')
-    @rating = patchinfo_xml.value('rating')
-    @summary = patchinfo_xml.value('summary')
-    @name = patchinfo_xml.value('name')
-
-    @description = patchinfo_xml.value('description')
-    @message = patchinfo_xml.value('message')
-    @relogin = patchinfo_xml.value('relogin_needed').present?
-    @reboot = patchinfo_xml.value('reboot_needed').present?
-    @zypp_restart_needed = patchinfo_xml.value('zypp_restart_needed').present?
-    return if patchinfo_xml.value('stopped').nil?
-    @block = true
-    @block_reason = patchinfo_xml.value('stopped')
-  end
-
-  def get_issue_summary(tracker, issueid)
-    issue_summary = IssueTracker::IssueSummary.new(tracker, issueid)
-    return unless issue_summary.issue_tracker
-    return unless issue_summary.belongs_bug_to_tracker?
-    issue_summary.issue_summary
   end
 
   def get_binaries
@@ -290,11 +155,21 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
 
-    unless @package && @package.patchinfo
-      # FIXME: should work for remote packages
-      flash[:error] = "Patchinfo not found for #{params[:project]}"
-      redirect_to(controller: 'package', action: 'show', project: @project, package: @package) && return
-    end
-    @patchinfo = @file = @package.patchinfo
+    return if @package && @package.patchinfo
+
+    # FIXME: should work for remote packages
+    flash[:error] = "Patchinfo not found for #{params[:project]}"
+    redirect_to(controller: 'package', action: 'show', project: @project, package: @package)
+  end
+
+  def set_patchinfo
+    patchinfo_xml = Xmlhash.parse(@package.patchinfo.document.to_xml)
+    @patchinfo = Patchinfo.new.load_from_xml(patchinfo_xml)
+  end
+
+  def patchinfo_params
+    params.require(:patchinfo).permit(:summary, :description, :packager, :category, :rating, :name, :version, :message,
+                                      :relogin_needed, :reboot_needed, :zypp_restart_needed, :block, :block_reason,
+                                      binaries: [], issueid: [], issueurl: [], issuetracker: [], issuesum: [])
   end
 end

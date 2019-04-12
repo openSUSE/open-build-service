@@ -39,11 +39,15 @@ class Patchinfo
 
   attr_reader :document
   attr_writer :data
-  attr_accessor :summary, :description, :packager
+  attr_accessor :summary, :description, :packager, :category, :rating, :name,
+                :binaries, :version, :message, :relogin_needed,
+                :reboot_needed, :zypp_restart_needed, :block, :block_reason, :issues,
+                :issueid, :issuetracker, :issueurl, :issuesum
 
   validates :summary, length: { minimum: 10 }
   validates :description, length: { minimum: 50 }
   validates :packager, presence: true
+  validate :issue_tracker_existence
 
   def hashed
     Xmlhash.parse(document.to_xml)
@@ -244,11 +248,6 @@ class Patchinfo
     data.elements('releasetarget')
   end
 
-  def issues
-    # TODO
-    []
-  end
-
   def issues_by_tracker
     issues_by_tracker = {}
     issues.each do |issue|
@@ -256,5 +255,107 @@ class Patchinfo
       issues_by_tracker[issue.value('tracker')] << issue
     end
     issues_by_tracker
+  end
+
+  def load_from_xml(patchinfo_xml)
+    self.binaries = []
+    patchinfo_xml.elements('binary').each do |binaries|
+      self.binaries << binaries
+    end
+    self.packager = patchinfo_xml.value('packager')
+    self.version = patchinfo_xml['version']
+
+    self.issues = []
+    patchinfo_xml.elements('issue') do |issue_element|
+      if issue_element['_content'].blank?
+        # old uploaded patchinfos could have broken tracker-names like "bnc "
+        # instead of "bnc". Catch these.
+        begin
+          summary = IssueTracker::IssueSummary.new(issue_element['tracker'], issue_element['id'])
+          issue_element['_content'] = summary.issue_summary if summary.belongs_bug_to_tracker?
+        rescue Backend::NotFoundError
+          issue_element['_content'] = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
+        end
+      end
+
+      issue_tracker = IssueTracker.find_by_name(issue_element['tracker']).
+                      try(:show_url_for, issue_element['id']).to_s
+
+      issues << [
+        issue_element['tracker'],
+        issue_element['id'],
+        issue_tracker,
+        issue_element['_content']
+      ]
+    end
+    self.category = patchinfo_xml.value('category')
+    self.rating = patchinfo_xml.value('rating')
+    self.summary = patchinfo_xml.value('summary')
+    self.name = patchinfo_xml.value('name')
+
+    self.description = patchinfo_xml.value('description')
+    self.message = patchinfo_xml.value('message')
+    self.relogin_needed = !patchinfo_xml.value('relogin_needed').nil?
+    self.reboot_needed = !patchinfo_xml.value('reboot_needed').nil?
+    self.zypp_restart_needed = !patchinfo_xml.value('zypp_restart_needed').nil?
+    if patchinfo_xml.value('stopped')
+      self.block = true
+      self.block_reason = patchinfo_xml.value('stopped')
+    end
+
+    self
+  end
+
+  def to_xml(project, package)
+    self.issues = []
+    issueid.to_a.each_with_index do |new_issue, index|
+      issues << [
+        new_issue,
+        issuetracker[index],
+        issuesum[index]
+      ]
+    end
+    node = Builder::XmlMarkup.new(indent: 2)
+    attrs = {
+      incident: project.name.gsub(/.*:/, '')
+    }
+    attrs[:version] = version if version.present?
+    node.patchinfo(attrs) do
+      binaries.to_a.each { |binary| node.binary(binary) }
+      node.name(name) if name.present?
+      node.packager(packager)
+      issues.to_a.each do |issue|
+        # people tend to enter entire cve strings instead of just the name
+        issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
+        node.issue(issue[2], tracker: issue[1], id: issue[0])
+      end
+      node.category(category.try(:strip))
+      node.rating(rating.try(:strip))
+      node.summary(summary.try(:strip))
+      node.description(description.gsub("\r\n", "\n"))
+      file = package.patchinfo
+      file.hashed.elements('package') do |pkg|
+        node.package(pkg['_content'])
+      end
+      file.hashed.elements('releasetarget') do |release_target|
+        attributes = { project: release_target['project'] }
+        attributes[:repository] = release_target['repository'] if release_target['repository']
+        node.releasetarget(attributes)
+      end
+      node.message message.gsub("\r\n", "\n") if message.present?
+      node.reboot_needed if reboot_needed == '1'
+      node.relogin_needed if relogin_needed == '1'
+      node.zypp_restart_needed if zypp_restart_needed == '1'
+      node.stopped block_reason if block == '1'
+    end
+  end
+
+  private
+
+  def issue_tracker_existence
+    return if issuetracker.blank?
+    unknown_issue_trackers = issuetracker.uniq - IssueTracker.where(name: issuetracker).pluck(:name)
+    return if unknown_issue_trackers.empty?
+    errors.add(:base, "Unknown Issue trackers: #{unknown_issue_trackers.to_sentence}")
   end
 end
