@@ -92,6 +92,15 @@ sub new {
   return bless $ctx, $class;
 }
 
+sub generate_random_id {
+  my ($oldstate) = @_;
+
+  my $random = time();
+  $random .= $oldstate->{'oldbuildid'} if defined $oldstate->{'oldbuildid'};
+  $random .= $oldstate->{'buildid'} if defined $oldstate->{'buildid'};
+  return Digest::MD5::md5_hex($random);
+}
+
 =head2 set_repo_state - update the :schedulerstate file of a prp
 
 =cut
@@ -100,6 +109,7 @@ sub set_repo_state {
   my ($ctx, $state, $details) = @_;
 
   my $gdst = $ctx->{'gdst'};
+  my $myarch = $ctx->{'gctx'}->{'arch'};
   my $oldstate = readstr("$gdst/:schedulerstate", 1);
   if ($oldstate) {
     if (substr($oldstate, 0, 4) eq 'pst0') {
@@ -115,38 +125,42 @@ sub set_repo_state {
   my $newstate = { %$oldstate, 'code' => $state, 'details' => $details };
   delete $newstate->{'details'} unless $details;
 
-  if ($state eq 'building' && !defined($oldstate->{'oldbuildid'})) {
-    # this repo is no longer finished, send event
-    my $myarch = $ctx->{'gctx'}->{'arch'};
-    my $id = ($oldstate->{'buildid'} || '0') . '-inprogress';
-    BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
-  }
-  if ($state eq 'finished') {
-    # we're done (for now)
-    my $id = '';
+  if ($state eq 'building') {
+    # build in progress. send start event if not allready done
+    delete $newstate->{'buildid'};
+    delete $newstate->{'repostateid'};
+    if (!$newstate->{'oldbuildid'}) {
+      my $id = generate_random_id($oldstate) . '-inprogress';
+      $newstate->{'oldbuildid'} = $id;
+      BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+    }
+  } elsif ($state eq 'finished') {
+    # we're done (for now). generate repostateid
+    my $repostateid = '';
     my @s = stat("$gdst/:full.solv");
-    $id .= " full:$s[9]/$s[7]/$s[1]" if @s;
+    $repostateid .= " full:$s[9]/$s[7]/$s[1]" if @s;
     @s = stat("$gdst/:bininfo");
-    $id .= " bininfo:$s[9]/$s[7]/$s[1]" if @s;
-    $id = Digest::MD5::md5_hex($id);
-    # we send the event if the buildid changed or we were in progress
-    if (defined($oldstate->{'oldbuildid'}) || ($oldstate->{'buildid'} || '') ne $id) {
-      my $myarch = $ctx->{'gctx'}->{'arch'};
-      if (!defined($oldstate->{'oldbuildid'})) {
-	# buildid changed without a state change
+    $repostateid .= " bininfo:$s[9]/$s[7]/$s[1]" if @s;
+    $repostateid = Digest::MD5::md5_hex($repostateid);
+
+    if (!$newstate->{'oldbuildid'}) {
+      # repo was finished before. check for repostateid changes
+      if (!$newstate->{'buildid'} || ($newstate->{'repostateid'} || '') ne $repostateid) {
+	# but the repo changed, send synthetic event
 	print "sending synthetic REPO_BUILD_STARTED event\n";
-	BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => "$id-inprogress"} );
+	my $id = generate_random_id($oldstate) . '-inprogress';
+	BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+	delete $newstate->{'buildid'};
+	$newstate->{'oldbuildid'} = $id;
       }
+    }
+    if ($newstate->{'oldbuildid'}) {
+      my $id = delete $newstate->{'oldbuildid'};
+      $id =~ s/-inprogress$//;
+      $newstate->{'buildid'} = $id;
       BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
     }
-    $newstate->{'buildid'} = $id;
-    delete $newstate->{'oldbuildid'};
-  } elsif ($state eq 'building') {
-    # in progress: move buildid to oldbuildid as it is not stable yet
-    my $id = delete $newstate->{'buildid'};
-    $newstate->{'oldbuildid'} = $id if $id;
-    # make sure that we have an oldbuildid
-    $newstate->{'oldbuildid'} = '0' unless defined $newstate->{'oldbuildid'};
+    $newstate->{'repostateid'} = $repostateid;
   }
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   mkdir_p($gdst) unless -d $gdst;
@@ -157,7 +171,7 @@ sub set_repo_state {
 
 =cut
 
-sub wipe {
+sub wipeobsoleterepo {
   my ($ctx) = @_;
   my $gctx = $ctx->{'gctx'};
   my $gdst = $ctx->{'gdst'};

@@ -99,6 +99,7 @@ my $_rundir = $BSConfig::rundir || "$bsdir/run";
 my $_infodir = "$bsdir/info";
 my $_blobdir = "$bsdir/blobs";
 my $_remotecache = "$BSConfig::bsdir/remotecache";
+my $_logdir = "$bsdir/log";
 
 # parse arguments
 if (@ARGV && $ARGV[0] eq '--testmode') {
@@ -329,6 +330,13 @@ sub sendrepochangeevent {
   }
 }
 
+sub critlogger {
+  my ($gctx, $msg) = @_;
+  return unless $gctx && $gctx->{'critlogfile'};
+  my $logstr = sprintf "%s: %-7s %s\n", BSUtil::isotime(time), "[$$]", $msg;
+  BSUtil::appendstr($gctx->{'critlogfile'}, $logstr);
+}
+
 ##########################################################################
 ##########################################################################
 ##
@@ -408,6 +416,7 @@ my $gctx = {
   'remotecache' => $_remotecache,
   'remoteproxy' => $BSConfig::proxy,
   'asyncmode' => $asyncmode,
+  'critlogfile' => "$_logdir/scheduler_${_myarch}.crit.log",
 
   # repository state cache
   #  'lastscan'   last time we scanned
@@ -522,6 +531,9 @@ $gctx->{'rctx'} = $rctx;
 
 $gctx->{'testmode'} = 1 if $testmode;
 $BSSched::ProjPacks::testprojid = $testprojid if $testprojid;
+
+# setup critical event logging
+BSUtil::setcritlogger(sub { critlogger($gctx, $_[0]) });
 
 # read old state if present
 if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
@@ -944,7 +956,7 @@ eval {
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
-        $ctx->wipe();
+        $ctx->wipeobsoleterepo();
       }
       rmdir("$reporoot/$projid");		# in case this was the last repo
       next;
