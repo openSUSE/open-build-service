@@ -1372,12 +1372,6 @@ class Project < ApplicationRecord
   end
 
   def release_targets_ng
-    global_patchinfo_package = patchinfos.first
-    if global_patchinfo_package
-      xml = Patchinfo.new(data: global_patchinfo_package.source_file('_patchinfo'))
-      patchinfo = collect_patchinfo_data(xml)
-    end
-
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
@@ -1387,7 +1381,6 @@ class Project < ApplicationRecord
         release_targets_ng[rt.target_repository.project.name] = {
           reponame: repo.name,
           packages: [],
-          patchinfo: patchinfo,
           package_issues: {},
           package_issues_by_tracker: {}
         }
@@ -1646,18 +1639,6 @@ class Project < ApplicationRecord
     end
 
     nil
-  end
-
-  def collect_patchinfo_data(patchinfo)
-    if patchinfo
-      {
-        summary: patchinfo.document.at_css('summary').try(:content),
-        category: patchinfo.document.at_css('category').try(:content),
-        stopped: patchinfo.document.at_css('stopped').try(:content)
-      }
-    else
-      {}
-    end
   end
 
   def has_remote_distribution(project_name, repository)

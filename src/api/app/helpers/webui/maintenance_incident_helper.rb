@@ -1,7 +1,7 @@
 module Webui::MaintenanceIncidentHelper
   def incident_label(incident_project, patchinfo)
     incident_number = incident_project.name.rpartition(':').last
-    title = patchinfo.try(:[], :summary) || incident_project.title || incident_project.name
+    title = patchinfo.dig(:summary) || incident_project.title || incident_project.name
 
     "#{incident_number}: #{title}"
   end
@@ -34,6 +34,11 @@ module Webui::MaintenanceIncidentHelper
         concat 'Locked'
       end
     end
+  end
+
+  def patchinfo_data(patchinfo)
+    return {} unless patchinfo
+    Xmlhash.parse(patchinfo.source_file('_patchinfo')).slice('summary', 'category', 'stopped').with_indifferent_access
   end
 
   private

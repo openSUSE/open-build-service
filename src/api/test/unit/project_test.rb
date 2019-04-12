@@ -362,8 +362,6 @@ class ProjectTest < ActiveSupport::TestCase
     package = subproject.packages.create(name: 'test2')
     package.flags.create(flag: :build, status: 'enable', repo: 'repo_1')
 
-    Patchinfo.new.create_patchinfo('ABC:D', '_patchinfo', comment: 'patchinfo summary')
-
     result = subproject.reload.release_targets_ng
     assert_equal ['ABC:D'], result.keys
     assert_equal 'repo_1',  result['ABC:D'][:reponame]
@@ -371,11 +369,6 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal 1, result['ABC:D'][:packages].count
     assert_equal package.id, result['ABC:D'][:packages].first.id
     assert_equal 'test2', result['ABC:D'][:packages].first.name
-
-    assert_equal 'patchinfo summary', result['ABC:D'][:patchinfo][:summary]
-    assert_equal 'recommended',       result['ABC:D'][:patchinfo][:category]
-
-    assert_nil result['ABC:D'][:patchinfo][:stopped]
   ensure
     # Prevent AAAPreConsistency check to fail
     project.destroy
