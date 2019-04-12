@@ -17,6 +17,26 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
       it { expect(assigns(:project).name).to eq(maintenance_project.name) }
       it { is_expected.to render_template('webui/projects/maintained_projects/index') }
     end
+
+    context 'datatable json' do
+      let(:datatable_params) do
+        { draw: '1',
+          columns: { '0' => { 'data' => 'name', 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => { 'value' => '', 'regex' => 'false' } },
+                     '1' => { 'data' => 'actions', 'name' => '', 'searchable' => 'true', 'orderable' => 'true', 'search' => { 'value' => '', 'regex' => 'false' } } },
+          order: { '0' => { 'column' => '0', 'dir' => 'asc' } }, start: '0' }
+      end
+
+      let(:json_response) { JSON.parse(response.body) }
+
+      before do
+        login user
+        get :index, params: datatable_params.merge(project_name: maintenance_project.name), format: :json
+      end
+
+      it { expect(assigns(:project).name).to eq(maintenance_project.name) }
+      it { expect(json_response).to be_key('recordsTotal') }
+      it { expect(json_response['recordsTotal']).to eq(1) }
+    end
   end
 
   describe 'POST #create' do

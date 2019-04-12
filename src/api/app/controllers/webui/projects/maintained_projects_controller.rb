@@ -6,7 +6,13 @@ module Webui
       after_action :verify_authorized, except: [:index]
 
       def index
-        @maintained_projects = @project.maintained_project_names
+        respond_to do |format|
+          format.html
+          format.json do
+            render json: MaintainedProjectDatatable.new(params, view_context: view_context,
+                                                                project: @project, current_user: User.current)
+          end
+        end
         switch_to_webui2
       end
 

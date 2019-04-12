@@ -7,22 +7,12 @@
   .card-body
     %h3 Maintained Projects
     .table-responsive
-      %table.table.table-sm.table-striped.table-bordered#maintained-projects-datatable
+      %table.table.table-sm.table-striped.table-bordered#maintained-projects-datatable.w-100{ data: { source:  "#{url_for(controller: 'webui/projects/maintained_projects', action: :index, project_name: @project, format: :json)}"} }
         %thead
           %tr
             %th Name
             %th Actions
         %tbody
-          - @maintained_projects.each do |project_name|
-            %tr
-              %td
-                = link_to(project_name, project_show_path(project_name))
-              %td
-                - if update_policy
-                  = link_to('#', title: 'Delete Project',
-                                 data: { toggle: 'modal', target: '#delete-maintained-project-modal',
-                                         action: project_maintained_project_path(project_name: @project, maintained_project: project_name) }) do
-                    %i.fas.fa-times-circle.text-danger
 
     - if update_policy
       = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }) do
@@ -36,5 +26,12 @@
 = content_for :ready_function do
   :plain
     $('#maintained-projects-datatable').DataTable({
-      responsive: true
+      responsive: true,
+      processing: true,
+      serverSide: true,
+      ajax: $('#maintained-projects-datatable').data('source'),
+      columns: [
+        { data: 'name' },
+        { data: 'actions' }
+      ]
     });
