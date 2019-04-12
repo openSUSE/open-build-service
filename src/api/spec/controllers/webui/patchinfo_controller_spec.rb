@@ -15,9 +15,18 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
 
   def do_proper_post_save
     put :update, params: {
-      project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
-      description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil],
-      issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'], category: 'recommended', rating: 'low', packager: user.login
+      project: user.home_project_name, package: patchinfo_package.name,
+      patchinfo: {
+        summary: 'long enough summary is ok',
+        description: 'long enough description is also ok' * 5,
+        issueid: [769_484],
+        issuetracker: ['bgo'],
+        issuesum: [nil],
+        issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484'],
+        category: 'recommended',
+        rating: 'low',
+        packager: user.login
+      }
     }
   end
 
@@ -97,7 +106,6 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to redirect_to(edit_patchinfo_path(project: project, package: 'patchinfo')) }
-      it { expect(assigns(:file)).not_to be_nil }
     end
   end
 
@@ -131,7 +139,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     end
 
     it { expect(response).to have_http_status(:success) }
-    it { expect(assigns(:binaries)).to be_a(Array) }
+    it { expect(assigns(:patchinfo).binaries).to be_a(Array) }
     it { expect(assigns(:tracker)).to eq(::Configuration.default_tracker) }
   end
 
@@ -153,7 +161,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:binaries)).to be_a(Array) }
+      it { expect(assigns(:patchinfo).binaries).to be_a(Array) }
       it { expect(assigns(:pkg_names)).to be_empty }
       it { expect(assigns(:packager)).to eq(user) }
     end
@@ -167,14 +175,17 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     context 'with an unknown issue tracker' do
       before do
         put :update, params: {
-          project: user.home_project_name, package: patchinfo_package.name, summary: 'long enough summary is ok',
-          description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
-          packager: user.login,
-          issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          project: user.home_project_name, package: patchinfo_package.name,
+          patchinfo: {
+            summary: 'long enough summary is ok',
+            description: 'long enough description is also ok' * 5, issueid: [769_484], issuetracker: ['NonExistingTracker'], issuesum: [nil],
+            packager: user.login,
+            issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          }
         }
       end
 
-      it { expect(flash[:error]).to eq('Unknown Issue tracker NonExistingTracker') }
+      it { expect(flash[:error]).to eq('Unknown Issue trackers: NonExistingTracker') }
       it { expect(response).to have_http_status(:success) }
     end
 
@@ -182,8 +193,14 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       before do
         put :update, params: {
           project: user.home_project_name, package: patchinfo_package.name,
-          summary: 'long enough summary is ok', description: 'long enough description is also ok' * 5,
-          issueid: [769_484], issuetracker: ['bgo'], issuesum: [nil], issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          patchinfo: {
+            summary: 'long enough summary is ok',
+            description: 'long enough description is also ok' * 5,
+            issueid: [769_484],
+            issuetracker: ['bgo'],
+            issuesum: [nil],
+            issueurl: ['https://bugzilla.gnome.org/show_bug.cgi?id=769484']
+          }
         }
       end
 
@@ -224,7 +241,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq('Timeout when saving file. Please try again.') }
-      it { expect(response).to redirect_to(action: 'show', project: user.home_project_name, package: patchinfo_package.name) }
+      it { expect(response).to render_template(:edit) }
     end
   end
 
