@@ -52,6 +52,13 @@ module Backend
           Xmlhash.parse(response)
         end
 
+        # Lists summary of failed package builds of a project
+        # @return [String]
+        def self.failed_results_summary(project_name, repository_name)
+          http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable],
+                                                                        repository: repository_name, view: 'summary' }, expand: [:code])
+        end
+
         # Returns the log's size for a build
         # @return [String]
         def self.build_log_size(project_name, package_name, repository_name, architecture_name)
