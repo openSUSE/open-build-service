@@ -11,8 +11,8 @@ module MetaControllerService
     def call
       Suse::Validator.validate('project', @meta)
       @request_data = Xmlhash.parse(@meta)
-    rescue Suse::ValidationError => exception
-      @errors = exception.message
+    rescue Suse::ValidationError => e
+      @errors = e.message
     end
 
     def errors?

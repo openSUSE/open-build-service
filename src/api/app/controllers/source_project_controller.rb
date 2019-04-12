@@ -71,8 +71,8 @@ class SourceProjectController < SourceController
     project.commit_opts = { comment: params[:comment] }
     begin
       project.destroy
-    rescue ActiveRecord::RecordNotDestroyed => invalid
-      exception_message = "Destroying Project #{project.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
+    rescue ActiveRecord::RecordNotDestroyed => e
+      exception_message = "Destroying Project #{project.name} failed: #{e.record.errors.full_messages.to_sentence}"
       logger.debug exception_message
       raise ActiveRecord::RecordNotDestroyed, exception_message
     end

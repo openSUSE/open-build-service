@@ -105,8 +105,8 @@ class SourceController < ApplicationController
 
     begin
       tpkg.destroy
-    rescue ActiveRecord::RecordNotDestroyed => invalid
-      exception_message = "Destroying Package #{tpkg.project.name}/#{tpkg.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
+    rescue ActiveRecord::RecordNotDestroyed => e
+      exception_message = "Destroying Package #{tpkg.project.name}/#{tpkg.name} failed: #{e.record.errors.full_messages.to_sentence}"
       logger.debug exception_message
       raise ActiveRecord::RecordNotDestroyed, exception_message
     end

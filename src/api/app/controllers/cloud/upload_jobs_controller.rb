@@ -27,10 +27,10 @@ module Cloud
     def destroy
       ::Backend::Api::Cloud.destroy(@upload_job.job_id)
       render_ok
-    rescue ::Backend::Error => exception
+    rescue ::Backend::Error => e
       render_error status: 500,
                    errorcode: 'cloud_upload_job_error',
-                   message: exception.message
+                   message: e
     end
 
     private

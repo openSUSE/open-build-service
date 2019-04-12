@@ -38,8 +38,8 @@ module Webui
           authorize @upload_job, :destroy?
           Backend::Api::Cloud.destroy(@upload_job.job_id)
           flash[:success] = "Successfully aborted upload job with id #{params[:id]}."
-        rescue Backend::Error => exception
-          flash[:error] = exception.message
+        rescue Backend::Error => e
+          flash[:error] = e.message
         end
 
         redirect_to cloud_upload_index_path

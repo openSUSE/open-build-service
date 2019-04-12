@@ -27,8 +27,8 @@ module Cloud
         xml = ::Backend::Api::Cloud.upload(params)
 
         new(xml: xml)
-      rescue ::Backend::Error, Timeout::Error => exception
-        new(exception: exception.message)
+      rescue ::Backend::Error, Timeout::Error => e
+        new(exception: e.message)
       end
 
       def self.find(job_id, options = {})
