@@ -1323,7 +1323,7 @@ class Project < ApplicationRecord
     Backend::Api::Build::Project.wipe_binaries(name)
   end
 
-  def build_succeeded?(repository = nil)
+  def build_succeeded?(repository)
     states = {}
     repository_states = {}
 
@@ -1332,7 +1332,7 @@ class Project < ApplicationRecord
     return false if br.empty?
 
     br.elements('result') do |result|
-      if repository && result['repository'] == repository
+      if result['repository'] == repository
         repository_states[repository] ||= {}
         result.elements('summary') do |summary|
           summary.elements('statuscount') do |statuscount|
@@ -1349,7 +1349,7 @@ class Project < ApplicationRecord
         end
       end
     end
-    if repository && repository_states.key?(repository)
+    if repository_states.key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
         return false if state.in?(['broken', 'failed', 'unresolvable'])
