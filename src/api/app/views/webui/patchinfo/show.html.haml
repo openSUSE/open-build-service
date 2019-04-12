@@ -6,7 +6,7 @@
     .box.show_left.show_right
       .box{ style: "background-color:#DDDDDD; margin-top: 0" }
         %h2{ style: "display: inline" }
-          = @category
+          = @patchinfo.category
           update for #{truncate(@pkg_names.join(', '), length: 20)}
         - if User.current.can_modify?(@package)
           %ul.horizontal-list
@@ -16,39 +16,39 @@
             %li
               = link_to(sprite_tag('package_delete'), { action: :delete_dialog, package: @package, project: @project }, remote: true)
               = link_to('Delete patchinfo', { action: :delete_dialog, package: @package, project: @project }, remote: true, id: 'delete-patchinfo')
-      - if @block
+      - if @patchinfo.block
         .box.ui-state-error.ui-widget-shadow{ style: "min-height:15px;" }
           %b This update is currently blocked:
           %br/
-          - if @block_reason.present?
-            = @block_reason
+          - if @patchinfo.block_reason.present?
+            = @patchinfo.block_reason
           - else
             No reason entered.
-      %strong#summary= @summary
+      %strong#summary= @patchinfo.summary
       %br/
       %label#info
       - if @packager
         This update was submitted from #{user_with_realname_and_icon(@packager)} and rated as
       - else
         This update is rated as
-      %span{ style: "color: #{patchinfo_rating_color(@rating)}" }= @rating
+      %span{ style: "color: #{patchinfo_rating_color(@patchinfo.rating)}" }= @patchinfo.rating
     .box.show_left.show_right
       %b Description:
       %br/
-      = description_wrapper(@description)
-    - if @message.present?
+      = description_wrapper(@patchinfo.description)
+    - if @patchinfo.message.present?
       .box.show_left.show_right
         %strong Message:
-        %pre.plain= @message
-    - if @version
+        %pre.plain= @patchinfo.message
+    - if @patchinfo.version
       .box.show_left.show_right
         %b Version:
-        %span= @version
+        %span= @patchinfo.version
     .box.show_left.show_right
       %b Fixed bugs:
-      - if @issues.present?
+      - if @patchinfo.issues.present?
         %ul
-          - @issues.each do |issue|
+          - @patchinfo.issues.each do |issue|
             - if issue[0] == "CVE"
               %li
                 = link_to((issue[1]).to_s, issue[2]) + ": #{issue[3]}"
@@ -61,26 +61,26 @@
       %ul
         %li
           Relogin suggested:
-          - if @relogin
+          - if @patchinfo.relogin_needed
             = image_tag "ok.png", id: "relogin_true"
           - else
             = image_tag "req-decline.png", id: "relogin_false"
         %li
           Reboot suggested:
-          - if @reboot
+          - if @patchinfo.reboot_needed
             = image_tag "ok.png", id: "reboot_true"
           - else
             = image_tag "req-decline.png", id: "reboot_false"
         %li
           Package-manager restart:
-          - if @zypp_restart_needed
+          - if @patchinfo.zypp_restart_needed
             = image_tag "ok.png", id: "zypp_true"
           - else
             = image_tag "req-decline.png", id: "zypp_false"
-    - unless @binaries.empty?
+    - unless @patchinfo.binaries.empty?
       .box.show_left.show_right
         %b Selected binaries:
         %br/
         %ul
-          - @binaries.each do |bin|
+          - @patchinfo.binaries.each do |bin|
             %li= bin
