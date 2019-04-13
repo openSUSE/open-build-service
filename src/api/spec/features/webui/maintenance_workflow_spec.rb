@@ -80,18 +80,18 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
     visit(edit_patchinfo_path(package: 'patchinfo', project: 'MaintenanceProject:0'))
 
     # needed for patchinfo validation
-    fill_in('summary', with: 'ProjectWithRepo_package is much better than the old one')
-    fill_in('description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
-    check('block')
-    fill_in('block_reason', with: 'locked!')
+    fill_in('patchinfo[summary]', with: 'ProjectWithRepo_package is much better than the old one')
+    fill_in('patchinfo[description]', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
+    check('patchinfo[block]')
+    fill_in('patchinfo[block_reason]', with: 'locked!')
 
     click_button('Save Patchinfo')
     expect(page).to have_css('#flash-messages', text: 'Successfully edited patchinfo')
     expect(find(:css, '.ui-state-error b')).to have_text('This update is currently blocked:')
 
     click_link('Edit patchinfo')
-    uncheck('block')
-    expect(page).to have_css('input[id=block_reason][disabled]')
+    uncheck('patchinfo[block]')
+    expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
     click_button 'Save Patchinfo'
 
     logout

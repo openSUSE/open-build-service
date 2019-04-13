@@ -27,10 +27,10 @@ $(document).on('click', 'a[data-add-issue]', function() {
             $("#issuelist").append("<div id='issue_" + this[0] + "_" + this[1] + "'>" +
               "<a id='remove_" + this[0] + "_" + this[1] + "' onclick='$(\"#issue_" + this[0] + "_" + this[1] + "\").remove(); return false;' href='#'> " +
               "<img src='<%= asset_path('bug_delete.png') %>' title='Remove Bug' alt='Remove Bug'></a> " +
-              "<input type='hidden' name='issueid[]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] + "'/>" +
-              "<input type='hidden' name='issuetracker[]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] + "'/>" +
-              "<input type='hidden' name='issueurl[]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] + "'/>" +
-              "<input type='hidden' name='issuesum[]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] + "'/>" +
+              "<input type='hidden' name='patchinfo[issueid][]' id='issueid_" + this[0] + "_" + this[1] + "' value='" + this[1] + "'/>" +
+              "<input type='hidden' name='patchinfo[issuetracker][]' id='issuetracker_" + this[0] + "_" + this[1] + "' value='" + this[0] + "'/>" +
+              "<input type='hidden' name='patchinfo[issueurl][]' id='issueurl_" + this[0] + "_" + this[1] + "' value='" + this[2] + "'/>" +
+              "<input type='hidden' name='patchinfo[issuesum][]' id='issuesum_" + this[0] + "_" + this[1] + "' value='" + this[3] + "'/>" +
               "<a href=\"" + this[2] + "\" target='_blank'>" + this[0] + "#" + this[1] + "</a>" + ":<br/>" +
               "<div id='issue_desc_" + this[0] + "_" + this[1] + "' onclick='change_issue_desc(\"" + this[0] +
               "_" + this[1] + "\");'>" + this[3] + "</div>" +
@@ -90,10 +90,10 @@ function stopRKey(evt) {
 }
 
 function toggle_blockreason(){
-  if (!$("#block").is(":checked")) {
-    $("#block_reason").prop('disabled', true);
+  if (!$("#patchinfo_block").is(":checked")) {
+    $("#patchinfo_block_reason").prop('disabled', true);
   } else {
-    $("#block_reason").prop('disabled', false);
+    $("#patchinfo_block_reason").prop('disabled', false);
   }
 }
 
@@ -101,25 +101,25 @@ function patchinfoReady() {
   document.onkeypress = stopRKey;
   toggle_blockreason();
   $("form").submit(function () {
-    $('#selected_binaries option').prop('selected', true);
+    $('#patchinfo_binaries option').prop('selected', true);
     $('#available_binaries option').prop('selected', true);
   });
 
   $('#add').click(function () {
-    $("#selected_binaries option[value='']").remove();
-    moveSelectedItems('#available_binaries', '#selected_binaries');
+    $("#patchinfo_binaries option[value='']").remove();
+    moveSelectedItems('#available_binaries', '#patchinfo_binaries');
   });
   $('#add-all').click(function () {
-    $("#selected_binaries option[value='']").remove();
+    $("#patchinfo_binaries option[value='']").remove();
     $('#available_binaries option').prop('selected', 'true');
-    moveSelectedItems('#available_binaries', '#selected_binaries');
+    moveSelectedItems('#available_binaries', '#patchinfo_binaries');
   });
   $('#remove').click(function () {
-    moveSelectedItems('#selected_binaries', '#available_binaries');
+    moveSelectedItems('#patchinfo_binaries', '#available_binaries');
   });
   $('#remove-all').click(function () {
-    $('#selected_binaries option').prop('selected', 'true');
-    moveSelectedItems('#selected_binaries', '#available_binaries');
+    $('#patchinfo_binaries option').prop('selected', 'true');
+    moveSelectedItems('#patchinfo_binaries', '#available_binaries');
   });
 
   $("#summary").keypress(function (event) {
@@ -127,7 +127,7 @@ function patchinfoReady() {
       event.preventDefault();
     }
   });
-  $('#block').change(function(){
+  $('#patchinfo_block').change(function(){
     toggle_blockreason();
   });
 }
