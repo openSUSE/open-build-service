@@ -24,7 +24,7 @@ class MaintenanceIncidentDatatable < Datatable
       {
         summary: summary_cell(record, patchinfo),
         category: category_cell(record, patchinfo),
-        packages: packages_cell(record, release_targets_ng),
+        packages: packages_cell(record),
         info: info_cell(record, patchinfo),
         release_targets: release_targets_cell(record, release_targets_ng)
       }

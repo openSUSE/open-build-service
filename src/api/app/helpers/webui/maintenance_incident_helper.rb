@@ -58,13 +58,13 @@ module Webui::MaintenanceIncidentHelper
     end
   end
 
-  def packages_cell(incident, release_targets_ng)
-    release_target = release_targets_ng.values.first
-    return if release_target[:packages].blank?
-    first_pkg = release_target[:packages].first
+  def packages_cell(incident)
+    packages = incident.packages_with_release_target.limit(2).pluck(:name)
+    return if packages.empty?
+    first_package = packages.first
     safe_join([
-                link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)),
-                (', ...' if release_target[:packages].length > 1)
+                link_to(first_package.split('.', 2)[0], package_show_path(project: incident.name, package: first_package)),
+                (', ...' if packages.length > 1)
               ])
   end
 

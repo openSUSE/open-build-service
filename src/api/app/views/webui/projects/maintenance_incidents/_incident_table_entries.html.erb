@@ -22,13 +22,7 @@
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
-                  <% unless rt[:packages].blank? %>
-                    <% first_pkg = rt[:packages].first %>
-                    <%= link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)) %>
-                    <% if rt[:packages].length > 1 %>
-                        , ...
-                    <% end %>
-                <% end %>
+                <%= packages_cell(incident) %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
                 <% rqs_in = BsRequest.list_numbers(roles: %w(target), states: %w(new review), project: incident.name) %>
