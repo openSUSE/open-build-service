@@ -1,0 +1,17 @@
+.modal.fade#delete-patchinfo-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-patchinfo-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(patchinfo_path(project: project, package: package), method: :delete) do
+        .modal-header
+          %h5.modal-title#delete-patchinfo-modal-label
+            Delete Confirmation
+        .modal-body
+          Do you really want to delete
+          = link_to project.name, project_show_path(project)
+          \/
+          =  link_to package.name, package_show_path(project, package)
+          ?
+        .modal-footer
+          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            Cancel
+          = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

@@ -1,0 +1,4 @@
+= render partial: 'webui/package/breadcrumb_items'
+- if current_page?(patchinfo_show_path(@project, @package))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Details

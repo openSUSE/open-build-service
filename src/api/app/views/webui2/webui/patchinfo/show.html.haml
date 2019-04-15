@@ -1,0 +1,53 @@
+- @pagetitle = @package
+
+.card.mb-3
+  = render partial: 'webui2/webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    .patchinfo.row
+      .col-md-8
+        = patchinfo_header(@patchinfo, @pkg_names)
+        = render partial: 'webui/webui/collapsible_text', locals: { text: @patchinfo.description,
+                                                                    threshold: { text_length: 1000, line_count: 10 } }
+      .col-md-4
+        = render partial: 'side_elements', locals: { patchinfo: @patchinfo, packager: @packager }
+
+      .col-md-12
+        - if User.current.can_modify?(@package)
+          %ul.list-inline.mb-0
+            %li.list-inline-item
+              = link_to(edit_patchinfo_path(project: @project, package: @package)) do
+                %i.fas.fa-edit.text-secondary
+                Edit patchinfo
+            %li.list-inline-item
+              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-patchinfo-modal' }) do
+                %i.fas.fa-times-circle.text-danger
+                Delete patchinfo
+          = render partial: 'delete_patchinfo_modal', locals: { project: @project, package: @package }
+
+.patchinfo.row
+  - if @patchinfo.message.present?
+    .col-md-12
+      .card.mb-3
+        %h5.card-header Message
+        .card-body
+          = simple_format @patchinfo.message
+
+  .col-md-6
+    .card.mb-3
+      %h5.card-header Fixed bugs
+      .card-body
+        - @patchinfo.issues.each do |issue|
+          .media
+            %i.pt-1.mr-1.fas.fa-bug.text-danger
+            .media-body.mb-3
+              = patchinfo_issue_link(issue[0], issue[1], issue[2])
+              - if issue[3].present?
+                %small.d-block.text-muted= issue[3]
+  .col-md-6
+    .card.mb-3
+      %h5.card-header Selected Binaries
+      .card-body.binaries
+        - @patchinfo.binaries.each do |binary|
+          %span.badge.badge-warning
+            %i.mr-1.fa.fa-archive
+            = binary
