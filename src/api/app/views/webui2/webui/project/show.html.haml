@@ -17,7 +17,7 @@
           - if @project.description.blank?
             %i No description set
           - else
-            = simple_format(@project.description)
+            = render partial: 'webui/webui/collapsible_text', locals: { text: @project.description }
       .col-md-4
         = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
                                                   project: @project,

@@ -13,10 +13,10 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     scenario 'expanding a text field' do
       visit request_show_path(bs_request)
       within(element) do
-        find('a[title="Show more"]').click
-        expect(page).to have_css('div.obs-uncollapsed')
-        find('a[title="Show less"]').click
-        expect(page).to have_css('div.obs-collapsed')
+        find('.show-content').click
+        expect(page).to have_css('div.expanded')
+        find('.show-content').click
+        expect(page).to have_no_css('div.expanded')
       end
     end
   end
@@ -47,16 +47,14 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         end
       end
 
-      skip('The overview doesn\'t have the new collapse feature') do
-        it_behaves_like 'expandable element' do
-          let(:element) { 'pre#description-text' }
-        end
+      it_behaves_like 'expandable element' do
+        let(:element) { '#description-text' }
       end
     end
 
     describe 'request history entries' do
       it_behaves_like 'expandable element' do
-        let(:element) { '.media-body > .obs-collapsible-textbox' }
+        let(:element) { '.media-body .obs-collapsible-textbox' }
       end
     end
   end

@@ -1,8 +1,5 @@
+-# NOTE: look into app/assets/stylesheets/webui2/collapsible-text.scss
 - if text.present?
   .obs-collapsible-textbox
-    - if text.length > threshold[:text_length] || text.lines.count > threshold[:line_count]
-      .obs-collapsible-text.obs-collapsed
-        = simple_format(text, class: 'm-0 p-0')
-      %a.obs-collapsible-link.obs-collapsed.text-center.d-block{ title: 'Show more' }
-    - else
-      = simple_format(text, class: 'm-0 p-0')
+    .obs-collapsible-text
+      = simple_format(text)

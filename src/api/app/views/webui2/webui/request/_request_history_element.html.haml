@@ -7,5 +7,6 @@
     - if element.class == HistoryElement::RequestSuperseded
       = link_to(element.description, request_show_path(element.description_extension))
     - else
-      = simple_format(element.description, class: 'm-0 p-0 small')
-    = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment, threshold: { text_length: 100, line_count: 3 } }
+      = simple_format(element.description, class: 'mb-2')
+    .text-muted
+      = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment }

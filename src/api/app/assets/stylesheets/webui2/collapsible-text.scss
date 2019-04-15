@@ -1,27 +1,41 @@
-.obs-collapsible-textbox {
-  word-break: break-all;
-  white-space: pre-line;
-  padding-right: 1em;
+@mixin collapsible($maxHeight: 4.5em) {
+  .obs-collapsible-textbox {
+    word-break: break-all;
+    padding-right: 1em;
+    text-align: justify;
 
-  .obs-collapsible-text {
-    &.obs-collapsed {
-      @include collapsedText($lineHeight: 1.2em, $lineCount: 3);
+    .obs-collapsible-text {
+      overflow: hidden;
+      line-height: 1.5;
+      max-height: $maxHeight;
+
+      p:last-child { @extend .mb-0; }
+      &.expanded { max-height: initial; }
     }
 
-    &.obs-uncollapsed {
-      @include uncollapsedText($lineHeight: 1.2em);
+    .show-content {
+      text-decoration: none;
+      @extend .small;
+      @extend .float-right;
+      @extend .mt-2;
+
+      &.more{
+        &:before { content: 'Show more '; }
+        i { @extend .fa-chevron-down; }
+      }
+      &.less{
+        &:before { content: 'Show less '; }
+        i { @extend .fa-chevron-up; }
+      }
     }
   }
+}
 
-  .obs-collapsible-link {
-    @extend .fa;
+#description-text {
+  p { @extend .mb-4; }
+  @include collapsible($maxHeight: 15em);
+}
 
-    &.obs-collapsed:after {
-      content: '\f078';
-    }
-
-    &.obs-uncollapsed:after {
-      content: '\f077';
-    }
-  }
+#request-history {
+  @include collapsible($maxHeight: 4.5em);
 }

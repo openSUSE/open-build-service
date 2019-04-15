@@ -5,8 +5,8 @@
     %h6.mt-0.mb-1
       #{bs_request.creator} (#{fuzzy_time(bs_request.created_at)})
 
-    %p.m-0.p-0 created request
-
-    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: { text_length: 100, line_count: 3 } }
+    %p.mb-2 created request
+    .text-muted
+      = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
 
 = render partial: 'request_history_element', collection: history, as: :element
