@@ -30,8 +30,8 @@ class User < ApplicationRecord
   # password yet. this is for backwards compatibility
   has_secure_password validations: false
 
-  has_many :watched_projects, dependent: :destroy, inverse_of: :user
-  has_many :watched_items, as: :watchable
+  has_many :watched_items
+  has_many :watched_projects, through: :watched_items, source: :watchable, source_type: 'Project'
   has_many :groups_users, inverse_of: :user
   has_many :roles_users, inverse_of: :user
   has_many :relationships, inverse_of: :user, dependent: :destroy
@@ -807,17 +807,17 @@ class User < ApplicationRecord
 
   def watched_project_names
     Rails.cache.fetch(['watched_project_names', self]) do
-      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
+      watched_projects.order(:name).pluck(:name)
     end
   end
 
   def add_watched_project(name)
-    watched_projects.create(project: Project.find_by_name!(name))
+    watched_projects << Project.find_by_name!(name)
     clear_watched_projects_cache
   end
 
   def remove_watched_project(name)
-    watched_projects.joins(:project).where(projects: { name: name }).delete_all
+    watched_projects.delete(Project.where(name: name))
     clear_watched_projects_cache
   end
 
