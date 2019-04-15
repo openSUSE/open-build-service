@@ -154,13 +154,13 @@ Parameters:
   cmd: lock             # will lock the user and his home projects
   cmd: delete           # will mark the user as deleted and remove her home projects
 
-GET /person/<userid>/token
+GET /person/<login>/token
 
   Lists all authentication token for a user
 
 XmlResult: tokenlist
 
-POST /person/<userid>/token
+POST /person/<login>/token
 
   Create a new authentication token for this user. It may be limited for a specific package
   via optional project&package parameters.
@@ -171,7 +171,7 @@ POST /person/<userid>/token
 
 XmlResult: status
 
-DELETE /person/<userid>/token/<id>
+DELETE /person/<login>/token/<id>
 
   Delete a specific authentication token. The <id> is listed in GET call.
 
