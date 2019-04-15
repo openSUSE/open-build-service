@@ -1271,6 +1271,16 @@ CREATE TABLE `users` (
   KEY `users_password_index` (`deprecated_password`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `watched_items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `watchable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `watchable_id` bigint(20) DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_watched_items_on_watchable_type_and_watchable_id` (`watchable_type`(191),`watchable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `watched_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
@@ -1435,6 +1445,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181113095753'),
 ('20181201065026'),
 ('20190111130416'),
-('20190115131711');
+('20190115131711'),
+('20190415010809');
 
 
