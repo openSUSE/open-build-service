@@ -1,0 +1,37 @@
+%p
+  %strong Title:
+  = fileinfo.value(:summary)
+%p
+  %strong Description:
+  %br
+  - description = fileinfo.value(:description)
+  - if description
+    - description.split(/\n/).each do |line|
+      = line
+      %br
+  - else
+    %i No description set
+%p
+  %strong Version:
+  = fileinfo.value(:version)
+%p
+  %strong Release:
+  = fileinfo.value(:release)
+%p
+  %strong Architecture:
+  = fileinfo.value(:arch)
+%p
+  %strong Size:
+  = human_readable_fsize(fileinfo.value(:size).to_i)
+%p
+  %strong Build Time:
+  - btime = Time.at(fileinfo.value(:mtime).to_i)
+  #{btime} (#{fuzzy_time_string(btime.ctime)})
+
+= render partial: 'deps', locals: { fileinfo: fileinfo,
+                                  filename: filename,
+                                  project: project,
+                                  package: package,
+                                  repository: repository,
+                                  architecture: architecture }
+
