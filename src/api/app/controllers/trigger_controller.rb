@@ -9,8 +9,23 @@ class TriggerController < ApplicationController
 
   # github.com sends a hash payload
   skip_before_action :validate_params, only: [:runservice]
+  before_action :receive_token
+  before_action :set_package
 
   def runservice
+    return unless @pkg
+    # execute the service in backend
+    path = @pkg.source_path
+    params = { cmd: 'runservice', comment: 'runservice via trigger', user: @token.user.login }
+    path << build_query_from_hash(params, [:cmd, :comment, :user])
+    pass_to_backend(path)
+
+    @pkg.sources_changed
+  end
+
+  private
+
+  def receive_token
     auth = request.env['HTTP_AUTHORIZATION']
 
     if request.env['HTTP_X_GITLAB_EVENT'] == 'Push Hook'
@@ -24,30 +39,27 @@ class TriggerController < ApplicationController
       return
     end
 
-    token = Token::Service.find_by_string(auth[6..-1])
+    @token = Token::Service.find_by_string(auth[6..-1])
 
-    unless token
-      render_error message: 'Token not found', status: 404
+    return if @token
+    render_error message: 'Token not found', status: 404
+  end
+
+  def set_package
+    return unless @token
+    @pkg = @token.package
+    @pkg ||= Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
+    unless @pkg
+      render_error errorcode: 'not_found',
+                   message: 'package or project not specified or does not exist',
+                   status: 404
       return
     end
 
-    pkg = token.package || Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
-    if pkg
-      # check if user has still access
-      unless token.user.is_active? && token.user.can_modify?(pkg)
-        render_error message: "no permission for package #{pkg.name} in project #{pkg.project.name}",
-                     status: 403,
-                     errorcode: 'no_permission'
-        return
-      end
-    end
-
-    # execute the service in backend
-    path = pkg.source_path
-    params = { cmd: 'runservice', comment: 'runservice via trigger', user: token.user.login }
-    path << build_query_from_hash(params, [:cmd, :comment, :user])
-    pass_to_backend(path)
-
-    pkg.sources_changed
+    # check if user has still access
+    return if @token.user.is_active? && @token.user.can_modify?(@pkg)
+    render_error message: "no permission for package #{@pkg.name} in project #{@pkg.project.name}",
+                 status: 403,
+                 errorcode: 'no_permission'
   end
 end
