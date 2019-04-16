@@ -6,20 +6,21 @@
   .card-body
     %h3 Dependency of #{@filename}
 
-    %div
-      %p
-        %strong Name:
-        = @fileinfo.value(:name)
-      %p
-        %strong Project:
-        = @dependant_project
-      %p
-        %strong Repository:
-        = @dependant_repository
+    %dl.row.mt-4
+      %dt.col-md-2.text-truncate Name
+      %dd.col-md-10= @fileinfo.value(:name)
 
-      = render partial: 'fileinfo', locals: { fileinfo: @fileinfo,
-                                              filename: @filename,
-                                              project: @project,
-                                              package: @package,
-                                              repository: @repository,
-                                              architecture: @arch }
+      %dt.col-md-2.text-truncate Project
+      %dd.col-md-10= @dependant_project
+
+      %dt.col-md-2.text-truncate Repository
+      %dd.col-md-10= @dependant_repository
+
+    %hr
+
+    = render partial: 'fileinfo', locals: { fileinfo: @fileinfo,
+                                            filename: @filename,
+                                            project: @project,
+                                            package: @package,
+                                            repository: @repository,
+                                            architecture: @arch }
