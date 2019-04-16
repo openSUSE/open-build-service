@@ -19,6 +19,12 @@
 - if controller_name == 'package' && action_name == 'binary'
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Binary
+- if current_page?(package_dependency_path)
+  %li.breadcrumb-item
+    = link_to('Binary', package_binary_path(project: @dependant_project, package: @package_name, repository: @dependant_repository,
+                                            arch: @arch, filename: @filename))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Dependency
 - if current_page?(package_show_path)
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Overview

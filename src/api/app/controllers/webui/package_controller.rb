@@ -109,6 +109,7 @@ class Webui::PackageController < Webui::WebuiController
 
   # rubocop:disable Lint/NonLocalExitFromIterator
   def dependency
+    switch_to_webui2
     dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
     unless dependant_project
       flash[:error] = "Project '#{params[:dependant_project]}' is invalid."
@@ -135,6 +136,7 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @dependant_repository = params[:dependant_repository]
     @dependant_project = params[:dependant_project]
+    @package_name = "#{params[:package]}:#{params[:dependant_name]}"
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
     @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],

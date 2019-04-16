@@ -1,6 +1,6 @@
 .row
-  .table-responsive.col-sm-12.col-md-6
-    %h3 Provides
+  .table-responsive.col-sm-12.col-md-6.mt-4
+    %h4 Provides
     %table.table.table-striped.table-bordered.table-sm
       %thead
         %tr
@@ -9,9 +9,7 @@
       %tbody
         - fileinfo.elements('provides_ext') do |package_file|
           %tr
-            %td
-              %span.nowrap{ title: package_file['dep'] }
-                = truncate(package_file['dep'], length: 30)
+            %td.text-word-break-all= package_file['dep']
             %td
               %ul.list-unstyled
                 - package_file.elements('requiredby') do |package_binary|
@@ -30,8 +28,8 @@
             %td{ colspan: '2' }
               %em No provides
 
-  .table-responsive.col-sm-12.col-md-6
-    %h3 Requires
+  .table-responsive.col-sm-12.col-md-6.mt-4
+    %h4 Requires
     %table.table.table-striped.table-bordered.table-sm
       %thead
         %tr
@@ -40,9 +38,7 @@
       %tbody
         - fileinfo.elements('requires_ext') do |package_file|
           %tr
-            %td
-              %span.nowrap{ title: package_file['dep'] }
-                = truncate(package_file['dep'], length: 30)
+            %td.text-word-break-all= package_file['dep']
             %td
               %ul.list-unstyled
                 - package_file.elements('providedby') do |package_binary|
@@ -61,8 +57,8 @@
             %td{ colspan: '2' }
               %em No requires
 
-  .table-responsive.col-sm-12.col-md-6
-    %h3 Recommends
+  .table-responsive.col-sm-12.col-md-6.mt-4
+    %h4 Recommends
     %table.table.table-striped.table-bordered.table-sm
       %thead
         %tr
@@ -71,9 +67,7 @@
       %tbody
         - fileinfo.elements('recommends_ext') do |package_file|
           %tr
-            %td
-              %span.nowrap{ title: package_file['dep'] }
-                = truncate(package_file['dep'], length: 30)
+            %td.text-word-break-all= package_file['dep']
             %td
               %ul.list-unstyled
                 - package_file.elements('providedby') do |package_binary|
