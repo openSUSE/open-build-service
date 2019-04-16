@@ -1,0 +1,54 @@
+- @pagetitle = "Dependency information about #{@filename}"
+
+.card
+  = render partial: 'tabs', locals: { package: @package, project: @project }
+
+  .card-body
+    %h3 Dependency of #{@filename}
+
+    %div
+      %p
+        %strong Name:
+        = @fileinfo.value(:name)
+      %p
+        %strong Project:
+        = @dependant_project
+      %p
+        %strong Repository:
+        = @dependant_repository
+      %p
+        %strong Title:
+        = @fileinfo.value(:summary)
+      %p
+        %strong Description:
+        %br
+        - description = @fileinfo.value(:description)
+        - if description
+          - description.split(/\n/).each do |line|
+            = line
+            %br
+        - else
+          %i No description set
+      %p
+        %strong Version:
+        = @fileinfo.value(:version)
+      %p
+        %strong Release:
+        = @fileinfo.value(:release)
+      %p
+        %strong Architecture:
+        = @fileinfo.value(:arch)
+      %p
+        %strong Size:
+        = human_readable_fsize(@fileinfo.value(:size).to_i)
+      %p
+        %strong Build Time:
+        = btime = Time.at(@fileinfo.value(:mtime).to_i)
+        = btime.to_s + " (" + fuzzy_time_string(btime.ctime) + ")"
+
+      = render partial: 'deps', locals: { fileinfo: @fileinfo,
+                                        filename: @filename,
+                                        project: @project,
+                                        package: @package,
+                                        repository: @repository,
+                                        architecture: @arch }
