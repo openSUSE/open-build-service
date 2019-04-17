@@ -3,32 +3,36 @@ class BsRequest
     module UserGroupMixin
       private
 
-      def extend_query_for_maintainer(obj, requests, roles, inner_or)
-        if roles.empty? || roles.include?('maintainer')
-          names = obj.involved_projects.pluck('name').map! { |p| quote(p) }
-          inner_or << "bs_request_actions.target_project in (#{names.join(',')})" unless names.empty?
-          ## find request where group is maintainer in target package, except we have to project already
-          obj.involved_packages.includes(:project).pluck('packages.name, projects.name').each do |ip|
-            inner_or << "(bs_request_actions.target_project='#{ip.second}' and bs_request_actions.target_package='#{ip.first}')"
-          end
-        end
-        [requests, inner_or]
+      # BsRequestsActions where obj (group or user) is maintainer in target project
+      def bs_request_actions(obj)
+        query_string = 'target_project IN (?)'
+        query_string += " OR ((target_project, target_package) IN (#{packages_query(obj)}))" if packages_query(obj).present?
+        BsRequestAction.where(query_string, projects(obj))
       end
 
-      def extend_query_for_involved_reviews(obj, or_in_and, requests, review_states, inner_or)
-        review_states.each do |review_state|
-          # find requests where obj is maintainer in target project
-          projects = obj.involved_projects.pluck('projects.name').map! { |project| quote(project) }
-          or_in_and << "reviews.by_project in (#{projects.join(',')})" if projects.present?
+      # Reviews where obj (group or user) is reviewer in tarjet project
+      def reviews(obj, review_states)
+        query_string = "by_#{obj.class.name.downcase} = ? OR by_project IN (?)"
+        query_string += " OR by_group IN (#{usergroups_query(obj)})" if obj.is_a?(::User) && usergroups_query(obj).present?
+        query_string += " OR ((by_project, by_package) IN (#{packages_query(obj)}))" if packages_query(obj).present?
 
-          ## find request where user is maintainer in target package, except we have to project already
-          obj.involved_packages.includes(:project).pluck('packages.name, projects.name').each do |ip|
-            or_in_and << "(reviews.by_project='#{ip.second}' and reviews.by_package='#{ip.first}')"
-          end
+        Review.where(state: review_states)
+              .where(query_string, obj.to_s, projects(obj))
+      end
 
-          inner_or << "(reviews.state=#{quote(review_state)} and (#{or_in_and.join(' or ')}))"
-        end
-        [requests, inner_or]
+      def projects(obj)
+        @projects ||= obj.involved_projects.pluck('projects.name')
+      end
+
+      def usergroups_query(obj)
+        @usergroups_query ||= obj.groups.pluck(:title).map { |group| quote(group) }.join(',')
+      end
+
+      def packages_query(obj)
+        return @packages_query if @packages_query
+        # Hoping that Rails allows to write this nicer: https://github.com/rails/rails/issues/35925
+        projects_and_packages = obj.involved_packages.includes(:project).pluck('projects.name', 'packages.name')
+        @packages_query = projects_and_packages.map { |project, package| "(#{quote(project)},#{quote(package)})" }.join(',')
       end
     end
   end

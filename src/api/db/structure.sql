@@ -1081,6 +1081,7 @@ CREATE TABLE `reviews` (
   KEY `index_reviews_on_group_id` (`group_id`),
   KEY `index_reviews_on_project_id` (`project_id`),
   KEY `index_reviews_on_package_id` (`package_id`),
+  KEY `index_reviews_on_state_and_by_group` (`state`,`by_group`),
   CONSTRAINT `fk_rails_813a4fb24f` FOREIGN KEY (`review_id`) REFERENCES `reviews` (`id`),
   CONSTRAINT `reviews_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -1435,6 +1436,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181113095753'),
 ('20181201065026'),
 ('20190111130416'),
-('20190115131711');
+('20190115131711'),
+('20190412130831');
 
 

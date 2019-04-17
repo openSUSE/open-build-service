@@ -123,14 +123,6 @@ RSpec.describe BsRequest::FindFor::User do
           it { expect(subject).to include(request) }
           it { expect(subject).not_to include(another_request) }
         end
-
-        context 'does not include not matching reviews' do
-          let!(:another_review) { create(:review, by_user: another_user, bs_request: request, state: :accepted) }
-          subject { klass.new(user: user.login, review_states: :accepted).all }
-
-          it { expect(subject.first.reviews).to include(review) }
-          it { expect(subject.first.reviews).not_to include(another_review) }
-        end
       end
 
       context 'by user' do

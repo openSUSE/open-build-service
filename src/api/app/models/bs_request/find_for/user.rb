@@ -4,32 +4,37 @@ class BsRequest
       include UserGroupMixin
 
       def all
-        inner_or = []
-        user = ::User.find_by_login!(user_login)
+        query = union_query
+        @relation = if query.present?
+                      @relation.where("bs_requests.id IN (#{query})")
+                    else
+                      @relation.none
+                    end
+      end
 
-        # user's own submitted requests
-        if roles.empty? || roles.include?('creator')
-          inner_or << "bs_requests.creator = #{quote(user.login)}"
-        end
-        # find requests where user is maintainer in target project
-        @relation, inner_or = extend_query_for_maintainer(user, @relation, roles, inner_or)
-        if roles.empty? || roles.include?('reviewer')
-          @relation = @relation.includes(:reviews).references(:reviews)
+      private
 
-          # requests where the user is reviewer or own requests that are in review by someone else
-          or_in_and = ["reviews.by_user=#{quote(user.login)}"]
+      def user
+        @user = ::User.find_by_login!(user_login)
+      end
 
-          # include all groups of user
-          usergroups = user.groups.map { |group| "'#{group.title}'" }
-          or_in_and << "reviews.by_group in (#{usergroups.join(',')})" if usergroups.present?
+      def union_query
+        query_parts = []
+        # we're inside a scope, so a BsRequest.where can leak other scopes -> unscoped
+        query_parts << BsRequest.unscoped.where(creator: user.login).select(:id).to_sql if roles.empty? || roles.include?('creator')
+        query_parts << bs_request_actions_query.to_sql if bs_request_actions_query
+        query_parts << reviews_query.to_sql if reviews_query
+        query_parts.join(' UNION ')
+      end
 
-          @relation, inner_or = extend_query_for_involved_reviews(user, or_in_and, @relation, review_states, inner_or)
-        end
-        if inner_or.empty?
-          @relation.none
-        else
-          @relation.where(inner_or.join(' or '))
-        end
+      def bs_request_actions_query
+        return unless roles.empty? || roles.include?('maintainer')
+        @bs_request_actions_query ||= bs_request_actions(user).select(:bs_request_id)
+      end
+
+      def reviews_query
+        return unless roles.empty? || roles.include?('reviewer')
+        @reviews_query ||= reviews(user, review_states).select(:bs_request_id)
       end
     end
   end
