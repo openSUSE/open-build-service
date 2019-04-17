@@ -9,6 +9,12 @@ window.onbeforeunload = function() {
   }
 }
 
+function cm_mark_diff_lines() {
+  // as we can't use css to mark parents we use javascript to propagate diff lines
+  $('.cm-positive').parents('.CodeMirror-line').addClass('CodeMirror-positive-line');
+  $('.cm-negative').parents('.CodeMirror-line').addClass('CodeMirror-negative-line');
+}
+
 function use_codemirror(id, read_only, mode) {
   var codeMirrorOptions = {
     lineNumbers: true,
@@ -30,6 +36,10 @@ function use_codemirror(id, read_only, mode) {
   var textarea = $('#editor_' + id);
   var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
   editor.id = id;
+
+  cm_mark_diff_lines();
+  editor.on('scroll', cm_mark_diff_lines);
+
   if (!read_only) {
     editor.setSelections(editor);
 
