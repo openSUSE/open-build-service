@@ -12,8 +12,8 @@
       .col-md-8
         %h3#package-title
           = @package.title.presence || @package.name
-          - if @package.url.present?
-            %small= link_to(@package.url, @package.url)
+        - if @package.url.present?
+          = link_to(@package.url, @package.url, class: 'small mb-3 d-block')
         #description-text
           - if @package.description.blank?
             %i No description set
