@@ -441,6 +441,8 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
 
     scenario 'creating a maintened project' do
+      skip_if_bootstrap
+
       login(admin_user)
       visit project_show_path(maintenance_project)
 
