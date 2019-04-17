@@ -1,61 +1,64 @@
-.cm-s-bootstrap.CodeMirror {
-  font-family: $font-family-monospace, monospace;
-  height: auto;
-  background: $card-bg;
-  color: $body-color;
-  line-height: 1.2;
+.cm-s-bootstrap {
+  &.CodeMirror {
+    font-family: $font-family-monospace, monospace;
+    height: auto;
+    background: $card-bg;
+    color: $body-color;
+    line-height: 1.2;
+  }
+
+  .cm-header {color: $blue;}
+  .cm-quote {color: $green;}
+
+  .cm-keyword {color: $pink;}
+  .cm-atom {color: $indigo;}
+  .cm-number {color: $teal;}
+  .cm-def {color: $blue;}
+  .cm-variable,
+  .cm-punctuation,
+  .cm-property,
+  .cm-operator {color: $body-color;}
+  .cm-variable-2 {color: $blue;}
+  .cm-variable-3, .cm-type {color: $teal;}
+  .cm-comment {color: $orange;}
+  .cm-string {color: $danger;}
+  .cm-string-2 {color: $orange;}
+  .cm-meta {color: $text-muted;}
+  .cm-qualifier {color: $text-muted;}
+  .cm-builtin {color: $purple;}
+  .cm-bracket {color: $warning;}
+  .cm-tag {color: $success;}
+  .cm-attribute {color: $blue;}
+  .cm-hr {color: $secondary;}
+  .cm-link {color: $link-color;}
+
+  .cm-error {color: $danger;}
+
+  .cm-negative {
+    color: $danger;
+    background: rgba($danger, 0.1);
+  }
+
+  .cm-positive {
+    color: $success;
+    background: rgba($success, 0.1);
+  }
+
+  .CodeMirror-gutters {
+    // Prevent gutters from being opatique by adding background to foreground colors to create non-opatique version of cap color
+    background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+    border-right: $card-border-width solid $card-border-color;
+  }
+  .CodeMirror-guttermarker { color: $text-muted; }
+  .CodeMirror-guttermarker-subtle { color: $text-muted; }
+  .CodeMirror-linenumber { color: $text-muted; }
+  div.CodeMirror-selected {
+    background: $primary;
+    opacity: 0.2;
+  }
+
+  // Don't display cursor if not editable view
+  .CodeMirror-cursor { border-left: 0px; }
 }
 
-.cm-s-bootstrap .cm-header {color: $blue;}
-.cm-s-bootstrap .cm-quote {color: $green;}
-
-.cm-s-bootstrap .cm-keyword {color: $pink;}
-.cm-s-bootstrap .cm-atom {color: $indigo;}
-.cm-s-bootstrap .cm-number {color: $teal;}
-.cm-s-bootstrap .cm-def {color: $blue;}
-.cm-s-bootstrap .cm-variable,
-.cm-s-bootstrap .cm-punctuation,
-.cm-s-bootstrap .cm-property,
-.cm-s-bootstrap .cm-operator {color: $body-color;}
-.cm-s-bootstrap .cm-variable-2 {color: $blue;}
-.cm-s-bootstrap .cm-variable-3, .cm-s-bootstrap .cm-type {color: $teal;}
-.cm-s-bootstrap .cm-comment {color: $orange;}
-.cm-s-bootstrap .cm-string {color: $danger;}
-.cm-s-bootstrap .cm-string-2 {color: $orange;}
-.cm-s-bootstrap .cm-meta {color: $text-muted;}
-.cm-s-bootstrap .cm-qualifier {color: $text-muted;}
-.cm-s-bootstrap .cm-builtin {color: $purple;}
-.cm-s-bootstrap .cm-bracket {color: $warning;}
-.cm-s-bootstrap .cm-tag {color: $success;}
-.cm-s-bootstrap .cm-attribute {color: $blue;}
-.cm-s-bootstrap .cm-hr {color: $secondary;}
-.cm-s-bootstrap .cm-link {color: $link-color;}
-
-.cm-s-bootstrap .cm-error {color: $danger;}
-
-.cm-s-bootstrap .cm-negative {
-  color: $danger;
-  background: rgba($danger, 0.1);
-}
-
-.cm-s-bootstrap .cm-positive {
-  color: $success;
-  background: rgba($success, 0.1);
-}
-
-.cm-s-bootstrap .CodeMirror-gutters {
-  // Prevent gutters from being opatique by adding background to foreground colors to create non-opatique version of cap color
-  background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
-  border-right: $card-border-width solid $card-border-color;
-}
-.cm-s-bootstrap .CodeMirror-guttermarker { color: $text-muted; }
-.cm-s-bootstrap .CodeMirror-guttermarker-subtle { color: $text-muted; }
-.cm-s-bootstrap .CodeMirror-linenumber { color: $text-muted; }
-.cm-s-bootstrap div.CodeMirror-selected {
-  background: $primary;
-  opacity: 0.2;
-}
-
-// Don't display cursor if not editable view
-.cm-s-bootstrap .CodeMirror-cursor { border-left: 0px; }
 .editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid $body-color; }
