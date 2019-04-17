@@ -575,6 +575,9 @@ OBSApi::Application.routes.draw do
     post 'trigger/runservice' => 'services/trigger#runservice'
     post 'trigger/webhook' => 'services/webhooks#create'
 
+    ### /services
+    put 'services/file' => 'services/file#create'
+
     ### /issue_trackers
     get 'issue_trackers/issues_in' => 'issue_trackers#issues_in'
     resources :issue_trackers, only: [:index, :show, :create, :update, :destroy] do
