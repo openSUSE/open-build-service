@@ -63,6 +63,10 @@ OBSApi::Application.routes.draw do
       get 'user/feed/:token' => :notifications, defaults: { format: 'rss' }, as: :user_rss_notifications
     end
 
+    controller 'webui/watchlist' do
+      get 'toggle_watch/:project' => :toggle_watch, as: 'watchlist_toggle_watch'
+    end
+
     resources :attribs, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/attribute' do
       collection do
         get ':project(/:package)/new' => :new, constraints: cons, as: 'new'

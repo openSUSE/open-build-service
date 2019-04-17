@@ -5,7 +5,7 @@
     List of projects you are watching
   .dropdown-divider
   - if params[:project]
-    %a.dropdown-item#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
+    %a.dropdown-item#toggle-watch{ href: watchlist_toggle_watch_path(params[:project]) }
       - if User.current.watches? params[:project]
         %p.mb-0
           Remove this project from Watchlist
