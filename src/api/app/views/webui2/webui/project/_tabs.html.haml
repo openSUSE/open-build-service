@@ -7,7 +7,7 @@
         %li.nav-item
           = tab_link('Incidents', project_maintenance_incidents_path(project))
         %li.nav-item
-          = tab_link('Maintained Projects', project_maintained_projects_path(project))
+          = tab_link('Maintained Projects', projects_project_maintained_projects_path(project))
       - unless project.defines_remote_instance? || project.is_maintenance?
         %li.nav-item
           = tab_link('Repositories', repositories_path(project))

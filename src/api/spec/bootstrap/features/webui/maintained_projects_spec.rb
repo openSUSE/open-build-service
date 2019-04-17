@@ -29,7 +29,7 @@ RSpec.feature 'Bootstrap_MaintainedProjects', type: :feature, js: true, vcr: tru
         visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
-        click_link('Add Project')
+        click_link('Add Project to Maintain')
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: true)
         expect(page).to have_selector('#delete-maintained-project-modal', visible: false)
@@ -53,7 +53,7 @@ RSpec.feature 'Bootstrap_MaintainedProjects', type: :feature, js: true, vcr: tru
 
         click_link('Delete Project')
 
-        expect(find('#delete-maintained-project-modal')).to have_text('Stop maintaining this project?')
+        expect(find('#delete-maintained-project-modal')).to have_text('Disable Maintenance to this project?')
 
         within('#delete-maintained-project-modal .modal-footer') do
           expect(page).to have_button('Accept')
