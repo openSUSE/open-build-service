@@ -36,11 +36,16 @@
 
   .cm-negative {
     color: $danger;
-    background: rgba($danger, 0.1);
   }
 
+  .CodeMirror-negative-line {
+    background: rgba($danger, 0.1);
+  }
   .cm-positive {
     color: $success;
+  }
+
+  .CodeMirror-positive-line {
     background: rgba($success, 0.1);
   }
 
