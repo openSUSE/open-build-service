@@ -1,29 +1,12 @@
-class TriggerController < ApplicationController
-  validate_action runservice: { method: :post, response: :status }
-
-  #
-  # This controller is checking permission always only on the base of tokens
-  #
+class Services::BaseController < ApplicationController
   skip_before_action :extract_user
   skip_before_action :require_login
+  skip_before_action :validate_params
 
-  # github.com sends a hash payload
-  skip_before_action :validate_params, only: [:runservice]
-  before_action :receive_token
-  before_action :set_package
+  # Controller who inherite from this base controller always check
+  # permission on the base of tokens
 
-  def runservice
-    return unless @pkg
-    # execute the service in backend
-    path = @pkg.source_path
-    params = { cmd: 'runservice', comment: 'runservice via trigger', user: @token.user.login }
-    path << build_query_from_hash(params, [:cmd, :comment, :user])
-    pass_to_backend(path)
-
-    @pkg.sources_changed
-  end
-
-  private
+  protected
 
   def receive_token
     auth = request.env['HTTP_AUTHORIZATION']

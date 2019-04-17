@@ -1,7 +1,4 @@
-class Services::WebhooksController < ApplicationController
-  skip_before_action :extract_user
-  skip_before_action :require_login
-  skip_before_action :validate_params
+class Services::WebhooksController < Services::BaseController
   before_action :validate_token, :set_package, :set_user
 
   def create
