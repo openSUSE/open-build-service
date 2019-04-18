@@ -89,6 +89,7 @@ module Webui::ProjectHelper
     link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package) + ' ' + format_seconds(btime)
   end
 
+  # bento_only
   def short_incident_name(incident)
     re = Regexp.new("#{@project.name}\:(.*)")
     match = incident.name.match(re)
