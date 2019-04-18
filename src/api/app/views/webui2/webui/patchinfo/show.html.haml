@@ -40,7 +40,7 @@
           .media
             %i.pt-1.mr-1.fas.fa-bug.text-danger
             .media-body.mb-3
-              = patchinfo_issue_link(issue[0], issue[1], issue[2])
+              = patchinfo_issue_link(issue[1], issue[0], issue[2])
               - if issue[3].present?
                 %small.d-block.text-muted= issue[3]
   .col-md-6
