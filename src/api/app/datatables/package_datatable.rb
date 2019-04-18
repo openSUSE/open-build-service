@@ -14,7 +14,7 @@ class PackageDatatable < Datatable
     # or in aliased_join_table.column_name format
     @view_columns ||= {
       name: { source: 'Package.name', cond: :like },
-      changed: { source: 'Package.updated_at', cond: :like }
+      changed: { source: 'Package.updated_at', searchable: false }
     }
   end
 
