@@ -16,4 +16,13 @@
           = render partial: 'problems', locals: { staging_project: staging_project }
 
 - content_for :ready_function do
-  $('#staging-projects-datatable').DataTable({responsive: true, paging: false, ordering: false, searching: false, info: false});
+  :plain
+    $('#staging-projects-datatable').DataTable({
+      responsive: true,
+      paging: false,
+      ordering: false,
+      searching: false,
+      info: false,
+      stateSave: true,
+      stateDuration: #{2.days}
+    });

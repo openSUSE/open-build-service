@@ -8,6 +8,8 @@
 function initializeDataTable(cssSelector, params){ // jshint ignore:line
   var defaultParams = {
     language: { search: '', searchPlaceholder: "Search..." },
+    stateSave: true,
+    stateDuration: 172800 // 2 days
   };
   var newParams = $.extend(defaultParams, params);
   $(cssSelector).DataTable(newParams);
@@ -19,7 +21,9 @@ function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
     processing: true,
     serverSide: true,
     ajax: $(cssSelector).data('source'),
-    pagingType: 'full_numbers'
+    pagingType: 'full_numbers',
+    stateSave: true,
+    stateDuration: 172800 // 2 days
   };
   var newParams = $.extend(defaultParams, params);
 
