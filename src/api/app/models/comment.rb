@@ -18,7 +18,10 @@ class Comment < ApplicationRecord
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
 
   extend ActsAsTree::TreeWalker
+
   acts_as_tree order: 'created_at'
+
+  include Serializers::CommentSerializer
 
   scope :without_parent, -> { where(parent_id: nil) }
 
@@ -62,20 +65,6 @@ class Comment < ApplicationRecord
     end
     users += User.where(login: users_mentioned).pluck(:login)
     users.to_a
-  end
-
-  def to_xml(builder, include_commentable = false)
-    attrs = { who: user, when: created_at, id: id }
-    if include_commentable
-      attrs[commentable.class.name.downcase] = commentable.to_param
-      attrs['project'] = commentable.project if commentable.is_a?(Package)
-    end
-    attrs[:parent] = parent_id if parent_id
-    body.delete!("\u0000")
-
-    builder.comment_(attrs) do
-      builder.text(body)
-    end
   end
 
   def blank_or_destroy
