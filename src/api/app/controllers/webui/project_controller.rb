@@ -478,14 +478,17 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
+  # TODO: bento_only
   def maintained_projects
     @maintained_projects = @project.maintained_project_names
   end
 
+  # TODO: bento_only
   def add_maintained_project_dialog
     render_dialog
   end
 
+  # TODO: bento_only
   def add_maintained_project
     authorize @project, :update?
 
@@ -500,6 +503,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  # TODO: bento_only
   def remove_maintained_project
     authorize @project, :update?
     maintained_project = MaintainedProject.find_by(project: @maintained_project)
