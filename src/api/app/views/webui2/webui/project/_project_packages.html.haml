@@ -25,13 +25,9 @@
 
 = content_for :ready_function do
   :plain
-    initializeDataTable('#packages-table', {
-      "processing": true,
-      "serverSide": true,
-      "ajax": $('#packages-table').data("source"),
-      "pagingType": "full_numbers",
-      "columns": [
-        {"data": "name"},
-        {"data": "changed"}
-      ]
-    });
+    initializeRemoteDatatable('#packages-table', {
+        "columns": [
+          {"data": "name"},
+          {"data": "changed"}
+        ]
+      });

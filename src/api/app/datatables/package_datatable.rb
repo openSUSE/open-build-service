@@ -20,7 +20,7 @@ class PackageDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @project.packages.order_by_name
+    @project.packages
   end
   # rubocop:enable Naming/AccessorMethodName
 
