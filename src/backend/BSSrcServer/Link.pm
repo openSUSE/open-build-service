@@ -1011,16 +1011,27 @@ sub integratelink {
 sub linkinfo_addtarget {
   my ($rev, $linkinfo) = @_;
   my %lrev = %$rev;
+  # use originproject if the lsrcmd5 is not available yet
+  if ($rev->{'originproject'} && $linkinfo->{'lsrcmd5'} && !BSSrcrep::existstree($rev->{'project'}, $rev->{'package'}, $linkinfo->{'lsrcmd5'})) {
+    $lrev{'project'} = $rev->{'originproject'};
+  }
   $lrev{'srcmd5'} = $linkinfo->{'lsrcmd5'} if $linkinfo->{'lsrcmd5'};
   my $files = BSRevision::lsrev(\%lrev);
   die("linkinfo_addtarget: not a link?\n") unless $files->{'_link'};
   my $l = BSRevision::revreadxml(\%lrev, '_link', $files->{'_link'}, $BSXML::link, 1);
   if ($l) {
-    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $lrev{'project'};
-    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $lrev{'package'};
+    $linkinfo->{'project'} = defined($l->{'project'}) ? $l->{'project'} : $rev->{'project'};
+    $linkinfo->{'package'} = defined($l->{'package'}) ? $l->{'package'} : $rev->{'package'};
     $linkinfo->{'missingok'} = "true" if $l->{'missingok'};
     $linkinfo->{'rev'} = $l->{'rev'} if $l->{'rev'};
     $linkinfo->{'baserev'} = $l->{'baserev'} if $l->{'baserev'};
+    if ($rev->{'originproject'} && $linkinfo->{'lsrcmd5'} && !defined($l->{'project'}) && $linkinfo->{'srcmd5'}) {
+      # we don't really know where the link was expanded. so check if the tree is known
+      if (!BSSrcrep::existstree($rev->{'project'}, $linkinfo->{'package'}, $linkinfo->{'srcmd5'}) &&
+           BSSrcrep::existstree($rev->{'originproject'}, $linkinfo->{'package'}, $linkinfo->{'srcmd5'})) {
+	$linkinfo->{'project'} = $rev->{'originproject'};
+      }
+    }
   }
 }
 
