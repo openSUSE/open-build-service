@@ -4,8 +4,8 @@ class ProjectDatatable < Datatable
 
   def view_columns
     @view_columns ||= {
-      name: { source: 'Project.name', cond: :like },
-      title: { source: 'Project.title', cond: :like }
+      name: { source: 'Project.name' },
+      title: { source: 'Project.title' }
     }
   end
 

@@ -13,7 +13,7 @@ class PackageDatatable < Datatable
     # Declare strings in this format: ModelName.column_name
     # or in aliased_join_table.column_name format
     @view_columns ||= {
-      name: { source: 'Package.name', cond: :like },
+      name: { source: 'Package.name' },
       changed: { source: 'Package.updated_at', searchable: false }
     }
   end
