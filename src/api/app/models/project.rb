@@ -1397,7 +1397,7 @@ class Project < ApplicationRecord
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     package_count = 0
-    packages.where.not(id: global_patchinfo_package).select(:name, :id).each do |pkg|
+    packages.where.not(id: patchinfos).select(:name, :id).each do |pkg|
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
 
