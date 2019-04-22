@@ -23,6 +23,13 @@
       .col-md-4
         = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers,
                                                        other_open_reviews: @other_open_reviews, my_open_reviews: @my_open_reviews }
+      - if @can_add_reviews
+        %ul.list-inline.mb-0
+          %li.list-inline-item
+            = link_to(add_reviewer_dialog_path(number: @bs_request.number),
+                      data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add a Review
 
 .card.mb-3
   .bg-light
