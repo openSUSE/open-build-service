@@ -1,6 +1,9 @@
 .flash-and-announcement.sticky-top {
-  top: 1rem;
   z-index: 1030;
+
+  &.sticking {
+    .alert { margin-bottom: 0; }
+  }
 }
 
 .alert-success {
