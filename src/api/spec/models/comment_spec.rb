@@ -35,40 +35,6 @@ RSpec.describe Comment do
     }
   end
 
-  describe 'to_xml' do
-    let(:builder) { Nokogiri::XML::Builder.new }
-    let(:comment_element) { builder.doc.css('comment') }
-
-    context 'without parent' do
-      before do
-        comment_package.to_xml(builder)
-      end
-
-      it 'creates xml with correct attributes and content' do
-        expect(comment_element.attribute('id').value).to eq(comment_package.id.to_s)
-        expect(Time.parse(comment_element.attribute('when').value)).to eq(comment_package.created_at)
-        expect(comment_element.attribute('who').value).to eq(comment_package.user.login)
-
-        expect(comment_element.text).to match(/^#<Nokogiri::XML::Builder::NodeBuilder:0x\h+>$/)
-      end
-    end
-
-    context 'with parent' do
-      before do
-        comment_package_with_parent.to_xml(builder)
-      end
-
-      it 'creates xml with correct attributes and content' do
-        expect(comment_element.attribute('id').value).to eq(comment_package_with_parent.id.to_s)
-        expect(Time.parse(comment_element.attribute('when').value)).to eq(comment_package_with_parent.created_at)
-        expect(comment_element.attribute('who').value).to eq(comment_package_with_parent.user.login)
-        expect(comment_element.attribute('parent').value).to eq(comment_package_with_parent.parent_id.to_s)
-
-        expect(comment_element.text).to match(/^#<Nokogiri::XML::Builder::NodeBuilder:0x\h+>$/)
-      end
-    end
-  end
-
   describe 'blank_or_destroy' do
     context 'without children' do
       before do
