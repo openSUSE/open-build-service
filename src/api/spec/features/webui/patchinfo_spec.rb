@@ -47,6 +47,8 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     end
 
     scenario 'delete' do
+      skip_if_bootstrap
+
       login user
       patchinfo_package
       visit patchinfo_show_path(project: project, package: 'patchinfo')

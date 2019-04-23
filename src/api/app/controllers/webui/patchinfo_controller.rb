@@ -35,6 +35,8 @@ class Webui::PatchinfoController < Webui::WebuiController
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @patchinfo.packager).first
+
+    switch_to_webui2
   end
 
   def update
