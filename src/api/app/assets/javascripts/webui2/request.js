@@ -68,56 +68,16 @@ function setupRequestDialog() { // jshint ignore:line
 }
 
 function requestAddReviewAutocomplete() { // jshint ignore:line
-  $('#review_type').change(function () {
-    $('span').addClass('d-none');
-    var selected = $('#review_type option:selected').attr('value');
-    $('.' + selected).removeClass('d-none');
+  $('.modal').on('shown.bs.modal', function() {
+    $('.hideable input:not(:visible)').removeAttr('required');
   });
 
-  $("#review_group").autocomplete({source: '/group/autocomplete', minChars: 2, matchCase: true, max: 50,
-  search: function() {
-    $(this).addClass('loading-spinner');
-  },
-  response: function() {
-    $(this).removeClass('loading-spinner');
-  }});
-  $("#review_user").autocomplete({source: '/user/autocomplete', minChars: 2, matchCase: true, max: 50,
-  search: function() {
-    $(this).addClass('loading-spinner');
-  },
-  response: function() {
-    $(this).removeClass('loading-spinner');
-  }});
-  $("#review_project").autocomplete({source: '/project/autocomplete_projects', minChars: 2, matchCase: true, max: 50,
-  search: function() {
-    $(this).addClass('loading-spinner');
-  },
-  response: function() {
-    $(this).removeClass('loading-spinner');
-  }});
-  $("#review_package").autocomplete({
-    source: function (request, response) {
-      $.ajax({
-        url: '/project/autocomplete_packages',
-        dataType: "json",
-        data: {
-          term: request.term,
-          project: $("#review_project").val()
-        },
-        success: function (data) {
-          response(data);
-        }
-      });
-    },
-    search: function() {
-      $(this).addClass('loading-spinner');
-    },
-    response: function() {
-      $(this).removeClass('loading-spinner');
-    },
-    minLength: 2,
-    minChars: 0,
-    matchCase: true,
-    max: 50
+  $('#review_type').change(function () {
+    $('.hideable').addClass('d-none');
+    $('.hideable input:not(:visible)').removeAttr('required');
+
+    var selected = $('#review_type option:selected').attr('value');
+    $('.' + selected).removeClass('d-none');
+    $('.hideable input:visible').attr('required', true);
   });
 }

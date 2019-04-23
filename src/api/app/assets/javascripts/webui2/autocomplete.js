@@ -52,15 +52,15 @@ $(document).ready(function() {
     });
   });
 
-  $('#linked_project').on('autocompletechange', function() {
+  $('#linked_project, #review_project').on('autocompletechange', function() {
     var projectName = $(this).val(),
-        source = $('#linked_package').autocomplete('option', 'source');
+        source = $('#linked_package, #review_package').autocomplete('option', 'source');
 
     if (!projectName) return;
 
     // Ensure old parameters got removed
     source = source.replace(/\?.+/, '') + '?project=' + projectName;
     // Update the source target of the package autocomplete
-    $('#linked_package').autocomplete('option', { source: source });
+    $('#linked_package, #review_package').autocomplete('option', { source: source });
   });
 });
