@@ -62,6 +62,7 @@ class Webui::RequestController < Webui::WebuiController
       begin
         request.permission_check_change_review!(review_params)
         request.change_review_state(new_state, review_params)
+        flash[:success] = 'Successfully submitted review'
       rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
         flash[:error] = "Not permitted to change review state: #{e.message}"
       rescue APIError => e
@@ -69,7 +70,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to request_show_path(number: request), success: 'Successfully submitted review'
+    redirect_to request_show_path(number: request)
   end
 
   def show
