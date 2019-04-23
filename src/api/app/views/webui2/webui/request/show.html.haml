@@ -29,7 +29,7 @@
     %ul.nav.nav-tabs{ role: 'tablist' }
       - @actions.each_with_index do |action, index|
         %li.nav-item
-          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: "nav-link text-nowrap #{('active' if index.zero?)}",
+          = link_to(action[:name], "##{valid_xml_id(action[:name])}", class: " request-tab nav-link text-nowrap #{('active' if index.zero?)}",
             data: { toggle: 'tab' }, role: 'tab')
   .card-body
     .tab-content
@@ -80,3 +80,9 @@
 - unless User.current.is_nobody?
   = render partial: 'webui2/webui/request/add_reviewer_dialog'
 = render partial: 'webui2/webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
+
+= content_for :ready_function do
+  :plain
+    $('.request-tab').on('shown.bs.tab', function() {
+      editors.forEach( function(editor) { editor.refresh(); });
+    });
