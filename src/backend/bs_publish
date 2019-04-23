@@ -1345,10 +1345,10 @@ sub deletepatterns_ymp {
 ##########################################################################
 
 sub sync_to_stage {
-  my ($prp, $extdir, $dbgsplit, $isdelete) = @_;
+  my ($prp, $extrep, $dbgsplit, $stageservers, $isdelete) = @_;
 
-  my @stageservers;
-  if ($BSConfig::stageserver) {
+  my @stageservers = @{$stageservers || []};
+  if (!$stageservers && $BSConfig::stageserver) {
     if (ref($BSConfig::stageserver)) {
       my @s = @{$BSConfig::stageserver};
       while (@s) {
@@ -1364,17 +1364,32 @@ sub sync_to_stage {
     }
   }
 
+  return unless @stageservers;
+
+  my $syncroot;
+  my $extdir;
+
+  if ($stageservers) {
+    $extdir = '.';
+    $syncroot = $extrep;
+  } else {
+    return unless $extrep =~ /\Q$extrepodir\E\/(.+)$/;
+    $extdir = $1;
+    $syncroot = $extrepodir;
+  }
+
   # sync the parent directory for deletes
   my $extdirx = $extdir;
   $extdirx =~ s/\/[^\/]*$// if $isdelete;
 
   for my $stageserver (@stageservers) {
     if ($stageserver =~ /^rsync:\/\//) {
+      $stageserver .= $dbgsplit if $stageservers;		# hmm
       print "    running rsync to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
       print "    running sync script $1 at ".localtime(time)."\n";
@@ -1413,7 +1428,7 @@ sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
   print "    deleting repository\n";
-  my $extrep = BSUrlmapper::get_extrep($prp);
+  my ($extrep, $stageservers) = BSUrlmapper::get_extrep_stageservers($prp);
   return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
@@ -1497,11 +1512,8 @@ sub deleterepo {
   # delete everything else
   qsystem('rm', '-rf', $extrep);
 
-  if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
-    my $extdir = $1;
-    sync_to_stage($prp, $extdir, $dbgsplit, 1);
-    rmdir("$extrepodir/$extdir");
-  }
+  # delete on stage servers
+  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, 1);
 
   # also delete the split debug repo
   deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
@@ -1599,7 +1611,7 @@ sub publish {
     BSVerify::verify_filename($subdir);
   }
 
-  my $extrep = BSUrlmapper::get_extrep($prp);
+  my ($extrep, $stageservers) = BSUrlmapper::get_extrep_stageservers($prp);
   return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
@@ -2608,13 +2620,8 @@ publishprog_done:
     writestr("$extrep/.directory.yast", "$extrep/directory.yast", join('', @d));
   }
 
-  # push the repo (unless there's a redirect)
-  # FIXME: use different mechanism to disable sync
-  if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
-    if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
-      sync_to_stage($prp, $1, $dbgsplit);
-    }
-  }
+  # push the repo to the stage servers
+  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers);
 
   # support for regex usage in $BSConfig::unpublishedhook
   my $unpublish_prp = $prp;
