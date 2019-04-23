@@ -250,9 +250,9 @@ OBSApi::Application.routes.draw do
       get 'project/list_all' => :index, show_all: true, as: 'project_list_all'
       get 'project/list' => :index, as: 'project_list'
       get 'project/autocomplete_projects' => :autocomplete_projects, as: 'autocomplete_projects'
-      get 'project/autocomplete_incidents' => :autocomplete_incidents
+      get 'project/autocomplete_incidents' => :autocomplete_incidents, as: 'autocomplete_incidents'
       get 'project/autocomplete_packages' => :autocomplete_packages, as: 'autocomplete_packages'
-      get 'project/autocomplete_repositories' => :autocomplete_repositories
+      get 'project/autocomplete_repositories' => :autocomplete_repositories, as: 'autocomplete_repositories'
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons

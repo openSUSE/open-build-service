@@ -6,7 +6,7 @@
           %h5.modal-title Add Repository to #{project}
         .modal-body.repository-autocomplete
           = render partial: 'webui/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
-                                                            source: url_for(controller: 'project', action: 'autocomplete_projects') }
+                                                            source: autocomplete_projects_path }
 
           .form-group
             = label_tag :repositories do
@@ -14,8 +14,7 @@
             = select_tag 'target_repo', options_for_select(['']), required: true,
                                                                   disabled: true,
                                                                   class: 'repository-dropdown custom-select',
-                                                                  data: { source: url_for(controller: :project,
-                                                                                              action: :autocomplete_repositories) }
+                                                                  data: { source: autocomplete_repositories_path }
           .form-group
             = label_tag :name do
               %strong Name:
