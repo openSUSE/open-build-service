@@ -1,8 +1,14 @@
+:ruby
+  required = local_assigns.fetch(:required, true)
+  value = local_assigns.fetch(:value, '')
+
 .form-group.ui-front
   = label_tag(html_id, label)
+  - if required
+    %abbr.text-danger{ title: 'required' } *
   .input-group
     .input-group-prepend
       %span.input-group-text
         %i.fas.fa-search
-    = text_field_tag(html_id, '', required: true, placeholder: 'Type to autocomplete...',
-                                  class: 'obs-autocomplete form-control', data: { source: source })
+    = text_field_tag(html_id, value, required: required, placeholder: 'Type to autocomplete...',
+                     class: 'obs-autocomplete form-control', data: { source: source })

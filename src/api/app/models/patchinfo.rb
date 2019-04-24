@@ -278,13 +278,10 @@ class Patchinfo
         end
       end
 
-      issue_tracker = IssueTracker.find_by_name(issue_element['tracker']).
-                      try(:show_url_for, issue_element['id']).to_s
-
       issues << [
-        issue_element['tracker'],
         issue_element['id'],
-        issue_tracker,
+        issue_element['tracker'],
+        IssueTracker.find_by_name(issue_element['tracker']). try(:show_url_for, issue_element['id']).to_s,
         issue_element['_content']
       ]
     end
@@ -312,6 +309,7 @@ class Patchinfo
       issues << [
         new_issue,
         issuetracker[index],
+        IssueTracker.find_by_name(issuetracker[index]).try(:show_url_for, new_issue).to_s,
         issuesum[index]
       ]
     end
@@ -327,7 +325,7 @@ class Patchinfo
       issues.to_a.each do |issue|
         # people tend to enter entire cve strings instead of just the name
         issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == 'cve'
-        node.issue(issue[2], tracker: issue[1], id: issue[0])
+        node.issue(issue[3], tracker: issue[1], id: issue[0])
       end
       node.category(category.try(:strip))
       node.rating(rating.try(:strip))

@@ -1,0 +1,47 @@
+- @pagetitle = "Edit Patchinfo for #{@project}"
+
+.card
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    %h3= @pagetitle
+
+    = form_for(@patchinfo, url: update_patchinfo_path(project: @project, package: @package), method: :put, html: { id: 'patchinfo' }) do |form|
+      = form.hidden_field(:name)
+      .form-group.col-8.col-md-4
+        = render partial: 'webui/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
+                                                          source: url_for(controller: '/webui/user', action: 'autocomplete') }
+      .form-group.col-md-6
+        = form.label(:summary)
+        %abbr.text-danger{ title: 'required (minimum 10 characters)' } *
+        = form.text_area(:summary, required: true, class: 'form-control', minlength: 10)
+        %small.form-text.text-muted Summarize the changes
+      .form-group.col-md-6
+        = form.label(:description)
+        %abbr.text-danger{ title: 'required (minimum 50 characters)' } *
+        = form.text_area(:description, required: true, rows: 8, class: 'form-control', minlength: 50)
+        %small.form-text.text-muted Fully describe the changes
+      .form-group.col-4.col-md-2
+        = form.label(:version)
+        = form.text_field(:version, class: 'form-control')
+      .form-group.col-md-6
+        = form.label(:message)
+        = form.text_area(:message, rows: 4, class: 'form-control')
+      .form-group.col-6.col-md-3
+        = form.label(:category)
+        = form.select(:category, options_for_select(Patchinfo::CATEGORIES, @patchinfo.category), {}, class: 'custom-select')
+      .form-group.col-6.col-md-3
+        = form.label(:rating)
+        = form.select(:rating, options_for_select(Patchinfo::RATINGS, @patchinfo.rating), {}, class: 'custom-select')
+      = render partial: 'webui2/webui/patchinfo/form/issues',
+        locals: { form: form, issues: @patchinfo.issues, project: @project, package: @package }
+      = render partial: 'webui2/webui/patchinfo/form/required_actions',
+        locals: { form: form, zypp_restart_needed: @zypp_restart_needed, relogin: @relogin, reboot: @reboot }
+      = render partial: 'webui2/webui/patchinfo/form/binaries',
+        locals: { form: form, binarylist: @binarylist, binaries: @patchinfo.binaries }
+      = render partial: 'webui2/webui/patchinfo/form/block_release',
+        locals: { form: form, patchinfo_block: @patchinfo.block }
+
+      = form.submit('Save', class: 'btn btn-primary', data: { disable_with: 'Saving...' })
+
+= content_for(:ready_function) do
+  setupPatchinfo();
