@@ -5,23 +5,25 @@
 //= require datatables/extensions/FixedColumns/fixedColumns.bootstrap4
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
+var DEFAULT_DT_PARAMS = {
+  language: { search: '', searchPlaceholder: "Search..." },
+  stateSave: true,
+  stateDuration: 172800 // 2 days
+};
+
 function initializeDataTable(cssSelector, params){ // jshint ignore:line
-  var defaultParams = {
-    language: { search: '', searchPlaceholder: "Search..." },
-  };
-  var newParams = $.extend(defaultParams, params);
+  var newParams = $.extend({}, DEFAULT_DT_PARAMS, params);
   $(cssSelector).DataTable(newParams);
 }
 
 function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
-  var defaultParams = {
-    language: { search: '', searchPlaceholder: "Search..." },
+  var defaultRemoteParams = {
     processing: true,
     serverSide: true,
     ajax: $(cssSelector).data('source'),
     pagingType: 'full_numbers'
   };
-  var newParams = $.extend(defaultParams, params);
+  var newParams = $.extend(defaultRemoteParams, DEFAULT_DT_PARAMS, params);
 
   $(cssSelector).dataTable(newParams);
 }

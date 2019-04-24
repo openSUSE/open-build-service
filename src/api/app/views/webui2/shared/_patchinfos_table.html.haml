@@ -23,6 +23,10 @@
 = javascript_tag do
   :plain
     $(function() {
-      $('#open-patchinfos-table').dataTable({ 'iDisplayLength': 10 });
+      $('#open-patchinfos-table').dataTable({
+        iDisplayLength: 10,
+        stateSave: true,
+        stateDuration: #{2.days}
+      });
     });
 

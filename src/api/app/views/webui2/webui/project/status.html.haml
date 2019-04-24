@@ -80,7 +80,14 @@
                                                                 comment: package['failedcomment'], project: @project }
 
         - content_for :ready_function do
-          $('#status-table').dataTable({ 'iDisplayLength': 50, responsive: true, 'columnDefs': [ { 'width': '20%', 'targets': 0 } ] });
+          :plain
+            $('#status-table').dataTable({
+              iDisplayLength: 50,
+              responsive: true,
+              columnDefs: [ { 'width': '20%', 'targets': 0 } ],
+              stateSave: true,
+              stateDuration: #{2.days}
+            });
 
 - if User.current.can_modify?(@project) && parsed_result[:comments_to_clear].present?
   = link_to("Clear all comments of not failing packages (#{parsed_result[:comments_to_clear].join(',')})",
