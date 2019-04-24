@@ -6,7 +6,7 @@
           %h5.modal-title#edit-modal-label Add Group
         .modal-body
           = render partial: 'webui/autocomplete', locals: { html_id: 'groupid', label: 'Group:',
-                                                            source: url_for(controller: 'groups', action: 'autocomplete') }
+                                                            source: autocomplete_groups_path }
           .form-group
             = label_tag(:role, 'Role:')
             = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'

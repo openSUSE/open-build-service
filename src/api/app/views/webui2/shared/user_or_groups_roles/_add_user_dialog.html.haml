@@ -6,7 +6,7 @@
           %h5.modal-title#edit-modal-label Add User
         .modal-body
           = render partial: 'webui/autocomplete', locals: { html_id: 'userid', label: 'User:',
-                                                            source: url_for(controller: 'user', action: 'autocomplete') }
+                                                            source: autocomplete_users_path }
           .form-group
             = label_tag(:role, 'Role:')
             = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
