@@ -88,6 +88,15 @@ sub get_extrep {
   return defined($extrep) && ref($extrep) ? $extrep->[0] : $extrep;
 }
 
+sub get_extrep_stageservers {
+  my ($prp) = @_;
+  my $extrep = map_to_extrep($prp);
+  return ($extrep, undef) unless $extrep && ref($extrep);
+  my $stageservers = $extrep->[3];
+  $stageservers = [ $stageservers ] if $stageservers && !ref($stageservers);
+  return ($extrep->[0], $stageservers);
+}
+
 sub get_downloadurl {
   my ($prp) = @_;
   # check ext_map
