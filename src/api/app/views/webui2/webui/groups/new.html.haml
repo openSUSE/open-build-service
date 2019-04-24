@@ -11,7 +11,8 @@
           = form.text_field(:title, class: 'form-control', required: true, autofocus: true)
         .form-group
           = label_tag(:members)
-          = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input', data: { source: user_autocomplete_path })
+          = text_field_tag('group[members]', @members, id: 'group-members', class: 'form-control tag-input',
+                                                       data: { source: autocomplete_users_path })
         = form.submit('Create', class: 'btn btn-primary', data: { disable_with: 'Creating...' })
 
 = content_for(:ready_function) do
