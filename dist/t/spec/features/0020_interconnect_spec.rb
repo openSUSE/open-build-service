@@ -14,6 +14,6 @@ RSpec.describe "Interconnect" do
     # Don't wait for the javascript text replacement...
     page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
     click_button('Create Remote project')
-    expect(page).to have_content("Project 'openSUSE.org' was created successfully")
+    expect(page).to have_content("Project 'openSUSE.org' was successfully created.")
   end
 end
