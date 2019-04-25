@@ -46,7 +46,7 @@ exclude:
 - 'app/views/exception_notifier/**/*'
 - 'app/views/group/**/*'
 - 'app/views/ichain_notifier/**/*'
-- 'app/views/layouts/**/*'
+- 'app/views/layouts/webui/**/*'
 - 'app/views/main/**/*'
 - 'app/views/message/**/*'
 - 'app/views/models/**/*'

@@ -1,9 +1,9 @@
 %li.nav-item
   = link_to('Sign Up', signup_url, class: 'nav-link')
 %li.nav-item.dropdown
-  = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', "data-toggle": "dropdown") do
+  = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', 'data-toggle': 'dropdown') do
     Log In
-  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ "aria-labelledby": "dropdownMenuButton", style: 'width: 350px' }
+  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
       = form_tag(form_options) do
         - if proxy

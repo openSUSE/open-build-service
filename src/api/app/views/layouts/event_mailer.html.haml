@@ -2,8 +2,8 @@
 %br/
 \--
 %br/
-Configure notifications at #{link_to(*[url_for(controller: 'webui/users/subscriptions', action: :index, only_path: false, host: @host)]*2)}
+Configure notifications at #{link_to(*[url_for(controller: 'webui/users/subscriptions', action: :index, only_path: false, host: @host)] * 2)}
 %br/
 = @configuration['title']
-(#{link_to(*[url_for(controller: 'webui/main', action: :index, only_path: false, host: @host)]*2)})
+(#{link_to(*[url_for(controller: 'webui/main', action: :index, only_path: false, host: @host)] * 2)})
 %br/

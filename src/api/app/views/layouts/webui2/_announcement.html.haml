@@ -1,12 +1,12 @@
-- if @pending_announcement.present?
+- if pending_announcement.present?
   .row.justify-content-center
     .col-12
       .alert.fade.show.alert-notice
         .row
           .col-md-10
             There has been new announcements!
-            = link_to('Read more', announcement_path(@pending_announcement), class: 'alert-link ')
+            = link_to('Read more', announcement_path(pending_announcement), class: 'alert-link')
           .col-md-2
             - unless User.current.is_nobody?
-              = form_tag(user_announcements_path(@pending_announcement), remote: true, class: 'text-right' ) do
+              = form_tag(user_announcements_path(pending_announcement), remote: true, class: 'text-right') do
                 = submit_tag 'Got it', class: 'btn btn-sm btn-secondary'
