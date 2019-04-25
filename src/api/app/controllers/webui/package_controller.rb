@@ -171,11 +171,7 @@ class Webui::PackageController < Webui::WebuiController
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
-    begin
-      @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
-    rescue Backend::Error
-      raise ActiveRecord::RecordNotFound, 'Not Found'
-    end
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
     unless @fileinfo
       raise ActiveRecord::RecordNotFound, 'Not Found'
     end
