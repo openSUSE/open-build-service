@@ -7,10 +7,10 @@
         .input-group-prepend
           %span.input-group-text
             #{namespace}:
-        = form.text_field(:name, required: true, class: 'form-control')
+        = form.text_field(:name, class: 'form-control')
     - else
       = form.label(:name, 'Project Name:')
-      = form.text_field(:name, required: true, class: 'form-control')
+      = form.text_field(:name, class: 'form-control')
   .form-group
     = form.label(:title, 'Title:')
     = form.text_field(:title, class: 'form-control')
