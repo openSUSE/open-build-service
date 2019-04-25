@@ -49,19 +49,8 @@ function setupRequestDialog() { // jshint ignore:line
     $('#targetproject').attr('value', $('#devel-project-name').html());
   });
 
-  $('#targetproject').autocomplete({
-    appendTo: '.modal-body',
-    source: $('#targetproject').data('autocomplete-url'),
-    search: function() {
-      $(this).addClass('loading-spinner');
-    },
-    response: function() {
-      $(this).removeClass('loading-spinner');
-    },
-    minLength: 2,
-    select: updateSupersedeAndDevelPackageDisplay,
-    change: updateSupersedeAndDevelPackageDisplay,
-    max: 50
+  $('#targetproject.obs-autocomplete').on('autocompleteselect autocompletechange', function() {
+    updateSupersedeAndDevelPackageDisplay();
   });
 
   updateSupersedeAndDevelPackageDisplay();

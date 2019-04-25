@@ -7,12 +7,6 @@ module Webui2::PackageController
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
-  def webui2_submit_request_dialog
-    respond_to do |format|
-      format.js { render 'submit_request_dialog' }
-    end
-  end
-
   def webui2_rpmlint_result
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }

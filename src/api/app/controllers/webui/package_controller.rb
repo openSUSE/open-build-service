@@ -250,6 +250,7 @@ class Webui::PackageController < Webui::WebuiController
     switch_to_webui2
   end
 
+  # TODO: bento_only
   def submit_request_dialog
     if params[:revision]
       @revision = params[:revision]
@@ -268,7 +269,6 @@ class Webui::PackageController < Webui::WebuiController
 
     @description = @package.commit_message(@tprj, @tpkg)
 
-    return if switch_to_webui2
     render_dialog
   end
 
