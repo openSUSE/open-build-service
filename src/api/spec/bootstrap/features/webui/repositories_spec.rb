@@ -89,7 +89,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
     scenario 'add DoD repositories' do
       visit(project_repositories_path(project: admin_user.home_project_name))
       click_link('Add DoD Repository')
-      fill_in('Repository name', with: 'My DoD repository')
+      fill_in('Repository name', with: 'My_DoD_repository')
       select('i586', from: 'Architecture')
       select('rpmmd', from: 'Type')
       fill_in('Url', with: 'http://somerandomurl.es')
@@ -102,7 +102,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
       expect(page).to have_css('.repository-card')
 
       within '.repository-card' do
-        expect(page).to have_link('My DoD repository')
+        expect(page).to have_link('My_DoD_repository')
         expect(page).to have_link('Add Download on Demand Source')
         expect(page).to have_link('Delete Repository')
         # DoD source

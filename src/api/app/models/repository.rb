@@ -22,9 +22,7 @@ class Repository < ApplicationRecord
   scope :remote, -> { where.not(remote_project_name: '') }
 
   validates :name, length: { in: 1..200 }
-  # Keep in sync with src/backend/BSVerify.pm
-  validates :name, format: { with: /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/,
-                             message: "must not start with '_' or contain any of these characters ':/'" }
+  validate :valid_name
 
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
@@ -265,6 +263,23 @@ class Repository < ApplicationRecord
     new_repository.download_repositories = download_repositories.map(&:deep_clone)
 
     new_repository.reload
+  end
+
+  # Keep in sync with src/backend/BSVerify.pm
+  def self.valid_name?(name)
+    reg_exp = /\A[a-zA-Z0-9]+   # The name should start with any combination of letters and numbers,
+              (                 # optionally followed by any combination of:
+                (\-|_|\.)?      #  - one sign (-, _ or .)
+                [a-zA-Z0-9]+    #  - more letters and numbers after the sign
+                \+{,2}          #  - and 0, 1 or 2 plus signs (+).
+              )*\Z/x
+    reg_exp.match?(name)
+  end
+
+  private
+
+  def valid_name
+    errors.add(:name, 'is illegal') unless Repository.valid_name?(name)
   end
 end
 
