@@ -15,6 +15,6 @@
       = form_for @staging_workflow, method: :post do |f|
         = hidden_field_tag :project_name, @project
         = render partial: 'webui/autocomplete', locals: { html_id: 'managers_title', label: 'Managers Group:',
-                                                          source: autocomplete_groups_path }
+                                                          data: { source: autocomplete_groups_path } }
         .text-center
           = f.submit 'Create Staging Projects', class: 'btn btn-primary'

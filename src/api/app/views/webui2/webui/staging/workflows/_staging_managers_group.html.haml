@@ -11,6 +11,6 @@
             %strong= actual_group
 
           = render partial: 'webui/autocomplete', locals: { html_id: 'managers_title', label: 'Replace the group with:',
-                                                            source: autocomplete_groups_path }
+                                                            data: { source: autocomplete_groups_path } }
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons'
