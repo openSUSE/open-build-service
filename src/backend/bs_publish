@@ -838,8 +838,8 @@ sub createrelease_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  my $date = POSIX::ctime(time());
-  $date =~ s/\n//m;
+  my $date = POSIX::asctime(gmtime(time()));
+  chomp $date;
   my @debarchs = map {Build::Deb::basearch($_)} @{$data->{'repoinfo'}->{'arch'} || []};
   my $archs = join(' ', @debarchs);
 
