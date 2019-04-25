@@ -487,6 +487,68 @@ sub merge_package_appdata {
   return $appdatas;
 }
 
+# repoindex content for the ZYPP service
+sub createrepo_zyppservice {
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
+
+  my $downloadurl = BSUrlmapper::get_downloadurl("$projid/$repoid");
+  return unless $downloadurl;
+
+  local *FILE;
+  my $projidHeader = $data->{'dbgsplit'} ? "$projid$data->{'dbgsplit'}" : $projid;
+  $projidHeader =~ s/:/_/g;
+
+  mkdir_p("$extrep/repo");
+
+  # The repoindex file
+  open(FILE, '>', "$extrep/repo/repoindex.xml$$") || die("$extrep/repo/repoindex.xml$$: $!\n");
+  print FILE "<?xml version=\"1.0\"?>\n";
+  print FILE "<repoindex>\n";
+  my $repoinfo = $data->{'repoinfo'};
+  my @sprp = @{$repoinfo->{'prpsearchpath'} || []};
+  while (@sprp) {
+    my $sprp = shift @sprp;
+    next unless @sprp; # ignore the last repo, supposed to be the base repo
+    my $sprojid = $sprp->{'project'};
+    my $srepoid = $sprp->{'repository'};
+    my $url = BSUrlmapper::get_downloadurl("$sprojid/$srepoid");
+    next unless defined $url;
+    print FILE "  <repo alias=\"$sprojid\" url=\"$url\" enabled=\"1\" />\n";
+  }
+  print FILE "</repoindex>\n";
+  close(FILE) || die("close: $!\n");
+  rename("$extrep/repo/repoindex.xml$$", "$extrep/repo/repoindex.xml") || die("rename $extrep/repo/repoindex.xml$$ $extrep/repo/repoindex.xml: $!\n");
+
+  # sign it .. even when zypper is not using it atm
+  if ($BSConfig::sign) {
+    my @signargs;
+    push @signargs, '--project', $projid if $BSConfig::sign_project;
+    push @signargs, @{$data->{'signargs'} || []};
+    qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repo/repoindex.xml") && die("    sign failed: $?\n");
+  }
+
+# Needs further discussion with zypp people
+  # The service file
+#  open(FILE, '>', "$extrep/zypp.service$$") || die("$extrep/zypp.service$$: $!\n");
+#  print FILE "[$projidHeader]\n";
+#  print FILE "name=$projid\n";
+#  print FILE "type=rsi\n";
+#  print FILE "enabled=1\n";
+#  print FILE "autorefresh=1\n";
+#  print FILE "url=$downloadurl\n";
+#  close(FILE) || die("close: $!\n");
+#  rename("$extrep/zypp.service$$", "$extrep/zypp.service") || die("rename $extrep/zypp.service$$ $extrep/zypp.service: $!\n");
+}
+
+sub deleterepo_zyppservice {
+  my ($extrep, $projid, $repoid, $data) = @_;
+  # cleanup files
+  unlink("$extrep/zypp.service");
+  unlink("$extrep/repo/repoindex.xml.asc");
+  unlink("$extrep/repo/repoindex.xml");
+  rmdir("$extrep/repo");
+}
+
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -997,7 +1059,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build(?:\d\d\d\d|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*)-([^-]+)?(-\w+)?(\.(?:libvirt|virtualbox))?-Build\d+\..*((?:\.|-)(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*?)-([^-]+)?(-\w+)?(\.(?:libvirt|virtualbox))?-Build\d+\..*((?:\.|-)(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         my $box_type = $4 || "";
@@ -2583,6 +2645,11 @@ sub publish {
     createrepo_staticlinks($extrep, $projid, $xrepoid, $data, $repotype{'staticlinks'});
   } else {
     deleterepo_staticlinks($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'zyppservice'}) {
+    createrepo_zyppservice($extrep, $projid, $xrepoid, $data, $repotype{'zyppservice'});
+  } else {
+    deleterepo_zyppservice($extrep, $projid, $xrepoid, $data);
   }
 
   if ($patterntype{'ymp'}) {
