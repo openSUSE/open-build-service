@@ -42,7 +42,6 @@ exclude:
 - 'app/views/build/**/*'
 - 'app/views/comments/**/*'
 - 'app/views/distributions/**/*'
-- 'app/views/event_mailer/**/*'
 - 'app/views/exception_notifier/**/*'
 - 'app/views/group/**/*'
 - 'app/views/ichain_notifier/**/*'
