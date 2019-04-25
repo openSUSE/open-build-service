@@ -8,7 +8,10 @@
       %span.badge.badge-primary
         = @incidents.count
 
-    %table.w-100.responsive.table.table-sm.table-striped.table-bordered#incident-table
+    -# haml-lint:disable MultilinePipe
+    %table.w-100.responsive.table.table-sm.table-striped.table-bordered#incident-table{ data: { |
+    source: project_maintenance_incidents_path(project_name: @project.name) } } |
+      -# haml-lint:enable MultilinePipe
       %thead
         %tr
           %th
@@ -24,12 +27,19 @@
           %th
             Build
       %tbody
-        = render partial: 'webui/projects/maintenance_incidents/incident_table_entry', collection: @incidents
 
 - content_for :ready_function do
   :plain
-    $('#incident-table').DataTable({
+    initializeRemoteDatatable('#incident-table', {
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, 'All']],
-      pageLength: -1,
-      responsive: true
+      responsive: true,
+      searching: false,
+      columns: [
+        { data: 'summary', orderable: true },
+        { data: 'category', orderable: false },
+        { data: 'packages', orderable: false },
+        { data: 'info', orderable: false },
+        { data: 'release_targets', orderable: false },
+        { data: 'build_results', orderable: false }
+      ]
     });

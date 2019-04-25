@@ -8,7 +8,14 @@ module Webui
       after_action :verify_authorized, except: [:index]
 
       def index
-        @incidents = @project.maintenance_incidents
+        respond_to do |format|
+          format.html do
+            @incidents = @project.maintenance_incidents
+          end
+          format.json do
+            render json: MaintenanceIncidentDatatable.new(params, view_context: view_context, project: @project)
+          end
+        end
         switch_to_webui2
       end
 
