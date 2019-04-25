@@ -11,6 +11,6 @@
             = f.text_field(:realname, class: 'form-control')
           .form-group
             = f.label(:email, 'Email:')
-            = f.text_field(:email, required: true, email: true, class: 'form-control')
+            = f.email_field(:email, required: true, class: 'form-control')
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }

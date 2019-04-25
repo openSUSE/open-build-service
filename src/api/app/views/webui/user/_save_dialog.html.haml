@@ -10,5 +10,5 @@
           = f.text_field(:realname)
         %p
           = f.label(:email, "e-Mail:")
-          = f.text_field(:email, required: true, email: true)
+          = f.email_field(:email, required: true)
         = render partial: '/webui/shared/dialog_action_buttons'

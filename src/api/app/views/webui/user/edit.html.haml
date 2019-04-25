@@ -16,7 +16,7 @@
   %p
     = f.label(:email, "e-Mail:")
     %br
-    = f.text_field(:email, required: true, email: true, disabled: @configuration.ldap_enabled? && !@displayed_user.ignore_auth_services?)
+    = f.email_field(:email, required: true, disabled: @configuration.ldap_enabled? && !@displayed_user.ignore_auth_services?)
   %p
     = f.collection_check_boxes(:role_ids, Role.global, :id, :title)
   %p
