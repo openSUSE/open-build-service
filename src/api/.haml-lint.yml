@@ -46,7 +46,6 @@ exclude:
 - 'app/views/group/**/*'
 - 'app/views/ichain_notifier/**/*'
 - 'app/views/layouts/webui/**/*'
-- 'app/views/main/**/*'
 - 'app/views/message/**/*'
 - 'app/views/models/**/*'
 - 'app/views/person/**/*'
