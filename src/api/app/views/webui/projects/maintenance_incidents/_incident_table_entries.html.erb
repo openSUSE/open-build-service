@@ -1,19 +1,20 @@
 <% incidents.each do |incident| %>
     <% index = 0 %>
     <% release_targets_ng = incident.release_targets_ng() %>
+    <% patchinfo = patchinfo_data(incident.patchinfos.first) %>
     <% release_targets_ng.each do |rt_name, rt| %>
         <tr>
           <% if index == 0 %>
               <td rowspan="<%= release_targets_ng.length %>">
-                <% title = rt[:patchinfo].try(:[], :summary) || incident.title || incident.name %>
+                <% title = patchinfo.try(:[], :summary) || incident.title || incident.name %>
                 <% title = "#{short_incident_name(incident)}: #{title}" %>
                 <%= link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title) %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
-                <% if rt[:patchinfo] %>
-                    <%= link_to(rt[:patchinfo][:category],
+                <% if patchinfo.present? %>
+                    <%= link_to(patchinfo[:category],
                           patchinfo_show_path(project: incident.name, package: "patchinfo", file: "_patchinfo"),
-                          { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
+                          { style: "color: #{patchinfo_category_color(patchinfo[:category])};" }) %>
                 <% else %>
                     <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
                           patchinfo_path(project: incident.name, package: "patchinfo"),
@@ -52,8 +53,8 @@
                         <%= sprite_tag('lock', title: 'Locked') %>
                     <% end %>
                 <% end %>
-                <% if rt[:patchinfo] && rt[:patchinfo][:stopped].present? %>
-                    <%= sprite_tag("clock", title: "Stopped: #{rt[:patchinfo][:stopped]}") %>
+                <% if patchinfo[:stopped].present? %>
+                    <%= sprite_tag("clock", title: "Stopped: #{patchinfo[:stopped]}") %>
                 <% end %>
               </td>
           <% end %>

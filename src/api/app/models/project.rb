@@ -1323,7 +1323,7 @@ class Project < ApplicationRecord
     Backend::Api::Build::Project.wipe_binaries(name)
   end
 
-  def build_succeeded?(repository = nil)
+  def build_succeeded?(repository)
     states = {}
     repository_states = {}
 
@@ -1332,7 +1332,7 @@ class Project < ApplicationRecord
     return false if br.empty?
 
     br.elements('result') do |result|
-      if repository && result['repository'] == repository
+      if result['repository'] == repository
         repository_states[repository] ||= {}
         result.elements('summary') do |summary|
           summary.elements('statuscount') do |statuscount|
@@ -1349,7 +1349,7 @@ class Project < ApplicationRecord
         end
       end
     end
-    if repository && repository_states.key?(repository)
+    if repository_states.key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
       repository_states[repository].each do |state, _|
         return false if state.in?(['broken', 'failed', 'unresolvable'])
@@ -1372,12 +1372,6 @@ class Project < ApplicationRecord
   end
 
   def release_targets_ng
-    global_patchinfo_package = patchinfos.first
-    if global_patchinfo_package
-      xml = Patchinfo.new(data: global_patchinfo_package.source_file('_patchinfo'))
-      patchinfo = collect_patchinfo_data(xml)
-    end
-
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
@@ -1387,7 +1381,6 @@ class Project < ApplicationRecord
         release_targets_ng[rt.target_repository.project.name] = {
           reponame: repo.name,
           packages: [],
-          patchinfo: patchinfo,
           package_issues: {},
           package_issues_by_tracker: {}
         }
@@ -1397,7 +1390,7 @@ class Project < ApplicationRecord
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     package_count = 0
-    packages.where.not(id: global_patchinfo_package).select(:name, :id).each do |pkg|
+    packages.where.not(id: patchinfos).select(:name, :id).each do |pkg|
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
 
@@ -1646,18 +1639,6 @@ class Project < ApplicationRecord
     end
 
     nil
-  end
-
-  def collect_patchinfo_data(patchinfo)
-    if patchinfo
-      {
-        summary: patchinfo.document.at_css('summary').try(:content),
-        category: patchinfo.document.at_css('category').try(:content),
-        stopped: patchinfo.document.at_css('stopped').try(:content)
-      }
-    else
-      {}
-    end
   end
 
   def has_remote_distribution(project_name, repository)

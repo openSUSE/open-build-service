@@ -1,7 +1,7 @@
 module Webui::MaintenanceIncidentHelper
   def incident_label(incident_project, patchinfo)
     incident_number = incident_project.name.rpartition(':').last
-    title = patchinfo.try(:[], :summary) || incident_project.title || incident_project.name
+    title = patchinfo.dig(:summary) || incident_project.title || incident_project.name
 
     "#{incident_number}: #{title}"
   end
@@ -34,6 +34,71 @@ module Webui::MaintenanceIncidentHelper
         concat 'Locked'
       end
     end
+  end
+
+  def patchinfo_data(patchinfo)
+    return {} unless patchinfo
+    Xmlhash.parse(patchinfo.source_file('_patchinfo')).slice('summary', 'category', 'stopped').with_indifferent_access
+  end
+
+  def summary_cell(incident, patchinfo)
+    title = incident_label(incident, patchinfo)
+    link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title)
+  end
+
+  def category_cell(incident, patchinfo)
+    if patchinfo.present?
+      link_to(patchinfo[:category], patchinfo_show_path(project: incident.name, package: 'patchinfo'),
+              class: "patchinfo-category-#{patchinfo[:category]}")
+    else
+      link_to(patchinfo_path(project: incident.name, package: 'patchinfo'), method: :post, class: 'text-danger') do
+        content_tag(:i, nil, class: 'fas fa-exclamation-circle text-danger')
+        'Missing Patchinfo'
+      end
+    end
+  end
+
+  def packages_cell(incident, release_targets_ng)
+    release_target = release_targets_ng.values.first
+    return if release_target[:packages].blank?
+    first_pkg = release_target[:packages].first
+    safe_join([
+                link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)),
+                (', ...' if release_target[:packages].length > 1)
+              ])
+  end
+
+  def info_cell(incident, patchinfo)
+    safe_join([open_requests_icon(incident), outgoing_requests_icons(incident), stopped_icon(patchinfo)])
+  end
+
+  def stopped_icon(patchinfo)
+    return unless patchinfo[:stopped]
+    content_tag(:div) do
+      safe_join([content_tag(:i, nil, class: 'fas fa-clock text-info pr-1'), "Stopped: #{patchinfo[:stopped]}"])
+    end
+  end
+
+  def release_targets_cell(release_targets_ng)
+    safe_join([
+                release_targets_ng.keys.map do |release_target_project|
+                  content_tag(:div) do
+                    content_tag(:b, release_target_project)
+                  end
+                end
+              ])
+  end
+
+  def build_results_cell(incident, release_targets_ng)
+    safe_join([
+                release_targets_ng.values.map do |release_target_ng|
+                  content_tag(:div) do
+                    link_to(project_show_path(project: incident.name)) do
+                      content_tag(:i, nil, class: "fas #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
+                    end
+                  end
+                end
+              ])
   end
 
   private
