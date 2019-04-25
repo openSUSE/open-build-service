@@ -2,11 +2,15 @@ $(document).ready(function() {
   $('.obs-collapsible-textbox').on('click', function() {
     var selectedText = document.getSelection().toString();
     if(!selectedText) {
-      var collapsibleLink = $(this).find('.obs-collapsible-link');
-      var showText = (collapsibleLink.attr('title') === 'Show more' ) ? 'Show less' : 'Show more';
+      $(this).find('.obs-collapsible-text').toggleClass('expanded');
+      $(this).find('.show-content').toggleClass('more less');
+    }
+  });
 
-      $(this).find('.obs-collapsible-text, .obs-collapsible-link').toggleClass('obs-collapsed obs-uncollapsed');
-      collapsibleLink.attr('title', showText);
+  $('.obs-collapsible-text').each(function(_index, element){
+    if (element.scrollHeight > element.offsetHeight) {
+      var $link = $('<a href="javascript:void(0)" class="show-content more"><i class="fa"></i></a>');
+      $(element).after($link);
     }
   });
 });

@@ -1,14 +1,8 @@
 %h3
-  %p Request #{bs_request.number} (#{bs_request.state})
+  Request #{bs_request.number} (#{bs_request.state})
 
 #description-text
   - if bs_request.description.present?
-    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description, threshold: { text_length: 1000, line_count: 10 } }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
   - else
     %i No description set
-- if can_add_reviews
-  %p
-    = link_to(add_reviewer_dialog_path(number: bs_request.number),
-              data: { toggle: 'modal', target: '#add-reviewer-modal' }) do
-      %i.fas.fa-plus-circle.text-primary
-      Add a Review
