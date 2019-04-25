@@ -1,6 +1,7 @@
 :ruby
   required = local_assigns.fetch(:required, true)
   value = local_assigns.fetch(:value, '')
+  disabled = local_assigns.fetch(:disabled, false)
 
 .form-group.ui-front
   = label_tag(html_id, label)
@@ -10,5 +11,5 @@
     .input-group-prepend
       %span.input-group-text
         %i.fas.fa-search
-    = text_field_tag(html_id, value, required: required, placeholder: 'Type to autocomplete...',
+    = text_field_tag(html_id, value, required: required, disabled: disabled, placeholder: 'Type to autocomplete...',
                      class: 'obs-autocomplete form-control', data: { source: source })
