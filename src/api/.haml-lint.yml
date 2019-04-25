@@ -1,6 +1,6 @@
 linters:
   LineLength:
-    max: 150
+    max: 180
 
   # Apply lint in all partials, but exclude 'breadcrumb_items' partials
   InstanceVariables:
