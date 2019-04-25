@@ -1,35 +1,38 @@
+- request_exclusion_policy = Staging::RequestExclusionPolicy.new(User.current, @staging_workflow).create?
 .row
   .col-xl-12
     .card.mb-3
       .card-body
         %h3 Excluded Requests
-        %table.responsive.table.table-striped.table-bordered#excluded-requests-datatable
+        -# haml-lint:disable LineLength
+        %table.responsive.table.table-striped.table-bordered.w-100#excluded-requests-datatable{ data: excluded_requests_remote_url(@staging_workflow.id) }
+          -# haml-lint:enable LineLength
           %thead
             %tr.text-center
               %th Request
               %th Description
               %th Actions
           %tbody
-            - @request_exclusions.each do |request_exclusion|
-              %tr
-                %td= request_exclusion.bs_request.number
-                %td= request_exclusion.description
-                %td
-                  - if Staging::RequestExclusionPolicy.new(User.current, @staging_workflow).create?
-                    = link_to('#', title: 'Stop excluding request', data: { toggle: 'modal', target: '#delete-excluded-request-modal',
-                      action: staging_workflow_excluded_request_path(@staging_workflow, request_exclusion) }) do
-                      %i.fas.fa-times-circle.text-danger
-        - if Staging::RequestExclusionPolicy.new(User.current, @staging_workflow).create?
+
+        - if request_exclusion_policy
           = link_to('#', data: { toggle: 'modal', target: '#exclude-request-modal' }) do
             %i.fas.fa-plus-circle.text-primary
             Exclude request
 
-- if Staging::RequestExclusionPolicy.new(User.current, @staging_workflow).create?
+- if request_exclusion_policy
   = render partial: 'create_dialog'
   = render partial: 'delete_dialog'
 
 = content_for :ready_function do
   :plain
     $('#excluded-requests-datatable').DataTable({
-      responsive: true
+      responsive: true,
+      processing: true,
+      serverSide: true,
+      ajax: $('#excluded-requests-datatable').data('source'),
+      columns: [
+        { data: 'request' },
+        { data: 'description' },
+        { data: 'actions', orderable: false }
+      ]
     });
