@@ -62,7 +62,6 @@ namespace :dev do
 
   desc 'Run all linters we use'
   task :lint do
-    Rake::Task['haml_lint'].invoke
     Rake::Task['dev:lint:rubocop:all'].invoke
     sh 'jshint ./app/assets/javascripts/'
   end
@@ -116,10 +115,6 @@ namespace :dev do
           sh 'rubocop --auto-correct'
         end
       end
-    end
-    desc 'Run the haml linter'
-    task :haml do
-      Rake::Task['haml_lint'].invoke
     end
   end
 

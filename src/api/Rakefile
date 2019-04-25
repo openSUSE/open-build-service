@@ -11,7 +11,6 @@ require(File.join(File.dirname(__FILE__), 'config', 'boot'))
 unless Rails.env.production?
   require 'single_test/tasks'
   require 'rubocop/rake_task'
-  require 'haml_lint/rake_task'
 
   RuboCop::RakeTask.new(:rubocop) do |task|
     task.options = ['-D', '-F', '--fail-level', 'convention']
