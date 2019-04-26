@@ -5,7 +5,7 @@
       .card-body
         %h3 Excluded Requests
         -# haml-lint:disable LineLength
-        %table.responsive.table.table-striped.table-bordered.w-100#excluded-requests-datatable{ data: excluded_requests_remote_url(@staging_workflow.id) }
+        %table.responsive.table.table-sm.table-striped.table-bordered.w-100#excluded-requests-datatable{ data: excluded_requests_remote_url(@staging_workflow.id) }
           -# haml-lint:enable LineLength
           %thead
             %tr.text-center
