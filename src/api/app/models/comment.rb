@@ -64,20 +64,6 @@ class Comment < ApplicationRecord
     users.to_a
   end
 
-  def to_xml(builder, include_commentable = false)
-    attrs = { who: user, when: created_at, id: id }
-    if include_commentable
-      attrs[commentable.class.name.downcase] = commentable.to_param
-      attrs['project'] = commentable.project if commentable.is_a?(Package)
-    end
-    attrs[:parent] = parent_id if parent_id
-    body.delete!("\u0000")
-
-    builder.comment_(attrs) do
-      builder.text(body)
-    end
-  end
-
   def blank_or_destroy
     if children.exists?
       self.body = 'This comment has been deleted'
