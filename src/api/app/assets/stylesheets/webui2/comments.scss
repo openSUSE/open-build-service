@@ -1,5 +1,7 @@
 #comments {
   .media .media-body {
+    @extend .text-word-break-all;
+
     pre, code {
       @extend .p-2;
       @extend .bg-light;
