@@ -16,5 +16,5 @@
           - @attribute_types.each do |attribute_type|
             %p.d-none{ id: "attribute_type-description-#{attribute_type.id}" }
               = attribute_type.description.presence || 'Sorry, this attribute has no description'
+      = link_to('Back', index_attribs_path, class: 'btn btn-outline-secondary', role: 'button')
       = form.submit('Add', class: 'btn btn-primary')
-      = link_to('Back', index_attribs_path, class: 'btn btn-secondary', role: 'button')
