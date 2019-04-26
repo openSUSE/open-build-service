@@ -89,7 +89,7 @@ module Webui::MaintenanceIncidentHelper
                 link_to(project_show_path(project: incident.name)) do
                   content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
                 end,
-                content_tag(:b, release_target_project)
+                link_to(release_target_project, project_show_path(project: release_target_project))
               ]
             )
           end
