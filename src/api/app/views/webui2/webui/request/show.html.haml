@@ -21,8 +21,7 @@
       .col-md-8
         = render partial: 'show_overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
       .col-md-4
-        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers,
-                                                       other_open_reviews: @other_open_reviews, my_open_reviews: @my_open_reviews }
+        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
       - if @can_add_reviews
         %ul.list-inline.mb-0
           %li.list-inline-item
@@ -59,7 +58,13 @@
               %li.nav-item
                 %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
                   class: ('active' if index.zero? && !@can_handle_request) }
-                  Review for #{reviewer(review)}
+                  Review for
+                  - if review.by_package
+                    = review.by_project
+                    /
+                    = review.by_package
+                  - else
+                    = review.by_user || review.by_group || review.by_project
         .card-body
           - if @can_handle_request && @show_project_maintainer_hint
             .alert.alert-warning

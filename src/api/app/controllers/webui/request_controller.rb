@@ -48,10 +48,27 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
-  def modify_review
-    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package)
-    request = BsRequest.find_by_number(params[:request_number])
+  def modify_review_set_request
+    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package, :review_id)
+    unless review_params[:review_id]
+      # TODO: bento_only
+      # bootstrap passes only review_id - the others can go once bento is dropped
+      return review_params, BsRequest.find_by_number(params[:request_number])
+    end
+    review = Review.find_by(id: review_params[:review_id])
+    unless review
+      flash[:error] = 'Unable to load review'
+      return review_params, nil
+    end
+    review_params[:by_package] = review.by_package
+    review_params[:by_project] = review.by_project
+    review_params[:by_user] = review.by_user
+    review_params[:by_group] = review.by_group
+    return review_params, review.bs_request
+  end
 
+  def modify_review
+    review_params, request = modify_review_set_request
     if request.nil?
       flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_show_path(User.session!))
@@ -74,7 +91,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def webui2_show
-    @my_open_reviews, @other_open_reviews = @bs_request.reviews_for_user_and_others(User.current)
+    reviews = @bs_request.reviews.where(state: 'new')
+    # might be nil
+    user = User.session
+    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
     @actions = @bs_request.webui_actions(diffs: true)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
   end
