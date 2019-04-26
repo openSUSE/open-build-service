@@ -101,10 +101,17 @@ module Webui::MaintenanceIncidentHelper
   private
 
   def outgoing_request_links(requests)
-    requests.map do |rq_out|
-      link_to(request_show_path(rq_out['number'])) do
-        content_tag(:i, nil, class: "fas fa-flag request-flag-#{rq_out['state']}", title: "Release request in state '#{rq_out['state']}'")
-      end
+    requests.map do |request|
+      safe_join(
+        [
+          link_to(request_show_path(request['number'])) do
+            content_tag(:i, nil, class: "fas fa-flag pr-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
+          end,
+          # rubocop:disable Rails/OutputSafety
+          "Created #{fuzzy_time(request.created_at)}".html_safe
+          # rubocop:enable Rails/OutputSafety
+        ]
+      )
     end
   end
 end
