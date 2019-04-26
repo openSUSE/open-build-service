@@ -1,7 +1,5 @@
 class ExcludedRequestDatatable < Datatable
-  def_delegator :@view, :link_to
-  def_delegator :@view, :staging_workflow_excluded_request_path
-  def_delegator :@view, :content_tag
+  def_delegators :@view, :link_to, :staging_workflow_excluded_request_path, :content_tag, :request_show_path
 
   def initialize(params, opts = {})
     @staging_workflow = opts[:staging_workflow]
@@ -20,7 +18,7 @@ class ExcludedRequestDatatable < Datatable
   def data
     records.map do |record|
       {
-        request: record.bs_request.number,
+        request: link_to(record.bs_request.number, request_show_path(record.bs_request.number)),
         description: record.description,
         actions: process_policy(record)
       }
