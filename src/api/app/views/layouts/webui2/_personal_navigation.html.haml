@@ -4,22 +4,13 @@
   - elsif CONFIG['kerberos_mode']
     = link_to 'Log In', session_new_path
   - elsif CONFIG['proxy_auth_mode'] == :on && CONFIG['proxy_auth_register_page'].present?
-    = render partial: 'layouts/webui2/proxy_auth_navigation'
+    = render partial: 'layouts/webui2/login_form', locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
+                                                             form_options: { url: CONFIG['proxy_auth_login_page'],
+                                                                             method: :post,
+                                                                             enctype: 'application/x-www-form-urlencoded' },
+                                                             proxy: true }
   - else
     - if can_register
-      %li.nav-item
-        = link_to('Sign Up', user_signup_path, class: 'nav-link')
-      %li.nav-item.dropdown
-        = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', "data-toggle": "dropdown") do
-          Log In
-        .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ "aria-labelledby": "dropdownMenuButton", style: 'width: 350px' }
-          #login-form
-            = form_tag(session_create_path, class: 'px-4 py-3') do
-              .form-group
-                = label_tag(:username, 'Username', class: 'text-light')
-                = text_field_tag(:username, nil, placeholder: 'User Name', class: 'form-control')
-              .form-group
-                = label_tag(:password, 'Password', class: 'text-light')
-                = password_field_tag(:password, nil, placeholder: 'Password', class: 'form-control')
-              .float-right
-                = submit_tag('Log In', class: 'btn btn-success')
+      = render partial: 'layouts/webui2/login_form', locals: { signup_url: user_signup_path,
+                                                               form_options: session_create_path,
+                                                               proxy: false }
