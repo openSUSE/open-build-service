@@ -2619,7 +2619,7 @@ sub fixpackstatus {
   if ($codefilter) {
     $needjob = 0 if $codefilter->{'dontmapscheduled'};
     my %cf = %$codefilter;
-    delete $cf{$_} for qw{unresolvable succeeded failed};
+    delete $cf{$_} for qw{unresolvable succeeded failed broken disabled excluded blocked locked unknown};
     $needjob = 0 unless %cf;
   }
   for my $packid (keys %$packstatus) {
