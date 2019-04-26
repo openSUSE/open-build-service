@@ -12,7 +12,14 @@ module Webui
       after_action :verify_authorized, except: [:index]
 
       def index
-        @request_exclusions = @staging_workflow.request_exclusions
+        respond_to do |format|
+          format.html
+          format.json do
+            render json: ExcludedRequestDatatable.new(params, view_context: view_context,
+                                                              staging_workflow: @staging_workflow,
+                                                              current_user: User.current)
+          end
+        end
       end
 
       def create
