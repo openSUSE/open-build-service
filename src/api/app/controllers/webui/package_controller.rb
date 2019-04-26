@@ -147,6 +147,7 @@ class Webui::PackageController < Webui::WebuiController
   end
   # rubocop:enable Lint/NonLocalExitFromIterator
 
+  # TODO: bento_only
   def statistics
     return if switch_to_webui2
     @arch = params[:arch]
@@ -170,11 +171,7 @@ class Webui::PackageController < Webui::WebuiController
     # Ensure it really is just a file name, no '/..', etc.
     @filename = File.basename(params[:filename])
 
-    begin
-      @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
-    rescue Backend::Error
-      raise ActiveRecord::RecordNotFound, 'Not Found'
-    end
+    @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
     unless @fileinfo
       raise ActiveRecord::RecordNotFound, 'Not Found'
     end
@@ -618,7 +615,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIError, ActiveRecord::RecordInvalid, Backend::Error => exception
+  rescue APIError, ActiveRecord::RecordInvalid => exception
     flash[:error] = "Failed to branch: #{exception.message}"
     redirect_back(fallback_location: root_path)
   end

@@ -51,6 +51,22 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  rescue_from Backend::Error, Timeout::Error do |exception|
+    Airbrake.notify(exception)
+    message = if exception.is_a?(Backend::Error)
+                'There has been an internal error. Please try again.'
+              elsif exception.is_a?(Timeout::Error)
+                'The request timed out. Please try again.'
+              end
+
+    if request.xhr?
+      render json: { error: message }, status: 400
+    else
+      flash[:error] = message
+      redirect_back(fallback_location: root_path)
+    end
+  end
+
   # FIXME: This is more than stupid. Why do we tell the user that something isn't found
   # just because there is some data missing to compute the request? Someone needs to read
   # http://guides.rubyonrails.org/active_record_validations.html

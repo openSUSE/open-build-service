@@ -1442,7 +1442,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_raise(Backend::Error, 'fake message')
       end
 
-      let(:get_binary) do
+      subject do
         get :binary, params: { package: source_package,
                                project: source_project,
                                repository: repo_for_source_project.name,
@@ -1450,7 +1450,11 @@ RSpec.describe Webui::PackageController, vcr: true do
                                filename: 'filename.txt' }
       end
 
-      it { expect { get_binary }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect(response).to have_http_status(:success) }
+      it 'shows an error message' do
+        subject
+        expect(flash[:error]).to eq('There has been an internal error. Please try again.')
+      end
     end
 
     context 'without file info' do
@@ -1458,7 +1462,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(nil)
       end
 
-      let(:get_binary) do
+      subject do
         get :binary, params: { package: source_package,
                                project: source_project,
                                repository: repo_for_source_project.name,
@@ -1466,7 +1470,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                                filename: 'filename.txt' }
       end
 
-      it { expect { get_binary }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect { subject }.to raise_error(ActiveRecord::RecordNotFound) }
     end
 
     context 'without a valid architecture' do
