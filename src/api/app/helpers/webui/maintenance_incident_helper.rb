@@ -79,26 +79,23 @@ module Webui::MaintenanceIncidentHelper
     end
   end
 
-  def release_targets_cell(release_targets_ng)
-    safe_join([
-                release_targets_ng.keys.map do |release_target_project|
-                  content_tag(:div) do
-                    content_tag(:b, release_target_project)
-                  end
-                end
-              ])
-  end
-
-  def build_results_cell(incident, release_targets_ng)
-    safe_join([
-                release_targets_ng.values.map do |release_target_ng|
-                  content_tag(:div) do
-                    link_to(project_show_path(project: incident.name)) do
-                      content_tag(:i, nil, class: "fas #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
-                    end
-                  end
-                end
-              ])
+  def release_targets_cell(incident, release_targets_ng)
+    safe_join(
+      [
+        release_targets_ng.map do |release_target_project, release_target_ng|
+          content_tag(:div) do
+            safe_join(
+              [
+                link_to(project_show_path(project: incident.name)) do
+                  content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
+                end,
+                content_tag(:b, release_target_project)
+              ]
+            )
+          end
+        end
+      ]
+    )
   end
 
   private
