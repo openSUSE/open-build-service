@@ -3,8 +3,6 @@
     .modal-content
       .modal-header
         %h5.modal-title#exclude-request-modal-label Exclude Request
-        %a.close{ type: 'button', data: { dismiss: 'modal' }, aria: { label: 'Close' } }
-          %span{ aria: { hidden: true } } &times;
       = form_for Staging::RequestExclusion.new, url: staging_workflow_excluded_requests_path do |f|
         .modal-body
           .form-group
