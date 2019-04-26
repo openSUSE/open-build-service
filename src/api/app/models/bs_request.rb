@@ -259,8 +259,8 @@ class BsRequest < ApplicationRecord
     request
   end
 
-  def self.truncated_diffs?(request)
-    submit_requests = request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }
+  def self.truncated_diffs?(actions)
+    submit_requests = actions.select { |action| action[:type] == :submit && action[:sourcediff] }
 
     submit_requests.any? do |action|
       action[:sourcediff].any? { |sourcediff| sourcediff_has_shown_attribute?(sourcediff) }
@@ -885,17 +885,6 @@ class BsRequest < ApplicationRecord
       end
     end
     [user_reviews, other_open_reviews]
-  end
-
-  def webui_infos(opts = {})
-    opts.reverse_merge!(diffs: true)
-    result = {}
-    result['is_target_maintainer'] = is_target_maintainer?(User.possibly_nobody)
-
-    result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.possibly_nobody)
-
-    result['actions'] = webui_actions(opts)
-    result
   end
 
   def auto_accept

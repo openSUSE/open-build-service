@@ -55,7 +55,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
     wi = req.webui_infos(diffs: false)
-    assert_equal wi['is_target_maintainer'], false
+    assert_equal req.is_target_maintainer?, false
 
     wia = wi['actions'][0]
     assert_equal wia[:type], :add_role
@@ -67,8 +67,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
-    wi = req.webui_infos(diffs: false)
-    assert_equal wi['is_target_maintainer'], true
+    assert_equal req.is_target_maintainer?, true
 
     req.destroy
   end
@@ -134,7 +133,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     wi = req.webui_infos(diffs: false)
     # iggy is *not* target maintainer
-    assert_equal false, wi['is_target_maintainer']
+    assert_equal req.is_target_maintainer?, false
     assert_equal wi['actions'][0], type: :submit,
                                    sprj: 'home:Iggy',
                                    spkg: 'TestPack',
@@ -150,7 +149,7 @@ class BsRequestTest < ActiveSupport::TestCase
     BsRequest.all.each do |r|
       # puts r.render_xml
       expect = trues.include?(r.number)
-      assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'],
+      assert_equal expect, r.is_target_maintainer?,
                    "Request #{r.number} should have #{expect} in target_maintainer for #{user}"
     end
   end

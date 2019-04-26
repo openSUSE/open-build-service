@@ -323,78 +323,60 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '#truncated_diffs?' do
     context "when there is no action with type 'submit'" do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
-            { type: 'bar' }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: 'bar' }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when there is no sourcediff' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
-            { type: :submit }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: :submit }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when the sourcediff is empty' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: nil },
-            { type: :submit }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: nil },
+          { type: :submit }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when the diff is at least one diff that has a shown attribute' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(true) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(true) }
     end
 
     context 'when none of the diffs has a shown attribute' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]]] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]]] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context "when there is a sourcediff attribute with no 'files'" do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['other_data' => 'foo'] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['other_data' => 'foo'] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
   end
 

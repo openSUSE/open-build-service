@@ -73,33 +73,40 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request)
   end
 
+  def webui2_show
+    @my_open_reviews, @other_open_reviews = @bs_request.reviews_for_user_and_others(User.current)
+    @actions = @bs_request.webui_actions(diffs: true)
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+  end
+
   def show
     diff_limit = params[:full_diff] ? 0 : nil
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-    @is_target_maintainer = @req['is_target_maintainer']
 
-    @my_open_reviews = @req['my_open_reviews']
-    @other_open_reviews = @req['other_open_reviews']
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
     @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
 
     @history = @bs_request.history_elements.includes(:user)
-    @actions = @req['actions']
-
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@req)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.possibly_nobody) && any_project_maintained_by_current_user?)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && !@package_maintainers.include?(User.session) && any_project_maintained_by_current_user?
     @comments = @bs_request.comments
     @comment = Comment.new
 
-    switch_to_webui2
+    return if switch_to_webui2
+    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
+    @my_open_reviews = @req['my_open_reviews']
+    @other_open_reviews = @req['other_open_reviews']
+    @actions = @req['actions']
+
+    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
   end
 
   def sourcediff
