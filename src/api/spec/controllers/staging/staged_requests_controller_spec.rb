@@ -73,7 +73,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
 
     context 'with valid staging_project but staging project is being merged' do
       before do
-        Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
+        staging_project.update_attributes!(merging: true)
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                       body: "<requests><number>#{bs_request.number}</number></requests>"
@@ -155,7 +155,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
 
     context 'with valid staging_project but staging project is being merged' do
       before do
-        Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
+        staging_project.update_attributes!(merging: true)
         login user
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
                          body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"

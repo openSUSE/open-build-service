@@ -36,6 +36,28 @@ module StagingProject
     end
   end
 
+  def accept
+    clear_memoized_data
+    return unless overall_state == :acceptable
+
+    transaction do
+      update_attributes!(merging: true)
+
+      accepted_packages = []
+      staged_requests.each do |staged_request|
+        if staged_request.reviews.where(by_project: name).exists?
+          staged_request.change_review_state(:accepted, by_project: name, comment: "Staging Project #{name} got accepted.")
+        end
+        staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{name} got accepted.")
+        accepted_packages.concat(staged_request.bs_request_actions.map(&:target_package))
+      end
+      packages.where(name: accepted_packages).find_each(&:destroy)
+      staged_requests.delete_all
+
+      update_attributes!(merging: false)
+    end
+  end
+
   # Some staging projects contain repositories that refer to themself. In such
   # cases we create a new self-referencing repository path.
   def update_self_referencing_repositories!(old_project)
@@ -163,8 +185,7 @@ module StagingProject
   end
 
   def state
-    # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.
-    return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
+    return :accepting if merging?
     return :empty if staged_requests.blank?
     return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
     bc_state = build_or_check_state
