@@ -737,6 +737,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # reset devel package setting again
+    pkg.commit_opts = { no_backend_write: 1 }
     pkg.develpackage = nil
     pkg.save
     # cleanup
