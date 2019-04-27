@@ -853,7 +853,7 @@ class BsRequestAction < ApplicationRecord
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
         tprj = Project.find_by_name(target_project)
-        if tprj.nil? || !User.current_or_nobody.can_modify?(tprj)
+        if tprj.nil? || !User.possibly_nobody.can_modify?(tprj)
           # produce an error for the source
           Package.get_by_project_and_name(source_project, source_package)
         end

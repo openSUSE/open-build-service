@@ -218,23 +218,30 @@ class User < ApplicationRecord
 
   # The currently logged in user (might be nil). It's reset after
   # every request and normally set during authentification
+  # Prefer possibly_nobody, session or session! - this function is scheduled
+  # for removal, it doesn't express the intention what to do in
+  # case of anonymous access well enough.
   def self.current
     Thread.current[:user]
-  end
-
-  def self.nobody
-    Thread.current[:nobody] ||= find_nobody!
   end
 
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
   # is_nobody? on the returned object
-  def self.current_or_nobody
+  def self.possibly_nobody
     current || nobody
   end
 
-  def self.session=(user)
-    Thread.current[:user] = user
+  # Currently logged in user. Will thrown an exception if no user is logged in.
+  # So the controller needs to require login if using this (or models using it)
+  def self.session!
+    raise ArgumentError, 'Requiring user, but found nobody' unless session
+    current
+  end
+
+  # Currently logged in user or nil
+  def self.session
+    current if current && !current.is_nobody?
   end
 
   def self.current_login
@@ -243,6 +250,11 @@ class User < ApplicationRecord
 
   def self.admin_session?
     current && current.is_admin?
+  end
+
+  # set the user as current session user (should be real user)
+  def self.session=(user)
+    Thread.current[:user] = user
   end
 
   def self.get_default_admin
@@ -868,6 +880,11 @@ class User < ApplicationRecord
   end
 
   private
+
+  def self.nobody
+    Thread.current[:nobody] ||= find_nobody!
+  end
+  private_class_method :nobody
 
   def password_validation
     return if password_digest || deprecated_password

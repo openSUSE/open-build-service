@@ -100,7 +100,7 @@ class Webui::WebuiController < ActionController::Base
     if CONFIG['kerberos_mode']
       kerberos_auth
     else
-      if User.current_or_nobody.is_nobody?
+      if User.possibly_nobody.is_nobody?
         render(text: 'Please login') && (return false) if request.xhr?
 
         flash[:error] = 'Please login to access the requested page.'
