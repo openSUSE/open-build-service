@@ -851,9 +851,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     let(:attribute_type) { AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment') }
     let(:text) { 'The text to edit the comment' }
 
-    before do
-    end
-
     context 'with a user that can create attributes' do
       before do
         login user
