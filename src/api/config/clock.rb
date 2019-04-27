@@ -41,7 +41,7 @@ module Clockwork
   end
 
   every(1.hour, 'accept requests') do
-    User.current = User.get_default_admin
+    User.session = User.get_default_admin
     BsRequest.delayed_auto_accept
   end
 
@@ -69,7 +69,7 @@ module Clockwork
   end
 
   every(1.day, 'create cleanup requests', at: '06:00') do
-    User.current = User.get_default_admin
+    User.session = User.get_default_admin
     ProjectCreateAutoCleanupRequests.perform_later
   end
 

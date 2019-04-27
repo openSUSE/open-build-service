@@ -51,7 +51,7 @@ class EventMailerTest < ActionMailer::TestCase
   end
 
   test 'group emails' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
@@ -72,7 +72,7 @@ class EventMailerTest < ActionMailer::TestCase
 
   # now check that disabling it for users in groups works too
   test 'group emails to users disabled' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     req = bs_requests(:submit_from_home_project)
 

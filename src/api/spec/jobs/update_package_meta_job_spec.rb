@@ -23,7 +23,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
     let!(:kind_patchinfo) { PackageKind.create(package_id: package2.id, kind: 'patchinfo') }
 
     before do
-      User.current = user
+      User.session = user
       branch_package.branch
       Package.last.update_backendinfo
     end
@@ -36,7 +36,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
   describe '#scan_links' do
     # If the package has a link it will check if a BackendPackage exists, otherwise, it will create it.
     before do
-      User.current = user
+      User.session = user
       branch_package.branch
     end
 

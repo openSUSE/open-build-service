@@ -265,7 +265,7 @@ module ActionDispatch
     @@auth = nil
 
     def reset_auth
-      User.current = nil
+      User.session = nil
       @@auth = nil
     end
 

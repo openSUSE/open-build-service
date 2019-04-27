@@ -163,12 +163,12 @@ class Webui::WebuiController < ActionController::Base
   def check_user
     @spider_bot = request.bot?
     previous_user = User.current.try(:login)
-    User.current = nil # reset old users hanging around
+    User.session = nil # reset old users hanging around
     if CONFIG['proxy_auth_mode'] == :on
       logger.debug 'Authenticating with proxy auth mode'
       user_login = request.env['HTTP_X_USERNAME']
       if user_login.blank?
-        User.current = User.find_nobody!
+        User.session = User.find_nobody!
         return
       end
 
@@ -180,10 +180,10 @@ class Webui::WebuiController < ActionController::Base
                                        realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip)
       end
 
-      User.current = User.find_by(login: user_login)
+      User.session = User.find_by(login: user_login)
       unless User.current.is_active?
         session[:login] = nil
-        User.current = User.find_nobody!
+        User.session = User.find_nobody!
         RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1') if previous_user != User.current.try(:login)
         redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
         return
@@ -191,8 +191,8 @@ class Webui::WebuiController < ActionController::Base
       User.current.update_user_info_from_proxy_env(request.env)
     end
 
-    User.current = User.find_by_login(session[:login]) if session[:login]
-    User.current ||= User.find_nobody!
+    User.session = User.find_by_login(session[:login]) if session[:login]
+    User.session = User.current || User.find_nobody!
     if User.current.is_nobody?
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
     elsif previous_user != User.current.login

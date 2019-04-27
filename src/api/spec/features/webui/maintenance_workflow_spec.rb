@@ -17,7 +17,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   end
 
   before do
-    User.current = admin_user
+    User.session = admin_user
     create(:maintenance_project_attrib, project: maintenance_project)
   end
 

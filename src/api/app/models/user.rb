@@ -233,7 +233,7 @@ class User < ApplicationRecord
     current || nobody
   end
 
-  def self.current=(user)
+  def self.session=(user)
     Thread.current[:user] = user
   end
 

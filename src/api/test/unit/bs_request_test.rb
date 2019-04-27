@@ -4,7 +4,7 @@ class BsRequestTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
   end
 
   test 'if create works' do
@@ -20,7 +20,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal 1, req.bs_request_actions.length
     req.save!
 
-    User.current = users(:_nobody_)
+    User.session = users(:_nobody_)
     req = BsRequest.new_from_xml(xml)
     assert req.number.nil?
     exception = assert_raise ActiveRecord::RecordInvalid do
@@ -63,7 +63,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wia[:role], 'reviewer'
     assert_equal wia[:user], 'Iggy'
 
-    User.current = users(:fred)
+    User.session = users(:fred)
 
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
@@ -146,7 +146,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
   def check_user_targets(user, *trues)
     Backend::Test.start
-    User.current = User.find_by_login(user)
+    User.session = User.find_by_login(user)
     BsRequest.all.each do |r|
       # puts r.render_xml
       expect = trues.include?(r.number)

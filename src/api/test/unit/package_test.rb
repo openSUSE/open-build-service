@@ -8,7 +8,7 @@ class PackageTest < ActiveSupport::TestCase
   def setup
     super
     @package = packages(:home_Iggy_TestPack)
-    User.current = nil
+    User.session = nil
   end
 
   def teardown

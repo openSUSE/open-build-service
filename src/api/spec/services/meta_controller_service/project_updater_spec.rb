@@ -5,7 +5,7 @@ RSpec.describe ::MetaControllerService::ProjectUpdater do
   let(:admin_user) { create(:admin_user, login: 'Admin') }
 
   before do
-    User.current = admin_user
+    User.session = admin_user
   end
 
   context 'with valid meta' do

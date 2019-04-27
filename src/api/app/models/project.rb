@@ -1076,7 +1076,7 @@ class Project < ApplicationRecord
   # called either directly or from delayed job
   def do_project_copy(params)
     # set user if nil, needed for delayed job in Package model
-    User.current ||= User.find_by_login(params[:user])
+    User.session = User.current || User.find_by_login(params[:user])
 
     check_write_access!
 
@@ -1116,7 +1116,7 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_release(params)
-    User.current ||= User.find_by_login(params[:user])
+    User.session = User.current || User.find_by_login(params[:user])
 
     # uniq timestring for all targets
     time_now = Time.now.utc

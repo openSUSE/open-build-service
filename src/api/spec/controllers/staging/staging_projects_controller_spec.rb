@@ -181,7 +181,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
 
       before do
         allow(StagingProjectAcceptJob).to receive(:perform_later)
-        User.current = user
+        User.session = user
       end
 
       subject do

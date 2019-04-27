@@ -27,7 +27,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
 
     before do
       # Needed for branching
-      User.current = user
+      User.session = user
     end
 
     scenario "has a mime like suffix in it's name" do

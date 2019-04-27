@@ -277,7 +277,7 @@ RSpec.describe Webui::WebuiHelper do
   describe '#can_register' do
     context 'current user is admin' do
       before do
-        User.current = create(:admin_user)
+        User.session = create(:admin_user)
       end
 
       it { expect(can_register).to be(true) }
@@ -285,7 +285,7 @@ RSpec.describe Webui::WebuiHelper do
 
     context 'user is not registered' do
       before do
-        User.current = create(:user)
+        User.session = create(:user)
         allow(UnregisteredUser).to receive(:can_register?).and_raise(APIError)
       end
 

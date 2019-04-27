@@ -5,7 +5,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
   def setup
     super
-    User.current = nil
+    User.session = nil
   end
 
   def teardown

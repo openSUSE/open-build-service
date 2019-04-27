@@ -3591,9 +3591,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # in future
     Timecop.freeze(10.days) do
-      User.current = User.find_by_login('fredlibs')
+      User.session = User.find_by_login('fredlibs')
       ProjectCreateAutoCleanupRequests.new.perform
-      User.current = nil
+      User.session = nil
     end
     # validate request
     br = BsRequest.all.last

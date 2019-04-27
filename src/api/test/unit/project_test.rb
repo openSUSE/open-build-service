@@ -33,7 +33,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_flags_inheritance
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     project = Project.create(name: 'home:Iggy:flagtest')
 
@@ -347,7 +347,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_release_targets_ng
-    User.current = User.find_by_login('king')
+    User.session = User.find_by_login('king')
 
     project = Project.create(name: 'ABC', kind: 'maintenance')
     project.store
@@ -392,7 +392,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_add_new_flags_from_xml
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # precondition check
     @project.flags.delete_all
@@ -451,7 +451,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_delete_flags_through_xml
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # check precondition
     assert_equal 2, @project.flags.of_type('build').size
@@ -471,7 +471,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_store_axml
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     original = @project.to_axml
 
@@ -499,7 +499,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_ordering
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # project is given as axml
     axml = Xmlhash.parse(
@@ -545,7 +545,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_maintains
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # project is given as axml
     axml = Xmlhash.parse(
@@ -610,7 +610,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'duplicated repos' do
-    User.current = users(:king)
+    User.session = users(:king)
     orig = @project.render_xml
 
     axml = Xmlhash.parse(
@@ -635,7 +635,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'duplicated repos with remote' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     orig = @project.render_xml
 
     xml = <<-END.strip_heredoc
@@ -663,7 +663,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'not duplicated repos with remote' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     xml = <<-END.strip_heredoc
       <project name="home:Iggy">
         <title>Iggy"s Home Project</title>
@@ -690,7 +690,7 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_handle_project_links
     Backend::Test.start
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     # project A
     axml = Xmlhash.parse(
@@ -730,7 +730,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_repository_with_download_url
-    User.current = users(:king)
+    User.session = users(:king)
 
     prj = Project.new(name: 'DoD')
     prj.update_from_xml!(Xmlhash.parse(
@@ -758,9 +758,9 @@ class ProjectTest < ActiveSupport::TestCase
   def test_validate_remote_permissions
     # Single repository elements
     request_data = Xmlhash.parse(load_backend_file('download_on_demand/project_with_dod.xml'))
-    User.current = users(:king)
+    User.session = users(:king)
     assert Project.validate_remote_permissions(request_data).empty?
-    User.current = users(:user5)
+    User.session = users(:user5)
     assert_equal 'Admin rights are required to change projects using remote resources',
                  Project.validate_remote_permissions(request_data)[:error]
 
@@ -784,12 +784,12 @@ class ProjectTest < ActiveSupport::TestCase
         </repository>
       </project>
     ")
-    User.current = users(:king)
+    User.session = users(:king)
     assert Project.validate_remote_permissions(request_data).empty?
   end
 
   def test_repository_path_sync
-    User.current = users(:king)
+    User.session = users(:king)
 
     prj = Project.new(name: 'Enterprise-SP0:GA')
     prj.update_from_xml!(Xmlhash.parse(
@@ -913,7 +913,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_cycle_handling
-    User.current = users(:king)
+    User.session = users(:king)
 
     prj_a = Project.new(name: 'Project:A')
     prj_a.update_from_xml!(Xmlhash.parse(
@@ -946,7 +946,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'exists_by_name' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     assert Project.exists_by_name('home:Iggy')
     assert Project.exists_by_name('RemoteInstance')
@@ -959,7 +959,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'validate_maintenance_xml_attribute returns an error if User can not modify target project' do
-    User.current = users(:tom)
+    User.session = users(:tom)
     xml = <<-XML.strip_heredoc
       <project name="the_project">
         <title>Up-to-date project</title>
@@ -974,7 +974,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'validate_maintenance_xml_attribute returns no error if User can modify target project' do
-    User.current = users(:king)
+    User.session = users(:king)
 
     xml = <<-XML.strip_heredoc
       <project name="the_project">
@@ -989,7 +989,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'validate_link_xml_attribute returns no error if target project is not disabled' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
 
     xml = <<-XML.strip_heredoc
@@ -1005,7 +1005,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'validate_link_xml_attribute returns an error if target project access is disabled' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
 
     xml = <<-XML.strip_heredoc
@@ -1025,7 +1025,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'validate_repository_xml_attribute returns no error if project access is not disabled' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     xml = <<-XML.strip_heredoc
       <project name='other_project'>
@@ -1041,7 +1041,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'returns an error if repository access is disabled' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     flag = project.add_flag('access', 'disable')
     flag.save
@@ -1060,7 +1060,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'returns no error if target project equals project' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     flag = project.add_flag('access', 'disable')
     flag.save
@@ -1079,7 +1079,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories returns all repositories if new_repositories does not contain the old repositories' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
@@ -1097,7 +1097,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories returns the repository if new_repositories does not include it' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
@@ -1115,7 +1115,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories returns no repository if new_repositories matches old_repositories' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
@@ -1133,7 +1133,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories returns all repositories if new_repositories is empty' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     project.repositories << repositories(:repositories_96)
 
@@ -1149,7 +1149,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories returns nothing if repositories is empty' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     project.repositories.destroy_all
 
@@ -1167,7 +1167,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'get_removed_repositories does not include repositories which belong to a remote project' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     project = projects(:home_Iggy)
     first_repository = project.repositories.first
 
@@ -1188,13 +1188,13 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'check repositories returns no error if no linking and no linking taget repository exists' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     actual = Project.check_repositories(@project.repositories)
     assert_equal actual, {}
   end
 
   test 'check repositories returns an error if a linking repository exists' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     path = path_elements(:record_0)
     repository = @project.repositories.first
@@ -1209,7 +1209,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   test 'check repositories returns an error if a linking target repository exists' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
 
     release_target = release_targets(:release_targets_913785863)
     repository = @project.repositories.first
@@ -1328,7 +1328,7 @@ class ProjectTest < ActiveSupport::TestCase
     project_config = File.read('test/fixtures/files/home_iggy_project_config.txt')
     new_project_config = File.read('test/fixtures/files/new_home_iggy_project_config.txt')
 
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     query_params = { user: User.current.login, comment: 'Updated by test' }
     assert @project.config.save(query_params, new_project_config)
     assert_equal @project.config.content, new_project_config

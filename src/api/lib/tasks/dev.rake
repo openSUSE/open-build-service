@@ -157,7 +157,7 @@ namespace :dev do
       include FactoryBot::Syntax::Methods
       timestamp = Time.now.to_i
       maintainer = create(:confirmed_user, login: "maintainer_#{timestamp}")
-      User.current = maintainer
+      User.session = maintainer
       managers_group = create(:group, title: "managers_group_#{timestamp}")
       staging_workflow = create(:staging_workflow_with_staging_projects, project: maintainer.home_project, managers_group: managers_group)
       staging_workflow.managers_group.add_user(maintainer)
@@ -190,7 +190,7 @@ namespace :dev do
 
       iggy = create(:confirmed_user, login: 'Iggy')
       admin = User.where(login: 'Admin').first
-      User.current = admin
+      User.session = admin
 
       interconnect = create(:project, name: 'openSUSE.org', remoteurl: 'https://api.opensuse.org/public')
       tw_repository = create(:repository, name: 'snapshot', project: interconnect, remote_project_name: 'openSUSE:Factory')
@@ -225,7 +225,7 @@ namespace :dev do
       create(:path_element, link: tw_repository, repository: leap_repository)
 
       # we need to set the user again because some factories set the user back to nil :(
-      User.current = admin
+      User.session = admin
       update_project = create(:update_project, target_project: leap, name: "#{leap.name}:Update")
       create(
         :maintenance_project,
@@ -254,19 +254,19 @@ namespace :dev do
           source_package: leap_apache,
           review_by_user: checker
         )
-        User.current = iggy
+        User.session = iggy
         req.reviews.create(by_group: osrt.title)
         req
       end
 
       travel_to(88.minutes.ago) do
-        User.current = checker
+        User.session = checker
         req.change_review_state(:accepted, by_user: checker.login, comment: 'passed')
       end
 
       travel_to(20.minutes.ago) do
         # accepting last review - new state
-        User.current = reviewhero
+        User.session = reviewhero
         req.change_review_state(:accepted, by_group: osrt.title, comment: 'looks good')
       end
 
@@ -275,7 +275,7 @@ namespace :dev do
       end
       create(:comment, commentable: req, parent: comment)
 
-      User.current = iggy
+      User.session = iggy
       req.addreview(by_user: admin.login, comment: 'is this really fine?')
 
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')

@@ -14,9 +14,9 @@ RSpec.feature 'Bootstrap_ImageTemplates', type: :feature, js: true, vcr: true do
 
     before do
       # create attrib as user
-      User.current = user
+      User.session = user
       attrib
-      User.current = nil
+      User.session = nil
     end
 
     scenario 'branch image template' do

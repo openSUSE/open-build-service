@@ -224,7 +224,7 @@ class Authenticator
                                   'is a registered account, but it is not yet approved for the OBS by admin.'
     end
 
-    User.current = @http_user
+    User.session = @http_user
 
     if @http_user.state == 'confirmed'
       Rails.logger.debug "USER found: #{@http_user.login}"
@@ -246,7 +246,7 @@ class Authenticator
   # to become _public_ special user
   def load_nobody
     @http_user = User.find_nobody!
-    User.current = @http_user
+    User.session = @http_user
     @user_permissions = Suse::Permission.new(User.current)
   end
 end

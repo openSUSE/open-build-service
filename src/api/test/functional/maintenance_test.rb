@@ -1419,9 +1419,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
-      User.current = User.find_by_login('king')
+      User.session = User.find_by_login('king')
       SendEventEmailsJob.new.perform
-      User.current = nil
+      User.session = nil
     end
 
     email = ActionMailer::Base.deliveries.last

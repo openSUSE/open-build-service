@@ -10,7 +10,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_destroy_source_revokes_request
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     create_request
 
@@ -23,16 +23,16 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_destroy_target_declines_request
-    User.current = users(:king)
+    User.session = users(:king)
     project = Project.create(name: 'test_destroy_target_declines_request')
     project.store
 
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     other_project = Project.find_by(name: 'home:Iggy')
     other_package = other_project.packages.create(name: 'pack')
     create_request('test_destroy_target_declines_request', 'pack', 'home:Iggy')
 
-    User.current = users(:king)
+    User.session = users(:king)
     project.destroy
 
     @request.reload
@@ -44,11 +44,11 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_accept_request_does_not_revoke_request_for_single_package
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     create_request
 
-    User.current = users(:fred)
+    User.session = users(:fred)
     @request.change_state(newstate: 'accepted',
                           force: true,
                           user: 'fred')
@@ -60,13 +60,13 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   end
 
   def test_accept_request_does_not_revoke_request_for_multiple_packages
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     project = Project.find_by(name: 'home:Iggy:branches:Apache')
     project.packages.create!(name: 'pack')
     create_request
 
-    User.current = users(:fred)
+    User.session = users(:fred)
     @request.change_state(newstate: 'accepted',
                           force: true,
                           user: 'fred')
@@ -80,7 +80,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   def test_review_gets_obsoleted
     review_project = Project.create(name: 'test_review_gets_removed')
 
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     create_request
     @request.addreview(by_project: review_project.name)

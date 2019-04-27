@@ -13,7 +13,7 @@ RSpec.describe Webui::SearchHelper, type: :helper do
     end
 
     it 'creates an icon with link for each user' do
-      User.current = user
+      User.session = user
       expected_result = maintainer.map { |user| user_and_role(user, 'maintainer') }
       expected_result.concat(foo_user.map { |user| user_and_role(user, 'foo') })
 

@@ -44,7 +44,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
     end
 
     before do
-      User.current = user
+      User.session = user
     end
 
     subject { StagingProjectAcceptJob.perform_now(project_id: staging_project.id, user_login: user.login) }

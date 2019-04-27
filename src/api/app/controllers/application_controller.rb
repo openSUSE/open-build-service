@@ -460,7 +460,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_nobody
-    User.current = User.find_nobody!
+    User.session = User.find_nobody!
   end
 
   def set_influxdb_data
