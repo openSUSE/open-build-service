@@ -8,7 +8,7 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults]
 
   before_action :require_login, only: [:create, :toggle_watch, :destroy, :new,
-                                       :new_release_request, :new_package_branch, :new_package]
+                                       :new_release_request, :new_package_branch, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
