@@ -38,7 +38,7 @@ class PersonController < ApplicationController
 
     if user.login != User.current.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render xml: user.render_axml(User.current.is_admin?)
+      render xml: user.render_axml(User.admin_session?)
     else
       logger.debug "Generating user info for logged in user #{User.current.login}"
       render xml: User.current.render_axml(true)
@@ -55,7 +55,7 @@ class PersonController < ApplicationController
     if params[:cmd] == 'change_password'
       login ||= User.current.login
       password = request.raw_post.to_s.chomp
-      if (login != User.current.login && !User.current.is_admin?) || !::Configuration.passwords_changable?(User.current)
+      if (login != User.current.login && !User.admin_session?) || !::Configuration.passwords_changable?(User.current)
         render_error status: 403, errorcode: 'change_password_no_permission',
                      message: "No permission to change password for user #{login}"
         return
@@ -98,12 +98,12 @@ class PersonController < ApplicationController
     end
 
     if user
-      unless user.login == User.current.login || User.current.is_admin?
+      unless user.login == User.current.login || User.admin_session?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                      message: "no permission to change userinfo for user #{user.login}") && return
       end
-    elsif User.current.is_admin?
+    elsif User.admin_session?
       user = User.create(login: login, password: 'notset', email: 'TEMP')
       user.state = 'locked'
     else
@@ -117,7 +117,7 @@ class PersonController < ApplicationController
     logger.debug("XML: #{request.raw_post}")
     user.email = xml.value('email') || ''
     user.realname = xml.value('realname') || ''
-    if User.current.is_admin?
+    if User.admin_session?
       # only admin is allowed to change these, ignore for others
       user.state = xml.value('state')
       update_globalroles(user, xml)

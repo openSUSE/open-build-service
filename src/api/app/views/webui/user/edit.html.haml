@@ -21,7 +21,7 @@
     = f.collection_check_boxes(:role_ids, Role.global, :id, :title)
   %p
     = f.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s)
-  - if Configuration.ldap_enabled? && User.current.is_admin?
+  - if Configuration.ldap_enabled? && User.admin_session?
     %p
       = f.check_box(:ignore_auth_services, {}, checked_value = true)
       = f.label(:ignore_auth_services, 'Local user')

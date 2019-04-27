@@ -1,7 +1,7 @@
 - repository_id = valid_xml_id(repository.name)
 %div{ style: "margin-top: 10px" }
   %b Download on demand sources
-  - if User.current.is_admin?
+  - if User.admin_session?
      
     %span.add-dod-repository-link-container
       = sprite_tag('drive_add')
@@ -17,7 +17,7 @@
         %a{ href: "#{dod_element.url}", target: "_blank", title: "Go to the repository" }
           = dod_element.url
          (#{dod_element.repotype})
-        - if User.current.is_admin?
+        - if User.admin_session?
            
           %span.edit-dod-repository-link-container
             = sprite_tag('drive_edit')

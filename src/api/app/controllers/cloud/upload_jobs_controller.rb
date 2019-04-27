@@ -57,7 +57,7 @@ module Cloud
 
     def set_upload_job
       @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:id])
-      return if @upload_job.present? && (@upload_job.user == ::User.current || ::User.current.is_admin?)
+      return if @upload_job.present? && (@upload_job.user == ::User.current || ::User.admin_session?)
       render_error status: 404
     end
   end

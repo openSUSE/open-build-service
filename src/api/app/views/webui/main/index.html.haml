@@ -7,7 +7,7 @@
     = raw @configuration['description']
     %br/
     %ul#proceed-list
-      - if User.current.is_admin?
+      - if User.admin_session?
         = proceed_link 'configure', 'Configuration', controller: 'configuration', action: 'index'
         = proceed_link 'list', 'All Projects', controller: 'project'
         = proceed_link 'system-search', 'Search', controller: 'search', action: 'index'

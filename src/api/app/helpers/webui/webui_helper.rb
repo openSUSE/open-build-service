@@ -351,7 +351,7 @@ module Webui::WebuiHelper
 
   def can_register
     return false if CONFIG['kerberos_mode']
-    return true if User.current.try(:is_admin?)
+    return true if User.admin_session?
 
     begin
       UnregisteredUser.can_register?

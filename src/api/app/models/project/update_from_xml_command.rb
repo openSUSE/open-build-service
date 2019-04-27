@@ -12,18 +12,18 @@ class Project
 
       # check for raising read access permissions, which can't get ensured atm
       unless project.new_record? || project.disabled_for?('access', nil, nil)
-        if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
+        if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
           raise ForbiddenError
         end
       end
       unless project.new_record? || project.disabled_for?('sourceaccess', nil, nil)
-        if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.current.is_admin?
+        if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?
           raise ForbiddenError
         end
       end
       new_record = project.new_record?
       if ::Configuration.default_access_disabled == true && !new_record
-        if project.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.current.is_admin?
+        if project.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
           raise ForbiddenError
         end
       end

@@ -40,7 +40,7 @@ module ValidationHelper
     meta = PackageMetaFile.new(project_name: project, package_name: name).content(query)
     raise Package::UnknownObjectError, "#{project}/#{name}" unless meta
 
-    return true if User.current.is_admin?
+    return true if User.admin_session?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
@@ -59,7 +59,7 @@ module ValidationHelper
 
     meta = Backend::Api::Sources::Project.meta(project, revision: lastrev.value('srcmd5'), deleted: 1)
     raise Project::UnknownObjectError unless meta
-    return true if User.current.is_admin?
+    return true if User.admin_session?
     # FIXME: actually a per user checking would be more accurate here
     raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
   end

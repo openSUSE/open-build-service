@@ -36,7 +36,7 @@ class Webui::UserController < Webui::WebuiController
   def save
     @displayed_user = User.find_by_login(params[:user][:login])
 
-    unless User.current.is_admin?
+    unless User.admin_session?
       if User.current != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
         flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_back(fallback_location: root_path)
@@ -48,7 +48,7 @@ class Webui::UserController < Webui::WebuiController
       @displayed_user.assign_attributes(params[:user].slice(:realname, :email, :in_beta).permit!)
     end
 
-    if User.current.is_admin?
+    if User.admin_session?
       @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
       @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
     end
@@ -112,7 +112,7 @@ class Webui::UserController < Webui::WebuiController
 
     flash[:success] = "The account '#{params[:login]}' is now active."
 
-    if User.current.is_admin?
+    if User.admin_session?
       redirect_to controller: :user, action: :index
     else
       session[:login] = opts[:login]

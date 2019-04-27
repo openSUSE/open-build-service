@@ -39,7 +39,7 @@
               Add from a Project
             = render partial: 'add_repository_from_project_modal', locals: { project: @project }
 
-        - if User.current.is_admin?
+        - if User.admin_session?
           %li.list-inline-item
             = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
               %i.fas.fa-plus-circle.text-primary

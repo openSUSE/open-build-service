@@ -1,6 +1,6 @@
 module Webui::GroupHelper
   def group_management_label
-    if User.current.is_admin?
+    if User.admin_session?
       link_to('Group Management', groups_path)
     else
       'Group Management'

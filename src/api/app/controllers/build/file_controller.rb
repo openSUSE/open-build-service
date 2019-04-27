@@ -17,7 +17,7 @@ module Build
       if regexp
         process_regexp
       else
-        unless User.current.is_admin?
+        unless User.admin_session?
           # this route can be used publish binaries without history changes in sources
           render_error status: 403, errorcode: 'upload_binary_no_permission',
                        message: 'No permission to upload binaries.'
