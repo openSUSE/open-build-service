@@ -54,7 +54,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("Can't find request 200000") }
-      it { expect(response).to redirect_to(user_show_path(User.current)) }
+      it { expect(response).to redirect_to(root_url) }
     end
 
     context 'when there are package maintainers' do
