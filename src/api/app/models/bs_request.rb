@@ -927,26 +927,8 @@ class BsRequest < ApplicationRecord
   end
 
   # Check if 'user' is maintainer in _all_ request targets:
-  def is_target_maintainer?(user = User.current)
-    has_target = false
-    is_target_maintainer = true
-    bs_request_actions.each do |a|
-      next unless a.target_project
-      if a.target_package
-        tpkg = Package.find_by_project_and_name(a.target_project, a.target_package)
-        if tpkg
-          has_target = true
-          is_target_maintainer &= user.can_modify?(tpkg)
-          next
-        end
-      end
-      tprj = Project.find_by_name(a.target_project)
-      if tprj
-        has_target = true
-        is_target_maintainer &= user.can_modify?(tprj)
-      end
-    end
-    has_target && is_target_maintainer
+  def is_target_maintainer?(user)
+    bs_request_actions.all? { |action| action.is_target_maintainer?(user) }
   end
 
   def sanitize!

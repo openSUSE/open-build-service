@@ -900,6 +900,10 @@ class BsRequestAction < ApplicationRecord
     self.target_project_object = Project.find_by_name(target_project)
   end
 
+  def is_target_maintainer?(user)
+    user && user.can_modify?(target_package_object || target_project_object)
+  end
+
   private
 
   def check_permissions_for_sources!
