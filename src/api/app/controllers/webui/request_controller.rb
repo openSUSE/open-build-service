@@ -90,13 +90,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request)
   end
 
-  def webui2_show
-    reviews = @bs_request.reviews.where(state: 'new')
-    # might be nil
-    user = User.session
-    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
-  end
-
   def show
     diff_limit = params[:full_diff] ? 0 : nil
 
@@ -122,8 +115,9 @@ class Webui::RequestController < Webui::WebuiController
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
 
-    return if switch_to_webui2
-    @my_open_reviews, @other_open_reviews = @bs_request.reviews_for_user_and_others(User.current)
+    reviews = @bs_request.reviews.where(state: 'new')
+    user = User.session # might be nil
+    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
   end
 
   def sourcediff

@@ -57,12 +57,7 @@
               <% end %>
             </li>
         <% end -%>
-        <% @other_open_reviews.each do |review| %>
-            <li>
-              <%= sprite_tag('exclamation') %> Open review for <%= render :partial => 'reviewer', :locals => { :review => review } %>
-            </li>
-        <% end %>
-        <% @my_open_reviews.each do |review| %>
+        <% @bs_request.reviews.where(state: 'new').each do |review| %>
             <li>
               <%= sprite_tag('exclamation') %> Open review for <%= render partial: 'reviewer', locals: { review: review } %>
             </li>

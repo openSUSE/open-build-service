@@ -874,19 +874,6 @@ class BsRequest < ApplicationRecord
     ret
   end
 
-  def reviews_for_user_and_others(user)
-    user_reviews = []
-    other_open_reviews = []
-    reviews.where(state: 'new').find_each do |review|
-      if review.matches_user?(user)
-        user_reviews << review.webui_infos
-      else
-        other_open_reviews << review.webui_infos
-      end
-    end
-    [user_reviews, other_open_reviews]
-  end
-
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
