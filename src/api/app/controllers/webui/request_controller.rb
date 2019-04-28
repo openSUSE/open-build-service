@@ -95,8 +95,6 @@ class Webui::RequestController < Webui::WebuiController
     # might be nil
     user = User.session
     @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
-    @actions = @bs_request.webui_actions(diffs: true)
-    @not_full_diff = BsRequest.truncated_diffs?(@actions)
   end
 
   def show
@@ -119,14 +117,13 @@ class Webui::RequestController < Webui::WebuiController
     @comments = @bs_request.comments
     @comment = Comment.new
 
-    return if switch_to_webui2
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @my_open_reviews = @req['my_open_reviews']
-    @other_open_reviews = @req['other_open_reviews']
-    @actions = @req['actions']
-
+    switch_to_webui2
+    @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+    return if switch_to_webui2
+    @my_open_reviews, @other_open_reviews = @bs_request.reviews_for_user_and_others(User.current)
   end
 
   def sourcediff

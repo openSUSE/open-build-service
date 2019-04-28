@@ -3452,8 +3452,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    infos = BsRequest.find_by_number(id).webui_infos
-    assert !infos['is_target_maintainer'], 'tom is target maintainer'
+    assert !BsRequest.find_by_number(id).is_target_maintainer?(User.session), 'tom is not target maintainer'
   end
 
   def test_cleanup_from_home
