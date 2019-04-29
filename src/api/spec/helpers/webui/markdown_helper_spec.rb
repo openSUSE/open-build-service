@@ -14,6 +14,15 @@ RSpec.describe Webui::MarkdownHelper do
       )
     end
 
+    it 'detects all the metions to users' do
+      expect(render_as_markdown('@alfie @milo and @Admin, please review.')).to eq(
+        "<p><a href='https://unconfigured.openbuildservice.org/user/show/alfie'>@alfie</a> \
+<a href='https://unconfigured.openbuildservice.org/user/show/milo'>@milo</a> \
+and <a href='https://unconfigured.openbuildservice.org/user/show/Admin'>@Admin</a>, \
+please review.</p>\n"
+      )
+    end
+
     it 'does not crash due to invalid URIs' do
       expect(render_as_markdown("anbox[400000+22d000]\r\n(the number)")).to eq(
         "<p>anbox<a href='the number'>400000+22d000</a></p>\n"
