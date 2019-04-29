@@ -1,0 +1,22 @@
+%li.nav-item
+  = link_to('Sign Up', signup_url, class: 'nav-link')
+%li.nav-item.dropdown
+  = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', "data-toggle": "dropdown") do
+    Log In
+  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ "aria-labelledby": "dropdownMenuButton", style: 'width: 350px' }
+    .px-4.py-3#login-form
+      = form_tag(form_options) do
+        - if proxy
+          = hidden_field_tag(:context, 'default')
+          = hidden_field_tag(:proxypath, 'reserve')
+          = hidden_field_tag(:message, 'Please log in')
+          = hidden_field_tag(:url, request.fullpath)
+        .form-group
+          = label_tag(:username, 'Username', class: 'text-light')
+          = text_field_tag(:username, nil, placeholder: 'User Name', required: true, class: 'form-control')
+        .form-group
+          = label_tag(:password, 'Password', class: 'text-light')
+          = password_field_tag(:password, nil, placeholder: 'Password', required: true, class: 'form-control')
+        .float-right
+          = submit_tag('Log In', class: 'btn btn-success')
+        .clearfix
