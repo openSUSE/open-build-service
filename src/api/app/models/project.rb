@@ -285,7 +285,7 @@ class Project < ApplicationRecord
           begin
             request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed")
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
+            logger.debug "#{User.session!.login} tried to revoke request #{request.number} but had no permissions"
           end
           break
         end
@@ -293,7 +293,7 @@ class Project < ApplicationRecord
         begin
           request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
         rescue PostRequestNoPermission
-          logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
+          logger.debug "#{User.session!.login} tried to decline request #{request.number} but had no permissions"
         end
         break
       end
@@ -378,14 +378,14 @@ class Project < ApplicationRecord
 
     return true unless Relationship.forbidden_project_ids.include?(project.id)
 
-    # simple check for involvement --> involved users can access project.id, User.current
+    # simple check for involvement --> involved users can access project.id, User.session!
     project.relationships.groups.includes(:group).any? do |grouprel|
-      # check if User.current belongs to group.
-      User.current.is_in_group?(grouprel.group) ||
+      # check if User.session! belongs to group.
+      User.session!.is_in_group?(grouprel.group) ||
         # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
         CONFIG['ldap_mode'] == :on &&
           CONFIG['ldap_group_support'] == :on &&
-          UserLdapStrategy.user_in_group_ldap?(User.current, grouprel.group_id)
+          UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id)
     end
   end
 
@@ -465,12 +465,12 @@ class Project < ApplicationRecord
   end
 
   def check_write_access!(ignore_lock = nil)
-    return if Rails.env.test? && User.current.nil? # for unit tests
+    return if Rails.env.test? && !User.session # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    return if can_be_modified_by?(User.current, ignore_lock)
+    return if can_be_modified_by?(User.possibly_nobody, ignore_lock)
 
-    raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
+    raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.possibly_nobody.login}'"
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
@@ -515,7 +515,7 @@ class Project < ApplicationRecord
 
   def can_free_repositories?
     expand_all_repositories.each do |repository|
-      unless User.current.can_modify?(repository.project)
+      unless User.possibly_nobody.can_modify?(repository.project)
         errors.add(:base, "a repository in project #{repository.project.name} depends on this")
         return false
       end
@@ -586,7 +586,7 @@ class Project < ApplicationRecord
     reset_cache
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = @commit_opts[:login] || User.current_login
+      login = @commit_opts[:login] || User.session!.login
       options = { user: login }
       options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
@@ -607,7 +607,7 @@ class Project < ApplicationRecord
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       begin
-        options = { user: User.current_login, comment: @commit_opts[:comment] }
+        options = { user: User.session!.login, comment: @commit_opts[:comment] }
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
       rescue Backend::NotFoundError
@@ -1076,7 +1076,7 @@ class Project < ApplicationRecord
   # called either directly or from delayed job
   def do_project_copy(params)
     # set user if nil, needed for delayed job in Package model
-    User.session = User.current || User.find_by_login(params[:user])
+    User.session = User.find_by!(login: params[:user]) unless User.session
 
     check_write_access!
 
@@ -1116,7 +1116,7 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_release(params)
-    User.session = User.current || User.find_by_login(params[:user])
+    User.session = User.find_by!(login: params[:user]) unless User.session
 
     # uniq timestring for all targets
     time_now = Time.now.utc
@@ -1437,7 +1437,7 @@ class Project < ApplicationRecord
       maintenance.elements('maintains') do |maintains|
         target_project_name = maintains.value('project')
         target_project = Project.get_by_name(target_project_name)
-        unless target_project.class == Project && User.current.can_modify?(target_project)
+        unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
           return { error: "No write access to maintained project #{target_project_name}" }
         end
       end
@@ -1545,7 +1545,7 @@ class Project < ApplicationRecord
         # but never remove the special repository named "deleted"
         unless repo == deleted_repository
           # permission check
-          unless User.current.can_modify?(project)
+          unless User.possibly_nobody.can_modify?(project)
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
         end

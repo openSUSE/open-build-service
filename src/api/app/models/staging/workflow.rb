@@ -47,7 +47,7 @@ class Staging::Workflow < ApplicationRecord
   def write_to_backend
     return unless CONFIG['global_write_through']
 
-    Backend::Api::Sources::Project.write_staging_workflow(project.name, User.current_login, render_xml)
+    Backend::Api::Sources::Project.write_staging_workflow(project.name, User.session!.login, render_xml)
   end
 
   def self.load_groups

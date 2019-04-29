@@ -36,12 +36,12 @@ class PersonController < ApplicationController
   def get_userinfo
     user = User.find_by_login!(params[:login])
 
-    if user.login != User.current.login
+    if user.login != User.possibly_nobody.login
       logger.debug "Generating for user from parameter #{user.login}"
       render xml: user.render_axml(User.admin_session?)
     else
-      logger.debug "Generating user info for logged in user #{User.current.login}"
-      render xml: User.current.render_axml(true)
+      logger.debug "Generating user info for logged in user #{User.possibly_nobody.login}"
+      render xml: User.possibly_nobody.render_axml(true)
     end
   end
 
@@ -53,9 +53,9 @@ class PersonController < ApplicationController
     User.find_by_login!(login)
 
     if params[:cmd] == 'change_password'
-      login ||= User.current.login
+      login ||= User.session!.login
       password = request.raw_post.to_s.chomp
-      if (login != User.current.login && !User.admin_session?) || !::Configuration.passwords_changable?(User.current)
+      if (login != User.session!.login && !User.admin_session?) || !::Configuration.passwords_changable?(User.session!)
         render_error status: 403, errorcode: 'change_password_no_permission',
                      message: "No permission to change password for user #{login}"
         return
@@ -98,7 +98,7 @@ class PersonController < ApplicationController
     end
 
     if user
-      unless user.login == User.current.login || User.admin_session?
+      unless user.login == User.session!.login || User.admin_session?
         logger.debug 'User has no permission to change userinfo'
         render_error(status: 403, errorcode: 'change_userinfo_no_permission',
                      message: "no permission to change userinfo for user #{user.login}") && return
@@ -142,7 +142,7 @@ class PersonController < ApplicationController
   end
 
   def grouplist
-    raise NoPermissionToGroupList unless User.current
+    raise NoPermissionToGroupList unless User.possibly_nobody
 
     user = User.find_by_login!(params[:login])
     @list = User.lookup_strategy.groups(user)
@@ -237,7 +237,7 @@ class PersonController < ApplicationController
   end
 
   def change_password(login, password)
-    unless User.current
+    unless User.session!
       logger.debug 'No user logged in, permission to changing password denied'
       @errorcode = 401
       @summary = 'No user logged in, permission to changing password denied'
@@ -252,7 +252,7 @@ class PersonController < ApplicationController
     end
 
     # change password to LDAP if LDAP is enabled
-    unless ::Configuration.passwords_changable?(User.current)
+    unless ::Configuration.passwords_changable?(User.session!)
       render_error status: 404, errorcode: 'change_passwd_failure',
                    message: 'LDAP passwords can not be changed in OBS. Please refer to your LDAP server to change it.'
       return

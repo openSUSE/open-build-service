@@ -74,7 +74,7 @@ class ConsistencyCheckJob < ApplicationJob
   end
 
   def init
-    User.session = User.current || User.get_default_admin
+    User.session = User.get_default_admin unless User.session
     @errors = ''
   end
 

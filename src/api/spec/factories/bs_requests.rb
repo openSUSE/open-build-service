@@ -96,7 +96,7 @@ FactoryBot.define do
       creating_user do |evaluator|
         evaluator.creator.is_a?(User) ? evaluator.creator : User.find_by_login(evaluator.creator)
       end
-      before_current_user { User.current }
+      before_current_user { User.session }
     end
 
     after(:build) do |request, evaluator|

@@ -120,7 +120,7 @@ class Package < ApplicationRecord
   def self.check_cache(project, package, opts)
     @key = { 'get_by_project_and_name' => 1, :package => package, :opts => opts }
 
-    @key[:user] = User.current.cache_key if User.current
+    @key[:user] = User.session!.cache_key if User.session
 
     # the cache is only valid if the user, prj and pkg didn't change
     if project.is_a?(Project)
@@ -298,7 +298,7 @@ class Package < ApplicationRecord
 
   def check_source_access?
     if disabled_for?('sourceaccess', nil, nil) || project.disabled_for?('sourceaccess', nil, nil)
-      return false unless User.current && User.current.can_source_access?(self)
+      return false unless User.possibly_nobody.can_source_access?(self)
     end
     true
   end
@@ -306,7 +306,7 @@ class Package < ApplicationRecord
   def check_source_access!
     return if check_source_access?
     # TODO: Use pundit for authorization instead
-    if !User.current || User.current.is_nobody?
+    unless User.session
       raise Authenticator::AnonymousUser, 'Anonymous user is not allowed here - please login'
     end
 
@@ -378,10 +378,10 @@ class Package < ApplicationRecord
   end
 
   def check_write_access!(ignore_lock = nil)
-    return if Rails.env.test? && User.current.nil? # for unit tests
-    return if can_be_modified_by?(User.current, ignore_lock)
+    return if Rails.env.test? && !User.session # for unit tests
+    return if can_be_modified_by?(User.possibly_nobody, ignore_lock)
 
-    raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.current.login}'"
+    raise WritePermissionError, "No permission to modify package '#{name}' for user '#{User.possibly_nobody.login}'"
   end
 
   def check_weak_dependencies?
@@ -792,7 +792,7 @@ class Package < ApplicationRecord
     reset_cache
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      query = { user: User.current_login }
+      query = { user: User.session!.login }
       query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
@@ -818,7 +818,7 @@ class Package < ApplicationRecord
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
 
-      h = { user: User.current.login, comment: commit_opts[:comment] }
+      h = { user: User.session!.login, comment: commit_opts[:comment] }
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
@@ -1081,7 +1081,7 @@ class Package < ApplicationRecord
                 noservice: '1',
                 oproject: origin_project,
                 opackage: origin_package,
-                user: User.current.login }
+                user: User.session!.login }
     # merge additional key/values, avoid overwrite. _ is needed for rubocop
     myparam.merge!(opts) { |_key, v1, _v2| v1 }
     path = source_path
@@ -1192,7 +1192,7 @@ class Package < ApplicationRecord
           begin
             request.change_state(newstate: 'revoked', comment: "The source package '#{name}' has been removed")
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to revoke request #{id} but had no permissions"
+            logger.debug "#{User.session!.login} tried to revoke request #{id} but had no permissions"
           end
           break
         end
@@ -1200,7 +1200,7 @@ class Package < ApplicationRecord
         begin
           request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
         rescue PostRequestNoPermission
-          logger.debug "#{User.current.login} tried to decline request #{id} but had no permissions"
+          logger.debug "#{User.session!.login} tried to decline request #{id} but had no permissions"
         end
         break
       end
@@ -1224,10 +1224,10 @@ class Package < ApplicationRecord
   def delete_file(name, opt = {})
     delete_opt = {}
     delete_opt[:keeplink] = 1 if opt[:expand]
-    delete_opt[:user] = User.current.login
+    delete_opt[:user] = User.session!.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
-    unless User.current.can_modify?(self)
+    unless User.session!.can_modify?(self)
       raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
     end
 
@@ -1341,13 +1341,13 @@ class Package < ApplicationRecord
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     Package.verify_file!(self, opt[:filename], content)
-    unless User.current.can_modify?(self)
+    unless User.session!.can_modify?(self)
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
     end
 
     params = {}
     params[:comment] = opt[:comment] if opt[:comment]
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
     Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 
     # KIWI file

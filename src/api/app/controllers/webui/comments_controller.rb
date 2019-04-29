@@ -7,7 +7,7 @@ class Webui::CommentsController < Webui::WebuiController
   def create
     return if params[:no_switch].nil? && switch_to_webui2
     comment = @commented.comments.new(permitted_params)
-    User.current.comments << comment
+    User.session!.comments << comment
 
     # required for the form construction
     @comment = Comment.new

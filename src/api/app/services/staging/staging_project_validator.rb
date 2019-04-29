@@ -23,14 +23,14 @@ module Staging
     end
 
     def can_create?
-      return true if ProjectPolicy.new(User.current, @project).create?
+      return true if ProjectPolicy.new(User.possibly_nobody, @project).create?
 
       @errors = "Project \"#{@project}\": you are not allowed to create this project."
       false
     end
 
     def can_update?
-      return true if ProjectPolicy.new(User.current, @project).update?
+      return true if ProjectPolicy.new(User.possibly_nobody, @project).update?
 
       @errors = "Project \"#{@project}\": you are not allowed to use this project."
       false

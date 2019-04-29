@@ -29,7 +29,7 @@ RSpec.describe Webui::SessionController do
 
     it 'assigns the current user' do
       post :create, params: { username: user.login, password: 'buildservice' }
-      expect(User.current).to eq(user)
+      expect(User.session!).to eq(user)
       expect(session[:login]).to eq(user.login)
     end
   end
@@ -96,7 +96,7 @@ RSpec.describe Webui::SessionController do
 
         get :new
         expect(response).to redirect_to root_path
-        expect(User.current).to eq(user)
+        expect(User.session!).to eq(user)
         expect(session[:login]).to eq(user.login)
       end
     end
@@ -138,12 +138,12 @@ RSpec.describe Webui::SessionController do
       # a rather unusual place to go, but this isn't really
       # about the session controller but about basic proxy mode
       get :new
-      expect(User.current).to eq(user)
+      expect(User.session!).to eq(user)
     end
 
     it 'does not log in any user when no header is set' do
       get :new
-      expect(User.current.login).to eq('_nobody_')
+      expect(User.session).to be_nil
     end
 
     it 'creates a new user account if user does not exist in OBS' do
@@ -156,7 +156,7 @@ RSpec.describe Webui::SessionController do
       user = User.where(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
       expect(user).to exist
 
-      expect(User.current.login).to eq(user.first.login)
+      expect(User.session!.login).to eq(user.first.login)
     end
   end
 end

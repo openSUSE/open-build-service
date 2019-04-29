@@ -73,14 +73,14 @@ class PackageRemoveTest < ActiveSupport::TestCase
   def branch_package(project = 'Apache', package = 'apache2')
     # Branch a package and change it's contents
     BranchPackage.new(project: project, package: package).branch
-    @package = Package.find_by_project_and_name("home:#{User.current.login}:branches:#{project}", package)
+    @package = Package.find_by_project_and_name("home:#{User.session!.login}:branches:#{project}", package)
     @package.save_file(file: 'whatever', filename: "testfile#{Time.now.sec}") # always new file to have changes in the package
   end
 
   def create_request(project = 'Apache', package = 'apache2')
     # Create a request to submit the changes back
     request = BsRequest.new(state: 'new', description: 'package_remove_test')
-    action = BsRequestActionSubmit.new(source_project: "home:#{User.current.login}:branches:#{project}",
+    action = BsRequestActionSubmit.new(source_project: "home:#{User.session!.login}:branches:#{project}",
                                        source_package: package,
                                        target_project: project,
                                        target_package: package,

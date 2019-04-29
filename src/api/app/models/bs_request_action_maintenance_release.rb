@@ -55,7 +55,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         comment: "Releasing from project #{sprj}"
       }
       commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
-      Backend::Api::Sources::Project.commit(tprj, User.current.login, commit_params)
+      Backend::Api::Sources::Project.commit(tprj, User.session!.login, commit_params)
 
       next if cleaned_projects[sprj]
       # cleanup published binaries to save disk space on ftp server and mirrors
@@ -118,7 +118,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name(source_project, source_package)
-    return if spkg || !User.current.can_modify?(spkg)
+    return if spkg || !User.session!.can_modify?(spkg)
     raise LackingReleaseMaintainership, 'Creating a release request action requires maintainership in source package'
   end
 

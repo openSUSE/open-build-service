@@ -44,7 +44,7 @@ class UpdateNotificationEvents
     end
 
     # pick first admin so we can see all projects - as this function is called from delayed job
-    User.session = User.current || User.get_default_admin
+    User.session = User.get_default_admin unless User.session
 
     loop do
       semaphore.synchronize do

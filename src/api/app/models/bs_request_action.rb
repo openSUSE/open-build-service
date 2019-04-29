@@ -313,7 +313,7 @@ class BsRequestAction < ApplicationRecord
 
     if source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-      if action_type == :change_devel && tpkg.develpackage && !User.current.can_modify?(tpkg.develpackage, 1)
+      if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
         reviews.push(tpkg.develpackage)
       end
 
@@ -323,7 +323,7 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name(source_project, source_package)
-          if spkg && !User.current.can_modify?(spkg)
+          if spkg && !User.session!.can_modify?(spkg)
             if  !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
                 !spkg.find_attribute('OBS', 'ApprovedRequestSource')
               reviews.push(spkg)
@@ -331,7 +331,7 @@ class BsRequestAction < ApplicationRecord
           end
         else
           sprj = Project.find_by_name(source_project)
-          if sprj && !User.current.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
+          if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
             reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
         end
@@ -739,15 +739,6 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      # source update checks
-      if action_type.in?([:submit, :maintenance_incident])
-        # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
-        if sourceupdate.nil? && target_project
-          if User.current.branch_project_name(target_project) == source_project
-            self.sourceupdate = 'cleanup'
-          end
-        end
-      end
       if action_type == :submit && tprj.is_a?(Project)
         at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
@@ -900,8 +891,10 @@ class BsRequestAction < ApplicationRecord
     self.target_project_object = Project.find_by_name(target_project)
   end
 
-  def is_target_maintainer?(user)
-    user && user.can_modify?(target_package_object || target_project_object)
+  def set_sourceupdate_default(user)
+    return unless action_type.in?([:submit, :maintenance_incident])
+    return if sourceupdate
+    update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
   end
 
   private
@@ -912,8 +905,9 @@ class BsRequestAction < ApplicationRecord
     source_object = Package.find_by_project_and_name(source_project, source_package) ||
                     Project.get_by_name(source_project)
 
-    raise LackingMaintainership if !source_object.is_a?(String) && !User.current.can_modify?(source_object)
+    raise LackingMaintainership if !source_object.is_a?(String) && !User.possibly_nobody.can_modify?(source_object)
   end
+
   #### Alias of methods
 end
 

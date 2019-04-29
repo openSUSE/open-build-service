@@ -26,7 +26,7 @@ module Webui
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
-          staging_project.create_project_log_entry(User.current)
+          staging_project.create_project_log_entry(User.session!)
 
           return
         end
@@ -76,7 +76,7 @@ module Webui
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name], User.current.id)
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name], User.session!.id)
 
         flash[:success] = "Job to copy the staging project #{params[:staging_project_project_name]} successfully queued."
 

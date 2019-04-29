@@ -40,13 +40,13 @@ class ApplicationController < ActionController::Base
   end
 
   def pundit_user
-    return User.current unless User.current.is_nobody?
+    User.session! if User.session
   end
 
   # Don't show performance of database queries to users
   def peek_enabled?
     return false if CONFIG['peek_enabled'] != 'true'
-    User.admin_session? || (User.current && User.current.is_staff?)
+    User.admin_session? || User.possibly_nobody.is_staff?
   end
 
   def permissions
@@ -464,10 +464,10 @@ class ApplicationController < ActionController::Base
   end
 
   def set_influxdb_data
-    anonymous = User.current_login == User::NOBODY_LOGIN
+    anonymous = !User.session
 
     InfluxDB::Rails.current.tags = {
-      beta: !anonymous && User.current.in_beta?,
+      beta: !anonymous && User.possibly_nobody.in_beta?,
       anonymous: anonymous,
       interface: :api
     }

@@ -1329,7 +1329,7 @@ class ProjectTest < ActiveSupport::TestCase
     new_project_config = File.read('test/fixtures/files/new_home_iggy_project_config.txt')
 
     User.session = users(:Iggy)
-    query_params = { user: User.current.login, comment: 'Updated by test' }
+    query_params = { user: User.session!.login, comment: 'Updated by test' }
     assert @project.config.save(query_params, new_project_config)
     assert_equal @project.config.content, new_project_config
 
