@@ -1,7 +1,7 @@
 module Webui::MaintenanceIncidentHelper
   def incident_label(incident_project, patchinfo)
     incident_number = incident_project.name.rpartition(':').last
-    title = patchinfo.dig(:summary) || incident_project.title || incident_project.name
+    title = patchinfo.dig(:summary).presence || incident_project.title || incident_project.name
 
     "#{incident_number}: #{title}"
   end
