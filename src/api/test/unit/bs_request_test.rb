@@ -20,13 +20,13 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal 1, req.bs_request_actions.length
     req.save!
 
-    User.session = users(:_nobody_)
+    User.session = users(:unconfirmed_user)
     req = BsRequest.new_from_xml(xml)
     assert req.number.nil?
     exception = assert_raise ActiveRecord::RecordInvalid do
       req.save!
     end
-    assert_match(/Validation failed: Creator Login _nobody_ is not an active user/, exception.message)
+    assert_match(/Validation failed: Creator Login unconfirmed_user is not an active user/, exception.message)
   end
 
   def test_target_maintainer

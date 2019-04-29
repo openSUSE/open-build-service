@@ -20,7 +20,7 @@ class Staging::StagingProjectsController < ApplicationController
 
   def create
     authorize @staging_workflow
-    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.current).call
+    result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.session!).call
 
     if result.valid?
       render_ok
@@ -36,8 +36,7 @@ class Staging::StagingProjectsController < ApplicationController
   def copy
     authorize @main_project.staging
 
-    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.current.id)
-
+    StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session!.id)
     render_ok
   end
 
@@ -53,7 +52,7 @@ class Staging::StagingProjectsController < ApplicationController
       )
       return
     end
-    StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.current.login)
+    StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.session!.login)
     render_ok
   end
 

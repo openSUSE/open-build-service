@@ -18,7 +18,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
     @request.reload
     assert_equal :revoked, @request.state
-    assert_equal "The source project 'home:#{User.current.login}:branches:Apache' has been removed", @request.comment
+    assert_equal "The source project 'home:#{User.session!.login}:branches:Apache' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
   end
 
@@ -110,11 +110,11 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   def branch_package(project = 'Apache', package = 'apache2')
     # Branch a package and change it's contents
     BranchPackage.new(project: project, package: package).branch
-    @package = Package.find_by_project_and_name("home:#{User.current.login}:branches:#{project}", package)
+    @package = Package.find_by_project_and_name("home:#{User.session!.login}:branches:#{project}", package)
     @package.save_file(file: 'whatever', filename: "testfile#{SecureRandom.hex}") # always new file to have changes in the package
   end
 
-  def create_request(project = 'Apache', package = 'apache2', source_project = "home:#{User.current.login}:branches:#{project}")
+  def create_request(project = 'Apache', package = 'apache2', source_project = "home:#{User.session!.login}:branches:#{project}")
     # Create a request to submit the changes back
     request = BsRequest.new(state: 'new', description: 'project_remove_test')
     action = BsRequestActionSubmit.new(source_project: source_project,

@@ -151,7 +151,7 @@ FactoryBot.define do
           CONFIG['global_write_through'] ? project.store : project.save!
         end
         if evaluator.create_patchinfo
-          old_user = User.current
+          old_user = User.session
           User.session = evaluator.maintainer
           Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
           User.session = old_user

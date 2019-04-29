@@ -14,7 +14,7 @@ class WorkerStatus
     ws.css('building').each do |b|
       # no prj -> we are not allowed
       next if names.key?(b['project'])
-      Rails.logger.debug "workerstatus2clean: hiding #{b['project']} for user #{User.current.login}"
+      Rails.logger.debug "workerstatus2clean: hiding #{b['project']} for user #{User.possibly_nobody.login}"
       b['project'] = '---'
       b['repository'] = '---'
       b['package'] = '---'

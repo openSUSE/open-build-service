@@ -1,7 +1,7 @@
 module Webui2::CommentsController
   def webui2_create
     comment = @commented.comments.new(permitted_params)
-    User.current.comments << comment
+    User.session!.comments << comment
     @commentable = comment.commentable
 
     respond_to do |format|

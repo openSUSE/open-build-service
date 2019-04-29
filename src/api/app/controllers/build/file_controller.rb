@@ -69,7 +69,7 @@ module Build
         !(
           project.class == Project &&
           project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
-          !User.current.can_download_binaries?(project)
+          !User.possibly_nobody.can_download_binaries?(project)
         )
 
       return if user_has_permission

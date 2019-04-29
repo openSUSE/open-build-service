@@ -43,7 +43,7 @@ class MessageController < ApplicationController
       msg.severity = new_msg['severity']
       msg.send_mail = new_msg['send_mail']
       msg.private = new_msg['private']
-      msg.user = User.current
+      msg.user = User.session!
       if @package
         @package.messages += [msg]
       elsif @project

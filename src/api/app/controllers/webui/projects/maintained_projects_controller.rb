@@ -10,7 +10,7 @@ module Webui
           format.html
           format.json do
             render json: MaintainedProjectDatatable.new(params, view_context: view_context,
-                                                                project: @project, current_user: User.current)
+                                                                project: @project, current_user: User.possibly_nobody)
           end
         end
         switch_to_webui2

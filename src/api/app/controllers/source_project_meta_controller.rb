@@ -28,7 +28,7 @@ class SourceProjectMetaController < SourceController
 
   # PUT /source/:project/_meta
   def update
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
     begin
       project = Project.get_by_name(@request_data['name'])
     rescue Project::UnknownObjectError
@@ -39,7 +39,7 @@ class SourceProjectMetaController < SourceController
     logger.debug 'Checking permission for the put'
     if project
       # project exists, change it
-      unless User.current.can_modify?(project)
+      unless User.session!.can_modify?(project)
         if project.is_locked?
           logger.debug "no permission to modify LOCKED project #{project.name}"
           raise ChangeProjectNoPermission, "The project #{project.name} is locked"
@@ -49,7 +49,7 @@ class SourceProjectMetaController < SourceController
       end
     else
       # project is new
-      unless User.current.can_create_project?(@project_name)
+      unless User.session!.can_create_project?(@project_name)
         logger.debug 'Not allowed to create new project'
         raise CreateProjectNoPermission, "no permission to create project #{@project_name}"
       end
@@ -70,7 +70,7 @@ class SourceProjectMetaController < SourceController
         project = Project.new(name: @project_name)
         project.update_from_xml!(@request_data)
         # FIXME3.0: don't modify send data
-        project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
+        project.relationships.build(user: User.session!, role: Role.find_by_title!('maintainer'))
       end
       project.store(comment: params[:comment])
     end

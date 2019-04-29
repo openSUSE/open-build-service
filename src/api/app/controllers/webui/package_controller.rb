@@ -177,7 +177,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
-                                                                 user: User.current, arch: @arch,
+                                                                 user: User.possibly_nobody, arch: @arch,
                                                                  repository: @repository, filename: @filename)
     @download_url = url_generator.download_url_for_file_in_repo
 
@@ -534,7 +534,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
-    unless User.current.can_create_package_in?(@project)
+    unless User.possibly_nobody.can_create_package_in?(@project)
       flash[:error] = "You can't create packages in #{@project.name}"
       redirect_to controller: :project, action: :new_package, project: @project
       return false
@@ -593,7 +593,7 @@ class Webui::PackageController < Webui::WebuiController
 
     Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                 targetproject: created_project_name, targetpackage: created_package_name,
-                                user: User.current.login)
+                                user: User.session!.login)
 
     branched_package_object = Package.find_by_project_and_name(created_project_name, created_package_name)
 
@@ -656,7 +656,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     begin
-      Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.current.to_s)
+      Backend::Api::Sources::Package.trigger_services(@project.name, @package.name, User.session!.to_s)
       flash[:success] = 'Services successfully triggered'
     rescue Timeout::Error => e
       flash[:error] = "Services couldn't be triggered: " + e.message
@@ -757,7 +757,7 @@ class Webui::PackageController < Webui::WebuiController
     @rev = params[:rev]
     @expand = params[:expand]
     @addeditlink = false
-    if User.current.can_modify?(@package) && @rev.blank?
+    if User.possibly_nobody.can_modify?(@package) && @rev.blank?
       begin
         files = package_files(@rev, @expand)
       rescue Backend::Error
@@ -1044,7 +1044,7 @@ class Webui::PackageController < Webui::WebuiController
     repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
 
     url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: package_name,
-                                                                 user: User.current, arch: architecture,
+                                                                 user: User.possibly_nobody, arch: architecture,
                                                                  repository: repository, filename: filename)
 
     download_url = url_generator.download_url_for_file_in_repo
@@ -1131,7 +1131,7 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
 
-    @can_modify = User.current.can_modify?(@project) || User.current.can_modify?(@package)
+    @can_modify = User.possibly_nobody.can_modify?(@project) || User.possibly_nobody.can_modify?(@package)
 
     # for remote and multibuild / local link packages
     @package = params[:package] if @package.try(:name) != params[:package]
@@ -1142,7 +1142,7 @@ class Webui::PackageController < Webui::WebuiController
   def links_for_binaries_action(project, package_name, repository, architecture, filename)
     download_url = package_binary_download_path(project: project.name, package: package_name,
                                                 repository: repository.name, arch: architecture, filename: filename)
-    cloud_upload = Feature.active?(:cloud_upload) && !User.current.is_nobody? && uploadable?(filename, architecture)
+    cloud_upload = Feature.active?(:cloud_upload) && User.session && uploadable?(filename, architecture)
     { details?: filename != 'rpmlint.log', download_url: download_url, cloud_upload?: cloud_upload }
   end
 

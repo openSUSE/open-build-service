@@ -61,7 +61,7 @@ module Webui::UserHelper
 
     # It's necessary to concat icon and $variable and don't use string interpolation!
     # Otherwise we get a new string and not an ActiveSupport::SafeBuffer
-    if User.current.is_nobody?
+    if !User.session
       icon + printed_name
     else
       icon + link_to(printed_name, user_show_path(user))

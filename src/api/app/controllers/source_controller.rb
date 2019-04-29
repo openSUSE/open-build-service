@@ -93,7 +93,7 @@ class SourceController < ApplicationController
     tpkg = Package.get_by_project_and_name(@target_project_name, @target_package_name,
                                            use_source: false, follow_project_links: false)
 
-    unless User.current.can_modify?(tpkg)
+    unless User.session!.can_modify?(tpkg)
       raise DeletePackageNoPermission, "no permission to delete package #{@target_package_name} in project #{@target_project_name}"
     end
 
@@ -118,7 +118,6 @@ class SourceController < ApplicationController
   def require_package
     # init and validation
     #--------------------
-    # admin_user = User.admin_session?
     @deleted_package = params.key?(:deleted)
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
@@ -133,7 +132,7 @@ class SourceController < ApplicationController
   end
 
   def verify_can_modify_target_package!
-    return if User.current.can_modify?(@package)
+    return if User.session!.can_modify?(@package)
 
     unless @package.class == Package
       raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
@@ -145,7 +144,7 @@ class SourceController < ApplicationController
 
   # POST /source/:project/:package
   def package_command
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
 
     unless params[:cmd]
       raise MissingParameterError, 'POST request without given cmd parameter'
@@ -224,7 +223,7 @@ class SourceController < ApplicationController
       if @package # for remote package case it's nil
         @project = @package.project
         ignore_lock = @command == 'unlock'
-        unless READ_COMMANDS.include?(@command) || User.current.can_modify?(@package, ignore_lock)
+        unless READ_COMMANDS.include?(@command) || User.session!.can_modify?(@package, ignore_lock)
           raise CmdExecutionNoPermission, "no permission to modify package #{@package.name} in project #{@project.name}"
         end
       end
@@ -259,13 +258,13 @@ class SourceController < ApplicationController
 
   # DELETE /source/:project/_pubkey
   def delete_project_pubkey
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
     path = pubkey_path
 
     # check for permissions
     upper_project = @prj.name.gsub(/:[^:]*$/, '')
     while upper_project != @prj.name && upper_project.present?
-      if Project.exists_by_name(upper_project) && User.current.can_modify?(Project.get_by_name(upper_project))
+      if Project.exists_by_name(upper_project) && User.session!.can_modify?(Project.get_by_name(upper_project))
         pass_to_backend(path)
         return
       end
@@ -323,7 +322,7 @@ class SourceController < ApplicationController
     @path = Package.source_path(@project_name, @package_name, @file)
 
     # authenticate
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
 
     @prj = Project.get_by_name(@project_name)
     @pack = nil
@@ -432,7 +431,7 @@ class SourceController < ApplicationController
   private
 
   def actually_create_incident(project)
-    unless User.current.can_modify?(project)
+    unless User.session!.can_modify?(project)
       raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'"
     end
 
@@ -507,7 +506,7 @@ class SourceController < ApplicationController
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
     end
-    @project.store(user: User.current.login)
+    @project.store(user: User.session!.login)
 
     render_ok
   end
@@ -538,7 +537,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=undelete
   def project_command_undelete
-    unless User.current.can_create_project?(params[:project])
+    unless User.session!.can_create_project?(params[:project])
       raise CmdExecutionNoPermission, "no permission to execute command 'undelete'"
     end
 
@@ -547,7 +546,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=release
   def project_command_release
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
 
     @project = Project.get_by_name(params[:project], includeallpackages: 1)
     verify_repos_match!(@project)
@@ -576,7 +575,7 @@ class SourceController < ApplicationController
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
-        unless User.current.can_modify?(releasetarget.target_repository.project)
+        unless User.session!.can_modify?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
@@ -600,7 +599,7 @@ class SourceController < ApplicationController
 
     begin
       project = Project.get_by_name(params[:oproject])
-      commit = { login: User.current.login,
+      commit = { login: User.session!.login,
                  lowprio: 1,
                  comment: "Project move from #{params[:oproject]} to #{params[:project]}" }
       commit[:comment] = params[:comment] if params[:comment].present?
@@ -626,12 +625,12 @@ class SourceController < ApplicationController
     project_name = params[:project]
 
     @project = Project.find_by_name(project_name)
-    unless (@project && User.current.can_modify?(@project)) || User.current.can_create_project?(project_name)
+    unless (@project && User.session!.can_modify?(@project)) || User.session!.can_create_project?(project_name)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
     oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
     if params.key?(:makeolder) || params.key?(:makeoriginolder)
-      unless User.current.can_modify?(oprj)
+      unless User.session!.can_modify?(oprj)
         raise CmdExecutionNoPermission, "no permission to execute command 'copy', requires modification permission in origin project"
       end
     end
@@ -760,7 +759,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=enablechannel
   def package_command_enablechannel
     @package.modify_channel(:enable_all)
-    @package.project.store(user: User.current.login)
+    @package.project.store(user: User.session!.login)
 
     render_ok
   end
@@ -812,10 +811,10 @@ class SourceController < ApplicationController
     if project == opackage.project
       raise CmdExecutionNoPermission, 'package is already intialized here'
     end
-    unless User.current.can_modify?(project)
+    unless User.session!.can_modify?(project)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
-    unless User.current.can_modify?(opackage, true) # ignore_lock option
+    unless User.session!.can_modify?(opackage, true) # ignore_lock option
       raise CmdExecutionNoPermission, 'no permission to modify source package'
     end
 
@@ -833,7 +832,7 @@ class SourceController < ApplicationController
       raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.is_a?(Project) && User.current.can_create_package_in?(tprj)
+    unless tprj.is_a?(Project) && User.session!.can_create_package_in?(tprj)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
 
@@ -1091,13 +1090,13 @@ class SourceController < ApplicationController
     if Project.exists_by_name(@target_project_name)
       @project = Project.get_by_name(@target_project_name)
     else
-      return if User.current.can_create_project?(@target_project_name)
+      return if User.session!.can_create_project?(@target_project_name)
       raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
     end
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif !@project.is_a?(Project) || !User.current.can_create_package_in?(@project)
+    elsif !@project.is_a?(Project) || !User.session!.can_create_package_in?(@project)
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
   end
@@ -1109,7 +1108,7 @@ class SourceController < ApplicationController
     else
       Event::BranchCommand.create(project: params[:project], package: params[:package],
                                   targetproject: params[:target_project], targetpackage: params[:target_package],
-                                  user: User.current.login)
+                                  user: User.session!.login)
       render_ok ret
     end
   end

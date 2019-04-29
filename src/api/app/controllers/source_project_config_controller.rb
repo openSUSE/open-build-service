@@ -24,7 +24,7 @@ class SourceProjectConfigController < SourceController
     # if its remote prj is a string
     authorize @project, :update?, policy_class: ProjectPolicy
 
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
     @project.config.file = request.body
 
     response = @project.config.save(slice_and_permit(params, [:user, :comment]))

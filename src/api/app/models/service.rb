@@ -75,7 +75,7 @@ class Service
         Rails.logger.debug 'Executing waitservice command'
         Backend::Api::Sources::Package.wait_service(project.name, package.name)
         Rails.logger.debug 'Executing mergeservice command'
-        Backend::Api::Sources::Package.merge_service(project.name, package.name, User.current.login)
+        Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
       rescue Backend::Error, Timeout::Error => e
         Rails.logger.debug "Error while executing backend command: #{e.message}"
       end
@@ -110,11 +110,11 @@ class Service
       end
     else
       Backend::Api::Sources::Package.write_file(project.name, package.name, '_service', document.root.to_xml,
-                                                comment: 'Modified via webui', user: User.current.login)
+                                                comment: 'Modified via webui', user: User.session!.login)
       service_package = Package.get_by_project_and_name(project.name, package.name,
                                                         use_source: true, follow_project_links: false)
-      return false unless User.current.can_modify?(service_package)
-      Backend::Api::Sources::Package.run_service(service_package.project.name, service_package.name, User.current.login)
+      return false unless User.session!.can_modify?(service_package)
+      Backend::Api::Sources::Package.run_service(service_package.project.name, service_package.name, User.session!.login)
       service_package.sources_changed
     end
     true
