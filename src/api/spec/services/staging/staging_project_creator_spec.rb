@@ -15,7 +15,7 @@ RSpec.describe ::Staging::StagingProjectCreator do
   end
 
   before do
-    User.current = user
+    User.session = user
   end
 
   describe '#staging_projects' do

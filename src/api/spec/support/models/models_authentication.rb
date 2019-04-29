@@ -1,10 +1,10 @@
 module ModelsAuthentication
   def login(user)
-    User.current = user
+    User.session = user
   end
 
   def logout
-    User.current = nil
+    User.session = nil
   end
 end
 

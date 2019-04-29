@@ -152,9 +152,9 @@ FactoryBot.define do
         end
         if evaluator.create_patchinfo
           old_user = User.current
-          User.current = evaluator.maintainer
+          User.session = evaluator.maintainer
           Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
-          User.current = old_user
+          User.session = old_user
         end
       end
 

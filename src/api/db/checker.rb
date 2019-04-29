@@ -93,7 +93,7 @@ module DB
     def resolve_devel_packages
       print "\nChecking devel packages "
       begin
-        User.current = User.find_by_login('_nobody_')
+        User.session = User.find_by_login('_nobody_')
         projects = {}
         Package.where('develpackage_id is not null').each do |package|
           begin

@@ -908,9 +908,9 @@ class BsRequest < ApplicationRecord
 
     with_lock do
       if accept_at
-        User.current = User.find_by_login(creator)
+        User.session = User.find_by_login(creator)
       elsif approver
-        User.current = User.find_by_login(approver)
+        User.session = User.find_by_login(approver)
       end
       raise 'Request lacks definition of owner for auto accept' unless User.current
 

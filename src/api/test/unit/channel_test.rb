@@ -7,7 +7,7 @@ class ChannelTest < ActiveSupport::TestCase
     super
     @package = packages(:home_Iggy_TestPack)
     @channel = Channel.create(package: @package)
-    User.current = nil
+    User.session = nil
   end
 
   def teardown

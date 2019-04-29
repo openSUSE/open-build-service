@@ -9,7 +9,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
   end
 
   def test_destroy_source_revokes_request
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     create_request
 
@@ -25,7 +25,7 @@ class PackageRemoveTest < ActiveSupport::TestCase
     project = Project.find_by(name: 'Apache')
     review_package = project.packages.create(name: 'test_review_gets_removed')
 
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package
     create_request
     @request.addreview(by_project: review_package.project.name, by_package: review_package.name)
@@ -48,16 +48,16 @@ class PackageRemoveTest < ActiveSupport::TestCase
   end
 
   def test_destroy_target_declines_request
-    User.current = users(:king)
+    User.session = users(:king)
     project = Project.create(name: 'test_destroy_target_declines_request')
     project.store
     project.packages.create(name: 'pack')
 
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     branch_package('test_destroy_target_declines_request', 'pack')
     create_request('test_destroy_target_declines_request', 'pack')
 
-    User.current = users(:king)
+    User.session = users(:king)
     Package.find_by_project_and_name('test_destroy_target_declines_request', 'pack').destroy
 
     @request.reload

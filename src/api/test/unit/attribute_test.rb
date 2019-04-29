@@ -120,7 +120,7 @@ class AttributeTest < ActiveSupport::TestCase
   end
 
   def test_attrib
-    User.current = users(:king)
+    User.session = users(:king)
 
     # check precondition
     assert_equal 'OBS', @attrib_ns.name
@@ -179,6 +179,6 @@ class AttributeTest < ActiveSupport::TestCase
     end
     assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
 
-    User.current = nil
+    User.session = nil
   end
 end

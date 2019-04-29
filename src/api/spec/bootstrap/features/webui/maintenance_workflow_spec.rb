@@ -17,7 +17,7 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
   end
 
   before do
-    User.current = admin_user
+    User.session = admin_user
     create(:maintenance_project_attrib, project: maintenance_project)
   end
 

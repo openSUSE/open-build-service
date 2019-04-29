@@ -5,7 +5,7 @@ RSpec.describe UserPolicy do
   let(:other_user) { create(:confirmed_user) }
 
   before do
-    User.current = user
+    User.session = user
   end
 
   subject { UserPolicy }

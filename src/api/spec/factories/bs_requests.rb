@@ -63,7 +63,7 @@ FactoryBot.define do
     after(:create) do |request, evaluator|
       next unless request.staging_project && evaluator.staging_owner
 
-      User.current = evaluator.staging_owner
+      User.session = evaluator.staging_owner
       request.bs_request_actions.where(type: :submit).each do |action|
         BranchPackage.new(
           project: action.source_project,
@@ -72,7 +72,7 @@ FactoryBot.define do
           target_package: action.target_package
         ).branch
       end
-      User.current = evaluator.before_current_user
+      User.session = evaluator.before_current_user
     end
 
     transient do
@@ -102,7 +102,7 @@ FactoryBot.define do
     after(:build) do |request, evaluator|
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
-      User.current = evaluator.creating_user
+      User.session = evaluator.creating_user
       request[:state] ||= 'new'
     end
 
@@ -115,7 +115,7 @@ FactoryBot.define do
         request.update_attributes(state: state)
         request.reload
       end
-      User.current = evaluator.before_current_user
+      User.session = evaluator.before_current_user
     end
 
     factory :bs_request_with_submit_action do

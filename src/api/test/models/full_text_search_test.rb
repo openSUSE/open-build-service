@@ -6,7 +6,7 @@ class FullTextSearchTest < ActiveSupport::TestCase
 
   def setup
     OBSApi::TestSphinx.ensure
-    User.current = nil
+    User.session = nil
   end
 
   test 'search for basedistro' do
@@ -73,18 +73,18 @@ class FullTextSearchTest < ActiveSupport::TestCase
   test 'searching for a hidden project' do
     s = FullTextSearch.new(text: 'HiddenProject')
     assert_equal 0, s.search.total_entries
-    User.current = users(:adrian)
+    User.session = users(:adrian)
     assert_equal 1, s.search.total_entries
-    User.current = users(:fred)
+    User.session = users(:fred)
     assert_equal 0, s.search.total_entries
   end
 
   test 'searching for a hidden package' do
     s = FullTextSearch.new(text: 'packcopy')
     assert_equal 0, s.search.total_entries
-    User.current = users(:adrian)
+    User.session = users(:adrian)
     assert_equal 1, s.search.total_entries
-    User.current = users(:fred)
+    User.session = users(:fred)
     assert_equal 0, s.search.total_entries
   end
 end

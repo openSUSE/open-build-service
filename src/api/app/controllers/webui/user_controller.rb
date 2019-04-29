@@ -116,7 +116,7 @@ class Webui::UserController < Webui::WebuiController
       redirect_to controller: :user, action: :index
     else
       session[:login] = opts[:login]
-      User.current = User.find_by_login(session[:login])
+      User.session = User.find_by_login(session[:login])
       if User.current.home_project
         redirect_to project_show_path(User.current.home_project)
       else

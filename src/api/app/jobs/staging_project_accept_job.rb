@@ -3,9 +3,9 @@ class StagingProjectAcceptJob < ApplicationJob
 
   def perform(payload)
     current_user_before = User.current
-    User.current = User.find_by(login: payload[:user_login])
+    User.session = User.find_by(login: payload[:user_login])
     accept(Project.find(payload[:project_id]))
-    User.current = current_user_before
+    User.session = current_user_before
   end
 
   def accept(staging_project)

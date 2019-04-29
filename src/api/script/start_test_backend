@@ -61,7 +61,7 @@ FileUtils.rm_rf(backend_config)
 # minimal auth
 @http_user = User.find_by_login('king')
 raise 'NO fixtures - run rake db:fixtures:load RAILS_ENV=test' unless @http_user
-User.current = @http_user
+User.session = @http_user
 
 puts "Creating backend config at #{backend_config}/BSConfig.pm"
 FileUtils.mkdir backend_config
@@ -318,7 +318,7 @@ ActiveRecord::Base.transaction(requires_new: true) do
 end
 
 @http_user = nil
-User.current = nil
+User.session = nil
 
 scheduler_thread = nil
 

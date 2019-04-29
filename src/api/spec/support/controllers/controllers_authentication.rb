@@ -1,7 +1,7 @@
 module ControllersAuthentication
   def login(user)
     request.session[:login] = user.login
-    User.current = user
+    User.session = user
   end
 
   def logout

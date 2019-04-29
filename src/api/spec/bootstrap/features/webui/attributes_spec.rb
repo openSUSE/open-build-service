@@ -8,9 +8,9 @@ RSpec.feature 'Bootstrap_Attributes', type: :feature, js: true do
   context 'with an attribute' do
     before do
       # create attrib as user
-      User.current = user
+      User.session = user
       attribute
-      User.current = nil
+      User.session = nil
     end
 
     context 'for a project' do

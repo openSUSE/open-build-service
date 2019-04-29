@@ -69,7 +69,7 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'create request' do
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue
@@ -128,7 +128,7 @@ class EventTest < ActionDispatch::IntegrationTest
 
   test 'package maintainer mail' do
     ActionMailer::Base.deliveries.clear
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
     myid = req.number
     SendEventEmailsJob.new.perform # empty queue

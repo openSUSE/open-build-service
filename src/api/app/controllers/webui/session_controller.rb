@@ -20,7 +20,7 @@ class Webui::SessionController < Webui::WebuiController
       return
     end
 
-    User.current = user
+    User.session = user
     session[:login] = user.login
     Rails.logger.debug "Authenticated as user '#{user.login}'"
     RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
@@ -33,7 +33,7 @@ class Webui::SessionController < Webui::WebuiController
 
     reset_session
     RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
-    User.current = nil
+    User.session = nil
 
     redirect_on_logout
   end

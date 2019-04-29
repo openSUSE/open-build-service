@@ -9,7 +9,7 @@ RSpec.describe Webui::UserHelper do
 
     context 'for logged in users' do
       before do
-        User.current = logged_in_user
+        User.session = logged_in_user
       end
 
       it 'displays the users realname to a user that is logged in' do
@@ -47,7 +47,7 @@ RSpec.describe Webui::UserHelper do
       before do
         user.email = 'greatguy@nowhere.fi'
         user.save
-        User.current = anonymous_user
+        User.session = anonymous_user
       end
 
       it 'does not link to user profiles' do

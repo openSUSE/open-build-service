@@ -4,7 +4,7 @@ class WatchedProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def test_watchlist_cleaned_after_project_removal
-    User.current = users(:Iggy)
+    User.session = users(:Iggy)
     tmp_prj = Project.create(name: 'home:Iggy:whatever')
     tmp_prj.write_to_backend
     user_ids = User.limit(5).map(&:id) # Roundup some users to watch tmp_prj

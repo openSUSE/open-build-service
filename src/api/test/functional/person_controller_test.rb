@@ -268,7 +268,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     put '/person/new_user', params: doc.to_s
     assert_response :success
     # cleanup
-    User.current = User.find_by(login: 'new_user')
+    User.session = User.find_by(login: 'new_user')
     Project.find_by(name: 'home:new_user').destroy
 
     # check global role
@@ -368,7 +368,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # cleanup
-    User.current = User.find_by(login: 'lost_guy')
+    User.session = User.find_by(login: 'lost_guy')
   end
 
   def test_register_disabled
@@ -479,7 +479,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_equal u.email, 'adrian@example.com'
     assert_equal u.realname, 'Adrian Schroeter'
     assert_nil u.adminnote
-    User.current = u
+    User.session = u
     Project.find_by(name: 'home:adrianSuSE').destroy
     u.destroy
   end
