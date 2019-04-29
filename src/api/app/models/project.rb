@@ -1433,7 +1433,7 @@ class Project < ApplicationRecord
   end
 
   def self.validate_remote_permissions(request_data)
-    return {} if User.current.is_admin?
+    return {} if User.admin_session?
 
     # either OBS interconnect or repository "download on demand" feature used
     if request_data.key?('remoteurl') ||

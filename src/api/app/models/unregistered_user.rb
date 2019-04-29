@@ -8,7 +8,7 @@ class UnregisteredUser < User
   # Returns true if a user can register
   def self.can_register?
     # No registering if LDAP is on
-    if CONFIG['ldap_mode'] == :on && !User.current.is_admin?
+    if CONFIG['ldap_mode'] == :on && !User.admin_session?
       logger.debug 'Someone tried to register with "ldap_mode" turned on'
       raise ErrRegisterSave, 'Sorry, new users can only sign up via LDAP'
     end
@@ -26,7 +26,7 @@ class UnregisteredUser < User
 
     # Turn off registration if its disabled
     if ::Configuration.registration == 'deny'
-      return true if User.current.try(:is_admin?)
+      return true if User.admin_session?
       logger.debug 'Someone tried to register but its disabled'
       raise ErrRegisterSave, 'Sorry, sign up is disabled'
     end
@@ -44,7 +44,7 @@ class UnregisteredUser < User
   def self.register(opts)
     can_register?
 
-    opts[:note] = nil unless User.current && User.current.is_admin?
+    opts[:note] = nil unless User.admin_session?
     state = ::Configuration.registration == 'allow' ? 'confirmed' : 'unconfirmed'
 
     newuser = User.new(

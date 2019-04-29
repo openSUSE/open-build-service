@@ -315,7 +315,7 @@ class BsRequest < ApplicationRecord
   def check_creator
     errors.add(:creator, 'No creator defined') unless creator
     # Allow admins to create requests for deleted or inactive users
-    return if User.current.is_admin?
+    return if User.admin_session?
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
     raise APIError unless User.current.can_modify_user?(user)
@@ -954,10 +954,10 @@ class BsRequest < ApplicationRecord
     self.creator ||= User.current.login
     self.commenter ||= User.current.login
     # FIXME: Move permission checks to controller level
-    unless self.creator == User.current.login || User.current.is_admin?
+    unless self.creator == User.current.login || User.admin_session?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
-    unless self.commenter == User.current.login || User.current.is_admin?
+    unless self.commenter == User.current.login || User.admin_session?
       raise SaveError, 'Admin permissions required to set request commenter to foreign user'
     end
 

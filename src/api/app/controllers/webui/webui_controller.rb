@@ -206,7 +206,7 @@ class Webui::WebuiController < ActionController::Base
         @displayed_user = User.find_by_login!(params['user'])
       rescue NotFoundError
         # admins can see deleted users
-        @displayed_user = User.find_by_login(params['user']) if User.current && User.current.is_admin?
+        @displayed_user = User.find_by_login(params['user']) if User.admin_session?
         redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
@@ -219,7 +219,7 @@ class Webui::WebuiController < ActionController::Base
   # Don't show performance of database queries to users
   def peek_enabled?
     return false if CONFIG['peek_enabled'] != 'true'
-    User.current && (User.current.is_admin? || User.current.is_staff?)
+    User.admin_session? || (User.current && User.current.is_staff?)
   end
 
   def require_package
@@ -261,7 +261,7 @@ class Webui::WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    return unless User.current.nil? || !User.current.is_admin?
+    return if User.admin_session?
     flash[:error] = 'Requires admin privileges'
     redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end

@@ -19,7 +19,7 @@
 - when 'show'
   = render partial: 'webui/main/breadcrumb_items'
   %li.breadcrumb-item
-    - if User.current.is_admin?
+    - if User.admin_session?
       = link_to 'Manage Groups', groups_path
     - else
       Groups

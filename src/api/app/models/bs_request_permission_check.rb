@@ -271,7 +271,7 @@ class BsRequestPermissionCheck
     end
 
     # Admin always ...
-    return true if User.current.is_admin?
+    return true if User.admin_session?
 
     unless req.state.in?([:review, :new])
       raise ReviewChangeStateNoPermission, 'The request is neither in state review nor new'
@@ -332,7 +332,7 @@ class BsRequestPermissionCheck
     end
 
     permission_granted = false
-    if User.current.is_admin?
+    if User.admin_session?
       permission_granted = true
     elsif opts[:newstate] == 'deleted'
       raise PostRequestNoPermission, 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'

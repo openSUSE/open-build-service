@@ -12,7 +12,7 @@ class BuildController < ApplicationController
       return
     end
 
-    if User.current.is_admin?
+    if User.admin_session?
       # check for a local package instance
       Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
       pass_to_backend
@@ -84,7 +84,7 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.put?
-      if User.current.is_admin?
+      if User.admin_session?
         pass_to_backend
       else
         render_error status: 403, errorcode: 'execute_cmd_no_permission',

@@ -108,7 +108,7 @@ class Relationship < ApplicationRecord
   # calculate and cache forbidden_project_ids for users
   def self.forbidden_project_ids
     # Admins don't have forbidden projects
-    return [0] if User.current && User.current.is_admin?
+    return [0] if User.admin_session?
 
     # This will cache and return a hash like this:
     # {projecs: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }

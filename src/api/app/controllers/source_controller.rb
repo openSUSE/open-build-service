@@ -23,7 +23,7 @@ class SourceController < ApplicationController
   def index
     # init and validation
     #--------------------
-    admin_user = User.current.is_admin?
+    admin_user = User.admin_session?
 
     # access checks
     #--------------
@@ -118,7 +118,7 @@ class SourceController < ApplicationController
   def require_package
     # init and validation
     #--------------------
-    # admin_user = User.current.is_admin?
+    # admin_user = User.admin_session?
     @deleted_package = params.key?(:deleted)
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
@@ -273,7 +273,7 @@ class SourceController < ApplicationController
       upper_project = upper_project.gsub(/:[^:]*$/, '')
     end
 
-    if User.current.is_admin?
+    if User.admin_session?
       pass_to_backend(path)
     else
       raise DeleteProjectPubkeyNoPermission, "No permission to delete public key for project '#{params[:project]}'. " \
@@ -591,7 +591,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=move&oproject=<project>
   def project_command_move
-    unless User.current.is_admin?
+    unless User.admin_session?
       raise CmdExecutionNoPermission, 'Admin permissions required. STOP SCHEDULER BEFORE.'
     end
     if Project.exists_by_name(params[:project])
@@ -640,7 +640,7 @@ class SourceController < ApplicationController
       raise RemoteProjectError, 'The copy from remote projects is currently not supported'
     end
 
-    unless User.current.is_admin?
+    unless User.admin_session?
       if params[:withbinaries]
         raise ProjectCopyNoPermission, 'no permission to copy project with binaries for non admins'
       end
@@ -838,7 +838,7 @@ class SourceController < ApplicationController
     end
 
     path = request.path_info
-    unless User.current.is_admin? || params[:time].blank?
+    unless User.admin_session? || params[:time].blank?
       raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time'
     end
     path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
@@ -1138,7 +1138,7 @@ class SourceController < ApplicationController
     required_parameters :flag, :status
 
     # Raising permissions afterwards is not secure. Do not allow this by default.
-    unless User.current.is_admin?
+    unless User.admin_session?
       if params[:flag] == 'access' && params[:status] == 'enable' && !@project.enabled_for?('access', params[:repository], params[:arch])
         raise Project::ForbiddenError
       end

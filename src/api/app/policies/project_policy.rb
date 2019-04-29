@@ -36,7 +36,7 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def source_access?
-    User.current.is_admin? || !record.disabled_for?('sourceaccess', nil, nil)
+    User.admin_session? || !record.disabled_for?('sourceaccess', nil, nil)
   end
 
   private

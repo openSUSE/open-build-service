@@ -1,4 +1,4 @@
-- if User.current.is_admin?
+- if User.admin_session?
   = render partial: 'admin_proceed-list'
 = render partial: 'user_proceed-list'
 - unless @spider_bot

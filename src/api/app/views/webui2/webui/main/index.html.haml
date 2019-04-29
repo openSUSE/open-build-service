@@ -24,6 +24,6 @@
         .card-body
           = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
     = render partial: 'sponsors'
-    - if @status_messages.present? || User.current.is_admin?
+    - if @status_messages.present? || User.admin_session?
       = render partial: 'status_messages'
     = render(partial: 'latest_updates') if @latest_updates && ::Configuration.anonymous

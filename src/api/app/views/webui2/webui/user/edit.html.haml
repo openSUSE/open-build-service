@@ -24,7 +24,7 @@
             .custom-control.custom-radio.custom-control-inline
               = radio.radio_button(class: 'custom-control-input')
               = radio.label(class: 'custom-control-label')
-        - if Configuration.ldap_enabled? && User.current.is_admin?
+        - if Configuration.ldap_enabled? && User.admin_session?
           .form-group
             .custom-control.custom-checkbox
               = form.check_box(:ignore_auth_services, { class: 'custom-control-input' }, true)

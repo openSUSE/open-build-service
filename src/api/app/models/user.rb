@@ -241,6 +241,10 @@ class User < ApplicationRecord
     current.try(:login) || NOBODY_LOGIN
   end
 
+  def self.admin_session?
+    current && current.is_admin?
+  end
+
   def self.get_default_admin
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by_login(admin)
