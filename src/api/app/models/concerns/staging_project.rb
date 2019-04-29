@@ -183,7 +183,7 @@ module StagingProject
   end
 
   def set_buildinfo
-    buildresult = Backend::Api::BuildResults::Status.failed_results(name)
+    buildresult = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results(name))
 
     @broken_packages = []
     @building_repositories = []
