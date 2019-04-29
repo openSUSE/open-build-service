@@ -46,6 +46,10 @@ class HistoryElement::RequestAccepted < HistoryElement::Request
   def description
     'Request got accepted'
   end
+
+  def user_action
+    'accepted request'
+  end
 end
 
 class HistoryElement::RequestDeclined < HistoryElement::Request
@@ -56,6 +60,10 @@ class HistoryElement::RequestDeclined < HistoryElement::Request
   def description
     'Request got declined'
   end
+
+  def user_action
+    'declined request'
+  end
 end
 
 class HistoryElement::RequestRevoked < HistoryElement::Request
@@ -65,6 +73,10 @@ class HistoryElement::RequestRevoked < HistoryElement::Request
 
   def description
     'Request got revoked'
+  end
+
+  def user_action
+    'revoked request'
   end
 end
 
@@ -79,6 +91,10 @@ class HistoryElement::RequestSuperseded < HistoryElement::Request
     desc
   end
 
+  def user_action
+    'superseded request'
+  end
+
   def initialize(a)
     super
   end
@@ -88,6 +104,10 @@ class HistoryElement::RequestReviewAdded < HistoryElement::Request
   # self.description_extension is review id
   def description
     'Request got a new review request'
+  end
+
+  def user_action
+    'added review'
   end
 end
 
@@ -99,6 +119,10 @@ class HistoryElement::RequestAllReviewsApproved < HistoryElement::Request
   def description
     'Request got reviewed'
   end
+
+  def user_action
+    'approved review'
+  end
 end
 
 class HistoryElement::RequestReopened < HistoryElement::Request
@@ -108,6 +132,10 @@ class HistoryElement::RequestReopened < HistoryElement::Request
 
   def description
     'Request got reopened'
+  end
+
+  def user_action
+    'reopened request'
   end
 end
 
@@ -119,6 +147,10 @@ class HistoryElement::RequestSetIncident < HistoryElement::Request
   def description
     'Maintenance target got moved to project ' + description_extension
   end
+
+  def user_action
+    "moved maintenance target to #{description_extension}"
+  end
 end
 
 class HistoryElement::RequestPriorityChange < HistoryElement::Request
@@ -129,6 +161,10 @@ class HistoryElement::RequestPriorityChange < HistoryElement::Request
   def description
     'Request got a new priority: ' + description_extension
   end
+
+  def user_action
+    "changed priority to #{description_extension}"
+  end
 end
 
 class HistoryElement::RequestDeleted < HistoryElement::Request
@@ -138,6 +174,10 @@ class HistoryElement::RequestDeleted < HistoryElement::Request
 
   def description
     'Request was deleted'
+  end
+
+  def user_action
+    'deleted request'
   end
 end
 
@@ -170,11 +210,19 @@ class HistoryElement::ReviewAccepted < HistoryElement::Review
   def description
     'Review got accepted'
   end
+
+  def user_action
+    'accepted review'
+  end
 end
 
 class HistoryElement::ReviewDeclined < HistoryElement::Review
   def description
     'Review got declined'
+  end
+
+  def user_action
+    'declined review'
   end
 end
 
@@ -182,16 +230,28 @@ class HistoryElement::ReviewReopened < HistoryElement::Review
   def description
     'Review got reopened'
   end
+
+  def user_action
+    'reopened review'
+  end
 end
 
 class HistoryElement::ReviewObsoleted < HistoryElement::Review
   def description
     'Review got obsoleted'
   end
+
+  def user_action
+    'obsoleted review'
+  end
 end
 
 class HistoryElement::ReviewAssigned < HistoryElement::Review
   def description
     'Review got assigned'
+  end
+
+  def user_action
+    'assigned review'
   end
 end
