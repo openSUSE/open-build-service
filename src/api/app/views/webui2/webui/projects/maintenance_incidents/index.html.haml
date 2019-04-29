@@ -25,6 +25,13 @@
           %th
             Release Targets
       %tbody
+    - if policy(@project).create?
+      .pt-4
+        %ul.list-inline
+          %li.list-inline-item
+            = link_to(project_maintenance_incidents_path(@project.name), method: :post, class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Create Maintenance Incident
 
 - content_for :ready_function do
   :plain
