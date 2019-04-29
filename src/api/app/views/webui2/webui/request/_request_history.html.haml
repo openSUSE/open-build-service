@@ -2,10 +2,11 @@
   - user = User.find_by_login(bs_request.creator)
   = image_tag_for(user, size: 32, custom_class: 'mr-3')
   .media-body
-    %h6.mt-0.mb-1
-      #{bs_request.creator} (#{fuzzy_time(bs_request.created_at)})
+    %p
+      = link_to(user, user_show_path(user))
+      (#{fuzzy_time(bs_request.created_at)})
 
-    %p.mb-2 created request
+    %p created request
     .text-muted
       = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
 
