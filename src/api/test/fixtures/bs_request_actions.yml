@@ -91,7 +91,6 @@ record_8:
   target_project: Apache
   target_package: BranchPack
   target_project_object: Apache
-  target_package_object: home_Iggy_branches_kde4_BranchPack
   source_project: home:Iggy:branches:kde4
   source_package: BranchPack
   source_rev: '1'
@@ -103,7 +102,6 @@ record_9:
   target_project: Apache
   target_package: BranchPack
   target_project_object: Apache
-  target_package_object: home_Iggy_branches_kde4_BranchPack
   source_project: home:Iggy:branches:kde4
   source_package: BranchPack
   source_rev: '1'

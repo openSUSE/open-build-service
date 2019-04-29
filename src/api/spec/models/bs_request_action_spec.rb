@@ -143,5 +143,36 @@ RSpec.describe BsRequestAction, vcr: true do
         it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action) }
       end
     end
+
+    describe '#is_target_maintainer?' do
+      context 'without target' do
+        let(:action_without_target) { build(:bs_request_action) }
+
+        it 'is false' do
+          expect(action_without_target).not_to be_is_target_maintainer(user)
+        end
+        it 'works on nil' do
+          expect(action_without_target).not_to be_is_target_maintainer(nil)
+        end
+      end
+
+      context 'on home target' do
+        let(:another_user) { create(:confirmed_user) }
+        let(:bs_request) do
+          create(:set_bugowner_request, target_project: user.home_project)
+        end
+        let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+        it 'is true for user' do
+          expect(bs_request_action).to be_is_target_maintainer(user)
+        end
+        it 'works on nil' do
+          expect(bs_request_action).not_to be_is_target_maintainer(nil)
+        end
+        it 'is false for another user' do
+          expect(bs_request_action).not_to be_is_target_maintainer(another_user)
+        end
+      end
+    end
   end
 end
