@@ -24,8 +24,6 @@
             Info
           %th
             Release Targets
-          %th
-            Build
       %tbody
 
 - content_for :ready_function do
@@ -39,7 +37,6 @@
         { data: 'category', orderable: false },
         { data: 'packages', orderable: false },
         { data: 'info', orderable: false },
-        { data: 'release_targets', orderable: false },
-        { data: 'build_results', orderable: false }
+        { data: 'release_targets', orderable: false }
       ]
     });

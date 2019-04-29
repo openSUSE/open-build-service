@@ -79,35 +79,39 @@ module Webui::MaintenanceIncidentHelper
     end
   end
 
-  def release_targets_cell(release_targets_ng)
-    safe_join([
-                release_targets_ng.keys.map do |release_target_project|
-                  content_tag(:div) do
-                    content_tag(:b, release_target_project)
-                  end
-                end
-              ])
-  end
-
-  def build_results_cell(incident, release_targets_ng)
-    safe_join([
-                release_targets_ng.values.map do |release_target_ng|
-                  content_tag(:div) do
-                    link_to(project_show_path(project: incident.name)) do
-                      content_tag(:i, nil, class: "fas #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
-                    end
-                  end
-                end
-              ])
+  def release_targets_cell(incident, release_targets_ng)
+    safe_join(
+      [
+        release_targets_ng.map do |release_target_project, release_target_ng|
+          content_tag(:div) do
+            safe_join(
+              [
+                link_to(project_show_path(project: incident.name)) do
+                  content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
+                end,
+                link_to(release_target_project, project_show_path(project: release_target_project))
+              ]
+            )
+          end
+        end
+      ]
+    )
   end
 
   private
 
   def outgoing_request_links(requests)
-    requests.map do |rq_out|
-      link_to(request_show_path(rq_out['number'])) do
-        content_tag(:i, nil, class: "fas fa-flag request-flag-#{rq_out['state']}", title: "Release request in state '#{rq_out['state']}'")
-      end
+    requests.map do |request|
+      safe_join(
+        [
+          link_to(request_show_path(request['number'])) do
+            content_tag(:i, nil, class: "fas fa-flag pr-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
+          end,
+          # rubocop:disable Rails/OutputSafety
+          "Created #{fuzzy_time(request.created_at)}".html_safe
+          # rubocop:enable Rails/OutputSafety
+        ]
+      )
     end
   end
 end
