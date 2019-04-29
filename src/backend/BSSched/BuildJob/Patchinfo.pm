@@ -166,7 +166,7 @@ sub check {
     for my $apackid (@packages) {
       my $code = $packstatus->{$apackid} || '';
       next if $code eq 'excluded';
-      if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
+      if ($code ne 'done' && $code ne 'failed' && $code ne 'succeeded' && $code ne 'disabled' && $code ne 'locked') {
         $blocked = 1;
         last;
       }
@@ -248,7 +248,7 @@ sub check {
     for my $apackid (@packages) {
       my $code = $apackstatus->{$apackid} || '';
       next if $code eq 'excluded';
-      if ($code ne 'done' && $code ne 'disabled' && $code ne 'locked') {
+      if ($code ne 'done' && $code ne 'failed' && $code ne 'succeeded' && $code ne 'disabled' && $code ne 'locked') {
         $blockedarch = 1;
         push @blocked, "$arch/$apackid";
         next;
