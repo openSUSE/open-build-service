@@ -22,9 +22,9 @@
                 = link_to("#{name}: #{title}", project_show_path(project: name))
         = form_tag(package_branch_path) do
           = render partial: 'webui/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
-                                                            source: autocomplete_projects_path }
+                                                            data: { source: autocomplete_projects_path } }
           = render partial: 'webui/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name',
-                                                            source: autocomplete_packages_path }
+                                                            data: { source: autocomplete_packages_path } }
           = hidden_field_tag 'target_project', project
           = render partial: 'shared/package_branch_form', locals: { show_project_field: false, target_project: project,
                                                                     package: nil, revision: nil }

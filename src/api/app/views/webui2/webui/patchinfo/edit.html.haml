@@ -9,7 +9,7 @@
       = form.hidden_field(:name)
       .form-group.col-8.col-md-4
         = render partial: 'webui/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
-                                                          source: url_for(controller: '/webui/user', action: 'autocomplete') }
+                                                          data: { source: autocomplete_users_path } }
       .form-group.col-md-6
         = form.label(:summary)
         %abbr.text-danger{ title: 'required (minimum 10 characters)' } *

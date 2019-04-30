@@ -7,7 +7,7 @@
         .modal-body
           = render partial: 'webui/autocomplete', locals: { html_id: 'staging_project_name',
                                                             label: 'Please enter a project you have permissions to',
-                                                            source: autocomplete_projects_path }
+                                                            data: { source: autocomplete_projects_path } }
           %small.text-muted
             %i.fa.fa-info-circle.text-info{ title: 'Info' }
             If the project already exists, it will simply be assigned to the Staging.

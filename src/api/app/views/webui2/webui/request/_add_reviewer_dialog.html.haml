@@ -12,18 +12,18 @@
                                                            %w[Project review-project], %w[Package review-package]]), class: 'custom-select')
           .hideable.review-user
             = render partial: 'webui/autocomplete', locals: { html_id: 'review_user', label: 'User:',
-                                                              source: autocomplete_users_path }
+                                                              data: { source: autocomplete_users_path } }
 
           .hideable.review-group.d-none
             = render partial: 'webui/autocomplete', locals: { html_id: 'review_group', label: 'Group:',
-                                                              source: autocomplete_groups_path }
+                                                              data: { source: autocomplete_groups_path } }
           .hideable.review-project.review-package.d-none
             = render partial: 'webui/autocomplete', locals: { html_id: 'review_project', label: 'Project:',
-                                                              source: autocomplete_projects_path }
+                                                              data: { source: autocomplete_projects_path } }
 
           .hideable.review-package.d-none
             = render partial: 'webui/autocomplete', locals: { html_id: 'review_package', label: 'Package:',
-                                                              source: autocomplete_packages_path }
+                                                              data: { source: autocomplete_packages_path } }
 
           .form-group
             = label_tag(:review_comment, 'Comment for reviewer:')
