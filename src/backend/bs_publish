@@ -1930,8 +1930,9 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.(?:box|json|ovf|phar|qcow2|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(?:\.sha256)?$/) {
+        } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256)?$/) {
 	  $p = "$bin";
+          $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
         } elsif ($bin =~ /\.packages$/) {
 	  $p = "$bin";
 	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p) if $repotype{'sleimage'};
