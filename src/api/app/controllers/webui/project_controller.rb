@@ -654,7 +654,9 @@ class Webui::ProjectController < Webui::WebuiController
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
-    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
+    @incoming_requests = reqs[:incidents] | reqs[:maintenance_release]
+    @outgoing_requests = reqs[:targets] | reqs[:reviews]
+    @requests = @incoming_requests | @outgoing_requests
 
     @nr_of_problem_packages = @project.number_of_build_problems
   end

@@ -22,6 +22,8 @@
 
   - if requests.present?
     = render partial: 'webui2/webui/project/side_links/requests', locals: { requests: requests,
+                                                                            incoming_requests: incoming_requests,
+                                                                            outgoing_requests: outgoing_requests,
                                                                             project: project,
                                                                             package: package }
 

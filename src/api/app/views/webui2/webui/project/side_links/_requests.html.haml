@@ -7,6 +7,11 @@
     else
       path = project_requests_path(project)
     end
-  %i.fa.fa-info-circle.text-info
-  = link_to(path) do
-    = pluralize(requests.size, 'open request')
+  %li
+    %i.fa.fa-info-circle.text-info
+    = link_to(path) do
+      = pluralize(incoming_requests.size, 'Incoming request')
+  %li
+    %i.fa.fa-info-circle.text-info
+    = link_to(path) do
+      = pluralize(outgoing_requests.size, 'Outgoing request')
