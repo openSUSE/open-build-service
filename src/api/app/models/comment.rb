@@ -74,11 +74,6 @@ class Comment < ApplicationRecord
     end
   end
 
-  # FIXME: This is to work around https://github.com/rails/rails/pull/12450/files
-  def destroy
-    super
-  end
-
   private
 
   def delete_parent_if_unused
