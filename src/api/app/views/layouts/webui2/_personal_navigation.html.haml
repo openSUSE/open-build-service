@@ -9,8 +9,7 @@
                                                                              method: :post,
                                                                              enctype: 'application/x-www-form-urlencoded' },
                                                              proxy: true }
-  - else
-    - if can_register
-      = render partial: 'layouts/webui2/login_form', locals: { signup_url: user_signup_path,
-                                                               form_options: session_create_path,
-                                                               proxy: false }
+  - elsif can_register
+    = render partial: 'layouts/webui2/login_form', locals: { signup_url: user_signup_path,
+                                                             form_options: session_create_path,
+                                                             proxy: false }

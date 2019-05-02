@@ -4,11 +4,14 @@
       .alert.alert-dismissible.fade.show{ class: "alert-#{type}" }
         %i.fas
         = flash_content(message)
+        -# haml-lint:disable InstanceVariables
+           FIXME: This is used in only one action of the package controller
         - if @more_info
           = link_to('more info', 'javascript:void(0)', class: 'btn-more alert-link')
           .more_info.d-none
             .more-info-content
               = simple_format(@more_info)
+        -# haml-lint:enable InstanceVariables
         %button.close{ type: 'button', 'data-dismiss': 'alert', 'aria-label': 'Close' }
           %span{ 'aria-hidden': 'true' }
             &times;

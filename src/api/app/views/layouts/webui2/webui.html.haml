@@ -1,22 +1,22 @@
 !!!
-%html{ lang: "en" }
+%html{ lang: 'en' }
   %head
-    %meta{ content: "charset=utf-8" }/
-    %meta{ name: "viewport", content: "width=device-width, initial-scale=1, shrink-to-fit=no" }
+    %meta{ content: 'charset=utf-8' }/
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' }
     - if @metarobots
-      %meta{ content: "#{@metarobots}", name: "robots" }/
+      %meta{ content: @metarobots, name: 'robots' }/
     = favicon_link_tag
     %title
       = "#{@pagetitle} - " if @pagetitle
       = home_title
-    %meta{ property: "og:title", content: meta_title }
-    %meta{ property: "og:site_name", content: home_title }
-    %meta{ property: "og:type", content: 'website' }
-    %meta{ property: "og:url", content: request.original_url }
-    %meta{ property: "og:image", content: meta_image }
+    %meta{ property: 'og:title', content: meta_title }
+    %meta{ property: 'og:site_name', content: home_title }
+    %meta{ property: 'og:type', content: 'website' }
+    %meta{ property: 'og:url', content: request.original_url }
+    %meta{ property: 'og:image', content: meta_image }
     - if meta_description
-      %meta{ property: "og:description", content: meta_description }
-    
+      %meta{ property: 'og:description', content: meta_description }
+
     = stylesheet_link_tag 'webui2/webui2'
     = javascript_include_tag 'webui2/application'
 
@@ -29,11 +29,11 @@
       var _paq = _paq || [];
       $(function() { #{yield :ready_function} });
 
-    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), {:title => 'News'})
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), title: 'News')
     = csrf_meta_tag
     - if User.current.try(:rss_token)
-      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' })
-    = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), { title: 'Latest updates' })
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), title: 'Notifications')
+    = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
   %body.d-flex.flex-column
     = render 'peek/bar'
     #navigation
@@ -42,14 +42,14 @@
     .container
       .row
         .col
-          = render partial: "layouts/webui2/breadcrumbs"
+          = render partial: 'layouts/webui2/breadcrumbs'
         .col-auto.ml-auto#personal-navigation
-          = render partial: "layouts/webui2/personal_navigation"
+          = render partial: 'layouts/webui2/personal_navigation'
 
     .container.sticky-top.flash-and-announcement.text-word-break-all
       - unless @hide_announcement_notification
-        #announcement= render partial: 'layouts/webui2/announcement'
-      #flash= render partial: "layouts/webui2/flash", object: flash
+        #announcement= render partial: 'layouts/webui2/announcement', locals: { pending_announcement: @pending_announcement }
+      #flash= render partial: 'layouts/webui2/flash', object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
 
     .container.flex-grow#content
