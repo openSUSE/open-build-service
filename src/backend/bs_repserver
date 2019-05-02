@@ -391,6 +391,7 @@ sub getrepositorystatus {
   } elsif ($schedulerstate->{'oldbuildid'}) {
     $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
   }
+  $status->{'dirty'} = 'true' if ($schedulerstate->{'code'} || '') eq 'scheduling' || -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   return ($status, $BSXML::buildstatus);
 }
 
@@ -1153,6 +1154,8 @@ sub getbuildstatus {
       }
     }
   }
+  my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
+  $res->{'dirty'} = 'true' if ($schedulerstate->{'code'} || '') eq 'scheduling' || -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   return ($res, $BSXML::buildstatus);
 }
 
@@ -1737,7 +1740,7 @@ sub readschedulerstate {
     chomp $schedulerstate;
     my $details;
     ($schedulerstate, $details) = split(' ', $schedulerstate, 2);
-    $schedulerstate = { 'code' => $schedulerstate };
+    $schedulerstate = { 'code' => ($schedulerstate || 'unknown') };
     $schedulerstate->{'details'} = $details if $details;
   }
   return $schedulerstate;

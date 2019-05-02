@@ -644,6 +644,7 @@ our $buildstatus = [
 	'code',
 	'status',	# obsolete, now code
 	'error',	# obsolete, now details
+	'dirty',	# marked for re-scheduling
 	'versrel',	# for withversrel result call
 	[],
 	'details',
