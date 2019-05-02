@@ -61,8 +61,8 @@ def send_notification(from, to, subject, message)
     settings[:domain] = ENV["HOSTNAME"] if ENV["HOSTNAME"].present?
     mail.delivery_method :smtp, settings
     mail.deliver
-  rescue Exception => ex
-    $stderr.puts "#{SMTP_SERVER}: #{ex.inspect}"
+  rescue Exception => e
+    $stderr.puts "#{SMTP_SERVER}: #{e.inspect}"
     abort
   end
 end

@@ -232,8 +232,8 @@ class Webui::WebuiController < ActionController::Base
     begin
       @package = Package.get_by_project_and_name(@project.to_param, params[:package],
                                                  follow_project_links: true, follow_multibuild: true)
-    rescue APIError => error
-      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(error.class)
+    rescue APIError => e
+      if [Package::Errors::ReadSourceAccessError, Authenticator::AnonymousUser].include?(e.class)
         flash[:error] = "You don't have access to the sources of this package: \"#{params[:package]}\""
         redirect_back(fallback_location: project_show_path(@project))
         return

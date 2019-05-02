@@ -603,20 +603,20 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = 'Successfully branched package'
       redirect_to(package_show_path(project: created_project_name, package: created_package_name))
     end
-  rescue BranchPackage::DoubleBranchPackageError => exception
+  rescue BranchPackage::DoubleBranchPackageError => e
     flash[:notice] = 'You have already branched this package'
-    redirect_to(package_show_path(project: exception.project, package: exception.package))
+    redirect_to(package_show_path(project: e.project, package: e.package))
   rescue Package::UnknownObjectError, Project::UnknownObjectError
     flash[:error] = 'Failed to branch: Package does not exist.'
     redirect_back(fallback_location: root_path)
-  rescue ArgumentError => exception
-    flash[:error] = "Failed to branch: #{exception.message}"
+  rescue ArgumentError => e
+    flash[:error] = "Failed to branch: #{e.message}"
     redirect_back(fallback_location: root_path)
   rescue CreateProjectNoPermission
     flash[:error] = 'Sorry, you are not authorized to create this Project.'
     redirect_back(fallback_location: root_path)
-  rescue APIError, ActiveRecord::RecordInvalid => exception
-    flash[:error] = "Failed to branch: #{exception.message}"
+  rescue APIError, ActiveRecord::RecordInvalid => e
+    flash[:error] = "Failed to branch: #{e.message}"
     redirect_back(fallback_location: root_path)
   end
 
@@ -1061,8 +1061,8 @@ class Webui::PackageController < Webui::WebuiController
   def validate_xml
     Suse::Validator.validate('package', params[:meta])
     @meta_xml = Xmlhash.parse(params[:meta])
-  rescue Suse::ValidationError => error
-    flash.now[:error] = "Error while saving the Meta file: #{error}."
+  rescue Suse::ValidationError => e
+    flash.now[:error] = "Error while saving the Meta file: #{e}."
     render layout: false, status: 400, partial: "layouts/#{ui_namespace}/flash", object: flash
   end
 

@@ -35,8 +35,8 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.update_attributes!(permitted_params)
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid => exception
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be updated: #{exception.message}")
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_back(fallback_location: root_path, error: "Download on Demand can't be updated: #{e.message}")
       return
     end
 
@@ -57,8 +57,8 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
         @download_on_demand.destroy!
         @project.store
       end
-    rescue ActiveRecord::RecordInvalid => exception
-      redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: #{exception.message}")
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_back(fallback_location: root_path, error: "Download on Demand can't be removed: #{e.message}")
       return
     end
 
