@@ -91,5 +91,5 @@
 = content_for :ready_function do
   :plain
     $('.request-tab').on('shown.bs.tab', function() {
-      editors.forEach( function(editor) { editor.refresh(); });
+      editors.forEach( function(editor) { editor.refresh(); cm_mark_diff_lines(); });
     });

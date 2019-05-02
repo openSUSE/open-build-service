@@ -203,7 +203,7 @@ function setupActionLink() { // jshint ignore:line
     $('#action_display_' + index).show();
     // It is necessary to refresh the CodeMirror editors after switching tabs to initialise the dimensions again.
     // Otherwise the editors are empty after calling show().
-    editors.forEach( function(editor) { editor.refresh(); });
+    editors.forEach( function(editor) { editor.refresh(); cm_mark_diff_lines(); });
     return false;
   });
 }
