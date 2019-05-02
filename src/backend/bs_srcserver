@@ -2398,20 +2398,36 @@ sub getproductrepositories {
     my @pr;
     for my $repo (@{$product->{'register'}->{'updates'}->{'repository'}}) {
       my ($path) = published_path({}, $repo->{'project'}, $repo->{'name'});
-      $path = { 'path' => $path->{'path'}, 'update' => undef };
+      if (defined($repo->{'url'})) {
+        $path = { 'url' => $repo->{'url'} };
+      } else {
+        if ($path->{'path'}) {
+          $path = { 'path' => $path->{'path'} };
+        } elsif ($path->{'url'}){
+          $path = { 'url' => $path->{'url'} };
+        } else {
+          $path = {};
+        }
+      }
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
+      $path->{'update'} = undef;
       push @pr, $path;
     }
     for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
-      die("getproductrepositories: path AND url is set!\n") if defined ($repo->{'project'}) && defined($repo->{'url'});
       my $path;
       if (defined($repo->{'url'})) {
         $path = { 'url' => $repo->{'url'} };
       } else {
         ($path) = published_path({ 'medium' => $repo->{'medium'} }, $repo->{'project'}, $repo->{'name'});
-        $path = { 'path' => $path->{'path'} };
+        if ($path->{'path'}) {
+          $path = { 'path' => $path->{'path'} };
+        } elsif ($path->{'url'}){
+          $path = { 'url' => $path->{'url'} };
+        } else {
+          $path = {};
+        }
       }
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};

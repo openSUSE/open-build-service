@@ -124,8 +124,8 @@ our $product = [
                    'name',
                    'medium',
                    'url',       # this conflicts with project/name/medium
-                   $zypp,
                    'arch',      # for arch specific definitions
+                   $zypp,
                 ]],
               ],
               [ 'updates' =>
@@ -138,6 +138,7 @@ our $product = [
                    'project',   # input
                    'name',
                    'repoid',    # output for .prod file
+                   'url',       # this conflicts with project/name/medium
                    'arch',      # for arch specific definitions
                    $zypp,
                 ]],
