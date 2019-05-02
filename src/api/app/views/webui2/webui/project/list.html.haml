@@ -32,14 +32,13 @@
             Add New Project
           = render partial: 'new_project_modal', locals: { configuration: @configuration }
 
-    #project-list
-      %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json),
-                                                                                                      all: 'false' } }
-        %thead
-          %tr
-            %th Name
-            %th Title
-        %tbody
+    %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                    all: 'false' } }
+      %thead
+        %tr
+          %th Name
+          %th Title
+      %tbody
 
 - content_for :ready_function do
   initializeProjectDatatable();
