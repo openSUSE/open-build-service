@@ -56,8 +56,8 @@ RSpec.feature 'Bootstrap_MaintainedProjects', type: :feature, js: true, vcr: tru
         expect(find('#delete-maintained-project-modal')).to have_text('Disable Maintenance to this project?')
 
         within('#delete-maintained-project-modal .modal-footer') do
-          expect(page).to have_button('Accept')
-          click_button('Accept')
+          expect(page).to have_button('Disable')
+          click_button('Disable')
         end
 
         expect(page).to have_css('#flash')

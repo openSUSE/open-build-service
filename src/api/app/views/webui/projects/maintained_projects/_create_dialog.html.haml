@@ -9,7 +9,7 @@
           = render partial: 'webui2/webui/autocomplete', locals: { html_id: 'maintained_project', label: 'Project to be maintained:',
                                                             source: autocomplete_projects_path }
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
+          = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Add' }
 
 = content_for :ready_function do
   :plain
