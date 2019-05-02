@@ -1,6 +1,6 @@
 %h3 #{table_title.pluralize} of #{project}
 - table_id = table_title.tr(' ', '_')
-%table.responsive.table.table-sm.table-striped.table-bordered.projects-table{ data: { source: project_subprojects_path(project,
+%table.responsive.table.table-sm.table-striped.table-bordered{ data: { source: project_subprojects_path(project,
   type: table_title.downcase) }, id: table_id }
   %thead
     %tr
