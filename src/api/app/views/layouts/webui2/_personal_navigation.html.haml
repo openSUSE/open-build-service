@@ -5,11 +5,11 @@
     = link_to 'Log In', session_new_path
   - elsif CONFIG['proxy_auth_mode'] == :on && CONFIG['proxy_auth_register_page'].present?
     = render partial: 'layouts/webui2/login_form', locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
-                                                             form_options: { url: CONFIG['proxy_auth_login_page'],
-                                                                             method: :post,
-                                                                             enctype: 'application/x-www-form-urlencoded' },
+                                                             form_url: CONFIG['proxy_auth_login_page'],
+                                                             options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
                                                              proxy: true }
   - elsif can_register
     = render partial: 'layouts/webui2/login_form', locals: { signup_url: user_signup_path,
-                                                             form_options: session_create_path,
+                                                             form_url: session_create_path,
+                                                             options: { method: :post },
                                                              proxy: false }
