@@ -1,7 +1,7 @@
 :ruby
   @pagetitle = 'Public Projects'
 .card
-  - if @important_projects.present?
+  - if important_projects.present?
     .card-body
       %h3 Main Projects
       .table-responsive
@@ -11,7 +11,7 @@
               %th Name
               %th Title
           %tbody
-            - @important_projects.each do |project|
+            - important_projects.each do |project|
               %tr
                 %td
                   = link_to(project.first, action: :show, project: project.first)

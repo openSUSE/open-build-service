@@ -1,12 +1,12 @@
 module Webui2::ProjectController
   def webui2_index
-    show_all = (params[:all].to_s == 'true')
-    atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
-    @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
-
     respond_to do |format|
-      format.html { render :list }
-      format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all) }
+      format.html do
+        render :list,
+               locals: { important_projects:
+                         active_very_important_projects.pluck(:name, :title) }
+      end
+      format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
     end
   end
 
@@ -22,6 +22,18 @@ module Webui2::ProjectController
   end
 
   private
+
+  def show_all?
+    (params[:all].to_s == 'true')
+  end
+
+  def active_very_important_projects
+    Project.find_by_attribute_type(very_important_project_attribute).where('name <> ?', 'deleted')
+  end
+
+  def very_important_project_attribute
+    AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
+  end
 
   def project_for_datatable
     case params[:type]
