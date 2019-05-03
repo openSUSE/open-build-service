@@ -5,7 +5,7 @@
     Log In
   .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
-      = form_tag(form_options) do
+      = form_tag(form_url, options) do
         - if proxy
           = hidden_field_tag(:context, 'default')
           = hidden_field_tag(:proxypath, 'reserve')
