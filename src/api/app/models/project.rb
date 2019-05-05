@@ -45,6 +45,7 @@ class Project < ApplicationRecord
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :release_targets, through: :repositories
+  has_many :target_repositories, through: :release_targets
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order('position') }, through: :repositories
@@ -1354,25 +1355,7 @@ class Project < ApplicationRecord
     Project.where('projects.name like ?', "#{name}:%").distinct.
       where(kind: 'maintenance_incident').
       joins(repositories: :release_targets).
-      where('release_targets.trigger = "maintenance"')
-  end
-
-  def release_targets_ng
-    # First things first, get release targets as defined by the project, err.. incident. Later on we
-    # magically find out which of the contained packages, err. updates are build against those release
-    # targets.
-    release_targets_ng = {}
-    repositories.includes(:release_targets).each do |repo|
-      repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {
-          reponame: repo.name,
-          package_issues: {},
-          package_issues_by_tracker: {}
-        }
-      end
-    end
-
-    release_targets_ng
+      where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
 
   def packages_with_release_target

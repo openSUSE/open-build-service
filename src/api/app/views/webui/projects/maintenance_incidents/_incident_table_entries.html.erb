@@ -1,16 +1,17 @@
 <% incidents.each do |incident| %>
     <% index = 0 %>
-    <% release_targets_ng = incident.release_targets_ng() %>
+    <% release_targets = incident.target_repositories %>
+    <% row_count = release_targets.count %>
     <% patchinfo = patchinfo_data(incident.patchinfos.first) %>
-    <% release_targets_ng.each do |rt_name, rt| %>
+    <% release_targets.each do |release_target| %>
         <tr>
           <% if index == 0 %>
-              <td rowspan="<%= release_targets_ng.length %>">
+              <td rowspan="<%= row_count %>">
                 <% title =  patchinfo.dig(:summary).presence || incident.title || incident.name %>
                 <% title = "#{short_incident_name(incident)}: #{title}" %>
                 <%= link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title) %>
               </td>
-              <td rowspan="<%= release_targets_ng.length %>">
+              <td rowspan="<%= row_count %>">
                 <% if patchinfo.present? %>
                     <%= link_to(patchinfo[:category],
                           patchinfo_show_path(project: incident.name, package: "patchinfo", file: "_patchinfo"),
@@ -21,10 +22,10 @@
                           { style: 'color: red;', method: :post }) %>
                 <% end %>
               </td>
-              <td rowspan="<%= release_targets_ng.length %>">
+              <td rowspan="<%= row_count %>">
                 <%= packages_cell(incident) %>
               </td>
-              <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
+              <td rowspan="<%= row_count %>" class="nowrap">
                 <% rqs_in = BsRequest.list_numbers(roles: %w(target), states: %w(new review), project: incident.name) %>
                 <% if rqs_in.count > 0 %>
                     <% if rqs_in.count == 1 %>
@@ -52,10 +53,10 @@
                 <% end %>
               </td>
           <% end %>
-          <td><b><%= rt_name %></b></td>
+          <td><b><%= release_target.project %></b></td>
           <td>
-            <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(rt_name)}" %>
-            <% if incident.build_succeeded?(rt[:reponame]) %>
+            <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(release_target.project)}" %>
+            <% if incident.build_succeeded?(release_target.name) %>
                 <%= link_to(sprite_tag('tick', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>
             <% else %>
                 <%= link_to(sprite_tag('exclamation', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>

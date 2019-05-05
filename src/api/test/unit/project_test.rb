@@ -346,35 +346,6 @@ class ProjectTest < ActiveSupport::TestCase
     project2.destroy
   end
 
-  def test_release_targets_ng
-    User.session = User.find_by_login('king')
-
-    project = Project.create(name: 'ABC', kind: 'maintenance')
-    project.store
-
-    subproject = Project.create(name: 'ABC:D', kind: 'maintenance_incident')
-    subproject.store
-
-    repo_1 = Repository.create(name: 'repo_1', db_project_id: subproject.id)
-    repo_2 = Repository.create(name: 'repo_2', db_project_id: subproject.id)
-    repo_1.release_targets.create(trigger: 'maintenance', target_repository_id: repo_2.id)
-
-    package = subproject.packages.create(name: 'test2')
-    package.flags.create(flag: :build, status: 'enable', repo: 'repo_1')
-
-    result = subproject.reload.release_targets_ng
-    assert_equal ['ABC:D'], result.keys
-    assert_equal 'repo_1',  result['ABC:D'][:reponame]
-
-    assert_equal 1, result['ABC:D'][:packages].count
-    assert_equal package.id, result['ABC:D'][:packages].first.id
-    assert_equal 'test2', result['ABC:D'][:packages].first.name
-  ensure
-    # Prevent AAAPreConsistency check to fail
-    project.destroy
-    subproject.destroy
-  end
-
   def test_flags_to_axml
     # check precondition
     assert_equal 2, @project.flags.of_type('build').size
