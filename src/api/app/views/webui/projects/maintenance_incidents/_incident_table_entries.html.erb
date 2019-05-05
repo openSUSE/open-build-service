@@ -6,7 +6,7 @@
         <tr>
           <% if index == 0 %>
               <td rowspan="<%= release_targets_ng.length %>">
-                <% title = patchinfo.try(:[], :summary) || incident.title || incident.name %>
+                <% title =  patchinfo.dig(:summary).presence || incident.title || incident.name %>
                 <% title = "#{short_incident_name(incident)}: #{title}" %>
                 <%= link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title) %>
               </td>
