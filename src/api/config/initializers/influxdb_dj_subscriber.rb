@@ -20,7 +20,7 @@ if CONFIG['influxdb_hosts']
       InfluxDB::Rails.client.write_point('active_job.queue',
                                          tags: { state: :failed, job: job.class.name, queue: job.queue_name },
                                          values: { value: 1, id: job.job_id })
-      return true
+      next
     end
 
     case event.name
