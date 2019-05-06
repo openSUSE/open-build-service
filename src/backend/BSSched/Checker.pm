@@ -742,6 +742,7 @@ sub checkpkgs {
     }
   }
 
+  my $logfiles_fail;
   my @cpacks = @{$ctx->{'packs'}};
   while (@cpacks) {
     my $packid = shift @cpacks;
@@ -785,7 +786,7 @@ sub checkpkgs {
 	}
       }
       next if $incycle == 4;	# ignore after pass1/2
-      next if $packstatus{$packid} && $packstatus{$packid} ne 'done'; # already decided
+      next if $packstatus{$packid} && $packstatus{$packid} ne 'done' && $packstatus{$packid} ne 'succeeded' && $packstatus{$packid} ne 'failed'; # already decided
     }
     $ctx->{'incycle'} = $incycle;
 
@@ -951,6 +952,10 @@ sub checkpkgs {
       $aerror = $oldpackstatus->{'packerror'}->{$packid};
       ($astatus, $aerror) = ('blocked', 'delayed') unless $astatus;
       $unfinished{$pname} = 1;
+    } elsif ($astatus eq 'done') {
+      # convert into succeeded/failed depending on :logfiles.fail
+      $logfiles_fail ||= { map {$_ => 1} ls ("$ctx->{'gdst'}/:logfiles.fail") };
+      $astatus = $logfiles_fail->{$packid} ? 'failed' : 'succeeded';
     }
     $packstatus{$packid} = $astatus;
     $packerror{$packid} = $aerror if defined $aerror;

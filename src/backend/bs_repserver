@@ -391,6 +391,7 @@ sub getrepositorystatus {
   } elsif ($schedulerstate->{'oldbuildid'}) {
     $status->{'buildid'} = "$schedulerstate->{'oldbuildid'}-inprogress";
   }
+  $status->{'dirty'} = 'true' if ($schedulerstate->{'code'} || '') eq 'scheduling' || -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   return ($status, $BSXML::buildstatus);
 }
 
@@ -1153,6 +1154,8 @@ sub getbuildstatus {
       }
     }
   }
+  my $schedulerstate = readschedulerstate($projid, $repoid, $arch);
+  $res->{'dirty'} = 'true' if ($schedulerstate->{'code'} || '') eq 'scheduling' || -e "$reporoot/$projid/$repoid/$arch/:schedulerstate.dirty";
   return ($res, $BSXML::buildstatus);
 }
 
@@ -1737,7 +1740,7 @@ sub readschedulerstate {
     chomp $schedulerstate;
     my $details;
     ($schedulerstate, $details) = split(' ', $schedulerstate, 2);
-    $schedulerstate = { 'code' => $schedulerstate };
+    $schedulerstate = { 'code' => ($schedulerstate || 'unknown') };
     $schedulerstate->{'details'} = $details if $details;
   }
   return $schedulerstate;
@@ -2619,7 +2622,7 @@ sub fixpackstatus {
   if ($codefilter) {
     $needjob = 0 if $codefilter->{'dontmapscheduled'};
     my %cf = %$codefilter;
-    delete $cf{$_} for qw{unresolvable succeeded failed};
+    delete $cf{$_} for qw{unresolvable succeeded failed broken disabled excluded blocked locked unknown};
     $needjob = 0 unless %cf;
   }
   for my $packid (keys %$packstatus) {
