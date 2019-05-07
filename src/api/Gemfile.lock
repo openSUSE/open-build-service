@@ -62,7 +62,7 @@ GEM
     ansi (1.5.0)
     arel (9.0.0)
     ast (2.4.0)
-    autoprefixer-rails (9.5.1)
+    autoprefixer-rails (9.5.1.1)
       execjs
     bcrypt (3.1.12)
     bootstrap (4.3.1)
