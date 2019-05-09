@@ -30,9 +30,11 @@ fi
 
 if test -e /etc/sysconfig/proxy; then
   . /etc/sysconfig/proxy
-  export http_proxy="$HTTP_PROXY"
-  export HTTPS_PROXY
-  export NO_PROXY
+  if [ "$PROXY_ENABLED" != "no" ]; then
+    export http_proxy="$HTTP_PROXY"
+    export HTTPS_PROXY
+    export NO_PROXY
+  fi
 fi
 if test -e /etc/sysconfig/obs-server; then
   # optional on workers
