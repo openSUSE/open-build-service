@@ -38,7 +38,7 @@ function initializeMonitorDataTable() {
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
     scrollX: true,
     fixedColumns: true,
-    pageLength: $('#shown-entries').val(),
+    pageLength: 50,
     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
     data: packageNames,
     search: {
@@ -70,10 +70,6 @@ function initializeMonitorDataTable() {
 
 function setupProjectMonitor() { // jshint ignore:line
   initializeMonitorDataTable();
-
-  $('select[name="project-monitor-table_length"]').change(function(){
-    $('#shown-entries').val($(this).val());
-  });
 
   $('#table-spinner').addClass('d-none');
   $('#project-monitor .obs-dataTable').removeClass('invisible');
