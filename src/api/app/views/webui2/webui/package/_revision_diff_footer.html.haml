@@ -6,7 +6,7 @@
     = user_with_realname_and_icon(request['decliner'], short: true)
     with the following message:
     %pre= request['comment']
-- if submit_message && show_revert_link
+- if submit_message && show_link
   %p
     = link_to(submit_url_opts, remote: true) do
       %i.fas.fa-share-square.text-warning
