@@ -1,4 +1,4 @@
-- @pagetitle = "Tasks for #{User.current}"
+- @pagetitle = "Tasks for #{User.session!}"
 - @layouttype = 'custom'
 - @crumb_list = [@pagetitle]
 
@@ -7,53 +7,53 @@
     .box-header.header-tabs
       %ul
         %li
-          - cache "#{User.current.cache_key}-reviews-in" do
-            %a{ href: "#reviews-in", title: "Requests that #{User.current.login} has to review" }
-              Incoming Reviews (#{User.current.involved_reviews.count})
+          - cache "#{User.session!.cache_key}-reviews-in" do
+            %a{ href: "#reviews-in", title: "Requests that #{User.session!.login} has to review" }
+              Incoming Reviews (#{User.session!.involved_reviews.count})
             = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
     .tab#reviews-in
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.current) })
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: user_requests_path(User.session!) })
 .grid_16.alpha.omega.box.box-shadow
   #requests
     .box-header.header-tabs
       %ul
         %li
-          - cache "#{User.current.cache_key}-requests-in" do
-            %a#requests-in-tab{ href: "#requests-in", title: "Requests that #{User.current.login} has to merge" }
-              Incoming Requests (#{User.current.incoming_requests.count})
+          - cache "#{User.session!.cache_key}-requests-in" do
+            %a#requests-in-tab{ href: "#requests-in", title: "Requests that #{User.session!.login} has to merge" }
+              Incoming Requests (#{User.session!.incoming_requests.count})
             = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'requests_in_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
-          %a#requests-out-tab{ href: "#requests-out", title: "Requests that #{User.current.login} has sent" } Outgoing Requests
+          %a#requests-out-tab{ href: "#requests-out", title: "Requests that #{User.session!.login} has sent" } Outgoing Requests
           = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_out_table' })
           = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
-          - cache "#{User.current.cache_key}-requests-declined" do
-            %a#requests-declined-tab{ href: "#requests-declined", title: "Requests from #{User.current.login} that are declined" }
-              Declined Requests (#{User.current.declined_requests.count})
+          - cache "#{User.session!.cache_key}-requests-declined" do
+            %a#requests-declined-tab{ href: "#requests-declined", title: "Requests from #{User.session!.login} that are declined" }
+              Declined Requests (#{User.session!.declined_requests.count})
             = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_declined_table' })
             = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
         %li
-          %a#all-requests-tab{ href: "#all-requests", title: "All Requests from #{User.current.login}" } All Requests
+          %a#all-requests-tab{ href: "#all-requests", title: "All Requests from #{User.session!.login}" } All Requests
           = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
           = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
     .tab#requests-in
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.current) })
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: user_requests_path(User.session!) })
     .tab#requests-out
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.current) })
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_out_table', source_url: user_requests_path(User.session!) })
     .tab#requests-declined
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.current) })
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_declined_table', source_url: user_requests_path(User.session!) })
     .tab#all-requests
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.current) })
+      = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session!) })
 
-- if User.current.involved_patchinfos.present?
+- if User.session!.involved_patchinfos.present?
   .grid_16.alpha.omega.box.box-shadow
     #patchinfos
       .box-header.header-tabs
         %ul
           %li
-            %a{ href: "#patchinfos-in", title: "Requests that #{User.current.login} has to merge" } Maintenance Requests
+            %a{ href: "#patchinfos-in", title: "Requests that #{User.session!.login} has to merge" } Maintenance Requests
       .tab#patchinfos-in
         %table.compact#open-patchinfos-table{ title: "Running Maintenance Updates" }
           %thead
@@ -63,7 +63,7 @@
               %th Issues
               %th{ style: 'width: 1%' } Actions
           %tbody
-            - User.current.involved_patchinfos.each do |pi|
+            - User.session!.involved_patchinfos.each do |pi|
               %tr
                 - shortened_prj, shortened_pkg = elide_two(pi[:package][:project], pi[:package][:name], 60)
                 %td= link_to(shortened_prj, project_show_path(pi[:package][:project]))

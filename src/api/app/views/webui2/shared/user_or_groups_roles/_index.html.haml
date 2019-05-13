@@ -1,5 +1,5 @@
 :ruby
-  user_is_maintainer = User.current.can_modify?(package || project)
+  user_is_maintainer = User.possibly_nobody.can_modify?(package || project)
   data = { 'project' => project.name }
   if package
     data['save-user'] = package_save_person_url

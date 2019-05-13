@@ -1,4 +1,4 @@
-- if User.current.is_nobody?
+- if !User.session
   .alert.alert-warning{ role: 'alert' }
     Login required, please
     = link_to('login', session_new_url)

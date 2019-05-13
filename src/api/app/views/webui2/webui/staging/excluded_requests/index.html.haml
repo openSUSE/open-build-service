@@ -1,4 +1,4 @@
-- request_exclusion_policy = Staging::RequestExclusionPolicy.new(User.current, @staging_workflow).create?
+- request_exclusion_policy = Staging::RequestExclusionPolicy.new(User.possibly_nobody, @staging_workflow).create?
 .row
   .col-xl-12
     .card.mb-3

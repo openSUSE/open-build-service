@@ -1,5 +1,5 @@
 %ul.nav.nav-pills.justify-content-end
-  - if User.current && !User.current.is_nobody?
+  - if User.session
     = render partial: 'layouts/webui2/logged_in_user_navigation'
   - elsif CONFIG['kerberos_mode']
     = link_to 'Log In', session_new_path

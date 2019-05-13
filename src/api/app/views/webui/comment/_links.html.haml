@@ -1,5 +1,5 @@
 = possibly_empty_ul class: 'horizontal-list' do
-  - unless User.current.is_nobody?
+  - if User.session
     %li.togglable_comment{ "data-toggle": "reply_form_of_#{comment.id}" }
       %a{ id: "reply_link_id_#{comment.id}" }
         = sprited_text('comment_add', 'Reply')

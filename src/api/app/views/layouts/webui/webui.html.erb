@@ -45,8 +45,8 @@
       <% end %>
     <% end %>
     <%= csrf_meta_tag %>
-    <% if User.current.try(:rss_token) %>
-        <%= auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.current.rss_token.string, format: :rss), { title: 'Notifications' }) %>
+    <% if User.possibly_nobody.rss_token %>
+        <%= auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), { title: 'Notifications' }) %>
     <% end %>
   </head>
   <body>
@@ -98,15 +98,15 @@
     <div style="clear: both;"></div>
 
     <div id="footer" class="container_12">
-    <% if User.current && !User.current.is_nobody? -%>
+    <% if User.session -%>
       <div class="grid_3">
-        <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
+        <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.session!)) do %><%= User.session! %><% end %>:</strong>
         <ul>
-          <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
-          <% if User.current.home_project %>
-            <li><%= link_to "Home Project", project_show_path(User.current.home_project) %></li>
+          <li><%= link_to "Your Profile", user_show_path(User.session!) %> </li>
+          <% if User.session!.home_project %>
+            <li><%= link_to "Home Project", project_show_path(User.session!.home_project) %></li>
           <% else %>
-            <li><%= link_to "Create Home Project", new_project_path(name: User.current.home_project_name) %></li>
+            <li><%= link_to "Create Home Project", new_project_path(name: User.session!.home_project_name) %></li>
           <% end %>
           <li><%= link_to 'Logout', session_destroy_path, method: :delete %></li>
         </ul>

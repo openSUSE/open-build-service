@@ -1,4 +1,4 @@
-- user_can_modify_package = User.current.can_modify?(package)
+- user_can_modify_package = User.possibly_nobody.can_modify?(package)
 
 .card-body
   - if files.present?
@@ -11,9 +11,9 @@
           %th Actions
       %tbody
         - file_locals = { package: package, project: project, expand: expand, is_current_rev: is_current_rev,
-        can_modify: user_can_modify_package, nobody: User.current.is_nobody? }
+        can_modify: user_can_modify_package, nobody: !User.session }
         = render partial: 'file', collection: files,
-        cached: proc { |file| [file[:mtime], file[:md5], file_locals, User.current.in_beta].hash }, locals: file_locals
+        cached: proc { |file| [file[:mtime], file[:md5], file_locals, User.possibly_nobody.in_beta].hash }, locals: file_locals
   - else
     %i This package has no files yet
   - if user_can_modify_package

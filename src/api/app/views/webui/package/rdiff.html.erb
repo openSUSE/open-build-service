@@ -26,7 +26,7 @@
     <pre><%= @last_req['comment'] %></pre>
 <% end %>
 
-<% if !User.current.is_nobody? && @filenames.present? %>
+<% if User.session && @filenames.present? %>
     <% # TODO this obviously belongs in the controller
        url_opts = { action: 'submit_request_dialog', project: @project, package: @package, revision: @rev }
        if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') &&

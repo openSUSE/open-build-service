@@ -1,7 +1,7 @@
 - unless has_patchinfo
   %li
     %i.fa.fa-exclamation-circle.text-danger
-    = link_to_if(User.current.can_modify?(project), 'Patchinfo missing',
+    = link_to_if(User.possibly_nobody.can_modify?(project), 'Patchinfo missing',
                   patchinfo_path(project: project, package: 'patchinfo'), method: :post)
 - if open_release_requests.present?
   %li

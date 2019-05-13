@@ -4,7 +4,7 @@
       .modal-header
         %h5.modal-title#branch-modal-label Branch Confirmation
       .modal-body
-        - branch_project = User.current.branch_project_name(project.name)
+        - branch_project = User.session!.branch_project_name(project.name)
         %strong Source
         %p
           -# FIXME: get rid of this helper

@@ -39,7 +39,7 @@
         = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
           action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
           %i.fas.fa-times-circle.text-danger
-    - elsif !User.current.is_nobody?
+    - elsif User.session
       .col
         = link_to('#', title: 'Request Delete Repository', data: { toggle: 'modal', target: '#request-delete-repository',
           action: project_remove_target_request_path(project: project, repository: repository.name), repository: repository.name }) do

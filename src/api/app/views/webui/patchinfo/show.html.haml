@@ -8,7 +8,7 @@
         %h2{ style: "display: inline" }
           = @patchinfo.category
           update for #{truncate(@pkg_names.join(', '), length: 20)}
-        - if User.current.can_modify?(@package)
+        - if User.possibly_nobody.can_modify?(@package)
           %ul.horizontal-list
             %li
               = link_to sprite_tag('package_edit'), edit_patchinfo_path(project: @project, package: @package)

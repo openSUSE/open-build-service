@@ -3,12 +3,12 @@
   - if bugowners_mail.present? && configuration['bugzilla_url']
     = render partial: 'webui2/webui/package/bottom_actions/bugzilla_owner', locals: { bugowners_mail: bugowners_mail,
                                                                 package_name: package.name, project_name: project.name }
-  - unless User.current.is_nobody?
+  - if User.session
     - if current_rev && is_working
       = render partial: 'webui2/webui/package/bottom_actions/branch_package'
       = render partial: 'webui2/webui/package/bottom_actions/submit_package', locals: { package: package, project: project,
                                                                    revision: revision }
-    - if User.current.can_modify?(package)
+    - if User.possibly_nobody.can_modify?(package)
       = render partial: 'webui2/webui/package/bottom_actions/edit_description'
       = render partial: 'webui2/webui/package/bottom_actions/delete_package'
 

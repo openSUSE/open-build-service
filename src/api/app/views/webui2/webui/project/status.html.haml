@@ -89,6 +89,6 @@
               stateDuration: #{2.days}
             });
 
-- if User.current.can_modify?(@project) && parsed_result[:comments_to_clear].present?
+- if User.possibly_nobody.can_modify?(@project) && parsed_result[:comments_to_clear].present?
   = link_to("Clear all comments of not failing packages (#{parsed_result[:comments_to_clear].join(',')})",
     action: :clear_failed_comment, project: @project.name, package: parsed_result[:comments_to_clear])

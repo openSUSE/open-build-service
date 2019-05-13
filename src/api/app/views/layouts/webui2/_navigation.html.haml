@@ -6,7 +6,7 @@
     %span.navbar-toggler-icon
   .collapse.navbar-collapse#global-navigation
     %ul.navbar-nav.ml-auto
-      - unless User.current.is_nobody?
+      - if User.session
         %li.nav-item.dropdown
           = render partial: 'layouts/webui2/watchlist_dropdown'
       %li.nav-item

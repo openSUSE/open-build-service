@@ -7,7 +7,7 @@
       %tr
         %th Attribute
         %th Values
-        - unless User.current.is_nobody?
+        - if User.session
           %th Actions
       - @attributes.each do |attribute|
         %tr.attribute-values
@@ -19,7 +19,7 @@
               %li
                 %pre{ style: "display: inline-flex" }= v.value
             = attribute.issues.map(&:name).join(', ')
-          - unless User.current.is_nobody?
+          - if User.session
             %td
               = link_to(sprite_tag('note_edit', title: 'Edit values'),
                   edit_attribs_path(project: @project.name, package: @package, attribute: attribute.fullname),
@@ -27,7 +27,7 @@
               = button_to('Delete attribute', attrib_path(attribute),
                   { data: { confirm: "Really remove attribute '#{attribute.fullname}'?" },
                   method: :delete, class: 'delete-attribute', id: "#{attribute.namespace}-#{attribute.name}-delete", title: "Delete" })
-- unless User.current.is_nobody?
+- if User.session
   %p
     = link_to(sprited_text('note_add', 'Add a new attribute'),
         new_attribs_path(project: @project.name, package: @package),

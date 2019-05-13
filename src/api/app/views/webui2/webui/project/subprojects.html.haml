@@ -15,7 +15,7 @@
         - else
           %p
             %i This project has no subprojects
-        - if User.current.can_modify?(@project)
+        - if User.possibly_nobody.can_modify?(@project)
           = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Add New Subproject

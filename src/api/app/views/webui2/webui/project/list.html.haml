@@ -25,7 +25,7 @@
           %i.fas.fa-toggle-off.text-primary#toggle-icon
           %span#toggle-text
             Include #{::Configuration.unlisted_projects_filter_description}
-      - unless User.current.is_nobody?
+      - if User.session
         %li.list-inline-item
           = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }) do
             %i.fas.fa-plus-circle.text-primary
