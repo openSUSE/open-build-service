@@ -30,7 +30,7 @@ module Webui2::ProjectController
   end
 
   def active_very_important_projects
-    Project.find_by_attribute_type(very_important_project_attribute).where('name <> ?', 'deleted')
+    Project.find_by_attribute_type(very_important_project_attribute)
   end
 
   def very_important_project_attribute
