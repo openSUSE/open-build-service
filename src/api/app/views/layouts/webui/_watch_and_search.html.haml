@@ -1,4 +1,4 @@
-- if User.current && !User.current.is_nobody?
+- if User.session
   %ul.global-navigation-menu.global-navigation-menu-favorites#menu-favorites
     %li
       %span.desc
@@ -6,7 +6,7 @@
     - if params[:project]
       %li
         %a#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
-          - if User.current.watches? params[:project]
+          - if User.session!.watches? params[:project]
             %span
               Remove this project from Watchlist
             %span.desc
@@ -16,7 +16,7 @@
               Add this project to Watchlist
             %span.desc
               Watch this project
-    - User.current.watched_project_names.each do |project|
+    - User.session!.watched_project_names.each do |project|
       %li
         = link_to(content_tag(:span, content_tag(:span, '', class: 'icons-project') + raw(project.gsub(':', ':<wbr>')),
           class: 'project-link'), project_show_path(project))

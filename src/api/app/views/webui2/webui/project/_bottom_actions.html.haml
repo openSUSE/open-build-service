@@ -1,11 +1,11 @@
 %ul.list-inline.mb-0
-  - if (bugowners_mail.present? && !CONFIG['bugzilla_host'].nil?) || !User.current.is_nobody?
+  - if (bugowners_mail.present? && !CONFIG['bugzilla_host'].nil?) || User.session
     - if bugowners_mail.present? && !CONFIG['bugzilla_host'].nil?
       = render partial: 'webui2/webui/project/bottom_actions/report_bug', locals: { bugowners_mail: bugowners_mail,
                                                                                     project: project }
-    - if project.is_locked? && User.current.can_modify?(project, true)
+    - if project.is_locked? && User.possibly_nobody.can_modify?(project, true)
       = render partial: 'webui2/webui/project/bottom_actions/unlock_project', locals: { project: project }
-    - elsif User.current.can_modify?(project)
+    - elsif User.possibly_nobody.can_modify?(project)
       = render partial: 'webui2/webui/project/bottom_actions/modify_project', locals: { project: project,
                                                                                         packages: packages,
                                                                                         has_patchinfo: has_patchinfo,

@@ -21,7 +21,7 @@
     <% else %>
       <%= link_to "Include #{::Configuration.unlisted_projects_filter_description}", projects_path(show_all: true) %>
     <% end %>
-    <% unless User.current.is_nobody? %>
+    <% if User.session %>
       <span style="float: right">
         <%= link_to sprite_tag('brick_add', title: 'Create new project') + 'Create new project', :controller => :project, :action => :new %>
       </span>

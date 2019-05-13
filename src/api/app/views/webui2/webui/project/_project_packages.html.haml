@@ -10,7 +10,7 @@
   - else
     %p This project does not contain any packages
 
-  - if User.current.can_modify?(project)
+  - if User.possibly_nobody.can_modify?(project)
     - if show_package_actions?
       .pt-4
         %ul.list-inline

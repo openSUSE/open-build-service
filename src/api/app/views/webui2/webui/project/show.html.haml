@@ -72,10 +72,10 @@
           comment_counter_id: "#comment-counter-project-#{@project.id}" }
 
 = render partial: 'linking_projects_dialog', locals: { project: @project, linking_projects: @linking_projects }
-- unless User.current.is_nobody?
-  - if @project.is_locked? && User.current.can_modify?(@project, true)
+- if User.session
+  - if @project.is_locked? && User.session!.can_modify?(@project, true)
     = render partial: 'unlock_project_dialog', locals: { project: @project }
-  - elsif User.current.can_modify?(@project)
+  - elsif User.session!.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }
     = render partial: 'delete_project_dialog', locals: { project: @project }
 

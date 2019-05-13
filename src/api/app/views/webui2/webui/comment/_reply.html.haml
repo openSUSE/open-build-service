@@ -1,5 +1,5 @@
 %ul.list-inline
-  - unless User.current.is_nobody?
+  - if User.session
     %li.list-inline-item
       %button.btn.btn-sm.btn-outline-secondary{ data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
         Reply
@@ -9,6 +9,6 @@
       = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
                 class: 'delete_link btn btn-sm btn-outline-danger', title: 'Delete comment') do
         Delete
-- unless User.current.is_nobody?
+- if User.session
   .collapse{ id: "reply_form_of_#{comment.id}" }
     = render(partial: 'webui/comment/comment_field', locals: { comment: comment.children.new, commentable: commentable })

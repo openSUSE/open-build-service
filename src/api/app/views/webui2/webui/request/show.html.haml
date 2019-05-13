@@ -84,7 +84,7 @@
       .card-body.small#request-history
         = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
 
-- unless User.current.is_nobody?
+- if User.session
   = render partial: 'webui2/webui/request/add_reviewer_dialog'
 = render partial: 'webui2/webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
 

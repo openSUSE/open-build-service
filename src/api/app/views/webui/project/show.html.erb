@@ -55,7 +55,7 @@
                 <% if !@has_patchinfo %>
                     <li>
                       <%= sprite_tag 'exclamation' %>
-                      <%= link_to_if(User.current.can_modify?(@project), 'Patchinfo missing', patchinfo_path(project: @project, package: 'patchinfo'), method: :post) %>
+                      <%= link_to_if(User.possibly_nobody.can_modify?(@project), 'Patchinfo missing', patchinfo_path(project: @project, package: 'patchinfo'), method: :post) %>
                     </li>
                 <% end %>
                 <% if @open_release_requests.length > 0 %>
@@ -108,7 +108,7 @@
     <% end %>
   </div>
 
-  <% if (!@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?) || !User.current.is_nobody? %>
+  <% if (!@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil?) || User.session %>
       <div class="grid_16 alpha omega">
         <ul class="horizontal-list">
           <% if !@bugowners_mail.empty? && !CONFIG['bugzilla_host'].nil? %>
@@ -116,11 +116,11 @@
                 <%= link_to(sprited_text('tools-report-bug', 'Report Bug'), bugzilla_url(@bugowners_mail, "#{@project.name}: Bug")) -%>
               </li>
           <% end -%>
-          <% if @project.is_locked? && User.current.can_modify?(@project, true) %>
+          <% if @project.is_locked? && User.possibly_nobody.can_modify?(@project, true) %>
                   <li>
                     <%= link_to(sprited_text('lock_open', 'Unlock Project'), { controller: 'project', action: 'unlock_dialog', project: @project.name }, remote: true) %>
                   </li>
-          <% elsif User.current.can_modify?(@project) %>
+          <% elsif User.possibly_nobody.can_modify?(@project) %>
               <% unless @project.defines_remote_instance? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>

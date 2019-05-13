@@ -41,7 +41,7 @@
                   .d-sm-none
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
       %ul.list-inline
-        - if User.current.can_modify?(@package)
+        - if User.possibly_nobody.can_modify?(@package)
           = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: @package_name, repository: @repository }
 

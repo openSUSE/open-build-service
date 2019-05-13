@@ -1,6 +1,6 @@
 - if comment
   = h(comment)
-  - if User.current.can_modify?(project)
+  - if User.possibly_nobody.can_modify?(project)
     - if editable
       = link_to(edit_comment_form_path(project: project, package: package_name, comment: comment), remote: true, title: 'Edit Comment') do
         %i.fas.fa-edit.text-secondary
@@ -10,6 +10,6 @@
 - elsif editable
   %span.unknown_failure
     Unknown build failure
-    - if User.current.can_modify?(project)
+    - if User.possibly_nobody.can_modify?(project)
       = link_to(edit_comment_form_path(project: project, package: package_name, comment: ''), remote: true, title: 'Edit Comment') do
         %i.fas.fa-edit.text-secondary

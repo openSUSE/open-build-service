@@ -45,4 +45,4 @@
           request: @last_req,
           submit_message: @submit_message,
           submit_url_opts: @submit_url_opts,
-          show_revert_link: !User.current.is_nobody? && @filenames.present? }
+          show_revert_link: User.session && @filenames.present? }
