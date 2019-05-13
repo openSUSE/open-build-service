@@ -2,7 +2,7 @@ module Webui2::ProjectController
   def webui2_index
     respond_to do |format|
       format.html do
-        render :list,
+        render :index,
                locals: { important_projects:
                          active_very_important_projects.pluck(:name, :title) }
       end
@@ -17,7 +17,9 @@ module Webui2::ProjectController
   def webui2_subprojects
     respond_to do |format|
       format.html
-      format.json { render json: ProjectDatatable.new(params, view_context: view_context, projects: project_for_datatable) }
+      format.json do
+        render json: ProjectDatatable.new(params, view_context: view_context, projects: project_for_datatable)
+      end
     end
   end
 
