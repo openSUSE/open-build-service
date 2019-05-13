@@ -44,5 +44,7 @@
           package: @package,
           request: @last_req,
           submit_message: @submit_message,
-          submit_url_opts: @submit_url_opts,
+          target_project: @submit_url_opts[:target_project],
+          target_package: @submit_url_opts[:targetpackage],
+          revision: @rev,
           show_link: User.session && @filenames.present? }
