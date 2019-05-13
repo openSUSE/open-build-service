@@ -31,10 +31,13 @@ sub reap {
   my ($maxchild, $chld, $chld_flavor) = @_;
 
   my $pid;
+  my $numreaped = 0;
   while (($pid = waitpid(-1, defined($maxchild) && keys(%$chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
     my $cflavor = delete $chld->{$pid};
     delete $chld_flavor->{$cflavor}->{$pid} if defined $cflavor && $chld_flavor->{$cflavor};
+    $numreaped++;
   }
+  return $numreaped;
 }
 
 sub run {
@@ -55,7 +58,9 @@ sub run {
 
     my @events = $conf->{'lsevents'}->($conf);
     my $havedelayed;
+    my $havelimited;
     my $havereaped;
+    my $numreaped = 0;
 
     for my $event (@events) {
       last if grep {-e $_} sort %{$conf->{'filechecks'} || {}};
@@ -71,7 +76,7 @@ sub run {
 	$flavor = $conf->{'getflavor'}->($req);
 	if (defined($flavor) && $maxchild_flavor->{$flavor}) {
 	  if (keys(%{$chld_flavor{$flavor} || {}}) >= $maxchild_flavor->{$flavor}) {
-	    $havedelayed = 1;
+	    $havelimited = 1;
 	    next;
 	  }
 	}
@@ -79,7 +84,7 @@ sub run {
       }
 
       if ($nofork || !$maxchild || $maxchild == 1) {
-	reap(0, \%chld, \%chld_flavor) if $nofork && $nofork == 2 && %chld;
+	$numreaped += reap(0, \%chld, \%chld_flavor) if $nofork && $nofork == 2 && %chld;
 	eval {
 	  $conf->{'dispatch'}->($req);
 	};
@@ -95,19 +100,25 @@ sub run {
 
       $chld{$pid} = $flavor;
       $chld_flavor{$flavor}->{$pid} = undef if defined $flavor;
-      reap($maxchild, \%chld, \%chld_flavor);
+      $numreaped += reap($maxchild, \%chld, \%chld_flavor);
       $havereaped = 1;
     }
 
-    reap($maxchild, \%chld, \%chld_flavor) if $havedelayed && !$havereaped && %chld;
+    $numreaped += reap($maxchild, \%chld, \%chld_flavor) if ($havedelayed || $havelimited) && !$havereaped && %chld;
 
     for my $fc (sort %{$conf->{'filechecks'} || {}}) {
       next unless -e $fc;
-      reap(0, \%chld, \%chld_flavor) if %chld;
+      $numreaped += reap(0, \%chld, \%chld_flavor) if %chld;
       $conf->{'filechecks'}->{$fc}->($conf, $fc);
     }
 
-    if ($havedelayed) {
+    if ($havelimited) {
+      my $tries = 10;
+      while (%chld && !$numreaped && $tries--) {
+	last if BSUtil::waitping($ping, 1);
+        $numreaped += reap($maxchild, \%chld, \%chld_flavor) if %chld && !$numreaped;
+      }
+    } elsif ($havedelayed) {
       BSUtil::waitping($ping, 10);
     } else {
       if ($conf->{'testmode'}) {
