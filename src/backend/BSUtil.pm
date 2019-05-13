@@ -624,7 +624,7 @@ sub waitping {
   my $dummy;
   if (!defined($timeout)) {
     sysread($ping, $dummy, 1, 0); 
-    return;
+    return 1;
   }
   fcntl($ping, F_SETFL, POSIX::O_NONBLOCK);
   while ($timeout > 0) {
@@ -633,6 +633,7 @@ sub waitping {
     $timeout -= 1;
   }
   fcntl($ping, F_SETFL, 0); 
+  return $timeout > 0 ? 1 : 0;
 }
 
 sub restartexit {
