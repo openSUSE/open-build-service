@@ -1323,43 +1323,23 @@ class Project < ApplicationRecord
     Backend::Api::Build::Project.wipe_binaries(name)
   end
 
-  def build_succeeded?(repository)
-    states = {}
-    repository_states = {}
+  def build_succeeded?(repo_name)
+    begin
+      build_result = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results_summary(name, repo_name))
+    rescue Backend::NotFoundError
+      return false
+    end
 
-    br = Buildresult.find_hashed(project: name, view: 'summary')
-    # no longer there?
-    return false if br.empty?
+    return false if build_result.empty?
 
-    br.elements('result') do |result|
-      if result['repository'] == repository
-        repository_states[repository] ||= {}
-        result.elements('summary') do |summary|
-          summary.elements('statuscount') do |statuscount|
-            repository_states[repository][statuscount['code']] ||= 0
-            repository_states[repository][statuscount['code']] += statuscount['count'].to_i
-          end
-        end
-      else
-        result.elements('summary') do |summary|
-          summary.elements('statuscount') do |statuscount|
-            states[statuscount['code']] ||= 0
-            states[statuscount['code']] += statuscount['count'].to_i
-          end
-        end
+    build_result.elements('result').each do |result|
+      result.elements('summary').each do |summary|
+        # Since we query for failed, broken or unresolvable, a summary element
+        # with content means there was an "unsuccessful" build
+        return false if summary.present?
       end
     end
-    if repository_states.key?(repository)
-      return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, _|
-        return false if state.in?(['broken', 'failed', 'unresolvable'])
-      end
-    else
-      return false unless states.empty? # No buildresult is bad
-      states.each do |state, _|
-        return false if state.in?(['broken', 'failed', 'unresolvable'])
-      end
-    end
+
     true
   end
 
