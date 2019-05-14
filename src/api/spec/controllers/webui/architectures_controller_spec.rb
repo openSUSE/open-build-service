@@ -52,7 +52,7 @@ RSpec.describe Webui::ArchitecturesController, js: true do
       end
 
       it { expect(response).to redirect_to(architectures_path) }
-      it { expect(flash[:notice]).to eq('Architectures successfully updated.') }
+      it { expect(flash[:success]).to eq('Architectures successfully updated.') }
       it { expect(Architecture.find_by_name('i586').available).to be_falsey }
       it { expect(Architecture.find_by_name('s390x').available).to be_truthy }
     end
