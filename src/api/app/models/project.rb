@@ -1253,17 +1253,17 @@ class Project < ApplicationRecord
 
   def outgoing_requests
     incidents = BsRequest.with_involved_projects(id)
-    .or(BsRequest.from_source_project(name))
-    .in_states(:new)
-    .with_types(:maintenance_incident)
-    .pluck(:number)
+                         .or(BsRequest.from_source_project(name))
+                         .in_states(:new)
+                         .with_types(:maintenance_incident)
+                         .pluck(:number)
 
     if is_maintenance?
       maintenance_release = BsRequest.with_target_subprojects(name + ':%')
-                      .or(BsRequest.with_source_subprojects(name + ':%'))
-                      .in_states(:new)
-                      .with_types(:maintenance_release)
-                      .pluck(:number)
+                                     .or(BsRequest.with_source_subprojects(name + ':%'))
+                                     .in_states(:new)
+                                     .with_types(:maintenance_release)
+                                     .pluck(:number)
     else
       maintenance_release = []
     end
