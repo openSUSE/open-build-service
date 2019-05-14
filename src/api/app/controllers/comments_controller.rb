@@ -6,7 +6,7 @@ class CommentsController < ApplicationController
   end
 
   def create
-    @obj.comments.create!(body: request.raw_post, user: User.current, parent_id: params[:parent_id])
+    @obj.comments.create!(body: request.raw_post, user: User.session!, parent_id: params[:parent_id])
     render_ok
   end
 
@@ -32,7 +32,7 @@ class CommentsController < ApplicationController
       @obj = BsRequest.find_by_number!(params[:request_number])
       @header = { request: @obj.number }
     else
-      @obj = User.current
+      @obj = User.session!
       @header = { user: @obj.login }
     end
   end

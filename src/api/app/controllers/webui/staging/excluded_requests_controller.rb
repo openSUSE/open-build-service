@@ -17,7 +17,7 @@ module Webui
           format.json do
             render json: ExcludedRequestDatatable.new(params, view_context: view_context,
                                                               staging_workflow: @staging_workflow,
-                                                              current_user: User.current)
+                                                              current_user: User.possibly_nobody)
           end
         end
       end

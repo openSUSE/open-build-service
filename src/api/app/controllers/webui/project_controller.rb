@@ -236,7 +236,7 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
-    @project.relationships.build(user: User.current,
+    @project.relationships.build(user: User.session!,
                                  role: Role.find_by_title('maintainer'))
 
     @project.kind = 'maintenance' if params[:maintenance_project]
@@ -375,12 +375,12 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def toggle_watch
-    if User.current.watches?(@project.name)
-      logger.debug "Remove #{@project} from watchlist for #{User.current}"
-      User.current.remove_watched_project(@project.name)
+    if User.session!.watches?(@project.name)
+      logger.debug "Remove #{@project} from watchlist for #{User.session!}"
+      User.session!.remove_watched_project(@project.name)
     else
-      logger.debug "Add #{@project} to watchlist for #{User.current}"
-      User.current.add_watched_project(@project.name)
+      logger.debug "Add #{@project} to watchlist for #{User.session!}"
+      User.session!.add_watched_project(@project.name)
     end
 
     if request.env['HTTP_REFERER']
@@ -425,7 +425,7 @@ class Webui::ProjectController < Webui::WebuiController
     @package = @project.find_package(params[:package])
 
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
-    unless User.current.can_create_attribute_in?(@package, at)
+    unless User.session!.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
       @error = "Can't create attributes in #{@package}"
       return

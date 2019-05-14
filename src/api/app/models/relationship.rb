@@ -128,12 +128,12 @@ class Relationship < ApplicationRecord
       forbidden_projects_hash
     end
     # We don't need to check the relationships if we don't have a User
-    return forbidden_projects[:projects] if User.current.nil? || User.current.is_nobody?
+    return forbidden_projects[:projects] unless User.session
     # The cache sequence is for invalidating user centric cache entries for all users
     cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
-    Rails.cache.fetch("users/#{User.current.id}-forbidden_projects-#{cache_sequence}") do
+    Rails.cache.fetch("users/#{User.possibly_nobody.id}-forbidden_projects-#{cache_sequence}") do
       # Normal users can be in the whitelist let's substract allowed projects
-      whitelistened_projects_for_user = forbidden_projects[:whitelist][User.current.id] || []
+      whitelistened_projects_for_user = forbidden_projects[:whitelist][User.possibly_nobody.id] || []
       result = forbidden_projects[:projects] - whitelistened_projects_for_user
       result = [0] if result.empty?
       result

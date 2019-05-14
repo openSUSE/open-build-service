@@ -93,12 +93,12 @@ module MaintenanceHelper
     link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
     link_xml = link.to_xml
     # rubocop:disable Metrics/LineLength
-    Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.session!.login)}", link_xml
     # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
     upload_params = {
-      user: User.current.login,
+      user: User.session!.login,
       cmd: 'commitfilelist',
       noservice: '1',
       comment: "Set local link to #{target_package_name} via maintenance_release request"
@@ -123,7 +123,7 @@ module MaintenanceHelper
       lpkg.store
     end
     upload_params = {
-      user: User.current.login,
+      user: User.session!.login,
       rev: 'repository',
       comment: "Set link to #{target_package_name} via maintenance_release request"
     }
@@ -147,7 +147,7 @@ module MaintenanceHelper
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
       cmd: 'copy',
-      user: User.current.login,
+      user: User.session!.login,
       oproject: source_package.project.name,
       opackage: source_package.name,
       comment: "Release from #{source_package.project.name} / #{source_package.name}",
@@ -220,7 +220,7 @@ module MaintenanceHelper
       oproject: source_project_name,
       opackage: source_package_name,
       orepository: source_repo.name,
-      user: User.current.login,
+      user: User.session!.login,
       resign: '1'
     }
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
@@ -309,7 +309,7 @@ module MaintenanceHelper
       end
     end
 
-    query = { user: User.current_login }
+    query = { user: User.session!.login }
     query[:comment] = 'channel import function'
     Backend::Connection.put(pkg.source_path('_channel', query), channel.to_s)
 
@@ -362,14 +362,14 @@ module MaintenanceHelper
       copyopts[:vrevbump]    = '2'
       copyopts[:oproject]    = opkg.project.name
       copyopts[:opackage]    = opkg.name
-      copyopts[:user]        = User.current.login
+      copyopts[:user]        = User.session!.login
       copyopts[:comment]     = 'initialize package'
     else
       # simple branch
       copyopts[:cmd] = 'branch'
       copyopts[:oproject] = opkg.project.name
       copyopts[:opackage] = opkg.name
-      copyopts[:user]     = User.current.login
+      copyopts[:user]     = User.session!.login
       copyopts[:comment]  = 'initialize package as branch'
     end
     path = pkg.source_path
@@ -397,7 +397,7 @@ module MaintenanceHelper
       link_xml = Nokogiri::XML(lpkg.source_file('_link'), &:strict).root
       link_xml.remove_attribute('project') # its a local link, project name not needed
       link_xml['package'] = pkg.name
-      Backend::Connection.put lpkg.source_path('_link', user: User.current.login), link_xml.to_xml
+      Backend::Connection.put lpkg.source_path('_link', user: User.session!.login), link_xml.to_xml
       lpkg.sources_changed
     end
   end

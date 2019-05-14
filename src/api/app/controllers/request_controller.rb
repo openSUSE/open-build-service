@@ -76,7 +76,7 @@ class RequestController < ApplicationController
     # refuse request manipulation for anonymous users
     require_login
 
-    params[:user] = User.current.login
+    params[:user] = User.session!.login
     @req = BsRequest.find_by_number!(params[:id])
 
     # transform request body into query parameter 'comment'
@@ -121,7 +121,7 @@ class RequestController < ApplicationController
       req.skip_sanitize
       req.save!
 
-      notify[:who] = User.current.login
+      notify[:who] = User.session!.login
       Event::RequestChange.create(notify)
 
       render xml: req.render_xml
@@ -133,7 +133,7 @@ class RequestController < ApplicationController
     request = BsRequest.find_by_number!(params[:id])
     notify = request.notify_parameters
     request.destroy # throws us out of here if failing
-    notify[:who] = User.current.login
+    notify[:who] = User.session!.login
     Event::RequestDelete.create(notify)
     render_ok
   end
@@ -152,8 +152,12 @@ class RequestController < ApplicationController
     end
 
     # cache the diff (in the backend)
-    @req.bs_request_actions.each do |a|
-      BsRequestActionWebuiInfosJob.perform_later(a)
+    @req.bs_request_actions.each do |action|
+      # cleanup implicit home branches.
+      # FIXME3.0: remove this, the clients should do this automatically meanwhile
+      action.set_sourceupdate_default(User.session!)
+      # cache the diff (in the backend)
+      BsRequestActionWebuiInfosJob.perform_later(action)
     end
 
     render xml: @req.render_xml

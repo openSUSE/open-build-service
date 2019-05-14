@@ -8,12 +8,12 @@ module Webui
 
         def show
           @crumb_list << 'EC2'
-          @ec2_configuration = User.current.ec2_configuration || User.current.create_ec2_configuration
+          @ec2_configuration = User.session!.ec2_configuration || User.session!.create_ec2_configuration
           @aws_account_id = CONFIG['aws_account_id']
         end
 
         def update
-          @ec2_configuration = User.current.ec2_configuration
+          @ec2_configuration = User.session!.ec2_configuration
           if @ec2_configuration.update(permitted_params)
             flash[:success] = 'Successfully updated your EC2 configuration.'
             redirect_to cloud_upload_index_path

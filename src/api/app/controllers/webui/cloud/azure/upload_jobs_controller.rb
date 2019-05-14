@@ -11,7 +11,7 @@ module Webui
         private
 
         def validate_configuration_presence
-          redirect_to cloud_azure_configuration_path if User.current.azure_configuration.blank?
+          redirect_to cloud_azure_configuration_path if User.possibly_nobody.azure_configuration.blank?
         end
 
         def permitted_params

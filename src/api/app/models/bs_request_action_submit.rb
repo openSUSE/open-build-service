@@ -78,7 +78,7 @@ class BsRequestActionSubmit < BsRequestAction
       cp_params[:keeplink] = 1
     end
     response = Backend::Api::Sources::Package.copy(self.target_project, self.target_package,
-                                                   source_project, source_package, User.current.login, cp_params)
+                                                   source_project, source_package, User.session!.login, cp_params)
     result = Xmlhash.parse(response)
 
     set_acceptinfo(result['acceptinfo'])
@@ -91,7 +91,7 @@ class BsRequestActionSubmit < BsRequestAction
       # re-create it via branch , but keep current content...
       options = { comment: "initialized devel package after accepting #{bs_request.number}",
                   requestid: bs_request.number, keepcontent: 1, noservice: 1 }
-      Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.current.login, options)
+      Backend::Api::Sources::Package.branch(self.target_project, self.target_package, source_project, source_package, User.session!.login, options)
     elsif sourceupdate == 'cleanup'
       source_cleanup
     end
@@ -107,7 +107,7 @@ class BsRequestActionSubmit < BsRequestAction
     # BsRequest.permission_check_change_state! (that is, if
     # skip_source is set to true). Always executing this check
     # would be a regression, because this code is also executed
-    # if a new request is created (which could fail if User.current
+    # if a new request is created (which could fail if User.session!
     # cannot modify the source_package).
     return unless skip_source
     target_project = Project.get_by_name(self.target_project)
@@ -119,7 +119,7 @@ class BsRequestActionSubmit < BsRequestAction
     source_package = Package.get_by_project_and_name!(source_project,
                                                       self.source_package,
                                                       opts)
-    return if User.current.can_modify?(source_package)
+    return if User.session!.can_modify?(source_package)
     msg = 'No permission to initialize the source package as a devel package'
     raise PostRequestNoPermission, msg
   end

@@ -39,13 +39,13 @@ class StatisticsController < ApplicationController
 
     if request.get?
 
-      @rating = object.rating(User.current.id)
+      @rating = object.rating(User.session!.id)
       return
 
     elsif request.put?
 
       # try to get previous rating of this user for this object
-      previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, User.current.id).first
+      previous_rating = Rating.where('object_type=? AND object_id=? AND user_id=?', object.class.name, object.id, User.session!.id).first
       data = Xmlhash.parse(request.raw_post)
       if previous_rating
         # update previous rating
@@ -58,7 +58,7 @@ class StatisticsController < ApplicationController
           rating.score = data.to_i
           rating.object_type = object.class.name
           rating.object_id = object.id
-          rating.user_id = User.current.id
+          rating.user_id = User.session!.id
           rating.save
         rescue
           render_error status: 400, errorcode: 'error setting rating',

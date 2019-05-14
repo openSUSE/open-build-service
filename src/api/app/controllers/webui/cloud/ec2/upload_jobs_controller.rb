@@ -12,7 +12,7 @@ module Webui
         private
 
         def validate_configuration_presence
-          redirect_to cloud_ec2_configuration_path if User.current.ec2_configuration.blank?
+          redirect_to cloud_ec2_configuration_path if User.possibly_nobody.ec2_configuration.blank?
         end
 
         def permitted_params

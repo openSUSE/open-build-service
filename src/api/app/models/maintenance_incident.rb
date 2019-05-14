@@ -34,7 +34,7 @@ class MaintenanceIncident < ApplicationRecord
       # set default bugowner if missing
       bugowner = Role.hashed['bugowner']
       unless target_project.relationships.users.where('role_id = ?', bugowner.id).exists?
-        target_project.add_user(User.current, bugowner)
+        target_project.add_user(User.session!, bugowner)
       end
 
       # and write it

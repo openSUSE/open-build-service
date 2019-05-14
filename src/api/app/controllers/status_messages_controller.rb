@@ -27,13 +27,13 @@ class StatusMessagesController < ApplicationController
     if new_messages.css('message').present?
       # message(s) are wrapped in outer xml tag 'status_messages'
       new_messages.css('message').each do |msg|
-        @messages << StatusMessage.create!(message: msg.content, severity: msg['severity'], user: User.current)
+        @messages << StatusMessage.create!(message: msg.content, severity: msg['severity'], user: User.session!)
       end
     else
       # TODO: make use of a validator
       raise CreatingMessagesError, "no message #{new_messages.to_xml}" if new_messages.name != 'message'
       # just one message, NOT wrapped in outer xml tag 'status_messages'
-      @messages << StatusMessage.create!(message: new_messages.content, severity: new_messages['severity'], user: User.current)
+      @messages << StatusMessage.create!(message: new_messages.content, severity: new_messages['severity'], user: User.session!)
     end
     render :index
   end

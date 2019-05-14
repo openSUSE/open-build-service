@@ -10,7 +10,7 @@ module Webui
       before_action :set_upload_job, only: :destroy
 
       def index
-        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.current)
+        @upload_jobs = ::Cloud::Backend::UploadJob.all(User.session!)
         @crumb_list.push << 'Overview'
       end
 
@@ -18,12 +18,12 @@ module Webui
         @crumb_list.push << 'Choose your Cloud'
         @ec2_configured = Feature.active?(:cloud_upload)
         @azure_configured = Feature.active?(:cloud_upload_azure)
-        @user_ec2_configured = User.current.ec2_configuration.present?
-        @user_azure_configured = User.current.azure_configuration.present?
+        @user_ec2_configured = User.session!.ec2_configuration.present?
+        @user_azure_configured = User.session!.azure_configuration.present?
       end
 
       def create
-        @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.current))
+        @upload_job = ::Cloud::UploadJob.create(permitted_params.merge(user: User.session!))
         if @upload_job.valid?
           flash[:success] = "Successfully created upload job #{@upload_job.id}."
           redirect_to cloud_upload_index_path
@@ -58,7 +58,7 @@ module Webui
       end
 
       def validate_configuration_presence
-        redirect_to cloud_configuration_index_path unless User.current.cloud_configurations?
+        redirect_to cloud_configuration_index_path unless User.session!.cloud_configurations?
       end
 
       def set_upload_job

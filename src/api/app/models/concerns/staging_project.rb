@@ -30,7 +30,7 @@ module StagingProject
 
       new_project.store
       project_config = config.content
-      new_project.config.save!({ user: User.current, comment: "Copying project #{name}" }, project_config) if project_config.present?
+      new_project.config.save!({ user: User.session!, comment: "Copying project #{name}" }, project_config) if project_config.present?
 
       new_project
     end
