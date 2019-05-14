@@ -865,6 +865,10 @@ class User < ApplicationRecord
     RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
   end
 
+  def activity_hash(first_day)
+    requests_created.where('created_at > ?', first_day).group('date(created_at)').count
+  end
+
   private
 
   # The currently logged in user (might be nil). It's reset after

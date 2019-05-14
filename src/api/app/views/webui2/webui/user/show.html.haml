@@ -13,6 +13,9 @@
                                                           configuration: @configuration,
                                                           account_edit_link: @account_edit_link }
   .col-12.col-md-8.col-lg-9
+    = render partial: 'webui2/webui/user/activity', locals: { activity_hash: @activity_hash,
+                                                              first_day: @first_day,
+                                                              last_day: @last_day }
     = render partial: 'webui2/webui/user/involvement', locals: { user: @displayed_user,
                                                                  owned: @owned,
                                                                  involved_projects: @iprojects,
@@ -20,4 +23,3 @@
 
 = render partial: 'password_dialog', locals: { user: @displayed_user }
 = render partial: 'edit_dialog', locals: { user: @displayed_user }
-

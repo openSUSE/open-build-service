@@ -1,3 +1,34 @@
 #home-login {
   color: $gray-500;
 }
+
+.activity-percentil0 {
+  background-color: #dcd5da;
+}
+
+.activity-percentil1 {
+  background-color: #f9b4dd;
+}
+
+.activity-percentil2 {
+  background-color: #ff5cb3;
+}
+
+.activity-percentil3 {
+  background-color: #ec1596;
+}
+
+.activity-percentil4 {
+  background-color: #c60b7b;
+}
+
+#contributors-table {
+  td {
+    padding: 0;
+    border: 1px solid white;
+  }
+  td.week-day {
+    width: 1px;
+    padding-right: 1rem
+  }
+}

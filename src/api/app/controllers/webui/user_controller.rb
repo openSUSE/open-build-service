@@ -22,7 +22,14 @@ class Webui::UserController < Webui::WebuiController
     @role_titles = @displayed_user.roles.global.pluck(:title)
     @account_edit_link = CONFIG['proxy_auth_account_page']
 
-    switch_to_webui2
+    return unless switch_to_webui2
+    @last_day = Time.zone.today
+
+    @first_day = @last_day - 52.weeks
+    # move back to the monday before (make it up to 53 weeks)
+    @first_day -= (@first_day.cwday - 1)
+    
+    @activity_hash = @displayed_user.activity_hash(@first_day)
   end
 
   def home
