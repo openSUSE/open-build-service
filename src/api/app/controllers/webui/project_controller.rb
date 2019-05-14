@@ -653,9 +653,8 @@ class Webui::ProjectController < Webui::WebuiController
     @ipackages = @project.expand_all_packages.find_all { |ip| !@packages.map { |p| p[0] }.include?(ip[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
-    reqs = @project.open_requests
-    @incoming_requests = reqs[:incidents] | reqs[:maintenance_release]
-    @outgoing_requests = reqs[:targets] | reqs[:reviews]
+    @incoming_requests = @project.incoming_requests
+    @outgoing_requests = @project.outgoing_requests
     @requests = @incoming_requests | @outgoing_requests
 
     @nr_of_problem_packages = @project.number_of_build_problems

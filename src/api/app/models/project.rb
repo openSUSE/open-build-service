@@ -1237,6 +1237,39 @@ class Project < ApplicationRecord
     { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
   end
 
+  def incoming_requests
+    reviews = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(id)).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_by_source_projects(name)).or(
+        BsRequest.where(id: Review.bs_request_ids_of_involved_projects(id))
+      )
+    ).in_states(:review).distinct.order(priority: :asc, id: :desc).pluck(:number)
+
+    targets = BsRequest.with_involved_projects(id)
+                       .or(BsRequest.from_source_project(name))
+                       .in_states(:new).with_actions
+                       .pluck(:number)
+
+  end
+
+  def outgoing_requests
+    incidents = BsRequest.with_involved_projects(id)
+    .or(BsRequest.from_source_project(name))
+    .in_states(:new)
+    .with_types(:maintenance_incident)
+    .pluck(:number)
+
+    if is_maintenance?
+      maintenance_release = BsRequest.with_target_subprojects(name + ':%')
+                      .or(BsRequest.with_source_subprojects(name + ':%'))
+                      .in_states(:new)
+                      .with_types(:maintenance_release)
+                      .pluck(:number)
+    else
+      maintenance_release = []
+    end
+
+  end
+
   # for the clockworkd - called delayed
   def update_packages_if_dirty
     packages.dirty_backend_package.each(&:update_if_dirty)
