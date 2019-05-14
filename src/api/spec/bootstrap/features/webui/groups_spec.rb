@@ -70,7 +70,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
       check('Maintainer', allow_label_click: true)
     end
 
-    expect(page).to have_content("Gave maintainer rights to #{admin}")
+    expect(page).to have_content("Gave maintainer rights to '#{admin}'")
   end
 
   scenario 'add a group member' do
@@ -87,7 +87,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
       end.to change { group_2.users.count }.by(1)
     end
 
-    expect(page).to have_content("Added user '#{admin}' to group")
+    expect(page).to have_content("Added user '#{admin}' to group '#{group_2}'")
 
     visit groups_path
     group_in_datatable(page, group_2)
