@@ -89,7 +89,7 @@ namespace :db do
       Rake::Task['db:migrate:with_data'].invoke
       normalize_structure
       puts 'Diffing the db/structure.sql'
-      sh %(git diff --quiet db/structure.sql) do |ok, _|
+      sh %(git diff db/structure.sql) do |ok, _|
         unless ok
           abort 'Generated structure.sql differs from structure.sql stored in git. ' \
                 'Please run rake db:migrate and check the differences.'
