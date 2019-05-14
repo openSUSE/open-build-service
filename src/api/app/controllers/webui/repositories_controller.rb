@@ -97,7 +97,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @repository_arch_hash = {}
     Architecture.available.each { |arch| @repository_arch_hash[arch.name] = false }
     repo.architectures.each { |arch| @repository_arch_hash[arch.name] = true }
-    redirect_to({ action: :index }, notice: 'Successfully updated repository')
+    redirect_to({ action: :index }, success: 'Successfully updated repository')
   end
 
   # DELETE /project/remove_target
