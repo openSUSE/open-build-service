@@ -182,6 +182,7 @@ class BinaryRelease < ApplicationRecord
       binary.modify(time: modify_time) if modify_time
       binary.obsolete(time: obsolete_time) if obsolete_time
 
+      binary.binaryid(binary_id) if binary_id
       binary.supportstatus(binary_supportstatus) if binary_supportstatus
       binary.updateinfo(id: binary_updateinfo, version: binary_updateinfo_version) if binary_updateinfo
       binary.maintainer(binary_maintainer) if binary_maintainer
@@ -218,8 +219,11 @@ class BinaryRelease < ApplicationRecord
     # handle nil/NULL case
     buildtime = binary_hash['buildtime'].blank? ? nil : Time.strptime(binary_hash['buildtime'].to_s, '%s')
 
+    # We ignore not set binary_id in db because it got introduced later
+    # we must not touch the modification time in that case
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
+      (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
       binary_buildtime == buildtime
   end
   #### Alias of methods

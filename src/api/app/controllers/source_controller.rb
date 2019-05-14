@@ -549,7 +549,7 @@ class SourceController < ApplicationController
     params[:user] = User.session!.login
 
     @project = Project.get_by_name(params[:project], includeallpackages: 1)
-    verify_repos_match!(@project)
+    verify_release_targets!(@project)
 
     if @project.is_a?(String) # remote project
       render_error status: 404, errorcode: 'remote_project',
@@ -570,21 +570,26 @@ class SourceController < ApplicationController
     end
   end
 
-  def verify_repos_match!(pro)
+  def verify_release_targets!(pro)
     repo_matches = nil
+    repo_bad_type = nil
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
+        unless releasetarget.trigger.in?(['manual', 'maintenance'])
+          repo_bad_type = true
+          next
+        end
         unless User.session!.can_modify?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
-        end
-        unless releasetarget.trigger == 'manual'
-          raise CmdExecutionNoPermission, 'Trigger is not set to manual in repository' \
-                                          " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches = true
       end
     end
+    if repo_bad_type && !repo_matches
+      raise NoMatchingReleaseTarget, 'Trigger is not set to manual in any repository'
+    end
+
     raise NoMatchingReleaseTarget, 'No defined or matching release target' unless repo_matches
   end
 
@@ -1004,12 +1009,13 @@ class SourceController < ApplicationController
       Project.get_by_name(params[:target_project])
       _package_command_release_manual_target(pkg, multibuild_container)
     else
-      verify_repos_match!(pkg.project)
+      verify_release_targets!(pkg.project)
 
       # loop via all defined targets
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
+          next unless releasetarget.trigger.in?(['manual', 'maintenance'])
           # find md5sum and release source and binaries
           release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo,
                           multibuild_container, nil, params[:setrelease], true)

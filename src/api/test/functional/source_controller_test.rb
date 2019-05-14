@@ -2621,8 +2621,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # try to release with incorrect trigger
     login_adrian
     post '/source/home:Iggy?cmd=release'
-    assert_response 403 # cmd_no_permissions
-    assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
+    assert_response 404
+    assert_xml_tag tag: 'status', attributes: { code: 'no_matching_release_target' }
+    assert_match(/Trigger is not set to manual in any repository/, @response.body)
 
     # add correct trigger
     login_Iggy
@@ -2722,8 +2723,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # try to release with incorrect trigger
     login_adrian
     post '/source/home:Iggy/TestPack?cmd=release'
-    assert_response 403
-    assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
+    assert_response 404
+    assert_xml_tag tag: 'status', attributes: { code: 'no_matching_release_target' }
+    assert_match(/Trigger is not set to manual in any repository/, @response.body)
 
     # add correct trigger
     login_Iggy
