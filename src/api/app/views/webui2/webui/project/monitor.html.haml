@@ -8,7 +8,7 @@
       %p Unavailable Build Results.
     - else
       = render partial: 'monitor_control',
-        locals: { project: @project, activate_client_search: @activate_client_search, shown_entries: @shown_entries,
+        locals: { project: @project, activate_client_search: @activate_client_search,
         status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
         repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter }
       - tableinfo = []
