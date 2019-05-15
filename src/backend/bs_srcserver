@@ -55,7 +55,6 @@ use BSXPath;
 use BSStdServer;
 use BSSrcdiff;
 use Build;
-use BSNotify;
 use BSPGP;
 use BSSrcrep;
 use BSRevision;
@@ -79,6 +78,7 @@ use BSSrcServer::Multibuild;
 use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
+use BSSrcServer::Notify;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -6070,7 +6070,7 @@ sub notify_plugins {
     }
   }
 
-  BSNotify::notify_plugins($type, $param);
+  BSSrcServer::Notify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
 }
 
