@@ -110,6 +110,16 @@ module Webui::WebuiHelper
     first.nil? ? true : nil
   end
 
+  def image_template_icon(template)
+    default_icon = image_url('icons/drive-optical-48.png')
+    icon = template.public_source_path('_icon') if template.has_icon?
+    capture_haml do
+      haml_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
+        haml_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
+      end
+    end
+  end
+
   # TODO: bento_only
   def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
