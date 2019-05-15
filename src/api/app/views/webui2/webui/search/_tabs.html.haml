@@ -1,0 +1,6 @@
+.bg-light
+  %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %li.nav-item
+      = tab_link('Packages/Projects', search_path, action_name == 'index', false)
+    %li.nav-item
+      = tab_link('Owners', search_owner_path, action_name == 'owner', false)

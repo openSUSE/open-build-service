@@ -1,0 +1,8 @@
+= render partial: 'webui/main/breadcrumb_items'
+
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  - case action_name
+  - when 'index'
+    Search
+  - when 'owner'
+    Search Owners
