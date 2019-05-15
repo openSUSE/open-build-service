@@ -57,12 +57,7 @@
               <% end %>
             </li>
         <% end -%>
-        <% @other_open_reviews.each do |review| %>
-            <li>
-              <%= sprite_tag('exclamation') %> Open review for <%= render :partial => 'reviewer', :locals => { :review => review } %>
-            </li>
-        <% end %>
-        <% @my_open_reviews.each do |review| %>
+        <% @bs_request.reviews.where(state: 'new').each do |review| %>
             <li>
               <%= sprite_tag('exclamation') %> Open review for <%= render partial: 'reviewer', locals: { review: review } %>
             </li>
@@ -104,7 +99,7 @@
                       <%# TODO: Make this work for each submit action individually: %>
                       <br/><%= check_box_tag("add_submitter_as_maintainer_#{action_index}", "#{action[:tprj]}_#_#{action[:tpkg]}", false, :class => 'submitter_is_maintainer_checkbox') %>
                       Add
-                      <%= user_with_realname_and_icon @req['creator'], no_icon: true, short: true %>
+                      <%= user_with_realname_and_icon @bs_request.creator, no_icon: true, short: true %>
                       as maintainer for
                       <%= project_or_package_link project: action[:tprj], package: action[:tpkg], short: true %>
                   <% end %>
@@ -231,7 +226,6 @@
                         <% if @bs_request.state == :review %>
                             <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button', data: { confirm: 'Do you really want to approve this request, despite of open review requests?' } %>
                         <% else %>
-
                             <%= submit_tag 'Accept request', name: 'accepted', id: 'accept_request_button' %>
                         <% end %>
                         <%= submit_tag 'Decline request', name: 'declined' if !@is_author %>
@@ -243,7 +237,7 @@
                         <%= submit_tag 'Reopen request', name: 'new', id: 'reopen_request_button' %>
                     <% end %>
                     <span style="float: right;">
-                          <% if @req['actions'].first[:type] == :maintenance_incident %>
+                          <% if @actions.first[:type] == :maintenance_incident %>
                               <%= link_to(sprited_text('package_link', 'Merge with existing incident'), { :controller => 'request', :action => 'set_incident_dialog', number: @bs_request.number }, :remote => true) %>
                           <% end %>
                         </span>

@@ -54,21 +54,17 @@ class BsRequestTest < ActiveSupport::TestCase
 
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
-    wi = req.webui_infos(diffs: false)
-    assert_equal wi['is_target_maintainer'], false
+    assert_equal req.is_target_maintainer?(nil), false
 
-    wia = wi['actions'][0]
+    wia = req.webui_actions(diffs: false)[0]
     assert_equal wia[:type], :add_role
     assert_equal wia[:tprj], 'kde4'
     assert_equal wia[:role], 'reviewer'
     assert_equal wia[:user], 'Iggy'
 
-    User.session = users(:fred)
-
     assert_equal req.state, :review
     assert_equal req.creator, 'Iggy'
-    wi = req.webui_infos(diffs: false)
-    assert_equal wi['is_target_maintainer'], true
+    assert_equal req.is_target_maintainer?(users(:fred)), true
 
     req.destroy
   end
@@ -132,25 +128,24 @@ class BsRequestTest < ActiveSupport::TestCase
     XML
     assert_equal expected, newxml
 
-    wi = req.webui_infos(diffs: false)
     # iggy is *not* target maintainer
-    assert_equal false, wi['is_target_maintainer']
-    assert_equal wi['actions'][0], type: :submit,
-                                   sprj: 'home:Iggy',
-                                   spkg: 'TestPack',
-                                   srev: '1',
-                                   tprj: 'kde4',
-                                   tpkg: 'mypackage',
-                                   name: 'Submit TestPack'
+    assert_equal req.is_target_maintainer?(users(:Iggy)), false
+    wia = req.webui_actions(diffs: false)
+    assert_equal wia[0], type: :submit,
+                         sprj: 'home:Iggy',
+                         spkg: 'TestPack',
+                         srev: '1',
+                         tprj: 'kde4',
+                         tpkg: 'mypackage',
+                         name: 'Submit TestPack'
   end
 
   def check_user_targets(user, *trues)
     Backend::Test.start
-    User.session = User.find_by_login(user)
     BsRequest.all.each do |r|
       # puts r.render_xml
       expect = trues.include?(r.number)
-      assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'],
+      assert_equal expect, r.is_target_maintainer?(User.find_by_login(user)),
                    "Request #{r.number} should have #{expect} in target_maintainer for #{user}"
     end
   end

@@ -48,10 +48,27 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
-  def modify_review
-    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package)
-    request = BsRequest.find_by_number(params[:request_number])
+  def modify_review_set_request
+    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package, :review_id)
+    unless review_params[:review_id]
+      # TODO: bento_only
+      # bootstrap passes only review_id - the others can go once bento is dropped
+      return review_params, BsRequest.find_by_number(params[:request_number])
+    end
+    review = Review.find_by(id: review_params[:review_id])
+    unless review
+      flash[:error] = 'Unable to load review'
+      return review_params, nil
+    end
+    review_params[:by_package] = review.by_package
+    review_params[:by_project] = review.by_project
+    review_params[:by_user] = review.by_user
+    review_params[:by_group] = review.by_group
+    return review_params, review.bs_request
+  end
 
+  def modify_review
+    review_params, request = modify_review_set_request
     if request.nil?
       flash[:error] = 'Unable to load request'
       redirect_back(fallback_location: user_show_path(User.session!))
@@ -75,31 +92,32 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     diff_limit = params[:full_diff] ? 0 : nil
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @is_author = @bs_request.creator == User.possibly_nobody.login
-    @is_target_maintainer = @req['is_target_maintainer']
 
-    @my_open_reviews = @req['my_open_reviews']
-    @other_open_reviews = @req['other_open_reviews']
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
     @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
 
     @history = @bs_request.history_elements.includes(:user)
-    @actions = @req['actions']
-
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@req)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.possibly_nobody) && any_project_maintained_by_current_user?)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && !@package_maintainers.include?(User.session) && any_project_maintained_by_current_user?
     @comments = @bs_request.comments
     @comment = Comment.new
 
     switch_to_webui2
+    @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
+    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+    reviews = @bs_request.reviews.where(state: 'new')
+    user = User.session # might be nil
+    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
   end
 
   def sourcediff
