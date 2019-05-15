@@ -790,4 +790,11 @@ RSpec.describe Package, vcr: true do
       expect(package.render_xml).to eq(corrected_meta_xml)
     end
   end
+
+  describe '#add_containers' do
+    let(:maintenance_update_with_package) { create(:maintenance_project, name: 'project_foo') }
+    let(:first_maintained_package) { create(:package_with_file, name: 'package_bar', project: maintenance_update_with_package) }
+
+    it { expect { first_maintained_package.add_containers({}) }.not_to raise_error }
+  end
 end

@@ -961,22 +961,23 @@ class Package < ApplicationRecord
   def add_containers(opts = {})
     container_list = {}
 
-    # released maintenance updates first
-    origin_container(local: false).update_instance.binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
-      mc = binary_release.medium_container
-      container_list[mc] = 1 if mc
-    end
-    # GA versions second
-    origin_container(local: false).binary_releases.where('ISNULL(obsolete_time)').find_each do |binary_release|
-      mc = binary_release.medium_container
-      container_list[mc] = 1 if mc
+    # ensure to start with update project
+    update_pkg = origin_container(local: false).update_instance
+    # we need to take update project and all projects linking to into account
+    update_pkg.project.expand_all_projects.each do |prj|
+      origin_package = prj.packages.find_by_name(update_pkg.name)
+      next unless origin_package
+      origin_package.binary_releases.where(obsolete_time: nil).find_each do |binary_release|
+        mc = binary_release.medium_container
+        container_list[mc] = 1 if mc
+      end
     end
 
     comment = "add container for #{name}"
     opts[:extend_package_names] = true if project.is_maintenance_incident?
 
     container_list.keys.each do |container|
-      container_name = container.name
+      container_name = container.name.dup
       container_update_project = container.project.update_instance
       container_name.gsub!(/\.[^\.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
       container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
