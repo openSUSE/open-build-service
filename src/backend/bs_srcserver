@@ -146,19 +146,16 @@ my %packagequota;
 
 
 sub notify {
-  my ($type, $p) = @_;
+  my ($type, $p, $payload) = @_;
   my $time = $p->{'time'} || time();
   delete $p->{'time'};
-  if ($type eq 'PACKTRACK' && BSServer::have_content()) {
-    my $payload = Storable::thaw(BSServer::read_data());
-    if ($payload) {
-      my $json_payload = JSON::XS::encode_json($payload);
-      my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
-      mkdir_p($notificationpayloaddir);
-      writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
-      $p->{'payload'} = $payloadkey;
-      print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
-    }
+  if ($payload) {
+    my $json_payload = JSON::XS::encode_json($payload);
+    my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
+    mkdir_p($notificationpayloaddir);
+    writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
+    $p->{'payload'} = $payloadkey;
+    print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
   }
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
   mkdir_p($eventdir);
@@ -6054,7 +6051,9 @@ sub external_notification {
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
   }
-  notify($type, $param);
+  my $payload;
+  $payload = Storable::thaw(BSServer::read_data()) if $type eq 'PACKTRACK' && BSServer::have_content();
+  notify($type, $param, $payload);
   return $BSStdServer::return_ok;
 }
 
@@ -6069,7 +6068,6 @@ sub notify_plugins {
       $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
     }
   }
-
   BSSrcServer::Notify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
 }
