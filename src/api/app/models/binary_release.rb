@@ -48,6 +48,7 @@ class BinaryRelease < ApplicationRecord
                  binary_epoch: binary['epoch'],
                  binary_arch: binary['binaryarch'],
                  medium: binary['medium'],
+                 on_medium: medium_hash[binary['medium']],
                  obsolete_time: nil,
                  modify_time: nil }
         # check for existing entry
@@ -62,9 +63,11 @@ class BinaryRelease < ApplicationRecord
         entry = matching_binaries.first
 
         if entry
-          if entry.indentical_to?(binary)
+          if entry.identical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
+            # but collect the media
+            medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
             next
           end
           # same binary name and location, but updated content or meta data
@@ -201,12 +204,13 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
-  def indentical_to?(binary_hash)
-    time = Time.strptime(binary_hash['buildtime'].to_s, '%s') if binary_hash['buildtime'].present?
+  def identical_to?(binary_hash)
+    # handle nil/NULL case
+    buildtime = binary_hash['buildtime'].blank? ? nil : Time.strptime(binary_hash['buildtime'].to_s, '%s')
 
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime == time
+      binary_buildtime == buildtime
   end
   #### Alias of methods
 end
