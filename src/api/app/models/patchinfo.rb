@@ -8,6 +8,7 @@ class Patchinfo
 
   class PatchinfoFileExists < APIError; end
   class IncompletePatchinfo < APIError; end
+  class InvalidPatchinfoSummary < APIError; end
 
   class ReleasetargetNotFound < APIError
     setup 404
@@ -45,7 +46,6 @@ class Patchinfo
                 :issueid, :issuetracker, :issueurl, :issuesum
 
   validates :summary, length: { minimum: 10 }
-  validates :description, length: { minimum: 50 }
   validates :packager, presence: true
   validate :issue_tracker_existence
 
@@ -91,6 +91,8 @@ class Patchinfo
       raise TrackerNotFound, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
       raise IssueTracker::InvalidIssueName, "The issue name is not supported: #{i['id']}" unless tracker.valid_issue_name?(i['id'])
     end
+    # validates presence and length of summary
+    raise InvalidPatchinfoSummary, 'Summary should contain at least 10 characters' if data['summary'].length < 10
     # are releasetargets specified ? validate that this project is actually defining them.
     data.elements('releasetarget') { |r| check_releasetarget!(r) }
   end
