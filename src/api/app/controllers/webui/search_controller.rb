@@ -4,10 +4,16 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_parameters
 
   def index
+    # TODO: Remove if once migration of the view is finished
+    switch_to_webui2 if Rails.env.development?
+
     search
   end
 
   def owner
+    # TODO: Remove if once migration of the view is finished
+    switch_to_webui2 if Rails.env.development?
+
     Backend::Test.start if Rails.env.test?
 
     # If the search is too short, return
