@@ -161,6 +161,7 @@ class XpathEngine
         'repository/@name' => { cpart: 'release_repositories.name' },
         'publish/@time' => { cpart: 'binary_releasetime' },
         'publish/@package' => { cpart: 'ppkg.name', joins: ['LEFT join packages ppkg on ppkg.id=release_package_id'] },
+        'publish/@flavor' => { cpart: 'flavor' },
         'updatefor/@project' => { cpart: 'puprj.name', joins: ['LEFT join packages pupkg on pupkg.id=product_update.package_id ',
                                                                'LEFT join projects puprj on puprj.id=pupkg.project_id '] },
         'updatefor/@arch' => { cpart: 'pupa.name',

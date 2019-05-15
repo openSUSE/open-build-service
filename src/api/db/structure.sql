@@ -193,6 +193,7 @@ CREATE TABLE `binary_releases` (
   `modify_time` datetime DEFAULT NULL,
   `on_medium_id` int(11) DEFAULT NULL,
   `binary_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `flavor` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
@@ -1440,6 +1441,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190111130416'),
 ('20190115131711'),
 ('20190215131711'),
+('20190328131711'),
 ('20190412130831');
 
 

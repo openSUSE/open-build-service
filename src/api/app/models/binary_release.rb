@@ -88,7 +88,12 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
-        rp = Package.find_by_project_and_name(binary['project'], binary['package'])
+        source_package = Package.striping_multibuild_suffix(binary['package'])
+        rp = Package.find_by_project_and_name(binary['project'], source_package)
+        if source_package.include?(':')
+          flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
+          hash[:flavor] = flavor_name
+        end
         hash[:release_package_id] = rp.id if binary['project'] && rp
         if binary['patchinforef']
           begin
@@ -167,6 +172,7 @@ class BinaryRelease < ApplicationRecord
       node = {}
       node[:package] = release_package.name if release_package
       node[:time] = self.binary_releasetime if self.binary_releasetime
+      node[:flavor] = flavor if flavor
       binary.publish(node) unless node.empty?
 
       build_node = {}
