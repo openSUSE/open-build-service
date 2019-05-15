@@ -20,6 +20,8 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     assert_xml_tag xml, tag: 'binary',
                         attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo',
                                       name: 'package', version: '1.0', release: '1', arch: 'i586' }
+    assert_xml_tag xml, tag: 'build',
+                        attributes: { time: '2013-09-29 15:50:31 UTC', binaryid: '5bb6f78d6a24f084e58e476955f615ec' }
     assert_xml_tag xml, tag: 'maintainer', content: 'Iggy'
     assert_xml_tag xml, tag: 'operation', content: 'added'
     assert_xml_tag xml, tag: 'supportstatus', content: 'l3'

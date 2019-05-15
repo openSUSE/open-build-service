@@ -79,6 +79,7 @@ class BinaryRelease < ApplicationRecord
 
         # complete hash for new entry
         hash[:binary_releasetime] = time
+        hash[:binary_id] = binary['binaryid'] if binary['binaryid'].present?
         hash[:binary_buildtime] = nil
         hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
@@ -168,7 +169,10 @@ class BinaryRelease < ApplicationRecord
       node[:time] = self.binary_releasetime if self.binary_releasetime
       binary.publish(node) unless node.empty?
 
-      binary.build(time: binary_buildtime) if binary_buildtime
+      build_node = {}
+      build_node[:time] = binary_buildtime if binary_buildtime
+      build_node[:binaryid] = binary_id if binary_id
+      binary.build(build_node) if build_node.count > 0
       binary.modify(time: modify_time) if modify_time
       binary.obsolete(time: obsolete_time) if obsolete_time
 
