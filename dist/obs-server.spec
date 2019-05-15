@@ -166,6 +166,9 @@ Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
+%if 0%{?suse_version} >= 1550
+Requires:       insserv-compat
+%endif
 
 BuildRequires:  systemd-rpm-macros
 
@@ -196,6 +199,9 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
+%if 0%{?suse_version} >= 1550
+Requires:       insserv-compat
+%endif
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
