@@ -48,4 +48,5 @@
 //= require webui2/project_monitor.js
 //= require webui2/collapsible_text
 //= require webui2/patchinfo.js
+//= require webui2/image_templates.js
 //= require rails-timeago
