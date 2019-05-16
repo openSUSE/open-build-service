@@ -52,7 +52,6 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
 
     scenario 'branch Kiwi image template' do
       skip_if_bootstrap
-
       visit image_templates_path
       expect(page).to have_css('input.create_appliance[disabled]')
 
