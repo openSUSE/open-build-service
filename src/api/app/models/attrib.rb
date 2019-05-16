@@ -85,7 +85,7 @@ class Attrib < ApplicationRecord
   end
 
   def write_container_attributes
-    container.try(:write_attributes)
+    container.write_attributes if container && !container.destroyed?
   end
 
   def update_with_associations(values = [], issues = [])
