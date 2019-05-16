@@ -90,13 +90,12 @@ module Webui
       end
 
       def build_result
+        switch_to_webui2
         if @image.package.project.repositories.any?
           @build_results = @image.build_results
-          switch_to_webui2 if params[:switch].present?
           render partial: 'build_status'
         else
           @project = @image.package.project
-          switch_to_webui2 if params[:switch].present?
           render partial: '/webui/package/no_repositories'
         end
       end
