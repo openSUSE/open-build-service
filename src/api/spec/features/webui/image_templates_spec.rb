@@ -77,7 +77,6 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       fill_in 'target_package', with: 'package_with_kiwi_image'
 
       click_button('Create appliance')
-      find('#kiwi-image-update-form')
       expect(page).to have_text('home:tom:branches:my_project > package_with_kiwi_image')
     end
   end
