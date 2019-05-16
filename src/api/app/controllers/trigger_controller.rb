@@ -1,4 +1,9 @@
 class TriggerController < ApplicationController
+
+  class NoPermissionForInactive < APIError
+    setup 403, 'no permission due to inactive user'
+  end
+
   validate_action runservice: { method: :post, response: :status }
 
   #
@@ -31,20 +36,23 @@ class TriggerController < ApplicationController
       return
     end
 
+    User.session = token.user
+    raise NoPermissionForInactive unless User.session.is_active?
+
     pkg = token.package || Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
-    if pkg
-      # check if user has still access
-      unless token.user.is_active? && token.user.can_modify?(pkg)
-        render_error message: "no permission for package #{pkg.name} in project #{pkg.project.name}",
-                     status: 403,
-                     errorcode: 'no_permission'
-        return
-      end
+    raise ActiveRecord::RecordNotFound unless pkg
+
+    # check if user has still access
+    unless policy(pkg).update? # catches also empty session
+      render_error message: "no permission for package #{pkg.name} in project #{pkg.project.name}",
+                   status: 403,
+                   errorcode: 'no_permission'
+      return
     end
 
     # execute the service in backend
     path = pkg.source_path
-    params = { cmd: 'runservice', comment: 'runservice via trigger', user: token.user.login }
+    params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
     path << build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend(path)
 
