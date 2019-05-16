@@ -120,10 +120,9 @@ class User < ApplicationRecord
     project = Project.find_by(name: home_project_name)
     return if project
 
-    project = Project.create(name: home_project_name)
+    project = Project.create!(name: home_project_name)
     # make the user maintainer
-    project.relationships.create(user: self,
-                                 role: Role.find_by_title('maintainer'))
+    project.relationships.create!(user: self, role: Role.find_by_title('maintainer'))
     project.store(login: login)
     @home_project = project
   end
