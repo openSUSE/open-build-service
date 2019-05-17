@@ -28,10 +28,11 @@ class Package < ApplicationRecord
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
 
-  attr_reader :commit_opts
-  attr_writer :commit_opts
+  attr_accessor :commit_opts, :commit_user
   after_initialize do
     @commit_opts = {}
+    # might be nil - in this case we rely on the caller to set it
+    @commit_user = User.session
   end
 
   has_many :messages, as: :db_object, dependent: :delete_all
@@ -790,9 +791,10 @@ class Package < ApplicationRecord
 
   def write_to_backend
     reset_cache
+    raise ArgumentError, 'no commit_user set' unless commit_user
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      query = { user: User.session!.login }
+      query = { user: commit_user.login }
       query[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # the request number is the requestid parameter in the backend api
       query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
@@ -815,10 +817,11 @@ class Package < ApplicationRecord
     return if belongs_to_product?
     return if name == '_project'
 
+    raise ArgumentError, 'no commit_user set' unless commit_user
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
 
-      h = { user: User.session!.login, comment: commit_opts[:comment] }
+      h = { user: commit_user.login, comment: commit_opts[:comment] }
       h[:requestid] = commit_opts[:request].number if commit_opts[:request]
       path << Backend::Connection.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
