@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe TriggerController, vcr: true do
-  let(:admin) { create(:admin_user, login: 'foo_admin') }
+  let(:admin) { create(:admin_user, :with_home, login: 'foo_admin') }
   let(:project) { admin.home_project }
   let(:package) { create(:package, name: 'package_trigger', project: project) }
   let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project) }

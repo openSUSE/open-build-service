@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Person::TokenController, vcr: false do
-  let(:user) { create(:user_with_service_token) }
+  let(:user) { create(:user_with_service_token, :with_home) }
   let(:other_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 

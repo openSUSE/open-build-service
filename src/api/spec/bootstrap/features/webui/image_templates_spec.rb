@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_ImageTemplates', type: :feature, js: true, vcr: true do
-  let!(:user) { create(:confirmed_user, login: 'tom') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   context 'branching' do
     let!(:project) { create(:project, name: 'my_project') }

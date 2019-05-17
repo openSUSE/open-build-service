@@ -2,7 +2,7 @@ require 'webmock/rspec'
 require 'rails_helper'
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: 'admin') }
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }

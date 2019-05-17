@@ -5,7 +5,7 @@ require 'nokogiri'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 RSpec.describe BsRequest, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tux') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
@@ -37,7 +37,7 @@ RSpec.describe BsRequest, vcr: true do
   end
 
   context '.new_from_xml' do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :with_home) }
     let(:review_request) do
       create(:bs_request_with_submit_action,
              review_by_user: user,

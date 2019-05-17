@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Comments', type: :feature, js: true, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'burdenski') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'burdenski') }
   let!(:comment) { create(:comment_project, commentable: user.home_project, user: user) }
   let!(:old_comment_text) { comment.body }
 

@@ -5,8 +5,8 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::SearchController, vcr: true do
-  let!(:user) { create(:confirmed_user, login: 'Iggy') }
-  let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let!(:develuser) { create(:confirmed_user, :with_home, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
   let(:owner_attrib) { create(:attrib, attrib_type: AttribType.where(name: 'OwnerRootProject').first, project: Project.find_by(name: 'home:Iggy')) }

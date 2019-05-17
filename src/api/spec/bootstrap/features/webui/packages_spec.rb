@@ -17,9 +17,9 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     login user
   end
 
-  let!(:user) { create(:confirmed_user, login: 'package_test_user') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
-  let(:other_user) { create(:confirmed_user, login: 'other_package_test_user') }
+  let(:other_user) { create(:confirmed_user, :with_home, login: 'other_package_test_user') }
   let!(:other_users_package) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
   let(:package_with_develpackage) { create(:package, name: 'develpackage', project: user.home_project, develpackage: other_users_package) }
   let(:third_project) { create(:project_with_package, package_name: 'develpackage') }
@@ -178,7 +178,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     end
 
     describe 'as common user' do
-      let(:other_user) { create(:confirmed_user, login: 'common_user') }
+      let(:other_user) { create(:confirmed_user, :with_home, login: 'common_user') }
       before do
         login other_user
       end

@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Attributes', type: :feature, js: true do
-  let!(:user) { create(:confirmed_user) }
+  let!(:user) { create(:confirmed_user, :with_home) }
   # AttribTypes are part of the seeds, so we can reuse them
   let!(:attribute_type) { AttribType.find_by(name: 'ImageTemplates') }
 

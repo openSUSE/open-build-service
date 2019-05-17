@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Staging::ExcludedRequestsController do
   render_views
 
-  let(:user) { create(:confirmed_user, login: 'user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'user') }
   let(:other_user) { create(:confirmed_user, login: 'other_user') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }

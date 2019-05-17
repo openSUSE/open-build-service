@@ -1,6 +1,6 @@
 RSpec.shared_examples 'user tab' do
-  let!(:other_user) { create(:confirmed_user, login: 'other_user') }
-  let!(:user_tab_user) { create(:confirmed_user, login: 'user_tab_user') }
+  let!(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
+  let!(:user_tab_user) { create(:confirmed_user, :with_home, login: 'user_tab_user') }
   let(:reader) { create(:confirmed_user, login: 'reader_user') }
   # default to prevent "undefined local variable or method `package'" error
   let!(:package) { nil }

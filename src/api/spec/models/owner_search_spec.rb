@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe OwnerSearch do
-  let!(:user) { create(:confirmed_user, login: 'Iggy') }
-  let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let!(:develuser) { create(:confirmed_user, :with_home, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
   let!(:collection) do

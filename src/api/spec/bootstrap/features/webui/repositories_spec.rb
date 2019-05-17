@@ -5,7 +5,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   let!(:repository) { create(:repository) }
 
   describe 'Repositories Flags' do
-    let!(:user) { create(:confirmed_user, login: 'Jane') }
+    let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
     let(:project) { user.home_project }
 
     include_examples 'bootstrap tests for sections with flag tables'

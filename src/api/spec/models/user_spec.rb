@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe User do
   let(:admin_user) { create(:admin_user, login: 'king') }
-  let(:user) { create(:user, login: 'eisendieter') }
+  let(:user) { create(:user, :with_home, login: 'eisendieter') }
   let(:confirmed_user) { create(:confirmed_user, login: 'confirmed_user') }
   let(:user_belongs_to_confirmed_owner) { create(:user, owner: confirmed_user) }
   let(:user_belongs_to_unconfirmed_owner) { create(:confirmed_user, owner: user) }

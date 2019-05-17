@@ -5,7 +5,7 @@ RSpec.describe StagingProjectCopyJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    let(:user) { create(:confirmed_user) }
+    let(:user) { create(:confirmed_user, :with_home) }
     let(:staging_workflow) { create(:staging_workflow, project: user.home_project) }
     let!(:original_staging_project) { create(:staging_project, staging_workflow: staging_workflow, project_config: 'Prefer: something') }
     let(:staging_project_copy_name) { "#{original_staging_project.name}-copy" }

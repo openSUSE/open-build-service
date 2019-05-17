@@ -557,7 +557,7 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '#add_maintainer' do
-    subject { create(:user).home_project }
+    subject { create(:user, :with_home).home_project }
 
     it_behaves_like 'makes a user a maintainer of the subject'
   end
@@ -571,7 +571,7 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '#do_project_release' do
-    let(:user) { create(:confirmed_user, login: 'tux') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
     let(:project) { user.home_project }
     let!(:package) { create(:package_with_revisions, name: 'my_package_release', project: project) }
     let(:project_release) { create(:project, name: "#{user.home_project}:staging") }
