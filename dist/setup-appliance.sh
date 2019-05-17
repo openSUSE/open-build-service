@@ -140,7 +140,7 @@ function get_hostname {
     FQHOSTNAME=$1
   else
     TIMEOUT=600
-    while [ -z "$FQHOSTNAME" ];do
+    while [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" ];do
       FQHOSTNAME=`hostname -f 2>/dev/null`
       TIMEOUT=$(($TIMEOUT-1))
       [ "$TIMEOUT" -le 0 ] && break
