@@ -89,6 +89,8 @@ class User < ApplicationRecord
 
   validates :state, inclusion: { in: STATES }
 
+  validate :validate_state
+
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
   # language specific characters and user names can be about anything anyway.
@@ -274,12 +276,9 @@ class User < ApplicationRecord
     end
   end
 
-  # Overriding this method to do some more validation:
-  # state an password hash type being in the range of allowed values.
-  # FIXME: This is currently not used. It's not used by rails validations.
-  def validate
+  def validate_state
     # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(@old_state, state)
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
   end
 
   # This method returns true if the user is assigned the role with one of the
@@ -302,13 +301,6 @@ class User < ApplicationRecord
 
     token = UserRegistration.new
     self.user_registration = token
-  end
-
-  # Overwrite the state setting so it backs up the initial state from
-  # the database.
-  def state=(value)
-    @old_state = state if @old_state.nil?
-    self[:state] = value
   end
 
   # This method checks whether the given value equals the password when
