@@ -28,8 +28,8 @@ class Webui::UserController < Webui::WebuiController
     @first_day = @last_day - 52.weeks
     # move back to the monday before (make it up to 53 weeks)
     @first_day -= (@first_day.cwday - 1)
-    
-    @activity_hash = @displayed_user.activity_hash(@first_day)
+
+    @activity_hash = User::Contributions.new(@displayed_user, @first_day).activity_hash
   end
 
   def home
