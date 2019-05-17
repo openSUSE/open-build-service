@@ -15,6 +15,10 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     include_context 'a kiwi image xml'
     include_context 'an invalid kiwi image xml'
 
+    before do
+      login user
+    end
+
     context 'without a kiwi file' do
       let(:package) { create(:package, name: 'package_without_kiwi_file', project: project) }
 
