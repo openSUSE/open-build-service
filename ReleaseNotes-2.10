@@ -59,7 +59,9 @@ Bugfixes:
   * In WebUI, only admins are allowed to create sourceaccess/access repositories flags.
   * Added missing authorization to move repository path in Webui::ProjectController.
   * Require sourceaccess by default in `require_package`.
-
+  * Users with a login that started with '.', ':' or '_' would get an error when creating
+    their home project. This got solved, though such user home projects are now of the format
+    home:project<login>
 
 Intentional changes:
 ====================

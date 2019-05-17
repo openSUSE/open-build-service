@@ -550,4 +550,14 @@ RSpec.describe User do
       expect(user.can_create_project?('foo:bar')).to be(true)
     end
   end
+
+  describe '#home_project_name' do
+    it { expect(build(:user, login: 'tux').home_project_name).to eq('home:tux') }
+
+    context 'when user login starts with an invalid character' do
+      it { expect(build(:user, login: '.tux').home_project_name).to eq('home:project.tux') }
+      it { expect(build(:user, login: ':tux').home_project_name).to eq('home:project:tux') }
+      it { expect(build(:user, login: '_tux').home_project_name).to eq('home:project_tux') }
+    end
+  end
 end

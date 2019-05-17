@@ -374,7 +374,11 @@ class User < ApplicationRecord
   end
 
   def home_project_name
-    "home:#{login}"
+    if login.starts_with?('.', ':', '_')
+      "home:project#{login}"
+    else
+      "home:#{login}"
+    end
   end
 
   def home_project
