@@ -130,6 +130,11 @@ Intentional changes:
     - GET /statistics/rating/<project>/<package>
     - PUT /statistics/rating/<project>/<package>
 
+  * Project and package release operations used to return a 403 permission
+    error also on configuration errors. This is a 404 now:
+    - POST /source/<project>?cmd=release
+    - POST /source/<project>/<package>?cmd=release
+
 Other changes
 =============
 

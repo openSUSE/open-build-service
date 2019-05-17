@@ -780,6 +780,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    tag: 'supportstatus', content: 'l3'
     assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'i586' } },
                    tag: 'updateinfo', attributes: { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: '1' }
+    assert_xml_tag parent: { tag: 'binary', attributes:            { name: 'package', project: 'BaseDistro3Channel', repository: 'channel_repo', arch: 'src' } },
+                   tag: 'build', attributes: { time: '2014-07-03 12:26:10 UTC', binaryid: 'c360dab1651bec8b157336e6159ff83e' }
 
     # search via official updateinfo id tag
     get '/search/released/binary', params: { match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'" }

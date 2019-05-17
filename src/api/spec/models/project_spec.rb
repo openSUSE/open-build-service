@@ -577,7 +577,7 @@ RSpec.describe Project, vcr: true do
     let(:project_release) { create(:project, name: "#{user.home_project}:staging") }
     let(:repository) { create(:repository, project: project) }
     let(:repository_release) { create(:repository, project: project_release) }
-    let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository) }
+    let!(:release_target) { create(:release_target, target_repository: repository_release, repository: repository, trigger: 'manual') }
 
     before do
       login user

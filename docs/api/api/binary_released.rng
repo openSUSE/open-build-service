@@ -104,6 +104,11 @@
           </element>
         </optional>
         <optional>
+          <element name="binaryid">
+            <text/> <!-- the identifier for the binary -->
+          </element>
+        </optional>
+        <optional>
           <element name="updatefor"> <!-- a product is refering to this repo as update channel -->
             <attribute name="project">
               <data type="string" />

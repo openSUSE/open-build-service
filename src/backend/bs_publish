@@ -2376,6 +2376,7 @@ sub publish {
 	  $pt->{$_} = $res->{$_} if defined $res->{$_};
 	}
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	$pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
 	if ($pt->{'arch'}) {
@@ -2400,6 +2401,7 @@ sub publish {
 	for (qw{arch disturl buildtime}) {
 	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
 	}
+        $pt->{'binaryid'} = $containerinfo->{'imageid'} if $containerinfo->{'imageid'};
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
@@ -2417,6 +2419,7 @@ sub publish {
 	$pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
 	$pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
 	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
+        # need a way to get disturl, buildtime and binaryid...
 	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;

@@ -48,6 +48,7 @@ class BinaryRelease < ApplicationRecord
                  binary_epoch: binary['epoch'],
                  binary_arch: binary['binaryarch'],
                  medium: binary['medium'],
+                 on_medium: medium_hash[binary['medium']],
                  obsolete_time: nil,
                  modify_time: nil }
         # check for existing entry
@@ -62,9 +63,11 @@ class BinaryRelease < ApplicationRecord
         entry = matching_binaries.first
 
         if entry
-          if entry.indentical_to?(binary)
+          if entry.identical_to?(binary)
             # same binary, don't touch
             processed_item[entry.id] = true
+            # but collect the media
+            medium_hash[binary['ismedium']] = entry if binary['ismedium'].present?
             next
           end
           # same binary name and location, but updated content or meta data
@@ -76,6 +79,7 @@ class BinaryRelease < ApplicationRecord
 
         # complete hash for new entry
         hash[:binary_releasetime] = time
+        hash[:binary_id] = binary['binaryid'] if binary['binaryid'].present?
         hash[:binary_buildtime] = nil
         hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
@@ -84,7 +88,12 @@ class BinaryRelease < ApplicationRecord
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
         end
-        rp = Package.find_by_project_and_name(binary['project'], binary['package'])
+        source_package = Package.striping_multibuild_suffix(binary['package'])
+        rp = Package.find_by_project_and_name(binary['project'], source_package)
+        if source_package.include?(':')
+          flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
+          hash[:flavor] = flavor_name
+        end
         hash[:release_package_id] = rp.id if binary['project'] && rp
         if binary['patchinforef']
           begin
@@ -163,12 +172,17 @@ class BinaryRelease < ApplicationRecord
       node = {}
       node[:package] = release_package.name if release_package
       node[:time] = self.binary_releasetime if self.binary_releasetime
+      node[:flavor] = flavor if flavor
       binary.publish(node) unless node.empty?
 
-      binary.build(time: binary_buildtime) if binary_buildtime
+      build_node = {}
+      build_node[:time] = binary_buildtime if binary_buildtime
+      build_node[:binaryid] = binary_id if binary_id
+      binary.build(build_node) if build_node.count > 0
       binary.modify(time: modify_time) if modify_time
       binary.obsolete(time: obsolete_time) if obsolete_time
 
+      binary.binaryid(binary_id) if binary_id
       binary.supportstatus(binary_supportstatus) if binary_supportstatus
       binary.updateinfo(id: binary_updateinfo, version: binary_updateinfo_version) if binary_updateinfo
       binary.maintainer(binary_maintainer) if binary_maintainer
@@ -201,12 +215,16 @@ class BinaryRelease < ApplicationRecord
     Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
-  def indentical_to?(binary_hash)
-    time = Time.strptime(binary_hash['buildtime'].to_s, '%s') if binary_hash['buildtime'].present?
+  def identical_to?(binary_hash)
+    # handle nil/NULL case
+    buildtime = binary_hash['buildtime'].blank? ? nil : Time.strptime(binary_hash['buildtime'].to_s, '%s')
 
+    # We ignore not set binary_id in db because it got introduced later
+    # we must not touch the modification time in that case
     binary_disturl == binary_hash['disturl'] &&
       binary_supportstatus == binary_hash['supportstatus'] &&
-      binary_buildtime == time
+      (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
+      binary_buildtime == buildtime
   end
   #### Alias of methods
 end
