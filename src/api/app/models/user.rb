@@ -866,10 +866,17 @@ class User < ApplicationRecord
   end
 
   def activity_hash(first_day)
-    requests_created.where('created_at > ?', first_day).group('date(created_at)').count
+    activity = requests_created.where('created_at > ?', first_day).group('date(created_at)').count
+    merge_activity_hashes(activity, comments.where('created_at > ?', first_day).group('date(created_at)').count)
+    # User.reviews are by_user, we want also by_package and by_group reviews accepted/declined
+    merge_activity_hashes(activity, Review.where(reviewer: login, state: [:accepted, :declined]).where('created_at > ?', first_day).group('date(created_at)').count)
   end
 
   private
+
+  def merge_activity_hashes(h1, h2)
+    h1.merge!(h2) { |_, value1, value2| value1 + value2 }
+  end
 
   # The currently logged in user (might be nil). It's reset after
   # every request and normally set during authentification
