@@ -1,0 +1,14 @@
+.form-group.form-inline
+  - search_for_options = options_for_select([['All', '0'], ['Projects', '1'], ['Packages', '2']], params.fetch(:search_for, '0'))
+  -# FIXME: The dropdown arrow is a bit far when 'All' is selected
+  = select_tag('search_for', search_for_options, class: 'custom-select border-0 pl-0 w-auto')
+
+  %button.btn.btn-outline-secondary.ml-2.collapsed{ type: 'button', aria: { controls: 'collapse-1', expanded: 'false' },
+                                                'data-toggle' => 'collapse', href: '#advanced-container', role: 'button' }
+    %span.collapser
+      %span.d-none.d-md-inline-block Advanced
+      %i.fa.fa-caret-up
+    %span.expander
+      %span.d-none.d-md-inline-block Advanced
+      %i.fa.fa-caret-down
+
