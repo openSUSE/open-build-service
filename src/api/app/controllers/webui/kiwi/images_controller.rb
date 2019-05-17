@@ -5,6 +5,7 @@ module Webui
       before_action :set_image, except: [:import_from_package]
       before_action :authorize_update, except: [:import_from_package]
       before_action :check_ajax, only: :build_result
+      before_action :require_login, only: :import_from_package
 
       def import_from_package
         package = Package.find(params[:package_id])
