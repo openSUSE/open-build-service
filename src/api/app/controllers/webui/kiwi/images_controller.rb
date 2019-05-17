@@ -47,7 +47,7 @@ module Webui
         @is_edit_software_action = false
 
         respond_to do |format|
-          format.html
+          format.html { switch_to_webui2 }
           format.json { render json: { isOutdated: @image.outdated? } }
         end
       end
@@ -65,7 +65,7 @@ module Webui
         @is_edit_software_action = params[:section] == 'software'
 
         respond_to do |format|
-          format.html
+          format.html { switch_to_webui2 }
         end
       end
 
@@ -90,6 +90,7 @@ module Webui
       end
 
       def build_result
+        switch_to_webui2
         if @image.package.project.repositories.any?
           @build_results = @image.build_results
           render partial: 'build_status'

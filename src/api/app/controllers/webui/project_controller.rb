@@ -190,7 +190,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def buildresult
-    switch_to_webui2 if params[:switch].present?
+    switch_to_webui2
     render partial: 'buildstatus', locals: { project: @project,
                                              buildresults: @project.buildresults,
                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }

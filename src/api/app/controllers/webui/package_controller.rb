@@ -945,13 +945,13 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      switch_to_webui2 if params[:switch].present?
+      switch_to_webui2
       render partial: 'buildstatus', locals: { buildresults: @buildresults,
                                                index: @index,
                                                project: @project,
                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
-      switch_to_webui2 if params[:switch].present?
+      switch_to_webui2
       render partial: 'no_repositories', locals: { project: @project }
     end
   end
@@ -976,7 +976,7 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    return if params[:switch].present? && switch_to_webui2
+    return if switch_to_webui2
 
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }
