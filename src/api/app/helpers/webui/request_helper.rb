@@ -133,6 +133,37 @@ module Webui::RequestHelper
     review[:by_user] || review[:by_group] || review[:by_project]
   end
 
+  def request_user_image_tag(user)
+    user_image_tag(user, size: 35, css_class: 'mr-3 d-none d-sm-block')
+  end
+
+  def review_description(review)
+    if review.by_package
+      'for package '.html_safe + link_to(review.by_project + ' / ' + review.by_package, package_show_path(project: review.by_project, package: review.by_package))
+    elsif review.by_project
+      'for project '.html_safe + link_to(review.by_project, project_show_path(project: review.by_project))
+    elsif review.by_user
+      'for user '.html_safe + link_to(review.by_user, user_show_path(review.by_user))
+    else
+      'for group '.html_safe + link_to(review.by_group, group_show_path(review.by_group))
+    end
+  end
+
+  def review_history_verb(history_element)
+    case history_element.class.to_s
+    when 'HistoryElement::ReviewAssigned'
+      'assigned'
+    when 'HistoryElement::ReviewReopened'
+      'reopened'
+    when 'HistoryElement::ReviewAccepted'
+      'accepted'
+    when 'HistoryElement::ReviewDeclined'
+      'declined'
+    else
+      "TODO in review_history_verb #{history_element.class}"
+    end
+  end
+
   def diff_data(action_type, sourcediff)
     diff = (action_type == :delete ? sourcediff['old'] : sourcediff['new'])
 

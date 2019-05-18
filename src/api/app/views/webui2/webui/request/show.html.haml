@@ -19,16 +19,10 @@
   .card-body
     .row
       .col-md-8
-        = render partial: 'show_overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
+        %h3
+          Request #{@bs_request.number} (#{@bs_request.state})
       .col-md-4
         = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
-      - if @can_add_reviews
-        %ul.list-inline.mb-0
-          %li.list-inline-item
-            = link_to(add_reviewer_dialog_path(number: @bs_request.number),
-                      data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Add a Review
 
 .card.mb-3
   .bg-light
@@ -42,52 +36,40 @@
       - @actions.each_with_index do |action, index|
         .tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if index.zero?) }
           = render('sourcediff_tab', action: action, request_creator: @bs_request.creator, index: index)
-.row
-  .col-md-8
-    .card.mb-3
-      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request }
-    - if @can_handle_request || (@can_add_reviews && @my_open_reviews.any?)
-      .card.mb-3
-        .bg-light
-          %ul.nav.nav-tabs{ role: 'tablist' }
-            - if @can_handle_request
-              %li.nav-item
-                %a.nav-link.text-nowrap.active{ href: '#decision', data: { toggle: 'tab' }, role: 'tab' }
-                  My decision
-            - if @can_add_reviews
-              - @my_open_reviews.each_with_index do |review, index|
-                %li.nav-item
-                  %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
-                    class: ('active' if index.zero? && !@can_handle_request) }
-                    Review for
-                    - if review.by_package
-                      #{review.by_project}/#{review.by_package}
-                    - else
-                      = review.by_user || review.by_group || review.by_project
-        .card-body
-          - if @can_handle_request && @show_project_maintainer_hint
-            .alert.alert-warning
-              You are a <strong>project maintainer</strong> but not a <strong>package maintainer</strong>. This package
-              has <strong>#{pluralize(@package_maintainers.size, 'package maintainer')}</strong> assigned. Please keep
-              in mind that also package maintainers would like to review this request.
-          .tab-content
-            - if @can_handle_request
-              .tab-pane.fade.show.active{ id: 'decision' }
-                = render('decision_tab', request_number: @bs_request.number, request_creator: @bs_request.creator,
-                         is_target_maintainer: @is_target_maintainer, state: @bs_request.state.to_s,
-                         is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
-            - if @can_add_reviews
-              - @my_open_reviews.each_with_index do |review, index|
-                .tab-pane.fade.show{ id: "review-#{index}", class: ('active' if index.zero? && !@can_handle_request) }
-                  = render('review_tab', review: review, bs_request: @bs_request)
 
-  .col-md-4
-    .card
-      .card-header.d-flex.justify-content-between
-        %h5
-          Request History
-      .card-body.small#request-history
-        = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
+.card.mb-3
+  .card-body
+    .media
+      = request_user_image_tag(User.find_by(login: @bs_request.creator))
+      .media-body
+        %p
+          = link_to(@bs_request.creator, user_show_path(@bs_request.creator))
+          opened the request
+          %span{ title: l(@bs_request.created_at.utc) }
+            #{time_ago_in_words(@bs_request.created_at)} ago
+          #description-text
+            - if @bs_request.description.present?
+              = render partial: 'webui/webui/collapsible_text', locals: { text: @bs_request.description }
+            - else
+              %i No description set
+
+    - @events.each do |event|
+      - if event.is_a?(Comment)
+        = render partial: 'webui2/webui/comment/content', locals: { comment: event, commentable: @bs_request, level: 1 }
+      - elsif event.is_a?(HistoryElement::Base)
+        - history_type = event.class.to_s.gsub('HistoryElement::', '').underscore
+        = render partial: "webui2/webui/request/history_#{history_type}", locals: { history_element: event, request: @bs_request }
+      - elsif event.is_a?(Review)
+        %hr
+        = render partial: 'webui2/webui/request/review', locals: { review: event, request: @bs_request }
+
+    - if @can_add_reviews
+      %ul.list-inline.mb-0
+        %li.list-inline-item
+          = link_to(add_reviewer_dialog_path(number: @bs_request.number),
+                    data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add a Review
 
 - if User.session
   = render partial: 'webui2/webui/request/add_reviewer_dialog'

@@ -67,6 +67,42 @@ class Webui::RequestController < Webui::WebuiController
     return review_params, review.bs_request
   end
 
+  def webui2_modify_review
+    review = Review.find_by_id(params[:review_number])
+
+    unless review
+      flash[:error] = 'Unable to load request'
+      redirect_back(fallback_location: user_show_path(User.current))
+      return
+    end
+
+    request = review.bs_request
+    state = case params[:commit]
+            when 'Decline'
+              :declined
+            when 'Accept'
+              :accepted
+            end
+
+    if state.nil?
+      flash[:error] = 'Unknown state to set'
+    else
+      begin
+        opts = { by_user: review.by_user, by_group: review.by_group,
+                 comment: params[:review_comment],
+                 by_project: review.by_project, by_package: review.by_package }
+        request.permission_check_change_review!(opts)
+        request.change_review_state(state, opts)
+      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
+        flash[:error] = "Not permitted to change review state: #{e.message}"
+      rescue APIError => e
+        flash[:error] = "Unable changing review state: #{e.message}"
+      end
+    end
+
+    redirect_to request_show_path(number: request), success: 'Successfully submitted review'
+  end
+
   def modify_review
     review_params, request = modify_review_set_request
     if request.nil?
@@ -118,6 +154,29 @@ class Webui::RequestController < Webui::WebuiController
     user = User.session # might be nil
     @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+    sort_show_events
+  end
+
+  def sort_show_events
+    events = @bs_request.comments.without_parent.includes([:user, { children: :user }]).to_a
+    events |= @bs_request.request_history_elements.to_a
+    events |= @bs_request.reviews.to_a
+    events.sort_by!(&:created_at)
+    # sort out doubled events
+    @events = []
+    reviews_seen = []
+    events.each do |event|
+      if event.is_a?(Review)
+        next if reviews_seen.include?(event.id)
+        reviews_seen << event.id
+      end
+      if event.is_a?(HistoryElement::RequestReviewAdded)
+        next if reviews_seen.include?(event.description_extension.to_i)
+        reviews_seen << event.description_extension.to_i
+      end
+      @events << event
+    end
   end
 
   def sourcediff
@@ -317,7 +376,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     required_parameters :number
-    @bs_request = BsRequest.find_by_number(params[:number])
+    @bs_request = BsRequest.where(number: params[:number]).includes([request_history_elements: :user, reviews: :history_elements]).first
     return if @bs_request
     flash[:error] = "Can't find request #{params[:number]}"
     redirect_back(fallback_location: root_url) && return

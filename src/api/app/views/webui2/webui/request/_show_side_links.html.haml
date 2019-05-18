@@ -1,10 +1,5 @@
 %ul.list-unstyled
   %li
-    %i.fas.fa-user.text-success
-    Created by
-    = user_with_realname_and_icon(bs_request.creator, no_icon: true, short: true)
-    = fuzzy_time(bs_request.created_at)
-  %li
     %i.fas.fa-info-circle.text-info
     In state
     = link_to(bs_request.state, { anchor: 'request_history' }, style: "color: #{request_state_color(bs_request.state.to_s)};")
@@ -35,8 +30,3 @@
         This request will be automatically accepted when it enters the 'new' state.
       - else
         This request will be automatically accepted in #{time_ago_in_words(bs_request.accept_at)}.
-  - bs_request.reviews.where(state: 'new').each do |review|
-    %li
-      %i.fas.fa-info-circle.text-info
-      Open review for
-      = render partial: 'reviewer', locals: { review: review }

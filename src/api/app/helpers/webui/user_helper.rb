@@ -19,7 +19,7 @@ module Webui::UserHelper
   # @param [User] user object
   def user_image_tag(user, opt = {})
     alt = opt[:alt] || user.try(:realname)
-    alt = user.try(:login) if alt.empty?
+    alt = user.try(:login) if alt.blank?
     size = opt[:size] || 20
     if user.try(:email) && ::Configuration.gravatar
       url = "https://www.gravatar.com/avatar/#{Digest::MD5.hexdigest(user.email.downcase)}?s=#{size}&d=wavatar"

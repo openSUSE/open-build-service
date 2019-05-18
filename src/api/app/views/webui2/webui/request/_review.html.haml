@@ -1,0 +1,32 @@
+.media
+  - if review.creator
+    = request_user_image_tag(User.find_by_login(review.creator))
+  - else
+    = request_user_image_tag(User.get_default_admin)
+  .media-body
+    %p
+      - if review.creator
+        = link_to(review.creator, user_show_path(review.creator))
+        opened review
+      - else
+        project opened review
+
+      = review_description(review)
+
+      %span{ title: l(review.created_at.utc) }
+        #{time_ago_in_words(review.created_at)} ago
+
+    = render partial: 'webui2/webui/request/review_history', locals: { review: review }
+
+    - if request.state == :review && review.state == :new
+      %i
+        - if review.matches_user?(User.session)
+          -# TODO: add review controller
+          = form_tag({ action: :webui2_modify_review, review_number: review.id }, method: :post) do
+            ~  text_field_tag 'review_comment', nil, row: '4', onkeyup: 'sz(this);', onclick: 'sz(this);', placeholder: 'Your review',
+                                                                                    required: 'required', class: 'w-100 mb-3 form-control'
+            = submit_tag 'Decline', class: 'btn btn-danger'
+            = submit_tag 'Accept', class: 'btn btn-primary'
+
+        - else
+          pending

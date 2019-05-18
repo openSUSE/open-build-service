@@ -361,6 +361,7 @@ OBSApi::Application.routes.draw do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog, as: :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
+      post 'request/webui2_modify_review/:review_number' => :webui2_modify_review
       get 'request/show/:number' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
