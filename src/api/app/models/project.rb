@@ -24,10 +24,11 @@ class Project < ApplicationRecord
   after_initialize :init
 
   serialize :required_checks, Array
-  attr_reader :commit_opts
-  attr_writer :commit_opts
+  attr_accessor :commit_opts, :commit_user
   after_initialize do
     @commit_opts = {}
+    # might be nil - in this case we rely on the caller to set it
+    @commit_user = User.session
   end
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
@@ -585,8 +586,12 @@ class Project < ApplicationRecord
     # expire cache
     reset_cache
 
+    unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
+      raise ArgumentError, 'no commit_user set'
+    end
+
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = @commit_opts[:login] || User.session!.login
+      login = @commit_opts[:login] || @commit_user.login
       options = { user: login }
       options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend

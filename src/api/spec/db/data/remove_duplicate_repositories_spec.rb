@@ -8,6 +8,7 @@ RSpec.describe RemoveDuplicateRepositories, type: :migration do
   # 20170306084558_change_repositories_remote_project_name_to_not_null.rb
   let(:schema_migration) { ChangeRepositoriesRemoteProjectNameToNotNull.new }
   let(:data_migration) { RemoveDuplicateRepositories.new }
+  let!(:admin) { create(:admin_user, login: 'Admin') }
 
   describe '.up' do
     before do
@@ -18,6 +19,9 @@ RSpec.describe RemoveDuplicateRepositories, type: :migration do
       DataMigrate::DataSchemaMigration.find_or_create_by(version: 20_170_306_084_550.to_s)
       schema_migration.up
     end
+
+    # we need to create Project.deleted_instance manually to have a commit_user creating it
+    let!(:deleted) { create(:project, name: 'deleted') }
 
     # We need to set Repository.deleted_instance.remote_project_name = '',
     # because reverting the schema_migration will set the default value of remote_project_name

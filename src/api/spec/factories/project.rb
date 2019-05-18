@@ -9,6 +9,22 @@ FactoryBot.define do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
+    after(:build) do |project, evaluator|
+      project.commit_user ||= build(:confirmed_user)
+
+      if evaluator.maintainer
+        role = Role.find_by_title('maintainer')
+        maintainers = [*evaluator.maintainer]
+        maintainers.each do |maintainer|
+          if maintainer.is_a?(User)
+            project.relationships.build(user: maintainer, role: role)
+          elsif maintainer.is_a?(Group)
+            project.relationships.build(group: maintainer, role: role)
+          end
+        end
+      end
+    end
+
     after(:create) do |project, evaluator|
       if evaluator.link_to
         LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
@@ -16,17 +32,6 @@ FactoryBot.define do
 
       if evaluator.project_config
         project.config.save({ user: 'factory bot' }, evaluator.project_config)
-      end
-
-      if evaluator.maintainer
-        maintainers = [*evaluator.maintainer]
-        maintainers.each do |maintainer|
-          if maintainer.is_a?(User)
-            create(:relationship_project_user, project: project, user: maintainer)
-          elsif maintainer.is_a?(Group)
-            create(:relationship_project_group, project: project, group: maintainer)
-          end
-        end
       end
 
       project.write_to_backend
