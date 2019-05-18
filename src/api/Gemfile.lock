@@ -212,7 +212,7 @@ GEM
     kaminari-core (1.1.1)
     launchy (2.4.3)
       addressable (~> 2.3)
-    lograge (0.11.0)
+    lograge (0.11.1)
       actionpack (>= 4)
       activesupport (>= 4)
       railties (>= 4)
