@@ -115,6 +115,7 @@ RSpec.describe Staging::StagingProjectsController do
     let(:staging_workflow_project) { staging_workflow.project.name }
     let(:original_staging_project_name) { staging_workflow.staging_projects.first.name }
     let(:staging_project_copy_name) { "#{original_staging_project_name}-copy" }
+    let(:existingproject) { create(:project) }
     let(:params) do
       {
         staging_workflow_project: staging_workflow_project,
@@ -137,6 +138,14 @@ RSpec.describe Staging::StagingProjectsController do
                                                                                                            original_staging_project_name,
                                                                                                            staging_project_copy_name,
                                                                                                            user.id)
+    end
+
+    it 'does not allow unauthoried access' do
+      post :copy, format: :xml, params: params.merge(staging_project_copy_name: 'newtoplevelproject')
+      expect(response).to have_http_status(:forbidden)
+
+      post :copy, format: :xml, params: params.merge(staging_project_copy_name: existingproject.name)
+      expect(response).to have_http_status(:forbidden)
     end
   end
 

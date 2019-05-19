@@ -39,6 +39,10 @@ class ProjectPolicy < ApplicationPolicy
     User.admin_session? || !record.disabled_for?('sourceaccess', nil, nil)
   end
 
+  def create_new?
+    record.new_record? && create?
+  end
+
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?
