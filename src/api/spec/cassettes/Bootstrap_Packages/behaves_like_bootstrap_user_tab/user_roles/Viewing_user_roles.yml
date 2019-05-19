@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:39 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Infinite Jest</title>
-          <description>Mollitia et quibusdam corporis.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Porro ut reiciendis dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '205'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Infinite Jest</title>
-          <description>Mollitia et quibusdam corporis.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Porro ut reiciendis dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Infinite Jest</title>
-          <description>Mollitia et quibusdam corporis.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Porro ut reiciendis dignissimos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '205'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Infinite Jest</title>
-          <description>Mollitia et quibusdam corporis.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Porro ut reiciendis dignissimos.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -200,16 +200,16 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Sapiente et aut eveniet.</description>
+          <title>Many Waters</title>
+          <description>Neque ullam dolore amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -230,25 +230,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Sapiente et aut eveniet.</description>
+          <title>Many Waters</title>
+          <description>Neque ullam dolore amet.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Sapiente et aut eveniet.</description>
+          <title>Many Waters</title>
+          <description>Neque ullam dolore amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,22 +269,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Unweaving the Rainbow</title>
-          <description>Sapiente et aut eveniet.</description>
+          <title>Many Waters</title>
+          <description>Neque ullam dolore amet.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Nihil explicabo odio. Consequatur facilis natus. Id eos reprehenderit.
+      string: Repudiandae optio fuga. Voluptate perferendis laudantium. Tempore labore
+        odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -304,26 +305,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="15" vrev="15">
-          <srcmd5>5f40eddfa2e8332631f08c9650a8fa93</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>77b9c762e4dd5482b8e61c16bdf48bda</srcmd5>
           <version>unknown</version>
-          <time>1544005982</time>
+          <time>1558295741</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:02 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Minima officia sed. Perferendis impedit quia. Voluptatem aut quo.
+      string: Qui qui debitis. Dolorem dignissimos eos. Ab ipsam nemo.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -343,20 +344,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="16" vrev="16">
-          <srcmd5>297d30692d29763accaf0086bc04d0b5</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>c262cd018bf1a5f41c6e505432dc8596</srcmd5>
           <version>unknown</version>
-          <time>1544005983</time>
+          <time>1558295741</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:03 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:reader_user/_meta?user=reader_user
@@ -397,7 +398,7 @@ http_interactions:
           <person userid="reader_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:03 GMT
+  recorded_at: Sun, 19 May 2019 19:55:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -430,7 +431,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
+  recorded_at: Sun, 19 May 2019 19:55:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -463,42 +464,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
+  recorded_at: Sun, 19 May 2019 19:55:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -531,7 +497,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
+  recorded_at: Sun, 19 May 2019 19:55:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -564,7 +530,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
+  recorded_at: Sun, 19 May 2019 19:55:43 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -597,5 +563,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:04 GMT
+  recorded_at: Sun, 19 May 2019 19:55:43 GMT
 recorded_with: VCR 4.0.0
