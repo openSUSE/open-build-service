@@ -10,11 +10,12 @@ module HasAttributes
   end
 
   def write_attributes
+    raise ArgumentError, 'no commit user set' unless commit_user
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
-      Backend::Api::Sources::Package.write_attributes(project_name, name, User.session!.login, render_attribute_axml)
+      Backend::Api::Sources::Package.write_attributes(project_name, name, commit_user.login, render_attribute_axml)
     else
-      Backend::Api::Sources::Project.write_attributes(project_name, User.session!.login, render_attribute_axml)
+      Backend::Api::Sources::Project.write_attributes(project_name, commit_user.login, render_attribute_axml)
     end
   rescue Backend::Error => e
     raise AttributeSaveError, e.summary
