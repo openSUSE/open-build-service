@@ -153,7 +153,7 @@ GEM
     faker (1.9.3)
       i18n (>= 0.7)
     feature (1.4.0)
-    ffi (1.10.0)
+    ffi (1.11.0)
     flot-rails (0.0.7)
       jquery-rails
     font-awesome-sass (5.8.1)
