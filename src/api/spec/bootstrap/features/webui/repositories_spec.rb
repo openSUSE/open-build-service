@@ -14,6 +14,11 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   describe 'Repositories' do
     before do
       login admin_user
+
+      fake_distribution_body = File.open(Rails.root.join('test/fixtures/backend/distributions.xml')).read
+
+      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml').
+        to_return(status: 200, body: fake_distribution_body, headers: {})
     end
 
     scenario 'add/delete repository from distribution' do
