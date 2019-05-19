@@ -242,19 +242,6 @@ workflows:
   test_all:
     jobs:
       - checkout_code
-      - backend_test:
-          requires:
-            - checkout_code
       - rspec:
           requires:
             - checkout_code
-      - minitest:
-          requires:
-            - checkout_code
-      - spider:
-          requires:
-            - checkout_code
-      - coverage:
-          requires:
-            - rspec
-            - minitest
