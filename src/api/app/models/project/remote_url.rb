@@ -1,4 +1,6 @@
 class Project::RemoteURL
+  require 'open-uri'
+
   def self.load(remote_project, path)
     uri = URI.parse(remote_project.remoteurl + path)
     # prefer environment variables if set
