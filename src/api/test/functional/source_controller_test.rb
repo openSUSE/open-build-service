@@ -2590,12 +2590,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # create manual release target
     login_adrian
     put '/source/home:adrian:RT/_meta', params: "<project name='home:adrian:RT'> <title/> <description/>
+          <person userid='adrian' role='maintainer'/>
           <repository name='rt'>
             <arch>i586</arch>
             <arch>x86_64</arch>
           </repository>
         </project>"
     assert_response :success
+
+    # create token
+    post '/person/adrian/token?cmd=create&operation=release&project=home:Iggy&package=TestPack'
+    assert_response :success
+    doc = REXML::Document.new(@response.body)
+    token = doc.elements['//data[@name="token"]'].text
+    id = doc.elements['//data[@name="id"]'].text
+    assert_equal 24, token.length
 
     # workaround of testsuite breakage, database object gets restored during
     # request controller run, but backend part not
@@ -2612,6 +2621,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
+    person = doc.elements["/project'"].add_element 'person'
+    person.add_attribute(REXML::Attribute.new('userid', 'adrian'))
+    person.add_attribute(REXML::Attribute.new('role', 'maintainer'))
     rt = doc.elements["/project/repository'"].add_element 'releasetarget'
     rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
     rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
@@ -2636,7 +2648,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
 
-    # but he can release it to own space
+    # but he can use the token
+    reset_auth
+    post '/trigger/release', headers: { 'Authorization' => "Token #{token}" }
+    assert_response :success
+
+    # and he can release it to own space
+    login_Iggy
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'missing_parameter' }
@@ -2664,6 +2682,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy?cmd=release&nodelay=1'
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { code: 'ok' }
+    # drop token
+    delete "/person/adrian/token/#{id}"
+    assert_response :success
 
     # process events
     run_scheduler('i586')

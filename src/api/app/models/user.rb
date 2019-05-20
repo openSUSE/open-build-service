@@ -38,7 +38,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
-  has_many :service_tokens, class_name: 'Token::Service', dependent: :destroy, inverse_of: :user
+  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
   has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
 
   has_many :reviews, dependent: :nullify

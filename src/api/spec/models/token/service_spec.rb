@@ -19,4 +19,10 @@ RSpec.describe Token::Service do
       it { expect(token).not_to be_valid_signature(nil, body) }
     end
   end
+
+  describe '.token_type' do
+    it { expect(described_class.token_type('release')).to eq(Token::Release) }
+    it { expect(described_class.token_type('rebuild')).to eq(Token::Rebuild) }
+    it { expect(described_class.token_type('everythingelse')).to eq(Token::Service) }
+  end
 end

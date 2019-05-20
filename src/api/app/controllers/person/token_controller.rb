@@ -7,25 +7,25 @@ module Person
     def index
       authorize @user, :show?
 
-      @list = @user.service_tokens
+      @list = @user.tokens
     end
 
     # POST /person/<login>/token
     def create
       authorize @user, :update?
 
-      pkg = nil
-      if params[:project] || params[:package]
-        pkg = Package.get_by_project_and_name(params[:project], params[:package])
-      end
-      @token = Token::Service.create(user: @user, package: pkg)
+      pkg = if params[:project] || params[:package]
+              Package.get_by_project_and_name(params[:project], params[:package])
+            end
+
+      @token = Token.token_type(params[:operation]).create(user: @user, package: pkg)
     end
 
     # DELETE /person/<login>/token/<id>
     def delete
       authorize @user, :update?
 
-      token = @user.service_tokens.find(params[:id])
+      token = @user.tokens.find(params[:id])
 
       render_error status: 404 && return unless token
 
