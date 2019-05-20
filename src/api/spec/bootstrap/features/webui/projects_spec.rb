@@ -78,7 +78,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
       expect(page).to have_css('#flash', text: "Created maintenance incident project #{project.name}:maintenance_project:0")
 
       # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
-      repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"))
+      repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"), name: 'target')
       create(:release_target, repository: repository, target_repository: target_repository, trigger: 'maintenance')
 
       visit project_show_path(maintenance_project)

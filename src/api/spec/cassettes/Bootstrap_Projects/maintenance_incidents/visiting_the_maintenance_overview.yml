@@ -1,6 +1,168 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane:maintenance_project/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane:maintenance_project" kind="maintenance">
+          <title>Death Be Not Proud</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane:maintenance_project" kind="maintenance">
+          <title>Death Be Not Proud</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane:maintenance_project/_project/_attribute?meta=1&user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4">
+          <srcmd5>a7bfa5457f16c4fabe56a3eef3cbbf43</srcmd5>
+          <time>1558382553</time>
+          <user>Jane</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:33 GMT
+- request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project/_result?code=unresolvable&view=status
     body:
@@ -32,7 +194,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:33 GMT
+  recorded_at: Mon, 20 May 2019 20:02:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Jane:maintenance_project/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -63,7 +225,7 @@ http_interactions:
       encoding: UTF-8
       string: "<keyinfo />\n"
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:33 GMT
+  recorded_at: Mon, 20 May 2019 20:02:33 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project/_result?view=summary
@@ -96,7 +258,60 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:33 GMT
+  recorded_at: Mon, 20 May 2019 20:02:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane:maintenance_project:0/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane:maintenance_project:0" kind="maintenance_incident">
+          <title/>
+          <description/>
+          <person userid="Jane" role="bugowner"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '257'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane:maintenance_project:0" kind="maintenance_incident">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="bugowner" />
+          <build>
+            <disable />
+          </build>
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?code=unresolvable&view=status
@@ -129,7 +344,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:34 GMT
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:Jane:maintenance_project:0/_keyinfo?donotcreatecert=1&withsslcert=1
@@ -160,7 +375,7 @@ http_interactions:
       encoding: UTF-8
       string: "<keyinfo />\n"
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:34 GMT
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?view=summary
@@ -193,7 +408,46 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:34 GMT
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Time to Kill</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Time to Kill</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project/_result?code=unresolvable&view=status
@@ -226,7 +480,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:35 GMT
+  recorded_at: Mon, 20 May 2019 20:02:34 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:Jane:maintenance_project/_result?view=summary
@@ -259,10 +513,10 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:35 GMT
+  recorded_at: Mon, 20 May 2019 20:02:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?code=unresolvable&repository=repository_1&view=summary
+    uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?code=unresolvable&repository=target&view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -276,7 +530,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: unknown repository 'repository_1'
+      message: unknown repository 'target'
     headers:
       Content-Type:
       - text/xml
@@ -285,14 +539,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '132'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>unknown repository 'repository_1'</summary>
-          <details>404 unknown repository 'repository_1'</details>
+          <summary>unknown repository 'target'</summary>
+          <details>404 unknown repository 'target'</details>
         </status>
     http_version: 
-  recorded_at: Wed, 15 May 2019 09:16:35 GMT
+  recorded_at: Mon, 20 May 2019 20:02:35 GMT
 recorded_with: VCR 4.0.0
