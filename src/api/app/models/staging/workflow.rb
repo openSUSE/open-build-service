@@ -36,6 +36,12 @@ class Staging::Workflow < ApplicationRecord
   after_create :add_reviewer_group
   before_update :update_managers_group
 
+  attr_accessor :commit_user
+
+  after_initialize do
+    @commit_user = User.session
+  end
+
   def unassigned_requests
     target_of_bs_requests.stageable.where.not(id: excluded_requests)
   end
@@ -45,9 +51,10 @@ class Staging::Workflow < ApplicationRecord
   end
 
   def write_to_backend
+    raise ArgumentError, 'no commit user set' unless commit_user
     return unless CONFIG['global_write_through']
 
-    Backend::Api::Sources::Project.write_staging_workflow(project.name, User.session!.login, render_xml)
+    Backend::Api::Sources::Project.write_staging_workflow(project.name, commit_user.login, render_xml)
   end
 
   def self.load_groups
@@ -78,10 +85,12 @@ class Staging::Workflow < ApplicationRecord
   private
 
   def create_staging_projects
+    raise ArgumentError, 'no commit user set' unless commit_user
     ['A', 'B'].each do |letter|
       staging_project = Project.find_or_initialize_by(name: "#{project.name}:Staging:#{letter}")
       next if staging_project.staging_workflow # if it belongs to another staging workflow skip it
       staging_project.staging_workflow = self
+      staging_project.commit_user = commit_user
       staging_project.store
     end
   end
@@ -89,6 +98,7 @@ class Staging::Workflow < ApplicationRecord
   def add_reviewer_group
     role = Role.find_by_title('reviewer')
     project.relationships.find_or_create_by(group: managers_group, role: role)
+    project.commit_user = commit_user
     project.store
   end
 
