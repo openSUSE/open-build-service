@@ -37,6 +37,7 @@ RSpec.configure do |config|
     create(:obs_attrib_type, name: 'ProjectStatusPackageFailComment')
     create(:obs_attrib_type, name: 'UpdateProject')
     create(:obs_attrib_type, name: 'VeryImportantProject')
+    Configuration.update(allow_user_to_create_home_project: false)
   end
 
   config.after(:each) do

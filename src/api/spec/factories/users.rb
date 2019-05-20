@@ -5,8 +5,26 @@ FactoryBot.define do
     sequence(:login) { |n| "user_#{n}" }
     password { 'buildservice' }
 
+    transient do
+      create_home_project { false }
+    end
+
     trait :in_beta do
       in_beta { true }
+    end
+
+    trait :with_home do
+      create_home_project { true }
+    end
+
+    to_create do |user, evaluator|
+      if evaluator.create_home_project
+        Configuration.update(allow_user_to_create_home_project: true)
+        user.save!
+        Configuration.update(allow_user_to_create_home_project: false)
+      else
+        user.save!
+      end
     end
 
     factory :confirmed_user do
