@@ -1103,7 +1103,7 @@ sub createrepo_vagrant {
     next unless $xbox =~ s/\.vagrant\.([^\.]+)\.box//;
     my $provider = $1;
     # split off release
-    next unless $xbox =~ s/-Build([^-]*)$//;
+    next unless $xbox =~ s/-(?:Build|Snapshot)([^-]*)$//;
     my $release = $1;
     if (!$withversion) {
       # split off profile
