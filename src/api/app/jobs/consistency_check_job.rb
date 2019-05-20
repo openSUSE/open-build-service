@@ -8,28 +8,29 @@ class ConsistencyCheckJob < ApplicationJob
     User.get_default_admin.run_as { _perform(nil) }
   end
 
+  def check_one_project(project, fix)
+    unless Project.valid_name?(project.name)
+      @errors << "Invalid project name #{project.name}\n"
+      if fix
+        # just remove it, the backend won't accept it anyway
+        project.commit_opts = { no_backend_write: 1 }
+        project.destroy
+      end
+      return
+    end
+    @errors << package_existence_consistency_check(project, fix)
+    @errors << project_meta_check(project, fix)
+  end
+
   def _perform(fix)
     @errors = project_existence_consistency_check(fix)
-    Project.find_each(batch_size: 100) do |project|
-      unless Project.valid_name?(project.name)
-        @errors << "Invalid project name #{project.name}\n"
-        if fix
-          # just remove it, the backend won't accept it anyway
-          project.commit_opts = { no_backend_write: 1 }
-          project.destroy
-        end
-        next
-      end
-      @errors << package_existence_consistency_check(project, fix)
-      @errors << project_meta_check(project, fix)
-    end
-    if @errors.present?
-      @errors = "FIXING the following errors:\n" << @errors if fix
-      Rails.logger.error('Detected problems during consistency check')
-      Rails.logger.error(@errors)
+    Project.find_each(batch_size: 100) { |project| check_one_project(project, fix) }
+    return if @errors.empty?
+    @errors = "FIXING the following errors:\n" << @errors if fix
+    Rails.logger.error('Detected problems during consistency check')
+    Rails.logger.error(@errors)
 
-      AdminMailer.error(@errors).deliver_now
-    end
+    AdminMailer.error(@errors).deliver_now
     nil
   end
 
