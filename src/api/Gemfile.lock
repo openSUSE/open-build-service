@@ -171,7 +171,7 @@ GEM
       haml (>= 4.0.6, < 6.0)
       html2haml (>= 1.0.1)
       railties (>= 5.1)
-    haml_lint (0.28.0)
+    haml_lint (0.31.0)
       haml (>= 4.0, < 5.1)
       rainbow
       rake (>= 10, < 13)
