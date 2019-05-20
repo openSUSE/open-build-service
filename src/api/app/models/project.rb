@@ -1080,39 +1080,6 @@ class Project < ApplicationRecord
     tocheck_repos.uniq
   end
 
-  # called either directly or from delayed job
-  def do_project_copy(params)
-    User.find_by!(login: params[:user]).run_as do
-      check_write_access!
-
-      # copy entire project in the backend
-      begin
-        path = "/source/#{URI.escape(name)}"
-        path << Backend::Connection.build_query_from_hash(params,
-                                                          [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
-                                                           :makeolder, :makeoriginolder, :noservice])
-        Backend::Connection.post path
-      rescue Backend::Error => e
-        logger.debug "copy failed: #{e.summary}"
-        # we need to check results of backend in any case (also timeout error eg)
-      end
-      _update_backend_packages
-    end
-  end
-
-  def _update_backend_packages
-    # restore all package meta data objects in DB
-    backend_pkgs = Xmlhash.parse(Backend::Api::Search.packages_for_project(name))
-    backend_pkgs.elements('package') do |package|
-      pname = package['name']
-      p = packages.where(name: pname).first_or_initialize
-      p.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(name, pname)))
-      p.save! # do not store
-    end
-    all_sources_changed
-  end
-  private :_update_backend_packages
-
   def all_sources_changed
     packages.each do |p|
       p.sources_changed
