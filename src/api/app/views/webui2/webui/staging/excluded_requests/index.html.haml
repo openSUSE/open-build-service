@@ -4,9 +4,10 @@
     .card.mb-3
       .card-body
         %h3 Excluded Requests
-        -# haml-lint:disable LineLength
-        %table.responsive.table.table-sm.table-striped.table-bordered.w-100#excluded-requests-datatable{ data: excluded_requests_remote_url(@staging_workflow.id) }
-          -# haml-lint:enable LineLength
+        -# haml-lint:disable MultilinePipe
+        %table.responsive.table.table-sm.table-striped.table-bordered.w-100#excluded-requests-datatable{ |
+        data: excluded_requests_remote_url(@staging_workflow.id) } |
+          -# haml-lint:enable MultilinePipe
           %thead
             %tr.text-center
               %th Request
