@@ -11,12 +11,13 @@ Such requests get not created for projects with open requests or if you remove t
     return unless cleanup_days && cleanup_days > 0
 
     # defaults
-    User.session ||= User.find_by!(login: 'Admin')
-    @cleanup_attribute = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
-    @cleanup_time = Time.now + cleanup_days.days
+    User.find_by!(login: 'Admin').run_as do
+      @cleanup_attribute = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
+      @cleanup_time = Time.now + cleanup_days.days
 
-    Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
-      autoclean_project(prj)
+      Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
+        autoclean_project(prj)
+      end
     end
   end
 

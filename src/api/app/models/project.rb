@@ -1080,23 +1080,22 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_copy(params)
-    # set user if nil, needed for delayed job in Package model
-    User.session ||= User.find_by!(login: params[:user])
+    User.find_by!(login: params[:user]).run_as do
+      check_write_access!
 
-    check_write_access!
-
-    # copy entire project in the backend
-    begin
-      path = "/source/#{URI.escape(name)}"
-      path << Backend::Connection.build_query_from_hash(params,
-                                                        [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
-                                                         :makeolder, :makeoriginolder, :noservice])
-      Backend::Connection.post path
-    rescue Backend::Error => e
-      logger.debug "copy failed: #{e.summary}"
-      # we need to check results of backend in any case (also timeout error eg)
+      # copy entire project in the backend
+      begin
+        path = "/source/#{URI.escape(name)}"
+        path << Backend::Connection.build_query_from_hash(params,
+                                                          [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
+                                                           :makeolder, :makeoriginolder, :noservice])
+        Backend::Connection.post path
+      rescue Backend::Error => e
+        logger.debug "copy failed: #{e.summary}"
+        # we need to check results of backend in any case (also timeout error eg)
+      end
+      _update_backend_packages
     end
-    _update_backend_packages
   end
 
   def _update_backend_packages

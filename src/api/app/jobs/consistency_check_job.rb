@@ -4,8 +4,11 @@ require 'xmlhash'
 class ConsistencyCheckJob < ApplicationJob
   queue_as :consistency_check
 
-  def perform(fix = nil)
-    init
+  def perform
+    User.get_default_admin.run_as { _perform(nil) }
+  end
+
+  def _perform(fix)
     @errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) do |project|
       unless Project.valid_name?(project.name)
@@ -32,12 +35,10 @@ class ConsistencyCheckJob < ApplicationJob
 
   # for manual fixing by admin via rails command
   def fix_project
-    init
-    check_project(true)
+    User.get_default_admin.run_as { check_project(true) }
   end
 
   def check_project(fix = nil)
-    init
     if ENV['project'].blank?
       puts "Please specify the project with 'project=MyProject' on CLI"
       return
@@ -70,11 +71,11 @@ class ConsistencyCheckJob < ApplicationJob
   private
 
   def fix
-    perform(true)
+    User.get_default_admin.run_as { _perform(true) }
   end
 
-  def init
-    User.session ||= User.get_default_admin
+  def initialize
+    super
     @errors = ''
   end
 
