@@ -3,6 +3,7 @@ require 'ldap'
 
 RSpec.feature 'Login', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, login: 'proxy_user') }
+  let(:admin) { create(:admin_user) }
 
   scenario 'login with home project shows a link to it' do
     login user
@@ -13,6 +14,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   end
 
   scenario 'login without home project shows a link to create it' do
+    login admin
     user.home_project.destroy
     login user
     # TODO: Remove subheader when dropping old UI
