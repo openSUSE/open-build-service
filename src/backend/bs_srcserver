@@ -4427,6 +4427,7 @@ sub add_localworkerstatus {
   return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
   return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
   return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
+  return $ws if $type eq 'redis' && !$BSConfig::redisserver;
   return $ws if $type ne 'srcserver' && ! -e $lock;
   my $daemondata = {'state' => 'dead', 'type' => $type};
   if ($type eq 'srcserver') {
@@ -4514,6 +4515,7 @@ sub getworkerstatus {
     add_serviceserverstatus($cgi, $ws);
     add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
     add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
+    add_localworkerstatus($cgi, $ws, 'redis', "$rundir/bs_redis.lock");
     add_localworkerstatus($cgi, $ws, 'srcserver');
     return ($ws, $BSXML::workerstatus);
   }
@@ -6045,8 +6047,33 @@ sub orderkiwirepos {
 
 ####################################################################
 
+sub add_redis_notifications {
+  my ($payload) = @_;
+  my $redisdir = "$eventdir/redis";
+  mkdir_p($redisdir) unless -d $redisdir;
+  my $fd;
+  BSUtil::lockopen($fd, '>>', "$redisdir/queue");
+  my $oldsize = -s $fd;
+  for my $d (@$payload) {
+    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @$d;
+    my $line = join('|', @$d)."\n";
+    (syswrite($fd, $line) || 0) == length($line) || die("syswrite: $!\n");
+  }
+  close($fd);
+  BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
+}
+
+sub external_notification_redis {
+  my ($cgi) = @_;
+  die("need payload for redis notification\n") unless BSServer::have_content();
+  my $payload = BSUtil::fromstorable(BSServer::read_data());
+  add_redis_notifications($payload);
+  return $BSStdServer::return_ok;
+}
+
 sub external_notification {
   my ($cgi, $type) = @_;
+  return external_notification_redis($cgi) if $type eq 'redis';
   my $param = {};
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;

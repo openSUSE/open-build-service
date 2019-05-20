@@ -24,6 +24,7 @@ use Digest::MD5 ();
 use BSUtil;
 use BSSolv;
 use BSNotify;
+use BSRedisnotify;
 
 use BSSched::ProjPacks;
 use BSSched::BuildRepo;
@@ -101,6 +102,23 @@ sub generate_random_id {
   return Digest::MD5::md5_hex($random);
 }
 
+=head2 notify - send repo changed notification
+
+=cut
+
+sub notify {
+  my ($ctx, $type, $buildid) = @_;
+
+  my $myarch = $ctx->{'gctx'}->{'arch'};
+  if ($BSConfig::redisserver) {
+    # use the redis forwarder to send the notification
+    BSRedisnotify::addforwardjob($type, "project=$ctx->{'project'}", "repo=$ctx->{'repository'}", "arch=$myarch", "buildid=$buildid");
+    return;
+  }
+  my $body = { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $buildid };
+  BSNotify::notify($type, $body);
+}
+
 =head2 set_repo_state - update the :schedulerstate file of a prp
 
 =cut
@@ -132,7 +150,7 @@ sub set_repo_state {
     if (!$newstate->{'oldbuildid'}) {
       my $id = generate_random_id($oldstate) . '-inprogress';
       $newstate->{'oldbuildid'} = $id;
-      BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+      $ctx->notify('REPO_BUILD_STARTED', $id);
     }
   } elsif ($state eq 'finished') {
     # we're done (for now). generate repostateid
@@ -149,7 +167,7 @@ sub set_repo_state {
 	# but the repo changed, send synthetic event
 	print "sending synthetic REPO_BUILD_STARTED event\n";
 	my $id = generate_random_id($oldstate) . '-inprogress';
-	BSNotify::notify('REPO_BUILD_STARTED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+	$ctx->notify('REPO_BUILD_STARTED', $id);
 	delete $newstate->{'buildid'};
 	$newstate->{'oldbuildid'} = $id;
       }
@@ -158,7 +176,7 @@ sub set_repo_state {
       my $id = delete $newstate->{'oldbuildid'};
       $id =~ s/-inprogress$//;
       $newstate->{'buildid'} = $id;
-      BSNotify::notify('REPO_BUILD_FINISHED', { project => $ctx->{'project'}, 'repo' => $ctx->{'repository'}, 'arch' => $myarch, 'buildid' => $id} );
+      $ctx->notify('REPO_BUILD_FINISHED', $id);
     }
     $newstate->{'repostateid'} = $repostateid;
   }
@@ -1021,6 +1039,7 @@ sub checkpkgs {
   } else {
     unlink("$gdst/:packstatus.finished");
   }
+  BSRedisnotify::updateresult("$prp/$myarch", \%packstatus, \%packerror, \%building) if $BSConfig::redisserver;
 
   my $schedulerstate;
   if (keys %building) {

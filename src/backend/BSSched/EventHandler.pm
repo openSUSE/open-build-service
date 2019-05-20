@@ -27,6 +27,7 @@ use BSUtil;
 use BSXML;
 use BSConfiguration;
 use BSSolv;
+use BSRedisnotify;
 use BSSched::Checker;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
@@ -94,6 +95,7 @@ sub event_built {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $job = $ev->{'job'};
   local *F;
   my $myjobsdir = $gctx->{'myjobsdir'};
@@ -108,12 +110,21 @@ sub event_built {
     close F;
     return;
   }
-  if ($ev->{'type'} eq 'built') {
-    BSSched::BuildJob::jobfinished($ectx, $job, $js);
-  } elsif ($ev->{'type'} eq 'uploadbuild') {
-    BSSched::BuildJob::Upload::jobfinished($ectx, $job, $js);
-  } elsif ($ev->{'type'} eq 'import') {
-    BSSched::BuildJob::Import::jobfinished($ectx, $job, $js);
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  if (!$info) {
+    print "  - $job has bad info\n";
+  } elsif ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+  } else {
+    if ($ev->{'type'} eq 'built') {
+      BSSched::BuildJob::jobfinished($ectx, $job, $info, $js);
+    } elsif ($ev->{'type'} eq 'uploadbuild') {
+      BSSched::BuildJob::Upload::jobfinished($ectx, $job, $info, $js);
+    } elsif ($ev->{'type'} eq 'import') {
+      BSSched::BuildJob::Import::jobfinished($ectx, $job, $info, $js);
+    }
+    my $prp = "$info->{'project'}/$info->{'repository'}";
+    BSRedisnotify::updatejobstatus("$prp/$myarch", $job) if $BSConfig::redisserver && !$info->{'packstatus_patched'};
   }
   BSSched::BuildJob::purgejob($gctx, $job);
   close F;
