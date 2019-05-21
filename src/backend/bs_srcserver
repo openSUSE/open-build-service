@@ -55,7 +55,6 @@ use BSXPath;
 use BSStdServer;
 use BSSrcdiff;
 use Build;
-use BSNotify;
 use BSPGP;
 use BSSrcrep;
 use BSRevision;
@@ -79,6 +78,7 @@ use BSSrcServer::Multibuild;
 use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
+use BSSrcServer::Notify;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -146,19 +146,16 @@ my %packagequota;
 
 
 sub notify {
-  my ($type, $p) = @_;
+  my ($type, $p, $payload) = @_;
   my $time = $p->{'time'} || time();
   delete $p->{'time'};
-  if ($type eq 'PACKTRACK' && BSServer::have_content()) {
-    my $payload = Storable::thaw(BSServer::read_data());
-    if ($payload) {
-      my $json_payload = JSON::XS::encode_json($payload);
-      my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
-      mkdir_p($notificationpayloaddir);
-      writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
-      $p->{'payload'} = $payloadkey;
-      print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
-    }
+  if ($payload) {
+    my $json_payload = JSON::XS::encode_json($payload);
+    my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
+    mkdir_p($notificationpayloaddir);
+    writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
+    $p->{'payload'} = $payloadkey;
+    print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
   }
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
   mkdir_p($eventdir);
@@ -4430,6 +4427,7 @@ sub add_localworkerstatus {
   return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
   return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
   return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
+  return $ws if $type eq 'redis' && !$BSConfig::redisserver;
   return $ws if $type ne 'srcserver' && ! -e $lock;
   my $daemondata = {'state' => 'dead', 'type' => $type};
   if ($type eq 'srcserver') {
@@ -4517,6 +4515,7 @@ sub getworkerstatus {
     add_serviceserverstatus($cgi, $ws);
     add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
     add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
+    add_localworkerstatus($cgi, $ws, 'redis', "$rundir/bs_redis.lock");
     add_localworkerstatus($cgi, $ws, 'srcserver');
     return ($ws, $BSXML::workerstatus);
   }
@@ -6048,13 +6047,40 @@ sub orderkiwirepos {
 
 ####################################################################
 
+sub add_redis_notifications {
+  my ($payload) = @_;
+  my $redisdir = "$eventdir/redis";
+  mkdir_p($redisdir) unless -d $redisdir;
+  my $fd;
+  BSUtil::lockopen($fd, '>>', "$redisdir/queue");
+  my $oldsize = -s $fd;
+  for my $d (@$payload) {
+    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @$d;
+    my $line = join('|', @$d)."\n";
+    (syswrite($fd, $line) || 0) == length($line) || die("syswrite: $!\n");
+  }
+  close($fd);
+  BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
+}
+
+sub external_notification_redis {
+  my ($cgi) = @_;
+  die("need payload for redis notification\n") unless BSServer::have_content();
+  my $payload = BSUtil::fromstorable(BSServer::read_data());
+  add_redis_notifications($payload);
+  return $BSStdServer::return_ok;
+}
+
 sub external_notification {
   my ($cgi, $type) = @_;
+  return external_notification_redis($cgi) if $type eq 'redis';
   my $param = {};
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
   }
-  notify($type, $param);
+  my $payload;
+  $payload = Storable::thaw(BSServer::read_data()) if $type eq 'PACKTRACK' && BSServer::have_content();
+  notify($type, $param, $payload);
   return $BSStdServer::return_ok;
 }
 
@@ -6069,8 +6095,7 @@ sub notify_plugins {
       $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
     }
   }
-
-  BSNotify::notify_plugins($type, $param);
+  BSSrcServer::Notify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
 }
 

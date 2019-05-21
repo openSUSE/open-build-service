@@ -44,6 +44,7 @@ use BSHTTP;
 use BSVerify;
 use BSPGP;
 use BSStdRunner;
+use BSRedisnotify;
 
 use strict;
 
@@ -309,6 +310,12 @@ sub fixup_sha256_checksum {
   writestr("$jobdir/$shafile", undef, $sha);
 }
 
+sub updateredisjobstatus {
+  my ($arch, $job, $info, $details) = @_;
+  return unless $BSConfig::redisserver;
+  BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
+}
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -496,6 +503,7 @@ sub signjob {
 	}
 	BSUtil::cleandir($jobdir);
 	rmdir($jobdir);
+	updateredisjobstatus($arch, $job, $info);
 	unlink("$jobsdir/$arch/$job:status");
 	close F;
 	return undef;
@@ -505,6 +513,7 @@ sub signjob {
 	BSUtil::appendstr("$jobdir/logfile", "\n\n$error");
 	$jobstatus->{'code'} = 'finished';
 	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+	updateredisjobstatus($arch, $job, $info, 'finished');
 	close F;
 	return 1;
       }
@@ -519,6 +528,7 @@ sub signjob {
       # we need to create a followup job to integrate the signatures
       $info->{'followupfile'} = $followupfile;
       writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
+      updateredisjobstatus($arch, $job, $info);
       unlink("$jobsdir/$arch/$job:status");
       close F;
       return undef;
@@ -558,6 +568,7 @@ sub signjob {
   # write finished job status and release lock
   $jobstatus->{'code'} = 'finished';
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  updateredisjobstatus($arch, $job, $info, 'finished');
   close F;
 
   unlink("$jobdir/.kiwitree_tosign");

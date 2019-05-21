@@ -39,8 +39,14 @@ use BSConfiguration;
 use BSRPC;
 use BSUtil;
 use BSXML;
+use BSRedisnotify;
 
 use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $workersdir = "$BSConfig::bsdir/workers";
+my $jobsdir = "$BSConfig::bsdir/jobs";
 
 sub parse_options {
   my %opts;
@@ -67,7 +73,12 @@ Options:
 ";
 }
 
-my $bsdir = $BSConfig::bsdir || "/srv/obs";
+sub updateredisjobstatus {
+  my ($arch, $job, $info, $details) = @_;
+  return unless $BSConfig::redisserver;
+  $info ||= readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+  BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
+}
 
 # copy @ARGV to keep it untouched in case of restart
 my $options = parse_options(@ARGV);
@@ -76,10 +87,6 @@ BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("una
 # Open logfile if requested
 BSUtil::openlog($options->{'logfile'}, $BSConfig::logdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
-my $workersdir = "$BSConfig::bsdir/workers";
-my $jobsdir = "$BSConfig::bsdir/jobs";
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
@@ -167,6 +174,7 @@ while (1) {
 	  next;
 	}
 	BSUtil::printlog("restarting build of $arch/$job building on $js->{'workerid'}");
+	updateredisjobstatus($arch, $job);
 	unlink("$jobsdir/$arch/$job:status");
 	mkdir_p("$workersdir/down");
 	rename("$workersdir/building/$wname", "$workersdir/down/$wname");
@@ -209,10 +217,12 @@ while (1) {
 	    unlink("$jobsdir/$arch/$job");
 	    BSUtil::cleandir("$jobsdir/$arch/$job:dir");
 	    rmdir("$jobsdir/$arch/$job:dir");
+	    updateredisjobstatus($arch, $job);
 	    unlink("$jobsdir/$arch/$job:status");
 	    next;
 	  }
 	  BSUtil::printlog("restarting build of $arch/$job stuck in code $js->{'code'}");
+	  updateredisjobstatus($arch, $job);
 	  unlink("$jobsdir/$arch/$job:status");
 	  next;
 	}
@@ -235,6 +245,7 @@ while (1) {
 	    next;
 	  }
 	  BSUtil::printlog("restarting orphaned build of $arch/$job building on $js->{'workerid'}");
+	  updateredisjobstatus($arch, $job);
 	  unlink("$jobsdir/$arch/$job:status");
           close F;
 	}

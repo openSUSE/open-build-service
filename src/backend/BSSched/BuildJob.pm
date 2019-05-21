@@ -91,6 +91,7 @@ use BSSched::EventSource::Directory; 	# for sendevent
 use Build;
 use BSRPC;
 use BSCando;
+use BSRedisnotify;
 
 =head1 NAME
 
@@ -160,7 +161,7 @@ sub purgejob {
 =cut
 
 sub killjob {
-  my ($gctx, $job) = @_;
+  my ($gctx, $prp, $job) = @_;
 
   my $myjobsdir = $gctx->{'myjobsdir'};
   local *F;
@@ -192,6 +193,7 @@ sub killjob {
     };
     warn("kill $job: $@") if $@;
   }
+  BSRedisnotify::updatejobstatus("$prp/$gctx->{'arch'}", $job) if $BSConfig::redisserver;
   purgejob($gctx, $job);
   close(F);
 }
@@ -204,7 +206,7 @@ sub killjob {
 =cut
 
 sub killscheduled {
-  my ($gctx, $job) = @_;
+  my ($gctx, $prp, $job) = @_;
 
   my $myjobsdir = $gctx->{'myjobsdir'};
   return if -e "$myjobsdir/$job:status";
@@ -240,7 +242,7 @@ sub killbuilding {
   }
   for my $job (@jobs) {
     print "        killing obsolete job $job\n";
-    killjob($gctx, $job);
+    killjob($gctx, $prp, $job);
   }
 }
 
@@ -269,11 +271,11 @@ sub killunwantedjobs {
       }
       if ($status eq 'disabled' || $status eq 'excluded' || $status eq 'locked') {
 	print "        killing old job $job, now in disabled/excluded/locked state\n";
-	killjob($gctx, $job);
+	killjob($gctx, $prp, $job);
       } elsif ($status eq 'blocked' || $status eq 'unresolvable' || $status eq 'broken') {
 	# blocked jobs get removed, if they are currently not building. building jobs
 	# stay since they may become valid again
-	killscheduled($gctx, $job);
+	killscheduled($gctx, $prp, $job);
       }
     }
   }
@@ -381,23 +383,22 @@ sub update_buildavg {
 =cut
 
 sub jobfinished {
-  my ($ectx, $job, $js) = @_;
+  my ($ectx, $job, $info, $js) = @_;
 
   my $gctx = $ectx->{'gctx'};
   my $myjobsdir = $gctx->{'myjobsdir'};
-  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
-  if (!$info || ! -d $jobdatadir) {
-    print "  - $job is bad\n";
+  if (! -d $jobdatadir) {
+    print "  - $job has no data dir\n";
     return;
   }
   # dispatch to specialized versions for aggregates and deltas
   if ($info->{'file'} eq '_aggregate') {
-    BSSched::BuildJob::Aggregate::jobfinished($ectx, $job, $js);
+    BSSched::BuildJob::Aggregate::jobfinished($ectx, $job, $info, $js);
     return ;
   }
   if ($info->{'file'} eq '_delta') {
-    BSSched::BuildJob::DeltaRpm::jobfinished($ectx, $job, $js);
+    BSSched::BuildJob::DeltaRpm::jobfinished($ectx, $job, $info, $js);
     return ;
   }
 
@@ -410,10 +411,6 @@ sub jobfinished {
   my $prp = "$projid/$repoid";
 
   my $now = time(); # ensure that we use the same time in all logs
-  if ($info->{'arch'} ne $myarch) {
-    print "  - $job has bad arch\n";
-    return;
-  }
   my $projpacks = $gctx->{'projpacks'};
   if (!$projpacks->{$projid}) {
     print "  - $job belongs to an unknown project ($projid/$packid)\n";
@@ -467,7 +464,8 @@ sub jobfinished {
   }
 
   # update packstatus so that it doesn't fall back to scheduled
-  patchpackstatus($gctx, $prp, $packid, $code);
+  patchpackstatus($gctx, $prp, $packid, $code, $job);
+  $info->{'packstatus_patched'} = 1;
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if ($code eq 'unchanged') {
@@ -678,7 +676,7 @@ sub fakejobfinished_nouseforbuild {
 =cut
 
 sub patchpackstatus {
-  my ($gctx, $prp, $packid, $code) = @_;
+  my ($gctx, $prp, $packid, $code, $job) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
   my $myarch = $gctx->{'arch'};
@@ -687,6 +685,7 @@ sub patchpackstatus {
   BSUtil::appendstr("$gdst/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
   utime(time, time, "$gdst/:packstatus");
+  BSRedisnotify::updateoneresult("$prp/$myarch", $packid, "finished:$code", $job) if $BSConfig::redisserver;
 }
 
 
@@ -989,7 +988,7 @@ sub create {
     my @otherjobs = find_otherjobs($ctx, $jobprefix);
     for my $otherjob (@otherjobs) {
       print "        killing old job $otherjob\n" if $ctx->{'verbose'};
-      killjob($gctx, $otherjob);
+      killjob($gctx, $prp, $otherjob);
     }
   }
 
