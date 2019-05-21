@@ -1,0 +1,412 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title/>
+          <description/>
+          <person userid="user_2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title></title>
+          <description></description>
+          <person userid="user_2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:user_2" managers="staging-workflow-managers-2">
+          <staging_project name="home:user_2:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1">
+          <srcmd5>bc31b3634e5628bfc6a4113e6ad0fc2d</srcmd5>
+          <time>1558439317</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2:Staging:A/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:user_2" managers="staging-workflow-managers-2">
+          <staging_project name="home:user_2:Staging:A"/>
+          <staging_project name="home:user_2:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2">
+          <srcmd5>8d2ca0326f343991d2110227268a49a2</srcmd5>
+          <time>1558439317</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2:Staging:B/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title/>
+          <description/>
+          <person userid="user_2" role="maintainer"/>
+          <group groupid="staging-workflow-managers-2" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '201'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title></title>
+          <description></description>
+          <person userid="user_2" role="maintainer" />
+          <group groupid="staging-workflow-managers-2" role="reviewer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:user_2" managers="staging-workflow-managers-2">
+          <staging_project name="home:user_2:Staging:A"/>
+          <staging_project name="home:user_2:Staging:B"/>
+          <staging_project name="home:user_2:Staging:D"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3">
+          <srcmd5>156f660fedd19f429e1880b669f047a5</srcmd5>
+          <time>1558439317</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2:Staging:D/_config?user=factory%20bot
+    body:
+      encoding: UTF-8
+      string: 'Prefer: something'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home user_2 Staging D' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:user_2:Staging:D' does not exist</summary>
+          <details>404 project 'home:user_2:Staging:D' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2:Staging:D/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:D">
+          <title>Such, Such Were the Joys</title>
+          <description/>
+          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '190'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2:Staging:D">
+          <title>Such, Such Were the Joys</title>
+          <description></description>
+          <group groupid="staging-workflow-managers-2" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_3/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title/>
+          <description/>
+          <person userid="user_3" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_3">
+          <title></title>
+          <description></description>
+          <person userid="user_3" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 21 May 2019 11:48:37 GMT
+recorded_with: VCR 4.0.0

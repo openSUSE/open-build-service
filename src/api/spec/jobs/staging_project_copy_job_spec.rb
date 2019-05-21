@@ -15,5 +15,23 @@ RSpec.describe StagingProjectCopyJob, type: :job, vcr: true do
       StagingProjectCopyJob.perform_now(staging_workflow.project.name, original_staging_project.name, staging_project_copy_name, user.id)
       expect(Project.exists?(name: staging_project_copy_name)).to be true
     end
+
+    context 'when a user session already exists for another user' do
+      let(:other_user) { create(:confirmed_user) }
+
+      before do
+        User.session = other_user
+      end
+
+      subject do
+        StagingProjectCopyJob.perform_now(staging_workflow.project.name, original_staging_project.name,
+                                          "#{other_user.home_project_name}:subproject", user.id)
+      end
+
+      it 'does not use the existing session' do
+        expect { subject }.to raise_error Project::Errors::WritePermissionError,
+                                          "No permission to modify project '#{other_user.home_project_name}:subproject' for user '#{user.login}'"
+      end
+    end
   end
 end
