@@ -3376,7 +3376,8 @@ sub sourcecopy {
     if ($proj && $proj->{'link'}) {
       my $irev = BSSrcServer::Projlink::getrev_projlink($projid, $proj, $packid, undef, undef, 1);
       if ($irev) {
-	$orev->{'vrev'} = $irev->{'vrev'} if $irev;	# hack: overwrite vrev with instantiated vrev
+	lsrev_expanded($irev);
+	$orev->{'vrev'} = $irev->{'vrev'};	# hack: overwrite vrev with instantiated vrev
 	$cgi->{'withvrev'} = 1;
       }
     }
