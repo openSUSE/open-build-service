@@ -16,8 +16,6 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
     end
 
     context 'with a project that has an ssl certificate' do
-      skip('Current code is disabled since it always creates an SSL cert')
-
       let(:ssl_certificate) { Faker::Lorem.characters(1024) }
       let(:keyinfo_response) do
         <<-XML
@@ -25,7 +23,8 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
             <pubkey keyid="0292741d" algo="rsa" keysize="2048" expires="1554571193" fingerprint="f9fe d209 ff53 6d54 ec96 916a 45d4 5b02 0292 741d">
               #{gpg_public_key}
             </pubkey>
-            <sslcert>#{ssl_certificate}</sslcert>
+            <sslcert serial="0xb911712e27dc32d8" subject="Some random string" algo="rsa" keysize="2048" begins="1511570476"
+              expires="1580690476">#{ssl_certificate}</sslcert>
           </keyinfo>
         XML
       end
