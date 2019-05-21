@@ -25,7 +25,7 @@ RSpec.describe OwnerSearch do
 
       it 'returns results' do
         subject = OwnerSearch::Container.new.for(package).first
-        expect(subject.users).to eq('maintainer' => ['Iggy'])
+        expect(subject.users).to eq('maintainer' => [user])
       end
 
       # the User.owner is only interesting for locked accounts
@@ -34,7 +34,7 @@ RSpec.describe OwnerSearch do
         user.update_attributes(owner: develuser)
 
         subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package).first
-        expect(subject.users['bugowner']).to eq([user.login])
+        expect(subject.users['bugowner']).to eq([user])
       end
 
       it 'respects User.state' do
@@ -122,9 +122,9 @@ RSpec.describe OwnerSearch do
       end
 
       it 'respects maintenance project suffixes' do
-        expect(OwnerSearch::Assignee.new.for('package').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerSearch::Assignee.new.for('package').first.users).to eq('bugowner' => [other_user])
+        expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => [other_user])
+        expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => [other_user])
       end
     end
   end
