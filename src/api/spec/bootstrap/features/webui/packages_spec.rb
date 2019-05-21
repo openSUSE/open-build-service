@@ -12,6 +12,11 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
   end
 
+  before do
+    # Needed for creation of packages
+    login user
+  end
+
   let!(:user) { create(:confirmed_user, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
   let(:other_user) { create(:confirmed_user, login: 'other_package_test_user') }
@@ -22,7 +27,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   describe 'branching a package from another users project' do
     before do
       allow(Configuration).to receive(:cleanup_after_days).and_return(14)
-      login user
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
       sleep 1 # Needed to avoid a flickering test. Sometimes the summary is not expanded and its content not visible
@@ -58,9 +62,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario 'deleting a package' do
-    skip('FIXME: This test is flickering hard.')
-
-    login user
     visit package_show_path(package: package, project: user.home_project)
     click_link('Delete package')
 
@@ -69,12 +70,10 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       click_button('Delete')
     end
 
-    expect(find('#flash-messages')).to have_text('Package was successfully removed.')
+    expect(page).to have_css('#flash', text: 'Package was successfully removed.')
   end
 
   scenario 'requesting package deletion' do
-    login user
-
     visit package_show_path(package: other_users_package, project: other_user.home_project)
     click_link('Request deletion')
 
@@ -90,10 +89,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario "changing the package's devel project" do
-    skip('FIXME: This test is flickering hard.')
-
-    login user
-
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
 
     click_link('Request devel project change')
@@ -101,10 +96,9 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
       fill_in('description', with: 'Hey, why not?')
-      click_button('Accept')
+      click_button('Create')
     end
 
-    find('#flash-messages', visible: false)
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
     expect(page).to have_current_path("/request/show/#{request.first.number}")
@@ -117,7 +111,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
     let(:repository) { create(:repository, name: 'package_test_repository', project: user.home_project, architectures: ['i586']) }
 
     before do
-      login(user)
       stub_request(:get, "#{CONFIG['source_url']}/build/#{user.home_project}/#{repository.name}/i586/#{package}/_log?end=1&nostream=1&start=0")
         .and_return(body: '[1] this is my dummy logfile -> ümlaut')
       result = %(<resultlist state="8da2ae1e32481175f43dc30b811ad9b5">
@@ -152,7 +145,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario 'editing a package' do
-    login(user)
     visit package_show_path(package: package, project: user.home_project)
     click_link('Edit description')
     sleep 1 # FIXME: Needed to avoid a flickering test.

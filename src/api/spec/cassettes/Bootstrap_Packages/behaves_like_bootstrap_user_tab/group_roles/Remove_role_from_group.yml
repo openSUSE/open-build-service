@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:56:59 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -200,16 +200,16 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Sun Also Rises</title>
-          <description>Harum delectus ducimus at.</description>
+          <title>The Wings of the Dove</title>
+          <description>Quod provident nisi at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -235,20 +235,20 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Sun Also Rises</title>
-          <description>Harum delectus ducimus at.</description>
+          <title>The Wings of the Dove</title>
+          <description>Quod provident nisi at.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Sun Also Rises</title>
-          <description>Harum delectus ducimus at.</description>
+          <title>The Wings of the Dove</title>
+          <description>Quod provident nisi at.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -274,17 +274,17 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>The Sun Also Rises</title>
-          <description>Harum delectus ducimus at.</description>
+          <title>The Wings of the Dove</title>
+          <description>Quod provident nisi at.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Amet facere vero. Consequatur facere quis. Perferendis consequatur nisi.
+      string: Rem animi unde. Molestias autem dolorem. Aperiam ex ipsum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -304,26 +304,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
-          <srcmd5>fb3155a328ad5520fc38e1985713470d</srcmd5>
+        <revision rev="21" vrev="21">
+          <srcmd5>18ed6a54d08d95dfac33448c32755023</srcmd5>
           <version>unknown</version>
-          <time>1544005945</time>
+          <time>1558295820</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Perferendis eos quas. Laudantium dicta mollitia. Omnis est maiores.
+      string: Neque facilis ea. Est pariatur animi. Quia enim sit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -343,20 +343,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '209'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>7b1cf19bccb930b6be2df0035e630f16</srcmd5>
+        <revision rev="22" vrev="22">
+          <srcmd5>d1946f1d3fdf2dcfd3da9ba0cef46b1e</srcmd5>
           <version>unknown</version>
-          <time>1544005945</time>
+          <time>1558295820</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:25 GMT
+  recorded_at: Sun, 19 May 2019 19:57:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -389,7 +389,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
+  recorded_at: Sun, 19 May 2019 19:57:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -422,42 +422,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
+  recorded_at: Sun, 19 May 2019 19:57:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -490,7 +455,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
+  recorded_at: Sun, 19 May 2019 19:57:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -523,7 +488,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
+  recorded_at: Sun, 19 May 2019 19:57:02 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -556,7 +521,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:27 GMT
+  recorded_at: Sun, 19 May 2019 19:57:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -565,7 +530,7 @@ http_interactions:
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
           <person userid="user_tab_user" role="maintainer"/>
           <group groupid="existing_group" role="maintainer"/>
         </package>
@@ -588,18 +553,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '280'
+      - '278'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
           <person userid="user_tab_user" role="maintainer" />
           <group groupid="existing_group" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:28 GMT
+  recorded_at: Sun, 19 May 2019 19:57:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -608,7 +573,7 @@ http_interactions:
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
           <person userid="user_tab_user" role="maintainer"/>
           <group groupid="existing_group" role="maintainer"/>
         </package>
@@ -631,18 +596,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '280'
+      - '278'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
           <title>Death Be Not Proud</title>
-          <description>Omnis nihil debitis pariatur.</description>
+          <description>Non placeat assumenda esse.</description>
           <person userid="user_tab_user" role="maintainer" />
           <group groupid="existing_group" role="maintainer" />
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:28 GMT
+  recorded_at: Sun, 19 May 2019 19:57:03 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -675,7 +640,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
+  recorded_at: Sun, 19 May 2019 19:57:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -708,42 +673,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
+  recorded_at: Sun, 19 May 2019 19:57:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -776,7 +706,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
+  recorded_at: Sun, 19 May 2019 19:57:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -809,7 +739,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
+  recorded_at: Sun, 19 May 2019 19:57:04 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -842,5 +772,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:32:29 GMT
+  recorded_at: Sun, 19 May 2019 19:57:05 GMT
 recorded_with: VCR 4.0.0

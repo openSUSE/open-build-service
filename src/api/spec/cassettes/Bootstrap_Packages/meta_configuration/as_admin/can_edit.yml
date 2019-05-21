@@ -40,176 +40,16 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:42 GMT
+  recorded_at: Sun, 19 May 2019 19:55:07 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_tab_user">
-          <title/>
-          <description/>
-          <person userid="user_tab_user" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '149'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_tab_user">
-          <title></title>
-          <description></description>
-          <person userid="user_tab_user" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Harum aperiam dolorum atque.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Harum aperiam dolorum atque.</description>
-        </package>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Harum aperiam dolorum atque.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Harum aperiam dolorum atque.</description>
-        </package>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title/>
-          <description/>
-          <person userid="other_user" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '143'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:other_user">
-          <title></title>
-          <description></description>
-          <person userid="other_user" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="branch_test_package" project="home:other_user">
-          <title>Infinite Jest</title>
-          <description>Architecto rerum ex fuga.</description>
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -234,21 +74,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="branch_test_package" project="home:other_user">
-          <title>Infinite Jest</title>
-          <description>Architecto rerum ex fuga.</description>
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
         </package>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
-        <package name="branch_test_package" project="home:other_user">
-          <title>Infinite Jest</title>
-          <description>Architecto rerum ex fuga.</description>
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -273,18 +113,215 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="branch_test_package" project="home:other_user">
-          <title>Infinite Jest</title>
-          <description>Architecto rerum ex fuga.</description>
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
         </package>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_config
+    uri: http://backend:5352/source/home:package_test_user/test_package/_config
     body:
       encoding: UTF-8
-      string: Quo voluptas aspernatur. Velit at accusantium. Beatae eos optio.
+      string: In eaque laborum. Tenetur dolorem ipsa. Laudantium dolores asperiores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>b3ce88ecde98c4228238a0421fd57c93</srcmd5>
+          <version>unknown</version>
+          <time>1558295708</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: In id distinctio. Vero reiciendis ut. Consequatur et error.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>6d05d4454ce4dbfd326791d5521f2477</srcmd5>
+          <version>unknown</version>
+          <time>1558295708</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/_meta?user=other_package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title/>
+          <description/>
+          <person userid="other_package_test_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_package_test_user">
+          <title></title>
+          <description></description>
+          <person userid="other_package_test_user" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Needle's Eye</title>
+          <description>Molestiae molestias ducimus praesentium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '191'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Needle's Eye</title>
+          <description>Molestiae molestias ducimus praesentium.</description>
+        </package>
+    http_version: 
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_meta?user=package_test_user
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Needle's Eye</title>
+          <description>Molestiae molestias ducimus praesentium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '191'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_package_test_user">
+          <title>The Needle's Eye</title>
+          <description>Molestiae molestias ducimus praesentium.</description>
+        </package>
+    http_version: 
+  recorded_at: Sun, 19 May 2019 19:55:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Pariatur quidem temporibus. Non delectus magni. Aliquam vel rerum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -309,21 +346,21 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="17" vrev="17">
-          <srcmd5>77c40728125fc550461d1b96d6e3ea54</srcmd5>
+          <srcmd5>860c613c2154a05b8278a2c387e5318e</srcmd5>
           <version>unknown</version>
-          <time>1558295804</time>
+          <time>1558295709</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
+  recorded_at: Sun, 19 May 2019 19:55:09 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
+    uri: http://backend:5352/source/home:other_package_test_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Deleniti harum incidunt. Qui officiis veniam. Maxime totam nulla.
+      string: Enim quidem qui. Rerum aspernatur adipisci. Est nisi dolores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -348,54 +385,26 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="18" vrev="18">
-          <srcmd5>e3fe54ec0ec699f65e321f2410670d59</srcmd5>
+          <srcmd5>15f2a9835eed289664d0c845bad8f2e7</srcmd5>
           <version>unknown</version>
-          <time>1558295804</time>
+          <time>1558295709</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:44 GMT
+  recorded_at: Sun, 19 May 2019 19:55:09 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:46 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -415,53 +424,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '93'
+      - '135'
     body:
       encoding: UTF-8
       string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer" />
+        </project>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:46 GMT
+  recorded_at: Sun, 19 May 2019 19:55:09 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
+    method: put
+    uri: http://backend:5352/source/home:package_test_user/test_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:46 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -481,45 +464,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '93'
+      - '160'
     body:
       encoding: UTF-8
       string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
+        <package name="test_package" project="home:package_test_user">
+          <title>The Proper Study</title>
+          <description>Debitis vel et facere.</description>
+        </package>
     http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:46 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Sun, 19 May 2019 19:56:46 GMT
+  recorded_at: Sun, 19 May 2019 19:55:11 GMT
 recorded_with: VCR 4.0.0
