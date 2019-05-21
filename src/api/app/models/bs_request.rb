@@ -110,6 +110,7 @@ class BsRequest < ApplicationRecord
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
   before_update :send_state_change
+  before_validation :sanitize!, if: :sanitize?, on: :create
   after_commit :update_cache
   after_create :notify
 
@@ -290,12 +291,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def save!(args = {})
-    new = created_at ? nil : 1
-    sanitize! if new && !@skip_sanitize
-    super
-  end
-
   def history_elements
     HistoryElement::Base.where(id: request_history_elements.pluck(:id) + review_history_elements.pluck(:id)).order(:created_at)
   end
@@ -306,6 +301,10 @@ class BsRequest < ApplicationRecord
 
   def set_ignore_build_state
     @ignore_build_state = true
+  end
+
+  def sanitize?
+    !@skip_sanitize
   end
 
   def skip_sanitize
@@ -962,7 +961,7 @@ class BsRequest < ApplicationRecord
         raise 'Unknown review type'
       end
     end
-    self.state = :review if reviews.any? { |a| a.state == :new }
+    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
   end
 
   def notify

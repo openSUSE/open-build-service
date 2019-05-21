@@ -651,4 +651,16 @@ RSpec.describe BsRequest, vcr: true do
       it { expect { BsRequest.all.select(:id).as_json }.not_to raise_error }
     end
   end
+
+  describe '#skip_sanitize' do
+    let(:bs_request) { build(:add_maintainer_request, target_project: create(:project)) }
+
+    before do
+      bs_request.skip_sanitize
+      allow(bs_request).to receive(:sanitize!)
+      bs_request.save!
+    end
+
+    it { expect(bs_request).not_to have_received(:sanitize!) }
+  end
 end
