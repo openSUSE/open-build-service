@@ -64,4 +64,31 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
       expect(page).to have_current_path(project_show_path('home:Jane'))
     end
   end
+
+  describe 'maintenance incidents' do
+    let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
+    let(:target_repository) { create(:repository) }
+
+    scenario 'visiting the maintenance overview' do
+      login user
+
+      visit project_show_path(maintenance_project)
+      click_link('Incidents')
+      click_link('Create Maintenance Incident')
+      expect(page).to have_css('#flash', text: "Created maintenance incident project #{project.name}:maintenance_project:0")
+
+      # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
+      repository = create(:repository, project: Project.find_by(name: "#{project.name}:maintenance_project:0"), name: 'target')
+      create(:release_target, repository: repository, target_repository: target_repository, trigger: 'maintenance')
+
+      visit project_show_path(maintenance_project)
+      click_link('Incidents')
+
+      within('#incident-table') do
+        maintenance_project.maintenance_incidents.each do |incident|
+          expect(page).to have_link("0: #{incident.name}", href: project_show_path(incident.name))
+        end
+      end
+    end
+  end
 end
