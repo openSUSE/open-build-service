@@ -87,6 +87,11 @@ sub check_exitrestart {
   }
 }
 
+my $lua_deleteresult = q{
+  redis.call('DEL', KEYS[1], KEYS[2])
+  return 'OK'
+};
+
 my $lua_updateresult_empty = q{
   redis.call('DEL', KEYS[1], KEYS[2])
   return 'OK'
@@ -144,7 +149,9 @@ sub forwarddata {
     my $cmd = shift @line;
     my $prpa = shift @line;
     die unless $prpa;
-    if ($cmd eq 'updateresult') {
+    if ($cmd eq 'deleteresult') {
+      unshift @line, 'EVAL', $lua_deleteresult, 2, "result.$prpa", "jobs.$prpa";
+    } elsif ($cmd eq 'updateresult') {
       if (@line) {
         unshift @line, 'EVAL', $lua_updateresult, 2, "result.$prpa", "jobs.$prpa";
       } else {

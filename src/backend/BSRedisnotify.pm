@@ -48,6 +48,12 @@ sub updateresult {
   addforwardjob(@job);
 }
 
+sub deleteresult {
+  my ($prpa) = @_;
+  my @job = ('redis', 'deleteresult', $prpa);
+  addforwardjob(@job);
+}
+
 sub updateoneresult {
   my ($prpa, $packid, $codedetails, $job) = @_;
   my @job = ('redis', 'updateoneresult', $prpa, $packid, $codedetails);
