@@ -111,6 +111,7 @@ class BsRequest < ApplicationRecord
 
   before_update :send_state_change
   after_commit :update_cache
+  after_create :notify
 
   def self.delayed_auto_accept
     to_accept_by_time.each do |request|
@@ -293,7 +294,6 @@ class BsRequest < ApplicationRecord
     new = created_at ? nil : 1
     sanitize! if new && !@skip_sanitize
     super
-    notify if new
   end
 
   def history_elements
