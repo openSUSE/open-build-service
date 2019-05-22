@@ -361,16 +361,6 @@ class BsRequest < ApplicationRecord
     self[:state].to_sym
   end
 
-  after_rollback :reset_cache
-  after_save :reset_cache
-
-  def reset_cache
-    return unless id
-    Rails.cache.delete("xml_bs_request_fullhistory_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_history_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_#{cache_key}")
-  end
-
   def to_axml(opts = {})
     if opts[:withfullhistory]
       Rails.cache.fetch("xml_bs_request_fullhistory_#{cache_key}") do
@@ -683,7 +673,6 @@ class BsRequest < ApplicationRecord
 
     self.approver = new_approver
     save!
-    reset_cache
   end
   private :approval_handling
 
@@ -819,7 +808,6 @@ class BsRequest < ApplicationRecord
 
     self.priority = opts[:priority]
     save!
-    reset_cache
 
     HistoryElement::RequestPriorityChange.create(p)
   end
@@ -939,7 +927,6 @@ class BsRequest < ApplicationRecord
 
     self.accept_at = time || Time.now
     save!
-    reset_cache
   end
 
   def apply_default_reviewers
