@@ -55,6 +55,7 @@ use BSUtil;
 use BSXML;
 use BSVerify;
 use BSConfiguration;
+use BSRedisnotify;
 use BSSched::BuildRepo;
 use BSSched::Blobstore;
 use BSSched::BuildJob::Import;		# for createexportjob
@@ -941,6 +942,7 @@ sub wipeobsoleterepo {
       unlink("$gdst/$dir") || die("unlink $gdst/$dir: $!\n");
     }
   }
+  BSRedisnotify::deleteresult("$prp/$myarch") if $BSConfig::redisserver;
   # we unfortunately have a race: the reposerver may touch the :schedulerstate.dirty file
   while (!rmdir($gdst)) {
     die("$gdst: $!\n") unless -e "$gdst/:schedulerstate.dirty";
