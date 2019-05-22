@@ -866,6 +866,16 @@ class User < ApplicationRecord
     RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
   end
 
+  def run_as
+    before = User.session
+    begin
+      User.session = self
+      yield
+    ensure
+      User.session = before
+    end
+  end
+
   private
 
   # The currently logged in user (might be nil). It's reset after

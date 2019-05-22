@@ -550,4 +550,36 @@ RSpec.describe User do
       expect(user.can_create_project?('foo:bar')).to be(true)
     end
   end
+
+  describe '#run_as' do
+    let(:user1) { create(:confirmed_user) }
+    let(:user2) { create(:confirmed_user) }
+
+    it 'resets user session to nil' do
+      user1.run_as do
+        expect(User.session).to be(user1)
+      end
+      expect(User.session).to be_nil
+    end
+
+    it 'resets user session to another user' do
+      User.session = user2
+      user1.run_as do
+        expect(User.session).to be(user1)
+      end
+      expect(User.session).to be(user2)
+    end
+
+    it 'works nested' do
+      user1.run_as do
+        expect(User.session).to be(user1)
+
+        user2.run_as do
+          expect(User.session).to be(user2)
+        end
+
+        expect(User.session).to be(user1)
+      end
+    end
+  end
 end
