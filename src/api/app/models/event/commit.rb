@@ -5,6 +5,12 @@ module Event
     payload_keys :project, :package, :sender, :comment, :user, :files, :rev, :requestid
     create_jobs :update_backend_infos_job
 
+    after_create :increase_commits
+
+    def increase_commits
+      CommitActivity.create_from_event_payload(payload)
+    end
+
     def subject
       "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
     end

@@ -398,6 +398,19 @@ CREATE TABLE `comments` (
   CONSTRAINT `comments_ibfk_4` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `commit_activities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `project` varchar(255) COLLATE utf8_bin NOT NULL,
+  `package` varchar(255) COLLATE utf8_bin NOT NULL,
+  `count` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_activity_day` (`date`,`user_id`,`project`,`package`),
+  KEY `index_commit_activities_on_user_id` (`user_id`),
+  KEY `index_commit_activities_on_user_id_and_date` (`user_id`,`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC;
+
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '',
@@ -1442,6 +1455,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190115131711'),
 ('20190215131711'),
 ('20190328131711'),
-('20190412130831');
+('20190412130831'),
+('20190520130009');
 
 

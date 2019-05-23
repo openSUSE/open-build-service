@@ -7,7 +7,7 @@ class User::Contributions
   end
 
   def activity_hash
-    merge_hashes([requests_created, comments, reviews_done])
+    merge_hashes([requests_created, comments, reviews_done, commits_done])
   end
 
   private
@@ -23,6 +23,10 @@ class User::Contributions
   def reviews_done
     # User.reviews are by_user, we want also by_package and by_group reviews accepted/declined
     Review.where(reviewer: user.login, state: [:accepted, :declined]).where('created_at > ?', first_day).group('date(created_at)').count
+  end
+
+  def commits_done
+    user.commit_activities.group(:date).where('date > ?', first_day).sum(:count)
   end
 
   def merge_hashes(hashes_array)
