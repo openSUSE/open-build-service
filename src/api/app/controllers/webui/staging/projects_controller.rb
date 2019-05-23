@@ -87,11 +87,6 @@ module Webui
 
       def set_staging_workflow
         @staging_workflow = ::Staging::Workflow.find(params[:staging_workflow_id])
-        return if @staging_workflow
-
-        redirect_back(fallback_location: root_path)
-        flash[:error] = "Staging with id = #{params[:staging_workflow_id]} doesn't exist"
-        return
       end
     end
   end
