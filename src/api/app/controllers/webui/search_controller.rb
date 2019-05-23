@@ -11,8 +11,7 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def owner
-    # TODO: Remove if once migration of the view is finished
-    switch_to_webui2 if Rails.env.development?
+    switch_to_webui2
 
     Backend::Test.start if Rails.env.test?
 
