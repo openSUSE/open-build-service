@@ -12,8 +12,6 @@ class BinaryRelease < ApplicationRecord
 
   #### Callbacks macros: before_save, after_save, etc.
   before_create :set_release_time
-  after_rollback :reset_cache
-  after_save :reset_cache
 
   #### Scopes (first the default_scope macro if is used)
 
@@ -209,10 +207,6 @@ class BinaryRelease < ApplicationRecord
 
   def to_axml(_opts = {})
     Rails.cache.fetch("xml_binary_release_#{cache_key}") { render_xml }
-  end
-
-  def reset_cache
-    Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
   def identical_to?(binary_hash)
