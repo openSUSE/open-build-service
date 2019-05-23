@@ -47,8 +47,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
                         source_package: source_package,
                         target_project: 'does-not-exist',
                         target_package: target_package.name)
-        # avoid save!
-        request.save
+        request.skip_sanitize
+        request.save!
         request
       end
       let(:request_action) { request.bs_request_actions.first }
@@ -64,8 +64,8 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
                         source_project: 'does-not-exist',
                         source_package: source_package.name,
                         target_package: target_package)
-        # avoid save!
-        request.save
+        request.skip_sanitize
+        request.save!
         request
       end
       let(:request_action) { request.bs_request_actions.first }
