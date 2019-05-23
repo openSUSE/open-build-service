@@ -1,18 +1,18 @@
-FROM opensuse:42.3
+FROM opensuse/leap:15.1
 
 # Add our repo
 RUN echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf; \
-    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.3/OBS:Server:Unstable.repo; \
-    zypper ar -f http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.3/openSUSE:Tools.repo; \
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_15.1/OBS:Server:Unstable.repo; \
+    zypper ar -f http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_15.1/openSUSE:Tools.repo; \
     zypper --gpg-auto-import-keys refresh
 
 # Install requirements for all our containers
 RUN zypper -n install --no-recommends --replacefiles \
   make gcc gcc-c++ patch curl vim vim-data psmisc \
-  timezone ack glibc-locale sudo aaa_base hostname
+  timezone ack glibc-locale sudo aaa_base hostname system-user-nobody
 
 # Add our bootstrap script
-ADD docker-bootstrap.sh /root/bin/docker-bootstrap.sh
+ADD docker-bootstrap-15.1.sh /root/bin/docker-bootstrap.sh
 
 # Add our user
 RUN useradd -m frontend

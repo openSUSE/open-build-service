@@ -1,5 +1,5 @@
 CONTAINER_USERID = %x(id -u).freeze
-VERSION = '42.3'.freeze
+VERSION = '15.1'.freeze
 
 namespace :docker do
   desc 'Build our development environment'
