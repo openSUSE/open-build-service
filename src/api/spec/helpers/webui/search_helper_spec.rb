@@ -4,8 +4,8 @@ include Webui::UserHelper
 RSpec.describe Webui::SearchHelper, type: :helper do
   describe '#search_owners_list' do
     let(:user) { create(:user) }
-    let(:maintainer) { create_list(:user, 3).map(&:login) }
-    let(:foo_user) { create_list(:user, 2).map(&:login) }
+    let(:maintainer) { create_list(:user, 3) }
+    let(:foo_user) { create_list(:user, 2) }
     let(:list) { { maintainer: maintainer, foo: foo_user } }
 
     it 'returns an empty list when first parameter is empty' do
@@ -14,8 +14,8 @@ RSpec.describe Webui::SearchHelper, type: :helper do
 
     it 'creates an icon with link for each user' do
       User.session = user
-      expected_result = maintainer.map { |user| user_and_role(user, 'maintainer') }
-      expected_result.concat(foo_user.map { |user| user_and_role(user, 'foo') })
+      expected_result = maintainer.map { |user| user_and_role(user.login, 'maintainer') }
+      expected_result.concat(foo_user.map { |user| user_and_role(user.login, 'foo') })
 
       expect(search_owners_list(list)).to match_array(expected_result)
     end

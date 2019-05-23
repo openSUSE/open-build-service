@@ -62,7 +62,7 @@ module OwnerSearch
       rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
       rel.each do |p|
         owner.users ||= {}
-        entries = owner.users.fetch(p.role.title, []) << p.user.login
+        entries = owner.users.fetch(p.role.title, []) << p.user
         owner.users[p.role.title] = entries
       end
     end
@@ -73,7 +73,7 @@ module OwnerSearch
       rel.each do |p|
         next unless p.group.any_confirmed_users?
         owner.groups ||= {}
-        entries = owner.groups.fetch(p.role.title, []) << p.group.title
+        entries = owner.groups.fetch(p.role.title, []) << p.group
         owner.groups[p.role.title] = entries
       end
     end
