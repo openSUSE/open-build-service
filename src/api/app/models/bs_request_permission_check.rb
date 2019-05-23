@@ -231,12 +231,14 @@ class BsRequestPermissionCheck
       raise SetPriorityNoPermission, 'The request is not in state new or review'
     end
 
+    return if req.creator == User.session!.login
+
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
     end
     return if @write_permission_in_target
 
-    raise SetPriorityNoPermission, 'No write permission in target of request actions'
+    raise SetPriorityNoPermission, "You have not created the request and don't have write permission in target of request actions"
   end
 
   def cmd_setincident_permissions
