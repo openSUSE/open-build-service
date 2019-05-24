@@ -152,6 +152,10 @@ our $relsync_pool = {
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
 
+#additional options for calling rsync in the publisher
+#for example "--whole-file" if network faster than disk
+#our $rsync_extra_options = "--whole-file";
+
 #No package signing server
 #our $sign = '/usr/bin/sign';
 #Extend sign call with project name as argument "--project $NAME"

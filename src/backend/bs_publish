@@ -1445,14 +1445,17 @@ sub sync_to_stage {
   my $extdirx = $extdir;
   $extdirx =~ s/\/[^\/]*$// if $isdelete;
 
+  my $rsync_extra_options;
+  $rsync_extra_options = $BSConfig::rsync_extra_options if $BSConfig::rsync_extra_options;
+
   for my $stageserver (@stageservers) {
     if ($stageserver =~ /^rsync:\/\//) {
       $stageserver .= $dbgsplit if $stageservers;		# hmm
       print "    running rsync to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', $rsync_extra_options, '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', $rsync_extra_options, '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
       print "    running sync script $1 at ".localtime(time)."\n";
@@ -1473,7 +1476,7 @@ sub sync_to_stage {
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\//) {
     print "    running trigger rsync to $BSConfig::stageserver_sync at ".localtime(time)."\n";
     # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+    qsystem('rsync', '-a', $rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
 }
 
