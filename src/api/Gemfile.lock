@@ -370,7 +370,7 @@ GEM
     ruby-progressbar (1.10.0)
     ruby_parser (3.13.1)
       sexp_processor (~> 4.9)
-    rubyzip (1.2.2)
+    rubyzip (1.2.3)
     safe_yaml (1.0.5)
     sanitize (5.0.0)
       crass (~> 1.0.2)
@@ -385,7 +385,7 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    selenium-webdriver (3.142.2)
+    selenium-webdriver (3.142.3)
       childprocess (>= 0.5, < 2.0)
       rubyzip (~> 1.2, >= 1.2.2)
     sexp_processor (4.12.0)
