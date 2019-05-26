@@ -117,7 +117,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
 
       it 'should eq Successfully added repositories' do
         action
-        expect(flash[:error]).to eq("Can not add repository: Name must not start with '_' or contain any of these characters ':/'")
+        expect(flash[:error]).to eq('Can not add repository: Name is illegal')
       end
 
       it { expect(action).to redirect_to(root_url) }
@@ -165,7 +165,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
       it {
         expect(flash[:error]).to eq('Can not add repository: ' \
           'Name is too short (minimum is 1 character) and ' \
-          "Name must not start with '_' or contain any of these characters ':/'")
+          'Name is illegal')
       }
       it { is_expected.to redirect_to(root_url) }
       it { expect(assigns(:project).repositories.count).to eq(0) }

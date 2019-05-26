@@ -13,7 +13,10 @@ RSpec.describe Repository do
     it { is_expected.not_to(allow_value('_foo').for(:name)) }
     it { is_expected.not_to(allow_value('f:oo').for(:name)) }
     it { is_expected.not_to(allow_value('f/oo').for(:name)) }
+    it { is_expected.not_to(allow_value('f oo').for(:name)) }
     it { is_expected.not_to(allow_value("f\noo").for(:name)) }
+    it { is_expected.to allow_value('fOo_c++').for(:name) }
+    it { is_expected.to allow_value('f0o-c++_4.5').for(:name) }
     it { is_expected.to allow_value('fOO_-§$&!#+~()=?\\"').for(:name) }
     it { is_expected.to allow_value('f').for(:name) }
 
