@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 
 require_dependency 'opensuse/validator'
-require_dependency 'api_exception'
+require_dependency 'api_error'
 require_dependency 'authenticator'
 
 class ApplicationController < ActionController::Base
