@@ -17,12 +17,22 @@ class TriggerController < ApplicationController
 
   include Trigger::Errors
 
+  def check_rebuild_permission!
+    return if User.session.can_modify_project?(@prj)
+    return if @pkg.project == @prj && policy(@pkg).update?
+
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@prj}")
+  end
+
   def rebuild
-    Backend::Api::Sources::Package.rebuild(@pkg.project.name, @pkg.name)
+    check_rebuild_permission!
+    Backend::Api::Sources::Package.rebuild(@prj.name, @pkg_name)
     render_ok
   end
 
   def release
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+
     matched_repo = false
     @pkg.project.repositories.includes(:release_targets).each do |repo|
       repo.release_targets.where(trigger: 'manual').each do |releasetarget|
@@ -45,6 +55,8 @@ class TriggerController < ApplicationController
   end
 
   def runservice
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+
     # execute the service in backend
     path = @pkg.source_path
     params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
@@ -77,9 +89,21 @@ class TriggerController < ApplicationController
 
     raise NoPermissionForInactive unless User.session.is_active?
 
-    @pkg = @token.package || Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, use_source: true)
-
-    raise ActiveRecord::RecordNotFound unless @pkg
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+    if @token.package
+      @pkg = @token.package
+      @pkg_name = @pkg.name
+      @prj = @pkg.project
+    else
+      @prj = Project.get_by_name(params[:project])
+      @pkg_name = params[:package] # for multibuild container
+      if @token.class == Token::Rebuild
+        opts = { use_source: false,
+                 follow_project_links: true,
+                 follow_multibuild: false }
+      else
+        opts = { use_source: true }
+      end
+      @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
+    end
   end
 end
