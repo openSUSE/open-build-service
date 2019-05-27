@@ -1,29 +1,31 @@
 version: "2.1"
 services:
   db:
-    image: openbuildservice/mariadb
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/mariadb
     ports:
       - "3306:3306"
+    command: /usr/lib/mysql/mysql-systemd-helper start
   cache:
-    image: openbuildservice/memcached
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/memcached
     ports:
       - "11211:11211"
+    command: /usr/sbin/memcached -u memcached
   backend:
-    image: openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend
     volumes:
       - .:/obs
       - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
       - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
       - ./dist/clouduploader.rb:/usr/bin/clouduploader
-    command: /obs/contrib/start_development_backend -d /obs
+    command: /usr/sbin/runuser -u frontend -- /obs/contrib/start_development_backend -d /obs
   worker:
-    image: openbuildservice/backend
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend
     volumes:
       - .:/obs
-    privileged: true
+    privileged: true 
     depends_on:
       - backend
-    command: /obs/contrib/start_development_worker
+    command: /usr/sbin/runuser -u frontend -- /obs/contrib/start_development_worker
   frontend:
     image: openbuildservice/frontend
     command: foreman start -p 3000

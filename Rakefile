@@ -28,7 +28,7 @@ EOF"
       # Build the frontend container and pull newer version of the image if available
       sh 'docker-compose build --pull frontend'
       # Build the minitest container on top of that
-      sh 'docker-compose -f docker-compose.yml -f docker-compose.minitest.yml build minitest'
+      sh 'docker-compose -f docker-compose.yml -f docker-compose.minitest.yml build --pull minitest'
       # Bootstrap the app
       sh 'docker-compose up -d db'
       sh 'docker-compose run --no-deps --rm frontend bundle exec rake dev:bootstrap RAILS_ENV=development'
