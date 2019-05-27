@@ -1,4 +1,4 @@
-require_dependency 'api_exception'
+require_dependency 'api_error'
 require 'builder/xchar'
 require 'rexml/document'
 require_dependency 'has_relationships'

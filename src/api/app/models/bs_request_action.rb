@@ -1,4 +1,4 @@
-require 'api_exception'
+require 'api_error'
 
 class BsRequestAction < ApplicationRecord
   #### Includes and extends

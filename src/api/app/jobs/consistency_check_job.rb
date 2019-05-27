@@ -1,4 +1,4 @@
-require 'api_exception'
+require 'api_error'
 require 'xmlhash'
 
 class ConsistencyCheckJob < ApplicationJob
