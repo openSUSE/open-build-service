@@ -7,3 +7,11 @@ en:
       previous: "&lt;Prev"
       next: "Next&gt;"
       truncate: "..."
+    # TODO: Use these translations when switch_to_webui2, without webui2 namespace. Modify also the kaminari views affected.
+    webui2:
+      pagination:
+        first: "First"
+        last: "Last"
+        previous: "Previous"
+        next: "Next"
+        truncate: "..."

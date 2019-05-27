@@ -59,3 +59,5 @@ exclude:
 - 'app/views/statistics/**/*'
 - 'app/views/status/**/*'
 - 'app/views/webui/**/*'
+# Kaminari views were created by its generator, they don't pass lint tests
+- 'app/views/webui2/webui/kaminari/**/*'

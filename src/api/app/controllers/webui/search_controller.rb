@@ -1,11 +1,11 @@
 class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list
-  before_action :set_parameters
+  before_action :set_parameters, except: :issue
+  before_action :check_beta, only: :issue
 
   def index
-    # TODO: Remove if once migration of the view is finished
-    switch_to_webui2 if Rails.env.development?
+    switch_to_webui2
 
     search
   end
@@ -23,6 +23,26 @@ class Webui::SearchController < Webui::WebuiController
     end
 
     @results = OwnerSearch::Assignee.new(limit: @owner_limit.to_s, devel: @owner_devel.to_s).for(@search_text)
+    flash[:notice] = 'Your search did not return any results.' if @results.empty?
+  end
+
+  def issue
+    switch_to_webui2
+    return unless params[:issue] && params[:issue_tracker]
+
+    search_issue
+    search_what
+
+    if @search_issue.blank?
+      flash[:error] = 'Issue ID can not be empty.'
+      return
+    end
+
+    @per_page = 20
+    search = FullTextSearch.new(classes: @search_what,
+                                issue_name: @search_issue,
+                                issue_tracker_name: @search_tracker)
+    @results = search.search(page: params[:page], per_page: @per_page)
     flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 
@@ -105,20 +125,13 @@ class Webui::SearchController < Webui::WebuiController
     @search_attrib_type_id = nil
     @search_attrib_type_id = params[:attrib_type_id] if params[:attrib_type_id].present?
 
-    @search_issue = nil
-    @search_issue = params[:issue].strip if params[:issue].present?
-
-    @search_tracker = nil
-    @search_tracker = params[:issue_tracker] if params[:issue_tracker].present?
+    search_issue
 
     @search_text = ''
     @search_text = params[:search_text].strip if params[:search_text].present?
     @search_text = @search_text.delete("'[]\n")
 
-    @search_what = []
-    @search_what << 'package' if params[:package] == '1'
-    @search_what << 'project' if params[:project] == '1' || !@search_issue
-    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
+    search_what
 
     @search_where = []
     @search_where << 'name' if params[:name] == '1'
@@ -134,6 +147,30 @@ class Webui::SearchController < Webui::WebuiController
     @owner_devel = '1' if params[:devel] == 'on'
   end
 
+  def search_issue
+    @search_issue = params[:issue].presence.try(:strip)
+
+    @search_tracker = params[:issue_tracker].presence
+  end
+
+  def search_what
+    # FIXME: Simplify this after webui2 final migration.
+    @search_what = []
+    switch_to_webui2? ? search_what_for_webui2 : search_what_for_bento
+    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
+  end
+
+  def search_what_for_webui2
+    @search_what << 'package' if params[:search_for].in?(['0', '2'])
+    @search_what << 'project' if params[:search_for].in?(['0', '1'])
+  end
+
+  def search_what_for_bento
+    # TODO: bento_only
+    @search_what << 'package' if params[:package] == '1'
+    @search_what << 'project' if params[:project] == '1' || !@search_issue
+  end
+
   def set_attribute_list
     @attrib_type_list = AttribType.includes(:attrib_namespace).map do |t|
       ["#{t.attrib_namespace.name}:#{t.name}", t['id']]
@@ -147,5 +184,12 @@ class Webui::SearchController < Webui::WebuiController
       ["#{t.name} (#{t.description})", t.name]
     end
     @default_tracker = ::Configuration.default_tracker
+  end
+
+  # FIXME: bento_only remove this callback when we have fully migrated to Boostrap
+  # This view only exists for webui2, if the user leaves the beta program at this point,
+  # they are redirected to the index page.
+  def check_beta
+    redirect_to action: :index unless switch_to_webui2?
   end
 end
