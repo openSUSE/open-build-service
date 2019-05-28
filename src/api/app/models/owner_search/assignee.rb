@@ -44,7 +44,8 @@ module OwnerSearch
       # no filter defined, so do not check for roles and just return container
       return owner if @rolefilter.empty?
       # lookup in package container
-      extract_from_container(owner, pkg, @rolefilter)
+      matched = extract_from_container(owner, pkg, @rolefilter)
+      return matched if matched
 
       # eventually fallback
       extract_maintainer_project_level(owner, pkg)
