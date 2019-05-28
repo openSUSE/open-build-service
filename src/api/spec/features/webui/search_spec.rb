@@ -262,4 +262,100 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
   end
+
+  describe 'search for owners' do
+    let(:confirmed_user) { create(:confirmed_user, login: 'Thomas') }
+    let(:owner_root_project_attrib) { create(:owner_root_project_attrib, project: apache) }
+    let(:other_confirmed_user) { create(:confirmed_user, login: 'Tommy') }
+    let(:group_bugowner) { create(:group, title: 'bugowner_group') }
+    let(:group_maintainer) { create(:group, title: 'maintainer_group') }
+    let(:apache_package) { create(:package, name: 'apache2', title: 'Apache2 package', project: apache) }
+    let(:relationship_package_user) { create(:relationship_package_user, package: apache_package, user: confirmed_user) }
+    let(:relationship_package_group) { create(:relationship_package_group, package: apache_package, group: group_maintainer) }
+    let(:relationship_user_bugowner) { create(:relationship_package_user_as_bugowner, package: apache_package, user: other_confirmed_user) }
+    let(:relationship_group_bugowner) { create(:relationship_package_group_as_bugowner, package: apache_package, group: group_bugowner) }
+    let(:backend_url) { "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='#{apache_package}'+and+(@project='#{apache}'))" }
+    let(:backend_response) { file_fixture('apache_search.xml') }
+
+    before do
+      stub_request(:post, backend_url).and_return(body: backend_response)
+      owner_root_project_attrib
+      group_maintainer.add_user(confirmed_user)
+      group_bugowner.add_user(other_confirmed_user)
+    end
+
+    scenario 'in a package having maintainers/bugowners which are users and groups' do
+      relationship_package_user
+      relationship_package_group
+      relationship_user_bugowner
+      relationship_group_bugowner
+      reindex_for_search
+
+      login(admin_user)
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_user.user.name)
+        expect(page).to have_text(relationship_package_group.group.title)
+        expect(page).to have_text(relationship_user_bugowner.user.name)
+        expect(page).to have_text(relationship_group_bugowner.group.title)
+      end
+    end
+
+    scenario 'in a package having maintainers/bugowners which are only users' do
+      relationship_package_user
+      relationship_user_bugowner
+      reindex_for_search
+
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_user.user.name)
+        expect(page).to have_text(relationship_user_bugowner.user.name)
+      end
+    end
+
+    scenario 'in a package having maintainers/bugowners which are only groups' do
+      relationship_package_group
+      relationship_group_bugowner
+      reindex_for_search
+
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_group.group.title)
+        expect(page).to have_text(relationship_group_bugowner.group.title)
+      end
+    end
+
+    scenario 'in a package without maintainers/bugowners' do
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      expect(page).not_to have_css('#serach-results')
+    end
+  end
 end

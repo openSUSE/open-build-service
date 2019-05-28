@@ -8,7 +8,7 @@
         in #{result.rootproject}
 
       %ul.list-unstyled
-        - users_and_groups = result.users.merge(result.groups) { |_role, user, group| user.concat(group) }
+        - users_and_groups = (result.users || {}).merge(result.groups || {}) { |_role, user, group| user.concat(group) }
         - users_and_groups.each do |role, records|
           %li.mt-3
             :ruby

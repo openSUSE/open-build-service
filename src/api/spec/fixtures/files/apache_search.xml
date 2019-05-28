@@ -1,0 +1,3 @@
+<collection matches="1">
+  <binary name="apache2" project="Apache" package="apache2" repository="openSUSE_Tumbleweed" version="2.4.39" release="3.4" arch="i586" filename="apache2-2.4.39-3.4.i586.rpm" filepath="Apache/openSUSE_Tumbleweed/i586/apache2-2.4.39-3.4.i586.rpm" baseproject="openSUSE:Factory" type="rpm" />
+</collection>
