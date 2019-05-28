@@ -4,7 +4,7 @@ function hideOverlay() {
   $('.modal.show').modal('hide');
 }
 
-function saveImage() { // jshint ignore:line
+function saveImage(isOutdatedUrl) { // jshint ignore:line
   if (canSave) {
     $.ajax({ url: isOutdatedUrl,
       dataType: 'json',
@@ -241,7 +241,7 @@ function initializeTabs() { // jshint ignore:line
 
 function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
   // Save image
-  $('#kiwi-image-update-form-save').click(saveImage);
+  $('#kiwi-image-update-form-save').click(function() { saveImage(isOutdatedUrl); });
   $('#kiwi_image_use_project_repositories').click(function(){
     $('#kiwi-repositories-list, #use-project-repositories-text').toggleClass('d-none');
     enableSave();
