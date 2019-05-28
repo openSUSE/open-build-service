@@ -126,6 +126,19 @@ RSpec.describe OwnerSearch do
         expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => [other_user])
         expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => [other_user])
       end
+
+      context 'with owned user' do
+        let(:owning) { create(:confirmed_user) }
+        before do
+          other_user.update_attributes(owner: owning, state: :subaccount)
+        end
+
+        it 'still returns the owned user as bugowner' do
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('package').first.users).to eq('bugowner' => [other_user])
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('package_42').first.users).to eq('bugowner' => [other_user])
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('patchinfo_42').first.users).to eq('bugowner' => [other_user])
+        end
+      end
     end
   end
 end

@@ -59,7 +59,7 @@ module OwnerSearch
     def filter_users(owner, container, rolefilter, user)
       rel = filter_roles(container.relationships.users, rolefilter)
       rel = rel.where(user: user) if user
-      rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
+      rel = rel.joins(:user).where(relationships: { users: { state: %w[confirmed subaccount] } })
       rel.each do |p|
         owner.users ||= {}
         entries = owner.users.fetch(p.role.title, []) << p.user
