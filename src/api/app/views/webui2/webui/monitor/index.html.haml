@@ -1,0 +1,10 @@
+- @pagetitle = 'Build Status Monitor'
+- @metarobots = 'nofollow'
+.card
+  .card-body
+    - if @workerstatus
+      = render partial: 'lights'
+      = render partial: 'workers_table'
+      = render partial: 'events'
+    - else
+      %p.font-weight-bold Unable to determine status of workers
