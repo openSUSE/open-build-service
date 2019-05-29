@@ -81,7 +81,6 @@ module OwnerSearch
     def extract_from_container(owner, container, rolefilter, user_or_group = nil)
       filter_users(owner, container, rolefilter, user_or_group) unless user_or_group.class == Group
       filter_groups(owner, container, rolefilter, user_or_group) unless user_or_group.class == User
-      owner
     end
   end
 end
