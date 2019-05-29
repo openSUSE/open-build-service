@@ -1,5 +1,3 @@
-require 'api_error'
-
 class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff
@@ -414,10 +412,9 @@ class BsRequestAction < ApplicationRecord
 
   def check_maintenance_release(pkg, repo, arch)
     binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
-    l = binaries.elements('binary')
-    unless l && l.count > 0
-      raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-    end
+    binary_elements = binaries.elements('binary')
+
+    raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'" if binary_elements.empty?
 
     # check that we did not skip a source change of patchinfo
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
