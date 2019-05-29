@@ -36,6 +36,7 @@ class Webui::MonitorController < Webui::WebuiController
       @workers_sorted = workers.sort_by { |a| a[0] } if workers
       @available_arch_list = Architecture.available.order(:name).pluck(:name)
     end
+    switch_to_webui2 if Rails.env.development?
   end
 
   def update_building
