@@ -12,7 +12,7 @@
                                                    is_edit_software_action: @is_edit_software_action,
                                                    is_edit_details_action: @is_edit_details_action }
 
-    .col-12
+    .col-12#kiwi-preferences{ class: "#{'d-none' unless @is_edit_details_action}" }
       = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
 
     .col-12#kiwi-image-profiles-section{ class: "#{'d-none' unless @is_edit_software_action}" }
