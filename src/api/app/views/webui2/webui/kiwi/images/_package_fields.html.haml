@@ -21,10 +21,17 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
           The name can not be empty!
 
       .modal-body
-        %p
-          = render partial: 'webui/autocomplete', locals: { html_id: :name, label: 'Name:'.html_safe,
-                                                              source: url_for(controller: '/webui/kiwi/images', action: 'autocomplete_binaries'),
-                                                              value: f.object.name }
+        .form-group.ui-front
+          = f.label :name
+          .input-group
+            .input-group-prepend
+              %span.input-group-text
+                %i.fas.fa-search
+            = f.text_field :name, required: true,
+                                  placeholder: 'Type to autocomplete...',
+                                  class: 'form-control kiwi-package-search',
+                                  data: { source: autocomplete_binaries_kiwi_image_path, default: f.object.name }
+        .form-group
           = f.label :arch, 'Arch:'
           = f.text_field :arch, data: { default: f.object.arch }, class: 'form-control'
           = f.label :replaces, 'Replaces:'
@@ -43,4 +50,3 @@ class: "modal fade #{'new_element' if f.object.new_record?}" }
 - if f.object.name.blank?
   :javascript
     $("#add-package").modal('show');
-    setupAutocomplete();

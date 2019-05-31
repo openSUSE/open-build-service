@@ -215,6 +215,104 @@ function showOnAddition(list, show) { // jshint ignore:line
   });
 }
 
+function kiwiPackagesSetupAutocomplete(fields) {
+  var packageField = fields.find('[id$=name]');
+
+  packageField.autocomplete({
+    appendTo:  $(this).data('append'),
+    source: function (request, response) {
+      var repositories = $("#kiwi-repositories-list [id$='source_path']").map(function() { return this.value;}).get();
+      var repositoryDestroyFields = $("#kiwi-repositories-list [id$='_destroy']");
+      var usingProjectRepositories =  $('#kiwi_image_use_project_repositories').prop('checked');
+      repositoryDestroyFields.each(function(index, input){ // remove destroyed repositories from the payload
+        if ($(input).val() === "1") {
+          repositories.splice(index, 1);
+        }
+      });
+      var payload = { term: request.term, repositories: repositories };
+      if (usingProjectRepositories) {
+        payload.useProjectRepositories = true;
+      }
+      $.getJSON(packageField.data('source'), payload,
+        function (data) {
+          response(data);
+        });
+    },
+    search: function() {
+      $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    response: function() {
+      $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    minLength: 2
+  });
+}
+
+function autocompleteKiwiRepositories(project, repoField) {
+  if (project === "")
+      return;
+  repoField.prop('disabled', true);
+  $.ajax({
+      url: repoField.data('source'),
+      data: {project: project},
+      success: function (data) {
+        repoField.html('');
+        var foundoptions = false;
+        $.each(data, function (idx, val) {
+          repoField.append(new Option(val));
+          repoField.prop('disabled', false);
+          foundoptions = true;
+        });
+        if (!foundoptions)
+          repoField.append(new Option('No repos found'));
+      },
+      complete: function () {
+        repoField.trigger("change");
+      }
+  });
+}
+
+function kiwiRepositoriesSetupAutocomplete(fields) {
+  var projectField = fields.find('[name=target_project]');
+  var repoField = fields.find('[name=target_repo]');
+  var aliasField = fields.find('[name=alias_for_repo]');
+
+  projectField.autocomplete({
+    source: projectField.data('source'),
+    minLength: 2,
+    select: function (event, ui) {
+      autocompleteKiwiRepositories(ui.item.value, repoField);
+    },
+    search: function() {
+      $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    },
+    response: function() {
+      $(this).prev().find('i').toggleClass('fa-search fa-spinner fa-spin');
+    }
+  });
+
+  projectField.change(function () {
+    autocompleteKiwiRepositories(projectField.val(), repoField);
+  });
+
+  repoField.change(function () {
+    var repoFieldValue = repoField.val();
+    if (repoField.val() === 'No repos found') {
+      repoFieldValue = '';
+    }
+    var sourcePath = fields.find("[id$='source_path']");
+    sourcePath.val("obs://" + projectField.val() + '/' + repoField.val());
+    aliasField.val(repoFieldValue + '@' + projectField.val()).
+      trigger("change");
+    var repoTypeField = fields.find("[id$='repo_type']");
+    repoTypeField.val('rpm-md');
+  });
+
+  aliasField.change(function () {
+    fields.find("[id$='alias']").val($(this).val());
+  });
+}
+
 function initializeTabs() { // jshint ignore:line
   $("#kiwi-details-trigger").click(function() {
     $("#kiwi-image-details-section").removeClass('d-none');
@@ -272,6 +370,13 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
   $('#kiwi-repositories-list .close-dialog, #kiwi-packages-list .close-dialog').click(closeKiwiDialog);
   $('.revert-dialog').click(revertDialog);
 
+  $('.kiwi-repository-search').each(function() {
+    kiwiRepositoriesSetupAutocomplete($(this).parents('.nested-fields'));
+  });
+  $('.kiwi-package-search').each(function() {
+    kiwiPackagesSetupAutocomplete($(this).parents('.nested-fields'));
+  });
+
   // After inserting new repositories add the Callbacks
   $('#kiwi-repositories-list').on('cocoon:after-insert', function(e, addedFields) {
     var lastOrder = 0;
@@ -284,6 +389,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeKiwiDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
+    kiwiRepositoriesSetupAutocomplete($(addedFields));
     $('#no-repositories').addClass('d-none');
   });
 
@@ -293,6 +399,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
     $(addedFields).find('.close-dialog').click(closeKiwiDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
+    kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').addClass('d-none');
   });
 
