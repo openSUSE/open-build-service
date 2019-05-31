@@ -46,7 +46,3 @@
         .modal-footer
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-sm btn-outline-danger px-4')
           = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-sm btn-primary px-4')
-
-  - if f.object.name.blank?
-    :javascript
-      $("#add-package").modal('show');

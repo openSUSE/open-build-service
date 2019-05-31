@@ -143,6 +143,8 @@ function closeKiwiDialog() { // jshint ignore:line
     var namePackage = dialog.find("[id$='name']").val();
     if(namePackage !== '') {
       name.text(namePackage);
+      name.attr('data-target', '#package-' + namePackage);
+      dialog.attr('id', 'package-' + namePackage);
 
       arch = dialog.find("[id$='arch']").val();
       if(arch !== '') {
@@ -400,6 +402,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
     $(addedFields).find('.close-dialog').click(closeKiwiDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
+    $(addedFields).find('.modal').modal('show');
     kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').addClass('d-none');
   });
