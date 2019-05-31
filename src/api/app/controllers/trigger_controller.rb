@@ -11,6 +11,8 @@ class TriggerController < ApplicationController
   #
   skip_before_action :extract_user
   skip_before_action :require_login
+  skip_before_action :validate_params # new gitlab versions send other data as parameters,
+  # which which we may need to ignore here. Like the project hash.
 
   # to get access to the method release_package
   include MaintenanceHelper
