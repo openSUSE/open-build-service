@@ -389,6 +389,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
     $(addedFields).find('.close-dialog').click(closeKiwiDialog);
     $(addedFields).find('.revert-dialog').click(revertDialog);
+    $(addedFields).find('.modal').modal('show');
     kiwiRepositoriesSetupAutocomplete($(addedFields));
     $('#no-repositories').addClass('d-none');
   });
