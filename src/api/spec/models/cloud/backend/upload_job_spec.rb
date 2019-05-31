@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
+RSpec.describe Cloud::Backend::UploadJob, type: :model do
   let(:user) { create(:confirmed_user, login: 'tom', ec2_configuration: create(:ec2_configuration)) }
   let(:now) { Time.now }
 
@@ -106,7 +106,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model, vcr: true do
     end
   end
 
-  describe '.find' do
+  describe '.find', vcr: true do
     let(:upload_job) { create(:upload_job, job_id: 1000, user: user) }
     let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
 
