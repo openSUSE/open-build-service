@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true do
+RSpec.describe Staging::StagingProjectsController do
   render_views
 
   let(:user) { create(:confirmed_user, login: 'permitted_user') }
@@ -12,7 +12,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
   let(:target_package) { create(:package, name: 'target_package', project: project) }
   let(:source_package) { create(:package, name: 'source_package', project: source_project) }
 
-  describe 'GET #index' do
+  describe 'GET #index', vcr: true do
     context 'existing staging_workflow' do
       before do
         get :index, params: { staging_workflow_project: staging_workflow.project.name, format: :xml }
@@ -159,7 +159,7 @@ RSpec.describe Staging::StagingProjectsController, type: :controller, vcr: true 
       it { expect(response.body).to match('Staging project is not in state acceptable.') }
     end
 
-    context 'when project is in state acceptable' do
+    context 'when project is in state acceptable', vcr: true do
       let(:requester) { create(:confirmed_user, login: 'requester') }
       let(:target_project) { create(:project, name: 'target_project') }
       let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }

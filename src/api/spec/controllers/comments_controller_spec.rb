@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe CommentsController, type: :controller do
+RSpec.describe CommentsController do
   render_views
   describe 'GET #show' do
     let(:user) { create(:confirmed_user) }
