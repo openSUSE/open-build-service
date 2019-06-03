@@ -8,7 +8,8 @@
       = form_tag(search_owner_path, method: :get, class: 'my-3 w-75') do
         %input{ name: 'owner', type: 'hidden', value: '1' }
         .form-group.d-flex
-          = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true, required: true, class: 'form-control')
+          = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true, required: true, class: 'form-control',
+                           id: 'search_input')
           %button.btn.btn-primary.ml-1{ type: 'submit', title: 'Search' }
             %i.fa.fa-search
         .form-row
