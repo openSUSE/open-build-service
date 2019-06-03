@@ -1,13 +1,13 @@
 require 'rails_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the BsRequestAction methods
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequestAction, vcr: true do
+RSpec.describe BsRequestAction do
   let(:user) { create(:confirmed_user, login: 'request_user') }
 
-  context 'encoding of sourcediffs' do
+  before do
+    allow(User).to receive(:session!).and_return(user)
+  end
+
+  context 'encoding of sourcediffs', vcr: true do
     let(:file_content) { "-{\xA2:\xFA*\xA3q\u0010\xC2X\\\x9D" }
     let(:utf8_encoded_file_content) { file_content.encode('UTF-8', 'binary', invalid: :replace, undef: :replace) }
     let(:project) { user.home_project }
@@ -21,10 +21,6 @@ RSpec.describe BsRequestAction, vcr: true do
     end
     let(:bs_request) { create(:bs_request_with_submit_action, creator: user, target_package: target_package, source_package: source_package) }
     let(:bs_request_action) { bs_request.bs_request_actions.first }
-
-    before do
-      allow(User).to receive(:current).and_return(user)
-    end
 
     it { expect(bs_request_action.sourcediff.valid_encoding?).to be(true) }
     it { expect(bs_request_action.sourcediff).to include(utf8_encoded_file_content) }
@@ -44,8 +40,9 @@ RSpec.describe BsRequestAction, vcr: true do
         target_package: target_pkg
       }
     end
-    let(:bs_request) { create(:bs_request, action_attributes) }
-    let!(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    let(:bs_request) { create(:bs_request, action_attributes.merge(creator: user)) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
 
     it { expect(bs_request_action).to be_valid }
 
@@ -95,7 +92,7 @@ RSpec.describe BsRequestAction, vcr: true do
     let(:bs_request) do
       create(:bs_request_with_submit_action,
              source_package: source_package,
-             target_package: target_package)
+             target_package: target_package, creator: user)
     end
     let(:bs_request_action) { bs_request.bs_request_actions.first }
 
@@ -104,7 +101,7 @@ RSpec.describe BsRequestAction, vcr: true do
     end
 
     context 'with no matching action' do
-      let(:another_bs_request) { build(:bs_request) }
+      let(:another_bs_request) { build(:bs_request, creator: user) }
 
       it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to be_nil }
     end
@@ -113,7 +110,7 @@ RSpec.describe BsRequestAction, vcr: true do
       let!(:another_bs_request) do
         create(:bs_request_with_submit_action,
                source_package: source_package,
-               target_package: target_package)
+               target_package: target_package, creator: user)
       end
       let(:another_bs_request_action) { another_bs_request.bs_request_actions.first }
 
@@ -125,7 +122,7 @@ RSpec.describe BsRequestAction, vcr: true do
         let(:another_bs_request) do
           create(:bs_request_with_submit_action,
                  source_package: source_package,
-                 target_package: another_target_package)
+                 target_package: another_target_package, creator: user)
         end
         let(:another_bs_request_action) do
           create(:bs_request_action_submit,
@@ -143,36 +140,104 @@ RSpec.describe BsRequestAction, vcr: true do
         it { expect(bs_request_action.find_action_with_same_target(another_bs_request)).to eq(another_bs_request_action) }
       end
     end
+  end
 
-    describe '#is_target_maintainer?' do
-      context 'without target' do
-        let(:action_without_target) { build(:bs_request_action) }
+  describe '#is_target_maintainer?' do
+    context 'without target' do
+      let(:action_without_target) { build(:bs_request_action) }
 
-        it 'is false' do
-          expect(action_without_target).not_to be_is_target_maintainer(user)
-        end
-        it 'works on nil' do
-          expect(action_without_target).not_to be_is_target_maintainer(nil)
-        end
+      it 'is false' do
+        expect(action_without_target).not_to be_is_target_maintainer(user)
+      end
+      it 'works on nil' do
+        expect(action_without_target).not_to be_is_target_maintainer(nil)
+      end
+    end
+
+    context 'on home target' do
+      let(:another_user) { create(:confirmed_user) }
+      let(:bs_request) do
+        create(:set_bugowner_request, target_project: user.home_project, creator: user)
+      end
+      let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+      it 'is true for user' do
+        expect(bs_request_action).to be_is_target_maintainer(user)
+      end
+      it 'works on nil' do
+        expect(bs_request_action).not_to be_is_target_maintainer(nil)
+      end
+      it 'is false for another user' do
+        expect(bs_request_action).not_to be_is_target_maintainer(another_user)
+      end
+    end
+  end
+
+  describe '#check_maintenance_release' do
+    before do
+      allow(User).to receive(:session!).and_return(user)
+    end
+
+    let(:binary_list) do
+      <<-XML
+        <binarylist>
+          <binary filename="_buildenv" size="16724" mtime="1559026680" />
+        </binarylist>
+      XML
+    end
+
+    let(:build_history) do
+      <<-XML
+        <buildhistory>
+          <entry rev="1" srcmd5="ef521827053c2e3b3cc735662c5d5bb0" versrel="2.10-1" bcnt="1" time="1559026681" duration="59" />
+        </buildhistory>
+      XML
+    end
+
+    let(:source_prj) { create(:project, name: 'super_source_pkg') }
+    let(:source_pkg) { create(:package, project: source_prj, name: 'super_source_pkg') }
+    let(:target_prj) { create(:project) }
+    let(:target_pkg) { create(:package, project: target_prj) }
+    let(:action_attributes) do
+      {
+        type: 'submit',
+        source_package: source_pkg,
+        source_project: source_prj,
+        target_project: target_prj,
+        target_package: target_pkg
+      }
+    end
+
+    let(:repository) { create(:repository, name: 'super_repo', architectures: ['x86_64'], project: source_prj) }
+    let(:architecture) { Architecture.find_by!(name: 'x86_64') }
+    let!(:bs_request) { create(:bs_request, action_attributes.merge(creator: user)) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    context 'everything works as expected' do
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+        allow(Directory).to receive(:hashed).and_return('srcmd5' => 'ef521827053c2e3b3cc735662c5d5bb0')
       end
 
-      context 'on home target' do
-        let(:another_user) { create(:confirmed_user) }
-        let(:bs_request) do
-          create(:set_bugowner_request, target_project: user.home_project)
-        end
-        let(:bs_request_action) { bs_request.bs_request_actions.first }
+      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.not_to raise_error }
+    end
 
-        it 'is true for user' do
-          expect(bs_request_action).to be_is_target_maintainer(user)
-        end
-        it 'works on nil' do
-          expect(bs_request_action).not_to be_is_target_maintainer(nil)
-        end
-        it 'is false for another user' do
-          expect(bs_request_action).not_to be_is_target_maintainer(another_user)
-        end
+    context 'patchinfo is not build' do
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return("<binarylist></binarylist>\n")
       end
+
+      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
+    end
+
+    context 'last patchinfo is not build', vcr: true do
+      before do
+        allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
+        allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+      end
+
+      it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
     end
   end
 end
