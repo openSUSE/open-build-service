@@ -10,6 +10,7 @@ module Webui
 
         # GET /cloud/azure/configuration
         def show
+          switch_to_webui2
           @crumb_list << 'Azure Configuration'
         end
 

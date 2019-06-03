@@ -1,0 +1,8 @@
+= render partial: 'webui/main/breadcrumb_items'
+
+%li.breadcrumb-item
+  = link_to 'Cloud Upload', cloud_upload_index_path
+%li.breadcrumb-item
+  = link_to 'Cloud Configuration', cloud_configuration_index_path
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  Microsoft Azure Configuration
