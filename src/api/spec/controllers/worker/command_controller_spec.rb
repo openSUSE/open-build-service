@@ -15,7 +15,7 @@ RSpec.describe Worker::CommandController do
   let!(:project) do
     create(:project_with_repository, maintainer: user) do |project|
       project.store
-      project.packages.create(attributes_for(:package))
+      create(:package, project: project)
     end
   end
 
