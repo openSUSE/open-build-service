@@ -3,7 +3,7 @@
 .card
   .card-body
     - if @workerstatus
-      = render partial: 'lights'
+      = render partial: 'lights', locals: { workerstatus: @workerstatus }
       = render partial: 'workers_table'
       = render partial: 'events'
     - else
