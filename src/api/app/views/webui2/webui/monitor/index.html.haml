@@ -5,6 +5,6 @@
     - if @workerstatus
       = render partial: 'lights', locals: { workerstatus: @workerstatus }
       = render partial: 'workers_table'
-      = render partial: 'events'
+      = render partial: 'events', locals: { available_arch_list: @available_arch_list, default_architecture: @default_architecture }
     - else
       %p.font-weight-bold Unable to determine status of workers
