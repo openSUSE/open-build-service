@@ -429,6 +429,8 @@ getent passwd obsservicerun >/dev/null || \
 %service_add_pre obsdodup.service
 %service_add_pre obsgetbinariesproxy.service
 %service_add_pre obswarden.service
+%service_add_pre obsnotifyforward.service
+%service_add_pre obsredis.service
 
 # make sure logfiles belong to the obsrun user
 if [ -f /etc/sysconfig/obs-server ] ; then
@@ -474,6 +476,8 @@ exit 0
 %service_del_preun obsdodup.service
 %service_del_preun obsgetbinariesproxy.service
 %service_del_preun obswarden.service
+%service_del_preun obsnotifyforward.service
+%service_del_preun obsredis.service
 
 %preun -n obs-common
 %service_del_preun obsstoragesetup.service
@@ -501,6 +505,8 @@ exit 0
 %service_add_post obsdodup.service
 %service_add_post obsgetbinariesproxy.service
 %service_add_post obswarden.service
+%service_add_post obsnotifyforward.service
+%service_add_post obsredis.service
 
 %post -n obs-worker
 %service_add_post obsworker.service
@@ -532,6 +538,8 @@ fi
 %service_del_postun -r obsdodup.service
 %service_del_postun -r obsgetbinariesproxy.service
 %service_del_postun -r obswarden.service
+%service_del_postun -r obsnotifyforward.service
+%service_del_postun -r obsredis.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
@@ -627,6 +635,8 @@ fi
 %{_unitdir}/obsdodup.service
 %{_unitdir}/obsgetbinariesproxy.service
 %{_unitdir}/obswarden.service
+%{_unitdir}/obsnotifyforward.service
+%{_unitdir}/obsredis.service
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/obsscheduler
@@ -641,6 +651,8 @@ fi
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
+/usr/sbin/rcobsnotifyforward
+/usr/sbin/rcobsredis
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer

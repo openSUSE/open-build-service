@@ -32,6 +32,7 @@ use Data::Dumper;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
+use Time::HiRes;
 
 use BSConfiguration;
 use BSUtil;
@@ -98,17 +99,22 @@ my $lua_updateresult_empty = q{
 };
 
 my $lua_updateresult = q{
-  redis.call('HMSET', KEYS[1], unpack(ARGV))
+  local pkgs = {}
   local details = {}
-  for pkg,detail in ipairs(ARGV) do
+  local i = 1 ; while 1 do
+    local pkg = ARGV[i]
+    if not pkg then break end
+    local detail = ARGV[i + 1]
+    redis.call('HSET', KEYS[1], pkg, detail)
+    pkgs[pkg] = true
     details[detail] = true
+    i = i + 2
   end
-  local prune = {}
-  for k in ipairs(redis.call('HKEYS', KEYS[2])) do
-    if not details[k] then table.insert(prune, k) end
+  for _,k in ipairs(redis.call('HKEYS', KEYS[1])) do
+    if not pkgs[k] then redis.call('HDEL', KEYS[1], k) end
   end
-  if prune[1] then
-    redis.call('HDEL', KEYS[2], unpack(prune))
+  for _,k in ipairs(redis.call('HKEYS', KEYS[2])) do
+    if not details[k] then redis.call('HDEL', KEYS[2], k) end
   end
   return 'OK'
 };
@@ -123,6 +129,11 @@ my $lua_updateoneresult = q{
 
 my $lua_updatejobstatus = q{
   redis.call('HSET', KEYS[1], ARGV[1], ARGV[2])
+  return 'OK'
+};
+
+my $lua_updatejobstatus_del = q{
+  redis.call('HDEL', KEYS[1], ARGV[1])
   return 'OK'
 };
 
@@ -160,7 +171,11 @@ sub forwarddata {
     } elsif ($cmd eq 'updateoneresult') {
       unshift @line, 'EVAL', $lua_updateoneresult, 2, "result.$prpa", "jobs.$prpa";
     } elsif ($cmd eq 'updatejobstatus') {
-      unshift @line, 'EVAL', $lua_updatejobstatus, 1, "jobs.$prpa";
+      if (@line == 1) {
+        unshift @line, 'EVAL', $lua_updatejobstatus_del, 1, "jobs.$prpa";
+      } else {
+        unshift @line, 'EVAL', $lua_updatejobstatus, 1, "jobs.$prpa";
+      }
     } else {
       die("unknown redis command '$cmd'\n");
     }
@@ -253,6 +268,7 @@ while (1) {
     die if -e "$myeventdir/queue.send";
     rename("$myeventdir/queue", "$myeventdir/queue.send") || die("rename $myeventdir/queue $myeventdir/queue.send: $!\n");
     $retry = doforward($file);
+    Time::HiRes::sleep(.5);
   } else {
     print "waiting for an event...\n";
     BSUtil::waitping(\*PING);

@@ -32,6 +32,7 @@ use Data::Dumper;
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Getopt::Long ();
+use Time::HiRes;
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -230,6 +231,7 @@ while (1) {
     die if -e "$myeventdir/queue.send";
     rename("$myeventdir/queue", "$myeventdir/queue.send") || die("rename $myeventdir/queue $myeventdir/queue.send: $!\n");
     $retry = doforward($file);
+    Time::HiRes::sleep(.5);
   } else {
     print "waiting for an event...\n";
     BSUtil::waitping(\*PING);
