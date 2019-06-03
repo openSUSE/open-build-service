@@ -113,7 +113,7 @@ sub event_built {
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   if (!$info) {
     print "  - $job has bad info\n";
-  } elsif ($info->{'arch'} ne $myarch) {
+  } elsif ($info->{'arch'} ne $myarch && $ev->{'type'} ne 'import') {
     print "  - $job has bad arch\n";
   } else {
     if ($ev->{'type'} eq 'built') {
