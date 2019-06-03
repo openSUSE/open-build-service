@@ -1,10 +1,6 @@
 require 'rails_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the actions
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe PersonController, vcr: false do
+RSpec.describe PersonController do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
+RSpec.describe Staging::WorkflowsController do
   let(:other_user) { create(:confirmed_user, login: 'unpermitted_user') }
   let(:user) { create(:confirmed_user, login: 'permitted_user') }
   let(:project) { user.home_project }

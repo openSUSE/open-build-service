@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AttributeController, type: :controller do
+RSpec.describe AttributeController do
   render_views
 
   describe '#update' do

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Staging::ExcludedRequestsController, type: :controller, vcr: true do
+RSpec.describe Staging::ExcludedRequestsController do
   render_views
 
   let(:user) { create(:confirmed_user, login: 'user') }

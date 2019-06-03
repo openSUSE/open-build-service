@@ -1,9 +1,5 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the actions
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
 RSpec.describe PublicController, vcr: true do
   let(:project) { create(:project, name: 'public_controller_project', title: 'The Public Controller Project') }

@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true do
+RSpec.describe Staging::StagedRequestsController do
   render_views
 
   let(:other_user) { create(:confirmed_user, login: 'unpermitted_user') }
@@ -60,7 +60,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
       it { expect(response).to have_http_status(:not_found) }
     end
 
-    context 'with valid and invalid request number' do
+    context 'with valid and invalid request number', vcr: true do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
@@ -85,7 +85,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
       end
     end
 
-    context 'with valid staging_project' do
+    context 'with valid staging_project', vcr: true do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
@@ -99,7 +99,7 @@ RSpec.describe Staging::StagedRequestsController, type: :controller, vcr: true d
     end
   end
 
-  describe 'DELETE #destroy' do
+  describe 'DELETE #destroy', vcr: true do
     let!(:package) { create(:package, name: target_package, project: staging_project) }
 
     before do
