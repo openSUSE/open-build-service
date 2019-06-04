@@ -161,7 +161,7 @@ GEM
       activesupport (>= 4.2.0)
     gssapi (1.3.0)
       ffi (>= 1.0.1)
-    haml (5.0.4)
+    haml (5.1.1)
       temple (>= 0.8.0)
       tilt
     haml-rails (2.0.1)
@@ -170,8 +170,8 @@ GEM
       haml (>= 4.0.6, < 6.0)
       html2haml (>= 1.0.1)
       railties (>= 5.1)
-    haml_lint (0.31.0)
-      haml (>= 4.0, < 5.1)
+    haml_lint (0.32.0)
+      haml (>= 4.0, < 5.2)
       rainbow
       rake (>= 10, < 13)
       rubocop (>= 0.50.0)
