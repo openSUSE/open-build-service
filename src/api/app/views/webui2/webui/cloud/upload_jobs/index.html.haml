@@ -1,0 +1,38 @@
+.card
+  .card-body
+    %h3 Cloud Upload
+
+    %p.float-right
+      = link_to cloud_configuration_index_path do
+        %i.fas.fa-cogs
+        Cloud upload configuration
+    %br
+
+    %p
+      %table.responsive.table.table-sm.table-striped.table-bordered#upload-jobs
+        %thead
+          %tr
+            %th #
+            %th Filename
+            %th Details
+            %th Platform
+            %th Status
+            %th Created
+            %th
+        %tbody
+          - @upload_jobs.each do |job|
+            %tr
+              %td= job.id
+              %td= link_to(job.filename, package_binaries_path(project: job.project, package: job.package, repository: job.repository))
+              %td= job.details
+              %td= job.target.upcase
+              %td= job.state
+              %td= time_tag(job.created_at)
+              %td
+                = link_to 'Log', cloud_upload_log_path(job.id)
+                - unless ['succeeded', 'failed'].include?(job.state)
+                  |
+                  = link_to 'Abort', cloud_upload_path(job.id), method: :delete, data: { confirm: "Do you really want to abort job #{job.id}?" }
+
+- content_for :ready_function do
+  initializeDataTable('#upload-jobs');
