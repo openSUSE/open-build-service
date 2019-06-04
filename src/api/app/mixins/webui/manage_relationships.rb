@@ -1,4 +1,14 @@
 module Webui::ManageRelationships
+  def redirect_after_save(what)
+    if switch_to_webui2
+      redirect_to(users_path)
+    elsif what == :person
+      redirect_to(add_path(:add_person))
+    else
+      redirect_to(add_path(:add_group))
+    end
+  end
+
   def save_person_or_group(what)
     authorize main_object, :update?
     begin
@@ -7,14 +17,7 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::SaveError => e
       flash[:error] = e.to_s
-      if switch_to_webui2
-        redirect_to(users_path)
-      elsif what == :person
-        redirect_to(add_path(:add_person))
-      else
-        redirect_to(add_path(:add_group))
-      end
-      return
+      return redirect_after_save(what)
     end
     respond_to do |format|
       format.js { render json: {}, status: :ok }
