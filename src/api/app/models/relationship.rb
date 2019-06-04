@@ -1,6 +1,4 @@
 class Relationship < ApplicationRecord
-  class SaveError < APIError; end
-
   belongs_to :role
 
   # only one is true
@@ -59,40 +57,12 @@ class Relationship < ApplicationRecord
   after_rollback :discard_cache
   after_destroy :discard_cache
 
-  def self.add_role(package_or_project, role, opts)
-    package_or_project.check_write_access!(opts[:ignore_lock])
-
-    role = Role.find_by_title!(role) unless role.is_a?(Role)
-    if role.global
-      # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
-    end
-
-    raise ArgumentError, 'need either user or group' unless opts[:user].present? ^ opts[:group].present?
-
-    user = opts[:user]
-    user = User.find_by!(login: user) if user.is_a?(String)
-
-    group = opts[:group]
-    group = Group.find_by!(title: group) if group.is_a?(String)
-
-    if package_or_project.relationships.where(user: user, group: group, role: role).exists?
-      raise SaveError, 'Relationship already exists' if opts[:check]
-      debug_str = user ? "user #{user.login}" : "group #{group.title}"
-      logger.debug "ignore #{debug_str} - already has role #{role.title}"
-      return
-    end
-
-    r = package_or_project.relationships.build(user: user, group: group, role: role)
-    r.delete if r.invalid?
-  end
-
   def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
-    add_role(obj, role, user: user, ignore_lock: ignore_lock, check: check)
+    Relationship::AddRole.new(obj, role, user: user, ignore_lock: ignore_lock, check: check).add_role
   end
 
   def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
-    add_role(obj, role, group: group, ignore_lock: ignore_lock, check: check)
+    Relationship::AddRole.new(obj, role, group: group, ignore_lock: ignore_lock, check: check).add_role
   end
 
   # calculate and cache forbidden_project_ids for users

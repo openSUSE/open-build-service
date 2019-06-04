@@ -12,10 +12,10 @@ module Webui::ManageRelationships
   def save_person_or_group(what)
     authorize main_object, :update?
     begin
-      Relationship.add_role(main_object, Role.find_by_title!(params[:role]), check: true, user: params[:userid], group: params[:groupid]) # report error on duplicate
+      Relationship::AddRole.new(main_object, Role.find_by_title!(params[:role]), check: true, user: params[:userid], group: params[:groupid]).add_role # report error on duplicate
       main_object.store
     rescue NotFoundError,
-           Relationship::SaveError => e
+           Relationship::AddRole::SaveError => e
       flash[:error] = e.to_s
       return redirect_after_save(what)
     end
