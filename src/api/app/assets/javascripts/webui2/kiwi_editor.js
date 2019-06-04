@@ -116,6 +116,10 @@ function closeKiwiPreferencesDialog() { // jshint ignore:line
   hideOverlay();
 }
 
+function showRemoveAction(fields) {
+  fields.find('.kiwi_actions').removeClass('d-none');
+}
+
 function closeKiwiDialog() { // jshint ignore:line
   var fields = $(this).parents('.nested-fields'),
       isRepository = fields.parents('#kiwi-repositories-list').length === 1,
@@ -133,6 +137,7 @@ function closeKiwiDialog() { // jshint ignore:line
       else {
         name.text(sourcePath.val().replace(/\//g, '_'));
       }
+      showRemoveAction(fields);
     }
     else {
       addRepositoryErrorMessage(sourcePath.val(), fields.find(".ui-state-error"));
@@ -150,6 +155,7 @@ function closeKiwiDialog() { // jshint ignore:line
       if(arch !== '') {
         name.append(" <small>(" + arch + ")</small>");
       }
+      showRemoveAction(fields);
     }
     else {
       fields.find(".ui-state-error").removeClass('d-none');
@@ -339,6 +345,13 @@ function initializeTabs() { // jshint ignore:line
   });
 }
 
+function cocoonAfterInsert(addedFields) {
+  $(addedFields).find('.close-dialog').click(closeKiwiDialog);
+  $(addedFields).find('.revert-dialog').click(revertDialog);
+  $(addedFields).find('.kiwi_actions').addClass('d-none');
+  $(addedFields).find('.modal').modal('show');
+}
+
 function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
   // Save image
   $('#kiwi-image-update-form-save').click(function() { saveImage(isOutdatedUrl); });
@@ -389,9 +402,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
     }
     $(addedFields).find("[id$='order']").val(lastOrder + 1);
     $(addedFields).find('.repository_edit').click(editRepositoryDialog);
-    $(addedFields).find('.close-dialog').click(closeKiwiDialog);
-    $(addedFields).find('.revert-dialog').click(revertDialog);
-    $(addedFields).find('.modal').modal('show');
+    cocoonAfterInsert(addedFields);
     kiwiRepositoriesSetupAutocomplete($(addedFields));
     $('#no-repositories').addClass('d-none');
   });
@@ -400,9 +411,7 @@ function initializeKiwi(isOutdatedUrl) { // jshint ignore:line
 
   // After inserting new packages add the Callbacks
   $('#kiwi-packages-list').on('cocoon:after-insert', function(e, addedFields) {
-    $(addedFields).find('.close-dialog').click(closeKiwiDialog);
-    $(addedFields).find('.revert-dialog').click(revertDialog);
-    $(addedFields).find('.modal').modal('show');
+    cocoonAfterInsert(addedFields);
     kiwiPackagesSetupAutocomplete($(addedFields));
     $('#no-packages').addClass('d-none');
   });
