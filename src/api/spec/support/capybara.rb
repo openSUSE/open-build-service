@@ -21,7 +21,7 @@ if ENV['RSPEC_HOST'].blank?
 else
   caps = Selenium::WebDriver::Remote::Capabilities.chrome(
     'goog:chromeOptions' => {
-      'args' => ['--no-sandbox']
+      'args' => ['--no-sandbox', '--start-maximized']
     },
     browserName: 'chrome'
   )
