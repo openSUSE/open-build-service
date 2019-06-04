@@ -96,7 +96,7 @@ function closeKiwiPreferencesDialog() { // jshint ignore:line
 
   var elements = fields.find('.fill');
   for(var i=0; i < elements.length; i++) {
-    var object = dialog.find("[id$='_" + i + "_" + $(elements[i]).data('tag') + "']");
+    var object = dialog.find("[id$='_" + 0 + "_" + $(elements[i]).data('tag') + "']");
     if ( object.val() !== "") {
       if ( $(elements[i]).data('tag') === 'type_image' ) {
         $(elements[i]).text(object.find(":selected").text());
