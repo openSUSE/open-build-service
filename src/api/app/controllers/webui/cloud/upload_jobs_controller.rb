@@ -21,6 +21,7 @@ module Webui
         @azure_configured = Feature.active?(:cloud_upload_azure)
         @user_ec2_configured = User.session!.ec2_configuration.present?
         @user_azure_configured = User.session!.azure_configuration.present?
+        switch_to_webui2
       end
 
       def create
