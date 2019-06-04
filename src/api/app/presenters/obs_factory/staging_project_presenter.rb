@@ -34,7 +34,7 @@ module ObsFactory
         'user-shield'
       when 'maintenance-team' then
         'medkit'
-      when 'legal-team', 'legal-auto' then
+      when 'legal-team', 'legal-auto', 'licensedigger' then
         'graduation-cap'
       when 'leaper', 'origin-manager' then
         'code-fork'
