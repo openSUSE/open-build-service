@@ -10,6 +10,7 @@ module Webui
       before_action :set_upload_job, only: :destroy
 
       def index
+        switch_to_webui2
         @upload_jobs = ::Cloud::Backend::UploadJob.all(User.session!)
         @crumb_list.push << 'Overview'
       end
