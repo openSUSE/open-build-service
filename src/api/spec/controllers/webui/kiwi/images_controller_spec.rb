@@ -6,7 +6,7 @@ require 'rails_helper'
 
 RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
   let(:project) { create(:project, name: 'fake_project') }
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:kiwi_image_with_package_with_kiwi_file) do
     create(:kiwi_image_with_package, name: 'package_with_valid_kiwi_file', project: user.home_project, with_kiwi_file: true)
   end

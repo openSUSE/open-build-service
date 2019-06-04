@@ -4,7 +4,7 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Backend::File, vcr: true do
-  let(:user) { create(:user, login: 'user') }
+  let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do
     File.open(File.expand_path(Rails.root.join('spec/support/files/hello.txt'))) { |file| file }

@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_Patchinfo', type: :feature, js: true, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
   feature 'delete Patchinfo' do

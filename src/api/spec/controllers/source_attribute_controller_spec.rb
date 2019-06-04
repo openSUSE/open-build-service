@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SourceAttributeController, vcr: true do
   render_views
 
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:update_project) { create(:project) }
   let(:main_attribute) { create(:attrib, project: user.home_project) }

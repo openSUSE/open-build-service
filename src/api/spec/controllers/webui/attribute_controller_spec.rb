@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::AttributeController do
-  let!(:user) { create(:confirmed_user) }
+  let!(:user) { create(:confirmed_user, :with_home) }
 
   describe 'GET index' do
     it 'shows an error message when package does not exist' do

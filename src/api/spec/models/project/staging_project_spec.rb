@@ -5,7 +5,7 @@ require 'rantly/rspec_extensions'
 
 RSpec.describe Project, vcr: true do
   describe 'Staging Project' do
-    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
     let(:managers_group) { create(:group) }
     let(:other_managers_group) { create(:group) }

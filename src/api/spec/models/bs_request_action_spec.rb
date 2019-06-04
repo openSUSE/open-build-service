@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe BsRequestAction do
-  let(:user) { create(:confirmed_user, login: 'request_user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'request_user') }
 
   before do
     allow(User).to receive(:session!).and_return(user)

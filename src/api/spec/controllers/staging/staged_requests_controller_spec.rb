@@ -4,7 +4,7 @@ RSpec.describe Staging::StagedRequestsController do
   render_views
 
   let(:other_user) { create(:confirmed_user, login: 'unpermitted_user') }
-  let(:user) { create(:confirmed_user, login: 'permitted_user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
   let(:group) { staging_workflow.managers_group }

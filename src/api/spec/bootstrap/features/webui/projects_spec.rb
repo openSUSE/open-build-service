@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
-  let!(:user) { create(:confirmed_user, login: 'Jane') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
   let!(:admin_user) { create(:admin_user) }
   describe 'creating packages in projects owned by user, eg. home projects' do
@@ -45,7 +45,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
   end
 
   describe 'branching' do
-    let(:other_user) { create(:confirmed_user, login: 'other_user') }
+    let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do

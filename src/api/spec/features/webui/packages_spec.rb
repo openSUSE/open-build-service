@@ -11,9 +11,9 @@ RSpec.feature 'Packages', type: :feature, js: true do
     let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
   end
 
-  let!(:user) { create(:confirmed_user, login: 'package_test_user') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
-  let(:other_user) { create(:confirmed_user, login: 'other_package_test_user') }
+  let(:other_user) { create(:confirmed_user, :with_home, login: 'other_package_test_user') }
   let!(:other_users_package) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
   let(:package_with_develpackage) { create(:package, name: 'develpackage', project: user.home_project, develpackage: other_users_package) }
   let(:third_project) { create(:project_with_package, package_name: 'develpackage') }

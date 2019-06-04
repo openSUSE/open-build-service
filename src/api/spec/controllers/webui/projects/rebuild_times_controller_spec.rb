@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe Webui::Projects::RebuildTimesController do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:repo_for_user_home) { create(:repository, project: user.home_project) }
 
   describe 'GET #show' do

@@ -16,7 +16,7 @@ RSpec.describe Relationship do
 
   describe '.add_user' do
     let(:role) { normal_role }
-    let(:user) { create(:confirmed_user, login: 'other_user') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let(:project) { user.home_project }
 
     before do

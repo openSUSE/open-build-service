@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Staging::StagingProjectsController do
   render_views
 
-  let(:user) { create(:confirmed_user, login: 'permitted_user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
   let(:staging_project) { staging_workflow.staging_projects.first }

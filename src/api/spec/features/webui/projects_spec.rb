@@ -1,8 +1,8 @@
 require 'browser_helper'
 
 RSpec.feature 'Projects', type: :feature, js: true do
-  let!(:admin_user) { create(:admin_user) }
-  let!(:user) { create(:confirmed_user, login: 'Jane') }
+  let!(:admin_user) { create(:admin_user, :with_home) }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
 
   it_behaves_like 'user tab' do
@@ -299,7 +299,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'branching' do
-    let(:other_user) { create(:confirmed_user, login: 'other_user') }
+    let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
