@@ -35,21 +35,7 @@ class TriggerController < ApplicationController
   def release
     raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
 
-    matched_repo = false
-    @pkg.project.repositories.includes(:release_targets).each do |repo|
-      repo.release_targets.where(trigger: 'manual').each do |releasetarget|
-        release_target_repository_project = releasetarget.target_repository.project
-        unless policy(release_target_repository_project).update?
-          raise NoPermissionForTarget.setup('no_permission',
-                                            403, "no permission for target #{release_target_repository_project}")
-        end
-        target_package_name = @pkg.release_target_name
-
-        # find md5sum and release source and binaries
-        release_package(@pkg, releasetarget.target_repository, target_package_name, repo, nil, nil, nil, true)
-        matched_repo = true
-      end
-    end
+    matched_repo = @pkg.project.repositories.includes(:release_targets).any? { |repo| matched_repo?(repo) }
 
     raise NoPermissionForPackage.setup('not_found', 404, "no repository from #{@pkg.project} could get released") unless matched_repo
 
@@ -69,6 +55,21 @@ class TriggerController < ApplicationController
   end
 
   private
+
+  def matched_repo?(repo)
+    repo.release_targets.where(trigger: 'manual').any? do |releasetarget|
+      release_target_repository_project = releasetarget.target_repository.project
+      unless policy(release_target_repository_project).update?
+        raise NoPermissionForTarget.setup('no_permission',
+                                          403, "no permission for target #{release_target_repository_project}")
+      end
+      target_package_name = @pkg.release_target_name
+
+      # find md5sum and release source and binaries
+      release_package(@pkg, releasetarget.target_repository, target_package_name, repo, nil, nil, nil, true)
+      true
+    end
+  end
 
   def require_project_param
     render_error(message: 'Token must define the release package', status: 403, errorcode: 'no_permission') if params[:project].present?
