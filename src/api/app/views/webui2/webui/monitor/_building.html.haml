@@ -7,7 +7,7 @@
     %p.info
       = configuration_title
       reports #{build_count} running jobs.
-    = render partial: 'building_table', locals: { worker_status: worker_status, dead_line: dead_line, intervel_steps: interval_steps,
+    = render partial: 'building_table', locals: { worker_status: worker_status, dead_line: dead_line, interval_steps: interval_steps,
                                                   max_color: max_color, time_now: time_now, project_filter: project_filter }
     %h5.mt-3 Job Time Legend
     .clearfix
