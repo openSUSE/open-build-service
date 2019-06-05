@@ -6064,11 +6064,37 @@ sub add_redis_notifications {
   BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
 }
 
+sub redis_multirequest_server {
+  print "entering multirequest mode\n";
+  BSStdServer::stdreply($BSStdServer::return_ok, 'X-Multirequest: true');
+  return undef if xfork();
+  my $req = $BSServer::request;
+  my $sock = $req->{'__socket'};
+  while (1) {
+    while (length($req->{'__data'}) < 32) {
+      my $r = sysread($sock, $req->{'__data'}, 8192, length($req->{'__data'}));
+      if (!$r && defined($r)) {
+        print "multirequest process exiting due to eof\n";
+        exit(0);
+      }
+      die("read error\n") if !defined($r) && ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK);
+    }
+    my $hdr = substr($req->{'__data'}, 0, 32, '');
+    die("bad content header: $hdr\n") unless ($hdr =~ /^CL(\d{30})$/s) && $1;
+    $req->{'__cl'} = $1;
+    delete $req->{'__eof'};
+    my $payload = BSUtil::fromstorable(BSServer::read_data());
+    add_redis_notifications($payload);
+    BSHTTP::swrite($sock, "0");
+  }
+}
+
 sub external_notification_redis {
   my ($cgi) = @_;
   die("need payload for redis notification\n") unless BSServer::have_content();
   my $payload = BSUtil::fromstorable(BSServer::read_data());
   add_redis_notifications($payload);
+  return redis_multirequest_server() if $cgi->{'multirequest'};
   return $BSStdServer::return_ok;
 }
 

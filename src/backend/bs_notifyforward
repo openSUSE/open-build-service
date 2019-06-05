@@ -94,19 +94,75 @@ sub markdone {
   syswrite($markfd, "|", 1) == 1 || die("syswrite: $!\n");
 }
 
+my $multirequestsock;
+my $multirequestcnt = 0;
+my $multirequeststart = 0;
+
+sub ansreqreceiver {
+  my ($ansreq, $param) = @_;
+  return unless $ansreq->{'headers'}->{'x-multirequest'};
+  BSHTTP::read_data($ansreq, undef, 1);
+  die("ansreq contains data: $ansreq->{'__data'}\n") if length($ansreq->{'__data'});
+  open($multirequestsock, '+<&', $ansreq->{'__socket'});
+  die("socket dup failed\n") unless $multirequestsock;
+  print "entering multirequest mode\n";
+  $multirequestcnt = 0;
+  $multirequeststart = time();
+}
+
+sub multirequestrpc {
+  my ($sock, $redisdata) = @_;
+
+  my $pkg = BSUtil::tostorable($redisdata);
+  substr($pkg, 0, 0, sprintf("CL%030d", length($pkg)));
+  BSHTTP::swrite($sock, $pkg);
+  my $ans = '';
+  while (1) {
+    my $r = sysread($sock, $ans, 1);
+    last if $r;
+    die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
+    die("received truncated answer\n") if defined $r;
+  }
+  if ($ans ne '0') {
+    my ($status) = BSRPC::readanswerheaderblock($sock, $ans);
+    die("remote error: $status\n");
+  }
+}
+
 sub forwardredis {
   my ($redisdata, $markfd, $markoffs) = @_;
+
+  if ($multirequestsock && ($multirequestcnt++ >= 64 || $multirequeststart + 300 < time())) {
+    close($multirequestsock);
+    $multirequestsock = undef;
+  }
+  if ($multirequestsock) {
+    local $SIG{'ALRM'} = sub { alarm(0); die("multirequest rpc timeout\n") };
+    eval {
+      alarm(300);
+      multirequestrpc($multirequestsock, $redisdata);
+    };
+    alarm(0);
+    if (!$@) {
+      markdone($markfd, $_) for @$markoffs;
+      print "forwarded ".@$markoffs." redis notifications (multirequest mode)\n";
+      return;
+    }
+    warn($@);
+    close($multirequestsock);
+    $multirequestsock = undef;
+  }
+
   my $param = {
     'uri' => "$BSConfig::srcserver/notify/redis",
     'request' => 'POST',
     'timeout' => 300,
     'headers' => [ 'Content-Type: application/octet-stream' ],
     'data' => BSUtil::tostorable($redisdata),
+    'receiver' => \&ansreqreceiver,
   };
-  BSRPC::rpc($param, undef);
-  for my $markoff (@$markoffs) {
-    markdone($markfd, $markoff);
-  }
+  BSRPC::rpc($param, undef, 'multirequest=1');
+  markdone($markfd, $_) for @$markoffs;
   print "forwarded ".@$markoffs." redis notifications\n";
 }
 

@@ -216,7 +216,7 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'redis', "$rundir/bs_redis");
-BSUtil::printlog("starting build service redis");
+BSUtil::printlog("starting build service redis forwarder");
 
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_redis.lock") || die("$rundir/bs_redis.lock: $!\n");
