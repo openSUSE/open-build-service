@@ -91,3 +91,57 @@ function jobPlot(data) {
       legend: { noColumns: 3, position: "ne", container: "#legend-jobs" }
     });
 }
+
+function processProgressBar(id, item)
+{
+  var delta = item["delta"];
+
+  var container = $('#p' + id);
+  var el_text = container.find(".monitorpb_text");
+  var ctrl = container.find(".progress-bar");
+
+  var logfileinfo = $("#worker-display option:selected").val();
+
+  if (delta) {
+    el_text.text(item[logfileinfo]);
+    ctrl.css("width", delta + "%").attr("aria-valuenow", delta);
+    var url = $('#workers').data('buildLogPath');
+    url = url.replace('ARCH', item["arch"]);
+    url = url.replace('PROJECT', item["project"]);
+    url = url.replace('PACKAGE', item["package"]);
+    url = url.replace('REPOSITORY', item["repository"]);
+
+    el_text.attr("href", url);
+
+    if (delta <= 50) {
+      ctrl.addClass("bg-success");
+      ctrl.removeClass('bg-warning bg-danger');
+    } else if (delta >= 50 && delta < 80) {
+      ctrl.addClass("bg-warning");
+      ctrl.removeClass('bg-success bg-danger');
+    } else {
+      ctrl.addClass("bg-danger");
+      ctrl.removeClass('bg-success bg-warning');
+    }
+  }
+  else {
+    el_text.html("idle");
+    ctrl.css("width", "0%");
+    ctrl.css("aria-valuenow", 0)
+    el_text.attr("href", "#");
+  }
+}
+
+function updateProgressBar()
+{
+  $("#workers-updating").fadeIn(1200);
+
+  var monitorPath=$('#workers').data('monitorPath');
+
+  $.getJSON(monitorPath, function(json) {
+    $.each(json, function(i,item) {
+            processProgressBar(i, item);
+    });
+    $("#workers-updating").fadeOut(1200);
+  });
+}
