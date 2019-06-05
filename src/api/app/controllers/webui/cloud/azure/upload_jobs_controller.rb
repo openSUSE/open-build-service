@@ -5,7 +5,8 @@ module Webui
         def new
           xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
           @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
-          @crumb_list.push << 'Azure'
+          @crumb_list.push << 'Azure' # TODO: bento_only
+          switch_to_webui2
         end
 
         private
