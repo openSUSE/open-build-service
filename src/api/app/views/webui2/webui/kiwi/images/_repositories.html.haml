@@ -10,8 +10,10 @@
   #kiwi-repositories-list{ class: "#{'d-none' if f.object.use_project_repositories?}" }
     %hr
     %p#no-repositories{ class: "#{'d-none' if image.repositories.present?}" }= 'There are no repositories.'
-    = f.fields_for :repositories do |repository_fields|
-      = render 'repository_fields', f: repository_fields
-    = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { 'target': '#add-repository', 'toggle': 'modal' }) do
-      %i.fas.fa-plus-circle.text-success
-      Add repository
+    .row
+      = f.fields_for :repositories do |repository_fields|
+        = render 'repository_fields', f: repository_fields
+      .col-12.mt-2.mb-4
+        = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { 'target': '#add-repository', 'toggle': 'modal' }) do
+          %i.fas.fa-plus-circle.text-primary
+          Add repository

@@ -1,72 +1,77 @@
-.nested-fields.kiwi_fields
-  %div{ class: "kiwi_list_item #{'has-error' if f.object.errors.present?}" }
-    %span
-      = link_to f.object.name, '',
-      data: { 'target': "##{f.object.source_path.present? ? 'edit-' + f.object.name.gsub(/[^0-9a-z]/i, '') : 'add-repository'}", 'toggle': 'modal' }
-    %span.kiwi_actions.d-none
+.nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
+  .d-flex.justify-content-between.kiwi_list_item{ class: "#{'has-error' if f.object.errors.present?}" }
+    %span.btn.btn-link.text-truncate{ title: f.object.name }
+      - name = f.object.name.gsub(/[^0-9a-z]/i, '')
+      = link_to f.object.name,
+        data: { 'target': "##{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}", 'toggle': 'modal' },
+        class: 'kiwi_element_name repository_edit' do
+        = f.object.name
+    %span.btn.btn-link.kiwi_actions
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger
 
-%div{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.source_path.present? ? 'edit-' + f.object.name.gsub(/[^0-9a-z]/i, '') : 'add-repository'}",
-class: "modal fade #{'new_element' if f.object.new_record?}" }
-  .modal-dialog{ role: 'document' }
-    .modal-content
-      .modal-header
-        %h5.modal-title #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
+  .modal.fade{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}",
+                class: "#{'new_element' if f.object.new_record?}" }
+    .modal-dialog{ role: 'document' }
+      .modal-content
+        .modal-header
+          %h5.modal-title #{f.object.source_path.present? ? 'Edit' : 'Add'} repository
 
-      #flash-messages
-        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
+        #flash-messages
+          %p.ui-state-error.alert-danger.p-3.mb-0.d-none
 
-      .modal-body
-        .normal-mode
-          .repository-autocomplete
-            = render partial: 'webui/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
-                                                              source: url_for(controller: '/webui/project', action: 'autocomplete_projects') }
-            .form-group
-              = label_tag :repositories do
-                %strong Repositories:
-              = select_tag 'target_repo', options_for_select(['']), required: true,
-                                                                    disabled: true,
-                                                                    class: 'repository-dropdown custom-select',
-                                                                    data: { source: url_for(controller: '/webui/project',
-                                                                    action: :autocomplete_repositories) }
-            = label_tag 'Alias:'
-            = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
-        .collapse#collapse-expert
-          = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
-          = f.label :repo_type, 'Type:'
-          = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
-          = f.label :priority, 'Priority:'
-          = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'custom-select'
-          = f.label :alias, 'Alias:'
-          = f.text_field :alias, data: { default: f.object.alias }, class: 'form-control'
-          = f.label :source_path, 'Source:'
-          = f.text_field :source_path, data: { default: f.object.source_path }, class: 'form-control'
-          %span.small-text
-            Write a valid source path
+        .modal-body
+          .normal-mode
+            .repository-autocomplete
+              .form-group.ui-front
+                = label_tag 'Project'
+                .input-group
+                  .input-group-prepend
+                    %span.input-group-text
+                      %i.fas.fa-search
+                  = text_field_tag 'target_project', f.object.project_for_type_obs,
+                                   required: true,
+                                   placeholder: 'Type to autocomplete...',
+                                   class: 'form-control kiwi-repository-search',
+                                   data: { source: autocomplete_projects_path, default: f.object.project_for_type_obs }
+              .form-group
+                = label_tag :repositories
+                = select_tag 'target_repo', options_for_select(['']), required: true,
+                                                                      disabled: true,
+                                                                      class: 'repository-dropdown custom-select',
+                                                                      data: { source: autocomplete_repositories_path }
+              = label_tag 'Alias:'
+              = text_field_tag 'alias_for_repo', f.object.alias, data: { default: f.object.alias }, class: 'form-control'
+          .collapse#collapse-expert
+            = f.hidden_field :order, data: { default: f.object.order }, class: 'form-control'
+            = f.label :repo_type, 'Type:'
+            = f.select :repo_type, Kiwi::Repository::REPO_TYPES, {}, data: { default: f.object.repo_type }, class: 'custom-select'
+            = f.label :priority, 'Priority:'
+            = f.number_field :priority, maxlength: 4, in: 0...99, data: { default: f.object.priority }, class: 'custom-select'
+            = f.label :alias, 'Alias:'
+            = f.text_field :alias, data: { default: f.object.alias }, class: 'form-control'
+            = f.label :source_path, 'Source:'
+            = f.text_field :source_path, data: { default: f.object.source_path }, class: 'form-control'
+            %span.small-text
+              Write a valid source path
 
-          = f.label :username, 'User:'
-          = f.text_field :username, data: { default: f.object.username }, class: 'form-control'
-          = f.label :password, 'Password:'
-          = f.text_field :password, data: { default: f.object.password }, class: 'form-control'
+            = f.label :username, 'User:'
+            = f.text_field :username, data: { default: f.object.username }, class: 'form-control'
+            = f.label :password, 'Password:'
+            = f.text_field :password, data: { default: f.object.password }, class: 'form-control'
 
-          .custom-control.custom-checkbox
-            = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'custom-control-input'
-            = f.label :prefer_license, class: 'custom-control-label'
-          .custom-control.custom-checkbox
-            = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'custom-control-input'
-            = f.label :imageinclude, 'Image include', class: 'custom-control-label'
-          .custom-control.custom-checkbox
-            = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'custom-control-input'
-            = f.label :replaceable, class: 'custom-control-label'
+            .custom-control.custom-checkbox
+              = f.check_box :prefer_license, data: { default: f.object.prefer_license }, class: 'custom-control-input'
+              = f.label :prefer_license, class: 'custom-control-label'
+            .custom-control.custom-checkbox
+              = f.check_box :imageinclude, data: { default: f.object.imageinclude }, class: 'custom-control-input'
+              = f.label :imageinclude, 'Image include', class: 'custom-control-label'
+            .custom-control.custom-checkbox
+              = f.check_box :replaceable, data: { default: f.object.replaceable }, class: 'custom-control-input'
+              = f.label :replaceable, class: 'custom-control-label'
 
-      .modal-footer
-        = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
-                   role: 'button', data: { 'toggle': 'collapse' })
-        = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
-        = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')
-
-- if f.object.source_path.blank?
-  :javascript
-    $("#add-repository").modal('show');
-    setupAutocomplete();
+        .modal-footer
+          = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
+                     role: 'button', data: { 'toggle': 'collapse' })
+          = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
+          = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')

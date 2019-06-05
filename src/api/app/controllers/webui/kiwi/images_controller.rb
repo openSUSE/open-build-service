@@ -86,7 +86,7 @@ module Webui
 
       def autocomplete_binaries
         binaries = ::Kiwi::Image.find_binaries_by_name(params[:term], @image.package.project.name,
-                                                       params[:repositories], use_project_repositories: params[:use_project_repositories])
+                                                       params[:repositories], use_project_repositories: params[:useProjectRepositories])
         render json: binaries.keys.map { |package_name| { id: package_name, label: package_name, value: package_name } }
       end
 
