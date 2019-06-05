@@ -164,6 +164,20 @@ sub args {
   } @k;
 }
 
+sub readanswerheaderblock {
+  my ($sock, $ans) = @_;
+  $ans = '' unless defined $ans;
+  do {
+    my $r = sysread($sock, $ans, 1024, length($ans));
+    if (!$r) {
+      die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
+      die("received truncated answer\n") if defined $r;
+    }
+  } while ($ans !~ /\n\r?\n/s);
+  die("bad HTTP answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
+  return ($1, $ans);
+}
+
 #
 # handled paramters:
 # timeout
@@ -274,16 +288,7 @@ sub rpc {
     connect($sock, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
     if ($proxytunnel) {
       BSHTTP::swrite($sock, $proxytunnel);
-      my $ans = '';
-      do {
-	my $r = sysread($sock, $ans, 1024, length($ans));
-	if (!$r) {
-	  die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
-	  die("received truncated answer\n") if defined $r;
-	}
-      } while ($ans !~ /\n\r?\n/s);
-      die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
-      my $status = $1;
+      my ($status, $ans) = readanswerheaderblock($sock);
       die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
     if ($proto eq 'https' || $proxytunnel) {
@@ -342,17 +347,8 @@ sub rpc {
     return $ret;
   }
 
-  # read answer from server, first the header
-  my $ans = '';
-  do {
-    my $r = sysread($sock, $ans, 1024, length($ans));
-    if (!$r) {
-      die("received truncated answer: $!\n") if !defined($r) && $! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK;
-      die("received truncated answer\n") if defined $r;
-    }
-  } while ($ans !~ /\n\r?\n/s);
-  die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
-  my $status = $1;
+  # read answer from server, first the header block
+  my ($status, $ans) = readanswerheaderblock($sock);
   $ans =~ /^(.*?)\n\r?\n(.*)$/s;
   my $headers = $1;
   $ans = $2;
