@@ -6,7 +6,8 @@ module Webui
           xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
           @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
           @regions = ::Cloud::Ec2::Configuration::REGIONS
-          @crumb_list.push << 'EC2'
+          @crumb_list.push << 'EC2' # TODO: bento_only
+          switch_to_webui2
         end
 
         private
