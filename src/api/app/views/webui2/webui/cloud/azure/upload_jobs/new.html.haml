@@ -1,0 +1,49 @@
+- @pagetitle = 'Upload to Microsoft Azure'
+
+.card
+  .card-body
+    %h3 Upload to Microsoft Azure
+
+    = form_for @upload_job, url: cloud_azure_upload_path, method: :post, html: { class: 'cloud_form' } do |upload_job_form|
+      = upload_job_form.hidden_field :project
+      = upload_job_form.hidden_field :package
+      = upload_job_form.hidden_field :arch
+      = upload_job_form.hidden_field :repository
+      = upload_job_form.hidden_field :filename
+      = upload_job_form.hidden_field :target, value: 'azure'
+
+      .form-group.row
+        = label_tag(:filename, 'Filename:', class: 'col-md-2 col-form-label')
+        .col-md-10.pt-2
+          %b= @upload_job.filename
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:image_name, 'Image Name:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'image_name', size: 35, required: true)
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:subscription, 'Subscription:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'subscription', size: 35, required: true)
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:storage_account, 'Storage Account:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'storage_account', size: 35, required: true)
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:resource_group, 'Resource Group:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'resource_group', size: 35, required: true)
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:container, 'Container:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'container', size: 35, required: true)
+      = submit_tag('Upload Image', class: 'btn btn-primary')
