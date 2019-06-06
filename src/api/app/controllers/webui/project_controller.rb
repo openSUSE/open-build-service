@@ -104,6 +104,8 @@ class Webui::ProjectController < Webui::WebuiController
     @project.name = params[:name] if params[:name]
 
     @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
+
+    switch_to_webui2
   end
 
   def new_package
