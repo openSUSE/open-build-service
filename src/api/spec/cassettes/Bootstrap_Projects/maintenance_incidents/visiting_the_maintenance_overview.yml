@@ -516,7 +516,7 @@ http_interactions:
   recorded_at: Mon, 20 May 2019 20:02:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?code=unresolvable&repository=target&view=summary
+    uri: http://backend:5352/build/home:Jane:maintenance_project:0/_result?code=unresolvable&repository=theone&view=summary
     body:
       encoding: US-ASCII
       string: ''

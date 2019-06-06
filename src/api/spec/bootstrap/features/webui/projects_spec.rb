@@ -67,7 +67,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
 
   describe 'maintenance incidents' do
     let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
-    let(:target_repository) { create(:repository) }
+    let(:target_repository) { create(:repository, name: 'theone') }
 
     scenario 'visiting the maintenance overview' do
       login user
