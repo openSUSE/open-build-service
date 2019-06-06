@@ -70,6 +70,19 @@ RSpec.describe TriggerController, vcr: true do
 
       it { is_expected.to respond_with(:success) }
     end
+
+    context 'when user has no rights' do
+      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: user, package: package) }
+      before do
+        allow(User).to receive(:session!).and_return(user)
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
+          -> { OpenStruct.new(valid?: true, token: token) }
+        }
+      end
+
+      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/no permission for package/) }
+    end
   end
 
   describe '#runservice' do
