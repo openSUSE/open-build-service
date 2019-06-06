@@ -2,6 +2,7 @@
   - if local_assigns.key?(:namespace)
     = hidden_field_tag(:ns, namespace)
     = form.label(:name, 'Subproject Name:')
+    %abbr.text-danger{ title: 'Required' } *
     .input-group
       .input-group-prepend
         %span.input-group-text
@@ -9,6 +10,7 @@
       = form.text_field(:name, required: true, class: 'form-control')
   - else
     = form.label(:name, 'Project Name:')
+    %abbr.text-danger{ title: 'Required' } *
     = form.text_field(:name, required: true, class: 'form-control')
 .form-group
   = form.label(:title, 'Title:')
