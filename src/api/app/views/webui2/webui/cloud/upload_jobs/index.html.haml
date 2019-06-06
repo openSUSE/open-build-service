@@ -35,4 +35,4 @@
                   = link_to 'Abort', cloud_upload_path(job.id), method: :delete, data: { confirm: "Do you really want to abort job #{job.id}?" }
 
 - content_for :ready_function do
-  initializeDataTable('#upload-jobs');
+  initializeDataTable('#upload-jobs', { order: [[0, 'desc']], pageLength: 25, responsive: true });
