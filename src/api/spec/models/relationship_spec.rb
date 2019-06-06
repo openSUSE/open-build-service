@@ -28,7 +28,7 @@ RSpec.describe Relationship do
     context 'with a global role' do
       let(:role) { global_role }
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, /tried to set global role/) }
     end
 
     context 'with an already existing relationship' do
@@ -36,7 +36,7 @@ RSpec.describe Relationship do
         project.relationships.create(user: user, role: role)
       end
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, 'Relationship already exists') }
     end
 
     context 'with invalid relationship data' do
@@ -67,7 +67,7 @@ RSpec.describe Relationship do
     context 'with a global role' do
       let(:role) { global_role }
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, /tried to set global role/) }
     end
 
     context 'with an already existing relationship' do
@@ -75,7 +75,7 @@ RSpec.describe Relationship do
         project.relationships.create(group: group, role: role)
       end
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, 'Relationship already exists') }
     end
 
     context 'with invalid relationship data' do

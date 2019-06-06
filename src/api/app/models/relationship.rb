@@ -1,6 +1,4 @@
 class Relationship < ApplicationRecord
-  class SaveError < APIError; end
-
   belongs_to :role
 
   # only one is true
@@ -60,49 +58,11 @@ class Relationship < ApplicationRecord
   after_destroy :discard_cache
 
   def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
-    obj.check_write_access!(ignore_lock)
-    role = Role.find_by_title!(role) unless role.is_a?(Role)
-    if role.global
-      # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{obj.name}'"
-    end
-
-    user = User.find_by_login!(user) unless user.is_a?(User)
-
-    if obj.relationships.where(user: user, role: role).exists?
-      raise SaveError, 'Relationship already exists' if check
-      logger.debug "ignore user #{user.login} - already has role #{role.title}"
-      return
-    end
-
-    logger.debug "adding user: #{user.login}, #{role.title}"
-    r = obj.relationships.build(user: user, role: role)
-    return unless r.invalid?
-    logger.debug "invalid: #{r.errors.inspect}"
-    r.delete
+    Relationship::AddRole.new(obj, role, user: user, ignore_lock: ignore_lock, check: check).add_role
   end
 
   def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
-    obj.check_write_access!(ignore_lock)
-
-    role = Role.find_by_title!(role) unless role.is_a?(Role)
-
-    if role.global
-      # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for group '#{group}' in #{obj.class} '#{obj.name}'"
-    end
-
-    group = Group.find_by_title(group.to_s) unless group.is_a?(Group)
-
-    obj.relationships.each do |r|
-      next unless r.group_id == group.id && r.role_id == role.id
-      raise SaveError, 'Relationship already exists' if check
-      logger.debug "ignore group #{group.title} - already has role #{role.title}"
-      return
-    end
-
-    r = obj.relationships.build(group: group, role: role)
-    r.delete if r.invalid?
+    Relationship::AddRole.new(obj, role, group: group, ignore_lock: ignore_lock, check: check).add_role
   end
 
   # calculate and cache forbidden_project_ids for users
