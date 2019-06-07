@@ -49,6 +49,5 @@
               %td.uri= building['workerid']
               %td.hostarch= building['hostarch']
 
-= content_for :ready_function do
-  :plain
-    initializeDataTable('#building-table', { order: [[3, 'desc']] });
+- content_for :ready_function do
+  initializeDataTable('#building-table', { order: [[3, 'desc']], lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]] });
