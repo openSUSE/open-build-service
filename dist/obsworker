@@ -424,10 +424,10 @@ case "$1" in
                 WORKERID="${HOSTNAME}:$I"
             fi
             R=$OBS_WORKER_DIRECTORY/root_$I
+            mkdir -p $R
             # prepare obsworker startup in screen...
             TMPFS=
             if [ "$OBS_VM_TYPE" = "xen" -o "$OBS_VM_TYPE" = "kvm" -o "${OBS_VM_TYPE#emulator:}" != "$OBS_VM_TYPE" ] ; then
-                mkdir -p $R
                 DEVICE="$OBS_WORKER_DIRECTORY/root_$I/root"
                 SWAP="$OBS_WORKER_DIRECTORY/root_$I/swap"
                 if [ -n "$OBS_VM_DISK_AUTOSETUP_ROOT_FILESIZE" ]; then
@@ -446,7 +446,6 @@ case "$1" in
                     HUGETLBFS="--hugetlbfs $OBS_VM_USE_HUGETLBFS"
                 fi
             elif [ "$OBS_VM_TYPE" = 'openstack' ]; then
-                mkdir -p $R
                 # Without a worker being defined, we would not be in this loop.
                 VM_SERVER="--vm-server $OBS_WORKER_CONTROL_INSTANCE"
                 VM_FLAVOR="--openstack-flavor $OBS_WORKER_OS_FLAVOR"
@@ -456,13 +455,11 @@ case "$1" in
                 VM_SWAP="--swap $OBS_WORKER_PREFIX$I-swap"
                 OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $VM_KERNEL $VM_DISK $VM_SWAP $VM_SERVER $VM_FLAVOR $VMDISK_ROOT_FILESIZE $VMDISK_SWAP_FILESIZE "
             elif [ -n "$vmopt" -a "$OBS_VM_TYPE" = 'zvm' ]; then
-                mkdir -p $R
                 # Without a worker being defined, we would not be in this loop.
                 WORKER="--vm-worker ${WORKERS[$I_INDEX]}"
                 WORKER_NR="--vm-worker-nr $I"
                 OBS_WORKER_OPT="$OBS_WORKER_OPT1 $WORKER $WORKER_NR $VMDISK_FILESYSTEM $VMDISK_MOUNT_OPTIONS $VMDISK_CLEAN"
             else
-                mkdir -p $R
                 DEVICE=
                 SWAP=
                 MEMORY=
