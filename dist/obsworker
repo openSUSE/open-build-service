@@ -388,7 +388,6 @@ case "$1" in
 
         # fetch worker sources from server
         echo "Fetching initial worker code from $WORKER_CODE/getworkercode"
-        mkdir -p "$workerbootdir"
         pushd "$workerbootdir" > /dev/null
         I=0
         while ! curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
