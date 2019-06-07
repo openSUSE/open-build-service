@@ -19,13 +19,6 @@ class TriggerController < ApplicationController
 
   include Trigger::Errors
 
-  def check_rebuild_permission!
-    return if User.session.can_modify_project?(@prj)
-    return if @pkg.project == @prj && policy(@pkg).update?
-
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@prj}")
-  end
-
   def rebuild
     check_rebuild_permission!
     Backend::Api::Sources::Package.rebuild(@prj.name, @pkg_name)
@@ -46,15 +39,19 @@ class TriggerController < ApplicationController
     raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
 
     # execute the service in backend
-    path = @pkg.source_path
-    params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
-    path << build_query_from_hash(params, [:cmd, :comment, :user])
-    pass_to_backend(path)
+    pass_to_backend(prepare_path_for_runservice)
 
     @pkg.sources_changed
   end
 
   private
+
+  def check_rebuild_permission!
+    return if User.session.can_modify_project?(@prj)
+    return if @pkg.project == @prj && policy(@pkg).update?
+
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@prj}")
+  end
 
   def matched_repo?(repo)
     repo.release_targets.where(trigger: 'manual').any? do |releasetarget|
@@ -69,6 +66,12 @@ class TriggerController < ApplicationController
       release_package(@pkg, releasetarget.target_repository, target_package_name, repo, nil, nil, nil, true)
       true
     end
+  end
+
+  def prepare_path_for_runservice
+    path = @pkg.source_path
+    params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
+    URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
   end
 
   def require_project_param
@@ -99,13 +102,15 @@ class TriggerController < ApplicationController
     else
       @prj = Project.get_by_name(params[:project])
       @pkg_name = params[:package] # for multibuild container
-      if @token.class == Token::Rebuild
-        opts = { use_source: false,
+      opts = if @token.class == Token::Rebuild
+               { use_source: false,
                  follow_project_links: true,
+                 follow_multibuild: true }
+             else
+               { use_source: true,
+                 follow_project_links: false,
                  follow_multibuild: false }
-      else
-        opts = { use_source: true }
-      end
+             end
       @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
     end
   end
