@@ -61,7 +61,7 @@ if [ -z "$OBS_RUN_DIR" ]; then
     OBS_RUN_DIR="/var/run/obs"
 fi
 if [ -z "$OBS_LOG_DIR" ]; then
-    OBS_LOG_DIR="/var/log/obs"
+    OBS_LOG_DIR="/srv/obs/log"
 fi
 if [ -z "$OBS_REPO_SERVERS" ]; then
     OBS_REPO_SERVERS="localhost:5252"
