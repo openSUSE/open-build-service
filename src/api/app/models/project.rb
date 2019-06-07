@@ -44,6 +44,8 @@ class Project < ApplicationRecord
   has_many :attribs, dependent: :destroy
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
+  has_many :release_targets, through: :repositories
+  has_many :target_repositories, through: :release_targets
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order('position') }, through: :repositories
@@ -1353,45 +1355,11 @@ class Project < ApplicationRecord
     Project.where('projects.name like ?', "#{name}:%").distinct.
       where(kind: 'maintenance_incident').
       joins(repositories: :release_targets).
-      where('release_targets.trigger = "maintenance"')
+      where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
 
-  def release_targets_ng
-    # First things first, get release targets as defined by the project, err.. incident. Later on we
-    # magically find out which of the contained packages, err. updates are build against those release
-    # targets.
-    release_targets_ng = {}
-    repositories.includes(:release_targets).each do |repo|
-      repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {
-          reponame: repo.name,
-          packages: [],
-          package_issues: {},
-          package_issues_by_tracker: {}
-        }
-      end
-    end
-
-    # One catch, currently there's only one patchinfo per incident, but things keep changing every
-    # other day, so it never hurts to have a look into the future:
-    package_count = 0
-    packages.where.not(id: patchinfos).select(:name, :id).each do |pkg|
-      # Current ui is only showing the first found package and a symbol for any additional package.
-      break if package_count > 2
-
-      rt_name = pkg.name.split('.', 2).last
-      next unless rt_name
-      # Here we try hard to find the release target our current package is build for:
-      rt_name = guess_release_target_from_package(pkg, release_targets_ng)
-
-      # Build-disabled packages can't be matched to release targets....
-      next unless rt_name
-      # Let's silently hope that an incident newer introduces new (sub-)packages....
-      release_targets_ng[rt_name][:packages] << pkg
-      package_count += 1
-    end
-
-    release_targets_ng
+  def packages_with_release_target
+    packages.joins(:flags).where(flags: { flag: :build, status: 'enable', repo: release_targets.select(:name) })
   end
 
   def self.source_path(project, file = nil, opts = {})
@@ -1604,26 +1572,6 @@ class Project < ApplicationRecord
 
   def discard_cache
     Relationship.discard_cache
-  end
-
-  # Go through all enabled build flags and look for a repo name that matches a
-  # previously parsed release target name (from "release_targets_ng").
-  #
-  # If one was found return the project name, otherwise return nil.
-  def guess_release_target_from_package(package, parsed_targets)
-    # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-    # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-    target_mapping = {}
-    parsed_targets.each do |rt_key, rt_value|
-      target_mapping[rt_value[:reponame]] = rt_key
-    end
-
-    package.flags.where(flag: :build, status: 'enable').find_each do |flag|
-      rt_key = target_mapping[flag.repo]
-      return rt_key if rt_key
-    end
-
-    nil
   end
 
   def has_remote_distribution(project_name, repository)

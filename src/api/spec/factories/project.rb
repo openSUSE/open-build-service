@@ -130,9 +130,6 @@ FactoryBot.define do
       end
 
       before(:create) do |project, evaluator|
-        create(:build_flag, project: project, status: 'disable')
-        create(:publish_flag, project: project, status: 'disable')
-
         if evaluator.maintenance_project
           evaluator.maintenance_project.relationships.each do |role|
             project.relationships.create(user: role.user, role: role.role, group: role.group)
@@ -147,6 +144,10 @@ FactoryBot.define do
       transient do
         target_project { nil }
         create_patchinfo { false }
+      end
+
+      before(:create) do |project|
+        create(:build_flag, project: project, status: 'disable')
       end
 
       after(:create) do |project, evaluator|

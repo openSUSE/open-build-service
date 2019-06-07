@@ -6,8 +6,8 @@ module Webui::MaintenanceIncidentHelper
     "#{incident_number}: #{title}"
   end
 
-  def incident_build_icon_class(incident, release_target)
-    incident.build_succeeded?(release_target[:reponame]) ? 'text-success fa-check' : 'text-danger fa-exclamation-circle'
+  def incident_build_icon_class(incident, release_target_repo)
+    incident.build_succeeded?(release_target_repo) ? 'text-success fa-check' : 'text-danger fa-exclamation-circle'
   end
 
   def open_requests_icon(incident)
@@ -58,13 +58,13 @@ module Webui::MaintenanceIncidentHelper
     end
   end
 
-  def packages_cell(incident, release_targets_ng)
-    release_target = release_targets_ng.values.first
-    return if release_target[:packages].blank?
-    first_pkg = release_target[:packages].first
+  def packages_cell(incident)
+    packages = incident.packages_with_release_target.limit(2).pluck(:name)
+    return if packages.empty?
+    first_package = packages.first
     safe_join([
-                link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)),
-                (', ...' if release_target[:packages].length > 1)
+                link_to(first_package.split('.', 2)[0], package_show_path(project: incident.name, package: first_package)),
+                (', ...' if packages.length > 1)
               ])
   end
 
@@ -79,17 +79,17 @@ module Webui::MaintenanceIncidentHelper
     end
   end
 
-  def release_targets_cell(incident, release_targets_ng)
+  def release_targets_cell(incident)
     safe_join(
       [
-        release_targets_ng.map do |release_target_project, release_target_ng|
+        incident.target_repositories.map do |target_repo|
           content_tag(:div) do
             safe_join(
               [
                 link_to(project_show_path(project: incident.name)) do
-                  content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, release_target_ng)}", title: 'Build results')
+                  content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, target_repo.name)}", title: 'Build results')
                 end,
-                link_to(release_target_project, project_show_path(project: release_target_project))
+                link_to(target_repo.project, project_show_path(project: target_repo.project))
               ]
             )
           end
