@@ -1,6 +1,11 @@
 module Webui2::PackageController
   def webui2_show
     @comments = @package.comments.includes(:user)
+    link = @package.backend_package.links_to
+    return unless link
+
+    @target_project = link.project.name
+    @target_package = link.name
   end
 
   def webui2_save
