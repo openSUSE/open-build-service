@@ -4,8 +4,7 @@ module Webui
       before_action :set_breadcrumb
 
       def index
-        # FIXME: remove it when cloud upload are ready to production
-        switch_to_webui2 if Rails.env.development?
+        switch_to_webui2
         @crumb_list.push << 'Configuration'
       end
 
