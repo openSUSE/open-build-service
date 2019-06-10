@@ -2,6 +2,83 @@
 http_interactions:
 - request:
     method: put
+    uri: http://backend:5352/configuration
+    body:
+      encoding: UTF-8
+      string: |
+        <configuration>
+          <title>Open Build Service</title>
+          <description>  &lt;p class="description"&gt;
+            The &lt;a href="http://openbuildservice.org"&gt;Open Build Service (OBS)&lt;/a&gt;
+            is an open and complete distribution development platform that provides a transparent
+            infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
+            Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.
+          &lt;/p&gt;
+          &lt;p class="description"&gt;
+            The OBS is developed under the umbrella of the &lt;a href="http://www.opensuse.org"&gt;openSUSE project&lt;/a&gt;.
+            Please find further informations on the
+            &lt;a href="http://wiki.opensuse.org/openSUSE:Build_Service"&gt;openSUSE Project wiki pages&lt;/a&gt;.
+          &lt;/p&gt;
+
+          &lt;p class="description"&gt;
+            The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility,
+            please do us a favor and add yourself at
+            &lt;a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations"&gt;this wiki page&lt;/a&gt;.
+            Have fun and fast build times!
+          &lt;/p&gt;
+        </description>
+          <name>private</name>
+          <download_on_demand>on</download_on_demand>
+          <enforce_project_keys>off</enforce_project_keys>
+          <anonymous>on</anonymous>
+          <registration>allow</registration>
+          <default_access_disabled>off</default_access_disabled>
+          <allow_user_to_create_home_project>on</allow_user_to_create_home_project>
+          <disallow_group_creation>off</disallow_group_creation>
+          <change_password>on</change_password>
+          <obs_url>https://unconfigured.openbuildservice.org</obs_url>
+          <hide_private_options>off</hide_private_options>
+          <gravatar>on</gravatar>
+          <cleanup_empty_projects>on</cleanup_empty_projects>
+          <disable_publish_for_branches>on</disable_publish_for_branches>
+          <admin_email>unconfigured@openbuildservice.org</admin_email>
+          <unlisted_projects_filter>^home:.+</unlisted_projects_filter>
+          <unlisted_projects_filter_description>home projects</unlisted_projects_filter_description>
+          <schedulers>
+            <arch>armv7l</arch>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </schedulers>
+        </configuration>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Jun 2019 12:52:01 GMT
+- request:
+    method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
@@ -40,7 +117,84 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:10 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/configuration
+    body:
+      encoding: UTF-8
+      string: |
+        <configuration>
+          <title>Open Build Service</title>
+          <description>  &lt;p class="description"&gt;
+            The &lt;a href="http://openbuildservice.org"&gt;Open Build Service (OBS)&lt;/a&gt;
+            is an open and complete distribution development platform that provides a transparent
+            infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
+            Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.
+          &lt;/p&gt;
+          &lt;p class="description"&gt;
+            The OBS is developed under the umbrella of the &lt;a href="http://www.opensuse.org"&gt;openSUSE project&lt;/a&gt;.
+            Please find further informations on the
+            &lt;a href="http://wiki.opensuse.org/openSUSE:Build_Service"&gt;openSUSE Project wiki pages&lt;/a&gt;.
+          &lt;/p&gt;
+
+          &lt;p class="description"&gt;
+            The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility,
+            please do us a favor and add yourself at
+            &lt;a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations"&gt;this wiki page&lt;/a&gt;.
+            Have fun and fast build times!
+          &lt;/p&gt;
+        </description>
+          <name>private</name>
+          <download_on_demand>on</download_on_demand>
+          <enforce_project_keys>off</enforce_project_keys>
+          <anonymous>on</anonymous>
+          <registration>allow</registration>
+          <default_access_disabled>off</default_access_disabled>
+          <allow_user_to_create_home_project>off</allow_user_to_create_home_project>
+          <disallow_group_creation>off</disallow_group_creation>
+          <change_password>on</change_password>
+          <obs_url>https://unconfigured.openbuildservice.org</obs_url>
+          <hide_private_options>off</hide_private_options>
+          <gravatar>on</gravatar>
+          <cleanup_empty_projects>on</cleanup_empty_projects>
+          <disable_publish_for_branches>on</disable_publish_for_branches>
+          <admin_email>unconfigured@openbuildservice.org</admin_email>
+          <unlisted_projects_filter>^home:.+</unlisted_projects_filter>
+          <unlisted_projects_filter_description>home projects</unlisted_projects_filter_description>
+          <schedulers>
+            <arch>armv7l</arch>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </schedulers>
+        </configuration>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Mon, 10 Jun 2019 12:52:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
@@ -48,8 +202,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +224,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/package_with_kiwi_file.kiwi
@@ -148,20 +263,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '206'
+      - '205'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="6">
+        <revision rev="1" vrev="1">
           <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
           <version>0.0.1</version>
-          <time>1559138659</time>
+          <time>1560171124</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
@@ -169,8 +284,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -191,16 +306,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -226,15 +341,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -260,18 +375,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_kiwi_file?expand=1&rev=11
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_file?expand=1&rev=1
     body:
       encoding: US-ASCII
       string: ''
@@ -294,15 +409,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:19 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_file?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '215'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9" verifymd5="518486fc563594c5adf33d7651241bc9">
+          <filename>package_with_kiwi_file.kiwi</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -328,15 +477,55 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:20 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '325'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="c317b12c1543e8999f05037948c5fbaf">
+          <old project="home:tom" package="package_with_kiwi_file" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="package_with_kiwi_file" rev="1" srcmd5="518486fc563594c5adf33d7651241bc9" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -362,15 +551,49 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:20 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_kiwi_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '230'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
+        </directory>
+    http_version: 
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_history
@@ -396,7 +619,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '1993'
+      - '211'
     body:
       encoding: UTF-8
       string: |
@@ -404,72 +627,12 @@ http_interactions:
           <revision rev="1" vrev="1">
             <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
             <version>0.0.1</version>
-            <time>1559136464</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="2" vrev="1">
-            <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
-            <version>2.0.0</version>
-            <time>1559136471</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="3" vrev="2">
-            <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
-            <version>0.0.1</version>
-            <time>1559136568</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="4" vrev="2">
-            <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
-            <version>2.0.0</version>
-            <time>1559136579</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="5" vrev="3">
-            <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
-            <version>0.0.1</version>
-            <time>1559136815</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="6" vrev="3">
-            <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
-            <version>2.0.0</version>
-            <time>1559136821</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="7" vrev="4">
-            <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
-            <version>0.0.1</version>
-            <time>1559136954</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="8" vrev="4">
-            <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
-            <version>2.0.0</version>
-            <time>1559136961</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="9" vrev="5">
-            <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
-            <version>0.0.1</version>
-            <time>1559137169</time>
-            <user>unknown</user>
-          </revision>
-          <revision rev="10" vrev="5">
-            <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
-            <version>2.0.0</version>
-            <time>1559137176</time>
-            <user>tom</user>
-          </revision>
-          <revision rev="11" vrev="6">
-            <srcmd5>518486fc563594c5adf33d7651241bc9</srcmd5>
-            <version>0.0.1</version>
-            <time>1559138659</time>
+            <time>1560171124</time>
             <user>unknown</user>
           </revision>
         </revisionlist>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:20 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/_result?package=package_with_kiwi_file&view=status
@@ -502,7 +665,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:21 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -528,15 +691,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:21 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:04 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -562,15 +725,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:21 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -596,15 +759,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:21 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -630,15 +793,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -664,15 +827,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -698,15 +861,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -732,15 +895,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="11" vrev="6" srcmd5="518486fc563594c5adf33d7651241bc9">
-          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1559134147" />
+        <directory name="package_with_kiwi_file" rev="1" vrev="1" srcmd5="518486fc563594c5adf33d7651241bc9">
+          <entry name="package_with_kiwi_file.kiwi" md5="1c5276faed68b141541d9ecaf6a2f3b6" size="289" mtime="1560171124" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/package_with_kiwi_file.kiwi
@@ -775,7 +938,7 @@ http_interactions:
         primary=\"true\" boot=\"oemboot/suse-13.2\"/>\n    </preferences>\n  </image>\n
         \ "
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/package_with_kiwi_file.kiwi?user=tom
@@ -815,20 +978,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '202'
+      - '201'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="12" vrev="6">
+        <revision rev="2" vrev="1">
           <srcmd5>c4ff386d9befbb7488739069998872fd</srcmd5>
           <version>2.0.0</version>
-          <time>1559138665</time>
+          <time>1560171126</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:25 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file/_meta?user=tom
@@ -836,8 +999,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -858,16 +1021,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_kiwi_file" project="home:tom">
-          <title>Nectar in a Sieve</title>
-          <description>Molestiae recusandae dolores ipsa.</description>
+          <title>The Needle's Eye</title>
+          <description>Et aliquam temporibus reiciendis.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -893,15 +1056,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="12" vrev="6" srcmd5="c4ff386d9befbb7488739069998872fd">
-          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1559136092" />
+        <directory name="package_with_kiwi_file" rev="2" vrev="1" srcmd5="c4ff386d9befbb7488739069998872fd">
+          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1560171126" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file?view=info
@@ -927,15 +1090,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '215'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_with_kiwi_file" rev="12" vrev="6" srcmd5="c4ff386d9befbb7488739069998872fd" verifymd5="c4ff386d9befbb7488739069998872fd">
+        <sourceinfo package="package_with_kiwi_file" rev="2" vrev="1" srcmd5="c4ff386d9befbb7488739069998872fd" verifymd5="c4ff386d9befbb7488739069998872fd">
           <filename>package_with_kiwi_file.kiwi</filename>
         </sourceinfo>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -961,15 +1124,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="12" vrev="6" srcmd5="c4ff386d9befbb7488739069998872fd">
-          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1559136092" />
+        <directory name="package_with_kiwi_file" rev="2" vrev="1" srcmd5="c4ff386d9befbb7488739069998872fd">
+          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1560171126" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -997,19 +1160,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '326'
+      - '325'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="09961596433de12b1fa7a2547d1336c4">
+        <sourcediff key="377da8a527984d4e807c9cb1d7d2cd1e">
           <old project="home:tom" package="package_with_kiwi_file" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_kiwi_file" rev="12" srcmd5="c4ff386d9befbb7488739069998872fd" />
+          <new project="home:tom" package="package_with_kiwi_file" rev="2" srcmd5="c4ff386d9befbb7488739069998872fd" />
           <files />
           <issues>
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_kiwi_file
@@ -1035,13 +1198,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '231'
+      - '230'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_kiwi_file" rev="12" vrev="6" srcmd5="c4ff386d9befbb7488739069998872fd">
-          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1559136092" />
+        <directory name="package_with_kiwi_file" rev="2" vrev="1" srcmd5="c4ff386d9befbb7488739069998872fd">
+          <entry name="package_with_kiwi_file.kiwi" md5="73b582aade106e4f48ec8f96995da1ac" size="470" mtime="1560171126" />
         </directory>
     http_version: 
-  recorded_at: Wed, 29 May 2019 14:04:26 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 10 Jun 2019 12:52:06 GMT
+recorded_with: VCR 5.0.0
