@@ -9,5 +9,5 @@
       = link_to 'Software', action_name == 'edit' ? '#' : { controller: 'kiwi/images', action: 'edit', section: 'software' },
         id: 'kiwi-software-trigger', class: "nav-link #{'active' if params[:section] == 'software'}"
 
-= content_for :ready_function do
+- content_for :ready_function do
   initializeTabs();

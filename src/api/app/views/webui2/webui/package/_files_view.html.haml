@@ -35,5 +35,5 @@
     %h5
       Source MD5 is #{srcmd5} (latest revision is #{current_rev})
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   initializeDataTable('#files-table');

@@ -24,7 +24,7 @@
   = render partial: 'create_dialog'
   = render partial: 'delete_dialog'
 
-= content_for :ready_function do
+- content_for :ready_function do
   :plain
     $('#excluded-requests-datatable').DataTable({
       responsive: true,

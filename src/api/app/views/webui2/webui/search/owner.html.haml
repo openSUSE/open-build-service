@@ -39,7 +39,7 @@
         - projects_and_packages = @results.map { |result| { project: result.project, package: result.package } }
         = render partial: 'request_bugowner_change_dialog', locals: { projects_and_packages: projects_and_packages }
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   :plain
     $('#limit').change(function() {
       if ($(this).val() === '0') {

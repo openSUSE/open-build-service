@@ -53,5 +53,5 @@
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   setupRequestDialog();

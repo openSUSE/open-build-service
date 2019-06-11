@@ -91,5 +91,5 @@
     = render partial: 'webui2/webui/request/add_role_request_dialog', locals: { project: @project }
     = render partial: 'webui2/webui/request/delete_request_dialog', locals: { project: @project }
 
-= content_for :ready_function do
+- content_for :ready_function do
   initializeDataTable('#inherited-packages-table');
