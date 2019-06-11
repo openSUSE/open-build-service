@@ -15,5 +15,5 @@
                                                        data: { source: autocomplete_users_path })
         = form.submit('Create', class: 'btn btn-primary', data: { disable_with: 'Creating...' })
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   initializeGroupTokenfield();

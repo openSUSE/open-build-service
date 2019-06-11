@@ -35,5 +35,5 @@
         %i.fas.fa-undo
         Revert
 
-= content_for :ready_function do
+- content_for :ready_function do
   initializeKiwi('#{url_for(controller: 'kiwi/images', action: :show, id: @image)}')

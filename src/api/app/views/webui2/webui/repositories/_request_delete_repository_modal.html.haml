@@ -18,7 +18,7 @@
             = text_area_tag :description, '', row: 3, class: 'form-control'
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Request' }
-= content_for :ready_function do
+- content_for :ready_function do
   :plain
     $('#request-delete-repository').on('show.bs.modal', function (event) {
       var link = $(event.relatedTarget);

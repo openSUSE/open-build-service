@@ -93,7 +93,7 @@
   = render partial: 'webui2/webui/request/add_reviewer_dialog'
 = render partial: 'webui2/webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
 
-= content_for :ready_function do
+- content_for :ready_function do
   :plain
     $('.request-tab').on('shown.bs.tab', function() {
       editors.forEach( function(editor) { editor.refresh(); cmMarkDiffLines(); });
