@@ -441,7 +441,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
     websocket-driver (0.7.0)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.3)
+    websocket-extensions (0.1.4)
     xmlhash (1.3.7)
       pkg-config
     xmlrpc (0.3.0)
