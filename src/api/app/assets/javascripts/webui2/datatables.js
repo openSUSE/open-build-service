@@ -7,6 +7,7 @@
 
 var DEFAULT_DT_PARAMS = {
   language: { search: '', searchPlaceholder: "Search..." },
+  pageLength: 25,
   stateSave: true,
   stateDuration: 172800 // 2 days
 };
