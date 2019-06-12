@@ -189,6 +189,8 @@ sub forwarddata {
   print "sent $cnt redis notifications\n";
 }
 
+my $noprogress;
+
 sub doforward {
   my ($fd) = @_;
   eval {
@@ -198,8 +200,15 @@ sub doforward {
     warn($@);
     close($fd);
     print "retrying in 60 seconds\n";
-    return time() + 60;
+    my $now = time();
+    $noprogress ||= $now;
+    if ($now - $noprogress > 10 * 60) {
+      BSUtil::logcritical("no progress sending redis events since 10 minutes");
+      $noprogress = $now;
+    }
+    return $now + 60;
   }
+  $noprogress = undef;
   unlink("$myeventdir/queue.send");
   close($fd);
   return undef;

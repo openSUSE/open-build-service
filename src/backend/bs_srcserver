@@ -4602,6 +4602,7 @@ sub getworkerstatus {
   add_serviceserverstatus($cgi, $cws);
   add_localworkerstatus($cgi, $cws, 'deltastore', "$rundir/bs_deltastore.lock");
   add_localworkerstatus($cgi, $cws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
+  add_localworkerstatus($cgi, $cws, 'redis', "$rundir/bs_redis.lock");
   add_localworkerstatus($cgi, $cws, 'srcserver');
   return ($cws, $BSXML::workerstatus);
 }
