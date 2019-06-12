@@ -21,3 +21,11 @@ test:
     cloud_upload: true
     cloud_upload_azure: true
     bootstrap: false
+
+beta:
+  features:
+    <<: *default
+    kiwi_image_editor: true
+    cloud_upload: true
+    cloud_upload_azure: true
+    bootstrap: true
