@@ -9,7 +9,7 @@ module Feature
         @perform_initial_refresh_for_user = false
       end
 
-      Repository::ObsRepository::DEFAULTS.merge(@data[Rails.env]['features']).with_indifferent_access.key?(feature)
+      Repository::ObsRepository::DEFAULTS.merge(@data['beta']['features']).with_indifferent_access.fetch(feature, false)
     else
       active_features.include?(feature)
     end
