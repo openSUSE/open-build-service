@@ -58,15 +58,15 @@ function setupRequestDialog() { // jshint ignore:line
 
 function requestAddReviewAutocomplete() { // jshint ignore:line
   $('.modal').on('shown.bs.modal', function() {
-    $('.hideable input:not(:visible)').removeAttr('required');
+    $('.hideable input:not(:visible)').attr('disabled', true);
   });
 
   $('#review_type').change(function () {
     $('.hideable').addClass('d-none');
-    $('.hideable input:not(:visible)').removeAttr('required');
+    $('.hideable input:not(:visible)').attr('disabled', true);
 
     var selected = $('#review_type option:selected').attr('value');
     $('.' + selected).removeClass('d-none');
-    $('.hideable input:visible').attr('required', true);
+    $('.hideable input:visible').removeAttr('disabled');
   });
 }
