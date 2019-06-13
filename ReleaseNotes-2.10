@@ -42,6 +42,7 @@ Frontend:
    feature, switch database.yml to utf8mb4 encoding
  * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
    users unless they acknowledge them.
+ * Added `beta` environment in 'config/feature.yml' to toggle features in the beta program.
 
 Backend:
 
