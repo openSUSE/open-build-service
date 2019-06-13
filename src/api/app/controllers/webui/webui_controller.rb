@@ -305,9 +305,9 @@ class Webui::WebuiController < ActionController::Base
   def switch_to_webui2?
     if Rails.env.test?
       # In test environment we want to enable the
-      # bootstrap theme independent from the user
+      # bento theme independent from the user
       # The feature switch depends on the user (e.g. Admin or Staff)
-      ENV['BOOTSTRAP'].present?
+      ENV['BENTO'].blank?
     else
       Feature.active?(:bootstrap)
     end
