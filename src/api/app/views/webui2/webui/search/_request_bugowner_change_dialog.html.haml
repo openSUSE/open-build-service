@@ -5,13 +5,15 @@
         .modal-header
           %h5.modal-title#request-bugowner-change-modal-label Submit Request to Change Bugowner
         .modal-body
-          %p.font-italic
-            A user or a group is required.
           .form-group
-            = render partial: 'webui/autocomplete', locals: { html_id: 'user', label: 'User:', required: false,
+            = label_tag(:review_type, 'Bugowner can be a user or a group:')
+            = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'custom-select')
+
+          .hideable.review-user
+            = render partial: 'webui/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,
                                                               data: { source: autocomplete_users_path } }
-          .form-group
-            = render partial: 'webui/autocomplete', locals: { html_id: 'group', label: 'Group:', required: false,
+          .hideable.review-group.d-none
+            = render partial: 'webui/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
                                                               data: { source: autocomplete_groups_path } }
           .form-group
             For:
@@ -37,3 +39,6 @@
 
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }
+
+- content_for :ready_function do
+  requestAddReviewAutocomplete();
