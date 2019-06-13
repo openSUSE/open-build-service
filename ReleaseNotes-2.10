@@ -27,26 +27,37 @@ Features
 ========
 
 Generic:
+ * Add binary release tracking data for containers.
+ * Add support to collect performance metrics with InfluxDB
+ * Amazon EC2/ Microsoft Azure cloud upload support
+ * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
+   feature, switch database.yml to utf8mb4 encoding
+ * Added `beta` environment in 'config/feature.yml' to toggle features in the beta program.
+ * Bugowners of a project/package now receive notifications about new comments
+ * Request pre-approval. Requests will be accepted when last review gets accepted.
+ * Support webhooks from gitlab
+ * Send requests creation to rabbitmq bus
+ * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
+   users unless they acknowledge them.
 
-Frontend:
- * Improved UI/UX for package live build log:
-    * Show a hint to know what is happening.
-    * Clicking on the hint can starts or stop the loading of the content.
+User Interface:
+ * Improved UI/UX for package live build log (hints & start/stop loading)
  * Do not show excluded entries in package build results by default.
- * Microsoft Azure cloud upload support
- * API routes for Amazon ec2 cloud feature
  * Refactored the view of the binaries page that before was just a list of links that
    pointed to the details page. Now you can download the files and upload images to
    the cloud directly from here.
- * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
-   feature, switch database.yml to utf8mb4 encoding
- * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
-   users unless they acknowledge them.
- * Added `beta` environment in 'config/feature.yml' to toggle features in the beta program.
+ * Limit results for autocompletion queries to 50
+ * Include all results for autocompletion that match with the search string.
+ * Hide disabled repositories by default
+ * Excluded entries in package build results are not shown by default anymore.
+ * Use full author identities in generating changes entries
+ * Request descriptions are now mandatory to avoiding unnecessary requets
 
 Backend:
 
 Shipment:
+ * Require system gems (rake and rack) in api-deps package
+ * Switch most frontend services from sysv init scripts to systemd units (obs-api-support.target)
 
 Bugfixes:
 
@@ -69,8 +80,6 @@ Intentional changes:
     You can convert your old configuration by running:
       (cd /srv/www/obs/api/; rake migrate_options_yml)
 
-  * Excluded entries in package build results are not shown by default anymore.
-
   * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
     * Timestamp
     * Request: Method + Controller + Action + Path + Params
@@ -84,18 +93,6 @@ Intentional changes:
     method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
     ```
 
-    This will condense the output generated, before it was something like this:
-
-    ```
-    Started POST "/" for 127.0.0.1 at 2012-03-10 14:28:14 +0100
-    Processing by HomeController#index as HTML
-      Rendered text template within layouts/application (0.0ms)
-      Rendered layouts/_assets.html.erb (2.0ms)
-      Rendered layouts/_top.html.erb (2.6ms)
-      Rendered layouts/_about.html.erb (0.3ms)
-      Rendered layouts/_google_analytics.html.erb (0.4ms)
-    Completed 200 OK in 79ms (Views: 78.8ms | ActiveRecord: 0.0ms)
-    ```
  * In previous releases it was possible to delete attributes through
    /source/<project>/_attribute/?namespace=OBS&name=VeryImportantProject (or similiar
    for packages). You need to follow the documentation now and the proper
@@ -116,6 +113,17 @@ Intentional changes:
    - GET 'public/status/save_new_message'
    - GET 'public/status/delete_message'
 
+ * Unused public status routes have been dropped. Dropped routes:
+   - GET 'status/bsrequest'
+   - GET 'public/status/workerstatus'
+   - GET 'public/status/history'
+   - GET 'public/status/project'
+   - GET 'public/status/bsrequest'
+   - GET 'public/status/role_from_cache'
+   - GET 'public/status/user_from_cache'
+   - GET 'public/status/group_from_cache'
+   - GET 'public/status/find_relationships_for_packages'
+
   * The 'commenter' and 'commenters' payload of Comment events used to contain user ids.
     They now contain the user login name instead.
     Run the data migrations to convert events in the old format:
@@ -135,6 +143,9 @@ Intentional changes:
     error also on configuration errors. This is a 404 now:
     - POST /source/<project>?cmd=release
     - POST /source/<project>/<package>?cmd=release
+
+  * Public route dropped for reading patchinfo
+    - GET 'patchinfo/read_patchinfo'
 
 Other changes
 =============
