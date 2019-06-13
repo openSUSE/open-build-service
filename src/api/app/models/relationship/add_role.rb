@@ -24,8 +24,6 @@ class Relationship::AddRole
   def duplicate?
     return unless package_or_project.relationships.where(user: user, group: group, role: role).exists?
     raise SaveError, 'Relationship already exists' if check
-    debug_str = user ? "user #{user.login}" : "group #{group.title}"
-    logger.debug "ignore #{debug_str} - already has role #{role.title}"
     true
   end
 
