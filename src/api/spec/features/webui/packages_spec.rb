@@ -66,7 +66,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
 
     scenario 'with AutoCleanup' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       click_button('Ok')
 
@@ -78,7 +78,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
       expect(page).to have_text('OBS:AutoCleanup')
     end
     scenario 'without AutoCleanup' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       find('.show-hide', visible: false).click
       check('Disable Autocleanup')
@@ -114,7 +114,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario 'deleting a package' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit package_show_path(package: package, project: user.home_project)
@@ -144,7 +144,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario 'requesting package deletion' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
@@ -158,7 +158,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
   end
 
   scenario "changing the package's devel project" do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
@@ -249,7 +249,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
 
     scenario 'download logfile succesfully' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish

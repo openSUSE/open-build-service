@@ -20,7 +20,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   scenario 'changing project title and description' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit project_show_path(project: project)
@@ -48,7 +48,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'with valid data' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
@@ -126,7 +126,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario "create subproject with checked 'disable publishing' checkbox" do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login user
       visit project_subprojects_path(project: user.home_project)
@@ -178,7 +178,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'repositories tab' do
     before do
-      skip_if_bootstrap
+      skip_unless_bento
     end
 
     include_examples 'tests for sections with flag tables'
@@ -331,7 +331,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package to an invalid target package or project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
@@ -357,7 +357,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a non-existing package' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: 'non-existing_package')
       fill_in('linked_package', with: package_of_another_project.name)
@@ -369,7 +369,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled access flag' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       create(:access_flag, status: 'disable', project: other_user.home_project)
 
@@ -384,7 +384,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled sourceaccess flag' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
 
@@ -399,7 +399,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package and select current revision' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
@@ -421,7 +421,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'maintenance projects' do
     scenario 'creating a maintenance project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login(admin_user)
       visit project_show_path(project)
@@ -441,7 +441,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
 
     scenario 'creating a maintened project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login(admin_user)
       visit project_show_path(maintenance_project)
@@ -528,7 +528,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by package name' do
-      skip_if_bootstrap # this is now handled by datatables, we don't need to test it
+      skip_unless_bento # this is now handled by datatables, we don't need to test it
       fill_in 'pkgname', with: package1.name
       click_button 'Filter:'
 
@@ -538,7 +538,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by architecture' do
-      skip_if_bootstrap
+      skip_unless_bento
       find('#archlink').click
       uncheck 'arch_x86_64'
       click_button 'Filter:'
@@ -549,7 +549,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by repository' do
-      skip_if_bootstrap
+      skip_unless_bento
       find('#repolink').click
       uncheck 'repo_openSUSE_Leap_42_2'
       uncheck 'repo_openSUSE_Leap_42_3'
@@ -562,7 +562,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by last build' do
-      skip_if_bootstrap # we don't support this anymore
+      skip_unless_bento # we don't support this anymore
       check 'lastbuild'
       click_button 'Filter:'
 

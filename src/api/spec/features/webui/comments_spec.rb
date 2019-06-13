@@ -14,7 +14,7 @@ RSpec.feature 'Comments', type: :feature, js: true do
   end
 
   scenario 'can be answered' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit project_show_path(user.home_project)

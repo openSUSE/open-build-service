@@ -22,7 +22,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   end
 
   scenario 'maintenance workflow' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     # Step 1: The user branches a package
     ####################################

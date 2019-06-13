@@ -151,7 +151,7 @@ RSpec.feature 'Search', type: :feature, js: true do
   end
 
   scenario 'search in no types' do
-    skip_if_bootstrap # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
+    skip_unless_bento # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
     apache2
     reindex_for_search
 
