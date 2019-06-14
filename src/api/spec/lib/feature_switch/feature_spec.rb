@@ -1,12 +1,12 @@
 require 'rails_helper'
 
-RSpec.describe Feature do
+RSpec.describe Feature, type: :model do
   let(:user) { build(:confirmed_user, :in_beta, login: 'Tom') }
   subject { Feature.active?('bootstrap') }
 
   context 'with beta users' do
     before do
-      allow(User).to receive(:possibly_nobody).and_return(user)
+      login(user)
       Feature.instance_variable_set(:@perform_initial_refresh_for_user, true)
     end
 
