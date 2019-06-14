@@ -1,6 +1,8 @@
 require 'api_error'
 
 class Review < ApplicationRecord
+  include ActiveModel::Validations
+
   class NotFoundError < APIError
     setup 'review_not_found', 404, 'Review not found'
   end
@@ -23,6 +25,7 @@ class Review < ApplicationRecord
   # Validate the review is not assigned to a review which is already assigned to this review
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
+  validates_with AllowedUserValidator
 
   belongs_to :user
   belongs_to :group
