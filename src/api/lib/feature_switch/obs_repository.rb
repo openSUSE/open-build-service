@@ -3,6 +3,7 @@ module Feature
     # ObsRepository for active and inactive features based on YamlRepository having default values for each key in OBS
     #
     class ObsRepository < YamlRepository
+      # remember to update comments in config/features.yml if changing
       DEFAULTS = {
         image_templates: true,
         cloud_upload: false,

@@ -1,4 +1,3 @@
-# (keep aligned with lib/feature_switch/obs_repository.rb)
 #production:
 #  features:
 #   image_templates: true
