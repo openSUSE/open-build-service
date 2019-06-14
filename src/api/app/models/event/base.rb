@@ -153,7 +153,6 @@ module Event
     def perform_create_jobs
       self.undone_jobs = 0
       save
-      Rails.logger.debug "PCJ #{inspect} #{create_jobs.inspect}"
       create_jobs.each do |job|
         job_class = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if job_class.nil?
