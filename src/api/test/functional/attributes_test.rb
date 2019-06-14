@@ -379,8 +379,28 @@ ription</description>
     assert_response :success
     assert_xml_tag(tag: 'revisionlist')
     revision = Xmlhash.parse(@response.body).elements('revision').last
-    assert_equal 'tom', revision['user']
+    assert_equal 'king', revision['user']
     srcmd5 = revision['srcmd5']
+
+    # check history on changed value only
+    login_king
+    screenshot = "<attributes><attribute namespace='OBS' name='ScreenShots'><value>ftp://...</value></attribute></attributes>"
+    post '/source/home:tom/_attribute', params: screenshot
+    assert_response :success
+    get '/source/home:tom/_project/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'revisionlist')
+    revision = Xmlhash.parse(@response.body).elements('revision').last
+    assert_equal 'king', revision['user']
+    rev_nr = revision['rev'].to_i
+    screenshot = "<attributes><attribute namespace='OBS' name='ScreenShots'><value>http://...</value></attribute></attributes>"
+    post '/source/home:tom/_attribute', params: screenshot
+    assert_response :success
+    get '/source/home:tom/_project/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'revisionlist')
+    revision = Xmlhash.parse(@response.body).elements('revision').last
+    assert_equal (rev_nr + 1), revision['rev'].to_i
 
     # delete
     login_tom
