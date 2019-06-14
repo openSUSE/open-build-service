@@ -198,6 +198,7 @@ class Webui::WebuiController < ActionController::Base
     elsif previous_user != User.possibly_nobody.login
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
     end
+    Feature.use_beta_features(User.possibly_nobody.in_beta?)
   end
 
   def check_display_user

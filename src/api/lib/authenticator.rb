@@ -225,6 +225,7 @@ class Authenticator
     end
 
     User.session = @http_user
+    Feature.use_beta_features(@http_user.in_beta?)
 
     if @http_user.state == 'confirmed'
       Rails.logger.debug "USER found: #{@http_user.login}"
@@ -247,6 +248,7 @@ class Authenticator
   def load_nobody
     @http_user = User.find_nobody!
     User.session = @http_user
+    Feature.use_beta_features(false)
     @user_permissions = Suse::Permission.new(@http_user)
   end
 end

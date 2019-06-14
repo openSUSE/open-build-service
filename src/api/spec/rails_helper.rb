@@ -83,3 +83,6 @@ require 'support/migration'
 
 # support rabbitmq
 require 'support/rabbitmq'
+
+# reset features
+require 'support/feature'
