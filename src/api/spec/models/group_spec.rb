@@ -23,6 +23,15 @@ RSpec.describe Group do
       end
     end
 
+    context 'with user _nobody_' do
+      let(:nobody) { create(:user_nobody) }
+
+      it 'does not add the user' do
+        group.replace_members([nobody.login])
+        expect(group.errors.full_messages).to eq(["Validation failed: Couldn't find user _nobody_"])
+      end
+    end
+
     context 'with invalid user input' do
       before(:each) do
         group.users << user
