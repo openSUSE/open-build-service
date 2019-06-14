@@ -36,6 +36,8 @@ class Relationship < ApplicationRecord
     message: 'User and group can not exist at the same time'
   }, if: proc { |relationship| relationship.group.present? }
 
+  validate :allowed_user
+
   # don't use "is not null" - it won't be in index
   scope :projects, -> { where.not(project_id: nil) }
   scope :packages, -> { where.not(package_id: nil) }
@@ -125,6 +127,13 @@ class Relationship < ApplicationRecord
     return unless role && role.global
     errors.add(:base,
                "global role #{role.title} is not allowed.")
+  end
+
+  # NOTE: Adding a normal validation, the error doesn't reach the view due to
+  # Relationship::AddRole#add_role handling.
+  # We could also check other banned users, not only nobody.
+  def allowed_user
+    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
   end
 end
 
