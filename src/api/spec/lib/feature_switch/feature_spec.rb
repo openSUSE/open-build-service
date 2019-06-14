@@ -1,25 +1,35 @@
 require 'rails_helper'
 
 RSpec.describe Feature do
-  let(:user) { create(:confirmed_user, :in_beta, login: 'Tom') }
-  subject { Feature.active?('bootstrap') }
+  subject { Feature.active?(:bootstrap) }
 
-  context 'with beta users' do
-    before do
-      User.session = user
-      Feature.instance_variable_set(:@perform_initial_refresh_for_user, true)
-    end
+  let(:use_beta) { false }
 
-    context 'when the file has "beta" key' do
-      it { expect(subject).to be_truthy }
-    end
+  before do
+    allow(YAML).to receive(:load).and_return(yaml)
+    Feature.use_beta_features(use_beta)
+    Feature.refresh!
+  end
+
+  context 'with true test settings' do
+    let(:yaml) { { 'test' => { 'features' => { 'bootstrap': true } } } }
+    it { is_expected.to be_truthy }
+  end
+
+  context 'with false test settings' do
+    let(:yaml) { { 'test' => { 'features' => { 'bootstrap': false } } } }
+    it { is_expected.to be_falsey }
+  end
+
+  context 'with beta features' do
+    let(:use_beta) { true }
+    let(:yaml) { { 'beta' => { 'features' => { 'bootstrap': true } } } }
+
+    it { is_expected.to be_truthy }
 
     context 'when the file doesn\'t have "beta" key' do
-      before do
-        allow(YAML).to receive(:load_file).and_return({})
-      end
-
-      it { expect(subject).to be_falsey }
+      let(:yaml) { {} }
+      it { is_expected.to be_falsey }
     end
   end
 end

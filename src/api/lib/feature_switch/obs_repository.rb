@@ -3,19 +3,16 @@ module Feature
     # ObsRepository for active and inactive features based on YamlRepository having default values for each key in OBS
     #
     class ObsRepository < YamlRepository
+      # remember to update config/features.yml if changing
       DEFAULTS = {
         image_templates: true,
-        cloud_upload: false
-      }.freeze
+        cloud_upload: false,
+        cloud_upload_azure: false,
+        bootstrap: false,
+        kiwi_image_editor: false
+      }.with_indifferent_access
 
-      # Read given file, perform erb evaluation and yaml parsing
-      #
-      # @param file_name [String] the file name fo the yaml config
-      # @return [Hash]
-      #
-      def read_file(file_name)
-        super.with_indifferent_access
-      end
+      attr_accessor :use_beta_features
 
       # Extracts active features from given hash
       #
@@ -23,7 +20,12 @@ module Feature
       # @param selector [String] uses the value for this key as source of feature data
       #
       def get_active_features(data, selector)
-        data[@environment]['features'] = DEFAULTS.merge(data[@environment]['features'])
+        data[selector] ||= {}
+        features = data[selector].fetch('features', {})
+        if use_beta_features && data.dig('beta', 'features')
+          features.merge!(data['beta']['features'])
+        end
+        data[selector]['features'] = DEFAULTS.merge(features)
         super
       end
     end

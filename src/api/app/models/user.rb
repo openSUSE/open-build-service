@@ -244,9 +244,10 @@ class User < ApplicationRecord
     current && current.is_admin?
   end
 
-  # set the user as current session user (should be real user)
+  # set the user as current session user (should be real user or nil)
   def self.session=(user)
     Thread.current[:user] = user
+    Feature.use_beta_features(user.try(:in_beta) || false)
   end
 
   def self.get_default_admin
