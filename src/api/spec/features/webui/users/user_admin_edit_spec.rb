@@ -5,7 +5,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
   let(:admin) { create(:admin_user) }
 
   before do
-    skip_if_bootstrap
+    skip_unless_bento
   end
 
   scenario 'view user' do

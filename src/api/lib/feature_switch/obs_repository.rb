@@ -5,7 +5,8 @@ module Feature
     class ObsRepository < YamlRepository
       DEFAULTS = {
         image_templates: true,
-        cloud_upload: false
+        cloud_upload: false,
+        bootstrap: true
       }.freeze
 
       # Read given file, perform erb evaluation and yaml parsing

@@ -20,7 +20,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   scenario 'changing project title and description' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit project_show_path(project: project)
@@ -48,7 +48,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'with valid data' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in 'name', with: 'coolstuff'
       fill_in 'title', with: 'cool stuff everyone needs'
@@ -63,7 +63,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
     scenario 'with invalid data (validation fails)' do
       fill_in 'name', with: 'cool stuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      is_bento? ? click_button('Accept') : click_button('Create')
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -73,7 +73,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       create(:package, name: 'coolstuff', project: user.home_project)
 
       fill_in 'name', with: 'coolstuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      is_bento? ? click_button('Accept') : click_button('Create')
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -102,7 +102,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Create Package')
 
       fill_in 'name', with: 'coolstuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      is_bento? ? click_button('Accept') : click_button('Create')
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: 'coolstuff'))
@@ -126,7 +126,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario "create subproject with checked 'disable publishing' checkbox" do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login user
       visit project_subprojects_path(project: user.home_project)
@@ -178,7 +178,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'repositories tab' do
     before do
-      skip_if_bootstrap
+      skip_unless_bento
     end
 
     include_examples 'tests for sections with flag tables'
@@ -311,7 +311,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
-      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
+      expect(page).to(have_text('1 result is available')) if is_bento?
       # This needs global write through
       click_button('Accept')
 
@@ -331,7 +331,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'an existing package to an invalid target package or project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
@@ -348,7 +348,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
-      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
+      expect(page).to(have_text('1 result is available')) if is_bento?
       # This needs global write through
       click_button('Accept')
 
@@ -357,7 +357,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a non-existing package' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: 'non-existing_package')
       fill_in('linked_package', with: package_of_another_project.name)
@@ -369,7 +369,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled access flag' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       create(:access_flag, status: 'disable', project: other_user.home_project)
 
@@ -384,7 +384,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package with disabled sourceaccess flag' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
 
@@ -399,7 +399,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'a package and select current revision' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
@@ -421,12 +421,12 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'maintenance projects' do
     scenario 'creating a maintenance project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login(admin_user)
       visit project_show_path(project)
 
-      click_link('Advanced') unless is_bootstrap?
+      click_link('Advanced') if is_bento?
       click_link('Attributes')
       click_link('Add a new attribute')
       select('OBS:MaintenanceProject')
@@ -441,7 +441,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
 
     scenario 'creating a maintened project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login(admin_user)
       visit project_show_path(maintenance_project)
@@ -528,7 +528,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by package name' do
-      skip_if_bootstrap # this is now handled by datatables, we don't need to test it
+      skip_unless_bento # this is now handled by datatables, we don't need to test it
       fill_in 'pkgname', with: package1.name
       click_button 'Filter:'
 
@@ -538,7 +538,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by architecture' do
-      skip_if_bootstrap
+      skip_unless_bento
       find('#archlink').click
       uncheck 'arch_x86_64'
       click_button 'Filter:'
@@ -549,7 +549,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by repository' do
-      skip_if_bootstrap
+      skip_unless_bento
       find('#repolink').click
       uncheck 'repo_openSUSE_Leap_42_2'
       uncheck 'repo_openSUSE_Leap_42_3'
@@ -562,7 +562,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'filtering build results by last build' do
-      skip_if_bootstrap # we don't support this anymore
+      skip_unless_bento # we don't support this anymore
       check 'lastbuild'
       click_button 'Filter:'
 

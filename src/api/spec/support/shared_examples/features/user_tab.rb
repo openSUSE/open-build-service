@@ -29,7 +29,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Viewing user roles' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       expect(page).to have_text('User Roles')
       expect(find('#user_maintainer_user_tab_user')).to be_checked
@@ -41,7 +41,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add user to package / project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       click_link('Add user')
       fill_in('User:', with: 'Jimmy')
@@ -68,7 +68,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove user from package / project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       expect(page).to have_css('a', text: "#{reader.realname} (reader_user)")
       accept_alert do
@@ -79,7 +79,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to user' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       # check checkbox
       find('#user_reviewer_user_tab_user').click
@@ -90,7 +90,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from user' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       # uncheck checkbox
       find('#user_bugowner_user_tab_user').click
@@ -120,7 +120,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Viewing group roles' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       expect(page).to have_text('Group Roles')
       expect(find('#group_maintainer_existing_group')).to be_checked
@@ -132,7 +132,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add group to package / project' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       click_link('Add group')
       fill_in('Group:', with: 'unknown group')
@@ -159,7 +159,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to group' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       # check checkbox
       find('#group_reviewer_existing_group').click
@@ -170,7 +170,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from group' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       # uncheck checkbox
       find('#group_bugowner_existing_group').click

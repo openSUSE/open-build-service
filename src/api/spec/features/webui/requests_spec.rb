@@ -10,7 +10,7 @@ RSpec.feature 'Requests', type: :feature, js: true do
   let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
   before do
-    skip_if_bootstrap
+    skip_unless_bento
   end
 
   RSpec.shared_examples 'expandable element' do

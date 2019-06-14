@@ -44,11 +44,11 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: apache2.name
     click_button 'Advanced'
-    if is_bootstrap?
-      select('Projects', from: 'search_for')
-    else
+    if is_bento?
       check('project')
       uncheck('package')
+    else
+      select('Projects', from: 'search_for')
     end
 
     click_button 'Search'
@@ -70,11 +70,11 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'goal'
     click_button 'Advanced'
-    if is_bootstrap?
-      select('Packages', from: 'search_for')
-    else
+    if is_bento?
       check('package')
       uncheck('project')
+    else
+      select('Packages', from: 'search_for')
     end
 
     check 'title', allow_label_click: true
@@ -140,18 +140,18 @@ RSpec.feature 'Search', type: :feature, js: true do
     fill_in 'search_input', with: 'fooo'
     click_button 'Search'
 
-    if is_bootstrap?
+    if is_bento?
+      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    else
       within('#flash') do
         expect(page).to have_text('Your search did not return any results.')
       end
-    else
-      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
     end
     expect(page).to have_selector('#search-results', count: 0)
   end
 
   scenario 'search in no types' do
-    skip_if_bootstrap # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
+    skip_unless_bento # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
     apache2
     reindex_for_search
 
@@ -164,12 +164,12 @@ RSpec.feature 'Search', type: :feature, js: true do
     uncheck 'package'
     click_button 'Search'
 
-    if is_bootstrap?
+    if is_bento?
+      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    else
       within('#flash') do
         expect(page).to have_text('Your search did not return any results.')
       end
-    else
-      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
     end
     expect(page).to have_selector('#search-results', count: 0)
   end
@@ -188,12 +188,12 @@ RSpec.feature 'Search', type: :feature, js: true do
     uncheck 'description', allow_label_click: true
     click_button 'Search'
 
-    if is_bootstrap?
+    if is_bento?
+      expect(find('#flash-messages')).to have_text('You have to search for awesome in something. Click the advanced button...')
+    else
       within('#flash') do
         expect(page).to have_text('You have to search for awesome in something. Click the advanced button...')
       end
-    else
-      expect(find('#flash-messages')).to have_text('You have to search for awesome in something. Click the advanced button...')
     end
     expect(page).to have_selector('#search-results', count: 0)
   end
@@ -231,12 +231,12 @@ RSpec.feature 'Search', type: :feature, js: true do
       check 'title', allow_label_click: true
       click_button 'Search'
 
-      if is_bootstrap?
+      if is_bento?
+        expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+      else
         within('#flash') do
           expect(page).to have_text('Your search did not return any results.')
         end
-      else
-        expect(find('#flash-messages')).to have_text('Your search did not return any results.')
       end
       expect(page).to have_selector('#search-results', count: 0)
     end

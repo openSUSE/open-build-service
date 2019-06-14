@@ -33,7 +33,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       let!(:other_user) { create(:confirmed_user) }
 
       scenario 'add attribute with values should fail' do
-        skip_if_bootstrap
+        skip_unless_bento
         login other_user
 
         visit index_attribs_path(project: user.home_project_name)
@@ -58,7 +58,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     end
 
     scenario 'remove attribute' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login user
       attribute = create(:attrib, project_id: user.home_project.id)
@@ -78,7 +78,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     end
 
     scenario 'add attribute with values' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login user
 

@@ -4,7 +4,7 @@ RSpec.feature "User's notifications settings", type: :feature, js: true do
   let(:user_with_groups) { create(:user_with_groups, login: 'moi_wg') }
 
   before do
-    skip_if_bootstrap
+    skip_unless_bento
   end
 
   scenario 'when a user is in some group' do

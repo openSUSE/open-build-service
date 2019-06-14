@@ -35,12 +35,12 @@ RSpec.feature 'Notifications', type: :feature, js: true do
   end
 
   before do
-    skip_if_bootstrap
+    skip_unless_bento
   end
 
   context 'update as admin user' do
     it_behaves_like 'updatable' do
-      let(:title) { is_bootstrap? ? 'Notifications' : 'Global Notification Settings' }
+      let(:title) { is_bento? ? 'Global Notification Settings' : 'Notifications' }
       let(:user) { create(:admin_user, login: 'king') }
       let(:path) { notifications_path }
     end

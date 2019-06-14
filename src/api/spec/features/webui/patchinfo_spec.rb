@@ -47,7 +47,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     end
 
     scenario 'delete' do
-      skip_if_bootstrap
+      skip_unless_bento
 
       login user
       patchinfo_package

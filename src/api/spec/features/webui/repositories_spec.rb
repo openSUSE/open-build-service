@@ -10,7 +10,7 @@ RSpec.feature 'Repositories', type: :feature, js: true do
   let!(:distribution) { create(:distribution, project: my_project, repository: 'standard') }
 
   scenario 'add' do
-    skip_if_bootstrap
+    skip_unless_bento
 
     login user
     visit "/project/add_repository_from_default_list/#{project.name}"
