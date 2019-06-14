@@ -11,18 +11,18 @@
             = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group],
                                                            %w[Project review-project], %w[Package review-package]]), class: 'custom-select')
           .hideable.review-user
-            = render partial: 'webui/autocomplete', locals: { html_id: 'review_user', label: 'User:',
+            = render partial: 'webui/autocomplete', locals: { html_id: 'review_user', label: 'User:', required: true,
                                                               data: { source: autocomplete_users_path } }
 
           .hideable.review-group.d-none
-            = render partial: 'webui/autocomplete', locals: { html_id: 'review_group', label: 'Group:',
+            = render partial: 'webui/autocomplete', locals: { html_id: 'review_group', label: 'Group:', required: true,
                                                               data: { source: autocomplete_groups_path } }
           .hideable.review-project.review-package.d-none
-            = render partial: 'webui/autocomplete', locals: { html_id: 'review_project', label: 'Project:',
+            = render partial: 'webui/autocomplete', locals: { html_id: 'review_project', label: 'Project:', required: true,
                                                               data: { source: autocomplete_projects_path } }
 
           .hideable.review-package.d-none
-            = render partial: 'webui/autocomplete', locals: { html_id: 'review_package', label: 'Package:',
+            = render partial: 'webui/autocomplete', locals: { html_id: 'review_package', label: 'Package:', required: true,
                                                               data: { source: autocomplete_packages_path } }
 
           .form-group
