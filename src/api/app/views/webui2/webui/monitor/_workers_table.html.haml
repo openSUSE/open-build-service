@@ -21,20 +21,19 @@
   %p
     %i No workers
 - else
-  - workers_sorted.each_slice(5) do |row|
-    %ul.monitorboxrow
-      %li.hidden
-        - row.each do |name, hash|
-          %li.builderbox
-            .builderboxtitle #{name} (#{hash['_arch']})
-            - hash.each do |subid, id|
-              - if subid != '_arch'
-                .monitorpb{ id: "p#{id}" }
-                  .progress
-                    .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
-                                                        'role' => 'progressbar' }
+  .d-flex.flex-wrap
+    - workers_sorted.each do |name, hash|
+      %ul.monitorboxrow.list-unstyled.overflow-hidden
+        %li.builderbox.float-left
+          %span.font-weight-bold #{name} (#{hash['_arch']})
+          - hash.each do |subid, id|
+            - if subid != '_arch'
+              .monitorpb.position-relative{ id: "p#{id}" }
+                .progress
+                  .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
+                                                      'role' => 'progressbar' }
 
-                      = link_to('#', '', rel: 'nofollow', class: 'monitorpb_text')
+                    = link_to('', '#', rel: 'nofollow', class: 'monitorpb_text position-absolute no-wrap')
 
 - content_for :ready_function do
   :plain
