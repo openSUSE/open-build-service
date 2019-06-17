@@ -203,9 +203,11 @@ module Webui
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
       visit session_new_path
-      fill_in 'Username', with: user
-      fill_in 'Password', with: password
-      click_button 'Log In'
+      within('#loginform') do
+        fill_in 'username', with: user
+        fill_in 'password', with: password
+        click_button 'Log In'
+      end
 
       visit opts[:to] if opts[:to]
 
