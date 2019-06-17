@@ -11,7 +11,7 @@
       %span.badge.badge-secondary.align-top
         = title.upcase
 
-    - unless User.possibly_nobody.is_nobody?
+    - if User.session
       %p
         = mail_to user.email, title: "Send mail to #{user.name}" do
           %i.fas.fa-envelope

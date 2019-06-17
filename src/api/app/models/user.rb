@@ -672,8 +672,7 @@ class User < ApplicationRecord
       OwnerSearch::Owned.new.for(self).each do |owner|
         owned << [owner.package, owner.project]
       end
-    rescue APIError => e # no attribute set
-      Rails.logger.debug "0wned #{e.inspect}"
+    rescue APIError # no attribute set
     end
     owned
   end
