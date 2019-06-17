@@ -22,7 +22,7 @@ Release:        0
 Summary:        The Open Build Service -- Bundled Gems
 # The actual license is from the gems, but we take a more restrictive
 # license to bundle them. Most are MIT anyway (TODO for Ana: check)
-License:        GPL-2.0-only
+License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
 Source0:        Gemfile

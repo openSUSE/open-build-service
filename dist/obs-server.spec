@@ -87,7 +87,7 @@ fi										\
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-License:        GPL-2.0-only AND GPL-3.0-only
+License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Version:        2.10~pre
 Release:        0
