@@ -25,9 +25,12 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login via login page' do
     visit session_new_path
-    fill_in 'Username', with: user.login
-    fill_in 'Password', with: 'buildservice'
-    click_button('Log In')
+
+    within('#loginform') do
+      fill_in 'username', with: user.login
+      fill_in 'password', with: 'buildservice'
+      click_button('Log In')
+    end
 
     expect(find('#link-to-user-home').text).to eq(user.login)
   end
@@ -37,8 +40,8 @@ RSpec.feature 'Login', type: :feature, js: true do
     click_link('Log In')
 
     within('div#login-form') do
-      fill_in 'Username', with: user.login
-      fill_in 'Password', with: 'buildservice'
+      fill_in 'username', with: user.login
+      fill_in 'password', with: 'buildservice'
       click_button('Log In')
     end
 
@@ -50,8 +53,8 @@ RSpec.feature 'Login', type: :feature, js: true do
     click_link('Log In')
 
     within('#login-form') do
-      fill_in 'Username', with: user.login
-      fill_in 'Password', with: 'foo'
+      fill_in 'username', with: user.login
+      fill_in 'password', with: 'foo'
       click_button 'Log In'
     end
 
@@ -94,9 +97,12 @@ RSpec.feature 'Login', type: :feature, js: true do
 
     it 'allows the user to login via the webui' do
       visit session_new_path
-      fill_in 'Username', with: 'tux'
-      fill_in 'Password', with: 'tux_password'
-      click_button('Log In')
+
+      within('#loginform') do
+        fill_in 'username', with: 'tux'
+        fill_in 'password', with: 'tux_password'
+        click_button('Log In')
+      end
 
       expect(find('#link-to-user-home').text).to eq('tux')
       expect(page).to have_content('Logout')
