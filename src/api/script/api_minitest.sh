@@ -19,6 +19,7 @@ bin/rake db:create db:setup
 bin/rails assets:precompile
 
 rm -f log/test.log
+export BENTO=1
 bin/rake test:api test:spider
 
 #cleanup
