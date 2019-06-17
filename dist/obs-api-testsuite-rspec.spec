@@ -20,7 +20,7 @@ Name:           obs-api-testsuite-rspec
 Version:        2.10~pre
 Release:        0
 Summary:        The Open Build Service -- RSpec test suite
-License:        GPL-2.0-only
+License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
 Source0:        open-build-service-%version.tar.xz
