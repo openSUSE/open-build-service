@@ -597,6 +597,18 @@ sub createrepo_rpmmd {
     # the default in newer createrepos
     push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
   }
+  if ($options{'zchunk'}) {
+    # we currently do not support user generated zchunk dictionaries for
+    # security reasons.
+    my $repoinfo = $data->{'repoinfo'};
+    for my $sprp (@{$repoinfo->{'prpsearchpath'} || []}) {
+      my $zchunk_dict_dir = "$BSConfig::bsdir/zchunk/$sprp->{'project'}";
+      next unless -d $zchunk_dict_dir;
+      print "    using chunk data of project $sprp->{'project'}\n";
+      push @legacyargs, "--zck", "--zck-dict-dir=$zchunk_dict_dir";
+      last;
+    }
+  }
   my @updateargs;
   # createrepo 0.9.9 defaults to creating the sqlite database.
   # We do disable it since it is time and space consuming.
