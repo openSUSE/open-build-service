@@ -43,6 +43,14 @@ RSpec.describe Relationship do
       skip('This is imposible to happen with the actual validations and how the object is created')
     end
 
+    context 'with banned user' do
+      let(:nobody) { create(:user_nobody) }
+
+      subject { Relationship.add_user(project, nobody, role, true, true) }
+
+      it { expect { subject }.to raise_error(NotFoundError, "Couldn't find user #{nobody.login}") }
+    end
+
     context 'with valid data' do
       before do
         subject
