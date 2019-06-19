@@ -23,12 +23,12 @@
 - else
   .d-flex.flex-wrap
     - workers_sorted.each do |name, hash|
-      %ul.monitorboxrow.list-unstyled.overflow-hidden
+      %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
         %li.builderbox.float-left
           %span.font-weight-bold #{name} (#{hash['_arch']})
           - hash.each do |subid, id|
             - if subid != '_arch'
-              .monitorpb.position-relative{ id: "p#{id}" }
+              .monitorpb.position-relative.mt-1{ id: "p#{id}" }
                 .progress
                   .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
                                                       'role' => 'progressbar' }
