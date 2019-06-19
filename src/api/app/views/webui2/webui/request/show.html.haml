@@ -94,5 +94,5 @@
 - content_for :ready_function do
   :plain
     $('.request-tab').on('shown.bs.tab', function() {
-      editors.forEach( function(editor) { editor.refresh(); cmMarkDiffLines(); });
+      editors.forEach(function(editor) { editor.refresh(); cmMarkDiffLines(editor.id); });
     });
