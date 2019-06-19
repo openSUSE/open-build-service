@@ -186,7 +186,7 @@ GEM
       concurrent-ruby (~> 1.0)
     influxdb (0.7.0)
     innertube (1.1.0)
-    jaro_winkler (1.5.2)
+    jaro_winkler (1.5.3)
     joiner (0.4.2)
       activerecord (>= 5.2.beta1)
     jquery-datatables (1.10.19.1)
