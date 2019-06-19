@@ -1,0 +1,19 @@
+- @pagetitle = 'Please Log In'
+
+.card
+  .card-body#loginform
+    .col-lg-6.pl-0
+      - if CONFIG['proxy_auth_mode'] == :on
+        = render partial: 'form', locals: { form_url: CONFIG['proxy_auth_login_page'],
+                                            options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
+                                            proxy: true,
+                                            pagetitle: @pagetitle }
+      - elsif CONFIG['kerberos_mode']
+        %h3 Kerberos authentication required
+        %p You are seeing this page, because you are not authenticated in the kerberos realm ('#{CONFIG['kerberos_realm']}').
+        %p Please ensure you have a valid ticket and try again.
+      - else
+        = render partial: 'form', locals: { form_url: session_create_path,
+                                            options: { method: :post },
+                                            proxy: false,
+                                            pagetitle: @pagetitle }
