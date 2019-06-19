@@ -1,47 +1,48 @@
-.row
-  .col
-    = request_action_header(action, request_creator)
-- if action[:type] == :maintenance_incident && action[:releaseproject]
-  %i
-    Release in #{action[:releaseproject]}
-%hr
-.row
-  - (action[:sourcediff] || []).each do |sourcediff|
-    .col-md-8
-      .clearfix.mb-2
-        .btn-group.float-right
-          %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: action[:spkg] } }
-            Expand all
-          %button.btn.btn-sm.btn-outline-secondary.collapse-diffs{ data: { package: action[:spkg] } }
-            Collapse all
+.tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if action_counter.zero?) }
+  .row
+    .col
+      = request_action_header(action, request_creator)
+  - if action[:type] == :maintenance_incident && action[:releaseproject]
+    %i
+      Release in #{action[:releaseproject]}
+  %hr
+  .row
+    - (action[:sourcediff] || []).each do |sourcediff|
+      .col-md-8
+        .clearfix.mb-2
+          .btn-group.float-right
+            %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: action[:spkg] } }
+              Expand all
+            %button.btn.btn-sm.btn-outline-secondary.collapse-diffs{ data: { package: action[:spkg] } }
+              Collapse all
 
-      - if sourcediff[:error]
-        %p
-          %i.error
-            = sourcediff[:error]
-      - else
-        - if action[:sourcediff].length > 1
-          %h4
-            #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
-        - files = sourcediff['files']
-        - diff_params = diff_data(action[:type], sourcediff)
-        - if sourcediff['filenames'].present?
-          - sourcediff['filenames'].each_with_index do |filename, file_index|
-            - diff_params[:filename] = filename
-            -# Deleted files can not be linked. We have to hide them.
-            - file_view_path = package_view_file_path(diff_params) unless files[filename]['state'] == 'deleted'
-            .mb-2
-              = render partial: 'webui2/webui/package/revision_diff_detail', locals: { file_view_path: file_view_path,
-                                                                                       filename: filename,
-                                                                                       file: files[filename],
-                                                                                       index: file_index,
-                                                                                       last: sourcediff['filenames'].last == filename,
-                                                                                       package: action[:spkg] }
+        - if sourcediff[:error]
+          %p
+            %i.error
+              = sourcediff[:error]
         - else
-          .mb-2
-            %p.lead
-              No source changes.
-    .col-md-4
-      = render partial: 'webui2/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: index }
-      - if sourcediff['issues'].present?
-        = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
+          - if action[:sourcediff].length > 1
+            %h4
+              #{diff_label(sourcediff['new'])} – #{diff_label(sourcediff['old'])}
+          - files = sourcediff['files']
+          - diff_params = diff_data(action[:type], sourcediff)
+          - if sourcediff['filenames'].present?
+            - sourcediff['filenames'].each_with_index do |filename, file_index|
+              - diff_params[:filename] = filename
+              -# Deleted files can not be linked. We have to hide them.
+              - file_view_path = package_view_file_path(diff_params) unless files[filename]['state'] == 'deleted'
+              .mb-2
+                = render partial: 'webui2/webui/package/revision_diff_detail', locals: { file_view_path: file_view_path,
+                                                                                        filename: filename,
+                                                                                        file: files[filename],
+                                                                                        index: file_index,
+                                                                                        last: sourcediff['filenames'].last == filename,
+                                                                                        package: action[:spkg] }
+          - else
+            .mb-2
+              %p.lead
+                No source changes.
+      .col-md-4
+        = render partial: 'webui2/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_counter }
+        - if sourcediff['issues'].present?
+          = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
