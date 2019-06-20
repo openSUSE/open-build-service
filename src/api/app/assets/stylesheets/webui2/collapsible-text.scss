@@ -1,6 +1,6 @@
 @mixin collapsible($maxHeight: 4.5em) {
   .obs-collapsible-textbox {
-    word-break: break-all;
+    word-break: break-word;
     padding-right: 1em;
     text-align: justify;
 
