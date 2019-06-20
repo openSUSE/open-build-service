@@ -9,10 +9,10 @@ window.onbeforeunload = function() {
   }
 }
 
-function cmMarkDiffLines() {
+function cmMarkDiffLines(id) {
   // as we can't use css to mark parents we use javascript to propagate diff lines
-  $('.cm-positive').parents('.CodeMirror-line').addClass('CodeMirror-positive-line');
-  $('.cm-negative').parents('.CodeMirror-line').addClass('CodeMirror-negative-line');
+  $('#revision_details_' + id + ' .cm-positive').parents('.CodeMirror-line').addClass('CodeMirror-positive-line');
+  $('#revision_details_' + id + ' .cm-negative').parents('.CodeMirror-line').addClass('CodeMirror-negative-line');
 }
 
 function use_codemirror(id, read_only, mode) {
@@ -37,8 +37,8 @@ function use_codemirror(id, read_only, mode) {
   var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
   editor.id = id;
 
-  cmMarkDiffLines();
-  editor.on('scroll', cmMarkDiffLines);
+  cmMarkDiffLines(id);
+  editor.on('scroll', function() { cmMarkDiffLines(id); });
 
   if (!read_only) {
     editor.setSelections(editor);

@@ -1,7 +1,7 @@
+// Bootstrap theme for CodeMirror
 .cm-s-bootstrap {
   &.CodeMirror {
     font-family: $font-family-monospace, monospace;
-    height: auto;
     background: $card-bg;
     color: $body-color;
     line-height: 1.2;

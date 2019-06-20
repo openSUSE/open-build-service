@@ -39,9 +39,7 @@
             data: { toggle: 'tab' }, role: 'tab')
   .card-body
     .tab-content
-      - @actions.each_with_index do |action, index|
-        .tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if index.zero?) }
-          = render('sourcediff_tab', action: action, request_creator: @bs_request.creator, index: index)
+      = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { request_creator: @bs_request.creator }
 .row
   .col-md-8
     .card.mb-3
@@ -96,5 +94,5 @@
 - content_for :ready_function do
   :plain
     $('.request-tab').on('shown.bs.tab', function() {
-      editors.forEach( function(editor) { editor.refresh(); cmMarkDiffLines(); });
+      editors.forEach(function(editor) { editor.refresh(); cmMarkDiffLines(editor.id); });
     });
