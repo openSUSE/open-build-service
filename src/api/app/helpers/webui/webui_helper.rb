@@ -328,12 +328,44 @@ module Webui::WebuiHelper
                      class: 'project', title: opts[:project])
   end
 
+  def link_to_remote_project(remote_prj, opts)
+    remote_sub_prj = resolve_remote_project_name(opts[:project])
+    base_url = URI.join(remote_prj.remoteurl, '/').to_s
+    out = opts[:short] ? ''.html_safe : 'project '.html_safe
+    out + link_to(opts[:project], "#{base_url}project/show/#{remote_sub_prj}",
+                  class: 'project', title: opts[:project])
+  end
+
+  def link_to_remote_package(remote_prj, opts)
+    remote_sub_prj = resolve_remote_project_name(opts[:project])
+    base_url = URI.join(remote_prj.remoteurl, '/').to_s
+    out = opts[:short] ? ''.html_safe : 'package '.html_safe
+    opts[:short] = true
+    out + link_to_remote_project(remote_prj, opts) + ' / ' +
+      link_to(opts[:package], "#{base_url}package/show/#{remote_sub_prj}/#{opts[:package]}",
+              class: 'package', title: opts[:package])
+  end
+
+  def resolve_remote_project_name(remote_prj_full)
+    remote_prj_full.sub(/.*?:/, '')
+  end
+
   def project_or_package_link(opts)
     defaults = { package: nil, rev: nil, short: false, trim_to: 40 }
     opts = defaults.merge(opts)
 
     # only care for database entries
     prj = Project.where(name: opts[:project]).select(:id, :name, :updated_at).first
+    # check if project is remote
+    if prj.nil?
+      remote_prj_full = opts[:project]
+      remote_prj = remote_prj_full.split(':').first
+      remote_prj = RemoteProject.where(name: remote_prj).first
+      if remote_prj && remote_prj.remoteurl.present?
+        return link_to_remote_package(remote_prj, opts) if opts[:package]
+        return link_to_remote_project(remote_prj, opts)
+      end
+    end
     # Expires in 2 hours so that changes of local and remote packages eventually result in an update
     Rails.cache.fetch(['project_or_package_link', prj.try(:id), opts], expires_in: 2.hours) do
       if prj && opts[:creator]
