@@ -42,7 +42,7 @@ gem 'pundit'
 # for password hashing
 gem 'bcrypt'
 #
-gem 'responders', '~> 2.0'
+gem 'responders', '~> 3.0'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
