@@ -53,6 +53,7 @@ function use_codemirror(id, read_only, mode) {
       $("#undo_" + id).prop('disabled', !undoChanged);
       $("#redo_" + id).prop('disabled', !redoChanged);
       $("#save_" + id).prop('disabled', !undoChanged);
+      $("#comment_" + id).prop('disabled', !undoChanged);
     });
     CodeMirror.signal(editor, 'cursorActivity', editor);
 
@@ -62,6 +63,7 @@ function use_codemirror(id, read_only, mode) {
     $('#save_' + id).click(function () {
       var data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
+      data['comment'] = $("#comment_" + id).val();
       $("#loading_" + id).attr('disabled', true).removeClass("d-none");
       $.ajax({
         url: textarea.data('save-url'),
@@ -75,6 +77,8 @@ function use_codemirror(id, read_only, mode) {
           $("#undo_" + id).prop('disabled', true);
           $("#redo_" + id).prop('disabled', true);
           $("#save_" + id).prop('disabled', true);
+          $("#comment_" + id).prop('disabled', true);
+          $("#comment_" + id).val('');
         },
         error: function (xhdr, textStatus, errorThrown) {
           $("#loading_" + id).removeAttr('disabled').addClass("d-none");
@@ -86,6 +90,7 @@ function use_codemirror(id, read_only, mode) {
     });
   } else {
     $("#save_" + id).hide();
+    $("#comment_" + id).hide();
   }
   editors[id] = editor;
 }

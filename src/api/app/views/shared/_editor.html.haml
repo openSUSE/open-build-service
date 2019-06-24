@@ -7,6 +7,7 @@
     .toolbar
       %span{ style: 'float: left' }
         %input.tools.buttons.small.save.inactive{ id: "save_#{uid}", type: 'button', value: 'Save' }/
+        %input.tools.inputs.inactive{ id: "comment_#{uid}", type: 'text', style: 'width: 300px', size: '60', value: '' }/
         %input.tools.buttons.undo{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", style: 'background: transparent', type: 'button', value: 'undo' }/
         %input.tools.buttons.redo{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", style: 'background: transparent', type: 'button', value: 'redo' }/
       %span{ style: 'float: right' }
