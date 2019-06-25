@@ -1,0 +1,21 @@
+%h3= pagetitle
+
+= form_tag(form_url, options) do
+  - if proxy
+    = hidden_field_tag(:context, 'default')
+    = hidden_field_tag(:proxypath, 'reserve')
+    = hidden_field_tag(:message, 'Please log in')
+  .form-group
+    = label_tag(:username, 'Username')
+    = text_field_tag(:username, nil, placeholder: 'User Name', required: true, id: 'user-login', class: 'form-control')
+  .form-group
+    = label_tag(:password, 'Password')
+    = password_field_tag(:password, nil, placeholder: 'Password', required: true, id: 'user-password', class: 'form-control')
+  = submit_tag('Log In', name: 'login', class: 'btn btn-primary')
+  %span
+    - if proxy
+      or
+      = link_to('Register', CONFIG['proxy_auth_register_page'] + '?%22')
+    - elsif CONFIG['frontend_ldap_mode'] != :on
+      or
+      = link_to('Sign Up', user_register_user_path)
