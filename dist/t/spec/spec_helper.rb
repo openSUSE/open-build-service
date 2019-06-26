@@ -45,7 +45,7 @@ def login
 end
 
 def logout
-  within("div#subheader") do
+  within("div#personal-navigation") do
     click_link('Logout')
   end
   expect(page).to have_no_link('link-to-user-home')
