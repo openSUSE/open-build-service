@@ -159,6 +159,8 @@ group :development, :test do
   gem 'pry-byebug'
   # for style checks
   gem 'rubocop', require: false
+  # for rails style checks
+  gem 'rubocop-rails', require: false
   # for rspec style checks
   gem 'rubocop-rspec', require: false
   # for performance checks
