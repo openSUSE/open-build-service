@@ -33,7 +33,8 @@
       - unless CONFIG['contribution_graph'] == :off
         = render partial: 'webui/user/activity', locals: { activity_hash: @activity_hash,
                                                            first_day: @first_day,
-                                                           last_day: @last_day }
+                                                           last_day: @last_day,
+                                                           user: @displayed_user }
       = render partial: 'webui/user/involvement', locals: { user: @displayed_user,
                                                             owned: @owned,
                                                             involved_projects: @iprojects,

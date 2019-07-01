@@ -21,4 +21,8 @@
                 classname = activity_classname(activity, percentiles)
 
               %td{ title: "#{current_day} - #{activity} contributions", class: classname }
-                &nbsp;
+                - if activity > 0
+                  = link_to(user_show_path(user, params: { date: current_day }), class: 'activity-link') do
+                    &nbsp;
+                - else
+                  &nbsp;
