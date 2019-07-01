@@ -12,6 +12,7 @@
           %button.btn.btn-danger.btn-sm.save{ id: "save_#{uid}", disabled: true }
             %i.fa.fa-save
             Save
+          %input.form-control.form-control-sm{ id: "comment_#{uid}", type: 'text', size: '40', disabled: true }
           .btn-group.pl-2
             %button.btn.btn-secondary.btn-sm{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
               %i.fa.fa-undo
