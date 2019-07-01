@@ -26,3 +26,21 @@
                     &nbsp;
                 - else
                   &nbsp;
+
+    - if date
+      .h5
+        Contributions on #{date}
+      - if activities_per_date[:commits].present?
+        .h6
+          = pluralize(activities_per_date[:commits].map { |c| c[2] }.sum, 'commit')
+      - if activities_per_date[:requests_created].present?
+        .h6
+          = pluralize(activities_per_date[:requests_created].size, 'request')
+          created
+      - if activities_per_date[:requests_reviewed].present?
+        .h6
+          = pluralize(activities_per_date[:requests_reviewed].values.sum, 'request')
+          reviewed
+      - if activities_per_date[:comments] > 0
+        .h6
+          = pluralize(activities_per_date[:comments], 'comment')

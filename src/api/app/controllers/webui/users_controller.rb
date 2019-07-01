@@ -38,7 +38,10 @@ class Webui::UsersController < Webui::WebuiController
     # move back to the monday before (make it up to 53 weeks)
     @first_day -= (@first_day.cwday - 1)
 
-    @activity_hash = User::Contributions.new(@displayed_user, @first_day).activity_hash
+    user_contributions = User::Contributions.new(@displayed_user)
+    @activity_hash = user_contributions.activity_hash(@first_day)
+    @date = params[:date]
+    @activities_per_date = user_contributions.activities_per_date(@date) if @date
   end
 
   def new
