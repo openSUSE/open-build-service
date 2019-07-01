@@ -1,5 +1,6 @@
-%li.nav-item
-  = link_to('Sign Up', signup_url, class: 'nav-link')
+- if can_signup
+  %li.nav-item
+    = link_to('Sign Up', signup_url, class: 'nav-link')
 %li.nav-item.dropdown
   = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', 'data-toggle': 'dropdown') do
     Log In
