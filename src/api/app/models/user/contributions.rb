@@ -42,7 +42,12 @@ class User::Contributions
   end
 
   def reviews_done_per_day
-    Review.where(reviewer: user.login, state: [:accepted, :declined]).where('date(reviews.created_at) = ?', date).joins(:bs_request).group('bs_requests.number').order('count_id DESC, bs_requests_number').count(:id)
+    Review.where(reviewer: user.login, state: [:accepted, :declined])
+          .where('date(reviews.created_at) = ?', date)
+          .joins(:bs_request)
+          .group('bs_requests.number')
+          .order('count_id DESC, bs_requests_number')
+          .count(:id)
   end
 
   def commits_done
@@ -50,7 +55,14 @@ class User::Contributions
   end
 
   def commits_done_per_day
-    user.commit_activities.where(date: date).pluck(:project, :package, :count)
+    counts = Hash.new(0)
+    packages = {}
+    user.commit_activities.where(date: date).pluck(:project, :package, :count).each do |e|
+      packages[e[0]] ||= []
+      packages[e[0]] << [e[1], e[2]]
+      counts[e[0]] += e[2]
+    end
+    counts.sort_by { |_, b| -b }.map { |project, count| [project, packages[project], count] }
   end
 
   def merge_hashes(hashes_array)
