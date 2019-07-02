@@ -1,0 +1,45 @@
+#
+# Open Build Service 2.11
+#
+
+WARNING:
+WARNING: This is a development release, not for production usage!
+WARNING:
+
+
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium which installs OBS on hard disk now.
+
+dist/README.UPDATERS file has information for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+Generic:
+ * 
+
+User Interface:
+ * 
+
+Backend & build support:
+ * 
+
+Bugfixes:
+ * 
+
+
+Intentional changes:
+====================
+
+

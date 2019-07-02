@@ -27,6 +27,7 @@ Features
 ========
 
 Generic:
+ * replaced sysv init scripts with systemd files
  * Add binary release tracking data for containers.
  * Add support to collect performance metrics with InfluxDB
  * Amazon EC2/ Microsoft Azure cloud upload support
@@ -34,7 +35,7 @@ Generic:
    feature, switch database.yml to utf8mb4 encoding
  * Added `beta` environment in 'config/feature.yml' to toggle features in the beta program.
  * Bugowners of a project/package now receive notifications about new comments
- * Request pre-approval. Requests will be accepted when last review gets accepted.
+ * Request pre-approval support. Requests will be accepted when last review gets accepted.
  * Support webhooks from gitlab
  * Send requests creation to rabbitmq bus
  * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
@@ -53,14 +54,40 @@ User Interface:
  * Use full author identities in generating changes entries
  * Request descriptions are now mandatory to avoiding unnecessary requets
 
-Backend:
+Backend & build support:
+ * new publisher features
+   - vagrant box publishing
+   - zchunk compressed files in rpm-md metadata
+ 
+ * binary tracking improvements
+   - tracking of appliances and containers
+ 
+ * container improvements
+   - support multi-arch container manifest generation
+   - kiwi profile handling
+   - improved parsing of Dockerfiles
+   - new OBS-AddTag and OBS-Imagerepo directives
+   - take container with the highest version/release if there is a
+     conflict over a tag
+   - disk space savings with container layer deduplication
+   - integrated container registry
+ 
+ * speed improvements
+   - faster repository publishing and product generation
+   - incremental project updates in the scheduler
+   - reducred interconnect load due to a lastevents proxy
+ 
+ * odds and ends
+   - obs-build: shell support in KVM
+   - prjconf package exclude feature ("onlybuild")
+   - sysrq and core dump support for KVM builds
+   - support rpm's new '^' separator in version comparison
+   - milestone numbering support in release handling
 
 Shipment:
  * Require system gems (rake and rack) in api-deps package
- * Switch most frontend services from sysv init scripts to systemd units (obs-api-support.target)
 
 Bugfixes:
-
   * Binary view now shows correct data for multibuild packages
   * Source diffs with mixed encoding were causing failures when processing notification
     mails. This is fixed now.
@@ -75,6 +102,8 @@ Bugfixes:
 
 Intentional changes:
 ====================
+
+  * always run services on expanded link sources
 
   * The format of the OBS options.yml is now distinguishing between Rails environments.
     You can convert your old configuration by running:
@@ -105,25 +134,6 @@ Intentional changes:
    documented and was removed now. '/_attribute' will return all attributes, while
    '/_attribute/:attribute' keeps returning only the given attribute (as documented)
 
- * Public routes for status messages have been dropped. Dropped routes:
-   - GET 'public/status/delete_message'
-   - GET 'public/status/list_messages'
-   - GET 'public/status/show_message'
-   - GET 'public/status/update_messages'
-   - GET 'public/status/save_new_message'
-   - GET 'public/status/delete_message'
-
- * Unused public status routes have been dropped. Dropped routes:
-   - GET 'status/bsrequest'
-   - GET 'public/status/workerstatus'
-   - GET 'public/status/history'
-   - GET 'public/status/project'
-   - GET 'public/status/bsrequest'
-   - GET 'public/status/role_from_cache'
-   - GET 'public/status/user_from_cache'
-   - GET 'public/status/group_from_cache'
-   - GET 'public/status/find_relationships_for_packages'
-
   * The 'commenter' and 'commenters' payload of Comment events used to contain user ids.
     They now contain the user login name instead.
     Run the data migrations to convert events in the old format:
@@ -147,28 +157,3 @@ Intentional changes:
   * Public route dropped for reading patchinfo
     - GET 'patchinfo/read_patchinfo'
 
-Other changes
-=============
-
-
-Notes for systems using systemd:
-================================
-
-OBS is using init scripts, not systemd style .service files. This will stay until
-we will switch from SLES 11 to SLES 12 as default production platform.
-
-openSUSE installations may use systemd (instead of sysvinit) and it should work
-in general. Not working are usages like:
-
- # rcobssrcserver status
-
-You will only get the systemd status here.
-
-Also stopping services may not kill all processes, which leads to abstract errors
-when trying to restart them. We heard also about trashed MySQL databases when using
-systemd.
-
-To avoid these problems you need switch directory to avoid the systemd mapper:
-
- # cd /etc/init.d
- # ./obssrcserver status|stop|start
