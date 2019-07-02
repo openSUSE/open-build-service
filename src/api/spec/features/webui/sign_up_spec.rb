@@ -6,6 +6,9 @@ RSpec.feature 'Sign up', type: :feature, js: true do
   scenario 'User' do
     visit root_path
 
+    expect(page).to have_link('Log In')
+    expect(page).to have_link('Sign Up')
+
     fill_in 'login', with: 'eisendieter'
     fill_in 'email', with: 'dieter.eilts@werder.de'
     fill_in 'pwd', with: 'alemao'
@@ -22,6 +25,9 @@ RSpec.feature 'Sign up', type: :feature, js: true do
 
     visit root_path
 
+    expect(page).to have_link('Log In')
+    expect(page).to have_link('Sign Up')
+
     fill_in 'login', with: user.login
     fill_in 'email', with: user.email
     fill_in 'pwd', with: 'alemao'
@@ -35,8 +41,11 @@ RSpec.feature 'Sign up', type: :feature, js: true do
     # Deny signups
     allow_any_instance_of(::Configuration).to receive(:registration).and_return('deny')
 
-    visit user_register_user_path
+    visit root_path
+    expect(page).to have_link('Log In')
+    expect(page).not_to have_link('Sign Up')
 
+    visit user_register_user_path
     expect(page).to have_text('Sorry, sign up is disabled')
   end
 end
