@@ -65,7 +65,7 @@ module FlagHelper
     end
 
     flags_to_create.values.each do |flag|
-      flags.build(flag.merge(flag: flagtype))
+      flags.create(flag.merge(flag: flagtype))
     end
     position
   end
