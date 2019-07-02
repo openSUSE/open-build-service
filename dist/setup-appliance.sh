@@ -139,7 +139,7 @@ function get_hostname {
   if [[ $1 && $BOOTSTRAP_TEST_MODE == 1 ]];then
     FQHOSTNAME=$1
   else
-    TIMEOUT=600
+    TIMEOUT=30
     while [ -z "$FQHOSTNAME" -o "$FQHOSTNAME" = "localhost" ];do
       FQHOSTNAME=`hostname -f 2>/dev/null`
       TIMEOUT=$(($TIMEOUT-1))
