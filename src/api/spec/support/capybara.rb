@@ -6,7 +6,7 @@ Capybara.disable_animation = true
 
 # we use RSPEC_HOST as trigger to use remote selenium
 if ENV['RSPEC_HOST'].blank?
-  Selenium::WebDriver::Chrome.driver_path = '/usr/lib64/chromium/chromedriver'
+  Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
 
   Capybara.register_driver :selenium_chrome_headless do |app|
     Capybara::Selenium::Driver.load_selenium

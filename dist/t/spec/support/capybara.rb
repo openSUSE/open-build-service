@@ -3,7 +3,7 @@ require 'capybara/dsl'
 require 'selenium-webdriver'
 require 'socket'
 
-Selenium::WebDriver::Chrome.driver_path = '/usr/lib64/chromium/chromedriver'
+Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
 
 Capybara.register_driver :selenium_chrome_headless do |app|
   browser_options = ::Selenium::WebDriver::Chrome::Options.new
