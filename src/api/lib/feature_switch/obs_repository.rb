@@ -5,7 +5,10 @@ module Feature
     class ObsRepository < YamlRepository
       DEFAULTS = {
         image_templates: true,
-        cloud_upload: false
+        kiwi_image_editor: false,
+        cloud_upload: false,
+        cloud_upload_azure: false,
+        bootstrap: false
       }.freeze
 
       # Read given file, perform erb evaluation and yaml parsing
@@ -23,7 +26,8 @@ module Feature
       # @param selector [String] uses the value for this key as source of feature data
       #
       def get_active_features(data, selector)
-        data[@environment]['features'] = DEFAULTS.merge(data[@environment]['features'])
+        data[@environment] ||= {}
+        data[@environment]['features'] = DEFAULTS.merge(data.dig('production', 'features') || {})
         super
       end
     end
