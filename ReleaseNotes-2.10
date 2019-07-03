@@ -2,25 +2,13 @@
 # Open Build Service 2.10
 #
 
-WARNING:
-WARNING: This is a development release, not for production usage!
-WARNING:
-
-
-
-
-Please read the README.SETUP file for initial installation
+Please read the README.md file for initial installation
 instructions or use the OBS Appliance from
 
   http://openbuildservice.org/download/
 
-There is also an install medium which installs OBS on hard disk now.
-
-dist/README.UPDATERS file has information for updaters.
-
-OBS Appliance users who have setup their LVM can just replace
-their appliance image without data loss. The migration will
-happen automatically.
+The dist/README.UPDATERS file has information for people updating
+from a previous OBS release.
 
 
 Features
@@ -58,10 +46,10 @@ Backend & build support:
  * new publisher features
    - vagrant box publishing
    - zchunk compressed files in rpm-md metadata
- 
+
  * binary tracking improvements
    - tracking of appliances and containers
- 
+
  * container improvements
    - support multi-arch container manifest generation
    - kiwi profile handling
@@ -71,12 +59,12 @@ Backend & build support:
      conflict over a tag
    - disk space savings with container layer deduplication
    - integrated container registry
- 
+
  * speed improvements
    - faster repository publishing and product generation
    - incremental project updates in the scheduler
    - reducred interconnect load due to a lastevents proxy
- 
+
  * odds and ends
    - obs-build: shell support in KVM
    - prjconf package exclude feature ("onlybuild")

@@ -1,3 +1,7 @@
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
 For Updaters from OBS 2.9 to OBS 2.10
 =====================================
 
