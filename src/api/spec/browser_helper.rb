@@ -4,6 +4,9 @@ require 'rails_helper'
 # for capybara rspec support
 require 'support/capybara'
 
+# to make capybara wait for ajax requests
+require 'support/wait_for_ajax'
+
 # helper methods for authentication in features tests
 require 'support/features/features_authentication'
 require 'support/features/features_bootstrap'

@@ -75,6 +75,8 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
       find('#image-name')
       click_link('Software')
 
+      wait_for_ajax
+
       within('#kiwi-repositories-list') do
         expect(page).to have_text("#{repository}@#{project}")
       end
@@ -95,6 +97,8 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
         click_link('Continue')
       end
 
+      wait_for_ajax
+
       within('#kiwi-repositories-list') do
         expect(page).to have_text("#{repository}@#{project}")
       end
@@ -109,6 +113,8 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
       find('#kiwi-image-update-form-save').click
       find('#image-name')
       click_link('Software')
+
+      wait_for_ajax
 
       within('#kiwi-repositories-list') do
         expect(page).to have_text('custom-alias')
