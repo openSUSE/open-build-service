@@ -70,7 +70,10 @@ class SourceProjectMetaController < SourceController
         project = Project.new(name: @project_name)
         project.update_from_xml!(@request_data)
         # FIXME3.0: don't modify send data
-        project.relationships.build(user: User.session!, role: Role.find_by_title!('maintainer'))
+        maintainer_role = Role.find_by_title!('maintainer')
+        unless project.relationships.any? { |relationship| relationship.user == User.session! && relationship.role == maintainer_role }
+          project.relationships.find_or_initialize_by(user: User.session!, role: maintainer_role)
+        end
       end
       project.store(comment: params[:comment])
     end
