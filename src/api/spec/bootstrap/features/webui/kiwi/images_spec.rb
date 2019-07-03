@@ -12,6 +12,7 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
 
   context 'project with wiki image' do
     scenario 'modify author' do
+      skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
 
       click_link('Details')
@@ -53,6 +54,7 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
     end
 
     scenario 'add repository and package' do
+      skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')
       click_link('Add repository')
@@ -85,6 +87,7 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
     end
 
     scenario 'edit respository' do
+      skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')
       click_link('Add repository')
@@ -116,6 +119,7 @@ RSpec.feature 'Bootstrap_Kiwi_Images', type: :feature, js: true, vcr: true do
     end
 
     scenario 'edit package' do
+      skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')
       click_link('Add repository')
