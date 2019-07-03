@@ -680,6 +680,18 @@ Rails/HasManyOrHasOneDependent:
     - 'app/models/static_permission.rb'
     - 'app/models/user.rb'
 
+# Offense count: 61
+Rails/HelperInstanceVariable:
+  Exclude:
+    - 'app/helpers/webui/buildresult_helper.rb'
+    - 'app/helpers/webui/kiwi/image_helper.rb'
+    - 'app/helpers/webui/markdown_helper.rb'
+    - 'app/helpers/webui/package_helper.rb'
+    - 'app/helpers/webui/patchinfo_helper.rb'
+    - 'app/helpers/webui/project_helper.rb'
+    - 'app/helpers/webui/projects/status_helper.rb'
+    - 'app/helpers/webui/webui_helper.rb'
+
 # Offense count: 62
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb

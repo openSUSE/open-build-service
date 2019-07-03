@@ -11,7 +11,7 @@ class BackendTests < ActionDispatch::IntegrationTest
       schema = f.gsub(/.xml$/, '')
 
       # map schema names
-      if ['about', 'activity', 'added_timestamp', 'architecture', 'attrib', 'attrib_type',
+      if ['about', 'activity', 'added_timestamp', 'announcement', 'announcements', 'new_announcement', 'architecture', 'attrib', 'attrib_type',
           'attrib_namespace', 'attribute_namespace_meta', 'collection_objects_by_tag',
           'collection_objects_with_tags_by_user', 'configuration', 'directory_view', 'download_counter',
           'download_counter_summary', 'download_stats', 'group', 'highest_rated', 'issue_tracker',

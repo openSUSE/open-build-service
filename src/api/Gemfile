@@ -42,7 +42,7 @@ gem 'pundit'
 # for password hashing
 gem 'bcrypt'
 #
-gem 'responders', '~> 2.0'
+gem 'responders', '~> 3.0'
 # for threaded comments
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
@@ -159,6 +159,8 @@ group :development, :test do
   gem 'pry-byebug'
   # for style checks
   gem 'rubocop', require: false
+  # for rails style checks
+  gem 'rubocop-rails', require: false
   # for rspec style checks
   gem 'rubocop-rspec', require: false
   # for performance checks
@@ -174,7 +176,7 @@ group :development, :test do
   # to find n+1 queries
   gem 'bullet'
   # Use Puma as the app server (rails 5 default)
-  gem 'puma', '~> 3.11'
+  gem 'puma', '~> 4.0'
   # to drive headless chrome
   gem 'selenium-webdriver'
 end

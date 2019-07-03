@@ -1,6 +1,6 @@
 #comments {
   .media .media-body {
-    @extend .text-word-break-all;
+    hyphens: auto;
 
     pre, code {
       @extend .p-2;

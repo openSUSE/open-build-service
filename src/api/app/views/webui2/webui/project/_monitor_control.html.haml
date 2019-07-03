@@ -44,6 +44,11 @@
                 = check_box_tag valid_xml_id('repo_' + repository), 1, repository_filter.include?(repository), class: 'custom-control-input'
                 %label.custom-control-label{ for: valid_xml_id('repo_' + repository) }
                   = repository
+      %span#project-monitor-repositories-last-build
+        = label_tag 'lastbuild', title: 'Include the results from the last build', class: 'btn btn-outline-secondary mb-0' do
+          = check_box_tag 'lastbuild', 1, lastbuild_switch
+          Last time results
+
       %button.btn.btn-primary#filter-button{ type: :submit }
         Apply Filter
       %i.fas.fa-lg.fa-sync-alt.fa-spin.ml-3#table-spinner
