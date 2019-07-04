@@ -926,7 +926,7 @@ sub create {
     $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
     @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
   }
-  add_expanddebug($ctx,'sysdeps expansion') if $expanddebug && @sysdeps;
+  add_expanddebug($ctx, 'sysdeps expansion', undef, $ctx->{'pool'}) if $expanddebug && @sysdeps;
   @btdeps = () if @sysdeps;	# already included in sysdeps
 
   # calculate packages needed for building
