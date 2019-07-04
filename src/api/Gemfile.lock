@@ -431,7 +431,7 @@ GEM
       tins (~> 1.0)
     test-unit (3.3.3)
       power_assert
-    thinking-sphinx (4.3.0)
+    thinking-sphinx (4.3.1)
       activerecord (>= 3.1.0)
       builder (>= 2.1.2)
       innertube (>= 1.0.2)
