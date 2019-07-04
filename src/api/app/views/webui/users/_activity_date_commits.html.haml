@@ -1,0 +1,19 @@
+- max_projects = max_activity_items(3, projects)
+
+- if projects.size == 1
+  - project, packages, count = projects.first
+  .h6.mt-3
+    = render partial: 'activity_date_commits_project',
+             locals: { project: project, packages: packages, count: count }
+- else
+  .h6.mt-3
+    = pluralize(projects.map(&:last).sum, 'commit')
+  %ul
+    - projects[0..(max_projects - 1)].each do |project, packages, count|
+      %li.mt-1
+        = render partial: 'activity_date_commits_project',
+                 locals: { project: project, packages: packages, count: count }
+    - count = projects.size - max_projects
+    - if count > 0
+      %li.mt-1
+        and in #{pluralize(count, 'project')} more

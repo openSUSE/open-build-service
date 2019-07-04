@@ -1,0 +1,18 @@
+- max_packages = max_activity_items(3, packages)
+
+- if packages.size == 1
+  - single_package = packages.first.first
+  #{pluralize(count, 'commit')} in #{link_to("#{project} / #{single_package}", package_show_path(project, single_package))}
+- else
+  #{pluralize(count, 'commit')} in #{link_to(project, project_show_path(project))}
+  %ul.mt-1
+    - packages = packages.sort_by { |_, c| -c }
+    - packages[0..(max_packages - 1)].each do |package, pcount|
+      %li
+        #{pluralize(pcount, 'commit')} in
+        = link_to package, package_show_path(project, package)
+      - count -= pcount
+    - diff = packages.size - max_packages
+    - if diff > 0
+      %li
+        and #{pluralize(count, 'commit')} in #{pluralize(diff, 'package')} more

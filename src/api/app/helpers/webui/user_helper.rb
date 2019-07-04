@@ -54,4 +54,9 @@ module Webui::UserHelper
   def user_is_configurable(configuration, user)
     configuration.ldap_enabled? && !user.ignore_auth_services?
   end
+
+  def max_activity_items(max_items, items_array)
+    max_items += 1 if items_array.size == (max_items + 1)
+    max_items
+  end
 end
