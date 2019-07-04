@@ -1283,7 +1283,7 @@ CREATE TABLE `users` (
   `owner_id` int(11) DEFAULT NULL,
   `ignore_auth_services` tinyint(1) DEFAULT '0',
   `in_beta` tinyint(1) DEFAULT '0',
-  `in_rollout` tinyint(1) DEFAULT '0',
+  `in_rollout` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`deprecated_password`) USING BTREE
