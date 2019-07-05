@@ -115,16 +115,15 @@ sub createexportjob {
 =cut
 
 sub jobfinished {
-  my ($ectx, $job, $js) = @_;
+  my ($ectx, $job, $info, $js) = @_;
 
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $myarch = $gctx->{'arch'};
-  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
-  if (!$info || ! -d $jobdatadir) {
-    print "  - $job is bad\n";
+  if (! -d $jobdatadir) {
+    print "  - $job has no data dir\n";
     return;
   }
   my $projid = $info->{'project'};
