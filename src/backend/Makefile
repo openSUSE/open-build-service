@@ -42,6 +42,11 @@ ifneq ($(OBS_BACKEND_LOG_DIR),$(OBS_BACKEND_DATA_DIR)/log)
 	rmdir $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
 	ln -s $(OBS_BACKEND_LOG_DIR) $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
 endif
+ifneq ($(OBS_BACKEND_SERVICE_LOG_DIR),$(OBS_BACKEND_DATA_DIR)/service/log)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_SERVICE_LOG_DIR)
+	rmdir $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/service/log
+	ln -s $(OBS_BACKEND_SERVICE_LOG_DIR) $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/service/log
+endif
 
 
 test_unit: bs_config

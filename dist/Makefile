@@ -84,6 +84,7 @@ install_crontabs:
 	$(INSTALL) -m 644 cleanup_scm_cache.cron $(DESTDIR)/etc/cron.d/cleanup_scm_cache
 	sed -i \
 	    -e 's|/srv/www/obs/api|$(OBS_API_PREFIX)|g' \
+	    -e 's|/srv/obs/service/log|$(OBS_BACKEND_SERVICE_LOG_DIR)|g' \
 	    $(DESTDIR)/etc/cron.d/cleanup_scm_cache
 
 system_dirs:
