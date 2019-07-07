@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #
 # Copyright (c) 2010, Sascha Peilicke <saschpe@suse.de>, Novell Inc.
 #
@@ -42,7 +42,7 @@ def validate_schema(arg, dirname, filenames):
 
 if __name__ == "__main__":                              # we're called directly
     if len(sys.argv) != 2 or not os.path.isdir(sys.argv[1]):
-        print "please provide a directory with XML files to validate!"
+        print("please provide a directory with XML files to validate!")
         sys.exit(1)
 
     os.path.walk(sys.argv[1], validate_schema, None)    # walk all files in the provided directory recursively
