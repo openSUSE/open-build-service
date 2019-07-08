@@ -807,6 +807,8 @@ usermod -a -G docker obsservicerun
 %attr(0640,root,%apache_group) /srv/www/obs/api/config/database.yml.example
 %attr(0644,root,root) %config(noreplace) %verify(md5) /srv/www/obs/api/config/options.yml
 %attr(0644,root,root) /srv/www/obs/api/config/options.yml.example
+%attr(0644,root,root) %config(noreplace) %verify(md5) /srv/www/obs/api/config/feature.yml
+%attr(0644,root,root) /srv/www/obs/api/config/feature.yml.example
 %dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx
 %dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx/production
 /srv/www/obs/api/.bundle

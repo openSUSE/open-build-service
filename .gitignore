@@ -24,6 +24,7 @@
 /docs/api/books/en/*.zip
 /src/api/config/database.yml
 /src/api/config/environments/development.*.rb
+/src/api/config/feature.yml
 /src/api/config/options.yml
 /src/api/config/secret.key
 /src/api/config/thinking_sphinx.yml

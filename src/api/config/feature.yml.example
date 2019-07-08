@@ -1,0 +1,21 @@
+# To overwrite the default configuration, please uncomment this section.
+#
+# production:
+#   features:
+#     image_templates: true
+#     kiwi_image_editor: false
+#     cloud_upload: false
+#     cloud_upload_azure: false
+#     bootstrap: false
+
+# This section for adding features into the Beta Program.
+# With this program, the users could try new features before they are released.
+#
+beta:
+  features:
+
+# This section for adding features into the Rollout Program.
+# This program is for making available new features for a certain amount of users.
+#
+rollout:
+  features:

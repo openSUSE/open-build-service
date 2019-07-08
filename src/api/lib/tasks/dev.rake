@@ -24,6 +24,9 @@ namespace :dev do
     puts 'Setting up the cloud uploader'
     copy_example_file('../../dist/aws_credentials')
     copy_example_file('../../dist/ec2utils.conf')
+
+    puts 'Setting up the feature toggle'
+    copy_example_file('config/feature.yml')
   end
 
   desc 'Bootstrap the application'
