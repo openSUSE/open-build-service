@@ -42,7 +42,6 @@ install_systemd_services: system_dirs
 	    -e 's|/srv/www/obs/api|$(OBS_API_PREFIX)|g' \
 	    -e 's|/srv/obs|$(OBS_BACKEND_DATA_DIR)|g' \
 	    $(DESTDIR)$(UNITDIR)/*.service
-	$(foreach service,$(SYSTEMD_TARGET_FILES) $(SYSTEMD_SERVICE_FILES),$(shell ln -sf /usr/sbin/service $(DESTDIR)/usr/sbin/rc$(service) ) )
 
 install_project_update: system_dirs
 	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update
