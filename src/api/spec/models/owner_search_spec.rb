@@ -1,8 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe OwnerSearch do
-  let!(:user) { create(:confirmed_user, login: 'Iggy') }
-  let!(:develuser) { create(:confirmed_user, login: 'DevelIggy') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+  let!(:develuser) { create(:confirmed_user, :with_home, login: 'DevelIggy') }
   let!(:package) { create(:package, name: 'TestPack', project: Project.find_by(name: 'home:Iggy')) }
   let!(:develpackage) { create(:package, name: 'DevelPack', project: Project.find_by(name: 'home:DevelIggy')) }
   let!(:collection) do
@@ -25,7 +25,7 @@ RSpec.describe OwnerSearch do
 
       it 'returns results' do
         subject = OwnerSearch::Container.new.for(package).first
-        expect(subject.users).to eq('maintainer' => ['Iggy'])
+        expect(subject.users).to eq('maintainer' => [user])
       end
 
       # the User.owner is only interesting for locked accounts
@@ -34,7 +34,7 @@ RSpec.describe OwnerSearch do
         user.update_attributes(owner: develuser)
 
         subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package).first
-        expect(subject.users['bugowner']).to eq([user.login])
+        expect(subject.users['bugowner']).to eq([user])
       end
 
       it 'respects User.state' do
@@ -122,9 +122,30 @@ RSpec.describe OwnerSearch do
       end
 
       it 'respects maintenance project suffixes' do
-        expect(OwnerSearch::Assignee.new.for('package').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => ['hans'])
-        expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => ['hans'])
+        expect(OwnerSearch::Assignee.new.for('package').first.users).to eq('bugowner' => [other_user])
+        expect(OwnerSearch::Assignee.new.for('package_42').first.users).to eq('bugowner' => [other_user])
+        expect(OwnerSearch::Assignee.new.for('patchinfo_42').first.users).to eq('bugowner' => [other_user])
+      end
+
+      context 'with owned user' do
+        let(:owning) { create(:confirmed_user) }
+        before do
+          other_user.update_attributes(owner: owning, state: :subaccount)
+        end
+
+        it 'still returns the owned user as bugowner' do
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('package').first.users).to eq('bugowner' => [other_user])
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('package_42').first.users).to eq('bugowner' => [other_user])
+          expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('patchinfo_42').first.users).to eq('bugowner' => [other_user])
+        end
+
+        context 'with gone owner' do
+          let(:owning) { create(:locked_user) }
+
+          it 'does not return bugowners' do
+            expect(OwnerSearch::Assignee.new(filter: 'bugowner').for('package')).to be_empty
+          end
+        end
       end
     end
   end

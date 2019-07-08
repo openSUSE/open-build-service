@@ -48,8 +48,14 @@ module Backend
         # Lists failed package builds in a project
         # @return [String]
         def self.failed_results(project_name)
-          response = http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable] }, expand: [:code])
-          Xmlhash.parse(response)
+          http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable] }, expand: [:code])
+        end
+
+        # Lists summary of failed package builds of a project
+        # @return [String]
+        def self.failed_results_summary(project_name, repository_name)
+          http_get(['/build/:project/_result', project_name], params: { code: %w[failed broken unresolvable],
+                                                                        repository: repository_name, view: 'summary' }, expand: [:code])
         end
 
         # Returns the log's size for a build

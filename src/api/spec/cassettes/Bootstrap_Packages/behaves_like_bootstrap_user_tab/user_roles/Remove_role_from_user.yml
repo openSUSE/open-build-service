@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,16 +150,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '179'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -200,16 +200,16 @@ http_interactions:
           <person userid="other_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Recalled to Life</title>
-          <description>Sit quasi quia voluptates.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Maiores laboriosam eius in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -230,25 +230,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Recalled to Life</title>
-          <description>Sit quasi quia voluptates.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Maiores laboriosam eius in.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=package_test_user
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Recalled to Life</title>
-          <description>Sit quasi quia voluptates.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Maiores laboriosam eius in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -269,22 +269,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Recalled to Life</title>
-          <description>Sit quasi quia voluptates.</description>
+          <title>To Say Nothing of the Dog</title>
+          <description>Maiores laboriosam eius in.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Fugiat quis fuga. Aspernatur eum recusandae. Autem distinctio voluptatum.
+      string: Perspiciatis animi culpa. Qui similique nostrum. Eligendi perferendis
+        voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -304,26 +305,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="21" vrev="21">
-          <srcmd5>e77a98ecf22022e4eb9fd28df306e766</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>24e1b07b241e7f4e228ce6f212351170</srcmd5>
           <version>unknown</version>
-          <time>1544006005</time>
+          <time>1558295722</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Enim quia blanditiis. Itaque sed autem. Excepturi possimus aliquam.
+      string: Vel quia optio. Provident sed quis. Qui dolores nam.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -343,20 +344,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="22" vrev="22">
-          <srcmd5>e6ba86fdbc38bd4b98d02006e8353ba1</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>b7bd988d681fb85cf72ccc61bdb3eb81</srcmd5>
           <version>unknown</version>
-          <time>1544006005</time>
+          <time>1558295722</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:reader_user/_meta?user=reader_user
@@ -397,7 +398,7 @@ http_interactions:
           <person userid="reader_user" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:25 GMT
+  recorded_at: Sun, 19 May 2019 19:55:22 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -430,7 +431,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:26 GMT
+  recorded_at: Sun, 19 May 2019 19:55:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -463,42 +464,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:26 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:26 GMT
+  recorded_at: Sun, 19 May 2019 19:55:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -531,7 +497,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:27 GMT
+  recorded_at: Sun, 19 May 2019 19:55:24 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -564,7 +530,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:27 GMT
+  recorded_at: Sun, 19 May 2019 19:55:24 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -597,7 +563,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:27 GMT
+  recorded_at: Sun, 19 May 2019 19:55:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -605,8 +571,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
           <person userid="user_tab_user" role="maintainer"/>
           <person userid="reader_user" role="reader"/>
         </package>
@@ -629,18 +595,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '281'
+      - '260'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
           <person userid="user_tab_user" role="maintainer" />
           <person userid="reader_user" role="reader" />
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:27 GMT
+  recorded_at: Sun, 19 May 2019 19:55:25 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -648,8 +614,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
           <person userid="user_tab_user" role="maintainer"/>
           <person userid="reader_user" role="reader"/>
         </package>
@@ -672,18 +638,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '281'
+      - '260'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>The Wings of the Dove</title>
-          <description>Minus sequi laboriosam asperiores.</description>
+          <title>Endless Night</title>
+          <description>Doloremque aut et ut.</description>
           <person userid="user_tab_user" role="maintainer" />
           <person userid="reader_user" role="reader" />
         </package>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:27 GMT
+  recorded_at: Sun, 19 May 2019 19:55:25 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -716,7 +682,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:28 GMT
+  recorded_at: Sun, 19 May 2019 19:55:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -749,42 +715,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:28 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: _service  no such file
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '122'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>_service: no such file</summary>
-          <details>404 _service: no such file</details>
-        </status>
-    http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:28 GMT
+  recorded_at: Sun, 19 May 2019 19:55:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -817,7 +748,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:28 GMT
+  recorded_at: Sun, 19 May 2019 19:55:26 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -850,7 +781,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:28 GMT
+  recorded_at: Sun, 19 May 2019 19:55:26 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -883,5 +814,5 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Wed, 05 Dec 2018 10:33:29 GMT
+  recorded_at: Sun, 19 May 2019 19:55:27 GMT
 recorded_with: VCR 4.0.0

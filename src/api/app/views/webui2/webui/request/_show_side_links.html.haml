@@ -35,11 +35,7 @@
         This request will be automatically accepted when it enters the 'new' state.
       - else
         This request will be automatically accepted in #{time_ago_in_words(bs_request.accept_at)}.
-  - other_open_reviews.each do |review|
-    %li
-      %i.fas.fa-info-circle.text-info
-      Open review for #{render partial: 'reviewer', locals: { review: review }}
-  - my_open_reviews.each do |review|
+  - bs_request.reviews.where(state: 'new').each do |review|
     %li
       %i.fas.fa-info-circle.text-info
       Open review for

@@ -8,7 +8,7 @@
 
   .card-body
     %h3= @pagetitle
-    - if User.current.can_modify?(@project)
+    - if User.possibly_nobody.can_modify?(@project)
       = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf',
         save: { url: save_project_config_path, method: :post,
         data: { project: @project.name, submit: 'config' } } }

@@ -2,7 +2,7 @@ require 'browser_helper'
 
 RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:maintenance_coord_user) { create(:confirmed_user, login: 'maintenance_coord') }
   let(:project) { create(:project_with_repository, name: 'ProjectWithRepo') }
   let(:package) { create(:package_with_file, project: project, name: 'ProjectWithRepo_package') }

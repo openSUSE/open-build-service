@@ -9,7 +9,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
   include_context 'a kiwi image xml'
   include_context 'an invalid kiwi image xml'
 
-  let(:user) { create(:user, login: 'tom') }
+  let(:user) { create(:user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:kiwi_image) { create(:kiwi_image) }
 

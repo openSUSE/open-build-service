@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::Staging::ProjectsController do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow, project: project) }
 

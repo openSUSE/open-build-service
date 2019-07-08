@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Person::TokenController, vcr: false do
-  let(:user) { create(:user_with_service_token) }
+  let(:user) { create(:user_with_service_token, :with_home) }
   let(:other_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
@@ -14,7 +14,7 @@ RSpec.describe Person::TokenController, vcr: false do
 
       it { expect(response).to render_template(:index) }
       it { expect(response).to have_http_status(:success) }
-      it { expect(assigns(:list)).to eq(user.service_tokens) }
+      it { expect(assigns(:list)).to eq(user.tokens) }
     end
 
     context 'called by unauthorized user' do
@@ -46,10 +46,10 @@ RSpec.describe Person::TokenController, vcr: false do
         login user
       end
 
-      subject { post :create, params: { login: user.login }, format: :xml }
+      subject { post :create, params: { login: user.login, operation: 'rebuild' }, format: :xml }
 
       it 'creates a global token' do
-        expect { subject }.to change { user.service_tokens.count }.by(+1)
+        expect { subject }.to change { user.tokens.count }.by(+1)
         expect(response).to have_http_status(:success)
       end
     end
@@ -59,12 +59,12 @@ RSpec.describe Person::TokenController, vcr: false do
 
       before do
         login user
-        post :create, params: { login: user.login, package: package, project: package.project }, format: :xml
+        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml
       end
 
       it { expect(response).to have_http_status(:success) }
       it { expect(response).to render_template(:create) }
-      it { expect(user.service_tokens.where(package: package)).to exist }
+      it { expect(user.tokens.where(package: package)).to exist }
       it { expect(assigns(:token)).to eq(package.token) }
     end
 
@@ -76,7 +76,7 @@ RSpec.describe Person::TokenController, vcr: false do
       subject { post :create, params: { login: user.login }, format: :xml }
 
       it 'permits access' do
-        expect { subject }.not_to(change { user.service_tokens.count })
+        expect { subject }.not_to(change { user.tokens.count })
         expect(response).to have_http_status(:forbidden)
       end
     end
@@ -93,7 +93,7 @@ RSpec.describe Person::TokenController, vcr: false do
       end
 
       it 'deletes the token' do
-        expect { subject }.to change { user.service_tokens.count }.by(-1)
+        expect { subject }.to change { user.tokens.count }.by(-1)
         expect(response).to have_http_status(:success)
       end
     end
@@ -113,7 +113,7 @@ RSpec.describe Person::TokenController, vcr: false do
       end
 
       it 'does not delete the token' do
-        expect { subject }.not_to(change { user.service_tokens.count })
+        expect { subject }.not_to(change { user.tokens.count })
         expect(response).to have_http_status(:forbidden)
       end
     end

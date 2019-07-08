@@ -5,7 +5,7 @@ require 'nokogiri'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 RSpec.describe BsRequest, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tux') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tux') }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
   let(:target_package) { create(:package, name: 'target_package', project: target_project) }
@@ -37,7 +37,7 @@ RSpec.describe BsRequest, vcr: true do
   end
 
   context '.new_from_xml' do
-    let(:user) { create(:user) }
+    let(:user) { create(:user, :with_home) }
     let(:review_request) do
       create(:bs_request_with_submit_action,
              review_by_user: user,
@@ -323,78 +323,60 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '#truncated_diffs?' do
     context "when there is no action with type 'submit'" do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
-            { type: 'bar' }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: 'bar' }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when there is no sourcediff' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
-            { type: :submit }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: :submit }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when the sourcediff is empty' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :foo, sourcediff: nil },
-            { type: :submit }
-          ]
-        }
+      let(:request_actions) do
+        [
+          { type: :foo, sourcediff: nil },
+          { type: :submit }
+        ]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context 'when the diff is at least one diff that has a shown attribute' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(true) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(true) }
     end
 
     context 'when none of the diffs has a shown attribute' do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]]] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]]] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
 
     context "when there is a sourcediff attribute with no 'files'" do
-      let(:request_action) do
-        {
-          'actions' => [
-            { type: :submit, sourcediff: ['other_data' => 'foo'] }
-          ]
-        }
+      let(:request_actions) do
+        [{ type: :submit, sourcediff: ['other_data' => 'foo'] }]
       end
 
-      it { expect(BsRequest.truncated_diffs?(request_action)).to eq(false) }
+      it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
     end
   end
 
@@ -668,5 +650,17 @@ RSpec.describe BsRequest, vcr: true do
     context 'when called for a request with a subset of attributes' do
       it { expect { BsRequest.all.select(:id).as_json }.not_to raise_error }
     end
+  end
+
+  describe '#skip_sanitize' do
+    let(:bs_request) { build(:add_maintainer_request, target_project: create(:project)) }
+
+    before do
+      bs_request.skip_sanitize
+      allow(bs_request).to receive(:sanitize!)
+      bs_request.save!
+    end
+
+    it { expect(bs_request).not_to have_received(:sanitize!) }
   end
 end

@@ -63,16 +63,16 @@ FactoryBot.define do
     after(:create) do |request, evaluator|
       next unless request.staging_project && evaluator.staging_owner
 
-      User.session = evaluator.staging_owner
-      request.bs_request_actions.where(type: :submit).each do |action|
-        BranchPackage.new(
-          project: action.source_project,
-          package: action.source_package,
-          target_project: request.staging_project.name,
-          target_package: action.target_package
-        ).branch
+      evaluator.staging_owner.run_as do
+        request.bs_request_actions.where(type: :submit).each do |action|
+          BranchPackage.new(
+            project: action.source_project,
+            package: action.source_package,
+            target_project: request.staging_project.name,
+            target_package: action.target_package
+          ).branch
+        end
       end
-      User.session = evaluator.before_current_user
     end
 
     transient do
@@ -96,7 +96,6 @@ FactoryBot.define do
       creating_user do |evaluator|
         evaluator.creator.is_a?(User) ? evaluator.creator : User.find_by_login(evaluator.creator)
       end
-      before_current_user { User.current }
     end
 
     after(:build) do |request, evaluator|
@@ -115,7 +114,6 @@ FactoryBot.define do
         request.update_attributes(state: state)
         request.reload
       end
-      User.session = evaluator.before_current_user
     end
 
     factory :bs_request_with_submit_action do

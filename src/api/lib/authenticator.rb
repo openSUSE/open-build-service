@@ -70,7 +70,7 @@ class Authenticator
   # At the moment these operations are the /public, /trigger and /about controller actions.
   def require_login
     # rubocop:disable Style/GuardClause
-    if !User.current || User.current.is_nobody?
+    unless User.session
       raise AnonymousUser, 'Anonymous user is not allowed here - please login'
     end
     # rubocop:enable Style/GuardClause
@@ -247,6 +247,6 @@ class Authenticator
   def load_nobody
     @http_user = User.find_nobody!
     User.session = @http_user
-    @user_permissions = Suse::Permission.new(User.current)
+    @user_permissions = Suse::Permission.new(@http_user)
   end
 end

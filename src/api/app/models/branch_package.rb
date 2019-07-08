@@ -76,7 +76,7 @@ class BranchPackage
     # different link_target_projects
     @packages.uniq! { |x| x[:target_package] }
 
-    @target_project ||= User.current.branch_project_name(params[:project])
+    @target_project ||= User.session!.branch_project_name(params[:project])
 
     #
     # Data collection complete at this stage
@@ -91,7 +91,7 @@ class BranchPackage
     # create branch project
     tprj = create_branch_project
 
-    unless User.current.can_modify?(tprj)
+    unless User.session!.can_modify?(tprj)
       raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command"
     end
 
@@ -132,7 +132,7 @@ class BranchPackage
 
       if p[:local_link]
         # copy project local linked packages
-        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.current.login)
+        Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:link_target_project].name, p[:package].name, User.session!.login)
         # and fix the link
         ret = Nokogiri::XML(tpkg.source_file('_link'), &:strict).root
         ret.remove_attribute('project') # its a local link, project name not needed
@@ -141,7 +141,7 @@ class BranchPackage
         linked_package = params[:target_package] if params[:target_package] && params[:package] == ret['package']
         linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret['package'] = linked_package
-        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.current.login, ret.to_xml)
+        Backend::Api::Sources::Package.write_link(tpkg.project.name, tpkg.name, User.session!.login, ret.to_xml)
       else
         opackage = p[:package]
         opackage = p[:package].name if p[:package].is_a?(Package)
@@ -176,7 +176,7 @@ class BranchPackage
             msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
-                                              User.current.login, comment: msg, keeplink: 1, expand: 1)
+                                              User.session!.login, comment: msg, keeplink: 1, expand: 1)
         end
       end
       tpkg.sources_changed
@@ -207,7 +207,7 @@ class BranchPackage
       tprj = Project.get_by_name(@target_project)
     else
       # permission check
-      unless User.current.can_create_project?(@target_project)
+      unless User.session!.can_create_project?(@target_project)
         raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command"
       end
 
@@ -220,7 +220,7 @@ class BranchPackage
       @add_repositories = true # new projects shall get repositories
       Project.transaction do
         tprj = Project.create(name: @target_project, title: title, description: description)
-        tprj.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
+        tprj.relationships.build(user: User.session!, role: Role.find_by_title!('maintainer'))
         tprj.flags.create(flag: 'build', status: 'disable') if @extend_names
         tprj.flags.create(flag: 'access', status: 'disable') if @noaccess
         tprj.store
@@ -351,7 +351,7 @@ class BranchPackage
 
     # set default based on first found package location
     unless @target_project
-      @target_project = User.current.branch_project_name(p[:link_target_project])
+      @target_project = User.session!.branch_project_name(p[:link_target_project])
       @auto_cleanup = ::Configuration.cleanup_after_days
       @auto_cleanup ||= 14 if p[:base_project].try(:image_template?)
     end
@@ -578,11 +578,11 @@ class BranchPackage
       @auto_cleanup = ::Configuration.cleanup_after_days if params[:autocleanup] == 'true'
     else
       if params[:request]
-        @target_project = User.current.branch_project_name("REQUEST_#{params[:request]}")
+        @target_project = User.session!.branch_project_name("REQUEST_#{params[:request]}")
       elsif params[:project]
         @target_project = nil # to be set later after first source location lookup
       else
-        @target_project = User.current.branch_project_name(@attribute.tr(':', '_'))
+        @target_project = User.session!.branch_project_name(@attribute.tr(':', '_'))
         @target_project += ":#{params[:package]}" if params[:package]
       end
       @auto_cleanup = ::Configuration.cleanup_after_days

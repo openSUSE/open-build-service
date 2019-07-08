@@ -5,7 +5,7 @@ require 'rantly/rspec_extensions'
 
 RSpec.describe Project, vcr: true do
   describe 'Staging Project' do
-    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
     let(:managers_group) { create(:group) }
     let(:other_managers_group) { create(:group) }
@@ -188,6 +188,7 @@ RSpec.describe Project, vcr: true do
         before do
           login(user)
           staging_project.assign_managers_group(other_managers_group)
+          staging_project.commit_user = user
           staging_project.store
         end
 
@@ -197,6 +198,7 @@ RSpec.describe Project, vcr: true do
       context 'when the group was already assigned' do
         let(:assign_group) do
           staging_project.assign_managers_group(managers_group)
+          staging_project.commit_user = user
           staging_project.store
         end
 
@@ -207,6 +209,7 @@ RSpec.describe Project, vcr: true do
     describe '#unassign_managers_group' do
       before do
         staging_project.unassign_managers_group(managers_group)
+        staging_project.commit_user = user
         staging_project.store
       end
 

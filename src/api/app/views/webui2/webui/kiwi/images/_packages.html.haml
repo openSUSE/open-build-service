@@ -1,0 +1,12 @@
+%h5.card-header Packages
+.card-body#kiwi-packages-list
+  %p#no-packages{ class: "#{'d-none' if package_groups.packages.present?}" }= 'There are no packages.'
+
+  .row
+    = f.fields_for :package_groups, package_groups do |package_group_fields|
+      = package_group_fields.fields_for :packages do |kiwi_package_fields|
+        = render 'package_fields', f: kiwi_package_fields
+      .col-12.mt-2.mb-4
+        = link_to_add_association(package_group_fields, :packages) do
+          %i.fas.fa-plus-circle.text-primary
+          Add package

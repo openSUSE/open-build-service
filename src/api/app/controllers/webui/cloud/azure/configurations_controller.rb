@@ -10,6 +10,7 @@ module Webui
 
         # GET /cloud/azure/configuration
         def show
+          switch_to_webui2
           @crumb_list << 'Azure Configuration'
         end
 
@@ -35,7 +36,7 @@ module Webui
         private
 
         def set_azure_configuration
-          @azure_configuration = User.current.azure_configuration || User.current.create_azure_configuration
+          @azure_configuration = User.session!.azure_configuration || User.session!.create_azure_configuration
         end
 
         def set_breadcrumb

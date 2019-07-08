@@ -1,6 +1,4 @@
 class Relationship < ApplicationRecord
-  class SaveError < APIError; end
-
   belongs_to :role
 
   # only one is true
@@ -38,6 +36,8 @@ class Relationship < ApplicationRecord
     message: 'User and group can not exist at the same time'
   }, if: proc { |relationship| relationship.group.present? }
 
+  validate :allowed_user
+
   # don't use "is not null" - it won't be in index
   scope :projects, -> { where.not(project_id: nil) }
   scope :packages, -> { where.not(package_id: nil) }
@@ -60,49 +60,11 @@ class Relationship < ApplicationRecord
   after_destroy :discard_cache
 
   def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
-    obj.check_write_access!(ignore_lock)
-    role = Role.find_by_title!(role) unless role.is_a?(Role)
-    if role.global
-      # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{obj.name}'"
-    end
-
-    user = User.find_by_login!(user) unless user.is_a?(User)
-
-    if obj.relationships.where(user: user, role: role).exists?
-      raise SaveError, 'Relationship already exists' if check
-      logger.debug "ignore user #{user.login} - already has role #{role.title}"
-      return
-    end
-
-    logger.debug "adding user: #{user.login}, #{role.title}"
-    r = obj.relationships.build(user: user, role: role)
-    return unless r.invalid?
-    logger.debug "invalid: #{r.errors.inspect}"
-    r.delete
+    Relationship::AddRole.new(obj, role, user: user, ignore_lock: ignore_lock, check: check).add_role
   end
 
   def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
-    obj.check_write_access!(ignore_lock)
-
-    role = Role.find_by_title!(role) unless role.is_a?(Role)
-
-    if role.global
-      # only nonglobal roles may be set in an object
-      raise SaveError, "tried to set global role '#{role.title}' for group '#{group}' in #{obj.class} '#{obj.name}'"
-    end
-
-    group = Group.find_by_title(group.to_s) unless group.is_a?(Group)
-
-    obj.relationships.each do |r|
-      next unless r.group_id == group.id && r.role_id == role.id
-      raise SaveError, 'Relationship already exists' if check
-      logger.debug "ignore group #{group.title} - already has role #{role.title}"
-      return
-    end
-
-    r = obj.relationships.build(group: group, role: role)
-    r.delete if r.invalid?
+    Relationship::AddRole.new(obj, role, group: group, ignore_lock: ignore_lock, check: check).add_role
   end
 
   # calculate and cache forbidden_project_ids for users
@@ -128,12 +90,12 @@ class Relationship < ApplicationRecord
       forbidden_projects_hash
     end
     # We don't need to check the relationships if we don't have a User
-    return forbidden_projects[:projects] if User.current.nil? || User.current.is_nobody?
+    return forbidden_projects[:projects] unless User.session
     # The cache sequence is for invalidating user centric cache entries for all users
     cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
-    Rails.cache.fetch("users/#{User.current.id}-forbidden_projects-#{cache_sequence}") do
+    Rails.cache.fetch("users/#{User.possibly_nobody.id}-forbidden_projects-#{cache_sequence}") do
       # Normal users can be in the whitelist let's substract allowed projects
-      whitelistened_projects_for_user = forbidden_projects[:whitelist][User.current.id] || []
+      whitelistened_projects_for_user = forbidden_projects[:whitelist][User.possibly_nobody.id] || []
       result = forbidden_projects[:projects] - whitelistened_projects_for_user
       result = [0] if result.empty?
       result
@@ -165,6 +127,13 @@ class Relationship < ApplicationRecord
     return unless role && role.global
     errors.add(:base,
                "global role #{role.title} is not allowed.")
+  end
+
+  # NOTE: Adding a normal validation, the error doesn't reach the view due to
+  # Relationship::AddRole#add_role handling.
+  # We could also check other banned users, not only nobody.
+  def allowed_user
+    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
   end
 end
 

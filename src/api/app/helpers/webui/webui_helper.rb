@@ -110,6 +110,16 @@ module Webui::WebuiHelper
     first.nil? ? true : nil
   end
 
+  def image_template_icon(template)
+    default_icon = image_url('icons/drive-optical-48.png')
+    icon = template.public_source_path('_icon') if template.has_icon?
+    capture_haml do
+      haml_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
+        haml_tag(:img, src: default_icon, alt: template.title, width: 32, height: 32)
+      end
+    end
+  end
+
   # TODO: bento_only
   def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
@@ -132,9 +142,15 @@ module Webui::WebuiHelper
     description << repo_status_description(status)
     description << " (#{details})" if details
 
-    repo_state_class = outdated ? 'outdated' : 'default'
+    repo_state_class = webui2_repository_state_class(outdated, status)
+
     content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{webui2_repo_status_icon(status)}",
                         data: { content: description, placement: 'top', toggle: 'popover' })
+  end
+
+  def webui2_repository_state_class(outdated, status)
+    return 'outdated' if outdated
+    return status =~ /broken|building|finished|publishing|published/ ? status : 'default'
   end
 
   # TODO: bento_only

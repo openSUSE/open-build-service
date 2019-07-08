@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe RequestController, type: :controller, vcr: true do
+RSpec.describe RequestController do
   render_views # NOTE: This is required otherwise Suse::Validator.validate will fail
 
   describe '#request_command (cmd=diff)' do
@@ -44,7 +44,7 @@ RSpec.describe RequestController, type: :controller, vcr: true do
     context 'requesting creation of a source project that has a project link that is not owned by the requester' do
       include_context 'a BsRequest that has a project link'
 
-      it 'prohibits creation of request' do
+      it 'prohibits creation of request', vcr: true do
         expect { post :global_command, params: { cmd: :create }, body: xml, format: :xml }.not_to change(BsRequest, :count)
         expect(response).to have_http_status(:forbidden)
         assert_select 'status[code=lacking_maintainership]' do

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe PackagePolicy do
   let(:anonymous_user) { create(:user_nobody) }
-  let(:user) { create(:confirmed_user) }
+  let(:user) { create(:confirmed_user, :with_home) }
   let(:other_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
   let(:project) { user.home_project }

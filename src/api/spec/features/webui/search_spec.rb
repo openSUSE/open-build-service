@@ -3,7 +3,7 @@ require 'sphinx_helper'
 
 RSpec.feature 'Search', type: :feature, js: true do
   let(:admin_user) { create(:admin_user) }
-  let(:user) { create(:confirmed_user, login: 'titan') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'titan') }
 
   let(:package) { create(:package, name: 'goal', title: 'First goal', project: user.home_project) }
   let(:another_package) { create(:package, name: 'goal2', title: 'Second goal', project: user.home_project) }
@@ -27,7 +27,7 @@ RSpec.feature 'Search', type: :feature, js: true do
     page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: package.name
-    click_button 'search_button'
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(user.home_project_name)
@@ -44,9 +44,14 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: apache2.name
     click_button 'Advanced'
-    check 'project'
-    uncheck 'package'
-    click_button 'search_button'
+    if is_bootstrap?
+      select('Projects', from: 'search_for')
+    else
+      check('project')
+      uncheck('package')
+    end
+
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(apache2.name)
@@ -65,10 +70,15 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'goal'
     click_button 'Advanced'
-    check 'package'
-    uncheck 'project'
-    check 'title'
-    click_button 'search_button'
+    if is_bootstrap?
+      select('Packages', from: 'search_for')
+    else
+      check('package')
+      uncheck('project')
+    end
+
+    check 'title', allow_label_click: true
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(user.home_project_name)
@@ -87,10 +97,10 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
-    check 'title'
-    uncheck 'name'
-    uncheck 'description'
-    click_button 'search_button'
+    check 'title', allow_label_click: true
+    uncheck 'name', allow_label_click: true
+    uncheck 'description', allow_label_click: true
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(apache.name)
@@ -108,10 +118,10 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
-    uncheck 'title'
-    uncheck 'name'
-    check 'description'
-    click_button 'search_button'
+    uncheck 'title', allow_label_click: true
+    uncheck 'name', allow_label_click: true
+    check 'description', allow_label_click: true
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(apache.name)
@@ -128,13 +138,20 @@ RSpec.feature 'Search', type: :feature, js: true do
     page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
     fill_in 'search_input', with: 'fooo'
-    click_button 'search_button'
+    click_button 'Search'
 
-    expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    if is_bootstrap?
+      within('#flash') do
+        expect(page).to have_text('Your search did not return any results.')
+      end
+    else
+      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    end
     expect(page).to have_selector('#search-results', count: 0)
   end
 
   scenario 'search in no types' do
+    skip_if_bootstrap # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
     apache2
     reindex_for_search
 
@@ -145,9 +162,15 @@ RSpec.feature 'Search', type: :feature, js: true do
     click_button 'Advanced'
     uncheck 'project'
     uncheck 'package'
-    click_button 'search_button'
+    click_button 'Search'
 
-    expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    if is_bootstrap?
+      within('#flash') do
+        expect(page).to have_text('Your search did not return any results.')
+      end
+    else
+      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+    end
     expect(page).to have_selector('#search-results', count: 0)
   end
 
@@ -160,12 +183,18 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'awesome'
     click_button 'Advanced'
-    uncheck 'title'
-    uncheck 'name'
-    uncheck 'description'
-    click_button 'search_button'
+    uncheck 'title', allow_label_click: true
+    uncheck 'name', allow_label_click: true
+    uncheck 'description', allow_label_click: true
+    click_button 'Search'
 
-    expect(find('#flash-messages')).to have_text('You have to search for awesome in something. Click the advanced button...')
+    if is_bootstrap?
+      within('#flash') do
+        expect(page).to have_text('You have to search for awesome in something. Click the advanced button...')
+      end
+    else
+      expect(find('#flash-messages')).to have_text('You have to search for awesome in something. Click the advanced button...')
+    end
     expect(page).to have_selector('#search-results', count: 0)
   end
 
@@ -178,9 +207,9 @@ RSpec.feature 'Search', type: :feature, js: true do
 
     fill_in 'search_input', with: 'вокябюч'
     click_button 'Advanced'
-    uncheck 'name'
-    check 'title'
-    click_button 'search_button'
+    uncheck 'name', allow_label_click: true
+    check 'title', allow_label_click: true
+    click_button 'Search'
 
     within '#search-results' do
       expect(page).to have_link(russian_project.name)
@@ -199,10 +228,16 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'hidden'
       click_button 'Advanced'
-      check 'title'
-      click_button 'search_button'
+      check 'title', allow_label_click: true
+      click_button 'Search'
 
-      expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+      if is_bootstrap?
+        within('#flash') do
+          expect(page).to have_text('Your search did not return any results.')
+        end
+      else
+        expect(find('#flash-messages')).to have_text('Your search did not return any results.')
+      end
       expect(page).to have_selector('#search-results', count: 0)
     end
 
@@ -218,13 +253,109 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'hidden'
       click_button 'Advanced'
-      check 'title'
-      click_button 'search_button'
+      check 'title', allow_label_click: true
+      click_button 'Search'
 
       within '#search-results' do
         expect(page).to have_link(hidden_package.name)
         expect(page).to have_selector('.search_result', count: 1)
       end
+    end
+  end
+
+  describe 'search for owners' do
+    let(:confirmed_user) { create(:confirmed_user, login: 'Thomas') }
+    let(:owner_root_project_attrib) { create(:owner_root_project_attrib, project: apache) }
+    let(:other_confirmed_user) { create(:confirmed_user, login: 'Tommy') }
+    let(:group_bugowner) { create(:group, title: 'bugowner_group') }
+    let(:group_maintainer) { create(:group, title: 'maintainer_group') }
+    let(:apache_package) { create(:package, name: 'apache2', title: 'Apache2 package', project: apache) }
+    let(:relationship_package_user) { create(:relationship_package_user, package: apache_package, user: confirmed_user) }
+    let(:relationship_package_group) { create(:relationship_package_group, package: apache_package, group: group_maintainer) }
+    let(:relationship_user_bugowner) { create(:relationship_package_user_as_bugowner, package: apache_package, user: other_confirmed_user) }
+    let(:relationship_group_bugowner) { create(:relationship_package_group_as_bugowner, package: apache_package, group: group_bugowner) }
+    let(:backend_url) { "#{CONFIG['source_url']}/search/published/binary/id?match=(@name='#{apache_package}'+and+(@project='#{apache}'))" }
+    let(:backend_response) { file_fixture('apache_search.xml') }
+
+    before do
+      stub_request(:post, backend_url).and_return(body: backend_response)
+      owner_root_project_attrib
+      group_maintainer.add_user(confirmed_user)
+      group_bugowner.add_user(other_confirmed_user)
+    end
+
+    scenario 'in a package having maintainers/bugowners which are users and groups' do
+      relationship_package_user
+      relationship_package_group
+      relationship_user_bugowner
+      relationship_group_bugowner
+      reindex_for_search
+
+      login(admin_user)
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_user.user.name)
+        expect(page).to have_text(relationship_package_group.group.title)
+        expect(page).to have_text(relationship_user_bugowner.user.name)
+        expect(page).to have_text(relationship_group_bugowner.group.title)
+      end
+    end
+
+    scenario 'in a package having maintainers/bugowners which are only users' do
+      relationship_package_user
+      relationship_user_bugowner
+      reindex_for_search
+
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_user.user.name)
+        expect(page).to have_text(relationship_user_bugowner.user.name)
+      end
+    end
+
+    scenario 'in a package having maintainers/bugowners which are only groups' do
+      relationship_package_group
+      relationship_group_bugowner
+      reindex_for_search
+
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      within '#search-results' do
+        expect(page).to have_text(relationship_package_group.group.title)
+        expect(page).to have_text(relationship_group_bugowner.group.title)
+      end
+    end
+
+    scenario 'in a package without maintainers/bugowners' do
+      login admin_user
+
+      visit search_owner_path
+      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
+
+      fill_in 'search_input', with: apache_package.name
+      click_button 'Search'
+
+      expect(page).not_to have_css('#serach-results')
     end
   end
 end

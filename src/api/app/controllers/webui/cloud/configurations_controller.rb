@@ -4,6 +4,7 @@ module Webui
       before_action :set_breadcrumb
 
       def index
+        switch_to_webui2
         @crumb_list.push << 'Configuration'
       end
 

@@ -55,7 +55,6 @@ use BSXPath;
 use BSStdServer;
 use BSSrcdiff;
 use Build;
-use BSNotify;
 use BSPGP;
 use BSSrcrep;
 use BSRevision;
@@ -79,6 +78,7 @@ use BSSrcServer::Multibuild;
 use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
+use BSSrcServer::Notify;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -146,19 +146,16 @@ my %packagequota;
 
 
 sub notify {
-  my ($type, $p) = @_;
+  my ($type, $p, $payload) = @_;
   my $time = $p->{'time'} || time();
   delete $p->{'time'};
-  if ($type eq 'PACKTRACK' && BSServer::have_content()) {
-    my $payload = Storable::thaw(BSServer::read_data());
-    if ($payload) {
-      my $json_payload = JSON::XS::encode_json($payload);
-      my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
-      mkdir_p($notificationpayloaddir);
-      writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
-      $p->{'payload'} = $payloadkey;
-      print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
-    }
+  if ($payload) {
+    my $json_payload = JSON::XS::encode_json($payload);
+    my $payloadkey = "$time.".Digest::MD5::md5_hex($json_payload);
+    mkdir_p($notificationpayloaddir);
+    writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
+    $p->{'payload'} = $payloadkey;
+    print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
   }
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
   mkdir_p($eventdir);
@@ -3379,7 +3376,8 @@ sub sourcecopy {
     if ($proj && $proj->{'link'}) {
       my $irev = BSSrcServer::Projlink::getrev_projlink($projid, $proj, $packid, undef, undef, 1);
       if ($irev) {
-	$orev->{'vrev'} = $irev->{'vrev'} if $irev;	# hack: overwrite vrev with instantiated vrev
+	lsrev_expanded($irev);
+	$orev->{'vrev'} = $irev->{'vrev'};	# hack: overwrite vrev with instantiated vrev
 	$cgi->{'withvrev'} = 1;
       }
     }
@@ -4430,6 +4428,7 @@ sub add_localworkerstatus {
   return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
   return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
   return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
+  return $ws if $type eq 'redis' && !$BSConfig::redisserver;
   return $ws if $type ne 'srcserver' && ! -e $lock;
   my $daemondata = {'state' => 'dead', 'type' => $type};
   if ($type eq 'srcserver') {
@@ -4517,6 +4516,7 @@ sub getworkerstatus {
     add_serviceserverstatus($cgi, $ws);
     add_localworkerstatus($cgi, $ws, 'deltastore', "$rundir/bs_deltastore.lock");
     add_localworkerstatus($cgi, $ws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
+    add_localworkerstatus($cgi, $ws, 'redis', "$rundir/bs_redis.lock");
     add_localworkerstatus($cgi, $ws, 'srcserver');
     return ($ws, $BSXML::workerstatus);
   }
@@ -4602,6 +4602,7 @@ sub getworkerstatus {
   add_serviceserverstatus($cgi, $cws);
   add_localworkerstatus($cgi, $cws, 'deltastore', "$rundir/bs_deltastore.lock");
   add_localworkerstatus($cgi, $cws, 'servicedispatch', "$rundir/bs_servicedispatch.lock");
+  add_localworkerstatus($cgi, $cws, 'redis', "$rundir/bs_redis.lock");
   add_localworkerstatus($cgi, $cws, 'srcserver');
   return ($cws, $BSXML::workerstatus);
 }
@@ -6048,13 +6049,66 @@ sub orderkiwirepos {
 
 ####################################################################
 
+sub add_redis_notifications {
+  my ($payload) = @_;
+  my $redisdir = "$eventdir/redis";
+  mkdir_p($redisdir) unless -d $redisdir;
+  my $fd;
+  BSUtil::lockopen($fd, '>>', "$redisdir/queue");
+  my $oldsize = -s $fd;
+  for my $d (@$payload) {
+    s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @$d;
+    my $line = join('|', @$d)."\n";
+    (syswrite($fd, $line) || 0) == length($line) || die("syswrite: $!\n");
+  }
+  close($fd);
+  BSUtil::ping("$redisdir/.ping") unless $oldsize > 0;
+}
+
+sub redis_multirequest_server {
+  print "entering multirequest mode\n";
+  BSStdServer::stdreply($BSStdServer::return_ok, 'X-Multirequest: true');
+  return undef if xfork();
+  my $req = $BSServer::request;
+  my $sock = $req->{'__socket'};
+  while (1) {
+    while (length($req->{'__data'}) < 32) {
+      my $r = sysread($sock, $req->{'__data'}, 8192, length($req->{'__data'}));
+      if (!$r && defined($r)) {
+        print "multirequest process exiting due to eof\n";
+        exit(0);
+      }
+      die("read error\n") if !defined($r) && ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK);
+    }
+    my $hdr = substr($req->{'__data'}, 0, 32, '');
+    die("bad content header: $hdr\n") unless ($hdr =~ /^CL(\d{30})$/s) && $1;
+    $req->{'__cl'} = $1;
+    delete $req->{'__eof'};
+    my $payload = BSUtil::fromstorable(BSServer::read_data());
+    add_redis_notifications($payload);
+    BSHTTP::swrite($sock, "0");
+  }
+}
+
+sub external_notification_redis {
+  my ($cgi) = @_;
+  die("need payload for redis notification\n") unless BSServer::have_content();
+  my $payload = BSUtil::fromstorable(BSServer::read_data());
+  add_redis_notifications($payload);
+  return redis_multirequest_server() if $cgi->{'multirequest'};
+  return $BSStdServer::return_ok;
+}
+
 sub external_notification {
   my ($cgi, $type) = @_;
+  return external_notification_redis($cgi) if $type eq 'redis';
   my $param = {};
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
   }
-  notify($type, $param);
+  my $payload;
+  $payload = Storable::thaw(BSServer::read_data()) if $type eq 'PACKTRACK' && BSServer::have_content();
+  notify($type, $param, $payload);
   return $BSStdServer::return_ok;
 }
 
@@ -6069,8 +6123,7 @@ sub notify_plugins {
       $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;
     }
   }
-
-  BSNotify::notify_plugins($type, $param);
+  BSSrcServer::Notify::notify_plugins($type, $param);
   return $BSStdServer::return_ok;
 }
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe SourceController, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
   describe 'POST #global_command_orderkiwirepos' do

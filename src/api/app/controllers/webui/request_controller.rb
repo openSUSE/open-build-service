@@ -48,13 +48,30 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: 'show', number: params[:number]
   end
 
-  def modify_review
-    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package)
-    request = BsRequest.find_by_number(params[:request_number])
+  def modify_review_set_request
+    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package, :review_id)
+    unless review_params[:review_id]
+      # TODO: bento_only
+      # bootstrap passes only review_id - the others can go once bento is dropped
+      return review_params, BsRequest.find_by_number(params[:request_number])
+    end
+    review = Review.find_by(id: review_params[:review_id])
+    unless review
+      flash[:error] = 'Unable to load review'
+      return review_params, nil
+    end
+    review_params[:by_package] = review.by_package
+    review_params[:by_project] = review.by_project
+    review_params[:by_user] = review.by_user
+    review_params[:by_group] = review.by_group
+    return review_params, review.bs_request
+  end
 
+  def modify_review
+    review_params, request = modify_review_set_request
     if request.nil?
       flash[:error] = 'Unable to load request'
-      redirect_back(fallback_location: user_show_path(User.current))
+      redirect_back(fallback_location: user_show_path(User.session!))
       return
     elsif !new_state.in?(['accepted', 'declined'])
       flash[:error] = 'Unknown state to set'
@@ -75,31 +92,32 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     diff_limit = params[:full_diff] ? 0 : nil
-    @req = @bs_request.webui_infos(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded)
-    @is_author = @bs_request.creator == User.current.login
-    @is_target_maintainer = @req['is_target_maintainer']
 
-    @my_open_reviews = @req['my_open_reviews']
-    @other_open_reviews = @req['other_open_reviews']
-    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?) && !User.current.is_nobody?
-    @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
+    @is_author = @bs_request.creator == User.possibly_nobody.login
+
+    @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
+    @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
 
     @history = @bs_request.history_elements.includes(:user)
-    @actions = @req['actions']
-
-    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
-    @not_full_diff = BsRequest.truncated_diffs?(@req)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = (!@package_maintainers.empty? && !@package_maintainers.include?(User.current) && any_project_maintained_by_current_user?)
+    @show_project_maintainer_hint = !@package_maintainers.empty? && !@package_maintainers.include?(User.session) && any_project_maintained_by_current_user?
     @comments = @bs_request.comments
     @comment = Comment.new
 
     switch_to_webui2
+    @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
+    # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
+    @not_full_diff = BsRequest.truncated_diffs?(@actions)
+
+    reviews = @bs_request.reviews.where(state: 'new')
+    user = User.session # might be nil
+    @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
+    @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
   end
 
   def sourcediff
@@ -127,7 +145,7 @@ class Webui::RequestController < Webui::WebuiController
                    end
           # the request action type might be permitted in future, but that doesn't mean we
           # are allowed to modify the object
-          target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.current)
+          target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
         end
       end
       accept_request if changestate == 'accepted'
@@ -141,7 +159,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
-    redirect_to(user_show_path(User.current)) && return unless request.xhr? # non ajax request
+    redirect_to(user_show_path(User.possibly_nobody)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
     switch_to_webui2
     render partial: 'requests_small', locals: { requests: requests }
@@ -193,12 +211,13 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
+  # TODO: bento_only
   def set_bugowner_request_dialog
     render_dialog
   end
 
   def set_bugowner_request
-    required_parameters :project, :user, :group
+    required_parameters :project
     request = nil
     begin
       request = BsRequest.create!(
@@ -212,7 +231,7 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
-  # TODO: This action needs to be removed when migrating to Bootstrap, is not needed in the webui2
+  # TODO: bento_only
   def change_devel_request_dialog
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
@@ -277,7 +296,7 @@ class Webui::RequestController < Webui::WebuiController
   def any_project_maintained_by_current_user?
     projects = @bs_request.bs_request_actions.select(:target_project).distinct.pluck(:target_project)
     maintainer_role = Role.find_by_title('maintainer')
-    projects.any? { |project| Project.find_by_name(project).user_has_role?(User.current, maintainer_role) }
+    projects.any? { |project| Project.find_by_name(project).user_has_role?(User.possibly_nobody, maintainer_role) }
   end
 
   def new_state
@@ -321,7 +340,7 @@ class Webui::RequestController < Webui::WebuiController
       opts = {
         newstate: newstate,
         force: true,
-        user: User.current.login,
+        user: User.session!.login,
         comment: params[:reason]
       }
       begin

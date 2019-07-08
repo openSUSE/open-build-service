@@ -26,7 +26,7 @@ module Webui
         end
 
         def validate_configuration_presence
-          redirect_to cloud_ec2_configuration_path unless User.current.ec2_configuration
+          redirect_to cloud_ec2_configuration_path unless User.session!.ec2_configuration
         end
       end
     end

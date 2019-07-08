@@ -1,0 +1,44 @@
+:ruby
+  @pagetitle = 'Public Projects'
+.card
+  - if important_projects.present?
+    .card-body
+      %h3 Main Projects
+      .table-responsive
+        %table.table.table-sm.table-striped.table-bordered
+          %thead
+            %tr
+              %th Name
+              %th Title
+          %tbody
+            - important_projects.each do |project|
+              %tr
+                %td
+                  = link_to(project.first, action: :show, project: project.first)
+                %td
+                  #{project.second}
+  .card-body
+    %h3= @pagetitle
+    %ul.list-inline
+      %li.list-inline-item.mr-3
+        = link_to('#', class: 'toggle-projects') do
+          %i.fas.fa-toggle-off.text-primary#toggle-icon
+          %span#toggle-text
+            Include #{::Configuration.unlisted_projects_filter_description}
+      - if User.session
+        %li.list-inline-item
+          = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }) do
+            %i.fas.fa-plus-circle.text-primary
+            Add New Project
+          = render partial: 'new_project_modal', locals: { configuration: @configuration }
+
+    %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                    all: 'false' } }
+      %thead
+        %tr
+          %th Name
+          %th Title
+      %tbody
+
+- content_for :ready_function do
+  initializeProjectDatatable();

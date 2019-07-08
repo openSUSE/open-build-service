@@ -1,5 +1,5 @@
 RSpec.shared_context 'a BsRequest that has a project link' do
-  let(:user) { create(:confirmed_user, login: 'project_link_test_user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'project_link_test_user') }
   let(:base_project) { create(:project_with_package, name: 'Base') }
   let(:project_with_link) { create(:project, name: 'Base:my_project', link_to: base_project) }
   let!(:source_package) { create(:package_with_revisions, project: base_project, name: 'source_package', revision_count: 1) }

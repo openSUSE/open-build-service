@@ -8,7 +8,7 @@ require 'rails_helper'
 RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
 
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:package1) { create(:package, name: 'package_1', project: project) }
   let(:package2) { create(:package, name: 'package_2', project: project) }

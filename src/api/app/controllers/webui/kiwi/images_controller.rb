@@ -5,6 +5,7 @@ module Webui
       before_action :set_image, except: [:import_from_package]
       before_action :authorize_update, except: [:import_from_package]
       before_action :check_ajax, only: :build_result
+      before_action :require_login, only: :import_from_package
 
       def import_from_package
         package = Package.find(params[:package_id])
@@ -47,7 +48,7 @@ module Webui
         @is_edit_software_action = false
 
         respond_to do |format|
-          format.html
+          format.html { switch_to_webui2 }
           format.json { render json: { isOutdated: @image.outdated? } }
         end
       end
@@ -65,7 +66,7 @@ module Webui
         @is_edit_software_action = params[:section] == 'software'
 
         respond_to do |format|
-          format.html
+          format.html { switch_to_webui2 }
         end
       end
 
@@ -85,11 +86,12 @@ module Webui
 
       def autocomplete_binaries
         binaries = ::Kiwi::Image.find_binaries_by_name(params[:term], @image.package.project.name,
-                                                       params[:repositories], use_project_repositories: params[:use_project_repositories])
+                                                       params[:repositories], use_project_repositories: params[:useProjectRepositories])
         render json: binaries.keys.map { |package_name| { id: package_name, label: package_name, value: package_name } }
       end
 
       def build_result
+        switch_to_webui2
         if @image.package.project.repositories.any?
           @build_results = @image.build_results
           render partial: 'build_status'

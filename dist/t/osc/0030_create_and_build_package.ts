@@ -107,6 +107,7 @@ sub wait_for_buildresults {
     my $recalculation = 0;
     my @result        = `osc r -v`;
     for my $line (@result) {
+      $recalculation = 1 if ($line =~ /outdated/);
       if ($line =~ $regex) {
 	if (($2 || q{}) eq q{*}) {
 	  $recalculation = 1;

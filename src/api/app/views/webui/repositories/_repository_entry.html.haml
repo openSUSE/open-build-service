@@ -15,17 +15,17 @@
 
     %div{ style: "margin-top: 1em" }
       -# No edit for DoD repositories
-      - if User.current.can_modify?(@project) && !repository.is_dod_repository?
+      - if User.possibly_nobody.can_modify?(@project) && !repository.is_dod_repository?
         %span.edit-repository-field
           = sprite_tag('drive_edit')
           = link_to('Edit repository', '#', data: { "repository-edit": true })
         .hidden.edit-repository-container
           = render partial: 'edit_repository', locals: { project: @project, repository: repository }
-      - if User.current.can_modify?(@project)
+      - if User.possibly_nobody.can_modify?(@project)
         = sprite_tag('drive_delete', title: 'Delete repository')
         = link_to('Delete repository', { action: :destroy, project: @project, target: repository.name },
                       { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })
-      - elsif !User.current.is_nobody?
+      - elsif User.session
         = sprite_tag('drive_delete', title: 'Delete repository')
         = link_to('Request repository deletion', { action: :remove_target_request_dialog, controller: :project, project: @project, repository: repository.name }, remote: true)
       = render partial: 'shared/download_repository_link', locals: { project: @project, repository: repository }

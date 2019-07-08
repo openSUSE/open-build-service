@@ -24,10 +24,11 @@ class Project < ApplicationRecord
   after_initialize :init
 
   serialize :required_checks, Array
-  attr_reader :commit_opts
-  attr_writer :commit_opts
+  attr_accessor :commit_opts, :commit_user
   after_initialize do
     @commit_opts = {}
+    # might be nil - in this case we rely on the caller to set it
+    @commit_user = User.session
   end
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
@@ -43,6 +44,8 @@ class Project < ApplicationRecord
   has_many :attribs, dependent: :destroy
 
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
+  has_many :release_targets, through: :repositories
+  has_many :target_repositories, through: :release_targets
   has_many :path_elements, through: :repositories
   has_many :linked_repositories, through: :path_elements, source: :link, foreign_key: :repository_id
   has_many :repository_architectures, -> { order('position') }, through: :repositories
@@ -176,9 +179,9 @@ class Project < ApplicationRecord
     # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
     project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
     image_template_project.elements('image_template_package').each do |image_template_package|
-      project.packages.new(name: image_template_package['name'],
-                           title: image_template_package['title'],
-                           description: image_template_package['description'])
+      project.packages.new(name: image_template_package['name'].presence,
+                           title: image_template_package['title'].presence,
+                           description: image_template_package['description'].presence)
     end
     project
   end
@@ -285,7 +288,7 @@ class Project < ApplicationRecord
           begin
             request.change_state(newstate: 'revoked', comment: "The source project '#{name}' has been removed")
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
+            logger.debug "#{User.session!.login} tried to revoke request #{request.number} but had no permissions"
           end
           break
         end
@@ -293,7 +296,7 @@ class Project < ApplicationRecord
         begin
           request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
         rescue PostRequestNoPermission
-          logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
+          logger.debug "#{User.session!.login} tried to decline request #{request.number} but had no permissions"
         end
         break
       end
@@ -378,14 +381,14 @@ class Project < ApplicationRecord
 
     return true unless Relationship.forbidden_project_ids.include?(project.id)
 
-    # simple check for involvement --> involved users can access project.id, User.current
+    # simple check for involvement --> involved users can access project.id, User.session!
     project.relationships.groups.includes(:group).any? do |grouprel|
-      # check if User.current belongs to group.
-      User.current.is_in_group?(grouprel.group) ||
+      # check if User.session! belongs to group.
+      User.session!.is_in_group?(grouprel.group) ||
         # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
         CONFIG['ldap_mode'] == :on &&
           CONFIG['ldap_group_support'] == :on &&
-          UserLdapStrategy.user_in_group_ldap?(User.current, grouprel.group_id)
+          UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id)
     end
   end
 
@@ -465,12 +468,12 @@ class Project < ApplicationRecord
   end
 
   def check_write_access!(ignore_lock = nil)
-    return if Rails.env.test? && User.current.nil? # for unit tests
+    return if Rails.env.test? && !User.session # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    return if can_be_modified_by?(User.current, ignore_lock)
+    return if can_be_modified_by?(User.possibly_nobody, ignore_lock)
 
-    raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.current.login}'"
+    raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.possibly_nobody.login}'"
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
@@ -515,7 +518,7 @@ class Project < ApplicationRecord
 
   def can_free_repositories?
     expand_all_repositories.each do |repository|
-      unless User.current.can_modify?(repository.project)
+      unless User.possibly_nobody.can_modify?(repository.project)
         errors.add(:base, "a repository in project #{repository.project.name} depends on this")
         return false
       end
@@ -585,8 +588,12 @@ class Project < ApplicationRecord
     # expire cache
     reset_cache
 
+    unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
+      raise ArgumentError, 'no commit_user set'
+    end
+
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = @commit_opts[:login] || User.current_login
+      login = @commit_opts[:login] || @commit_user.login
       options = { user: login }
       options[:comment] = @commit_opts[:comment] if @commit_opts[:comment].present?
       # api request number is requestid in backend
@@ -607,7 +614,7 @@ class Project < ApplicationRecord
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       begin
-        options = { user: User.current_login, comment: @commit_opts[:comment] }
+        options = { user: User.session!.login, comment: @commit_opts[:comment] }
         options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
         Backend::Api::Sources::Project.delete(name, options)
       rescue Backend::NotFoundError
@@ -1075,23 +1082,22 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_copy(params)
-    # set user if nil, needed for delayed job in Package model
-    User.session = User.current || User.find_by_login(params[:user])
+    User.find_by!(login: params[:user]).run_as do
+      check_write_access!
 
-    check_write_access!
-
-    # copy entire project in the backend
-    begin
-      path = "/source/#{URI.escape(name)}"
-      path << Backend::Connection.build_query_from_hash(params,
-                                                        [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
-                                                         :makeolder, :makeoriginolder, :noservice])
-      Backend::Connection.post path
-    rescue Backend::Error => e
-      logger.debug "copy failed: #{e.summary}"
-      # we need to check results of backend in any case (also timeout error eg)
+      # copy entire project in the backend
+      begin
+        path = "/source/#{URI.escape(name)}"
+        path << Backend::Connection.build_query_from_hash(params,
+                                                          [:cmd, :user, :comment, :oproject, :withbinaries, :withhistory,
+                                                           :makeolder, :makeoriginolder, :noservice])
+        Backend::Connection.post path
+      rescue Backend::Error => e
+        logger.debug "copy failed: #{e.summary}"
+        # we need to check results of backend in any case (also timeout error eg)
+      end
+      _update_backend_packages
     end
-    _update_backend_packages
   end
 
   def _update_backend_packages
@@ -1116,7 +1122,7 @@ class Project < ApplicationRecord
 
   # called either directly or from delayed job
   def do_project_release(params)
-    User.session = User.current || User.find_by_login(params[:user])
+    User.session ||= User.find_by!(login: params[:user])
 
     # uniq timestring for all targets
     time_now = Time.now.utc
@@ -1126,6 +1132,7 @@ class Project < ApplicationRecord
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
+          next unless releasetarget.trigger.in?(['manual', 'maintenance'])
           next if params[:targetproject] && params[:targetproject] != releasetarget.target_repository.project.name
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
@@ -1323,43 +1330,23 @@ class Project < ApplicationRecord
     Backend::Api::Build::Project.wipe_binaries(name)
   end
 
-  def build_succeeded?(repository)
-    states = {}
-    repository_states = {}
+  def build_succeeded?(repo_name)
+    begin
+      build_result = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results_summary(name, repo_name))
+    rescue Backend::NotFoundError
+      return false
+    end
 
-    br = Buildresult.find_hashed(project: name, view: 'summary')
-    # no longer there?
-    return false if br.empty?
+    return false if build_result.empty?
 
-    br.elements('result') do |result|
-      if result['repository'] == repository
-        repository_states[repository] ||= {}
-        result.elements('summary') do |summary|
-          summary.elements('statuscount') do |statuscount|
-            repository_states[repository][statuscount['code']] ||= 0
-            repository_states[repository][statuscount['code']] += statuscount['count'].to_i
-          end
-        end
-      else
-        result.elements('summary') do |summary|
-          summary.elements('statuscount') do |statuscount|
-            states[statuscount['code']] ||= 0
-            states[statuscount['code']] += statuscount['count'].to_i
-          end
-        end
+    build_result.elements('result').each do |result|
+      result.elements('summary').each do |summary|
+        # Since we query for failed, broken or unresolvable, a summary element
+        # with content means there was an "unsuccessful" build
+        return false if summary.present?
       end
     end
-    if repository_states.key?(repository)
-      return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, _|
-        return false if state.in?(['broken', 'failed', 'unresolvable'])
-      end
-    else
-      return false unless states.empty? # No buildresult is bad
-      states.each do |state, _|
-        return false if state.in?(['broken', 'failed', 'unresolvable'])
-      end
-    end
+
     true
   end
 
@@ -1368,45 +1355,11 @@ class Project < ApplicationRecord
     Project.where('projects.name like ?', "#{name}:%").distinct.
       where(kind: 'maintenance_incident').
       joins(repositories: :release_targets).
-      where('release_targets.trigger = "maintenance"')
+      where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
 
-  def release_targets_ng
-    # First things first, get release targets as defined by the project, err.. incident. Later on we
-    # magically find out which of the contained packages, err. updates are build against those release
-    # targets.
-    release_targets_ng = {}
-    repositories.includes(:release_targets).each do |repo|
-      repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {
-          reponame: repo.name,
-          packages: [],
-          package_issues: {},
-          package_issues_by_tracker: {}
-        }
-      end
-    end
-
-    # One catch, currently there's only one patchinfo per incident, but things keep changing every
-    # other day, so it never hurts to have a look into the future:
-    package_count = 0
-    packages.where.not(id: patchinfos).select(:name, :id).each do |pkg|
-      # Current ui is only showing the first found package and a symbol for any additional package.
-      break if package_count > 2
-
-      rt_name = pkg.name.split('.', 2).last
-      next unless rt_name
-      # Here we try hard to find the release target our current package is build for:
-      rt_name = guess_release_target_from_package(pkg, release_targets_ng)
-
-      # Build-disabled packages can't be matched to release targets....
-      next unless rt_name
-      # Let's silently hope that an incident newer introduces new (sub-)packages....
-      release_targets_ng[rt_name][:packages] << pkg
-      package_count += 1
-    end
-
-    release_targets_ng
+  def packages_with_release_target
+    packages.joins(:flags).where(flags: { flag: :build, status: 'enable', repo: release_targets.select(:name) })
   end
 
   def self.source_path(project, file = nil, opts = {})
@@ -1457,7 +1410,7 @@ class Project < ApplicationRecord
       maintenance.elements('maintains') do |maintains|
         target_project_name = maintains.value('project')
         target_project = Project.get_by_name(target_project_name)
-        unless target_project.class == Project && User.current.can_modify?(target_project)
+        unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
           return { error: "No write access to maintained project #{target_project_name}" }
         end
       end
@@ -1565,7 +1518,7 @@ class Project < ApplicationRecord
         # but never remove the special repository named "deleted"
         unless repo == deleted_repository
           # permission check
-          unless User.current.can_modify?(project)
+          unless User.possibly_nobody.can_modify?(project)
             return { error: "No permission to remove a repository in project '#{project.name}'" }
           end
         end
@@ -1619,26 +1572,6 @@ class Project < ApplicationRecord
 
   def discard_cache
     Relationship.discard_cache
-  end
-
-  # Go through all enabled build flags and look for a repo name that matches a
-  # previously parsed release target name (from "release_targets_ng").
-  #
-  # If one was found return the project name, otherwise return nil.
-  def guess_release_target_from_package(package, parsed_targets)
-    # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-    # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-    target_mapping = {}
-    parsed_targets.each do |rt_key, rt_value|
-      target_mapping[rt_value[:reponame]] = rt_key
-    end
-
-    package.flags.where(flag: :build, status: 'enable').find_each do |flag|
-      rt_key = target_mapping[flag.repo]
-      return rt_key if rt_key
-    end
-
-    nil
   end
 
   def has_remote_distribution(project_name, repository)

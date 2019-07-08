@@ -58,3 +58,15 @@
 .repository-state-outdated {
   @extend .text-gray-400;
 }
+
+.repository-state-broken {
+  @extend .text-danger;
+}
+
+.repository-state-building, .repository-state-finished, .repository-state-publishing {
+  color: $gray-600;
+}
+
+.repository-state-published {
+  @extend .text-success;
+}

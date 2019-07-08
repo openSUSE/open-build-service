@@ -1,5 +1,3 @@
-require 'api_exception'
-
 class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff
@@ -313,7 +311,7 @@ class BsRequestAction < ApplicationRecord
 
     if source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-      if action_type == :change_devel && tpkg.develpackage && !User.current.can_modify?(tpkg.develpackage, 1)
+      if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
         reviews.push(tpkg.develpackage)
       end
 
@@ -323,7 +321,7 @@ class BsRequestAction < ApplicationRecord
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if source_package
           spkg = Package.find_by_project_and_name(source_project, source_package)
-          if spkg && !User.current.can_modify?(spkg)
+          if spkg && !User.session!.can_modify?(spkg)
             if  !spkg.project.find_attribute('OBS', 'ApprovedRequestSource') &&
                 !spkg.find_attribute('OBS', 'ApprovedRequestSource')
               reviews.push(spkg)
@@ -331,7 +329,7 @@ class BsRequestAction < ApplicationRecord
           end
         else
           sprj = Project.find_by_name(source_project)
-          if sprj && !User.current.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
+          if sprj && !User.session!.can_modify?(sprj) && !sprj.find_attribute('OBS', 'ApprovedRequestSource')
             reviews.push(sprj) unless sprj.find_attribute('OBS', 'ApprovedRequestSource')
           end
         end
@@ -414,10 +412,9 @@ class BsRequestAction < ApplicationRecord
 
   def check_maintenance_release(pkg, repo, arch)
     binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
-    l = binaries.elements('binary')
-    unless l && l.count > 0
-      raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-    end
+    binary_elements = binaries.elements('binary')
+
+    raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'" if binary_elements.empty?
 
     # check that we did not skip a source change of patchinfo
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
@@ -739,15 +736,6 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      # source update checks
-      if action_type.in?([:submit, :maintenance_incident])
-        # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
-        if sourceupdate.nil? && target_project
-          if User.current.branch_project_name(target_project) == source_project
-            self.sourceupdate = 'cleanup'
-          end
-        end
-      end
       if action_type == :submit && tprj.is_a?(Project)
         at = AttribType.find_by_namespace_and_name!('OBS', 'MakeOriginOlder')
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
@@ -853,7 +841,7 @@ class BsRequestAction < ApplicationRecord
         # the target, the request creator (who must have permissions to read source)
         # wanted the target owner to review it
         tprj = Project.find_by_name(target_project)
-        if tprj.nil? || !User.current_or_nobody.can_modify?(tprj)
+        if tprj.nil? || !User.possibly_nobody.can_modify?(tprj)
           # produce an error for the source
           Package.get_by_project_and_name(source_project, source_package)
         end
@@ -904,6 +892,11 @@ class BsRequestAction < ApplicationRecord
     user && user.can_modify?(target_package_object || target_project_object)
   end
 
+  def set_sourceupdate_default(user)
+    return if sourceupdate || [:submit, :maintenance_incident].exclude?(action_type)
+    update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
+  end
+
   private
 
   def check_permissions_for_sources!
@@ -912,8 +905,9 @@ class BsRequestAction < ApplicationRecord
     source_object = Package.find_by_project_and_name(source_project, source_package) ||
                     Project.get_by_name(source_project)
 
-    raise LackingMaintainership if !source_object.is_a?(String) && !User.current.can_modify?(source_object)
+    raise LackingMaintainership if !source_object.is_a?(String) && !User.possibly_nobody.can_modify?(source_object)
   end
+
   #### Alias of methods
 end
 

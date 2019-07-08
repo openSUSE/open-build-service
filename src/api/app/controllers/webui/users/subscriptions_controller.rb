@@ -3,8 +3,8 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
 
   def index
     switch_to_webui2
-    @user = User.current
-    @groups_users = User.current.groups_users
+    @user = User.session!
+    @groups_users = @user.groups_users
 
     @subscriptions_form = subscriptions_form(default_form: params[:default_form])
 
@@ -15,7 +15,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   end
 
   def update
-    User.current.groups_users.each do |gu|
+    User.session!.groups_users.each do |gu|
       gu.email = params[gu.group.title] == '1'
       gu.save
     end
@@ -37,7 +37,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     if options[:default_form]
       EventSubscription::Form.new
     else
-      EventSubscription::Form.new(User.current)
+      EventSubscription::Form.new(User.session!)
     end
   end
 end

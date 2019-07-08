@@ -85,9 +85,7 @@ class Attrib < ApplicationRecord
   end
 
   def write_container_attributes
-    # also called if container is deleted...
-    return unless (c = container)
-    c.write_attributes
+    container.write_attributes if container && !container.destroyed?
   end
 
   def update_with_associations(values = [], issues = [])

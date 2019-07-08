@@ -1,6 +1,8 @@
-require 'api_exception'
+require 'api_error'
 
 class Review < ApplicationRecord
+  include ActiveModel::Validations
+
   class NotFoundError < APIError
     setup 'review_not_found', 404, 'Review not found'
   end
@@ -23,6 +25,7 @@ class Review < ApplicationRecord
   # Validate the review is not assigned to a review which is already assigned to this review
   validate :validate_non_symmetric_assignment
   validate :validate_not_self_assigned
+  validates_with AllowedUserValidator
 
   belongs_to :user
   belongs_to :group
@@ -239,15 +242,15 @@ class Review < ApplicationRecord
   end
 
   def change_state(new_state, comment)
-    return false if state == new_state && reviewer == User.current.login && reason == comment
+    return false if state == new_state && reviewer == User.session!.login && reason == comment
 
     self.reason = comment
     self.state = new_state
-    self.reviewer = User.current.login
+    self.reviewer = User.session!.login
     save!
     Event::ReviewChanged.create(bs_request.notify_parameters)
 
-    arguments = { review: self, comment: comment, user: User.current }
+    arguments = { review: self, comment: comment, user: User.session! }
     if new_state == :accepted
       HistoryElement::ReviewAccepted.create(arguments)
     elsif new_state == :declined

@@ -5,13 +5,14 @@ module Webui
         def new
           xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
           @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
-          @crumb_list.push << 'Azure'
+          @crumb_list.push << 'Azure' # TODO: bento_only
+          switch_to_webui2
         end
 
         private
 
         def validate_configuration_presence
-          redirect_to cloud_azure_configuration_path if User.current.azure_configuration.blank?
+          redirect_to cloud_azure_configuration_path if User.possibly_nobody.azure_configuration.blank?
         end
 
         def permitted_params

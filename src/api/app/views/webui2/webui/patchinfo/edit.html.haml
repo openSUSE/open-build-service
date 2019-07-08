@@ -43,5 +43,5 @@
 
       = form.submit('Save', class: 'btn btn-primary', data: { disable_with: 'Saving...' })
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   setupPatchinfo();

@@ -1,0 +1,6 @@
+= render partial: 'webui/main/breadcrumb_items'
+
+%li.breadcrumb-item
+  = link_to 'Cloud Upload', cloud_upload_index_path
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  Cloud Configuration

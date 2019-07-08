@@ -5,7 +5,7 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe BsRequestActionDelete, vcr: true do
-  let(:receiver) { create(:confirmed_user, login: 'titan') }
+  let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package_with_file, name: 'goal', project_id: target_project.id) }
 

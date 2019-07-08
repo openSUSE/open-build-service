@@ -2,7 +2,7 @@
   .box.box-shadow
     %h2.box-header Edit your account
     .dialog-content
-      = form_for(User.current, url: user_save_path, method: 'post') do |f|
+      = form_for(User.session!, url: user_save_path, method: 'post') do |f|
         = f.hidden_field(:login, id: 'user')
         %p
           = f.label(:realname, "Name:")

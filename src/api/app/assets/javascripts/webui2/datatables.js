@@ -7,8 +7,9 @@
 
 var DEFAULT_DT_PARAMS = {
   language: { search: '', searchPlaceholder: "Search..." },
+  pageLength: 25,
   stateSave: true,
-  stateDuration: 172800 // 2 days
+  stateDuration: 0 // forever
 };
 
 function initializeDataTable(cssSelector, params){ // jshint ignore:line

@@ -3,6 +3,10 @@ FactoryBot.define do
     project
     association :managers_group, factory: :staging_workflow_group
 
+    after(:build) do |workflow|
+      workflow.commit_user ||= build(:confirmed_user)
+    end
+
     factory :staging_workflow_with_staging_projects do
       initialize_with { new(attributes) }
 

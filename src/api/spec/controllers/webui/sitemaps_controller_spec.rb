@@ -72,7 +72,7 @@ RSpec.describe Webui::SitemapsController do
     end
 
     context 'when the project_name param matches home%' do
-      let(:admin_user) { create(:admin_user) }
+      let(:admin_user) { create(:admin_user, :with_home) }
       let!(:packages) { create_list(:package, 2, project: admin_user.home_project) }
       let!(:excluded_packages) { create_list(:package, 2) }
 

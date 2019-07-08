@@ -2,7 +2,7 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe LocalBuildResult::ForPackage, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tome') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tome') }
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:fake_multibuild_results_with_all_excluded) do

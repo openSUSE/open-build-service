@@ -26,6 +26,39 @@ GET /about
 
 XmlResult: about
 
+== Announcements
+
+GET /announcements
+
+  Get a list of all announcements.
+
+XmlResult: announcements
+
+POST /announcements
+
+  Create an announcement.
+
+XmlBody: new_announcement
+XmlResult: announcement
+
+GET /announcements/<id>
+
+  Get a specific announcement.
+
+XmlResult: announcement
+
+PUT /announcements/<id>
+
+  Update an announcement.
+
+XmlBody: new_announcement
+XmlResult: status
+
+DELETE /announcements/<id>
+
+  Delete an announcement.
+
+XmlResult: status
 
 == Architectures
 
@@ -168,6 +201,7 @@ POST /person/<userid>/token
   cmd: create
   project: create a token for a specific project
   package: create a token for a specific package
+  operation: runservice(default), rebuild, release
 
 XmlResult: status
 
@@ -427,6 +461,8 @@ POST /source/<project>
   createmaintenanceincident: create a single mainatenance incident project as sub project
   createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
   addchannels: add channel packages and repositories for matching packages in project
+  addcontainers: add docker container packages and repositories using the main
+tained version of this package
   modifychannels: modify existing channels by specified mode
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters

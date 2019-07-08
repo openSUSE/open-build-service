@@ -483,19 +483,19 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_service_via_token
-    post '/person/tom/token?cmd=create'
+    post '/person/tom/token'
     assert_response 401
 
     login_tom
     put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
 
-    post '/person/tom/token?cmd=create'
+    post '/person/tom/token?operation=runservice'
     assert_response :success
     doc = REXML::Document.new(@response.body)
     alltoken = doc.elements['//data'].text
     assert_equal 24, alltoken.length
-    post '/person/tom/token?cmd=create&project=home:tom&package=service'
+    post '/person/tom/token?operation=runservice&project=home:tom&package=service'
     assert_response :success
     doc = REXML::Document.new(@response.body)
     token = doc.elements['//data'].text
@@ -503,9 +503,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # ANONYMOUS
     reset_auth
-    post '/person/tom/token?cmd=create'
+    post '/person/tom/token'
     assert_response 401
-    post '/person/tom/token?cmd=create&project=home:tom&package=service'
+    post '/person/tom/token?project=home:tom&package=service'
     assert_response 401
     post '/trigger/runservice'
     assert_response 403
@@ -545,12 +545,12 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'no_permission_for_inactive' }
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'no_permission' }
+    assert_xml_tag tag: 'status', attributes: { code: 'no_permission_for_inactive' }
 
     # reset and drop stuff as tom
     tom.state = 'confirmed'

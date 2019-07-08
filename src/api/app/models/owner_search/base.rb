@@ -1,4 +1,4 @@
-require 'api_exception'
+require 'api_error'
 
 module OwnerSearch
   class Base
@@ -59,10 +59,10 @@ module OwnerSearch
     def filter_users(owner, container, rolefilter, user)
       rel = filter_roles(container.relationships.users, rolefilter)
       rel = rel.where(user: user) if user
-      rel = rel.joins(:user).where(relationships: { users: { state: 'confirmed' } })
+      rel = rel.joins(:user).where(relationships: { user_id: User.active })
       rel.each do |p|
         owner.users ||= {}
-        entries = owner.users.fetch(p.role.title, []) << p.user.login
+        entries = owner.users.fetch(p.role.title, []) << p.user
         owner.users[p.role.title] = entries
       end
     end
@@ -73,7 +73,7 @@ module OwnerSearch
       rel.each do |p|
         next unless p.group.any_confirmed_users?
         owner.groups ||= {}
-        entries = owner.groups.fetch(p.role.title, []) << p.group.title
+        entries = owner.groups.fetch(p.role.title, []) << p.group
         owner.groups[p.role.title] = entries
       end
     end
@@ -81,7 +81,6 @@ module OwnerSearch
     def extract_from_container(owner, container, rolefilter, user_or_group = nil)
       filter_users(owner, container, rolefilter, user_or_group) unless user_or_group.class == Group
       filter_groups(owner, container, rolefilter, user_or_group) unless user_or_group.class == User
-      owner
     end
   end
 end

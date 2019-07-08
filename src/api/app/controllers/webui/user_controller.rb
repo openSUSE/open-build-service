@@ -22,22 +22,29 @@ class Webui::UserController < Webui::WebuiController
     @role_titles = @displayed_user.roles.global.pluck(:title)
     @account_edit_link = CONFIG['proxy_auth_account_page']
 
-    switch_to_webui2
+    return unless switch_to_webui2
+    @last_day = Time.zone.today
+
+    @first_day = @last_day - 52.weeks
+    # move back to the monday before (make it up to 53 weeks)
+    @first_day -= (@first_day.cwday - 1)
+
+    @activity_hash = User::Contributions.new(@displayed_user, @first_day).activity_hash
   end
 
   def home
     if params[:user].present?
       redirect_to action: :show, user: params[:user]
     else
-      redirect_to action: :show, user: User.current
+      redirect_to action: :show, user: User.possibly_nobody
     end
   end
 
   def save
-    @displayed_user = User.find_by_login(params[:user][:login])
+    @displayed_user = User.find_by_login!(params[:user][:login])
 
     unless User.admin_session?
-      if User.current != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
+      if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
         flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_back(fallback_location: root_path)
         return
@@ -116,9 +123,9 @@ class Webui::UserController < Webui::WebuiController
       redirect_to controller: :user, action: :index
     else
       session[:login] = opts[:login]
-      User.session = User.find_by_login(session[:login])
-      if User.current.home_project
-        redirect_to project_show_path(User.current.home_project)
+      User.session = User.find_by!(login: session[:login])
+      if User.session!.home_project
+        redirect_to project_show_path(User.session!.home_project)
       else
         redirect_to root_path
       end
@@ -138,7 +145,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
-    user = User.current
+    user = User.session!
 
     unless @configuration.passwords_changable?(user)
       flash[:error] = "You're not authorized to change your password."

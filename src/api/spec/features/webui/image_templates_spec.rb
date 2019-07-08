@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'ImageTemplates', type: :feature, js: true do
-  let!(:user) { create(:confirmed_user, login: 'tom') }
+  let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   context 'branching' do
     let!(:project) { create(:project, name: 'my_project') }
@@ -51,6 +51,7 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
     end
 
     scenario 'branch Kiwi image template' do
+      skip_if_bootstrap
       visit image_templates_path
       expect(page).to have_css('input.create_appliance[disabled]')
 
@@ -75,7 +76,6 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       fill_in 'target_package', with: 'package_with_kiwi_image'
 
       click_button('Create appliance')
-      find('#kiwi-image-update-form')
       expect(page).to have_text('home:tom:branches:my_project > package_with_kiwi_image')
     end
   end

@@ -67,6 +67,7 @@ use BSDBIndex;
 use BSNotify;
 use BSUrlmapper;
 use BSRegistryServer;
+use BSRedisnotify;
 
 use BSSolv;
 
@@ -1563,6 +1564,13 @@ sub updateworkerdata {
   writexml("$workersdir/$state/.$idlename", "$workersdir/$state/$idlename", $worker, $BSXML::worker) if $worker;
 }
 
+sub updateredisjobstatus {
+  my ($arch, $job, $info, $details) = @_;
+  return unless $BSConfig::redisserver;
+  $info ||= readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+  BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
+}
+
 sub workerstate {
   my ($cgi, $harch, $peerport, $state) = @_;
   my $peerip = BSServer::getpeerdata();
@@ -1604,6 +1612,7 @@ sub workerstate {
 	  # be extra careful here not to terminate jobs that run on different workers
 	  if ($js->{'code'} eq 'building' && (!defined($js->{'workerid'}) || $js->{'workerid'} eq $workerid)) {
 	    print "restarting build of job $worker->{'arch'}/$worker->{'job'}\n";
+	    updateredisjobstatus($worker->{'arch'}, $worker->{'job'});
 	    unlink("$jobsdir/$worker->{'arch'}/$worker->{'job'}:status");
 	  }
 	  close F;
@@ -1677,6 +1686,9 @@ sub workerdispatched {
     unlink("$jobsdir/$arch/$job:status");
     die("wrong job\n");
   }
+  my $details = $jobstatus->{'workerid'} ? ":building on $jobstatus->{'workerid'}" : '';
+  my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
+  updateredisjobstatus($arch, $job, $info, "building$details");
   close F;
   return $BSStdServer::return_ok;
 }
@@ -1844,6 +1856,7 @@ sub workerstatus {
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
   push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
+  push @daemonarchs, 'notifyforward' if $BSConfig::redisserver;
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
@@ -1865,6 +1878,9 @@ sub workerstatus {
     } elsif ($arch eq 'dodup') {
       $lock = "$rundir/bs_dodup.lock";
       $daemondata->{'type'} = 'dodup';
+    } elsif ($arch eq 'notifyforward') {
+      $lock = "$rundir/bs_notifyforward.lock";
+      $daemondata->{'type'} = 'notifyforward';
     } elsif ($arch eq 'repserver') {
       my $req = $BSServer::request;
       $daemondata->{'type'} = 'repserver';
@@ -2129,6 +2145,7 @@ sub putjob {
   # check if worker time is "good enough"
   if ($cgi->{'now'} && ($cgi->{'now'} > $now + 3600 || $cgi->{'now'} < $now - 3600)) {
     sendbadhostevent($info, $idlename);
+    updateredisjobstatus($arch, $job, $info);
     unlink("$jobsdir/$arch/$job:status");
     close(F);
     die("time mismatch\n");
@@ -2161,6 +2178,7 @@ sub putjob {
     };
     if ($@) {
       my $err = $@;
+      updateredisjobstatus($arch, $job, $info);
       unlink("$jobsdir/$arch/$job:status");
       sendbadhostevent($info, $idlename);
       BSUtil::cleandir($tmpdir);
@@ -2324,6 +2342,7 @@ sub putjob {
     }
     $jobstatus->{'code'} = 'signing';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+    updateredisjobstatus($arch, $job, $info, 'signing');
     close F;
 
     mkdir_p("$eventdir/signer");
@@ -2333,6 +2352,7 @@ sub putjob {
     # write jobstatus and free lock
     $jobstatus->{'code'} = 'finished';
     writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+    updateredisjobstatus($arch, $job, $info, 'finished');
     close F;
 
     dirty($projid, $repoid, $arch);
@@ -2590,8 +2610,8 @@ sub forwardevent {
       # unconfigured, fallback to all existing directories
       for my $a (ls($eventdir)) {
         next if $a =~ /^\./;
-        next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
-        push @archs, $a if -d "$eventdir/$a";
+        next unless -d "$eventdir/$a" && -e "$infodir/schedulerinfo.$a";
+        push @archs, $a;
       }
     }
     for my $a (@archs) {
@@ -3304,6 +3324,7 @@ sub restartbuild {
     BSRPC::rpc($req, undef, "jobid=$js->{'jobid'}");
   };
   warn($@) if $@;
+  updateredisjobstatus($arch, $job);
   unlink("$jobsdir/$arch/$job:status");
   close F;
   return $BSStdServer::return_ok;
@@ -3835,6 +3856,7 @@ sub deljob {
     BSUtil::cleandir("$jobsdir/$arch/$job:dir");
     rmdir("$jobsdir/$arch/$job:dir");
   }
+  updateredisjobstatus($arch, $job);
   unlink("$jobsdir/$arch/$job");
   unlink("$jobsdir/$arch/$job:status");
   close F;
@@ -3880,6 +3902,7 @@ sub idleworkerjob {
     $js->{'code'} = 'different' if $cgi->{'jobid'} && ($js->{'jobid'} || '') ne $cgi->{'jobid'};
     if ($js->{'code'} eq 'building' && (!defined($js->{'workerid'}) || $js->{'workerid'} eq $cgi->{'workerid'})) {
       print "restarting build of job $arch/$job\n";
+      updateredisjobstatus($arch, $job);
       unlink("$jobsdir/$arch/$job:status");
     }
     close F;
@@ -3930,6 +3953,7 @@ sub failjob {
   notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  updateredisjobstatus($arch, $job, $info, 'finished');
   close F;
   dirty($projid, $repoid, $arch);
   mkdir_p("$eventdir/$arch");

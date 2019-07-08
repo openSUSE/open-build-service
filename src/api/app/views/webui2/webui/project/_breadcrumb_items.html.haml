@@ -8,6 +8,9 @@
   - if current_page?(project_list_all_path)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       List of All Projects
+  - elsif current_page?(new_project_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      New
   - else
     %li.breadcrumb-item
       = link_to @project, project_show_path(@project)

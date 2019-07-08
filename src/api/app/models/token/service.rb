@@ -1,4 +1,8 @@
 class Token::Service < Token
+  def self.token_name
+    'runservice'
+  end
+
   def valid_signature?(signature, body)
     return false unless signature
     ActiveSupport::SecurityUtils.secure_compare(signature_of(body), signature)

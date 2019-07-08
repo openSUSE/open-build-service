@@ -10,18 +10,19 @@ module Webui
 
         user = User.find_by(login: params[:user_login])
         if user.nil?
-          flash.now[:error] = "User '#{params[:user_login]}' not found"
-          render 'webui2/webui/webui/flash', status: :not_found
+          flash[:error] = "User '#{params[:user_login]}' not found"
+          redirect_to group_show_path(@group)
           return
         end
+
         group_user = GroupsUser.create(user: user, group: @group)
         if group_user.valid?
-          flash[:success] = "Added user '#{user}' to group"
-          redirect_to group_show_path(@group)
+          flash[:success] = "Added user '#{user}' to group '#{@group}'"
         else
-          flash.now[:error] = "Couldn't add user '#{user}' to group '#{@group}': #{group_user.errors.full_messages.to_sentence}"
-          render 'webui2/webui/webui/flash', status: :bad_request
+          flash[:error] = "Couldn't add user '#{user}' to group '#{@group}': #{group_user.errors.full_messages.to_sentence}"
         end
+
+        redirect_to group_show_path(@group)
       end
 
       def destroy
@@ -44,7 +45,7 @@ module Webui
           # FIXME: This should be an attribute of GroupsUser
           group_maintainer = GroupMaintainer.create(user: @user, group: @group)
           if group_maintainer.valid?
-            flash.now[:success] = "Gave maintainer rights to #{@user}"
+            flash.now[:success] = "Gave maintainer rights to '#{@user}'"
             render 'webui2/webui/webui/flash', status: :ok
           else
             flash.now[:error] = "Couldn't make user '#{user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
@@ -52,7 +53,7 @@ module Webui
           end
         else
           @group.group_maintainers.where(user: @user).destroy_all
-          flash.now[:success] = "Removed maintainer rights from #{@user}"
+          flash.now[:success] = "Removed maintainer rights from '#{@user}'"
           render 'webui2/webui/webui/flash', status: :ok
         end
       end
@@ -71,7 +72,7 @@ module Webui
         @user = @group.users.find_by(login: params[:user_login])
         return if @user
 
-        flash.now[:error] = "User '#{params[:user_login]}' not found"
+        flash.now[:error] = "User '#{params[:user_login]}' not found in group '#{@group}'"
         render 'webui2/webui/webui/flash', status: :not_found
       end
     end

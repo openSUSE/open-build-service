@@ -3,6 +3,8 @@ class RemoveDuplicateRepositories < ActiveRecord::Migration[5.1]
     old = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
 
+    # need a commit user for the project commits (even wthout write through)
+    User.session = User.get_default_admin
     Repository.transaction do
       sql = <<-SQL
         SELECT a.*

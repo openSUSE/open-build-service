@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe SourceProjectMetaController, vcr: true do
   render_views
 
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
   describe 'GET #show' do

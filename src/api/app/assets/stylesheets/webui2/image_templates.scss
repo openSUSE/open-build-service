@@ -1,0 +1,10 @@
+.image-template-box {
+  @extend .rounded;
+  @extend .p-3;
+  border: 1px solid $white;
+
+  &.active{
+    background: #ebfdc7;
+    border: 1px solid #d3e3b3;
+  }
+}

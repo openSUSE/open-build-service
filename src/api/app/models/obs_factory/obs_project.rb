@@ -42,7 +42,7 @@ module ObsFactory
     #
     # @return [Integer] failures count
     def build_failures_count
-      buildresult = Backend::Api::BuildResults::Status.failed_results(name)
+      buildresult = Xmlhash.parse(Backend::Api::BuildResults::Status.failed_results(name))
       bp = {}
       buildresult.elements('result') do |result|
         result.elements('status') do |s|

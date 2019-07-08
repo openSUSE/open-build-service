@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::Packages::JobHistoryHelper, type: :helper do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:package) { create(:package, name: 'my_package', project: project) }
 

@@ -3,13 +3,14 @@ require 'capybara/dsl'
 require 'selenium-webdriver'
 require 'socket'
 
-Selenium::WebDriver::Chrome.driver_path = '/usr/lib64/chromium/chromedriver'
+Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
 
 Capybara.register_driver :selenium_chrome_headless do |app|
   browser_options = ::Selenium::WebDriver::Chrome::Options.new
   browser_options.args << '--headless'
   browser_options.args << '--no-sandbox'
   browser_options.args << '--allow-insecure-localhost'
+  browser_options.add_option('w3c', false)
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
 end
 

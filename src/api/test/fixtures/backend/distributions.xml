@@ -20,5 +20,17 @@
     <architecture>i586</architecture>
     <architecture>x86_64</architecture>
   </distribution>
+  <distribution vendor="openSUSE" version="Tumbleweed" id="3">
+    <name>openSUSE Tumbleweed</name>
+    <project>openSUSE:Factory</project>
+    <reponame>openSUSE_Tumbleweed</reponame>
+    <repository>snapshot</repository>
+    <link>http://www.opensuse.org/</link>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png" width="8" height="8"/>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png" width="16" height="16"/>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
+  </distribution>
+
 </distributions>
 

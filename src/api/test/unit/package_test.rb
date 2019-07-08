@@ -8,7 +8,7 @@ class PackageTest < ActiveSupport::TestCase
   def setup
     super
     @package = packages(:home_Iggy_TestPack)
-    User.session = nil
+    User.session = users(:Iggy)
   end
 
   def teardown
@@ -192,7 +192,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
-    assert_raise Relationship::SaveError do
+    assert_raise Relationship::AddRole::SaveError do
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.render_xml

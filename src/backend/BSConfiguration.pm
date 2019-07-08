@@ -92,4 +92,6 @@ $BSConfig::service_timeout          = $BSConfig::service_timeout          || 360
 
 $BSConfig::cloudupload_pubkey       = $BSConfig::cloudupload_pubkey       || '/etc/obs/cloudupload/_pubkey';
 
+$BSConfig::redisserver = undef unless $BSConfig::redisserver;
+
 1;

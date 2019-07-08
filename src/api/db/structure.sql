@@ -192,6 +192,8 @@ CREATE TABLE `binary_releases` (
   `binary_updateinfo_version` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `modify_time` datetime DEFAULT NULL,
   `on_medium_id` int(11) DEFAULT NULL,
+  `binary_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `flavor` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
@@ -199,6 +201,7 @@ CREATE TABLE `binary_releases` (
   KEY `index_binary_releases_on_binary_updateinfo` (`binary_updateinfo`),
   KEY `index_binary_releases_on_medium` (`medium`),
   KEY `index_binary_releases_on_binary_name_and_binary_arch` (`binary_name`,`binary_arch`),
+  KEY `index_binary_releases_on_binary_id` (`binary_id`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -394,6 +397,19 @@ CREATE TABLE `comments` (
   CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
   CONSTRAINT `comments_ibfk_4` FOREIGN KEY (`parent_id`) REFERENCES `comments` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `commit_activities` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date` date NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `project` varchar(255) COLLATE utf8_bin NOT NULL,
+  `package` varchar(255) COLLATE utf8_bin NOT NULL,
+  `count` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_activity_day` (`date`,`user_id`,`project`,`package`),
+  KEY `index_commit_activities_on_user_id` (`user_id`),
+  KEY `index_commit_activities_on_user_id_and_date` (`user_id`,`date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1267,6 +1283,7 @@ CREATE TABLE `users` (
   `owner_id` int(11) DEFAULT NULL,
   `ignore_auth_services` tinyint(1) DEFAULT '0',
   `in_beta` tinyint(1) DEFAULT '0',
+  `in_rollout` tinyint(1) DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`deprecated_password`) USING BTREE
@@ -1437,6 +1454,10 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20181201065026'),
 ('20190111130416'),
 ('20190115131711'),
-('20190412130831');
+('20190215131711'),
+('20190328131711'),
+('20190412130831'),
+('20190520130009'),
+('20190704072437');
 
 

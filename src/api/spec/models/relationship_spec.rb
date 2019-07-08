@@ -16,7 +16,7 @@ RSpec.describe Relationship do
 
   describe '.add_user' do
     let(:role) { normal_role }
-    let(:user) { create(:confirmed_user, login: 'other_user') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let(:project) { user.home_project }
 
     before do
@@ -28,7 +28,7 @@ RSpec.describe Relationship do
     context 'with a global role' do
       let(:role) { global_role }
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, /tried to set global role/) }
     end
 
     context 'with an already existing relationship' do
@@ -36,11 +36,19 @@ RSpec.describe Relationship do
         project.relationships.create(user: user, role: role)
       end
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, 'Relationship already exists') }
     end
 
     context 'with invalid relationship data' do
       skip('This is imposible to happen with the actual validations and how the object is created')
+    end
+
+    context 'with banned user' do
+      let(:nobody) { create(:user_nobody) }
+
+      subject { Relationship.add_user(project, nobody, role, true, true) }
+
+      it { expect { subject }.to raise_error(NotFoundError, "Couldn't find user #{nobody.login}") }
     end
 
     context 'with valid data' do
@@ -67,7 +75,7 @@ RSpec.describe Relationship do
     context 'with a global role' do
       let(:role) { global_role }
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, /tried to set global role/) }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, /tried to set global role/) }
     end
 
     context 'with an already existing relationship' do
@@ -75,7 +83,7 @@ RSpec.describe Relationship do
         project.relationships.create(group: group, role: role)
       end
 
-      it { expect { subject }.to raise_error(Relationship::SaveError, 'Relationship already exists') }
+      it { expect { subject }.to raise_error(Relationship::AddRole::SaveError, 'Relationship already exists') }
     end
 
     context 'with invalid relationship data' do

@@ -263,7 +263,7 @@
           </element>
         </zeroOrMore>
 
-        <optional> <!-- limited to one currently. Could be extended later -->
+        <zeroOrMore>
             <element name="releasetarget">
               <attribute name="project">
                 <data type="string" />
@@ -277,7 +277,7 @@
                 </attribute>
               </optional>
             </element>
-        </optional>
+        </zeroOrMore>
         <zeroOrMore>
             <element name="path">
               <attribute name="repository">

@@ -22,5 +22,5 @@
         %i.fas.fa-plus-circle.text-primary
         Create Group
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   initializeDataTable('#manage-groups-table', { columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });

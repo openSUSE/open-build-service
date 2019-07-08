@@ -12,7 +12,7 @@
         = render partial: 'side_elements', locals: { patchinfo: @patchinfo, packager: @packager }
 
       .col-md-12
-        - if User.current.can_modify?(@package)
+        - if User.possibly_nobody.can_modify?(@package)
           %ul.list-inline.mb-0
             %li.list-inline-item
               = link_to(edit_patchinfo_path(project: @project, package: @package)) do

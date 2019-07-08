@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
-  let(:other_user) { create(:confirmed_user, login: 'unpermitted_user') }
-  let(:user) { create(:confirmed_user, login: 'permitted_user') }
+RSpec.describe Staging::WorkflowsController do
+  let(:other_user) { create(:confirmed_user, :with_home, login: 'unpermitted_user') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'permitted_user') }
   let(:project) { user.home_project }
   let(:group) { create(:group) }
   let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project, managers_group: group) }
@@ -100,7 +100,7 @@ RSpec.describe Staging::WorkflowsController, type: :controller, vcr: true do
     let(:source_project) { create(:project, name: 'source_project') }
     let(:target_package) { create(:package, name: 'target_package', project: project) }
     let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-    let(:other_user) { create(:confirmed_user, login: 'other_user') }
+    let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let(:bs_request) do
       create(:bs_request_with_submit_action,
              creator: other_user,

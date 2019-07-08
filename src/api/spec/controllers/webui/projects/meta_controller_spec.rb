@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::Projects::MetaController, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   describe 'GET #meta' do
     before do

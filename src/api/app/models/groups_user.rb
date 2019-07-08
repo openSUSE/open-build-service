@@ -1,10 +1,13 @@
 class GroupsUser < ApplicationRecord
+  include ActiveModel::Validations
+
   belongs_to :user
   belongs_to :group
 
   validates :user, presence: true
   validates :group, presence: true
   validate :validate_duplicates
+  validates_with AllowedUserValidator
 
   protected
 

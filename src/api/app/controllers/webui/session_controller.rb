@@ -3,7 +3,9 @@ class Webui::SessionController < Webui::WebuiController
 
   skip_before_action :check_anonymous, only: [:create]
 
-  def new; end
+  def new
+    switch_to_webui2
+  end
 
   def create
     user = User.find_with_credentials(params[:username], params[:password])
@@ -42,7 +44,7 @@ class Webui::SessionController < Webui::WebuiController
 
   def redirect_on_login
     if referer_was_login?
-      redirect_to user_show_path(User.current)
+      redirect_to user_show_path(User.session!)
     else
       redirect_back(fallback_location: root_path)
     end

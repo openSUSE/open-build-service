@@ -9,6 +9,22 @@ FactoryBot.define do
     sequence(:name) { |n| "project_#{n}" }
     title { Faker::Book.title }
 
+    after(:build) do |project, evaluator|
+      project.commit_user ||= build(:confirmed_user)
+
+      if evaluator.maintainer
+        role = Role.find_by_title('maintainer')
+        maintainers = [*evaluator.maintainer]
+        maintainers.each do |maintainer|
+          if maintainer.is_a?(User)
+            project.relationships.build(user: maintainer, role: role)
+          elsif maintainer.is_a?(Group)
+            project.relationships.build(group: maintainer, role: role)
+          end
+        end
+      end
+    end
+
     after(:create) do |project, evaluator|
       if evaluator.link_to
         LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
@@ -16,17 +32,6 @@ FactoryBot.define do
 
       if evaluator.project_config
         project.config.save({ user: 'factory bot' }, evaluator.project_config)
-      end
-
-      if evaluator.maintainer
-        maintainers = [*evaluator.maintainer]
-        maintainers.each do |maintainer|
-          if maintainer.is_a?(User)
-            create(:relationship_project_user, project: project, user: maintainer)
-          elsif maintainer.is_a?(Group)
-            create(:relationship_project_group, project: project, group: maintainer)
-          end
-        end
       end
 
       project.write_to_backend
@@ -125,9 +130,6 @@ FactoryBot.define do
       end
 
       before(:create) do |project, evaluator|
-        create(:build_flag, project: project, status: 'disable')
-        create(:publish_flag, project: project, status: 'disable')
-
         if evaluator.maintenance_project
           evaluator.maintenance_project.relationships.each do |role|
             project.relationships.create(user: role.user, role: role.role, group: role.group)
@@ -144,6 +146,10 @@ FactoryBot.define do
         create_patchinfo { false }
       end
 
+      before(:create) do |project|
+        create(:build_flag, project: project, status: 'disable')
+      end
+
       after(:create) do |project, evaluator|
         create(:maintenance_project_attrib, project: project)
         if evaluator.target_project
@@ -151,7 +157,7 @@ FactoryBot.define do
           CONFIG['global_write_through'] ? project.store : project.save!
         end
         if evaluator.create_patchinfo
-          old_user = User.current
+          old_user = User.session
           User.session = evaluator.maintainer
           Patchinfo.new.create_patchinfo(project.name, nil, comment: 'Fake comment', force: true)
           User.session = old_user

@@ -6,13 +6,14 @@ module Webui
           xml_object = OpenStruct.new(params.slice(:project, :package, :repository, :arch, :filename))
           @upload_job = ::Cloud::Backend::UploadJob.new(xml_object: xml_object)
           @regions = ::Cloud::Ec2::Configuration::REGIONS
-          @crumb_list.push << 'EC2'
+          @crumb_list.push << 'EC2' # TODO: bento_only
+          switch_to_webui2
         end
 
         private
 
         def validate_configuration_presence
-          redirect_to cloud_ec2_configuration_path if User.current.ec2_configuration.blank?
+          redirect_to cloud_ec2_configuration_path if User.possibly_nobody.ec2_configuration.blank?
         end
 
         def permitted_params

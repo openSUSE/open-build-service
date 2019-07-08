@@ -5,13 +5,6 @@ RSpec.describe Webui::Groups::UsersController do
   let(:user) { create(:confirmed_user) }
   let(:admin) { create(:admin_user) }
 
-  RSpec.shared_examples 'response for non existing user or group' do
-    it 'reports an error' do
-      expect(response).to have_http_status(:not_found)
-      expect(flash[:error]).not_to be_nil
-    end
-  end
-
   describe 'POST create' do
     before do
       login(admin)
@@ -19,43 +12,42 @@ RSpec.describe Webui::Groups::UsersController do
 
     context 'when the user exists' do
       subject! do
-        post :create, params: { group_title: group.title, user_login: user.login }, format: :js
+        post :create, params: { group_title: group.title, user_login: user.login }
       end
 
       it 'adds the user to the group' do
         expect(response).to redirect_to(group_show_path(title: group.title))
-        expect(flash[:success]).not_to be_nil
+        expect(flash[:success]).to eq("Added user '#{user}' to group '#{group}'")
         expect(group.users.where(groups_users: { user: user })).to exist
       end
     end
 
     context 'when the user does not exist' do
       subject! do
-        post :create, params: { group_title: group.title, user_login: 'unknown_user' }, format: :js
+        post :create, params: { group_title: group.title, user_login: 'unknown_user' }
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(flash[:error]).to eq("User 'unknown_user' not found") }
       it { expect(group.users.where(groups_users: { user: user })).not_to exist }
     end
 
     context 'when the group does not exist' do
       subject! do
-        post :create, params: { group_title: 'unknown_group', user_login: user.login }, format: :js
+        post :create, params: { group_title: 'unknown_group', user_login: user.login }
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(flash[:error]).to eq("Group 'unknown_group' not found") }
     end
 
     context 'when there is an error during user creation' do
       let!(:group_user) { create(:groups_user, group: group, user: user) }
 
       subject! do
-        post :create, params: { group_title: group.title, user_login: user.login }, format: :js
+        post :create, params: { group_title: group.title, user_login: user.login }
       end
 
       it 'reports the error' do
-        expect(response).to have_http_status(:bad_request)
-        expect(flash[:error]).not_to be_nil
+        expect(flash[:error]).to eq("Couldn't add user '#{user}' to group '#{group}': User User already has this group")
       end
     end
   end
@@ -71,7 +63,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it 'responds with an error message' do
-        expect(flash[:error]).not_to be_nil
+        expect(flash[:error]).to eq("User '#{user}' not found in group '#{group}'")
         expect(response).to have_http_status(:not_found)
       end
     end
@@ -85,7 +77,7 @@ RSpec.describe Webui::Groups::UsersController do
 
       it 'removes the user from the group' do
         expect(response).to have_http_status(:success)
-        expect(flash[:success]).not_to be_nil
+        expect(flash[:success]).to eq("Removed user from group '#{group}'")
         expect(group.users.where(groups_users: { user: user })).not_to exist
       end
     end
@@ -95,7 +87,8 @@ RSpec.describe Webui::Groups::UsersController do
         delete :destroy, params: { group_title: group.title, user_login: 'unknown_user' }, format: :js
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(flash[:error]).to eq("User 'unknown_user' not found in group '#{group}'") }
       it { expect(group.users.where(groups_users: { user: user })).not_to exist }
     end
 
@@ -104,7 +97,8 @@ RSpec.describe Webui::Groups::UsersController do
         delete :destroy, params: { group_title: 'unknown_group', user_login: user.login }, format: :js
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(flash[:error]).to eq("Group 'unknown_group' not found") }
     end
   end
 
@@ -135,7 +129,7 @@ RSpec.describe Webui::Groups::UsersController do
 
         it 'removes maintainer rights from the group' do
           expect(response).to have_http_status(:success)
-          expect(flash[:success]).not_to be_nil
+          expect(flash[:success]).to eq("Removed maintainer rights from '#{user}'")
           expect(group.maintainer?(user)).to be false
         end
       end
@@ -147,7 +141,7 @@ RSpec.describe Webui::Groups::UsersController do
 
         it 'gives maintainer rights to the user' do
           expect(response).to have_http_status(:success)
-          expect(flash[:success]).not_to be_nil
+          expect(flash[:success]).to eq("Gave maintainer rights to '#{user}'")
           expect(group.maintainer?(user)).to be true
         end
       end
@@ -158,7 +152,8 @@ RSpec.describe Webui::Groups::UsersController do
         post :update, params: { group_title: group.title, user_login: 'unknown_user', maintainer: 'true' }, format: :js
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(flash[:error]).to eq("User 'unknown_user' not found in group '#{group}'") }
       it { expect(group.users.where(groups_users: { user: user })).not_to exist }
     end
 
@@ -167,7 +162,8 @@ RSpec.describe Webui::Groups::UsersController do
         post :update, params: { group_title: 'unknown_group', user_login: user.login, maintainer: 'true' }, format: :js
       end
 
-      include_examples 'response for non existing user or group'
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(flash[:error]).to eq("Group 'unknown_group' not found") }
     end
   end
 end

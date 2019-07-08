@@ -5,8 +5,8 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::PatchinfoController, vcr: true do
-  let(:user) { create(:user, login: 'macario') }
-  let(:other_user) { create(:confirmed_user, login: 'gilberto') }
+  let(:user) { create(:user, :with_home, login: 'macario') }
+  let(:other_user) { create(:confirmed_user, :with_home, login: 'gilberto') }
   let(:other_package) { create(:package_with_file, project: user.home_project, name: 'other_package') }
   let(:patchinfo_package) do
     Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.where(name: 'patchinfo').exists?

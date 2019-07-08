@@ -110,7 +110,9 @@ class BsRequest < ApplicationRecord
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
   before_update :send_state_change
+  before_validation :sanitize!, if: :sanitize?, on: :create
   after_commit :update_cache
+  after_create :notify
 
   def self.delayed_auto_accept
     to_accept_by_time.each do |request|
@@ -209,8 +211,8 @@ class BsRequest < ApplicationRecord
 
       request.commenter = state.delete('who')
       unless request.commenter
-        raise 'no one logged in and no user in request' unless User.current
-        request.commenter = User.current.login
+        raise 'no one logged in and no user in request' unless User.session
+        request.commenter = User.session!.login
       end
       # to be overwritten if we find history
       request.creator = request.commenter
@@ -259,8 +261,8 @@ class BsRequest < ApplicationRecord
     request
   end
 
-  def self.truncated_diffs?(request)
-    submit_requests = request['actions'].select { |action| action[:type] == :submit && action[:sourcediff] }
+  def self.truncated_diffs?(actions)
+    submit_requests = actions.select { |action| action[:type] == :submit && action[:sourcediff] }
 
     submit_requests.any? do |action|
       action[:sourcediff].any? { |sourcediff| sourcediff_has_shown_attribute?(sourcediff) }
@@ -289,13 +291,6 @@ class BsRequest < ApplicationRecord
     end
   end
 
-  def save!(args = {})
-    new = created_at ? nil : 1
-    sanitize! if new && !@skip_sanitize
-    super
-    notify if new
-  end
-
   def history_elements
     HistoryElement::Base.where(id: request_history_elements.pluck(:id) + review_history_elements.pluck(:id)).order(:created_at)
   end
@@ -308,6 +303,10 @@ class BsRequest < ApplicationRecord
     @ignore_build_state = true
   end
 
+  def sanitize?
+    !@skip_sanitize
+  end
+
   def skip_sanitize
     @skip_sanitize = true
   end
@@ -318,7 +317,7 @@ class BsRequest < ApplicationRecord
     return if User.admin_session?
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
-    raise APIError unless User.current.can_modify_user?(user)
+    raise APIError unless User.possibly_nobody.can_modify_user?(user)
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
     return if user.is_active?
     errors.add(:creator, "Login #{user.login} is not an active user")
@@ -359,16 +358,6 @@ class BsRequest < ApplicationRecord
 
   def state
     self[:state].to_sym
-  end
-
-  after_rollback :reset_cache
-  after_save :reset_cache
-
-  def reset_cache
-    return unless id
-    Rails.cache.delete("xml_bs_request_fullhistory_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_history_#{cache_key}")
-    Rails.cache.delete("xml_bs_request_#{cache_key}")
   end
 
   def to_axml(opts = {})
@@ -477,7 +466,7 @@ class BsRequest < ApplicationRecord
       review.state = :obsoleted
       review.save
       history = HistoryElement::ReviewObsoleted
-      history.create(review: review, comment: 'reviewer got removed', user_id: User.current.id)
+      history.create(review: review, comment: 'reviewer got removed', user_id: User.session!.id)
 
       # Maybe this will turn the request into an approved state?
       next unless state == :review && reviews.where(state: 'new').none?
@@ -485,7 +474,7 @@ class BsRequest < ApplicationRecord
       self.state = :new
       save
       history = HistoryElement::RequestAllReviewsApproved
-      history.create(request: self, comment: opts[:comment], user_id: User.current.id)
+      history.create(request: self, comment: opts[:comment], user_id: User.session!.id)
     end
   end
 
@@ -507,7 +496,7 @@ class BsRequest < ApplicationRecord
   def permission_check_addreview!
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_addreview_permissions(creator == User.current.login || is_reviewer?(User.current))
+    checker.cmd_addreview_permissions(creator == User.session!.login || is_reviewer?(User.session!))
   end
 
   def permission_check_change_state!(opts)
@@ -599,7 +588,7 @@ class BsRequest < ApplicationRecord
         a.request_changes_state(state)
       end
       self.state = state
-      self.commenter = User.current.login
+      self.commenter = User.session!.login
       self.comment = opts[:comment]
       self.superseded_by = opts[:superseded_by]
 
@@ -615,7 +604,7 @@ class BsRequest < ApplicationRecord
       end
       save!
 
-      params = { request: self, comment: opts[:comment], user_id: User.current.id }
+      params = { request: self, comment: opts[:comment], user_id: User.session!.id }
       case opts[:newstate]
       when 'accepted' then
         history = HistoryElement::RequestAccepted
@@ -658,11 +647,11 @@ class BsRequest < ApplicationRecord
         review_comment = _assignreview_update_reviews(reviewer, opts)
         user_review.state = :new
         user_review.save!
-        HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
+        HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.session!)
       else
-        review = reviews.create(by_user: reviewer.login, creator: User.current.login, state: :new)
+        review = reviews.create(by_user: reviewer.login, creator: User.session!.login, state: :new)
         review_comment = _assignreview_update_reviews(reviewer, opts, review)
-        HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.current)
+        HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user: User.session!)
       end
       save!
     end
@@ -673,7 +662,7 @@ class BsRequest < ApplicationRecord
       raise InvalidStateError, 'request is not in review state'
     end
 
-    # check if User.current is allowed to potentially accept the request
+    # check if User.session! is allowed to potentially accept the request
     # (note: setting the :force key to true will skip some checks but
     # none of them is supposed to be crucial wrt. permission checking)
     my_opts = opts.merge(newstate: 'accepted', force: true)
@@ -683,13 +672,12 @@ class BsRequest < ApplicationRecord
 
     self.approver = new_approver
     save!
-    reset_cache
   end
   private :approval_handling
 
   def approve(opts)
     raise InvalidStateError, "already approved by #{approver}" if approver
-    approval_handling(User.current, opts)
+    approval_handling(User.session!, opts)
   end
 
   def cancelapproval(opts)
@@ -738,7 +726,7 @@ class BsRequest < ApplicationRecord
 
       return unless review.change_state(new_review_state, opts[:comment] || '')
 
-      history_parameters = { request: self, comment: opts[:comment], user_id: User.current.id }
+      history_parameters = { request: self, comment: opts[:comment], user_id: User.session!.id }
       return supersede_request(history_parameters, opts[:superseded_by]) if new_review_state == :superseded
 
       new_request_state = calculate_state_from_reviews
@@ -746,7 +734,7 @@ class BsRequest < ApplicationRecord
 
       self.comment = review.reason
       self.state = new_request_state
-      self.commenter = User.current.login
+      self.commenter = User.session!.login
       if new_request_state == :new
         self.comment = 'All reviewers accepted request'
         save!
@@ -775,8 +763,8 @@ class BsRequest < ApplicationRecord
       by_group: opts[:by_group],
       by_project: opts[:by_project],
       by_package: opts[:by_package],
-      creator: User.current.try(:login),
-      reviewer: User.current.try(:login)
+      creator: User.session!.login,
+      reviewer: User.session!.login
     )
     return newreview if newreview.valid?
     raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
@@ -790,7 +778,7 @@ class BsRequest < ApplicationRecord
       check_if_valid_review!(opts)
 
       self.state = 'review'
-      self.commenter = User.current.login
+      self.commenter = User.session!.login
       self.comment = opts[:comment] if opts[:comment]
 
       newreview = create_new_review(opts)
@@ -798,7 +786,7 @@ class BsRequest < ApplicationRecord
 
       history_params = {
         request: self,
-        user_id: User.current.id,
+        user_id: User.session!.id,
         description_extension: newreview.id.to_s
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
@@ -814,12 +802,11 @@ class BsRequest < ApplicationRecord
       raise SaveError, "Illegal priority '#{opts[:priority]}'"
     end
 
-    p = { request: self, user_id: User.current.id, description_extension: "#{priority} => #{opts[:priority]}" }
+    p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
 
     self.priority = opts[:priority]
     save!
-    reset_cache
 
     HistoryElement::RequestPriorityChange.create(p)
   end
@@ -829,7 +816,7 @@ class BsRequest < ApplicationRecord
 
     touched = false
     # all maintenance_incident actions go into the same incident project
-    p = { request: self, user_id: User.current.id }
+    p = { request: self, user_id: User.session!.id }
     bs_request_actions.where(type: 'maintenance_incident').find_each do |action|
       tprj = Project.get_by_name(action.target_project)
 
@@ -874,30 +861,6 @@ class BsRequest < ApplicationRecord
     ret
   end
 
-  def reviews_for_user_and_others(user)
-    user_reviews = []
-    other_open_reviews = []
-    reviews.where(state: 'new').find_each do |review|
-      if review.matches_user?(user)
-        user_reviews << review.webui_infos
-      else
-        other_open_reviews << review.webui_infos
-      end
-    end
-    [user_reviews, other_open_reviews]
-  end
-
-  def webui_infos(opts = {})
-    opts.reverse_merge!(diffs: true)
-    result = {}
-    result['is_target_maintainer'] = is_target_maintainer?(User.current)
-
-    result['my_open_reviews'], result['other_open_reviews'] = reviews_for_user_and_others(User.current)
-
-    result['actions'] = webui_actions(opts)
-    result
-  end
-
   def auto_accept
     # do not run for processed requests. Ignoring review on purpose since this
     # must also work when people do not react anymore
@@ -908,11 +871,11 @@ class BsRequest < ApplicationRecord
 
     with_lock do
       if accept_at
-        User.session = User.find_by_login(creator)
+        User.session = User.find_by!(login: creator)
       elsif approver
-        User.session = User.find_by_login(approver)
+        User.session = User.find_by!(login: approver)
       end
-      raise 'Request lacks definition of owner for auto accept' unless User.current
+      raise 'Request lacks definition of owner for auto accept' unless User.session!
 
       begin
         change_state(newstate: 'accepted', comment: 'Auto accept')
@@ -933,13 +896,13 @@ class BsRequest < ApplicationRecord
 
   def sanitize!
     # apply default values, expand and do permission checks
-    self.creator ||= User.current.login
-    self.commenter ||= User.current.login
+    self.creator ||= User.session!.login
+    self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
-    unless self.creator == User.current.login || User.admin_session?
+    unless self.creator == User.session!.login || User.admin_session?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
-    unless self.commenter == User.current.login || User.admin_session?
+    unless self.commenter == User.session!.login || User.admin_session?
       raise SaveError, 'Admin permissions required to set request commenter to foreign user'
     end
 
@@ -963,7 +926,6 @@ class BsRequest < ApplicationRecord
 
     self.accept_at = time || Time.now
     save!
-    reset_cache
   end
 
   def apply_default_reviewers
@@ -986,7 +948,7 @@ class BsRequest < ApplicationRecord
         raise 'Unknown review type'
       end
     end
-    self.state = :review if reviews.any? { |a| a.state == :new }
+    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
   end
 
   def notify
@@ -1219,13 +1181,13 @@ class BsRequest < ApplicationRecord
         review_comment = ''
         history_class = HistoryElement::ReviewAccepted
       end
-      review.reviewer = User.current.try(:login)
+      review.reviewer = User.session!.login
       review.save!
 
       review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
       review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
       review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
+      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.session!.id)
     end
     raise Review::NotFoundError unless review_comment
     review_comment

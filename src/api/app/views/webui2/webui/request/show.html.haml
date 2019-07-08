@@ -21,8 +21,7 @@
       .col-md-8
         = render partial: 'show_overview', locals: { bs_request: @bs_request, can_add_reviews: @can_add_reviews }
       .col-md-4
-        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers,
-                                                       other_open_reviews: @other_open_reviews, my_open_reviews: @my_open_reviews }
+        = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
       - if @can_add_reviews
         %ul.list-inline.mb-0
           %li.list-inline-item
@@ -40,14 +39,12 @@
             data: { toggle: 'tab' }, role: 'tab')
   .card-body
     .tab-content
-      - @actions.each_with_index do |action, index|
-        .tab-pane.fade.show{ id: valid_xml_id(action[:name]), class: ('active' if index.zero?) }
-          = render('sourcediff_tab', action: action, request_creator: @bs_request.creator, index: index)
+      = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { request_creator: @bs_request.creator }
 .row
   .col-md-8
     .card.mb-3
       = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request }
-    - if @can_handle_request || @my_open_reviews.any?
+    - if @can_handle_request || (@can_add_reviews && @my_open_reviews.any?)
       .card.mb-3
         .bg-light
           %ul.nav.nav-tabs{ role: 'tablist' }
@@ -55,11 +52,16 @@
               %li.nav-item
                 %a.nav-link.text-nowrap.active{ href: '#decision', data: { toggle: 'tab' }, role: 'tab' }
                   My decision
-            - @my_open_reviews.each_with_index do |review, index|
-              %li.nav-item
-                %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
-                  class: ('active' if index.zero? && !@can_handle_request) }
-                  Review for #{reviewer(review)}
+            - if @can_add_reviews
+              - @my_open_reviews.each_with_index do |review, index|
+                %li.nav-item
+                  %a.nav-link.text-nowrap{ href: "#review-#{index}", data: { toggle: 'tab' }, role: 'tab',
+                    class: ('active' if index.zero? && !@can_handle_request) }
+                    Review for
+                    - if review.by_package
+                      #{review.by_project}/#{review.by_package}
+                    - else
+                      = review.by_user || review.by_group || review.by_project
         .card-body
           - if @can_handle_request && @show_project_maintainer_hint
             .alert.alert-warning
@@ -72,9 +74,10 @@
                 = render('decision_tab', request_number: @bs_request.number, request_creator: @bs_request.creator,
                          is_target_maintainer: @is_target_maintainer, state: @bs_request.state.to_s,
                          is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
-            - @my_open_reviews.each_with_index do |review, index|
-              .tab-pane.fade.show{ id: "review-#{index}", class: ('active' if index.zero? && !@can_handle_request) }
-                = render('review_tab', review: review, bs_request: @bs_request)
+            - if @can_add_reviews
+              - @my_open_reviews.each_with_index do |review, index|
+                .tab-pane.fade.show{ id: "review-#{index}", class: ('active' if index.zero? && !@can_handle_request) }
+                  = render('review_tab', review: review, bs_request: @bs_request)
 
   .col-md-4
     .card
@@ -84,12 +87,12 @@
       .card-body.small#request-history
         = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
 
-- unless User.current.is_nobody?
+- if User.session
   = render partial: 'webui2/webui/request/add_reviewer_dialog'
 = render partial: 'webui2/webui/request/show_package_maintainers', locals: { package_maintainers: @package_maintainers }
 
-= content_for :ready_function do
+- content_for :ready_function do
   :plain
     $('.request-tab').on('shown.bs.tab', function() {
-      editors.forEach( function(editor) { editor.refresh(); cmMarkDiffLines(); });
+      editors.forEach(function(editor) { editor.refresh(); cmMarkDiffLines(editor.id); });
     });

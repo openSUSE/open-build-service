@@ -77,7 +77,7 @@ my $extrepodb = "$BSConfig::bsdir/db/published";
 
 my $myeventdir = "$eventdir/publish";
 
-my @binsufs = qw{rpm udeb deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm udeb ddeb deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));
@@ -158,7 +158,7 @@ sub fillpkgdescription {
       $hit = $p;
       last;
     }
-    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.u?deb$/) {
+    if ($pn =~ /^\Q$name\E_([^_]+)_[^_]+\.[ud]?deb$/) {
       $hit = $p;
       last;
     }
@@ -260,7 +260,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.[ud]?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -274,7 +274,7 @@ sub updatebinaryindex {
     my $n;
     if ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+\.[a-zA-Z][^\/\.\-]*\.rpm$/) {
       $n = $1;
-    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.u?deb$/) {
+    } elsif ($key =~ /(?:^|\/)([^\/]+)_([^\/]*)_[^\/]*\.[ud]?deb$/) {
       $n = $1;
     } elsif ($key =~ /(?:^|\/)([^\/]+)-[^-]+-[^-]+-[a-zA-Z][^\/\.\-]*\.pkg\.tar\..z$/) {
       $n = $1;
@@ -596,6 +596,18 @@ sub createrepo_rpmmd {
   } else {
     # the default in newer createrepos
     push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  if ($options{'zchunk'}) {
+    # we currently do not support user generated zchunk dictionaries for
+    # security reasons.
+    my $repoinfo = $data->{'repoinfo'};
+    for my $sprp (@{$repoinfo->{'prpsearchpath'} || []}) {
+      my $zchunk_dict_dir = "$BSConfig::bsdir/zchunk/$sprp->{'project'}";
+      next unless -d $zchunk_dict_dir;
+      print "    using chunk data of project $sprp->{'project'}\n";
+      push @legacyargs, "--zck", "--zck-dict-dir=$zchunk_dict_dir";
+      last;
+    }
   }
   my @updateargs;
   # createrepo 0.9.9 defaults to creating the sqlite database.
@@ -1049,7 +1061,7 @@ sub createrepo_staticlinks {
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
-      } elsif (/^(.*)_([^_]*)-[^_]*\.(u?deb)$/s) {
+      } elsif (/^(.*)_([^_]*)-[^_]*\.([ud]?deb)$/s) {
         $link = "$1.$3";
         $link = "${1}_$2.$3" if $versioned;
       } elsif (/^(.*)-([^-]*)-([^-]*)-([^-]*)\.(AppImage?(\.zsync)?)$/s) {
@@ -1104,7 +1116,7 @@ sub createrepo_vagrant {
     next unless $xbox =~ s/\.vagrant\.([^\.]+)\.box//;
     my $provider = $1;
     # split off release
-    next unless $xbox =~ s/-Build([^-]*)$//;
+    next unless $xbox =~ s/-(?:Build|Snapshot)([^-]*)$//;
     my $release = $1;
     if (!$withversion) {
       # split off profile
@@ -1445,14 +1457,17 @@ sub sync_to_stage {
   my $extdirx = $extdir;
   $extdirx =~ s/\/[^\/]*$// if $isdelete;
 
+  my $rsync_extra_options;
+  $rsync_extra_options = $BSConfig::rsync_extra_options if $BSConfig::rsync_extra_options;
+
   for my $stageserver (@stageservers) {
     if ($stageserver =~ /^rsync:\/\//) {
       $stageserver .= $dbgsplit if $stageservers;		# hmm
       print "    running rsync to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
-      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', $rsync_extra_options, '--fuzzy', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdirx\0", 'rsync', '-ar0', $rsync_extra_options, '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $syncroot, $stageserver) && die("    rsync failed at ".localtime(time).": $?\n");
     }
     if ($stageserver =~ /^script:(\/.*)$/) {
       print "    running sync script $1 at ".localtime(time)."\n";
@@ -1473,7 +1488,7 @@ sub sync_to_stage {
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\//) {
     print "    running trigger rsync to $BSConfig::stageserver_sync at ".localtime(time)."\n";
     # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+    qsystem('rsync', '-a', $rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
 }
 
@@ -1830,7 +1845,7 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.u?deb$/) {
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.[ud]?deb$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.(?:AppImage|AppImage.zsync|snap|exe)?$/) {
 	$p = "$bin";
@@ -1930,6 +1945,9 @@ sub publish {
 	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
+	  $p = "$bin";
+	} elsif ($bin =~ /\.orig\.tar\.(gz|xz|bz2)\.asc$/) {
+	  # Debian upstream tarball signature
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256)?$/) {
 	  $p = "$bin";
@@ -2373,6 +2391,7 @@ sub publish {
 	  $pt->{$_} = $res->{$_} if defined $res->{$_};
 	}
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	$pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
 	if ($pt->{'arch'}) {
@@ -2397,6 +2416,7 @@ sub publish {
 	for (qw{arch disturl buildtime}) {
 	  $pt->{$_} = $containerinfo->{$_} if defined $containerinfo->{$_};
 	}
+        $pt->{'binaryid'} = $containerinfo->{'imageid'} if $containerinfo->{'imageid'};
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;
       }
@@ -2414,6 +2434,7 @@ sub publish {
 	$pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
 	$pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
 	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
+        # need a way to get disturl, buildtime and binaryid...
 	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
 	$pt->{'ismedium'} = $medium;
 	$packtrack->{$bin} = $pt;

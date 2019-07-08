@@ -48,6 +48,7 @@ use BSRPC;
 use BSUtil;
 use BSXML;
 use BSCando;
+use BSRedisnotify;
 use BSDispatcher::Constraints;
 
 use strict;
@@ -356,6 +357,10 @@ sub assignjob {
 
   # write new status and release lock
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  if ($BSConfig::redisserver) {
+    my $details = $jobstatus->{'workerid'} ? ":building on $jobstatus->{'workerid'}" : '';
+    BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, "building$details");
+  }
   close F;
   return 'assigned';
 }

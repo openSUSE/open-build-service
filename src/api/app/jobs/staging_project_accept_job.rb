@@ -2,10 +2,9 @@ class StagingProjectAcceptJob < ApplicationJob
   queue_as :staging
 
   def perform(payload)
-    current_user_before = User.current
-    User.session = User.find_by(login: payload[:user_login])
-    accept(Project.find(payload[:project_id]))
-    User.session = current_user_before
+    User.find_by!(login: payload[:user_login]).run_as do
+      accept(Project.find(payload[:project_id]))
+    end
   end
 
   def accept(staging_project)

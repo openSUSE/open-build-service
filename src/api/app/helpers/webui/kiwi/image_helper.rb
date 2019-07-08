@@ -9,4 +9,15 @@ module Webui::Kiwi::ImageHelper
     args.insert(0, link_to(@package, package_show_path(project: @project, package: @package)))
     project_bread_crumb(*args)
   end
+
+  def icon_for_daemon(state)
+    case state
+    when 'dead'
+      'fa-exclamation-circle text-danger'
+    when 'booting'
+      'fa-exclamation-triangle text-warning'
+    else
+      'fa-check-circle text-success'
+    end
+  end
 end

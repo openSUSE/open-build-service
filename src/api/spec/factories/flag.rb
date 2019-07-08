@@ -1,6 +1,5 @@
 FactoryBot.define do
   factory :flag do
-    project
     position { 1 }
     status { 'enable' }
 

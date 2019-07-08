@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe StatusMessagesController, type: :controller do
+RSpec.describe StatusMessagesController do
   render_views
 
   let(:user) { create(:confirmed_user) }

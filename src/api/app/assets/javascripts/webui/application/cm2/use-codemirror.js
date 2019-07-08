@@ -26,10 +26,13 @@ function use_codemirror(id, read_only, mode) {
     editor.on('change', function (cm) {
       var changed = true;
       cm.updateHistory(cm);
-      if (cm.historySize().undo > 0)
+      if (cm.historySize().undo > 0) {
         $("#save_" + id).removeClass('inactive');
-      else
+        $("#comment_" + id).prop('disabled', false);
+      } else {
         $("#save_" + id).addClass('inactive');
+        $("#comment_" + id).prop('disabled', true);
+      }
     });
     CodeMirror.signal(editor, 'cursorActivity', editor);
 
@@ -40,18 +43,22 @@ function use_codemirror(id, read_only, mode) {
       $('#flash-messages').remove();
       var data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
+      data['comment'] = $("#comment_" + id).val();
       $("#save_" + id).addClass("inactive").addClass("working");
+      $("#comment_" + id).prop('disabled', true);
       $.ajax({
         url: textarea.data('save-url'),
         type: (textarea.data('save-method') || 'put'),
         data: data,
         success: function (data, textStatus, xhdr) {
           $("#save_" + id).removeClass("working");
+          $("#comment_" + id).prop('disabled', true).val('');
           // The filter is necessary because we don't return a flash everywhere atm
           $(data).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
         },
         error: function (xhdr, textStatus, errorThrown) {
           $("#save_" + id).removeClass("inactive").removeClass("working");
+          $("#comment_" + id).prop('disabled', false);
           // The filter is necessary because we don't return a flash everywhere atm
           $(xhdr.responseText).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
         }
@@ -59,6 +66,7 @@ function use_codemirror(id, read_only, mode) {
     });
   } else {
     $("#save_" + id).hide();
+    $("#comment_" + id).hide();
   }
   editors[id] = editor;
 }

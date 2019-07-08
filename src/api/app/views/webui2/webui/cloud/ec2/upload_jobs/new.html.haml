@@ -1,0 +1,34 @@
+- @pagetitle = 'Upload to Amazon EC2'
+
+.card
+  .card-body
+    %h3 Upload to Amazon EC2
+
+    = form_for(@upload_job, url: cloud_ec2_upload_path, method: :post, html: { class: 'cloud_form' }) do |upload_job_form|
+      = upload_job_form.hidden_field :project
+      = upload_job_form.hidden_field :package
+      = upload_job_form.hidden_field :arch
+      = upload_job_form.hidden_field :repository
+      = upload_job_form.hidden_field :filename
+      = upload_job_form.hidden_field :target, value: 'ec2'
+
+      .form-group.row
+        = label_tag(:filename, 'Filename:', class: 'col-md-2 col-form-label')
+        .col-md-10.pt-2
+          %b= @upload_job.filename
+      .form-group.row
+        .col-md-2
+          = upload_job_form.label(:ami_name, 'AMI Name:', class: 'col-form-label')
+          %abbr.text-danger{ title: 'required' } *
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'ami_name', size: 35, required: true)
+      .form-group.row
+        = upload_job_form.label(:region, 'Region:', class: 'col-md-2 col-form-label')
+        .col-md-10
+          = select_tag('cloud_backend_upload_job[region]', options_for_select(@regions), class: 'custom-select w-auto')
+      .form-group.row
+        = upload_job_form.label(:vpc_subnet_id, 'VPC Subnet ID:', class: 'col-md-2 col-form-label')
+        .col-md-10
+          = text_field('cloud_backend_upload_job', 'vpc_subnet_id', size: 35, placeholder: 'eg. subnet-12345678')
+          %small.form-text.text-muted We create a temporary subnet, if you don't provide one.
+      = submit_tag('Upload Image', class: 'btn btn-primary')

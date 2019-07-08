@@ -1,5 +1,5 @@
 require 'kconv'
-require_dependency 'api_exception'
+require_dependency 'api_error'
 
 class UserBasicStrategy
   def is_in_group?(user, group)
@@ -38,7 +38,7 @@ class User < ApplicationRecord
   has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
-  has_many :service_tokens, class_name: 'Token::Service', dependent: :destroy, inverse_of: :user
+  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
   has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
 
   has_many :reviews, dependent: :nullify
@@ -64,11 +64,14 @@ class User < ApplicationRecord
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
 
   has_and_belongs_to_many :announcements
+  has_many :commit_activities
 
+  scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
+  scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
 
   scope :list, lambda {
     all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
@@ -88,6 +91,8 @@ class User < ApplicationRecord
                       too_short: 'must have more than two characters' }
 
   validates :state, inclusion: { in: STATES }
+
+  validate :validate_state
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
@@ -120,11 +125,11 @@ class User < ApplicationRecord
     project = Project.find_by(name: home_project_name)
     return if project
 
-    project = Project.create(name: home_project_name)
+    project = Project.create!(name: home_project_name)
+    project.commit_user = self
     # make the user maintainer
-    project.relationships.create(user: self,
-                                 role: Role.find_by_title('maintainer'))
-    project.store(login: login)
+    project.relationships.create!(user: self, role: Role.find_by_title('maintainer'))
+    project.store
     @home_project = project
   end
 
@@ -216,33 +221,32 @@ class User < ApplicationRecord
     user
   end
 
-  # The currently logged in user (might be nil). It's reset after
-  # every request and normally set during authentification
-  def self.current
-    Thread.current[:user]
-  end
-
-  def self.nobody
-    Thread.current[:nobody] ||= find_nobody!
-  end
-
   # Currently logged in user or nobody user if there is no user logged in.
   # Use this to check permissions, but don't treat it as logged in user. Check
   # is_nobody? on the returned object
-  def self.current_or_nobody
+  def self.possibly_nobody
     current || nobody
   end
 
-  def self.session=(user)
-    Thread.current[:user] = user
+  # Currently logged in user. Will thrown an exception if no user is logged in.
+  # So the controller needs to require login if using this (or models using it)
+  def self.session!
+    raise ArgumentError, 'Requiring user, but found nobody' unless session
+    current
   end
 
-  def self.current_login
-    current.try(:login) || NOBODY_LOGIN
+  # Currently logged in user or nil
+  def self.session
+    current if current && !current.is_nobody?
   end
 
   def self.admin_session?
     current && current.is_admin?
+  end
+
+  # set the user as current session user (should be real user)
+  def self.session=(user)
+    Thread.current[:user] = user
   end
 
   def self.get_default_admin
@@ -275,12 +279,9 @@ class User < ApplicationRecord
     end
   end
 
-  # Overriding this method to do some more validation:
-  # state an password hash type being in the range of allowed values.
-  # FIXME: This is currently not used. It's not used by rails validations.
-  def validate
+  def validate_state
     # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(@old_state, state)
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
   end
 
   # This method returns true if the user is assigned the role with one of the
@@ -303,13 +304,6 @@ class User < ApplicationRecord
 
     token = UserRegistration.new
     self.user_registration = token
-  end
-
-  # Overwrite the state setting so it backs up the initial state from
-  # the database.
-  def state=(value)
-    @old_state = state if @old_state.nil?
-    self[:state] = value
   end
 
   # This method checks whether the given value equals the password when
@@ -678,8 +672,7 @@ class User < ApplicationRecord
       OwnerSearch::Owned.new.for(self).each do |owner|
         owned << [owner.package, owner.project]
       end
-    rescue APIError => e # no attribute set
-      Rails.logger.debug "0wned #{e.inspect}"
+    rescue APIError # no attribute set
     end
     owned
   end
@@ -867,7 +860,29 @@ class User < ApplicationRecord
     RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
   end
 
+  def run_as
+    before = User.session
+    begin
+      User.session = self
+      yield
+    ensure
+      User.session = before
+    end
+  end
+
   private
+
+  # The currently logged in user (might be nil). It's reset after
+  # every request and normally set during authentification
+  def self.current
+    Thread.current[:user]
+  end
+  private_class_method :current
+
+  def self.nobody
+    Thread.current[:nobody] ||= find_nobody!
+  end
+  private_class_method :nobody
 
   def password_validation
     return if password_digest || deprecated_password

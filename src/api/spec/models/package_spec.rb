@@ -5,7 +5,7 @@ require 'rantly/rspec_extensions'
 # you uncomment the next line and start a test backend.
 # CONFIG['global_write_through'] = true
 RSpec.describe Package, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: home_project) }
@@ -789,5 +789,12 @@ RSpec.describe Package, vcr: true do
       package.update_from_xml(Xmlhash.parse(invalid_meta_xml))
       expect(package.render_xml).to eq(corrected_meta_xml)
     end
+  end
+
+  describe '#add_containers' do
+    let(:maintenance_update_with_package) { create(:maintenance_project, name: 'project_foo') }
+    let(:first_maintained_package) { create(:package_with_file, name: 'package_bar', project: maintenance_update_with_package) }
+
+    it { expect { first_maintained_package.add_containers({}) }.not_to raise_error }
   end
 end

@@ -1,7 +1,7 @@
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'kody') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'kody') }
   let(:project) { create(:project, name: 'watchlist_test_project') }
   let(:user_with_watched_project) do
     other_user = create(:confirmed_user, login: 'brian')

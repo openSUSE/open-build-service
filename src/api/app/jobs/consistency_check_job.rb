@@ -1,43 +1,45 @@
-require 'api_exception'
+require 'api_error'
 require 'xmlhash'
 
 class ConsistencyCheckJob < ApplicationJob
   queue_as :consistency_check
 
-  def perform(fix = nil)
-    init
-    @errors = project_existence_consistency_check(fix)
-    Project.find_each(batch_size: 100) do |project|
-      unless Project.valid_name?(project.name)
-        @errors << "Invalid project name #{project.name}\n"
-        if fix
-          # just remove it, the backend won't accept it anyway
-          project.commit_opts = { no_backend_write: 1 }
-          project.destroy
-        end
-        next
-      end
-      @errors << package_existence_consistency_check(project, fix)
-      @errors << project_meta_check(project, fix)
-    end
-    if @errors.present?
-      @errors = "FIXING the following errors:\n" << @errors if fix
-      Rails.logger.error('Detected problems during consistency check')
-      Rails.logger.error(@errors)
+  def perform
+    User.get_default_admin.run_as { _perform(nil) }
+  end
 
-      AdminMailer.error(@errors).deliver_now
+  def check_one_project(project, fix)
+    unless Project.valid_name?(project.name)
+      @errors << "Invalid project name #{project.name}\n"
+      if fix
+        # just remove it, the backend won't accept it anyway
+        project.commit_opts = { no_backend_write: 1 }
+        project.destroy
+      end
+      return
     end
+    @errors << package_existence_consistency_check(project, fix)
+    @errors << project_meta_check(project, fix)
+  end
+
+  def _perform(fix)
+    @errors = project_existence_consistency_check(fix)
+    Project.find_each(batch_size: 100) { |project| check_one_project(project, fix) }
+    return if @errors.empty?
+    @errors = "FIXING the following errors:\n" << @errors if fix
+    Rails.logger.error('Detected problems during consistency check')
+    Rails.logger.error(@errors)
+
+    AdminMailer.error(@errors).deliver_now
     nil
   end
 
   # for manual fixing by admin via rails command
   def fix_project
-    init
-    check_project(true)
+    User.get_default_admin.run_as { check_project(true) }
   end
 
   def check_project(fix = nil)
-    init
     if ENV['project'].blank?
       puts "Please specify the project with 'project=MyProject' on CLI"
       return
@@ -70,11 +72,11 @@ class ConsistencyCheckJob < ApplicationJob
   private
 
   def fix
-    perform(true)
+    User.get_default_admin.run_as { _perform(true) }
   end
 
-  def init
-    User.session = User.current || User.get_default_admin
+  def initialize
+    super
     @errors = ''
   end
 

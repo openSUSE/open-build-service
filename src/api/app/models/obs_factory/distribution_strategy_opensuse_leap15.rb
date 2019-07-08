@@ -1,6 +1,8 @@
 module ObsFactory
   # this class tracks the differences between Factory and the upcoming release
   class DistributionStrategyOpenSUSELeap15 < DistributionStrategyFactory
+    require 'open-uri'
+
     SIGNATURE = /openSUSE:(?<full_name>.+:(?<version>(?<major_version>\d+)\.(?<minor_version>\d+)))/.freeze
 
     def opensuse_leap_version

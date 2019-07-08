@@ -5,7 +5,7 @@ require 'webmock/rspec'
 # require real backend answers for projects/packages.
 # CONFIG['global_write_through'] = true
 RSpec.describe Webui::ProjectController, vcr: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }

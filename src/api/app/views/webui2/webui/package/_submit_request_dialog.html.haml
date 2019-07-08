@@ -19,7 +19,7 @@
               = text_field_tag(:sourceproject, project.name, disabled: true, class: 'form-control text-truncate')
             .form-group
               = render partial: 'webui/autocomplete', locals: { html_id: 'targetproject', label: 'To target project:',
-                                                                disabled: params[:readonly],
+                                                                disabled: params[:readonly], value: target_project,
                                                                 data: { source: autocomplete_projects_path,
                                                                         requests_url: request_list_small_path,
                                                                         develpackage_url: package_devel_project_path } }
@@ -53,5 +53,5 @@
         .modal-footer
           = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
 
-= content_for(:ready_function) do
+- content_for :ready_function do
   setupRequestDialog();

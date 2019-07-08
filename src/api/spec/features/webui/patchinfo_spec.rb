@@ -3,7 +3,7 @@ require 'browser_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.feature 'Patchinfo', type: :feature, js: true do
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
   feature 'create Patchinfo' do

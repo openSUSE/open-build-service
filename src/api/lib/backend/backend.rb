@@ -11,7 +11,7 @@ module Backend
 end
 
 require 'benchmark'
-require 'api_exception'
+require 'api_error'
 require_dependency 'remember_location'
 require_dependency 'instrumentation'
 require_dependency 'connection'

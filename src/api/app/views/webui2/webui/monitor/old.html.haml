@@ -1,0 +1,9 @@
+- @pagetitle = 'Build Status Monitor - Detailed'
+- @metarobots = 'nofollow'
+.card
+  .card-body
+    = render partial: 'building', locals: { worker_status: @workerstatus, configuration_title: @configuration['title'], time_now: @time_now,
+                                            dead_line: @dead_line, max_color: @max_color, interval_steps: @interval_steps,
+                                            project_filter: @project_filter }
+    = render partial: 'idle', locals: { worker_status: @workerstatus }
+    = render partial: 'stats', locals: { worker_status: @workerstatus }

@@ -87,7 +87,7 @@ fi										\
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
-License:        GPL-2.0-only AND GPL-3.0-only
+License:        GPL-2.0-only OR GPL-3.0-only
 Group:          Productivity/Networking/Web/Utilities
 Version:        2.10~pre
 Release:        0
@@ -166,6 +166,9 @@ Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
+%if 0%{?suse_version} >= 1550
+Requires:       insserv-compat
+%endif
 
 BuildRequires:  systemd-rpm-macros
 
@@ -196,6 +199,9 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
+%if 0%{?suse_version} >= 1550
+Requires:       insserv-compat
+%endif
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -423,6 +429,8 @@ getent passwd obsservicerun >/dev/null || \
 %service_add_pre obsdodup.service
 %service_add_pre obsgetbinariesproxy.service
 %service_add_pre obswarden.service
+%service_add_pre obsnotifyforward.service
+%service_add_pre obsredis.service
 
 # make sure logfiles belong to the obsrun user
 if [ -f /etc/sysconfig/obs-server ] ; then
@@ -468,6 +476,8 @@ exit 0
 %service_del_preun obsdodup.service
 %service_del_preun obsgetbinariesproxy.service
 %service_del_preun obswarden.service
+%service_del_preun obsnotifyforward.service
+%service_del_preun obsredis.service
 
 %preun -n obs-common
 %service_del_preun obsstoragesetup.service
@@ -495,6 +505,8 @@ exit 0
 %service_add_post obsdodup.service
 %service_add_post obsgetbinariesproxy.service
 %service_add_post obswarden.service
+%service_add_post obsnotifyforward.service
+%service_add_post obsredis.service
 
 %post -n obs-worker
 %service_add_post obsworker.service
@@ -526,6 +538,8 @@ fi
 %service_del_postun -r obsdodup.service
 %service_del_postun -r obsgetbinariesproxy.service
 %service_del_postun -r obswarden.service
+%service_del_postun -r obsnotifyforward.service
+%service_del_postun -r obsredis.service
 # cleanup empty directory just in case
 rmdir /srv/obs 2> /dev/null || :
 
@@ -621,6 +635,8 @@ fi
 %{_unitdir}/obsdodup.service
 %{_unitdir}/obsgetbinariesproxy.service
 %{_unitdir}/obswarden.service
+%{_unitdir}/obsnotifyforward.service
+%{_unitdir}/obsredis.service
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/obsscheduler
@@ -635,6 +651,8 @@ fi
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
 /usr/sbin/rcobssigner
+/usr/sbin/rcobsnotifyforward
+/usr/sbin/rcobsredis
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer
@@ -668,6 +686,8 @@ fi
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer
 /usr/lib/obs/server/bs_warden
+/usr/lib/obs/server/bs_redis
+/usr/lib/obs/server/bs_notifyforward
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
@@ -683,6 +703,7 @@ fi
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-docker.sh
+/usr/lib/obs/server/run-service-containerized
 /usr/lib/obs/server/cleanup_scm_cache
 
 # formerly obs-productconverter

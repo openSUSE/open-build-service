@@ -1,4 +1,4 @@
-- unless User.current.is_nobody?
+- if User.session
   :ruby
     mail_subject = "#{home_title} - #{project}"
     mail_subject += "/#{package}" if package

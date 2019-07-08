@@ -1,4 +1,4 @@
-require_dependency 'api_exception'
+require_dependency 'api_error'
 
 # The Group class represents a group record in the database and thus a group
 # in the ActiveRbac model. Groups are arranged in trees and have a title.

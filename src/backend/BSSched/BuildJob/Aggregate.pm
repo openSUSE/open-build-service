@@ -476,21 +476,16 @@ sub build {
 =cut
 
 sub jobfinished {
-  my ($ectx, $job, $js) = @_;
+  my ($ectx, $job, $info, $js) = @_;
 
   my $gctx = $ectx->{'gctx'};
 
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $myarch = $gctx->{'arch'};
-  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
-  if (!$info || ! -d $jobdatadir) {
-    print "  - $job is bad\n";
-    return;
-  }
-  if ($info->{'arch'} ne $myarch) {
-    print "  - $job has bad arch\n";
+  if (! -d $jobdatadir) {
+    print "  - $job has no data dir\n";
     return;
   }
   my $projid = $info->{'project'};
@@ -532,7 +527,8 @@ sub jobfinished {
   # update meta
   mkdir_p("$gdst/:meta");
   rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
-  BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, 'succeeded');
+  BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, 'succeeded', $job);
+  $info->{'packstatus_patched'} = 1;
 }
 
 sub readcontainerinfo {

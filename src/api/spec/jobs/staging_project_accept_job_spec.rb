@@ -5,7 +5,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do
-    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:managers_group) { create(:group) }
     let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: user.home_project, managers_group: managers_group) }
     let(:staging_project) { staging_workflow.staging_projects.first }

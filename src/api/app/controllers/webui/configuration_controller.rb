@@ -16,7 +16,7 @@ class Webui::ConfigurationController < Webui::WebuiController
     @project = RemoteProject.new(project_params)
 
     if @project.valid? && @project.store
-      flash[:notice] = "Project '#{@project.name}' was created successfully"
+      flash[:success] = "Project '#{@project.name}' was created successfully"
       logger.debug "New remote project with url #{@project.remoteurl}"
       redirect_to controller: :project, action: 'show', project: @project.name
     else

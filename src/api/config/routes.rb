@@ -207,7 +207,7 @@ OBSApi::Application.routes.draw do
     resources :kiwi_images, only: [:show, :edit, :update], controller: 'webui/kiwi/images' do
       member do
         get 'build_result' => :build_result, constraints: cons
-        get 'autocomplete_binaries'
+        get 'autocomplete_binaries' => :autocomplete_binaries, as: :autocomplete_binaries
       end
     end
 
@@ -381,6 +381,7 @@ OBSApi::Application.routes.draw do
     controller 'webui/search' do
       match 'search' => :index, via: [:get, :post]
       get 'search/owner' => :owner
+      get 'search/issue' => :issue
     end
 
     controller 'webui/user' do
@@ -581,6 +582,8 @@ OBSApi::Application.routes.draw do
     resources :architectures, only: [:index, :show, :update] # create,delete currently disabled
 
     ### /trigger
+    post 'trigger/rebuild' => 'trigger#rebuild'
+    post 'trigger/release' => 'trigger#release'
     post 'trigger/runservice' => 'trigger#runservice'
     post 'trigger/webhook' => 'services/webhooks#create'
 

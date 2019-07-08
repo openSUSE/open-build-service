@@ -5,7 +5,9 @@ FactoryBot.define do
     title { Faker::Book.title }
     description { Faker::Lorem.sentence }
 
-    after(:create, &:write_to_backend)
+    after(:build) do |package|
+      package.commit_user ||= build(:confirmed_user)
+    end
 
     trait :as_submission_source do
       after(:create) do |package, _evaluator|

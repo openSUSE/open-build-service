@@ -100,7 +100,7 @@ class Webui::WebuiController < ActionController::Base
     if CONFIG['kerberos_mode']
       kerberos_auth
     else
-      if User.current_or_nobody.is_nobody?
+      unless User.session
         render(text: 'Please login') && (return false) if request.xhr?
 
         flash[:error] = 'Please login to access the requested page.'
@@ -134,7 +134,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def kerberos_auth
-    return true unless CONFIG['kerberos_mode'] && (User.current.nil? || User.current.is_nobody?)
+    return true unless CONFIG['kerberos_mode'] && !User.session
 
     authorization = authenticator.authorization_infos || []
     if authorization[0].to_s != 'Negotiate'
@@ -151,9 +151,9 @@ class Webui::WebuiController < ActionController::Base
         redirect_back(fallback_location: root_path)
         return
       end
-      if User.current
-        logger.info "User '#{User.current}' has logged in via kerberos"
-        session[:login] = User.current.login
+      if User.session
+        logger.info "User '#{User.session!}' has logged in via kerberos"
+        session[:login] = User.session!.login
         redirect_back(fallback_location: root_path)
         return true
       end
@@ -162,7 +162,7 @@ class Webui::WebuiController < ActionController::Base
 
   def check_user
     @spider_bot = request.bot?
-    previous_user = User.current.try(:login)
+    previous_user = User.possibly_nobody.login
     User.session = nil # reset old users hanging around
     if CONFIG['proxy_auth_mode'] == :on
       logger.debug 'Authenticating with proxy auth mode'
@@ -180,22 +180,22 @@ class Webui::WebuiController < ActionController::Base
                                        realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip)
       end
 
-      User.session = User.find_by(login: user_login)
-      unless User.current.is_active?
+      User.session = User.find_by!(login: user_login)
+      unless User.session!.is_active?
         session[:login] = nil
         User.session = User.find_nobody!
-        RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1') if previous_user != User.current.try(:login)
+        RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1') if previous_user != User.possibly_nobody.login
         redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
         return
       end
-      User.current.update_user_info_from_proxy_env(request.env)
+      User.session!.update_user_info_from_proxy_env(request.env)
     end
 
     User.session = User.find_by_login(session[:login]) if session[:login]
-    User.session = User.current || User.find_nobody!
-    if User.current.is_nobody?
+    User.session ||= User.possibly_nobody
+    if !User.session
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
-    elsif previous_user != User.current.login
+    elsif previous_user != User.possibly_nobody.login
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
     end
   end
@@ -210,16 +210,15 @@ class Webui::WebuiController < ActionController::Base
         redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
       end
     else
-      @displayed_user = User.current
-      @displayed_user ||= User.find_nobody!
+      @displayed_user = User.possibly_nobody
     end
-    @is_displayed_user = (!User.current.is_nobody? && User.current == @displayed_user)
+    @is_displayed_user = (User.session == @displayed_user)
   end
 
   # Don't show performance of database queries to users
   def peek_enabled?
     return false if CONFIG['peek_enabled'] != 'true'
-    User.admin_session? || (User.current && User.current.is_staff?)
+    User.admin_session? || User.possibly_nobody.is_staff?
   end
 
   def require_package
@@ -268,7 +267,7 @@ class Webui::WebuiController < ActionController::Base
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if User.current && User.current.is_nobody?
+    if !User.session
       unless ::Configuration.anonymous
         flash[:error] = 'No anonymous access. Please log in!'
         redirect_back(fallback_location: root_path)
@@ -293,8 +292,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def pundit_user
-    return if User.current.is_nobody?
-    return User.current
+    User.session! if User.session
   end
 
   # dialog_init is a function name called before dialog is shown
@@ -337,7 +335,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_pending_announcement
-    return if Announcement.last.in?(User.current.announcements)
+    return if Announcement.last.in?(User.possibly_nobody.announcements)
     @pending_announcement = Announcement.last
   end
 
@@ -368,10 +366,9 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_influxdb_additional_tags
-    anonymous = User.current_login == User::NOBODY_LOGIN
     tags = {
-      beta: !anonymous && User.current.in_beta?,
-      anonymous: anonymous
+      beta: User.possibly_nobody.in_beta?,
+      anonymous: !User.session
     }
 
     InfluxDB::Rails.current.tags = InfluxDB::Rails.current.tags.merge(tags)

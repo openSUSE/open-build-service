@@ -5,7 +5,7 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   let!(:repository) { create(:repository) }
 
   describe 'Repositories Flags' do
-    let!(:user) { create(:confirmed_user, login: 'Jane') }
+    let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
     let(:project) { user.home_project }
 
     include_examples 'bootstrap tests for sections with flag tables'
@@ -14,6 +14,11 @@ RSpec.feature 'Bootstrap_Repositories', type: :feature, js: true, vcr: true do
   describe 'Repositories' do
     before do
       login admin_user
+
+      fake_distribution_body = File.open(Rails.root.join('test/fixtures/backend/distributions.xml')).read
+
+      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml').
+        to_return(status: 200, body: fake_distribution_body, headers: {})
     end
 
     scenario 'add/delete repository from distribution' do

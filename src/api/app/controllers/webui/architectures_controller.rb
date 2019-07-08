@@ -37,7 +37,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
           flash.now[:success] = 'Updated availability for all architectures.'
           render 'webui2/webui/architectures/bulk_update_availability'
         end
-        format.html { redirect_to architectures_path, notice: 'Architectures successfully updated.' }
+        format.html { redirect_to architectures_path, success: 'Architectures successfully updated.' }
       else
         format.js do
           flash.now[:error] = 'Updating architecture availability failed.'

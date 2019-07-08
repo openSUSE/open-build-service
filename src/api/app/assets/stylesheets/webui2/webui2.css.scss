@@ -55,6 +55,10 @@
 @import 'flash';
 @import 'groups';
 @import 'patchinfo';
+@import 'image_templates';
+@import 'search';
+@import 'monitor';
+@import 'cloud_upload';
 
 html {
     overflow-y: scroll !important;

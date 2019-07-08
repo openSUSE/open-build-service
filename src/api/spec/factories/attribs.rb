@@ -30,6 +30,10 @@ FactoryBot.define do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'ApprovedRequestSource') }
     end
 
+    factory :owner_root_project_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'OwnerRootProject') }
+    end
+
     factory :update_project_attrib do
       transient do
         update_project { nil }

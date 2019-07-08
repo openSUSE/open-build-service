@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe AnnouncementsController, type: :controller do
+RSpec.describe AnnouncementsController do
   render_views
 
   let(:valid_attributes) { attributes_for(:announcement) }

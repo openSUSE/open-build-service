@@ -3,7 +3,7 @@ require 'webmock/rspec'
 
 RSpec.describe Services::WebhooksController, type: :controller, vcr: true do
   describe '#create' do
-    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:service_token) { create(:service_token, user: user) }
     let(:body) { { hello: :world }.to_json }
     let(:project) { user.home_project }

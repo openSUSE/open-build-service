@@ -2,7 +2,7 @@ require 'webmock/rspec'
 require 'rails_helper'
 RSpec.describe Webui::PackageController, vcr: true do
   let(:admin) { create(:admin_user, login: 'admin') }
-  let(:user) { create(:confirmed_user, login: 'tom') }
+  let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
@@ -11,7 +11,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   let(:broken_service_package) { create(:package_with_broken_service, name: 'package_with_broken_service', project: source_project) }
   let(:repo_for_source_project) do
     repo = create(:repository, project: source_project, architectures: ['i586'], name: 'source_repo')
-    source_project.store
+    source_project.store(login: user)
     repo
   end
   let(:fake_build_results) do
@@ -1030,9 +1030,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     RSpec.shared_examples 'build log' do
       before do
-        login user
         repo_leap_42_2
-        source_project.store
+        source_project.store(login: user)
       end
 
       context 'successfully' do

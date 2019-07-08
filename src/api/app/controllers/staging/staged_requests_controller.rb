@@ -16,7 +16,7 @@ class Staging::StagedRequestsController < ApplicationController
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
-      user_login: User.current.login
+      user_login: User.session!.login
     ).create
 
     if result.valid?
@@ -37,7 +37,7 @@ class Staging::StagedRequestsController < ApplicationController
       request_numbers: request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
-      user_login: User.current.login
+      user_login: User.session!.login
     ).destroy
 
     if result.valid?

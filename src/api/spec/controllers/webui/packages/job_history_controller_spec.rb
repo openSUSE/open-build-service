@@ -7,7 +7,7 @@ require 'webmock/rspec'
 
 RSpec.describe Webui::Packages::JobHistoryController, type: :controller, vcr: true do
   describe 'GET #index' do
-    let(:user) { create(:confirmed_user, login: 'tom') }
+    let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:source_project) { user.home_project }
     let(:package) { create(:package, name: 'package', project: source_project) }
     let(:repo_for_source_project) do

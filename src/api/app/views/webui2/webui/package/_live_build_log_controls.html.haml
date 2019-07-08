@@ -6,7 +6,7 @@
     %i.far.fa-pause-circle
     Stop refresh
 
-  - if User.current.is_nobody?
+  - if !User.session
     = link_to(public_build_path(package: @package, project: @project, arch: @arch, repository: @repo, filename: '_log'),
               target: :_blank,
               rel: 'noopener',
@@ -30,5 +30,3 @@
               class: 'link_abort_build live-link-action btn-danger d-none') do
       %i.far.fa-times-circle
       Abort Build
-
-
