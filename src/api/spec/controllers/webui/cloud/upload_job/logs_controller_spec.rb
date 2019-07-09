@@ -8,12 +8,14 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
 
   describe '#show' do
     context 'with cloud_upload feature enabled' do
+      before do
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+      end
+
       context 'without an EC2 configuration' do
         before do
           login(user)
-          Feature.run_with_activated(:cloud_upload) do
-            get :show, params: { upload_id: 42 }
-          end
+          get :show, params: { upload_id: 42 }
         end
 
         it { expect(response).to redirect_to(cloud_ec2_configuration_path) }
@@ -34,9 +36,7 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
 
           before do
             stub_request(:get, path).and_return(body: log)
-            Feature.run_with_activated(:cloud_upload) do
-              get :show, params: { upload_id: upload_job.job_id }
-            end
+            get :show, params: { upload_id: upload_job.job_id }
           end
 
           it { expect(response).to be_success }
@@ -45,9 +45,7 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
 
         context 'without an upload job' do
           before do
-            Feature.run_with_activated(:cloud_upload) do
-              get :show, params: { upload_id: 42 }
-            end
+            get :show, params: { upload_id: 42 }
           end
 
           it { expect(response).to be_redirect }
@@ -59,9 +57,8 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
     context 'with cloud_upload feature disabled' do
       before do
         login(user)
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :show, params: { upload_id: 42 }
-        end
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(false)
+        get :show, params: { upload_id: 42 }
       end
 
       it { expect(response).to be_not_found }

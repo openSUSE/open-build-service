@@ -47,14 +47,16 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
         HEREDOC
       end
 
+      before do
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+      end
+
       context 'requesting upload jobs of another user' do
         let(:user) { create(:confirmed_user) }
 
         before do
           login(user)
-          Feature.run_with_activated(:cloud_upload) do
-            get :show, params: { id: upload_job.job_id }, format: 'xml'
-          end
+          get :show, params: { id: upload_job.job_id }, format: 'xml'
         end
 
         it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
@@ -76,9 +78,8 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
     context 'with cloud_upload feature disabled' do
       before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :show, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(false)
+        get :show, params: { id: upload_job.job_id }, format: 'xml'
       end
 
       it { expect(response).to be_not_found }
@@ -88,14 +89,17 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
   describe '#index' do
     context 'with cloud_upload feature enabled' do
       let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+
+      before do
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+      end
+
       context 'without an EC2 configuration' do
         let(:user) { create(:confirmed_user) }
 
         before do
           login(user)
-          Feature.run_with_activated(:cloud_upload) do
-            get :index, format: 'xml'
-          end
+          get :index, format: 'xml'
         end
 
         it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_no_config') }
@@ -117,9 +121,8 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
     context 'with cloud_upload feature disabled' do
       before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :index, format: 'xml'
-        end
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(false)
+        get :index, format: 'xml'
       end
 
       it { expect(response).to be_not_found }
@@ -138,6 +141,10 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
         ami_name: 'my-image',
         target: 'ec2'
       }
+    end
+
+    before do
+      allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
     end
 
     context 'requested with invalid data' do
@@ -181,12 +188,14 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
     let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
     let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}?cmd=kill" }
 
+    before do
+      allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+    end
+
     context 'of an existing upload job' do
       before do
         stub_request(:post, path).and_return(body: xml_response)
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
       end
 
       it { expect(response).to be_success }
@@ -194,9 +203,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
     context 'of a not existing upload job' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: 42 }, format: 'xml'
-        end
+        delete :destroy, params: { id: 42 }, format: 'xml'
       end
 
       it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
@@ -206,9 +213,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
     context 'with a backend error response' do
       before do
         stub_request(:post, path).and_return(status: 404, body: 'not found')
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
       end
 
       it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_error') }

@@ -17,6 +17,9 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true do
       User.session = user
       attrib
       User.session = nil
+      allow(Feature).to receive(:active?).with(:image_templates).and_return(true)
+      allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+      allow(Feature).to receive(:active?).with(:kiwi_image_editor).and_return(true)
     end
 
     scenario 'branch image template' do

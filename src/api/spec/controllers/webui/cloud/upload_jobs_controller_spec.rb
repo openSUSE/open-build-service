@@ -31,17 +31,16 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
   describe '#index' do
     context 'with cloud_upload feature enabled' do
+      before do
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+      end
+
       context 'without an EC2 configuration' do
         let(:user) { create(:user) }
 
         before do
           login(user)
-        end
-
-        before do
-          Feature.run_with_activated(:cloud_upload) do
-            get :index
-          end
+          get :index
         end
 
         it { expect(response).to redirect_to(cloud_configuration_index_path) }
@@ -59,9 +58,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
         before do
           stub_request(:get, path).and_return(body: xml_response_list)
-          Feature.run_with_activated(:cloud_upload) do
-            get :index
-          end
+          get :index
         end
 
         it { expect(assigns(:upload_jobs).length).to eq(1) }
@@ -72,9 +69,8 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
     context 'with cloud_upload feature disabled' do
       before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :index
-        end
+        allow(Feature).to receive(:active?).with(:cloud_upload).and_return(false)
+        get :index
       end
 
       it { expect(response).to be_not_found }
@@ -85,12 +81,14 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     let(:upload_job) { create(:upload_job, user: user_with_ec2_configuration) }
     let(:path) { "#{CONFIG['source_url']}/cloudupload/#{upload_job.job_id}?cmd=kill" }
 
+    before do
+      allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+    end
+
     context 'of an existing upload job' do
       before do
         stub_request(:post, path).and_return(body: xml_response)
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }
-        end
+        delete :destroy, params: { id: upload_job.job_id }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
@@ -99,9 +97,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
     context 'of a not existing upload job' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: 42 }
-        end
+        delete :destroy, params: { id: 42 }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
@@ -111,9 +107,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     context 'with an backend error response' do
       before do
         stub_request(:post, path).and_return(status: 404, body: 'not found')
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }
-        end
+        delete :destroy, params: { id: upload_job.job_id }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }

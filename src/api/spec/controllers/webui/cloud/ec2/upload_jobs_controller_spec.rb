@@ -27,14 +27,13 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
 
   before do
     login(user_with_ec2_configuration)
+    allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
   end
 
   describe 'GET #new' do
     context 'with valid parameters' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          get :new, params: { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
-        end
+        get :new, params: { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
       end
 
       it { expect(response).to be_success }
@@ -47,9 +46,7 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
     context 'with invalid parameters' do
       shared_context 'it redirects and assigns flash error' do
         before do
-          Feature.run_with_activated(:cloud_upload) do
-            get :new, params: params
-          end
+          get :new, params: params
         end
 
         it { expect(flash[:error]).not_to be_nil }
@@ -97,9 +94,7 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
 
     shared_context 'it redirects and assigns flash error' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          post :create, params: { cloud_backend_upload_job: params }
-        end
+        post :create, params: { cloud_backend_upload_job: params }
       end
 
       it { expect(flash[:error]).to match(/#{subject}/) }
@@ -144,9 +139,7 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
       before do
         stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
 
-        Feature.run_with_activated(:cloud_upload) do
-          post :create, params: { cloud_backend_upload_job: params }
-        end
+        post :create, params: { cloud_backend_upload_job: params }
       end
 
       it { expect(flash[:success]).not_to be_nil }

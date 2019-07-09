@@ -9,14 +9,14 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
 
   before do
     login(user)
+    allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
+    allow(Feature).to receive(:active?).with(:cloud_upload_azure).and_return(true)
   end
 
   describe 'GET #show' do
     context 'without Azure configuration' do
       before do
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          get :show
-        end
+        get :show
       end
 
       it 'creates an Azure configuration' do
@@ -28,9 +28,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
       let!(:azure_configuration) { create(:azure_configuration, user: user) }
 
       before do
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          get :show
-        end
+        get :show
       end
 
       it { expect(assigns(:azure_configuration)).to eq(azure_configuration) }
@@ -43,10 +41,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
     context 'with valid parameters' do
       before do
         azure_configuration
-
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          put :update, params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } }
-        end
+        put :update, params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } }
         azure_configuration.reload
       end
 
@@ -56,10 +51,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
     context 'with invalid parameters' do
       before do
         azure_configuration
-
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          put :update, params: { cloud_azure_configuration: { application_id: '' } }
-        end
+        put :update, params: { cloud_azure_configuration: { application_id: '' } }
         azure_configuration.reload
       end
 
@@ -72,10 +64,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
 
     before do
       azure_configuration
-
-      Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-        delete :destroy
-      end
+      delete :destroy
     end
 
     it { expect(flash[:success]).not_to be_nil }

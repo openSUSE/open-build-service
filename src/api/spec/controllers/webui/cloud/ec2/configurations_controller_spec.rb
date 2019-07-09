@@ -4,14 +4,13 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
   let(:user) { create(:confirmed_user, login: 'tom') }
   before do
     login(user)
+    allow(Feature).to receive(:active?).with(:cloud_upload).and_return(true)
   end
 
   describe 'GET #show' do
     context 'without EC2 configuration' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          get :show
-        end
+        get :show
       end
 
       it 'creates an EC2 configuration' do
@@ -23,9 +22,7 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
       let!(:ec2_configuration) { create(:ec2_configuration, user: user) }
 
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          get :show
-        end
+        get :show
       end
 
       it { expect(user.ec2_configuration).to eq(ec2_configuration) }
@@ -37,9 +34,7 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
 
     context 'with valid parameters' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          put :update, params: { ec2_configuration: { arn: 'arn:123:456' } }
-        end
+        put :update, params: { ec2_configuration: { arn: 'arn:123:456' } }
         ec2_configuration.reload
       end
 
@@ -49,9 +44,7 @@ RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
 
     context 'with invalid parameters' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          put :update, params: { ec2_configuration: { arn: '123' } }
-        end
+        put :update, params: { ec2_configuration: { arn: '123' } }
       end
 
       it { expect(ec2_configuration.arn).not_to eq('123') }

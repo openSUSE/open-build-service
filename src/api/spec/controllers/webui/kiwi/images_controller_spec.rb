@@ -11,6 +11,10 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     create(:kiwi_image_with_package, name: 'package_with_valid_kiwi_file', project: user.home_project, with_kiwi_file: true)
   end
 
+  before do
+    allow(Feature).to receive(:active?).with(:kiwi_image_editor).and_return(true)
+  end
+
   describe 'GET #import_from_package' do
     include_context 'a kiwi image xml'
     include_context 'an invalid kiwi image xml'
