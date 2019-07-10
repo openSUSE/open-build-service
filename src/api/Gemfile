@@ -61,6 +61,8 @@ gem 'mousetrap-rails'
 gem 'xmlrpc'
 # Multiple feature switch
 gem 'feature'
+gem 'flipper'
+gem 'flipper-active_record'
 # for profiling
 gem 'peek'
 gem 'peek-dalli'
