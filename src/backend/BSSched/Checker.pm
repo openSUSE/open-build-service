@@ -313,6 +313,17 @@ sub setup {
     }
     $ctx->{'onlybuild'} = \%onlybuild if %onlybuild;
   }
+
+  # sync genbuildreqs from on-disk version
+  my $genbuildreqs = {};
+  $genbuildreqs = BSUtil::retrieve("$gdst/:genbuildreqs", 1) || {} if -e "$gdst/:genbuildreqs";
+  $ctx->{'genbuildreqs'} = $genbuildreqs;
+  if (%$genbuildreqs) {
+    $gctx->{'genbuildreqs'}->{$prp} = $genbuildreqs;
+  } else {
+    delete $gctx->{'genbuildreqs'}->{$prp} ;
+  }
+
   return ('scheduling', undef);
 }
 
@@ -507,6 +518,7 @@ sub expandandsort {
 
   $ctx->{'experrors'} = \%experrors;
   my $packs = $ctx->{'packs'};
+  my $genbuildreqs_prp = $ctx->{'genbuildreqs'} || {};
   for my $packid (@$packs) {
     my $pdata = $pdatas->{$packid};
 
@@ -574,6 +586,7 @@ sub expandandsort {
       next;
     }
     my @deps = @{$info->{'dep'} || []};
+    push @deps, @{$genbuildreqs_prp->{$packid}->[1]} if $genbuildreqs_prp->{$packid};
     my $handler = $handlers{$buildtype} || $handlers{default};
     my ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
     if (!$eok) {

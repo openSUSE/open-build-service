@@ -368,6 +368,30 @@ sub update_buildavg {
   $gctx->{'buildavg'} = $buildavg;
 }
 
+sub set_genbuildreqs {
+  my ($gctx, $prp, $packid, $file) = @_;
+  my $filecontent = $file ? readstr($file, 1) : undef;
+  my $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp};
+  if (defined $filecontent) {
+    my $md5 = Digest::MD5::md5_hex($filecontent);
+    return if $genbuildreqs && ($genbuildreqs->{$packid} || [''])->[0] eq $md5;
+    $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp} = {} unless $genbuildreqs;
+    $genbuildreqs->{$packid} = [ $md5, [ split("\n", $filecontent) ] ];
+  } else {
+    return if !$genbuildreqs || !delete($genbuildreqs->{$packid});
+    delete($gctx->{'genbuildreqs'}->{$prp}) if !%$genbuildreqs;
+  }
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  if (%{$genbuildreqs || {}}) {
+    mkdir_p($gdst);
+    BSUtil::store("$gdst/.:genbuildreqs", "$gdst/:genbuildreqs", $genbuildreqs);
+  } else {
+    unlink("$gdst/:genbuildreqs");
+  }
+}
+
 =head2 jobfinished - called when a build job is finished
 
  - move artifacts into built result dir
@@ -440,7 +464,7 @@ sub jobfinished {
   delete $status->{'uri'};      # obsolete
 
   my $code = $js->{'result'};
-  $code = 'failed' unless $code eq 'succeeded' || $code eq 'unchanged';
+  $code = 'failed' unless $code eq 'succeeded' || $code eq 'unchanged' || $code eq 'genbuildreqs';
 
   my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
@@ -502,6 +526,14 @@ sub jobfinished {
     $status->{'status'} = 'failed';
     addjobhist($gctx, $prp, $info, $status, $js, 'failed');
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
+    $changed->{$prp} ||= 1;     # package is no longer blocking
+    return;
+  }
+  if ($code eq 'genbuildreqs') {
+    print "  - $job: build has different generated build requires\n";
+    set_genbuildreqs($gctx, $prp, $packid, "$jobdatadir/_generated_buildreqs");
+    unlink($_) for @all;
+    rmdir($jobdatadir);
     $changed->{$prp} ||= 1;     # package is no longer blocking
     return;
   }
@@ -930,8 +962,10 @@ sub create {
   @btdeps = () if @sysdeps;	# already included in sysdeps
 
   # calculate packages needed for building
+  my $genbuildreqs = ($ctx->{'genbuildreqs'} || {})->{$packid};
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
+  unshift @bdeps, @{$genbuildreqs->[1]} if $genbuildreqs;
   unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
@@ -1057,7 +1091,9 @@ sub create {
     }
   }
   if (!$ctx->{'isreposerver'}) {
+    my $genbuildreqs = ($ctx->{'genbuildreqs'} || {})->{$packid};
     $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
+    $binfo->{'genbuildreqs'} = $genbuildreqs->[0] if $genbuildreqs;
   }
   $ctx->writejob($job, $binfo, $reason);
 

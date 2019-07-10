@@ -437,6 +437,7 @@ my $gctx = {
   'remotemissing' => {},		# missing remote projects cache
   'remoteprojs_changed' => {},		# entries changed in remoteprojs hash
   'projsuspended' => {},		# project is suspended for now
+  'genbuildreqs' => {},			# generated build require dependencies
 
   # lastcheck cache
   'lastcheck' => {},			# package check data of last check
@@ -955,6 +956,7 @@ eval {
 	$gctx->{'repodatas'}->drop($prp, $myarch);
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
+        delete $gctx->{'genbuildreqs'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
         $ctx->wipeobsoleterepo();
       }
