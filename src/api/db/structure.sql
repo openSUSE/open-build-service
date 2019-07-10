@@ -555,6 +555,26 @@ CREATE TABLE `flags` (
   CONSTRAINT `flags_ibfk_5` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `flipper_features` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(255) COLLATE utf8_bin NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_flipper_features_on_key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE `flipper_gates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `feature_key` varchar(255) COLLATE utf8_bin NOT NULL,
+  `key` varchar(255) COLLATE utf8_bin NOT NULL,
+  `value` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_flipper_gates_on_feature_key_and_key_and_value` (`feature_key`,`key`,`value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC;
+
 CREATE TABLE `group_maintainers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `group_id` int(11) DEFAULT NULL,
@@ -1458,6 +1478,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190328131711'),
 ('20190412130831'),
 ('20190520130009'),
-('20190704072437');
+('20190704072437'),
+('20190710094253');
 
 
