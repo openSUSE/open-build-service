@@ -3171,8 +3171,17 @@ sub dobuild {
     } else {
       return 2;
     }
-  } elsif ($ret == 768) {
+  } elsif ($ret == 3 * 256) {
     return 3;
+  } elsif ($ret == 9 * 256) {
+    if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+      rm_rf("$buildroot/.build.packages");
+      if (!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
+        print "final rename failed: $!\n";
+        return 1;
+      }
+    }
+    return -e "$buildroot/.build.packages/OTHER/_statistics" ? 9 : 1;
   }
   if ($ret) {
     return 1;
@@ -3194,7 +3203,7 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
     # convert build statistics into xml
-    if( -e "$buildroot/.build.packages/OTHER/_statistics") {
+    if (-e "$buildroot/.build.packages/OTHER/_statistics") {
       my $iosectors = 0;
       my $iorequests = 0;
       open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
@@ -3832,6 +3841,22 @@ if ($hostcheck) {
   }
 }
 
+my $send_genbuildreqs;
+if ($ex != 3 && -e "$buildroot/.build.packages/OTHER/_generated_buildreqs") {
+  if (-s "$buildroot/.build.packages/OTHER/_generated_buildreqs" > 100000) {
+    $ex = 1;
+  } else {
+    my $genbuildreqs = readstr("$buildroot/.build.packages/OTHER/_generated_buildreqs");
+    $send_genbuildreqs = { name => '_generated_buildreqs', filename => "$buildroot/.build.packages/OTHER/_generated_buildreqs" };
+    if ($genbuildreqs =~ /[^\n\040-\176]/s) {
+      $ex = 1;
+      $send_genbuildreqs = undef;
+    } elsif (Digest::MD5::md5_hex($genbuildreqs) ne ($buildinfo->{'genbuildreqs'} || '')) {
+      $ex = 11;
+    }
+  }
+}
+
 my @send;
 my $kiwitree;
 if ($ex == 0 && $buildinfo->{'reason'} ne "rebuild counter sync" && -f "$buildroot/.build.packages/same_result_marker") {
@@ -3877,6 +3902,7 @@ if ($ex == 0) {
     push @send, map {"$buildroot/.build.packages/$d/$_"} @files;
   }
   @send = map {{name => (split('/', $_))[-1], filename => $_}} @send;
+  @send = grep {$_->{'name'} ne '_generated_buildreqs'} @send;
   if ($kiwitree) {
     my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
     eval {
@@ -3926,6 +3952,9 @@ if (!$ex) {
       $code = 'failed';
     }
   }
+} elsif ($ex == 11) {
+  print "build has different generated build requires\n";
+  $code = 'genbuildreqs';
 } else {
   print "build failed, send back logfile...\n";
   $code = 'failed';
@@ -3943,6 +3972,7 @@ if ($code eq 'badhost') {
     push @send, {name => 'logfile', data => "no build log?\n"};
   }
 }
+push @send, $send_genbuildreqs if $send_genbuildreqs && $ex != 2 && $ex != 3;
 
 if (!$testmode) {
   my $param = {
