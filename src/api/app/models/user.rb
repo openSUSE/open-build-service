@@ -112,6 +112,8 @@ class User < ApplicationRecord
   after_create :create_home_project, :track_create
   before_save :send_metric_for_beta_change, if: :in_beta_changed?
 
+  alias flipper_id id
+
   def track_create
     RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
   end
