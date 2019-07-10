@@ -2247,18 +2247,17 @@ sub putjob {
   }
   $jobstatus->{'code'} = 'finished';
   $jobstatus->{'endtime'} = $now;
-  $jobstatus->{'result'} = 'failed';
-  # upload is empty for local image building
-  if (!@$uploaded) {
-    $jobstatus->{'result'} = $cgi->{'code'} || 'succeeded';
+  my $code = $cgi->{'code'};
+  # compat: calculate code from upload list if not provided
+  if (!$code) {
+    $code = 'failed';
+    # upload is empty for local image building
+    $code = 'succeeded' if !@$uploaded;
+    # successful builds have uploaded content.
+    $code = 'succeeded' if grep {$_->{'name'} ne 'meta' && $_->{'name'} ne 'logfile'} @$uploaded;
   }
-  # usual build should have uploaded content.
-  for my $file (@$uploaded) {
-    next if $file->{'name'} eq 'meta' || $file->{'name'} eq 'logfile';
-    $jobstatus->{'result'} = 'succeeded';
-    last;
-  }
-  $jobstatus->{'result'} = 'unchanged' if $cgi->{'code'} && $cgi->{'code'} eq 'unchanged';
+  $code = 'failed' if $code ne 'succeeded' && $code ne 'failed' && $code ne 'unchanged' && $code ne 'genbuildreqs';
+  $jobstatus->{'result'} = $code;
 
   notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
 
