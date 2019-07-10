@@ -13,6 +13,10 @@ FactoryBot.define do
       in_beta { true }
     end
 
+    trait :in_rollout do
+      in_rollout { true }
+    end
+
     trait :with_home do
       create_home_project { true }
     end
