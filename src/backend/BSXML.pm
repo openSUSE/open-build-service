@@ -544,6 +544,7 @@ our $buildinfo = [
 	'genmetaalgo',	# internal
 	'logidlelimit',	# internal
 	'logsizelimit',	# internal
+	'genbuildreqs',	# internal
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',
