@@ -153,6 +153,10 @@ GEM
       i18n (>= 0.7)
     feature (1.4.0)
     ffi (1.11.1)
+    flipper (0.16.2)
+    flipper-active_record (0.16.2)
+      activerecord (>= 3.2, < 6)
+      flipper (~> 0.16.2)
     flot-rails (0.0.7)
       jquery-rails
     font-awesome-sass (5.8.1)
@@ -492,6 +496,8 @@ DEPENDENCIES
   factory_bot_rails
   faker
   feature
+  flipper
+  flipper-active_record
   flot-rails
   font-awesome-sass
   gssapi
