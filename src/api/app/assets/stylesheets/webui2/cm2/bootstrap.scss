@@ -43,12 +43,6 @@
     color: $danger;
   }
 
-  .cm-tab {
-    mask: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MiAxNiI+PHBhdGggZD0iTSA2Ni4zNTM1MTYsMy4xNDY0ODQ0IDY1LjY0NjQ4NCwzLjg1MzUxNTYgNjkuNzkyOTY5LDggSCA2IHYgMSBoIDYzLjc5Mjk2OSBsIC00LjE0NjQ4NSw0LjE0NjQ4NCAwLjcwNzAzMiwwLjcwNzAzMiBMIDcxLjcwNzAzMSw4LjUgWiIgLz48L3N2Zz4K) no-repeat 100% 100%;
-    mask-position: right;
-    background-color: rgba($body-color, 0.2);
-  }
-
   .CodeMirror-negative-line {
     background: rgba($danger, 0.1);
   }
