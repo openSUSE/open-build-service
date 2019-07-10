@@ -1210,9 +1210,59 @@ our $pattern_id = [
 	'downloadurl',
 ];
 
+our $sourcediff = [
+    'sourcediff' =>
+	'key',
+      [ 'old' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'new' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'files' =>
+	 [[ 'file' =>
+		'state',	# added, deleted, changed
+	      [ 'old' =>
+		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
+	      ],
+	      [ 'new' =>
+		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
+	      ],
+	      [ 'diff' =>
+		    'binary',
+		    'lines',
+		    'shown',
+		    '_content',
+              ],
+         ]],
+      ],
+      [ 'issues' =>
+	 [[ 'issue' =>
+		'state',
+		'tracker',
+		'name',
+		'label',
+		'url',
+	 ]]
+      ],
+];
+
 our $request = [
     'request' =>
 	'id',
+	'actions',
 	'creator',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
 	'key',		# cache key, not really in request
@@ -1252,6 +1302,7 @@ our $request = [
 	        'xsrcmd5',
 	        'oxsrcmd5',
           ],
+          [ $sourcediff ],
      ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
@@ -1539,55 +1590,6 @@ our $deltainfo = [
 our $prestodelta = [
     'prestodelta' =>
       [ $deltapackage ],
-];
-
-our $sourcediff = [
-    'sourcediff' =>
-	'key',
-      [ 'old' =>
-	    'project',
-	    'package',
-	    'rev',
-	    'srcmd5',
-      ],
-      [ 'new' =>
-	    'project',
-	    'package',
-	    'rev',
-	    'srcmd5',
-      ],
-      [ 'files' =>
-	 [[ 'file' =>
-		'state',	# added, deleted, changed
-	      [ 'old' =>
-		    'name',
-		    'md5',
-		    'size',
-		    'mtime',
-	      ],
-	      [ 'new' =>
-		    'name',
-		    'md5',
-		    'size',
-		    'mtime',
-	      ],
-	      [ 'diff' =>
-		    'binary',
-		    'lines',
-		    'shown',
-		    '_content',
-              ],
-         ]],
-      ],
-      [ 'issues' =>
-	 [[ 'issue' =>
-		'state',
-		'tracker',
-		'name',
-		'label',
-		'url',
-	 ]]
-      ],
 ];
 
 our $configuration = [
