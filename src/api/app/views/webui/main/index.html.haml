@@ -18,7 +18,7 @@
         = proceed_link "document-new", 'New Project', controller: 'project', action: 'new', ns: User.session!.home_project_name if User.session
       - unless @spider_bot
         = proceed_link 'utilities-system-monitor', 'Status Monitor', controller: 'monitor', action: 'index'
-      = proceed_link 'drive-optical-32', 'New Image', image_templates_path if Feature.active?(:image_templates)
+      = proceed_link 'drive-optical-32', 'New Image', image_templates_path
   = render partial: 'systemstatus'
 .grid_5.omega
   - if !User.session and can_register
