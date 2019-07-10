@@ -1,6 +1,5 @@
 production:
   features: &default
-    kiwi_image_editor: false
     cloud_upload: false
     cloud_upload_azure: false
     bootstrap: false
@@ -8,7 +7,6 @@ production:
 development:
   features:
     <<: *default
-    kiwi_image_editor: true
     cloud_upload: true
     cloud_upload_azure: true
     bootstrap: false
@@ -16,7 +14,6 @@ development:
 test:
   features:
     <<: *default
-    kiwi_image_editor: true
     cloud_upload: true
     cloud_upload_azure: true
     bootstrap: false
@@ -24,7 +21,6 @@ test:
 beta:
   features:
     <<: *default
-    kiwi_image_editor: true
     cloud_upload: true
     cloud_upload_azure: true
     bootstrap: true
