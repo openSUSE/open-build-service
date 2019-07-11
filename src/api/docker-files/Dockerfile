@@ -6,11 +6,6 @@
 FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-base
 ARG CONTAINER_USERID
 
-# install foreman from rpms, we only need it in docker
-RUN zypper ar http://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/openSUSE_Leap_15.1/ dlre
-RUN zypper -n --gpg-auto-import-keys ref
-RUN zypper -n in -C 'rubygem(foreman)' 'rubygem(mailcatcher)'
-
 # for lint task
 RUN npm install -g jshint
 
