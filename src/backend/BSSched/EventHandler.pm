@@ -397,6 +397,7 @@ sub event_wipe {
   print "wiping $prp $packid\n";
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   BSSched::BuildResult::wipe($gctx, $prp, $packid, $prpsearchpath, $ectx->{'dstcache'}) if -d "$gdst/$packid";
+  BSSched::BuildJob::set_genbuildreqs($gctx, $prp, $packid, undef);
   for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
       $changed_high->{$prp} = 2;
