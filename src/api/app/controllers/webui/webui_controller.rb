@@ -11,6 +11,7 @@ class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
   include Pundit
+  include FlipperFeature
   protect_from_forgery
 
   before_action :set_influxdb_data
@@ -243,6 +244,8 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  # TODO: remove when all the migration from Feature to Flipper is finished.
+  # It'll be replaced by feature_enabled?
   def feature_active?(feature)
     return if Feature.active?(feature)
     render file: Rails.root.join('public/404'), status: :not_found, layout: false
@@ -309,7 +312,7 @@ class Webui::WebuiController < ActionController::Base
       # The feature switch depends on the user (e.g. Admin or Staff)
       ENV['BOOTSTRAP'].present?
     else
-      Feature.active?(:bootstrap)
+      Flipper.enabled?(:bootstrap, User.session)
     end
   end
 

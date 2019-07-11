@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
 
   include ActionController::ImplicitRender
   include ActionController::MimeResponds
+  include FlipperFeature
 
   # session :disabled => true
 
@@ -89,6 +90,8 @@ class ApplicationController < ActionController::Base
 
   protected
 
+  # TODO: remove when all the migration from Feature to Flipper is finished.
+  # It'll be replaced by feature_enabled?
   def feature_active?(feature)
     return if Feature.active?(feature)
     render file: Rails.root.join('public/404'), status: :not_found, layout: false

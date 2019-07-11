@@ -1,0 +1,6 @@
+module FlipperFeature
+  def feature_enabled?(feature)
+    return if Flipper.enabled?(feature.to_sym, User.session)
+    render file: Rails.root.join('public/404'), status: :not_found, layout: false
+  end
+end
