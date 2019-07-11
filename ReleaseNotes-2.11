@@ -42,4 +42,5 @@ Bugfixes:
 Intentional changes:
 ====================
 
-
+  Features enabled by default:
+    * Image Template
