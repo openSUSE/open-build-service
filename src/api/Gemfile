@@ -60,7 +60,6 @@ gem 'mousetrap-rails'
 # for issue tracker communication
 gem 'xmlrpc'
 # Multiple feature switch
-gem 'feature'
 gem 'flipper'
 gem 'flipper-active_record'
 # for profiling

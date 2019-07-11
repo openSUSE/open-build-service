@@ -69,9 +69,6 @@ require 'support/controllers/controllers_authentication'
 # helper methods for authentication in models tests
 require 'support/models/models_authentication'
 
-# support feature switch testing
-require 'feature/testing'
-
 # support Delayed Jobs
 require 'support/delayed_job'
 
