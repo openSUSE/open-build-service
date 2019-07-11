@@ -7,7 +7,7 @@
       [
         "<%= escape_javascript(fuzzy_time(row.created_at, false)) %>",
         <% cache "request-table-row-#{row.id}-#{row.updated_at.to_i}" do %>
-          "<%= escape_javascript(project_or_package_link(project: row.source_project, package: row.source_package, creator: row.creator, trim_to: 40, short: true)) %>",
+          "<%= escape_javascript(project_or_package_link(project: row.source_project, package: row.source_package, creator: row.creator, trim_to: nil, short: true)) %>",
           "<%= escape_javascript(target_project_link(row)) %>",
           "<%= escape_javascript(user_with_realname_and_icon(row.creator, short: true)) %>",
           "<%= escape_javascript(new_or_update_request(row)) %>",
