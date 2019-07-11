@@ -21,7 +21,7 @@
         = link_to('#', data: { 'target': '#description-edit', 'toggle': 'modal' }) do
           %i.text-info.fa.fa-cog
           Edit details
-      - if Feature.active?(:cloud_upload) && User.session
+      - if User.session
         %li.list-inline-item
           = link_to(cloud_upload_index_path, id: 'cloud-upload') do
             %i.fas.fa-cloud-upload-alt.text-secondary

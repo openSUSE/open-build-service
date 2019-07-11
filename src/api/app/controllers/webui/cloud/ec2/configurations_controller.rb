@@ -4,7 +4,6 @@ module Webui
       class ConfigurationsController < WebuiController
         before_action :require_login
         before_action :set_breadcrumb
-        before_action -> { feature_active?(:cloud_upload) }
 
         def show
           switch_to_webui2

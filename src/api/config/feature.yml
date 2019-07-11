@@ -1,22 +1,14 @@
 production:
   features: &default
-    cloud_upload: false
-    cloud_upload_azure: false
 
 development:
   features:
     <<: *default
-    cloud_upload: true
-    cloud_upload_azure: true
 
 test:
   features:
     <<: *default
-    cloud_upload: true
-    cloud_upload_azure: true
 
 beta:
   features:
     <<: *default
-    cloud_upload: true
-    cloud_upload_azure: true

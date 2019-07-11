@@ -15,9 +15,8 @@
       - if package.kiwi_image? && policy(package).update?
         = render partial: 'webui2/webui/package/bottom_actions/view_kiwi', locals: { package_id: package.id }
 
-      - if Feature.active?(:cloud_upload)
-        - if package.kiwi_image?
-          = render partial: 'webui2/webui/package/bottom_actions/cloud_upload', locals: { cloud_upload_index_path: cloud_upload_index_path }
+      - if package.kiwi_image?
+        = render partial: 'webui2/webui/package/bottom_actions/cloud_upload', locals: { cloud_upload_index_path: cloud_upload_index_path }
 
       - if services.present?
         = render partial: 'webui2/webui/package/bottom_actions/trigger_services', locals: { package: package, project: project }

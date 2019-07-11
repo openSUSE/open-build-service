@@ -1,7 +1,6 @@
 module Cloud
   class UploadJobsController < ApplicationController
     before_action :require_login
-    before_action -> { feature_active?(:cloud_upload) }
     before_action :validate_configuration_presence, only: [:index, :create]
     before_action :set_upload_job, only: [:destroy, :show]
 

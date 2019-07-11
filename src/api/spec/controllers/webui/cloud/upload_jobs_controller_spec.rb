@@ -30,54 +30,38 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
   end
 
   describe '#index' do
-    context 'with cloud_upload feature enabled' do
-      context 'without an EC2 configuration' do
-        let(:user) { create(:user) }
+    context 'without an EC2 configuration' do
+      let(:user) { create(:user) }
 
-        before do
-          login(user)
-        end
-
-        before do
-          Feature.run_with_activated(:cloud_upload) do
-            get :index
-          end
-        end
-
-        it { expect(response).to redirect_to(cloud_configuration_index_path) }
+      before do
+        login(user)
       end
 
-      context 'with an EC2 configuration' do
-        let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
-        let(:xml_response_list) do
-          <<-HEREDOC
-          <clouduploadjoblist>
-            #{xml_response}
-          </clouduploadjoblist>
-          HEREDOC
-        end
-
-        before do
-          stub_request(:get, path).and_return(body: xml_response_list)
-          Feature.run_with_activated(:cloud_upload) do
-            get :index
-          end
-        end
-
-        it { expect(assigns(:upload_jobs).length).to eq(1) }
-        it { expect(assigns(:upload_jobs).first.id).to eq('6') }
-        it { expect(response).to be_success }
+      before do
+        get :index
       end
+
+      it { expect(response).to redirect_to(cloud_configuration_index_path) }
     end
 
-    context 'with cloud_upload feature disabled' do
-      before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :index
-        end
+    context 'with an EC2 configuration' do
+      let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+      let(:xml_response_list) do
+        <<-HEREDOC
+        <clouduploadjoblist>
+          #{xml_response}
+        </clouduploadjoblist>
+        HEREDOC
       end
 
-      it { expect(response).to be_not_found }
+      before do
+        stub_request(:get, path).and_return(body: xml_response_list)
+        get :index
+      end
+
+      it { expect(assigns(:upload_jobs).length).to eq(1) }
+      it { expect(assigns(:upload_jobs).first.id).to eq('6') }
+      it { expect(response).to be_success }
     end
   end
 
@@ -88,9 +72,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     context 'of an existing upload job' do
       before do
         stub_request(:post, path).and_return(body: xml_response)
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }
-        end
+        delete :destroy, params: { id: upload_job.job_id }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
@@ -99,9 +81,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
     context 'of a not existing upload job' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: 42 }
-        end
+        delete :destroy, params: { id: 42 }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
@@ -111,9 +91,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
     context 'with an backend error response' do
       before do
         stub_request(:post, path).and_return(status: 404, body: 'not found')
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }
-        end
+        delete :destroy, params: { id: upload_job.job_id }
       end
 
       it { expect(response).to redirect_to(cloud_upload_index_path) }
