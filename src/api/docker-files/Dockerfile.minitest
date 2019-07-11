@@ -1,5 +1,13 @@
+# This is just a thin layer on top of the frontend-backend container that makes
+# sure different users can run it without the contained rails app generating
+# files in the git checkout with some strange user...
+
 FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-backend
-ARG CONTAINER_USERID
+
+# FIXME: We can't have an .minitest.yml specific overwrite file, how do we get the CONTAINER_USERID into the build?
+# Configure our user
+# ARG CONTAINER_USERID
+# RUN usermod -u "$CONTAINER_USERID" frontend
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
