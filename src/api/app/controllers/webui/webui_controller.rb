@@ -244,13 +244,6 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  # TODO: remove when all the migration from Feature to Flipper is finished.
-  # It'll be replaced by feature_enabled?
-  def feature_active?(feature)
-    return if Feature.active?(feature)
-    render file: Rails.root.join('public/404'), status: :not_found, layout: false
-  end
-
   private
 
   def authenticator
