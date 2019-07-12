@@ -2,25 +2,21 @@ production:
   features: &default
     cloud_upload: false
     cloud_upload_azure: false
-    bootstrap: false
 
 development:
   features:
     <<: *default
     cloud_upload: true
     cloud_upload_azure: true
-    bootstrap: false
 
 test:
   features:
     <<: *default
     cloud_upload: true
     cloud_upload_azure: true
-    bootstrap: false
 
 beta:
   features:
     <<: *default
     cloud_upload: true
     cloud_upload_azure: true
-    bootstrap: true
