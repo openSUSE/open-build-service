@@ -17,11 +17,11 @@ OptionParser.new do |opts|
 end.parse!
 
 def available_revision(api_url)
-  uri = URI("#{api_url}/public/build/OBS:Server:Unstable/SLE_12_SP3/x86_64/obs-server")
+  uri = URI("#{api_url}/public/build/OBS:Server:Unstable/SLE_12_SP4/x86_64/obs-server")
   result = Net::HTTP.get(uri)
   doc = Nokogiri::XML(result)
   obs_api_filename = doc.xpath('//binary[starts-with(@filename, "obs-api")]/@filename').to_s
-  obs_api_filename.match(/obs-api-2\.10~alpha\.\w*\.(?<git>\w*)-(\w*.)*/)[:git]
+  obs_api_filename.match(/obs-api-2\.11~alpha\.\w*\.(?<git>\w*)-(\w*.)*/)[:git]
 end
 
 def deployed_revision(api_url)
