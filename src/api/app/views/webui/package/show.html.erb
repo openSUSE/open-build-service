@@ -124,7 +124,7 @@
                     <%= link_to(sprited_text('package_edit', 'View Image'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
                   </li>
                 <% end %>
-                <% if Feature.active?(:cloud_upload) && User.session %>
+                <% if User.session %>
                   <% if @package.kiwi_image? %>
                     <li>
                       <%= link_to(sprited_text('drive_web', 'Cloud Upload'), cloud_upload_index_path, id: 'cloud-upload') %>

@@ -3,7 +3,6 @@ module Webui
     module UploadJob
       class LogsController < WebuiController
         before_action :require_login
-        before_action -> { feature_active?(:cloud_upload) }
         before_action :validate_configuration_presence, :set_breadcrump, :set_log
 
         def show

@@ -45,3 +45,5 @@ Intentional changes:
   Features enabled by default:
     * Image Template
     * Kiwi Image Editor
+    * Cloud upload for EC2
+    * Cloud upload for Azure

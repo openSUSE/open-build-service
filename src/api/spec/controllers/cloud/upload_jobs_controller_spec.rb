@@ -37,92 +37,64 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
   end
 
   describe '#show' do
-    context 'with cloud_upload feature enabled' do
-      let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
-      let(:xml_response_list) do
-        <<-HEREDOC
-        <clouduploadjoblist>
-          #{xml_response}
-        </clouduploadjoblist>
-        HEREDOC
-      end
-
-      context 'requesting upload jobs of another user' do
-        let(:user) { create(:confirmed_user) }
-
-        before do
-          login(user)
-          Feature.run_with_activated(:cloud_upload) do
-            get :show, params: { id: upload_job.job_id }, format: 'xml'
-          end
-        end
-
-        it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
-        it { expect(response).to have_http_status(:not_found) }
-      end
-
-      context 'with an EC2 configuration' do
-        before do
-          stub_request(:get, path).and_return(body: xml_response_list)
-          get :show, params: { id: upload_job.job_id }, format: 'xml'
-        end
-
-        it 'returns an xml response with all cloud upload jobs listed' do
-          expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
-        end
-        it { expect(response).to be_success }
-      end
+    let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+    let(:xml_response_list) do
+      <<-HEREDOC
+      <clouduploadjoblist>
+        #{xml_response}
+      </clouduploadjoblist>
+      HEREDOC
     end
 
-    context 'with cloud_upload feature disabled' do
+    context 'requesting upload jobs of another user' do
+      let(:user) { create(:confirmed_user) }
+
       before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :show, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        login(user)
+        get :show, params: { id: upload_job.job_id }, format: 'xml'
       end
 
-      it { expect(response).to be_not_found }
+      it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    context 'with an EC2 configuration' do
+      before do
+        stub_request(:get, path).and_return(body: xml_response_list)
+        get :show, params: { id: upload_job.job_id }, format: 'xml'
+      end
+
+      it 'returns an xml response with all cloud upload jobs listed' do
+        expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
+      end
+      it { expect(response).to be_success }
     end
   end
 
   describe '#index' do
-    context 'with cloud_upload feature enabled' do
-      let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
-      context 'without an EC2 configuration' do
-        let(:user) { create(:confirmed_user) }
+    let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+    context 'without an EC2 configuration' do
+      let(:user) { create(:confirmed_user) }
 
-        before do
-          login(user)
-          Feature.run_with_activated(:cloud_upload) do
-            get :index, format: 'xml'
-          end
-        end
-
-        it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_no_config') }
-        it { expect(response).to have_http_status(:bad_request) }
+      before do
+        login(user)
+        get :index, format: 'xml'
       end
 
-      context 'with an EC2 configuration' do
-        before do
-          stub_request(:get, path).and_return(body: xml_response_list)
-          get :index, format: 'xml'
-        end
-
-        it 'returns an xml response with all cloud upload jobs listed' do
-          expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
-        end
-        it { expect(response).to be_success }
-      end
+      it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_no_config') }
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
-    context 'with cloud_upload feature disabled' do
+    context 'with an EC2 configuration' do
       before do
-        Feature.run_with_deactivated(:cloud_upload) do
-          get :index, format: 'xml'
-        end
+        stub_request(:get, path).and_return(body: xml_response_list)
+        get :index, format: 'xml'
       end
 
-      it { expect(response).to be_not_found }
+      it 'returns an xml response with all cloud upload jobs listed' do
+        expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
+      end
+      it { expect(response).to be_success }
     end
   end
 
@@ -184,9 +156,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
     context 'of an existing upload job' do
       before do
         stub_request(:post, path).and_return(body: xml_response)
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
       end
 
       it { expect(response).to be_success }
@@ -194,9 +164,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
     context 'of a not existing upload job' do
       before do
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: 42 }, format: 'xml'
-        end
+        delete :destroy, params: { id: 42 }, format: 'xml'
       end
 
       it { expect(response.header['X-Opensuse-Errorcode']).to eq('not_found') }
@@ -206,9 +174,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
     context 'with a backend error response' do
       before do
         stub_request(:post, path).and_return(status: 404, body: 'not found')
-        Feature.run_with_activated(:cloud_upload) do
-          delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
-        end
+        delete :destroy, params: { id: upload_job.job_id }, format: 'xml'
       end
 
       it { expect(response.header['X-Opensuse-Errorcode']).to eq('cloud_upload_job_error') }

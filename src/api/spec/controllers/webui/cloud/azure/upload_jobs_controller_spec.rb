@@ -34,9 +34,7 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
   describe 'GET #new' do
     context 'with valid parameters' do
       before do
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          get :new, params: { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
-        end
+        get :new, params: { project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' }
       end
 
       it { expect(response).to be_success }
@@ -49,9 +47,7 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
     context 'with invalid parameters' do
       shared_context 'it redirects and assigns flash error' do
         before do
-          Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-            get :new, params: params
-          end
+          get :new, params: params
         end
 
         it { expect(flash[:error]).not_to be_nil }
@@ -102,9 +98,7 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
         HEREDOC
 
         stub_request(:post, url).and_return(body: error_response, status: 400)
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          post :create, params: { cloud_backend_upload_job: params }
-        end
+        post :create, params: { cloud_backend_upload_job: params }
       end
 
       it { expect(flash[:error]).to match(/#{subject}/) }
@@ -148,10 +142,7 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
 
       before do
         stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
-
-        Feature.run_with_activated(:cloud_upload, :cloud_upload_azure) do
-          post :create, params: { cloud_backend_upload_job: params }
-        end
+        post :create, params: { cloud_backend_upload_job: params }
       end
 
       it { expect(flash[:success]).not_to be_nil }

@@ -4,33 +4,31 @@
 .grid_16.box.box-shadow
   %h1
     Choose your Cloud
-  - if @ec2_configured
-    .grid_4.prefix_4.cloud_item
-      %p
-      - if @user_ec2_configured
-        %h2
-          = link_to('Amazon EC2', new_cloud_ec2_upload_path(project: params[:project],
-                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
-                    class: 'cloud_button', title: "Upload to Amazon EC2")
-      - else
-        %h2
-          %span.cloud_button.disabled
-            Amazon EC2
-        %p.red
-          Configure your credentials
-          = link_to('here', cloud_ec2_configuration_path, title: "Configure the credentials for your Amazon EC2")
-  - if @azure_configured
-    .grid_4.omega.cloud_item
-      %p
-      - if @user_azure_configured
-        %h2
-          = link_to('Microsoft Azure', new_cloud_azure_upload_path(project: params[:project],
-                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
-                    class: 'cloud_button', title: "Upload to Microsoft Azure" )
-      - else
-        %h2
-          %span.cloud_button.disabled
-            Microsoft Azure
-        %p.red
-          Configure your credentials
-          = link_to('here', cloud_azure_configuration_path, title: "Configure the credentials for your Microsoft Azure")
+  .grid_4.prefix_4.cloud_item
+    %p
+    - if @user_ec2_configured
+      %h2
+        = link_to('Amazon EC2', new_cloud_ec2_upload_path(project: params[:project],
+                  package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                  class: 'cloud_button', title: "Upload to Amazon EC2")
+    - else
+      %h2
+        %span.cloud_button.disabled
+          Amazon EC2
+      %p.red
+        Configure your credentials
+        = link_to('here', cloud_ec2_configuration_path, title: "Configure the credentials for your Amazon EC2")
+  .grid_4.omega.cloud_item
+    %p
+    - if @user_azure_configured
+      %h2
+        = link_to('Microsoft Azure', new_cloud_azure_upload_path(project: params[:project],
+                  package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                  class: 'cloud_button', title: "Upload to Microsoft Azure" )
+    - else
+      %h2
+        %span.cloud_button.disabled
+          Microsoft Azure
+      %p.red
+        Configure your credentials
+        = link_to('here', cloud_azure_configuration_path, title: "Configure the credentials for your Microsoft Azure")

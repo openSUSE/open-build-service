@@ -2,7 +2,6 @@ module Webui
   module Cloud
     class UploadJobsController < WebuiController
       before_action :require_login
-      before_action -> { feature_active?(:cloud_upload) }
       before_action :validate_configuration_presence
       before_action :set_breadcrump
       before_action :validate_uploadable, only: [:new]
@@ -17,8 +16,6 @@ module Webui
 
       def new
         @crumb_list.push << 'Choose your Cloud'
-        @ec2_configured = Feature.active?(:cloud_upload)
-        @azure_configured = Feature.active?(:cloud_upload_azure)
         @user_ec2_configured = User.session!.ec2_configuration.present?
         @user_azure_configured = User.session!.azure_configuration.present?
         switch_to_webui2

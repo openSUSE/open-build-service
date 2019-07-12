@@ -4,8 +4,6 @@ module Webui
       class ConfigurationsController < WebuiController
         before_action :require_login
         before_action :set_breadcrumb
-        before_action -> { feature_active?(:cloud_upload) }
-        before_action -> { feature_active?(:cloud_upload_azure) }
         before_action :set_azure_configuration
 
         # GET /cloud/azure/configuration

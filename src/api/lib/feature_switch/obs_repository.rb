@@ -3,9 +3,7 @@ module Feature
     # ObsRepository for active and inactive features based on YamlRepository having default values for each key in OBS
     #
     class ObsRepository < YamlRepository
-      DEFAULTS = {
-        cloud_upload: false
-      }.freeze
+      DEFAULTS = {}.freeze
 
       # Read given file, perform erb evaluation and yaml parsing
       #
