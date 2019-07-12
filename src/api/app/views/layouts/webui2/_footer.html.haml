@@ -27,7 +27,7 @@
       %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
       %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
       - if Announcement.last.present?
-        %li= link_to('Terms of Service', announcement_path(Announcement.last))
+        %li= link_to('Latest Announcement', announcement_path(Announcement.last))
   .col
     %strong Contact
     %ul
