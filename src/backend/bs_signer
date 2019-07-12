@@ -89,8 +89,8 @@ sub readblk {
 }
 
 sub writeblk {
-  my ($fd, $blk, $cnt) = @_;
-  my $blksize = 2048;
+  my ($fd, $blk, $cnt, $blksize) = @_;
+  $blksize ||= 2048;
   sysseek($fd, $blk * $blksize, SEEK_SET) || die("sysseek: $!\n");
   (syswrite($fd, $cnt) || 0) == length($cnt) || die("syswrite: $!\n");
 }
@@ -212,6 +212,22 @@ sub signisofiles {
   return $signed;
 }
 
+sub signisotag {
+  my ($fd, $pubkey, @signargs) = @_;
+  my $blk = readblk($fd, 0, 17);
+  die("primary volume descriptor missing\n") if substr($blk, 0x8000, 6) ne "\001CD001";
+  my $tags = ';'.substr($blk, 0x8373, 0x200);
+  return unless $tags =~ /;signature=(\d+)/;
+  my $sigblkno = $1;
+  my $sig = BSUtil::xsystem(substr($blk, 0x8373, 0x200), $BSConfig::sign, @signargs, '-d');
+  die("returned signature is empty\n") unless $sig;
+  die("returned signature is too big\n") if length($sig) > 2048 - 64;
+  $sig .= "\0" x (2048 - 64 - length($sig));
+  my $b = readblk($fd, $sigblkno, 4, 512);
+  substr($b, 64, 2048 - 64) = $sig;
+  writeblk($fd, $sigblkno, $b, 512);
+}
+
 sub retagiso {
   my ($fd) = @_;
   my $blk = readblk($fd, 0, 17);
@@ -221,6 +237,17 @@ sub retagiso {
   my $sum = $1;
   my $sumtype = (split('=', $sum, 2))[0];
   print "updating $sumtype tag\n";
+  my ($oldpartition, $oldpartitionsum, $partitionstart, $partitionlen);
+  if ($tags =~ /;(partition=(\d+),(\d+),([0-9a-fA-F]+))/) {
+    ($oldpartition, $partitionstart, $partitionlen, $oldpartitionsum) = ($1, $2, $3, $4);
+  }
+  if ($tags =~ /;signature=(\d+)/) {
+    # remove old signature
+    my $sigblkno = $1;
+    my $b = readblk($fd, $sigblkno, 4, 512);
+    substr($b, 64, 2048 - 64) = "\0" x (2048 - 64);
+    writeblk($fd, $sigblkno, $b, 512);
+  }
   substr($blk, 0x0000, 0x200) = "\0" x 0x200;
   substr($blk, 0x8373, 0x200) = ' ' x 0x200;
   my $numblks = unpack("V", substr($blk, 0x8050, 4));
@@ -229,14 +256,35 @@ sub retagiso {
   my $ctx = Digest->new($chkmap->{$sumtype});
   $ctx->add($blk);
   $numblks -= 17;
-  my $blkno = 16;
+  my $blkno = 17;
   while ($numblks-- > 0) {
-    my $b = readblk($fd, ++$blkno);
+    my $b = readblk($fd, $blkno++);
     $ctx->add($b);
   }
   my $newsum = "$sumtype=".$ctx->hexdigest;
   die unless length($sum) == length($newsum);
   $tags =~ s/;\Q$sum\E/;$newsum/;
+
+  if ($oldpartition) {
+    $ctx = Digest->new($chkmap->{$sumtype});
+    $blkno = $partitionstart;
+    $numblks = $partitionlen;
+    while ($numblks > 16) {
+      my $b = readblk($fd, $blkno, 16, 512);
+      $ctx->add($b);
+      $blkno += 16;
+      $numblks -= 16;
+    }
+    while ($numblks-- > 0) {
+      my $b = readblk($fd, $blkno++, 1, 512);
+      $ctx->add($b);
+    }
+    my $newpartitionsum = $ctx->hexdigest;
+    die unless length($newpartitionsum) == length($oldpartitionsum);
+    my $newpartition = $oldpartition;
+    substr($newpartition, -length($oldpartitionsum), length($oldpartitionsum), $newpartitionsum);
+    $tags =~ s/;\Q$oldpartition\E/;$newpartition/;
+  }
   substr($blk, 0x8373, 0x200) = substr($tags, 1);
   writeblk($fd, 16, substr($blk, 0x8000, 0x800));
 }
@@ -247,6 +295,7 @@ sub signiso {
   open(ISO, '+<', $file) || die("$file: $!\n");
   my $signed = signisofiles(\*ISO, $pubkey, @signargs);
   retagiso(\*ISO) if $signed;
+  signisotag(\*ISO, $pubkey, @signargs);
   close(ISO) || die("close $file: $!\n");
 }
 
