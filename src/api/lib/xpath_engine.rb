@@ -150,6 +150,7 @@ class XpathEngine
         '@medium' => { cpart: 'medium' },
         'disturl' => { cpart: 'binary_disturl' },
         'binaryid' => { cpart: 'binary_id' },
+        'cpeid' => { cpart: 'binary_cpeid' },
         'supportstatus' => { cpart: 'binary_supportstatus' },
         'updateinfo/@id' => { cpart: 'binary_updateinfo' },
         'updateinfo/@version' => { cpart: 'binary_updateinfo_version' },

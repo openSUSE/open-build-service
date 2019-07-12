@@ -48,6 +48,7 @@ use BSKiwiXML;
 use BSHTTP;
 use BSBuild;
 use BSCando;
+use BSVerify;
 
 my $can_rewrite_containers;
 eval {
@@ -2692,10 +2693,21 @@ sub addreportdata {
   $report->{'disturl'} = $buildinfo->{'disturl'} if $buildinfo->{'disturl'};
 }
 
+sub cpeid_from_rpm {
+  my ($rpm_file) = @_;
+
+  my $header = Build::query($rpm_file, "evra" => 1);
+  if (my ($cpeid) = grep {$_ =~ m/^product-cpeid\(\)/} @{$header->{"provides"}}) {
+    $cpeid =~ s/.* = //;
+    # the cpeid is still URL encoded. decoding will happen in publisher
+    return $cpeid;
+  }
+}
+
 # parse all .report files and create a channel file from them
 # also update the data in the .report files with the binary origins
 sub createchannel {
-  my ($buildinfo, $dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins, $srcdir) = @_;
   my @reports = grep {/\.report$/} ls($dir);
   my %channel;
   my $hasunknown;
@@ -2711,7 +2723,17 @@ sub createchannel {
       if (!$prpap) {
 	$prpap = 'UNKNOWN/UNKNOWN/UNKNOWN/UNKNOWN';
 	$hasunknown = 1;
+      } elsif (!defined($bin->{'cpeid'}) && $bin->{'name'} =~ /-release$/) {
+        # current product builders should provide cpeid already
+        # add them for old tools, but only for -release packages for speed reasons
+        my $rpm_file = $bin->{'_content'};
+        $rpm_file =~ s/obs:\//$srcdir\/repos/;
+        if (-e $rpm_file) {
+          my $cpeid = cpeid_from_rpm($rpm_file);
+          $bin->{'cpeid'} = $cpeid if $cpeid;
+        }
       }
+
       my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
       $bin->{'project'} = $projid;
       $bin->{'repository'} = $repoid;
@@ -2796,7 +2818,7 @@ sub createchannel {
 
 # create a .report file from a .packages file by adding binary origin information
 sub createreport {
-  my ($buildinfo, $dir, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $kiwiorigins, $srcdir) = @_;
 
   local *F;
   for my $file (grep {/\.packages$/} sort(ls($dir))) {
@@ -2834,6 +2856,18 @@ sub createreport {
         $bin->{'repository'} = $repoid;
         $bin->{'arch'} = $arch;
         $bin->{'package'} = $packid if $packid;
+
+        # add cpeid from release rpms only so far for speed reasons
+        if ($bin->{'name'} =~ /-release$/) {
+          BSVerify::verify_projid($projid);
+          BSVerify::verify_repoid($repoid);
+          BSVerify::verify_packid($bin->{'name'}); # not exactly, but hopefully good enough
+          my $rpm_file = "$srcdir/repos/$projid/$repoid/$bin->{'name'}.rpm";
+          if (-e $rpm_file) {
+            my $cpeid = cpeid_from_rpm($rpm_file);
+            $bin->{'cpeid'} = $cpeid if $cpeid;
+          }
+        }
       }
       push @bins, $bin;
     }
@@ -3248,12 +3282,12 @@ sub dobuild {
     $buildinfo->{'buildtime'} = time();
     if (!$kiwimode) {
       # some builds like python-venv also write a .packages file
-      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
     } elsif ($kiwimode ne 'product') {
-      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins);
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
     } else {
       # as a special service we also create a channel file from the report files
-      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins);
+      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
     }
   }
 

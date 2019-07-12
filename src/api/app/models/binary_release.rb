@@ -82,6 +82,7 @@ class BinaryRelease < ApplicationRecord
         hash[:binary_buildtime] = Time.strptime(binary['buildtime'].to_s, '%s') if binary['buildtime'].present?
         hash[:binary_disturl] = binary['disturl']
         hash[:binary_supportstatus] = binary['supportstatus']
+        hash[:binary_cpeid] = binary['cpeid']
         if binary['updateinfoid']
           hash[:binary_updateinfo] = binary['updateinfoid']
           hash[:binary_updateinfo_version] = binary['updateinfoversion']
@@ -182,6 +183,7 @@ class BinaryRelease < ApplicationRecord
 
       binary.binaryid(binary_id) if binary_id
       binary.supportstatus(binary_supportstatus) if binary_supportstatus
+      binary.cpeid(binary_cpeid) if binary_cpeid
       binary.updateinfo(id: binary_updateinfo, version: binary_updateinfo_version) if binary_updateinfo
       binary.maintainer(binary_maintainer) if binary_maintainer
       binary.disturl(binary_disturl) if binary_disturl

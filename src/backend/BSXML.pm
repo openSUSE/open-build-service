@@ -1847,6 +1847,7 @@ our $report = [
 	    'disturl',
 	    'binaryid',
 	    'supportstatus',
+	    'cpeid',
 
 	    'project',
 	    'repository',
