@@ -1,16 +1,13 @@
-# This is just a thin layer on top of the frontend container
-# that makes sure different users can run it without the
-# contained rails app generating files in the git checkout with
-# some strange user...
+# This is just a thin layer on top of the frontend-backend container that makes
+# sure different users can run it without the contained rails app generating
+# files in the git checkout with some strange user...
 
-FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-base
-ARG CONTAINER_USERID
+FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-backend
 
-# for lint task
-RUN npm install -g jshint
-
+# FIXME: We can't have an .minitest.yml specific overwrite file, how do we get the CONTAINER_USERID into the build?
 # Configure our user
-RUN usermod -u $CONTAINER_USERID frontend
+# ARG CONTAINER_USERID
+# RUN usermod -u "$CONTAINER_USERID" frontend
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
@@ -28,5 +25,5 @@ WORKDIR /obs/src/api
 # Refresh our bundle
 RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
 
-# Run our command
-CMD ["foreman", "start", "-f", "Procfile"]
+CMD ["/bin/bash", "-l"]
+

@@ -117,16 +117,16 @@ w_count=1
 while [ $w_count -le $WORKER_N ]
 do
   if [ ! -d /srv/obs/run/worker/$w_count ]; then
-    sudo mkdir -p /srv/obs/run/worker/$w_count
+    mkdir -p /srv/obs/run/worker/$w_count
   fi
   if [ ! -d /var/cache/obs/worker/root_$w_count ]; then
-    sudo mkdir -p /var/cache/obs/worker/root_$w_count
+    mkdir -p /var/cache/obs/worker/root_$w_count
   fi
-  sudo chown -R obsrun:obsrun /srv/obs/run/
+  chown -R obsrun:obsrun /srv/obs/run/
 
   echo "Starting bs_worker number $w_count"
  
-  COMMAND_STRING="sudo $GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count $REP_SERVER_STRING --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$w_count]} &"
+  COMMAND_STRING="$GIT_HOME/src/backend/bs_worker --hardstatus --root /var/cache/obs/worker/root_$w_count --statedir /srv/obs/run/worker/$w_count --id $HOSTNAME:$w_count $REP_SERVER_STRING --hostlabel OBS_WORKER_SECURITY_LEVEL_ --jobs 1 --cachedir /var/cache/obs/worker/cache --cachesize 3967 ${APPEND_ARR[$w_count]} &"
   eval $COMMAND_STRING
   let w_count=$w_count+1
 done
@@ -134,7 +134,7 @@ done
 # Cleanup function to terminate all backend services
 function clean_up {
   echo -e "\ncleaning up and exit"
-  sudo killall bs_worker
+  killall bs_worker
   echo -e "Terminated Worker"
   exit;
 }
