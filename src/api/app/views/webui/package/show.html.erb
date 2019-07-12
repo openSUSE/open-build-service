@@ -119,12 +119,10 @@
                 <li>
                   <%= link_to(sprited_text('package_delete', 'Delete package'), { :action => :delete_dialog, :package => @package, :project => @project }, :remote => true, id: 'delete-package') %>
                 </li>
-                <% Feature.with(:kiwi_image_editor) do %>
-                  <% if @package.kiwi_image? && policy(@package).update? %>
-                    <li>
-                      <%= link_to(sprited_text('package_edit', 'View Image'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
-                    </li>
-                  <% end %>
+                <% if @package.kiwi_image? && policy(@package).update? %>
+                  <li>
+                    <%= link_to(sprited_text('package_edit', 'View Image'), import_kiwi_image_path(@package.id), id: 'edit-kiwi') %>
+                  </li>
                 <% end %>
                 <% if Feature.active?(:cloud_upload) && User.session %>
                   <% if @package.kiwi_image? %>
