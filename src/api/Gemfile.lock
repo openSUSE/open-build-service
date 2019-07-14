@@ -158,7 +158,7 @@ GEM
       flipper (~> 0.16.2)
     flot-rails (0.0.7)
       jquery-rails
-    font-awesome-sass (5.8.1)
+    font-awesome-sass (5.9.0)
       sassc (>= 1.11)
     globalid (0.4.2)
       activesupport (>= 4.2.0)
