@@ -73,6 +73,9 @@ class User < ApplicationRecord
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
 
+  scope :in_beta, -> { where(in_beta: true) }
+  scope :in_rollout, -> { where(in_rollout: true) }
+
   scope :list, lambda {
     all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
   }
