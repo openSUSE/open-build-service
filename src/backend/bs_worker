@@ -1771,7 +1771,7 @@ sub getbinaries_kiwiproduct {
 	    'uri' => "$server/build/$projid/$repoid/$arch",
 	    'timeout' => $gettimeout,
 	  }, $BSXML::packagebinarychecksums, 'view=binarychecksums');
-	  $chk = { map { $_->{'name'} => $_->{'_content'} } @{$chk->{'binarychecksums'} || []} };
+	  $chk = { map { $_->{'package'} => $_->{'_content'} } @{$chk->{'binarychecksums'} || []} };
 	  BSUtil::store("$ddir/.checksums.$arch", undef, $chk);
 	} else {
 	  BSRPC::rpc({
