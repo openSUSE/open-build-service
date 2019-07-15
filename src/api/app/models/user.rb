@@ -67,7 +67,7 @@ class User < ApplicationRecord
   has_many :commit_activities
 
   scope :confirmed, -> { where(state: 'confirmed') }
-  scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
+  scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
