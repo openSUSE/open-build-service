@@ -305,7 +305,7 @@ class Webui::WebuiController < ActionController::Base
       # The feature switch depends on the user (e.g. Admin or Staff)
       ENV['BOOTSTRAP'].present?
     else
-      Flipper.enabled?(:bootstrap, User.session)
+      Flipper.enabled?(:bootstrap, User.possibly_nobody)
     end
   end
 
