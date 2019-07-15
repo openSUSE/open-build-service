@@ -67,11 +67,14 @@ class User < ApplicationRecord
   has_many :commit_activities
 
   scope :confirmed, -> { where(state: 'confirmed') }
-  scope :all_without_nobody, -> { where('login != ?', NOBODY_LOGIN) }
+  scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
+
+  scope :in_beta, -> { where(in_beta: true) }
+  scope :in_rollout, -> { where(in_rollout: true) }
 
   scope :list, lambda {
     all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
