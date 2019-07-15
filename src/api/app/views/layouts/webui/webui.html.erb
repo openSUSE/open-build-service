@@ -135,7 +135,7 @@
             { 'openSUSEs OBS Portal' => 'http://en.opensuse.org/Portal:Build_service' },
             { 'Reporting a Bug'   => 'http://openbuildservice.org/support/' } ]
 
-          @helplinks << { 'Terms of Service' => announcement_path(Announcement.last) } if Announcement.last.present?
+          @helplinks << { 'Latest Announcement' => announcement_path(Announcement.last) } if Announcement.last.present?
 
           @helplinks.each do |helplink|
             for k in helplink.keys %>
