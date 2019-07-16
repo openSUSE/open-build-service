@@ -16,8 +16,23 @@
             %button.btn.btn-secondary.btn-sm{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
               %i.fa.fa-redo
               Redo
-          %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
-            %i.fa.fa-cog
+          %div
+            .btn-group.mr-2
+              %button.btn.btn-danger.save.btn-sm{ id: "save_#{uid}", disabled: true }
+                %i.fa.fa-save
+                Save
+              %button.btn.btn-dark.dropdown-toggle.dropdown-toggle-split.btn-sm{ 'data-toggle': 'dropdown', 'aria-haspopup': 'true', 'aria-expanded': 'false' }
+              .dropdown-menu.dropdown-menu-right
+                .form-group.px-4.pt-3
+                  %label
+                    Commit message
+                  %textarea.form-control.wide-edit{ id: "comment_#{uid}", disabled: true, placeholder: 'Describe your changes' }
+                  .d-flex.justify-content-end.mt-2
+                    %button.btn.btn-danger.save.btn-sm{ id: "save_#{uid}", disabled: true }
+                      %i.fa.fa-save
+                      Save
+            %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
+              %i.fa.fa-cog
       .progress.short-progress.rounded-0.d-none{ id: "loading_#{uid}" }
         .progress-bar.progress-bar-striped.progress-bar-animated.w-100
 
@@ -34,17 +49,11 @@
     .sticky-bottom.bg-light{ id: "bottom_#{uid}" }
       .card-footer
         .d-flex.justify-content-end
-          %p.small.text-muted
+          %p.small.text-muted.m-0
             line:
             %span{ id: "ln_#{uid}" } 0
             char:
             %span{ id: "ch_#{uid}" } 0
-        .d-flex.mb-2
-          %textarea.form-control{ id: "comment_#{uid}", disabled: true, placeholder: 'Describe your changes' }
-        .d-flex.justify-content-end
-          %button.btn.btn-danger.save{ id: "save_#{uid}", disabled: true }
-            %i.fa.fa-save
-            Save
 
 - unless style[:read_only]
   = render partial: 'shared/editor_modal', locals: { uid: uid }
