@@ -1,6 +1,6 @@
 :ruby
   save ||= {}
-  style ||= { read_only: false }
+  style ||= { read_only: false, big_editor: true }
   uid ||= next_codemirror_uid
   content_for(:head_style, codemirror_style(style))
 
@@ -31,7 +31,7 @@
   = text_area_tag("editor_#{uid}", text, cols: '0', rows: '0', data: data, class: 'form-control')
 
   - unless style[:read_only]
-    .sticky-bottom.bg-light{ id: "bottom_#{uid}" }
+    .bg-light{ id: "bottom_#{uid}" }
       .card-footer
         .d-flex.justify-content-end
           %p.small.text-muted
@@ -50,4 +50,4 @@
   = render partial: 'shared/editor_modal', locals: { uid: uid }
 
 - content_for :ready_function do
-  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}');
+  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}', #{style[:big_editor]});

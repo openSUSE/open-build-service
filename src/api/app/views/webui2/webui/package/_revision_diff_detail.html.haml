@@ -9,7 +9,7 @@
           = calculate_filename(filename, file)
           %span.badge{ class: "badge-#{file['state']}" }= file['state'].capitalize
       %div
-        = render partial: 'shared/editor', locals: { text: diff_content, mode: 'diff', style: { read_only: true } }
+        = render partial: 'shared/editor', locals: { text: diff_content, mode: 'diff', style: { read_only: true, big_editor: false } }
   - else
     .card{ id: "revision_details_#{index}" }
       .card-header
