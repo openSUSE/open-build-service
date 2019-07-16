@@ -288,7 +288,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def pundit_user
-    User.session! if User.session
+    User.possibly_nobody
   end
 
   # dialog_init is a function name called before dialog is shown
