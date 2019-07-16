@@ -7,12 +7,8 @@
 %div{ class: "card #{'editable' unless style[:read_only]}" }
   - unless style[:read_only]
     .sticky-top.bg-light{ id: "top_#{uid}" }
-      .card-header.d-flex.justify-content-between
-        .input-group.input-group-sm
-          %button.btn.btn-danger.btn-sm.save{ id: "save_#{uid}", disabled: true }
-            %i.fa.fa-save
-            Save
-          %input.form-control.form-control-sm{ id: "comment_#{uid}", type: 'text', size: '40', disabled: true }
+      .card-header
+        .d-flex.justify-content-between
           .btn-group.pl-2
             %button.btn.btn-secondary.btn-sm{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
               %i.fa.fa-undo
@@ -20,8 +16,8 @@
             %button.btn.btn-secondary.btn-sm{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
               %i.fa.fa-redo
               Redo
-        %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
-          %i.fa.fa-cog
+          %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
+            %i.fa.fa-cog
       .progress.short-progress.rounded-0.d-none{ id: "loading_#{uid}" }
         .progress-bar.progress-bar-striped.progress-bar-animated.w-100
 
@@ -36,20 +32,19 @@
 
   - unless style[:read_only]
     .sticky-bottom.bg-light{ id: "bottom_#{uid}" }
-      .card-footer.d-flex.justify-content-between
-        .input-group.input-group-sm
-          .input-group-prepend
-            .input-group-text position
-            .input-group-text
-              %span line:
-              %span.font-weight-bold{ id: "ln_#{uid}" } 0
-          .input-group-append
-            .input-group-text
-              %span char:
-              %span.font-weight-bold{ id: "ch_#{uid}" } 0
-        .form-inline
-          %input.form-control.form-control-sm{ autocomplete: 'off', id: "line_#{uid}", type: 'text', size: '8',
-          'onkeyup': "if (event.keyCode == 13) editors[#{uid}].gotoLine(this);", placeholder: 'Go to line' }
+      .card-footer
+        .d-flex.justify-content-end
+          %p.small.text-muted
+            line:
+            %span{ id: "ln_#{uid}" } 0
+            char:
+            %span{ id: "ch_#{uid}" } 0
+        .d-flex.mb-2
+          %textarea.form-control{ id: "comment_#{uid}", disabled: true, placeholder: 'Describe your changes' }
+        .d-flex.justify-content-end
+          %button.btn.btn-danger.save{ id: "save_#{uid}", disabled: true }
+            %i.fa.fa-save
+            Save
 
 - unless style[:read_only]
   = render partial: 'shared/editor_modal', locals: { uid: uid }
