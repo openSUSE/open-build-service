@@ -287,6 +287,9 @@ namespace :dev do
 
       # Trigger package builds for home:admin
       home_admin.store
+
+      # Enable Bootstrap for the group beta
+      Flipper[:bootstrap].enable_group(:beta)
     end
   end
 end
