@@ -1,10 +1,10 @@
 :ruby
   save ||= {}
-  style ||= { read_only: false }
+  style ||= { read_only: false, big_editor: false }
   uid ||= next_codemirror_uid
   content_for(:head_style, codemirror_style(style))
 
-%div{ class: "card #{'editable' unless style[:read_only]}" }
+%div{ class: "card #{'editable' unless style[:read_only]} #{'big-editor' if style[:big_editor]}" }
   - unless style[:read_only]
     .sticky-top.bg-light{ id: "top_#{uid}" }
       .card-header

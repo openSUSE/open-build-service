@@ -11,6 +11,7 @@
     - if User.possibly_nobody.can_modify?(@project)
       = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf',
         save: { url: save_project_config_path, method: :post,
-        data: { project: @project.name, submit: 'config' } } }
+        data: { project: @project.name, submit: 'config' } },
+        style: { big_editor: true } }
     - else
-      = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf', style: { read_only: true } }
+      = render partial: 'shared/editor', locals: { text: @content, mode: 'prjconf', style: { read_only: true, big_editor: true } }
