@@ -16,6 +16,10 @@
         color: $white !important;
     }
 
+    .top-of-flash {
+      z-index: 1031;
+    }
+
     #login-form {
       width: 300px;
     }
