@@ -4,7 +4,7 @@
 %li.nav-item.dropdown
   = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', 'data-toggle': 'dropdown') do
     Log In
-  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ 'aria-labelledby': 'dropdownMenuButton' }
+  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
       = form_tag(form_url, options) do
         - if proxy
