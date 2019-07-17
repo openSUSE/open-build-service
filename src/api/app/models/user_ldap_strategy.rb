@@ -237,7 +237,7 @@ class UserLdapStrategy
     end
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
-    when :local then
+    when :local
       unless authenticate_with_local(password, user)
         Rails.logger.info("Unable to local authenticate #{user['dn']}")
         return
