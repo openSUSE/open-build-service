@@ -606,20 +606,20 @@ class BsRequest < ApplicationRecord
 
       params = { request: self, comment: opts[:comment], user_id: User.session!.id }
       case opts[:newstate]
-      when 'accepted' then
+      when 'accepted'
         history = HistoryElement::RequestAccepted
-      when 'declined' then
+      when 'declined'
         history = HistoryElement::RequestDeclined
-      when 'revoked' then
+      when 'revoked'
         history = HistoryElement::RequestRevoked
       when 'superseded' then
         history = HistoryElement::RequestSuperseded
         params[:description_extension] = superseded_by.to_s
-      when 'review' then
+      when 'review'
         history = HistoryElement::RequestReopened
-      when 'new' then
+      when 'new'
         history = HistoryElement::RequestReopened
-      when 'deleted' then
+      when 'deleted'
         history = HistoryElement::RequestDeleted
       else
         raise "Unhandled state #{opts[:newstate]} for history"
@@ -1031,7 +1031,7 @@ class BsRequest < ApplicationRecord
         action[:role] = xml.role
         action[:user] = xml.person_name
         action[:group] = xml.group_name
-      when :change_devel then
+      when :change_devel
         action[:name] = 'Change Devel'
       when :set_bugowner then
         action[:name] = 'Set Bugowner'

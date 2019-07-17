@@ -24,21 +24,21 @@ module ObsFactory
     # engine helpers are troublesome, so we avoid them
     def self.review_icon(reviewer)
       case reviewer
-      when 'opensuse-review-team', 'autobuild-team' then
+      when 'opensuse-review-team', 'autobuild-team'
         'search'
-      when 'repo-checker' then
+      when 'repo-checker'
         'cog'
-      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers', 'backports-reviewers' then
+      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers', 'backports-reviewers'
         'users'
-      when 'security-team' then
+      when 'security-team'
         'user-shield'
-      when 'maintenance-team' then
+      when 'maintenance-team'
         'medkit'
-      when 'legal-team', 'legal-auto', 'licensedigger' then
+      when 'legal-team', 'legal-auto', 'licensedigger'
         'graduation-cap'
-      when 'leaper', 'origin-manager' then
+      when 'leaper', 'origin-manager'
         'code-fork'
-      when 'sle-changelog-checker' then
+      when 'sle-changelog-checker'
         'tags'
       else
         'ban'
@@ -147,17 +147,17 @@ module ObsFactory
     # the lower the number, the earlier it is in the list - acceptable A first
     def sort_key
       main = case overall_state
-             when :acceptable then
+             when :acceptable
                0
-             when :review then
+             when :review
                10000 - review_percentage * 100
-             when :testing then
+             when :testing
                20000 - testing_percentage * 100
-             when :building then
+             when :building
                30000 - build_progress[:percentage] * 100
-             when :failed then
+             when :failed
                40000
-             when :unacceptable then
+             when :unacceptable
                50000
              when :empty
                60000

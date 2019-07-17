@@ -27,6 +27,11 @@ Style/MultilineBlockChain:
   Exclude:
     - 'spec/**/*'
 
+# We decided not to modify old migrations
+Style/MultilineWhenThen:
+  Exclude:
+    - 'db/migrate/20140908125426_convert_request_history.rb'
+
 # We disabled this cop because HAML doesn't work well with ActiveSupport::SafeBuffer and the to_s method of it is always returning the same object class
 Style/UnneededInterpolation:
   Exclude:

@@ -69,15 +69,15 @@ module Webui::RequestHelper
   def map_request_type(type)
     # for a simplified view on a request, must be used only for lists
     case type
-    when :change_devel then
+    when :change_devel
       'chgdev'
-    when :set_bugowner then
+    when :set_bugowner
       'bugowner'
-    when :add_role then
+    when :add_role
       'addrole'
-    when :maintenance_incident then
+    when :maintenance_incident
       'incident'
-    when :maintenance_release then
+    when :maintenance_release
       'release'
     else
       type.to_s
@@ -86,26 +86,26 @@ module Webui::RequestHelper
 
   def priority_description(prio)
     case prio
-    when 'low' then
+    when 'low'
       'Work on this request if nothing else needs to be done.'
-    when 'moderate' then
+    when 'moderate'
       'Work on this request.'
-    when 'important' then
+    when 'important'
       'Finish other requests you have begun, then work on this request.'
-    when 'critical' then
+    when 'critical'
       'Drop everything and work on this request.'
     end
   end
 
   def priority_number(prio)
     case prio
-    when 'low' then
+    when 'low'
       '1'
-    when 'moderate' then
+    when 'moderate'
       '2'
-    when 'important' then
+    when 'important'
       '3'
-    when 'critical' then
+    when 'critical'
       '4'
     end
   end
