@@ -280,9 +280,9 @@ sub upload_all_containers {
   }
   for my $pp (sort keys %allrefs_pp_lastp) {
     mkdir_p($extrep);
-    unlink("$extrep/$pp");
     unlink("$extrep/$pp.registry.txt");
     if (@{$allrefs_pp{$pp} || []}) {
+      unlink("$extrep/$pp");
       # write readme file where to find the container
       my @r = sort(BSUtil::unify(@{$allrefs_pp{$pp}}));
       my $readme = "This container can be pulled via:\n";
@@ -291,6 +291,7 @@ sub upload_all_containers {
       writestr("$extrep/$pp.registry.txt", undef, $readme);
     } elsif ($multicontainer && $allrefs_pp_lastp{$pp} ne $pp) {
       # create symlink to last arch
+      unlink("$extrep/$pp");
       symlink("$allrefs_pp_lastp{$pp}", "$extrep/$pp");
     }
   }
