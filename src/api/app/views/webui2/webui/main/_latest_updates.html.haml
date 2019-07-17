@@ -7,7 +7,7 @@
         %i.fa.fa-rss
   .list-group
     - @latest_updates.each do |update|
-      .list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
+      .list-group-item.list-group-item-integrated.border-left-0.border-right-0
         .row
           .col-1
             - if update[1] == :package
@@ -22,5 +22,5 @@
               - else
                 = link_to(project_show_path(update[1])) do
                   = update[1]
-            %p.small.mt-1.mb-0
+            %p.mt-1.mb-0
               = fuzzy_time(update[0])
