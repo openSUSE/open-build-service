@@ -165,39 +165,36 @@ class Webui::WebuiController < ActionController::Base
     @spider_bot = request.bot?
     previous_user = User.possibly_nobody.login
     User.session = nil # reset old users hanging around
-    if CONFIG['proxy_auth_mode'] == :on
-      logger.debug 'Authenticating with proxy auth mode'
-      user_login = request.env['HTTP_X_USERNAME']
-      if user_login.blank?
+
+    user_checker = WebuiControllerService::UserChecker.new(http_request: request, config: CONFIG)
+
+    if user_checker.proxy_enabled?
+      if user_checker.user_login.blank?
         User.session = User.find_nobody!
         return
       end
 
-      unless User.where(login: user_login).exists?
-        logger.debug "Creating user #{user_login}"
-        User.create_user_with_fake_pw!(login: user_login,
-                                       email: request.env['HTTP_X_EMAIL'],
-                                       state: User.default_user_state,
-                                       realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip)
-      end
+      User.session = user_checker.find_or_create_user!
 
-      User.session = User.find_by!(login: user_login)
-      unless User.session!.is_active?
+      if User.session!.is_active?
+        User.session!.update_user_info_from_proxy_env(request.env)
+      else
         session[:login] = nil
         User.session = User.find_nobody!
-        RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1') if previous_user != User.possibly_nobody.login
+        send_login_information_rabbitmq(:disabled) if previous_user != User.possibly_nobody.login
         redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
         return
       end
-      User.session!.update_user_info_from_proxy_env(request.env)
     end
 
     User.session = User.find_by_login(session[:login]) if session[:login]
+
     User.session ||= User.possibly_nobody
+
     if !User.session
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
+      send_login_information_rabbitmq(:unauthenticated)
     elsif previous_user != User.possibly_nobody.login
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+      send_login_information_rabbitmq(:success)
     end
   end
 
@@ -245,6 +242,17 @@ class Webui::WebuiController < ActionController::Base
   end
 
   private
+
+  def send_login_information_rabbitmq(msg)
+    case msg
+    when :success
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+    when :disabled
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
+    when :unauthenticated
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
+    end
+  end
 
   def authenticator
     @authenticator ||= Authenticator.new(request, session, response)
