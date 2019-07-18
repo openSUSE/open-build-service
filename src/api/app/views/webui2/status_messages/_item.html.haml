@@ -1,11 +1,10 @@
-.list-group-item.list-group-item-integrated.border-left-0.border-right-0.small
+.list-group-item.list-group-item-integrated.border-left-0.border-right-0
   .row
     .col-1
       %i.fa.fa-lg{ icon_for_status(message) }
     .col
-      %small
-        = user_with_realname_and_icon(message.user, short: true)
-        wrote #{time_ago_in_words(message.created_at)} ago
+      = user_with_realname_and_icon(message.user, short: true)
+      wrote #{time_ago_in_words(message.created_at)} ago
       - if User.admin_session?
         .float-right
           = link_to(status_message_path(message), method: :delete, title: 'Remove status message') do
