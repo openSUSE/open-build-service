@@ -22,7 +22,8 @@ class Webui::UserController < Webui::WebuiController
     @role_titles = @displayed_user.roles.global.pluck(:title)
     @account_edit_link = CONFIG['proxy_auth_account_page']
 
-    return unless switch_to_webui2
+    return unless switch_to_webui2 && (CONFIG['contribution_graph'] != :off)
+
     @last_day = Time.zone.today
 
     @first_day = @last_day - 52.weeks

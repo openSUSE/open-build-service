@@ -197,6 +197,9 @@ default: &default
   # Enable (true) / Disable (false) Ruby on Rails profiling top-bar in the web ui
   peek_enabled: false
 
+  # Disable the contribution graph on the user home page
+  # contribution_graph: :off
+
 production:
   <<: *default
 
