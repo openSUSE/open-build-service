@@ -386,22 +386,23 @@ class XpathEngine
         end
         __send__(fname_int, root, *stack.shift)
       when :child
-        t = stack.shift
-        if t == :qname
+        qtype = stack.shift
+        if qtype == :qname
           stack.shift
           root << stack.shift
-          t = stack.shift
-          t = stack.shift
-          if t == :predicate
+          qtype = stack.shift
+          qtype = stack.shift
+          if qtype == :predicate
             parse_predicate(root, stack[0])
             stack.shift
+          elsif qtype.nil? || qtype == :qname
+            # just a plain existens test
+            xpath_func_boolean(root, stack)
           else
-            parse_predicate(root, t)
-            #            stack.shift
-            #            raise IllegalXpathError, "unhandled token in :qname '#{t.inspect}'"
+            parse_predicate(root, qtype)
           end
           root.pop
-        elsif t == :any
+        elsif qtype == :any
           # noop, already shifted
         else
           raise IllegalXpathError, "unhandled token '#{t.inspect}'"
@@ -428,6 +429,8 @@ class XpathEngine
     until expr.empty?
       token = expr.shift
       case token
+      when ''
+        a << expr.shift
       when :child
         expr.shift # qname
         expr.shift # namespace
@@ -585,13 +588,8 @@ class XpathEngine
   def xpath_func_boolean(root, expr)
     # logger.debug "-- xpath_func_boolean(#{expr}) --"
 
-    @condition_values_needed = 2
     cond = evaluate_expr(expr, root)
-
-    condition = "NOT (NOT #{cond} OR ISNULL(#{cond}))"
-    # logger.debug "-- condition : [#{condition}]"
-
-    @condition_values_needed = 1
+    condition = "NOT (ISNULL(#{cond}))"
     @conditions << condition
   end
 

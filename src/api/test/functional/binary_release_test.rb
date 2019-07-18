@@ -46,6 +46,10 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'binary', attributes: { project: 'BaseDistro3', repository: 'BaseDistro3_repo', name: 'package', version: '1.0', release: '1', arch: 'i586' }
 
+    # by cpeid ... we have no data, but must not crash at least
+    get '/search/released/binary', params: { match: 'cpeid' }
+    assert_response :success
+
     # search via publish container
     get '/search/released/binary/id', params: { match: "publish/@package = 'pack2'" }
     assert_response :success
