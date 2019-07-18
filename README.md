@@ -47,7 +47,7 @@ After finishing the installation of your base system, follow these steps:
 3. Run our setup wizard
 
    ```shell
-   /usr/lib/obs/server/setup-appliance.sh
+   /usr/lib/obs/server/setup-appliance.sh --force
    ```
 
 ## Advanced Setup
