@@ -737,6 +737,10 @@ class BsRequestAction < ApplicationRecord
     self.target_project = tpkg.project.update_instance_or_self.name
   end
 
+  def modify_sources(force_branching)
+    # only used in incidents so far
+  end
+
   def source_access_check!
     sp = Package.find_by_project_and_name(source_project, source_package)
     if sp.nil?
