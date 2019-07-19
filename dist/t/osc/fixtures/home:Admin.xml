@@ -2,12 +2,12 @@
   <title/>
   <description/>
   <person userid="Admin" role="maintainer"/>
-  <repository name="openSUSE_Tumbleweed">
-    <path project="openSUSE.org:openSUSE:Factory" repository="snapshot"/>
-    <arch>i586</arch>
-  </repository>
-  <repository name="openSUSE_Leap_42.2">
-    <path project="openSUSE.org:openSUSE:Leap:42.2" repository="standard"/>
+  <repository name="openSUSE_Leap_15.0">
+    <path project="openSUSE.org:openSUSE:Leap:15.0" repository="standard"/>
     <arch>x86_64</arch>
+  </repository>
+  <repository name="openSUSE_Leap_15.1">
+    <path project="openSUSE.org:openSUSE:Leap:15.1" repository="standard"/>
+    <arch>i586</arch>
   </repository>
 </project>
