@@ -57,6 +57,8 @@ namespace :dev do
       puts 'Configure default signing'
       Rake::Task['assets:clobber'].invoke
       ::Configuration.update(enforce_project_keys: true)
+      # we enable bootstrap as default
+      Flipper[:bootstrap].enable
     end
   end
 
