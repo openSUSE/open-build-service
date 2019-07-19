@@ -1208,7 +1208,8 @@ class Project < ApplicationRecord
 
     return unless disable_publish_for_branches
 
-    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag_and_status('publish', 'disable')
+    # disable publish, except there is already an explicit setting
+    flags.create(status: 'disable', flag: 'publish') unless flags.find_by_flag('publish')
   end
 
   def open_requests_with_project_as_source_or_target
