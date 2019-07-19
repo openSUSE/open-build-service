@@ -15,7 +15,7 @@ class BsRequestAction
         self.target_project = action.target_releaseproject if action.target_releaseproject
 
         # maintenance release targets will have a base link
-        tprj = Project.get_by_name(target_project)
+        tprj = Project.get_by_name(target_project) if Project.exists_by_name(target_project)
         if tprj && tprj.is_maintenance_release?
           tpkg = tprj.find_package(target_package.gsub(/\.[^\.]*$/, ''))
           if tpkg
