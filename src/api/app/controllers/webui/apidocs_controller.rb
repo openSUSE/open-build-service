@@ -1,8 +1,9 @@
 class Webui::ApidocsController < Webui::WebuiController
   def index
-    filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'
-    if File.exist?(filename)
-      render file: filename, formats: [:html]
+    @filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'
+    if File.exist?(@filename)
+      return if switch_to_webui2
+      render file: @filename, formats: [:html]
     else
       logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location']}. Did you create the apidocs?"
       flash[:error] = 'Unable to load API documentation.'
