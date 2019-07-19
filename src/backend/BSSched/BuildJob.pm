@@ -500,11 +500,8 @@ sub jobfinished {
       rename("$dst/logfile.dup", "$dst/logfile");
       unlink("$dst/logfile.dup");
     }
-    if (open(F, '+>>', "$dst/logfile")) {
-      # Add a comment to logfile from last real build
-      print F "\nRetried build at ".localtime(time())." returned same result, skipped";
-      close(F);
-    }
+    # Add a comment to logfile from last real build
+    BSUtil::appendstr("$dst/logfile", "\nRetried build at ".localtime(time())." returned same result, skipped\n");
     unlink("$gdst/:logfiles.fail/$packid");
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
