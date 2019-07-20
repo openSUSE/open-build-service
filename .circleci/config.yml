@@ -66,6 +66,9 @@ jobs:
       - run:
           name: Run scripts linters
           command: make -C dist scripts_linters
+      - run:
+          name: Run perl linters
+          command: make -C dist test_linters
       - run: *install_dependencies
       - run: *install_circle_cli
       - restore_cache:
