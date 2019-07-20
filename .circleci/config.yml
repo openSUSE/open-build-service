@@ -16,6 +16,8 @@ workflows:
           name: Define dynamic CI pipeline
           mapping: |
             dist/.* run-dist-linter true
+            dist/t/.* run-perl-linter true
+            src/backend/.* run-perl-linter true
             src/backend/.* run-backend-tests true
             src/api/app/(views|components)/.* run-haml-linter true
             src/api/db/.* run-migrations-tests true

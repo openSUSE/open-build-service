@@ -1,0 +1,9 @@
+-l=120   # 120 characters per line
+-fbl     # don't change blank lines
+-nsfs    # no spaces before semicolons
+-baao    # space after operators
+-bbao    # space before operators
+-pt=2    # no spaces around ()
+-bt=2    # no spaces around []
+-sbt=2   # no spaces around {}
+-sct     # stack closing tokens )}

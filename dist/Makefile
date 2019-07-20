@@ -86,6 +86,9 @@ test_appliance:
 scripts_linters:
 	./run_shellcheck.sh
 
+test_linters:
+	prove -v t/linters/*.t
+
 .PHONY: test_unit test_system
 
 include ../Makefile.targets

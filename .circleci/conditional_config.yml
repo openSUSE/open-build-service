@@ -25,6 +25,10 @@ parameters:
     type: boolean
     default: false
 
+  run-perl-linter:
+    type: boolean
+    default: false
+
 images:
   - &common_frontend_config
     user: frontend
@@ -145,6 +149,7 @@ jobs:
       - run: echo "run-migrations-tests is << pipeline.parameters.run-migrations-tests >>"
       - run: echo "run-dist-linter is << pipeline.parameters.run-dist-linter >>"
       - run: echo "run-haml-linter is << pipeline.parameters.run-haml-linter >>"
+      - run: echo "run-perl-linter is << pipeline.parameters.run-perl-linter >>"
 
   linters:
     docker:
@@ -182,6 +187,13 @@ jobs:
                 command: |
                   cd src/api
                   bundle exec rake dev:lint:haml
+      - when:
+          condition: << pipeline.parameters.run-perl-linter >>
+          steps:
+            - run:
+                name: Run perl linters
+                command: |
+                  make -C dist test_linters
       - when:
           condition: << pipeline.parameters.run-apidocs-linter >>
           steps:
