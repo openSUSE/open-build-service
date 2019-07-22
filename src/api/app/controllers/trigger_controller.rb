@@ -1,3 +1,4 @@
+# typed: true
 class TriggerController < ApplicationController
   validate_action rebuild: { method: :post, response: :status }
   validate_action release: { method: :post, response: :status }

@@ -1,3 +1,4 @@
+# typed: false
 module Webui::Staging::WorkflowHelper
   def build_progress(staging_project)
     final = to_build = 0

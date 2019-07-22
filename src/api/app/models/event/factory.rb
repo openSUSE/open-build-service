@@ -1,3 +1,4 @@
+# typed: true
 module Event
   # generate an Event class
   class Factory

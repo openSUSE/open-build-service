@@ -1,3 +1,4 @@
+# typed: true
 class BsRequestPolicy < ApplicationPolicy
   def create?
     # new request should not have an id (BsRequest#number)

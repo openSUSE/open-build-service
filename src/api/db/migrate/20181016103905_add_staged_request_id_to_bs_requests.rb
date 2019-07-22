@@ -1,3 +1,4 @@
+# typed: true
 class AddStagedRequestIdToBsRequests < ActiveRecord::Migration[5.2]
   def change
     change_table :bs_requests, bulk: true do |t|

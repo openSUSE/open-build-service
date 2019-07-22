@@ -1,3 +1,4 @@
+# typed: true
 class BackendPackage < ApplicationRecord
   #### Includes and extends
   #### Constants

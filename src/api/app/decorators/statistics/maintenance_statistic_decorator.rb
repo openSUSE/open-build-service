@@ -1,3 +1,4 @@
+# typed: true
 module Statistics
   class MaintenanceStatisticDecorator < BaseDecorator
     def to_hash_for_xml

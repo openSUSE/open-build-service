@@ -1,3 +1,4 @@
+# typed: false
 class IssueTracker::IssueSummary
   attr_reader :issue_tracker, :summary, :issue_id
 

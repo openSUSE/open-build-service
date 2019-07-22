@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a kiwi image xml' do
   let(:kiwi_xml) do
     <<-XML.strip_heredoc

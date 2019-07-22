@@ -1,3 +1,4 @@
+# typed: true
 class PackageIssue < ApplicationRecord
   belongs_to :package
   belongs_to :issue

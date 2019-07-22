@@ -1,3 +1,4 @@
+# typed: true
 class StatusHistoryRescalerJob < ApplicationJob
   queue_as :quick
 

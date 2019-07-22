@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 
 RSpec.feature 'OBS main page', type: :feature, js: true do

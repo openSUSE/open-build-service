@@ -1,3 +1,4 @@
+# typed: true
 module Backend
   module Api
     # Class that connect to global endpoints of the OBS Backend server

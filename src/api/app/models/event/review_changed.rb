@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class ReviewChanged < Request
     self.message_bus_routing_key = 'request.review_changed'

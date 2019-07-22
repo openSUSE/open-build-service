@@ -1,3 +1,4 @@
+# typed: true
 class StatusMessagesController < ApplicationController
   class PermissionDeniedError < APIError
     setup 403

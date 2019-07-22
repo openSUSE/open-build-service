@@ -1,3 +1,4 @@
+# typed: true
 class MaintainedProjectDatatable < Datatable
   def_delegator :@view, :link_to
   def_delegator :@view, :project_show_path

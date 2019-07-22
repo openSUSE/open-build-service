@@ -1,3 +1,4 @@
+# typed: true
 # just key:value for things to be stored about the running backend and that are not configuration
 class BackendInfo < ApplicationRecord
   #### Includes and extends

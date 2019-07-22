@@ -1,3 +1,4 @@
+# typed: false
 # Attribute definition as part of project meta data. This is always inside of an attribute namespace
 class AttribType < ApplicationRecord
   #### Includes and extends

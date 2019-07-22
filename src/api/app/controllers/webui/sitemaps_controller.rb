@@ -1,3 +1,4 @@
+# typed: true
 class Webui::SitemapsController < Webui::WebuiController
   def index
     render layout: false, content_type: 'application/xml'

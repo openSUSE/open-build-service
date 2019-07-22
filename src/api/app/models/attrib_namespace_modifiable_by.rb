@@ -1,3 +1,4 @@
+# typed: strong
 class AttribNamespaceModifiableBy < ApplicationRecord
   belongs_to :attrib_namespaces
   belongs_to :user

@@ -1,3 +1,4 @@
+# typed: true
 class StatusProjectController < ApplicationController
   before_action :initialize_caches, only: [:show]
 

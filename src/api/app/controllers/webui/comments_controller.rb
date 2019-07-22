@@ -1,3 +1,4 @@
+# typed: false
 class Webui::CommentsController < Webui::WebuiController
   include Webui2::CommentsController
 

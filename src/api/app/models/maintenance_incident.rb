@@ -1,3 +1,4 @@
+# typed: false
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ApplicationRecord

@@ -1,3 +1,4 @@
+# typed: false
 module Status::RequiredChecksHelper
   def build_header(project, checkable)
     case checkable

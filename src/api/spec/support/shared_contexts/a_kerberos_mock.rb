@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a kerberos mock for' do
   let(:gssapi_mock) { double(:gssapi) }
   let(:ticket) { SecureRandom.hex }

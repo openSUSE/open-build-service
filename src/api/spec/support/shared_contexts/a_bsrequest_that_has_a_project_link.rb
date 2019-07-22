@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a BsRequest that has a project link' do
   let(:user) { create(:confirmed_user, :with_home, login: 'project_link_test_user') }
   let(:base_project) { create(:project_with_package, name: 'Base') }

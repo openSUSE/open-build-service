@@ -1,3 +1,4 @@
+# typed: true
 module Git
   if File.exist?(File.join(Rails.root, 'last_deploy'))
     COMMIT = File.open(File.join(Rails.root, 'last_deploy'), 'r') { |f| GIT_REVISION = f.gets.try(:chomp) }

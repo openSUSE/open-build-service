@@ -1,3 +1,4 @@
+# typed: true
 class CreateKiwiPreferenceTypes < ActiveRecord::Migration[5.1]
   def change
     create_table :kiwi_preference_types, id: :integer do |t|

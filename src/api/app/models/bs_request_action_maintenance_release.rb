@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Includes and extends

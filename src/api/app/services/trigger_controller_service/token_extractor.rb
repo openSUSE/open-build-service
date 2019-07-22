@@ -1,3 +1,4 @@
+# typed: true
 module TriggerControllerService
   class TokenExtractor
     def initialize(http_request)

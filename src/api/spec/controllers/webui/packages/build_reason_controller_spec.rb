@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 require 'webmock/rspec'
 # WARNING: If you change owner tests make sure you uncomment this line

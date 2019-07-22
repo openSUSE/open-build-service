@@ -1,3 +1,4 @@
+# typed: true
 module CommentsControllerPresenters
   class CommentPresenter
     def initialize(comment, obj_is_user)

@@ -1,3 +1,4 @@
+# typed: false
 class Token::Service < Token
   def self.token_name
     'runservice'

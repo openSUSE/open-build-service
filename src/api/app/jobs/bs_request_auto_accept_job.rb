@@ -1,3 +1,4 @@
+# typed: false
 class BsRequestAutoAcceptJob < ApplicationJob
   def perform(request_id)
     request = BsRequest.find(request_id)

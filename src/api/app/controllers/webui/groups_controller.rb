@@ -1,3 +1,4 @@
+# typed: false
 class Webui::GroupsController < Webui::WebuiController
   before_action :require_login, except: [:show, :autocomplete]
   before_action :set_group, only: [:show, :update, :edit, :delete]

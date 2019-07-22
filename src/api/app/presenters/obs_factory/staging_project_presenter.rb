@@ -1,3 +1,4 @@
+# typed: false
 module ObsFactory
   # View decorator for StagingProject
   class StagingProjectPresenter < BasePresenter

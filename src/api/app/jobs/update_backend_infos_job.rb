@@ -1,3 +1,4 @@
+# typed: false
 class UpdateBackendInfosJob < CreateJob
   def perform(event_id)
     event = Event::Base.find(event_id)

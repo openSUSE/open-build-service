@@ -1,3 +1,4 @@
+# typed: true
 class AnnouncementPolicy < ApplicationPolicy
   def index?
     user.is_admin?

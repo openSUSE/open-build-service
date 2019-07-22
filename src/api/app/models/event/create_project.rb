@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class CreateProject < Base
     self.message_bus_routing_key = 'project.create'

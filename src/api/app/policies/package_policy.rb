@@ -1,3 +1,4 @@
+# typed: true
 class PackagePolicy < ApplicationPolicy
   def branch?
     # same as Package.check_source_access!

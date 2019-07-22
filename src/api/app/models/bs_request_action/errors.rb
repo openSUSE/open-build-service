@@ -1,3 +1,4 @@
+# typed: strict
 module BsRequestAction::Errors
   extend ActiveSupport::Concern
 

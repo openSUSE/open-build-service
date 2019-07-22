@@ -1,3 +1,4 @@
+# typed: false
 module Webui::UserHelper
   def user_actions(user)
     safe_join(

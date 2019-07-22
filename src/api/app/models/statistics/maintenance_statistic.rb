@@ -1,3 +1,4 @@
+# typed: true
 module Statistics
   class MaintenanceStatistic
     include ActiveModel::Model

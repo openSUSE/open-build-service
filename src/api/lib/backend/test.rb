@@ -1,3 +1,4 @@
+# typed: true
 module Backend
   # Class that holds methods for starting the backend server in test mode
   class Test

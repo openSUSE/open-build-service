@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 
 RSpec.feature 'Repositories', type: :feature, js: true do

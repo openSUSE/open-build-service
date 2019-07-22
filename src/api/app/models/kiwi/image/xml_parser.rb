@@ -1,3 +1,4 @@
+# typed: true
 module Kiwi
   class Image
     class XmlParser

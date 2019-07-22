@@ -1,3 +1,4 @@
+# typed: false
 class BranchPackage
   class InvalidArgument < APIError; end
   class InvalidFilelistError < APIError; end

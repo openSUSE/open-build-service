@@ -1,3 +1,4 @@
+# typed: true
 class AddUpdateinfoTracking < ActiveRecord::Migration[4.2]
   def up
     create_table :updateinfos do |t|

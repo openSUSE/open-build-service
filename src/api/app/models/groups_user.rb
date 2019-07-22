@@ -1,3 +1,4 @@
+# typed: true
 class GroupsUser < ApplicationRecord
   include ActiveModel::Validations
 

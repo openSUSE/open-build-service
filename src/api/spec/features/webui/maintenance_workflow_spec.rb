@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 
 RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true do

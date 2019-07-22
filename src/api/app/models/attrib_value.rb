@@ -1,3 +1,4 @@
+# typed: false
 class AttribValue < ApplicationRecord
   acts_as_list scope: :attrib
   belongs_to :attrib

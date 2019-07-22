@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :notification do
     event_type { 'FakeEventType' }

@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :issue_tracker do
     name { 'gh' }

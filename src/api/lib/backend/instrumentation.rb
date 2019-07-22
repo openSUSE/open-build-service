@@ -1,3 +1,4 @@
+# typed: true
 module Backend
   class Instrumentation
     def initialize(http_method, host, http_status_code, runtime)

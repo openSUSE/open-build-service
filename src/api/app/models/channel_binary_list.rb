@@ -1,3 +1,4 @@
+# typed: true
 class ChannelBinaryList < ApplicationRecord
   belongs_to :channel
   belongs_to :project

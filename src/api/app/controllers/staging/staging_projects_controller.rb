@@ -1,3 +1,4 @@
+# typed: true
 class Staging::StagingProjectsController < ApplicationController
   before_action :require_login, except: [:index, :show]
   before_action :set_main_project

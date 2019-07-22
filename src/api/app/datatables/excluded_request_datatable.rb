@@ -1,3 +1,4 @@
+# typed: true
 class ExcludedRequestDatatable < Datatable
   def_delegators :@view, :link_to, :staging_workflow_excluded_request_path, :content_tag, :request_show_path
 

@@ -1,3 +1,4 @@
+# typed: true
 module ArchitecturesControllerService
   class ArchitectureUpdater
     def initialize(params)

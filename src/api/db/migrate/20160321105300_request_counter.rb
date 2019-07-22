@@ -1,3 +1,4 @@
+# typed: false
 class RequestCounter < ActiveRecord::Migration[4.2]
   def self.up
     add_column :bs_requests, :number, :integer

@@ -1,3 +1,4 @@
+# typed: false
 module Webui::RequestHelper
   include Webui::UserHelper
   include Webui::WebuiHelper

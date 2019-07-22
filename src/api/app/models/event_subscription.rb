@@ -1,3 +1,4 @@
+# typed: false
 class EventSubscription < ApplicationRecord
   RECEIVER_ROLE_TEXTS = {
     maintainer: 'Maintainer',

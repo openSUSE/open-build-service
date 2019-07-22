@@ -1,3 +1,4 @@
+# typed: false
 class Kiwi::Preference < ApplicationRecord
   belongs_to :image, inverse_of: :preferences
 

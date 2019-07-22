@@ -1,3 +1,4 @@
+# typed: strict
 module Source::Errors
   extend ActiveSupport::Concern
 

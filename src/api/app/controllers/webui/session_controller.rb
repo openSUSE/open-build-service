@@ -1,3 +1,4 @@
+# typed: false
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 

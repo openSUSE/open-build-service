@@ -1,3 +1,4 @@
+# typed: false
 class Project
   class UpdateFromXmlCommand
     include Project::Errors

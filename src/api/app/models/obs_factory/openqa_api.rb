@@ -1,3 +1,4 @@
+# typed: true
 require 'net/http'
 
 # Commodity class to encapsulate calls to the openQA API.

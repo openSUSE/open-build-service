@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 RSpec.feature 'Interconnects', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }

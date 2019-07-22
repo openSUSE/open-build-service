@@ -1,3 +1,4 @@
+# typed: ignore
 require 'xmlrpc/client'
 
 class IssueTracker < ApplicationRecord

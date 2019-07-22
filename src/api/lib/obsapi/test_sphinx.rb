@@ -1,3 +1,4 @@
+# typed: true
 module OBSApi
   class TestSphinx
     @started = false

@@ -1,3 +1,4 @@
+# typed: true
 module Webui::UserActivityHelper
   def percentil(length, ratio)
     (length * ratio).round - 1

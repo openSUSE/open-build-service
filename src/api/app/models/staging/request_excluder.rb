@@ -1,3 +1,4 @@
+# typed: true
 class Staging::RequestExcluder
   include ActiveModel::Model
   attr_accessor :requests_xml_hash, :staging_workflow

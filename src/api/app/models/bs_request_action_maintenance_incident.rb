@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Includes and extends

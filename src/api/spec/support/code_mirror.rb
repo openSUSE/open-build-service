@@ -1,3 +1,4 @@
+# typed: false
 # Reference: https://www.eliotsykes.com/testing-codemirror-editor
 module CodeMirrorHelpers
   def fill_in_editor_field(text)

@@ -1,3 +1,4 @@
+# typed: false
 # TODO: Please overwrite this comment with something explaining the model target
 class Status::Check < ApplicationRecord
   #### Includes and extends

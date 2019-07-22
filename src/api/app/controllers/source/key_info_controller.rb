@@ -1,3 +1,4 @@
+# typed: true
 module Source
   class KeyInfoController < ApplicationController
     def show

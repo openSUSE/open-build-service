@@ -1,3 +1,4 @@
+# typed: false
 class Webui::AttributeController < Webui::WebuiController
   include Webui2::AttributeController
 

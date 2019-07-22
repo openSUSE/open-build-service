@@ -1,3 +1,4 @@
+# typed: true
 class Status::ReportPolicy < ApplicationPolicy
   def initialize(user, record)
     super(user, record, user_optional: true)

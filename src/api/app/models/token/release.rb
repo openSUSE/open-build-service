@@ -1,3 +1,4 @@
+# typed: true
 class Token::Release < Token
   def self.token_name
     'release'

@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_examples 'a confirmed user logs in' do
   let(:user) { create(:confirmed_user) }
   let(:authenticator) { Authenticator.new(request_mock, session_mock, response_mock) }

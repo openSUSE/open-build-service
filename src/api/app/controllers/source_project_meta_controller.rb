@@ -1,3 +1,4 @@
+# typed: false
 class SourceProjectMetaController < SourceController
   validate_action update: { request: :project, response: :status }
   validate_action show: { response: :project }

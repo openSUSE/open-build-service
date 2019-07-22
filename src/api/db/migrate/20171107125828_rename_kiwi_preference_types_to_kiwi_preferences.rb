@@ -1,3 +1,4 @@
+# typed: true
 class RenameKiwiPreferenceTypesToKiwiPreferences < ActiveRecord::Migration[5.1]
   def change
     rename_table :kiwi_preference_types, :kiwi_preferences

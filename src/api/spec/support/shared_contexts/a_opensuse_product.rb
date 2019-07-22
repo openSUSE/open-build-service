@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a opensuse product' do
   let(:opensuse_product) do
     <<-XML.strip_heredoc

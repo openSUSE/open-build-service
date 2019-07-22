@@ -1,3 +1,4 @@
+# typed: true
 class User::Contributions
   attr_accessor :user, :first_day
 

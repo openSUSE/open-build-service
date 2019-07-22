@@ -1,3 +1,4 @@
+# typed: true
 class Token::Rss < Token
   def self.token_name
     'rss'

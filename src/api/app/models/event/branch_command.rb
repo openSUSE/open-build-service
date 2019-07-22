@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class BranchCommand < Base
     self.description = 'Package was branched'

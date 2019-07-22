@@ -1,3 +1,4 @@
+# typed: false
 require_dependency 'has_relationships'
 
 # rubocop:disable Metrics/ClassLength

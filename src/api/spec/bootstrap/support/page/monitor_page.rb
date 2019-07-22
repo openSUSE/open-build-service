@@ -1,3 +1,4 @@
+# typed: true
 module Page
   class MonitorPage
     include Capybara::DSL

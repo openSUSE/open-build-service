@@ -1,3 +1,4 @@
+# typed: false
 class Webui::AnnouncementsController < Webui::WebuiController
   def show
     @hide_announcement_notification = true

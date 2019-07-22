@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a summary response' do
   let(:arch) { 'i586' }
   let(:summary_backend_url) { "#{CONFIG['source_url']}/build/#{staging_a}/_result?view=summary&repository=standard&arch=#{arch}" }

@@ -1,3 +1,4 @@
+# typed: false
 module Kiwi
   class Package < ApplicationRecord
     belongs_to :package_group

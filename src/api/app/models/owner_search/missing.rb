@@ -1,3 +1,4 @@
+# typed: true
 module OwnerSearch
   class Missing < Base
     def find

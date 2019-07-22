@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a set of bs requests' do
   # Set 1
   let!(:user) { create(:confirmed_user, login: 'tom') }

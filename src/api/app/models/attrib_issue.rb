@@ -1,3 +1,4 @@
+# typed: strong
 # This class represents a issue inside of attribute part of package meta data
 class AttribIssue < ApplicationRecord
   belongs_to :attrib

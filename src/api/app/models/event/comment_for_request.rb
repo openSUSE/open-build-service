@@ -1,3 +1,4 @@
+# typed: false
 module Event
   class CommentForRequest < Request
     include CommentEvent

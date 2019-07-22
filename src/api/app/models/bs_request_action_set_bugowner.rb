@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionSetBugowner < BsRequestAction
   #### Includes and extends

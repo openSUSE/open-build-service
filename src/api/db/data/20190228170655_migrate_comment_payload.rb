@@ -1,3 +1,4 @@
+# typed: true
 class MigrateCommentPayload < ActiveRecord::Migration[5.2]
   def up
     Event::CommentForPackage.all.find_each { |event| convert_payload(event) }

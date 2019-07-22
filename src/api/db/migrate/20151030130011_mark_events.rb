@@ -1,3 +1,4 @@
+# typed: true
 class MarkEvents < ActiveRecord::Migration[4.2]
   class SendEventEmails < SendEventEmailsJob; end
 

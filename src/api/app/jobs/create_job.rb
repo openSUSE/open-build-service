@@ -1,3 +1,4 @@
+# typed: false
 class CreateJob < ApplicationJob
   def perform(_event_id)
     raise NotImplementedError

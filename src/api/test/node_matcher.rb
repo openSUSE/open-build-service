@@ -1,3 +1,4 @@
+# typed: false
 
 class NodeMatcher #:nodoc:
   class Conditions < Hash #:nodoc:

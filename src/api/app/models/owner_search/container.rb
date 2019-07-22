@@ -1,3 +1,4 @@
+# typed: false
 module OwnerSearch
   class Container < Base
     def for(container)

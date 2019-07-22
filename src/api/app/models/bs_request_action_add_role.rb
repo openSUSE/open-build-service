@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionAddRole < BsRequestAction
   #### Includes and extends

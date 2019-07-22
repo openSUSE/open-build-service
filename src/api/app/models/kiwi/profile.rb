@@ -1,3 +1,4 @@
+# typed: strict
 module Kiwi
   class Profile < ApplicationRecord
     #### Includes and extends

@@ -1,3 +1,4 @@
+# typed: false
 # rubocop:disable Metrics/LineLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength

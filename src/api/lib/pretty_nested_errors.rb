@@ -1,3 +1,4 @@
+# typed: false
 require 'pretty_nested_errors/key_and_messages_parser'
 #  PrettyNestedErrors
 #

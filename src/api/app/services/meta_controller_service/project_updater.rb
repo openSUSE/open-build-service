@@ -1,3 +1,4 @@
+# typed: true
 module MetaControllerService
   class ProjectUpdater
     def initialize(project: nil, request_data: {}, validator_klass: ::MetaControllerService::MetaValidator)

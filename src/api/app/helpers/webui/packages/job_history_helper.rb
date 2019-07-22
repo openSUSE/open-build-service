@@ -1,3 +1,4 @@
+# typed: false
 module Webui::Packages::JobHistoryHelper
   include Webui::ProjectHelper
 

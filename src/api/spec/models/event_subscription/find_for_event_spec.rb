@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec::Matchers.define :be_like_subscription do |expected_subscription|

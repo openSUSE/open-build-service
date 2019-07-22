@@ -1,3 +1,4 @@
+# typed: false
 module Flag::Validations
   extend ActiveSupport::Concern
 

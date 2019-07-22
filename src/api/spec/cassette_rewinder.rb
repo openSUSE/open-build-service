@@ -1,3 +1,4 @@
+# typed: true
 require 'set'
 USED_CASSETTES = Set.new
 

@@ -1,3 +1,4 @@
+# typed: strong
 class BsRequestCounter < ApplicationRecord
   # FIXME: This class should be a singleton
   # FIXME: Please stick to Rails Convention Over Configuration paradigm

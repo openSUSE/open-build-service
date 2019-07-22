@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class StatusCheck < Base
     self.abstract_class = true

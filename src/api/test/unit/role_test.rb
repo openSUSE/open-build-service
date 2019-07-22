@@ -1,3 +1,4 @@
+# typed: true
 require_relative '../test_helper'
 
 class RoleTest < ActiveSupport::TestCase

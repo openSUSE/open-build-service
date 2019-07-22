@@ -1,3 +1,4 @@
+# typed: false
 module Status
   module Concerns
     module SetCheckable

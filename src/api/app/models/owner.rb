@@ -1,3 +1,4 @@
+# typed: true
 require 'api_error'
 
 class Owner

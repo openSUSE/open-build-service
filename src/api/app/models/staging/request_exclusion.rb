@@ -1,3 +1,4 @@
+# typed: true
 class Staging::RequestExclusion < ApplicationRecord
   def self.table_name_prefix
     'staging_'

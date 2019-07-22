@@ -1,3 +1,4 @@
+# typed: false
 require 'builder'
 
 class Webui::PatchinfoController < Webui::WebuiController

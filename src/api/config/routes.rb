@@ -1,3 +1,4 @@
+# typed: false
 class WebuiMatcher
   class InvalidRequestFormat < APIError
   end

@@ -1,3 +1,4 @@
+# typed: true
 class CommitActivity < ApplicationRecord
   belongs_to :user
 

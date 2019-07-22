@@ -1,4 +1,5 @@
 #!/usr/bin/ruby.ruby2.5
+# typed: false
 
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 require 'delayed/command'

@@ -1,3 +1,4 @@
+# typed: true
 class ProjectMetaFile < ProjectFile
   def initialize(attributes = {})
     super

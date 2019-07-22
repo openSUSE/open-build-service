@@ -1,3 +1,4 @@
+# typed: true
 module Event
   PROJECT_CLASSES = ['Event::CommentForProject',
                      'Event::UpdateProjectConfig',

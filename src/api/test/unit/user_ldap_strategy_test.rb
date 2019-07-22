@@ -1,3 +1,4 @@
+# typed: false
 require_relative '../test_helper'
 
 class UserLdapStrategyTest < ActiveSupport::TestCase

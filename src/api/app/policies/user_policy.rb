@@ -1,3 +1,4 @@
+# typed: true
 class UserPolicy < ApplicationPolicy
   def update?
     user.can_modify_user?(record)

@@ -1,3 +1,4 @@
+# typed: true
 module Backend
   class Error < StandardError
     def xml

@@ -1,3 +1,4 @@
+# typed: false
 module Status::Checkable
   extend ActiveSupport::Concern
 

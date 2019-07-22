@@ -1,3 +1,4 @@
+# typed: false
 module Webui::MaintenanceIncidentHelper
   def incident_label(incident_project, patchinfo)
     incident_number = incident_project.name.rpartition(':').last

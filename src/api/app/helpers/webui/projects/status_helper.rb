@@ -1,3 +1,4 @@
+# typed: false
 module Webui::Projects::StatusHelper
   def parse_status(package)
     comments_to_clear = []

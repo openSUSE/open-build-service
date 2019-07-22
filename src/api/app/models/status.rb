@@ -1,3 +1,4 @@
+# typed: true
 module Status
   def self.table_name_prefix
     'status_'

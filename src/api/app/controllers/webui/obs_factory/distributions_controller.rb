@@ -1,3 +1,4 @@
+# typed: false
 module Webui::ObsFactory
   class DistributionsController < Webui::ObsFactory::ApplicationController
     respond_to :html

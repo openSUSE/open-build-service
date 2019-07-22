@@ -1,3 +1,4 @@
+# typed: true
 module LocalBuildStatistic
   class ForPackage
     include ActiveModel::Model

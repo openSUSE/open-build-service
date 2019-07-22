@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.describe ' projects/:project/ssl_certificate routes' do

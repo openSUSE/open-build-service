@@ -1,3 +1,4 @@
+# typed: false
 module GetFlags
   # TODO: used by bento. Remove when dropping old UI.
   # Returns a hash of arrays, sorted by repository.

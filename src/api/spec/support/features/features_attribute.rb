@@ -1,3 +1,4 @@
+# typed: false
 module FeaturesAttribute
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))

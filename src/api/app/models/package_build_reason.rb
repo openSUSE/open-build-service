@@ -1,3 +1,4 @@
+# typed: true
 class PackageBuildReason
   include ActiveModel::Model
 

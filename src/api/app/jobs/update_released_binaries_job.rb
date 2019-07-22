@@ -1,3 +1,4 @@
+# typed: true
 class UpdateReleasedBinariesJob < CreateJob
   queue_as :releasetracking
 

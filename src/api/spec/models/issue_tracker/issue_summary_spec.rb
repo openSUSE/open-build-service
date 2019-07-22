@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.describe IssueTracker::IssueSummary, vcr: true do

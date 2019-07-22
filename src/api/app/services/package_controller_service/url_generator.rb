@@ -1,3 +1,4 @@
+# typed: false
 module PackageControllerService
   class URLGenerator
     def initialize(params = {})

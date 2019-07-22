@@ -1,3 +1,4 @@
+# typed: true
 module ObsFactory
   # Extremely simple implementation of the Decorator pattern for the views.
   #

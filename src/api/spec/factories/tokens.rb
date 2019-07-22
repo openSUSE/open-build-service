@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :token do
     string { Faker::Lorem.characters(32) }

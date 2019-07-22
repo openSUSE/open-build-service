@@ -1,3 +1,4 @@
+# typed: false
 module Webui
   module Kiwi
     class ImagesController < WebuiController

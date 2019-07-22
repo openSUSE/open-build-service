@@ -1,3 +1,4 @@
+# typed: true
 module Staging
   class StagingProjectCreator
     def initialize(request_body, staging_workflow, user)

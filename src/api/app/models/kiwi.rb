@@ -1,3 +1,4 @@
+# typed: true
 module Kiwi
   def self.table_name_prefix
     'kiwi_'

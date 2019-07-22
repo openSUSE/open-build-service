@@ -1,3 +1,4 @@
+# typed: strict
 if CONFIG['influxdb_hosts'].blank? # defaults to localhost otherwise
   InfluxDB::Rails.configure do |config|
     config.instrumentation_enabled = false

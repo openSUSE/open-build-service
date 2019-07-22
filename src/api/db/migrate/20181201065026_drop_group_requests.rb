@@ -1,3 +1,4 @@
+# typed: true
 class DropGroupRequests < ActiveRecord::Migration[5.2]
   def up
     drop_table :group_request_requests

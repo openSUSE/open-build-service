@@ -1,3 +1,4 @@
+# typed: false
 require 'api_error'
 
 module ValidationHelper

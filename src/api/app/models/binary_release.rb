@@ -1,3 +1,4 @@
+# typed: false
 class BinaryRelease < ApplicationRecord
   #### Includes and extends
   #### Constants

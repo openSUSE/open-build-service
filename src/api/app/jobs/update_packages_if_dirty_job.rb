@@ -1,3 +1,4 @@
+# typed: true
 class UpdatePackagesIfDirtyJob < ApplicationJob
   queue_as :quick
 

@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class RequestCreate < Request
     self.message_bus_routing_key = 'request.create'

@@ -1,3 +1,4 @@
+# typed: false
 
 class APIError < RuntimeError
   def self.abstract_class?

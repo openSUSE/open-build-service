@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class StatusCheckForBuild < StatusCheck
     self.message_bus_routing_key = 'repo.status_report'

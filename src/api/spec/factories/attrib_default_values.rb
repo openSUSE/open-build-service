@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :attrib_default_value do
     attrib_type { create(:attrib_type) }

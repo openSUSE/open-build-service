@@ -1,3 +1,4 @@
+# typed: false
 module Webui2::PackageController
   def webui2_show
     @comments = @package.comments.includes(:user)

@@ -1,3 +1,4 @@
+# typed: true
 module ObsFactory
   # A wrapper around Project, containing a reference to the original Project
   # object and adding some methods and attributes.

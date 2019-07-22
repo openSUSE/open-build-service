@@ -1,3 +1,4 @@
+# typed: false
 class AddGenericOperationHistory < ActiveRecord::Migration[4.2]
   def self.up
     create_table :history_elements do |t|

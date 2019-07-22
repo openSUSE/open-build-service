@@ -1,3 +1,4 @@
+# typed: strict
 # Disabling the delay on delayed jobs
 RSpec.configure do |config|
   config.before do

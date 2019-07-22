@@ -1,3 +1,4 @@
+# typed: true
 module ObsFactory
   # Local representation of a job in the remote openQA. Uses a OpenqaApi (with a
   # hardcoded base url) to read the information and the Rails cache to store it

@@ -1,3 +1,4 @@
+# typed: false
 class Token < ApplicationRecord
   belongs_to :user
   belongs_to :package, inverse_of: :tokens

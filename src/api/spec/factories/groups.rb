@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :group do
     sequence(:title) { |n| "group_#{n}" }

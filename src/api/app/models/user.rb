@@ -1,3 +1,4 @@
+# typed: false
 require 'kconv'
 require_dependency 'api_error'
 

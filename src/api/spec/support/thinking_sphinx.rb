@@ -1,3 +1,4 @@
+# typed: false
 module SphinxHelpers
   def reindex_for_search
     ThinkingSphinx::Test.index

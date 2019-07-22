@@ -1,3 +1,4 @@
+# typed: strict
 class PathElement < ApplicationRecord
   # FIXME: This should be called parent
   belongs_to :repository, foreign_key: 'parent_id', inverse_of: :path_elements

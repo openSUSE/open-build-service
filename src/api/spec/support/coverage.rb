@@ -1,3 +1,4 @@
+# typed: false
 # for tracking test coverage
 if ENV['CIRCLE_ARTIFACTS']
   dir = File.join(ENV['CIRCLE_ARTIFACTS'], 'coverage')

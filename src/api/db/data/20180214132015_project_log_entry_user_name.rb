@@ -1,3 +1,4 @@
+# typed: true
 class ProjectLogEntryUserName < ActiveRecord::Migration[5.1]
   def up
     ProjectLogEntry.where('event_type like "%comment_for%"').in_batches do |batch|

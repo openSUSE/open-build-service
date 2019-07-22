@@ -1,3 +1,4 @@
+# typed: false
 ThinkingSphinx::Index.define :project, with: :active_record do
   indexes name
   indexes title

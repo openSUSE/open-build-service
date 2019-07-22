@@ -1,3 +1,4 @@
+# typed: false
 # define our current api version
 api_version = '2.10.50'
 

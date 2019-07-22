@@ -1,3 +1,4 @@
+# typed: false
 class SourceProjectConfigController < SourceController
   # GET /source/:project/_config
   before_action :ensure_project_exist, only: [:show, :update]

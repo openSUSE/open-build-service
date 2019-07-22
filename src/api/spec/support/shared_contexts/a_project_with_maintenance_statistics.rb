@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a project with maintenance statistics' do
   let(:user) { create(:confirmed_user) }
   let!(:project) do

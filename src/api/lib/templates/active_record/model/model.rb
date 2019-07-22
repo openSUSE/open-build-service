@@ -1,3 +1,4 @@
+# typed: ignore
 <% module_namespacing do -%>
 # TODO: Please overwrite this comment with something explaining the model target
 class <%= class_name %> < <%= parent_class_name.classify %>

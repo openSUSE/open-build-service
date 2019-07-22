@@ -1,3 +1,4 @@
+# typed: true
 # NOTE: Folowing: https://github.com/jbox-web/ajax-datatables-rails#using-view-helpers
 class PackageDatatable < Datatable
   def_delegator :@view, :link_to

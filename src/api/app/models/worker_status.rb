@@ -1,3 +1,4 @@
+# typed: true
 class WorkerStatus
   def self.hidden
     mydata = Rails.cache.read('workerstatus')

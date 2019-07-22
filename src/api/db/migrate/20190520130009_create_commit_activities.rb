@@ -1,3 +1,4 @@
+# typed: true
 class CreateCommitActivities < ActiveRecord::Migration[5.2]
   # rubocop:disable Rails/CreateTableWithTimestamps
   def change

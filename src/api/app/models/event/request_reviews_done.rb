@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class RequestReviewsDone < RequestStatechange
     self.message_bus_routing_key = 'request.reviews_done'

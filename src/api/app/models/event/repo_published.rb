@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class RepoPublished < Base
     self.message_bus_routing_key = 'repo.published'

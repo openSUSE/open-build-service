@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 require Rails.root.join('lib', 'influxdb_obs', 'obs', 'middleware', 'backend_subscriber').to_s
 

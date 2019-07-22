@@ -1,3 +1,4 @@
+# typed: true
 module PrettyNestedErrors
   class KeyAndMessagesParser
     NESTED_ERROR_REGEX = /(\w+\[\d+\]\.)+(\w+)/.freeze

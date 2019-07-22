@@ -1,3 +1,4 @@
+# typed: true
 class Webui::ImageTemplatesController < Webui::WebuiController
   def index
     @projects = Project.image_templates

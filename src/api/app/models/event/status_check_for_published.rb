@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class StatusCheckForPublished < StatusCheck
     self.message_bus_routing_key = 'published.status_report'

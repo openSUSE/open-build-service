@@ -1,3 +1,4 @@
+# typed: false
 class Buildresult
   AVAIL_STATUS_VALUES = {
     succeeded: 0,

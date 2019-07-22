@@ -1,3 +1,4 @@
+# typed: false
 require 'delayed_job'
 require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 

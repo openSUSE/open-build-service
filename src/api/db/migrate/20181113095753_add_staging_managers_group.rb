@@ -1,3 +1,4 @@
+# typed: true
 class AddStagingManagersGroup < ActiveRecord::Migration[5.2]
   def change
     change_table :staging_workflows do |t|

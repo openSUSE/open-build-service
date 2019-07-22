@@ -1,3 +1,4 @@
+# typed: false
 module Statistics
   class MaintenanceStatisticsController < ApplicationController
     skip_before_action :extract_user, :require_login

@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.describe Webui::Packages::JobHistoryHelper, type: :helper do

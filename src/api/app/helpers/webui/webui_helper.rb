@@ -1,3 +1,4 @@
+# typed: false
 # rubocop:disable Metrics/ModuleLength
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper

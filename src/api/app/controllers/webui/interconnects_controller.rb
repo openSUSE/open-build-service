@@ -1,3 +1,4 @@
+# typed: false
 class Webui::InterconnectsController < Webui::WebuiController
   before_action :require_admin
 

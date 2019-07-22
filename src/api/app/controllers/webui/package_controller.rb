@@ -1,3 +1,4 @@
+# typed: false
 require 'project'
 
 class Webui::PackageController < Webui::WebuiController

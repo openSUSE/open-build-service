@@ -1,3 +1,4 @@
+# typed: true
 class Webui::MonitorController < Webui::WebuiController
   before_action :set_default_architecture
   before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]

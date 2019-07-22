@@ -1,3 +1,4 @@
+# typed: true
 class StatisticsCalculations
   def self.get_latest_updated(limit = 10, timelimit = nil, prj_filter = nil, pkg_filter = nil)
     list = packages(limit, timelimit, prj_filter, pkg_filter) + projects(limit, timelimit, prj_filter)

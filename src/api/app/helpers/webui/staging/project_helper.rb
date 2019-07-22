@@ -1,3 +1,4 @@
+# typed: true
 module Webui::Staging::ProjectHelper
   def icon_for_checks(checks, missing_checks)
     return 'fa-eye text-info' if missing_checks.present?

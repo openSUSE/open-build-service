@@ -1,3 +1,4 @@
+# typed: ignore
 include MaintenanceHelper
 include ValidationHelper
 

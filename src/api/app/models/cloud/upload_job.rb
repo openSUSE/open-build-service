@@ -1,3 +1,4 @@
+# typed: true
 module Cloud
   class UploadJob
     include ActiveModel::Validations

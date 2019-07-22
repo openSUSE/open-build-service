@@ -1,3 +1,4 @@
+# typed: false
 module OwnerSearch
   class Assignee < Base
     def for(search_string)

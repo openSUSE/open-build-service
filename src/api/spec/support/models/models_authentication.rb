@@ -1,3 +1,4 @@
+# typed: true
 module ModelsAuthentication
   def login(user)
     User.session = user

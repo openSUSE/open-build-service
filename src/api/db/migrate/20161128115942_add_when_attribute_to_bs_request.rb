@@ -1,3 +1,4 @@
+# typed: false
 class AddWhenAttributeToBsRequest < ActiveRecord::Migration[5.0]
   class TempBsRequest < ApplicationRecord
     self.table_name = 'bs_requests'

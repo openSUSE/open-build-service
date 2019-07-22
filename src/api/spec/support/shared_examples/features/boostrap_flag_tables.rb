@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_examples 'bootstrap a flag table' do
   def enable_flag_field_for(flag_attributes)
     change_flag_field_to(flag_attributes, 'Enable', '.fa-check')

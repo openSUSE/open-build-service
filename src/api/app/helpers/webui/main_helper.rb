@@ -1,3 +1,4 @@
+# typed: false
 module Webui::MainHelper
   def proceed_link(image, text, link_opts)
     content_tag(:li,

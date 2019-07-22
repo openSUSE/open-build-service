@@ -1,3 +1,4 @@
+# typed: false
 module Webui
   module Users
     class RssTokensController < WebuiController

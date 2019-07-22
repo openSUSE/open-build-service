@@ -1,3 +1,4 @@
+# typed: false
 class CreateStatusReports < ActiveRecord::Migration[5.2]
   def change
     create_table :status_reports, id: :integer, options: 'ROW_FORMAT=DYNAMIC' do |t|

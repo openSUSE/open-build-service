@@ -1,3 +1,4 @@
+# typed: false
 module Webui::RepositoryHelper
   def icon_class(flag, is_flag_set_by_user)
     icon_class = flag.status == 'disable' ? 'fas fa-ban text-danger' : 'fas fa-check text-success'

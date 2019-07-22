@@ -1,3 +1,4 @@
+# typed: true
 module ParsePackageDiff
   def issues_hash(sourcediff)
     ret = {}

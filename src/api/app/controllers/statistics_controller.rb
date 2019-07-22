@@ -1,3 +1,4 @@
+# typed: false
 require 'statistics_calculations'
 
 class StatisticsController < ApplicationController

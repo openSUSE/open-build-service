@@ -1,3 +1,4 @@
+# typed: true
 require 'delegate'
 
 class BaseDecorator < SimpleDelegator

@@ -1,3 +1,4 @@
+# typed: false
 class SourceProjectPackageMetaController < SourceController
   # override the ApplicationController version
   # to have meaningful error messages

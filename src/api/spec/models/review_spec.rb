@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.shared_context 'some assigned reviews and some unassigned reviews' do

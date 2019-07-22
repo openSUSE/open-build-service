@@ -1,3 +1,4 @@
+# typed: true
 class CreateAzureConfiguration < ActiveRecord::Migration[5.1]
   def change
     create_table :cloud_azure_configurations, id: :integer do |t|

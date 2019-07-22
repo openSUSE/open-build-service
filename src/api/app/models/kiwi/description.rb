@@ -1,3 +1,4 @@
+# typed: false
 class Kiwi::Description < ApplicationRecord
   belongs_to :image, inverse_of: :description
 

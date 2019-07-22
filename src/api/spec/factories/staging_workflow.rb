@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :staging_workflow, class: 'Staging::Workflow' do
     project

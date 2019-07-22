@@ -1,3 +1,4 @@
+# typed: true
 module Cloud
   module User
     class UploadJob < ApplicationRecord

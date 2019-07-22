@@ -1,3 +1,4 @@
+# typed: false
 class DatetimeNotZeroDefaultNull < ActiveRecord::Migration[4.2]
   def self.up
     execute('alter table packages modify created_at datetime default NULL;')

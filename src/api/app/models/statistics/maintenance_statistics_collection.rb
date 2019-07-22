@@ -1,3 +1,4 @@
+# typed: false
 module Statistics
   class MaintenanceStatisticsCollection
     attr_reader :project

@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :ec2_configuration, class: Cloud::Ec2::Configuration do
     user

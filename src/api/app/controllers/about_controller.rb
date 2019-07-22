@@ -1,3 +1,4 @@
+# typed: true
 class AboutController < ApplicationController
   validate_action index: { method: :get, response: :about }
   skip_before_action :extract_user

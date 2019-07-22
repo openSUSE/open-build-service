@@ -1,3 +1,4 @@
+# typed: false
 class AddPrimaryKeyToDataMigrations < ActiveRecord::Migration[5.2]
   def up
     change_column :data_migrations, :version, :string, limit: 255, primary_key: true if primary_keys(:data_migrations).empty?

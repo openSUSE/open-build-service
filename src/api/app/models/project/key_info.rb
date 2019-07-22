@@ -1,3 +1,4 @@
+# typed: true
 class Project
   class KeyInfo
     include ActiveModel::Model

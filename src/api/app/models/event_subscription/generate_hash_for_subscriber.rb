@@ -1,3 +1,4 @@
+# typed: true
 class EventSubscription
   class GenerateHashForSubscriber
     attr_reader :subscriber

@@ -1,3 +1,4 @@
+# typed: true
 module LocalBuildStatistic
   module Package
     class Time

@@ -1,3 +1,4 @@
+# typed: false
 class BsRequest
   module FindFor
     class Base

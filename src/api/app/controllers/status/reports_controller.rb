@@ -1,3 +1,4 @@
+# typed: true
 class Status::ReportsController < ApplicationController
   include Status::Concerns::SetCheckable
   before_action :set_status_report

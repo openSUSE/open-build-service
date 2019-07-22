@@ -1,3 +1,4 @@
+# typed: true
 module OBSEngine
   # base class for all engine hooks
   class Base

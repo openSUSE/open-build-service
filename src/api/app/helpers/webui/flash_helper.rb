@@ -1,3 +1,4 @@
+# typed: false
 module Webui::FlashHelper
   def flash_content(flash)
     if flash.is_a?(Hash)

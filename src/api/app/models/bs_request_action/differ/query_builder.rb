@@ -1,3 +1,4 @@
+# typed: true
 class BsRequestAction
   module Differ
     class QueryBuilder

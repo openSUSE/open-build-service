@@ -1,3 +1,4 @@
+# typed: false
 module MaintenanceHelper
   include ValidationHelper
 

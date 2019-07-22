@@ -1,3 +1,4 @@
+# typed: false
 require 'pretty_nested_errors'
 
 module Kiwi

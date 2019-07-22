@@ -1,3 +1,4 @@
+# typed: true
 class IncreaseTimestampPrecision < ActiveRecord::Migration[5.1]
   def up
     ActiveRecord::Base.connection.tables.each do |table|

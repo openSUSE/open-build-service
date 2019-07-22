@@ -1,3 +1,4 @@
+# typed: false
 module FeaturesAuthentication
   def login(user, password = 'buildservice')
     visit session_new_path

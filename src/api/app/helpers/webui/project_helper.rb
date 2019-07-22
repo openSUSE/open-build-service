@@ -1,3 +1,4 @@
+# typed: false
 module Webui::ProjectHelper
   include Webui::WebuiHelper
 

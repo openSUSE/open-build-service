@@ -1,3 +1,4 @@
+# typed: true
 class DownloadRepositoryPolicy < ApplicationPolicy
   def create?
     user.is_admin?

@@ -1,3 +1,4 @@
+# typed: false
 class NewDodTable < ActiveRecord::Migration[4.2]
   def self.up
     create_table :download_repositories do |t|

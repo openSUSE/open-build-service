@@ -1,3 +1,4 @@
+# typed: true
 module Cloud
   class UploadJobsController < ApplicationController
     before_action :require_login

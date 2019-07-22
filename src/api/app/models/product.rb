@@ -1,3 +1,4 @@
+# typed: false
 class Product < ApplicationRecord
   belongs_to :package, foreign_key: :package_id
   has_many :product_update_repositories, dependent: :destroy

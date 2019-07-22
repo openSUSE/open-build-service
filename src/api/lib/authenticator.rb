@@ -1,3 +1,4 @@
+# typed: false
 require_dependency 'opensuse/permission'
 require_dependency 'gssapi' if CONFIG['kerberos_service_principal']
 

@@ -1,3 +1,4 @@
+# typed: false
 class StatusMessage < ApplicationRecord
   belongs_to :user
   validates :user, :severity, :message, presence: true

@@ -1,3 +1,4 @@
+# typed: false
 ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 
 ENV['RAILS_ENV'] = 'test'

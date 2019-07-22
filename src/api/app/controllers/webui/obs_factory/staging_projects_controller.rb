@@ -1,3 +1,4 @@
+# typed: false
 module Webui::ObsFactory
   class StagingProjectsController < Webui::ObsFactory::ApplicationController
     respond_to :json, :html

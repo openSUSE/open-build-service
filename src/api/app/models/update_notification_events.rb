@@ -1,3 +1,4 @@
+# typed: false
 class UpdateNotificationEvents
   cattr_accessor :semaphore
 

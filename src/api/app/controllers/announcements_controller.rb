@@ -1,3 +1,4 @@
+# typed: true
 class AnnouncementsController < ApplicationController
   before_action :set_announcement, only: [:show, :update, :destroy]
   # Pundit authorization policies control

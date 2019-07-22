@@ -1,3 +1,4 @@
+# typed: true
 class SwitchToUtf8mb4 < ActiveRecord::Migration[5.2]
   def db
     ActiveRecord::Base.connection

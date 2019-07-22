@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do

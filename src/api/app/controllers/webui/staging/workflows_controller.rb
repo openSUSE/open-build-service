@@ -1,3 +1,4 @@
+# typed: false
 class Webui::Staging::WorkflowsController < Webui::WebuiController
   layout 'webui2/webui'
 

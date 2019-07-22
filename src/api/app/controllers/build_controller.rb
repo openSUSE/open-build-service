@@ -1,3 +1,4 @@
+# typed: false
 class BuildController < ApplicationController
   def index
     # for read access and visibility permission check

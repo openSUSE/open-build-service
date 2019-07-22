@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :download_repository do
     arch { 'x86_64' }

@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 require 'webmock/rspec'
 

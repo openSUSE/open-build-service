@@ -1,3 +1,4 @@
+# typed: true
 class RemoveDuplicatedFlags < ActiveRecord::Migration[5.2]
   def up
     attributes = [:flag, :repo, :architecture_id, :package_id, :project_id]

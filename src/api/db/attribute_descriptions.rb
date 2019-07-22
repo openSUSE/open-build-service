@@ -1,3 +1,4 @@
+# typed: true
 
 def update_all_attrib_type_descriptions
   ans = AttribNamespace.find_by_name('OBS')

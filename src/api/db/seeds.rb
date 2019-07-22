@@ -1,3 +1,4 @@
+# typed: false
 require_relative 'attribute_descriptions'
 
 puts 'Seeding architectures table...'

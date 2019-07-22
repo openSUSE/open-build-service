@@ -1,3 +1,4 @@
+# typed: false
 require 'sphinx_helper'
 # For expecting the load of the page to finish we use have_current_path (https://github.com/jnicklas/capybara/blob/master/README.md#navigating)
 

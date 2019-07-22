@@ -1,3 +1,4 @@
+# typed: strict
 # for generating test coverage
 require 'simplecov'
 # Avoid codecov failures outside of CI

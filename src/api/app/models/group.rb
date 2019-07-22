@@ -1,3 +1,4 @@
+# typed: false
 require_dependency 'api_error'
 
 # The Group class represents a group record in the database and thus a group

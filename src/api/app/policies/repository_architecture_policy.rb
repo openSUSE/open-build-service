@@ -1,3 +1,4 @@
+# typed: true
 class RepositoryArchitecturePolicy < ApplicationPolicy
   def initialize(user, record)
     super(user, record, user_optional: true)

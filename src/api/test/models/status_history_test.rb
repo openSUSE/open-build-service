@@ -1,3 +1,4 @@
+# typed: false
 require 'test_helper'
 
 class StatusHistoryTest < ActiveSupport::TestCase

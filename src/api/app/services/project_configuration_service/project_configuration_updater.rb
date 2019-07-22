@@ -1,3 +1,4 @@
+# typed: true
 module ProjectConfigurationService
   class ProjectConfigurationUpdater
     def initialize(project, user, params)

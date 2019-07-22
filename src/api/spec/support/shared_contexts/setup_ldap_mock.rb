@@ -1,3 +1,4 @@
+# typed: false
 require 'ldap'
 
 RSpec.shared_context 'setup ldap mock' do |opts|

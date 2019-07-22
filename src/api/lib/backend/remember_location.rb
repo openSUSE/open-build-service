@@ -1,3 +1,4 @@
+# typed: false
 module Backend
   module RememberLocation
     def singleton_method_added(method_name)

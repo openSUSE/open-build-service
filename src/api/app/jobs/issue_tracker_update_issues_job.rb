@@ -1,3 +1,4 @@
+# typed: false
 class IssueTrackerUpdateIssuesJob < ApplicationJob
   queue_as :issuetracking
 

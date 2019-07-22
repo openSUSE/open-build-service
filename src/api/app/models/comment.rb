@@ -1,3 +1,4 @@
+# typed: false
 require 'set'
 
 class Comment < ApplicationRecord

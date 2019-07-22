@@ -1,3 +1,4 @@
+# typed: true
 class ExplicitlySetCharset < ActiveRecord::Migration[5.1]
   def up
     [

@@ -1,3 +1,4 @@
+# typed: false
 require 'xmlhash'
 
 class PersonController < ApplicationController

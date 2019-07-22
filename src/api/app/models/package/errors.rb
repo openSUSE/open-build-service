@@ -1,3 +1,4 @@
+# typed: true
 module Package::Errors
   extend ActiveSupport::Concern
 

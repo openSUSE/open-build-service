@@ -1,3 +1,4 @@
+# typed: false
 require_relative '../test_helper'
 
 class AttribPolicyTest < ActiveSupport::TestCase

@@ -1,3 +1,4 @@
+# typed: true
 class Webui::Users::AnnouncementsController < Webui::WebuiController
   before_action :require_login
 

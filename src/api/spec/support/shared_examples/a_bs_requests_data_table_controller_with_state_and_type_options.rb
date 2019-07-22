@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_examples 'a bs requests data table controller with state and type options' do
   context 'with the state param set to "new"' do
     let(:context_params) { { state: 'new' } }

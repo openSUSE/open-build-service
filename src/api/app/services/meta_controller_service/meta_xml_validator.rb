@@ -1,3 +1,4 @@
+# typed: true
 module MetaControllerService
   class MetaXMLValidator
     require_dependency 'opensuse/validator'

@@ -1,3 +1,4 @@
+# typed: true
 class Webui::Users::SubscriptionsController < Webui::WebuiController
   before_action :require_login
 

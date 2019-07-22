@@ -404,6 +404,10 @@ GEM
     simplecov-html (0.10.2)
     single_test (0.6.0)
       rake
+    sorbet (0.4.4485)
+      sorbet-static (= 0.4.4485)
+    sorbet-runtime (0.4.4485)
+    sorbet-static (0.4.4485-x86_64-linux)
     sprite-factory (1.7.1)
     sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
@@ -547,6 +551,8 @@ DEPENDENCIES
   shoulda-matchers (~> 4.0)
   simplecov
   single_test
+  sorbet
+  sorbet-runtime
   sprite-factory (>= 1.5.2)
   test-unit
   thinking-sphinx (> 3.1)

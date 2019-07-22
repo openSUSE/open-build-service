@@ -1,3 +1,4 @@
+# typed: true
 class Kiwi::ImagePolicy < ApplicationPolicy
   def can_modify_package?
     record.package && user.can_modify?(record.package)

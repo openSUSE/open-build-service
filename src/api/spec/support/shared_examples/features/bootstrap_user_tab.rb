@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_examples 'bootstrap user tab' do
   let(:user_tab_user) { create(:confirmed_user, :with_home, login: 'user_tab_user') }
   let!(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }

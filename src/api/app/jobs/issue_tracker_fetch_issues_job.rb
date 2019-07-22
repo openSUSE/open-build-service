@@ -1,3 +1,4 @@
+# typed: false
 class IssueTrackerFetchIssuesJob < ApplicationJob
   queue_as :issuetracking
 

@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class UpdatePackage < Base
     self.message_bus_routing_key = 'package.update'

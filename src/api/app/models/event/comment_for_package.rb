@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class CommentForPackage < Base
     include CommentEvent

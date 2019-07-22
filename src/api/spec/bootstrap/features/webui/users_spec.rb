@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do

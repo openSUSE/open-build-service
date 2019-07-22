@@ -1,3 +1,4 @@
+# typed: true
 module MetaControllerService
   class MetaValidator
     attr_reader :project, :request_data, :errors

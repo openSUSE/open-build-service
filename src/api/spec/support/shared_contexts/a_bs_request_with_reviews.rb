@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a BsRequest with reviews' do
   let(:reviewer) { create(:confirmed_user, login: 'reviewer') }
   let(:group) { create(:group, title: 'request_reviewer') }

@@ -1,3 +1,4 @@
+# typed: true
 class ApplicationJob < ActiveJob::Base
   before_perform :set_influxdb_tags
 

@@ -1,3 +1,4 @@
+# typed: false
 class AddIndexForProductTracking < ActiveRecord::Migration[4.2]
   def self.up
     add_index :product_media, [:product_id, :repository_id, :name], unique: true, name: 'index_unique'

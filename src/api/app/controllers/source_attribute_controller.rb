@@ -1,3 +1,4 @@
+# typed: false
 class SourceAttributeController < SourceController
   include ValidationHelper
   before_action :set_request_data, only: [:update]

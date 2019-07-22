@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :path_element do
     sequence(:position) { |n| n }

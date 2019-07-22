@@ -1,3 +1,4 @@
+# typed: true
 module Staging
   class StagingProjectValidator
     attr_reader :errors

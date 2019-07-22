@@ -1,3 +1,4 @@
+# typed: true
 class Webui::StatusMessagesController < Webui::WebuiController
   # permissions.status_message_create
   before_action :require_admin, only: [:destroy, :create]

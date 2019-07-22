@@ -1,3 +1,4 @@
+# typed: ignore
 require 'uri'
 
 module OBSApi

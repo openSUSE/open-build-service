@@ -1,3 +1,4 @@
+# typed: strict
 module Project::Errors
   extend ActiveSupport::Concern
 

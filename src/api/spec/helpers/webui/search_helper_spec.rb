@@ -1,3 +1,4 @@
+# typed: ignore
 require 'rails_helper'
 include Webui::UserHelper
 

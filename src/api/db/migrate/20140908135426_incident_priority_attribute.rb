@@ -1,3 +1,4 @@
+# typed: false
 class IncidentPriorityAttribute < ActiveRecord::Migration[4.2]
   class AttribTypeModifiableBy < ApplicationRecord; end
 

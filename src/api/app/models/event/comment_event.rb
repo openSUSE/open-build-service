@@ -1,3 +1,4 @@
+# typed: false
 module Event
   module CommentEvent
     def self.included(base)

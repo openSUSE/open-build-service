@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class Upload < Base
     self.message_bus_routing_key = 'package.upload'

@@ -1,3 +1,4 @@
+# typed: false
 module Webui::GroupHelper
   def group_management_label
     if User.admin_session?

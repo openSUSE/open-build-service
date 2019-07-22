@@ -1,3 +1,4 @@
+# typed: strict
 module BsRequestActionMaintenanceRelease::Errors
   extend ActiveSupport::Concern
   class LackingReleaseMaintainership < APIError; setup 'lacking_maintainership', 403; end

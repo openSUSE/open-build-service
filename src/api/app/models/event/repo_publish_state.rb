@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class RepoPublishState < Base
     self.message_bus_routing_key = 'repo.publish_state'

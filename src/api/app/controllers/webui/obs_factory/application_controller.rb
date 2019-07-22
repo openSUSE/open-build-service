@@ -1,3 +1,4 @@
+# typed: strict
 module Webui::ObsFactory
   class ApplicationController < ::Webui::WebuiController
     layout 'webui/obs_factory/application'

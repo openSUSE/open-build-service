@@ -1,3 +1,4 @@
+# typed: false
 class PublicController < ApplicationController
   include PublicHelper
 

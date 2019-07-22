@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class VersionChange < Base
     self.message_bus_routing_key = 'package.version_change'

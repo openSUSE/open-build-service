@@ -1,3 +1,4 @@
+# typed: true
 class ThinkingSphinx::GuardfileExistsError < StandardError
   def message
     "Guardfile #{File.join(ThinkingSphinx::Configuration.instance.indices_location, 'ts---all.tmp')} exists already"

@@ -1,3 +1,4 @@
+# typed: false
 module FlagHelper
   class InvalidFlag < APIError
     setup 'invalid_flag'

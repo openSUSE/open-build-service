@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionDelete < BsRequestAction
   #### Includes and extends

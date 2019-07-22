@@ -1,3 +1,4 @@
+# typed: true
 module ObsFactory
   class UnknownDistribution < RuntimeError
   end

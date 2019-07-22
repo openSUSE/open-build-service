@@ -1,3 +1,4 @@
+# typed: false
 require 'memprof'
 
 class MemoryDumper

@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'rake' do
   # You define `task` inside your actual test example.
   let(:rake_task) { Rake.application[task] }

@@ -1,3 +1,4 @@
+# typed: false
 class BsRequestPermissionCheck
   class AddReviewNotPermitted < APIError
     setup 403

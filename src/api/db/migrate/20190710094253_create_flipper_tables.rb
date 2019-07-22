@@ -1,3 +1,4 @@
+# typed: true
 class CreateFlipperTables < ActiveRecord::Migration[5.2]
   def change
     create_table :flipper_features, options: 'CHARSET=utf8 COLLATE=utf8_bin ROW_FORMAT=DYNAMIC', id: :integer do |t|

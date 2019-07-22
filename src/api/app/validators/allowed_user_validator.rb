@@ -1,3 +1,4 @@
+# typed: true
 class AllowedUserValidator < ActiveModel::Validator
   def validate(record)
     # NOTE: it could be more generic and check 'locked' users or other possible banned ones

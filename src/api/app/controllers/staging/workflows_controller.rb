@@ -1,3 +1,4 @@
+# typed: true
 class Staging::WorkflowsController < ApplicationController
   before_action :require_login
   before_action :set_project

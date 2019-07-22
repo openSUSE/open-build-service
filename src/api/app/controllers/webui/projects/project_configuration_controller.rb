@@ -1,3 +1,4 @@
+# typed: true
 module Webui
   module Projects
     class ProjectConfigurationController < WebuiController

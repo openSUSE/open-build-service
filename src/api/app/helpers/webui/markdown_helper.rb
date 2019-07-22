@@ -1,3 +1,4 @@
+# typed: true
 require 'obsapi/markdown_renderer'
 
 module Webui::MarkdownHelper

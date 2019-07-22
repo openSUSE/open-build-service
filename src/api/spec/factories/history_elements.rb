@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :history_element_review_assigned, class: 'HistoryElement::ReviewAssigned' do
     type { 'HistoryElement::ReviewAssigned' }

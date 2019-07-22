@@ -1,3 +1,4 @@
+# typed: false
 class AdminMailer < ActionMailer::Base
   # avoiding the event mechanism for this, since it might be the actual problem
 

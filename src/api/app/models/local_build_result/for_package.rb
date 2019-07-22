@@ -1,3 +1,4 @@
+# typed: true
 class LocalBuildResult
   class ForPackage
     include ActiveModel::Model

@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_examples 'user tab' do
   let!(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
   let!(:user_tab_user) { create(:confirmed_user, :with_home, login: 'user_tab_user') }

@@ -1,3 +1,4 @@
+# typed: false
 class Channel < ApplicationRecord
   include ModelHelper
 

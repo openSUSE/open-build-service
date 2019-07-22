@@ -1,3 +1,4 @@
+# typed: true
 require 'configuration'
 
 class ConfigurationsController < ApplicationController

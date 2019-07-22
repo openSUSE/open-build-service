@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a staging project with description' do
   let(:staging_project_description) do
     <<-HEREDOC

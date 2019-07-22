@@ -1,3 +1,4 @@
+# typed: false
 module ObsFactory
   # A staging project asociated to a distribution.
   #

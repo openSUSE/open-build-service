@@ -1,3 +1,4 @@
+# typed: false
 module RabbitMQHelpers
   cattr_accessor :test_queue
 

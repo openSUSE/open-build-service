@@ -1,3 +1,4 @@
+# typed: false
 require 'api_error'
 
 # The Role class represents a role in the database. Roles can have permissions

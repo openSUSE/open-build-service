@@ -1,3 +1,4 @@
+# typed: false
 module MetaTagHelper
   def meta_title
     content_for(:meta_title) || home_title

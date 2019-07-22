@@ -1,3 +1,4 @@
+# typed: false
 RSpec.shared_context 'a user and subscriptions with defaults' do
   let!(:user) { create(:confirmed_user) }
 

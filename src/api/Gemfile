@@ -85,6 +85,9 @@ gem 'rails-timeago', '~> 2.0'
 gem 'deep_cloneable', '~> 2.4.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
+# enable sorbet and sorbet-runtime for type checking
+gem 'sorbet', group: :development
+gem 'sorbet-runtime'
 
 group :development, :production do
   # to have the delayed job daemon

@@ -1,3 +1,4 @@
+# typed: true
 module ObsFactory
   # PowerPC to Factory Diff
   class DistributionStrategyFactoryPPC < DistributionStrategyFactory

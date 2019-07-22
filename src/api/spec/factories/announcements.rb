@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :announcement do
     title { Faker::Book.title }

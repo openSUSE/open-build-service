@@ -1,3 +1,4 @@
+# typed: false
 class Webui::ApidocsController < Webui::WebuiController
   def index
     @filename = File.expand_path(CONFIG['apidocs_location']) + '/index.html'

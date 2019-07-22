@@ -1,3 +1,4 @@
+# typed: strong
 module Event
   class RequestChange < Request
     self.message_bus_routing_key = 'request.change'

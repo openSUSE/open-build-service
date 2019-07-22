@@ -1,3 +1,4 @@
+# typed: false
 # internal CVE parser class
 class IssueTracker::CVEParser < Nokogiri::XML::SAX::Document
   @my_tracker = nil

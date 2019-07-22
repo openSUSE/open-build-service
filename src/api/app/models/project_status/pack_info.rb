@@ -1,3 +1,4 @@
+# typed: true
 module ProjectStatus
   class PackInfo
     attr_accessor :backend_package, :project, :links_to, :develpack, :failed_comment, :upstream_version, :upstream_url, :declined_request

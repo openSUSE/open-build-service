@@ -1,3 +1,4 @@
+# typed: false
 module Cloud
   module Azure
     class Configuration < ApplicationRecord

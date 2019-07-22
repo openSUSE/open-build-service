@@ -1,3 +1,4 @@
+# typed: false
 module PublicHelper
   def ymp_url(path)
     url = ::Configuration.ymp_url

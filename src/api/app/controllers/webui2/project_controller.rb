@@ -1,3 +1,4 @@
+# typed: false
 module Webui2::ProjectController
   def webui2_index
     respond_to do |format|

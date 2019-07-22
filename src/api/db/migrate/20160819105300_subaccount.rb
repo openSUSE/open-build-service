@@ -1,3 +1,4 @@
+# typed: false
 class Subaccount < ActiveRecord::Migration[4.2]
   def self.up
     execute "alter table users modify column `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') DEFAULT 'unconfirmed';"

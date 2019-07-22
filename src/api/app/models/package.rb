@@ -1,3 +1,4 @@
+# typed: false
 require_dependency 'api_error'
 require 'builder/xchar'
 require 'rexml/document'

@@ -1,3 +1,4 @@
+# typed: false
 class Repository < ApplicationRecord
   include Status::Checkable
 

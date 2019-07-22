@@ -1,3 +1,4 @@
+# typed: true
 class Status::RequiredChecksController < ApplicationController
   #### Includes and extends
 

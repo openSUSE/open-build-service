@@ -1,3 +1,4 @@
+# typed: false
 class AttributeNamespaceController < ApplicationController
   include ValidationHelper
 

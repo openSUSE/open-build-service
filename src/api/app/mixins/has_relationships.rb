@@ -1,3 +1,4 @@
+# typed: false
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
   class SaveError < APIError

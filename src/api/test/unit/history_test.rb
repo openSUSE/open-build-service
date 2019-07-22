@@ -1,3 +1,4 @@
+# typed: false
 require_relative '../test_helper'
 
 class HistoryTest < ActionMailer::TestCase

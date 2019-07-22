@@ -1,3 +1,4 @@
+# typed: ignore
 <% if namespaced? -%>
 require_dependency "<%= namespaced_file_path %>/application_controller"
 

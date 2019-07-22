@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionChangeDevel < BsRequestAction
   #### Includes and extends

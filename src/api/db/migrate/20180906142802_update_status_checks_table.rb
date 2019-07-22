@@ -1,3 +1,4 @@
+# typed: true
 class UpdateStatusChecksTable < ActiveRecord::Migration[5.2]
   def change
     remove_reference :status_checks, :checkable, polymorphic: { limit: 191 }

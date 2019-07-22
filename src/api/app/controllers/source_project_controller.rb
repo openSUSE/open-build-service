@@ -1,3 +1,4 @@
+# typed: false
 class SourceProjectController < SourceController
   # GET /source/:project
   def show

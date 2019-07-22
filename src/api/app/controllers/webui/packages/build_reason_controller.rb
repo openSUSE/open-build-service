@@ -1,3 +1,4 @@
+# typed: false
 module Webui
   module Packages
     class BuildReasonController < WebuiController

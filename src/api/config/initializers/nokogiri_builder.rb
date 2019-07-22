@@ -1,3 +1,4 @@
+# typed: true
 require 'action_view'
 require 'nokogiri'
 

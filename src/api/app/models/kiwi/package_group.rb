@@ -1,3 +1,4 @@
+# typed: false
 module Kiwi
   class PackageGroup < ApplicationRecord
     has_many :packages, dependent: :destroy, index_errors: true

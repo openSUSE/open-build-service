@@ -1,3 +1,4 @@
+# typed: strong
 # as our base helper
 require 'rails_helper'
 

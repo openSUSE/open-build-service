@@ -1,3 +1,4 @@
+# typed: true
 class Staging::RequestExclusionPolicy < ApplicationPolicy
   def create?
     group = record.managers_group

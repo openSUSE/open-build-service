@@ -1,3 +1,4 @@
+# typed: true
 class CreateAnnouncements < ActiveRecord::Migration[5.2]
   def change
     create_table :announcements, id: :integer, options: 'CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC' do |t|

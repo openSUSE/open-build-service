@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :kiwi_preference, class: Kiwi::Preference do
     version { '2.0.0' }

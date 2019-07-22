@@ -1,3 +1,4 @@
+# typed: false
 require 'vcr'
 require 'webmock/rspec'
 

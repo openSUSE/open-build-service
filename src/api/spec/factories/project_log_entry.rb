@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :project_log_entry do
     project

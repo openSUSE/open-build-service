@@ -1,3 +1,4 @@
+# typed: true
 class UserConfigurationDatatable < Datatable
   def_delegator :@view, :user_actions
   def_delegator :@view, :user_with_realname_and_icon

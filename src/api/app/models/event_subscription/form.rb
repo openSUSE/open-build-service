@@ -1,3 +1,4 @@
+# typed: true
 class EventSubscription
   class Form
     attr_reader :subscriber

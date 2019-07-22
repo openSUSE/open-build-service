@@ -1,3 +1,4 @@
+# typed: true
 class ProjectDoProjectCopyJob < ApplicationJob
   queue_as :quick
 

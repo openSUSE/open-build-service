@@ -1,3 +1,4 @@
+# typed: false
 # Specifies own namespaces of attributes
 class AttribNamespace < ApplicationRecord
   #### Includes and extends

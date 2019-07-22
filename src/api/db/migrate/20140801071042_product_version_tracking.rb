@@ -1,3 +1,4 @@
+# typed: true
 class ProductVersionTracking < ActiveRecord::Migration[4.2]
   def up
     add_column :products, :version, :string

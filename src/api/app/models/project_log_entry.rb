@@ -1,3 +1,4 @@
+# typed: false
 # Class to track recent activity in order to provide rss feeds.
 # Log entries are created from events and deleted after a time threshold
 # @see ProjectLogRotate

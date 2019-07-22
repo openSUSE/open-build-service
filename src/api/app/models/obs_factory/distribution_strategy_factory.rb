@@ -1,3 +1,4 @@
+# typed: false
 module ObsFactory
   # this is not a Factory pattern, this is for openSUSE:Factory :/
   class DistributionStrategyFactory

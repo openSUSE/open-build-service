@@ -1,3 +1,4 @@
+# typed: true
 class DeleteCachelineTable < ActiveRecord::Migration[5.1]
   def change
     remove_index :cache_lines, [:project, :package]

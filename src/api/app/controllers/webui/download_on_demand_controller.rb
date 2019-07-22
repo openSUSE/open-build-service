@@ -1,3 +1,4 @@
+# typed: false
 class Webui::DownloadOnDemandController < Webui::WebuiController
   before_action :set_project
 

@@ -1,3 +1,4 @@
+# typed: true
 class GroupPolicy < ApplicationPolicy
   def index?
     create?

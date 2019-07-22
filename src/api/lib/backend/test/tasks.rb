@@ -1,3 +1,4 @@
+# typed: false
 module Backend
   class Test
     # Module that holds methods for running the different parts of the backend server

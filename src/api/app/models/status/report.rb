@@ -1,3 +1,4 @@
+# typed: false
 class Status::Report < ApplicationRecord
   #### Includes and extends
 

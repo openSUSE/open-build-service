@@ -1,3 +1,4 @@
+# typed: false
 class EventMailer < ActionMailer::Base
   helper 'webui/markdown'
 

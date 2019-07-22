@@ -1,3 +1,4 @@
+# typed: true
 
 class Dir
   def self.tmpdir

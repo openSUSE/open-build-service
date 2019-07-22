@@ -1,3 +1,4 @@
+# typed: true
 class AddBinaryIdTracking < ActiveRecord::Migration[5.2]
   def change
     change_table :binary_releases, bulk: true do |t|

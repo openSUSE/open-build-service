@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class RepoBuildFinished < Base
     self.message_bus_routing_key = 'repo.build_finished'

@@ -1,3 +1,4 @@
+# typed: false
 class Staging::Workflow < ApplicationRecord
   def self.table_name_prefix
     'staging_'

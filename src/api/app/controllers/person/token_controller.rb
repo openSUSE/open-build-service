@@ -1,3 +1,4 @@
+# typed: false
 require 'xmlhash'
 module Person
   class TokenController < ApplicationController

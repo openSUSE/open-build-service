@@ -1,3 +1,4 @@
+# typed: true
 class RepositoryArchitecture < ApplicationRecord
   include Status::Checkable
 

@@ -1,4 +1,5 @@
 #!/usr/bin/ruby.ruby2.5
+# typed: strict
 
 require 'bundler'
 

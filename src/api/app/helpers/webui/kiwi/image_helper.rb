@@ -1,3 +1,4 @@
+# typed: false
 module Webui::Kiwi::ImageHelper
   include Webui::ProjectHelper
 

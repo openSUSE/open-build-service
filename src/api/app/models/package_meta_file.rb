@@ -1,3 +1,4 @@
+# typed: true
 class PackageMetaFile < PackageFile
   def initialize(attributes = {})
     super

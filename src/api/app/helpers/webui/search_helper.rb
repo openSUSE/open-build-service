@@ -1,3 +1,4 @@
+# typed: false
 # TODO: bento_only
 module Webui::SearchHelper
   # @param [Hash] names a hash with roles as keys and an array of records (User or Group) as

@@ -1,3 +1,4 @@
+# typed: false
 class UniqNumberIndex < ActiveRecord::Migration[4.2]
   def self.up
     remove_index :bs_requests, :number

@@ -1,3 +1,4 @@
+# typed: strong
 class AttribTypeModifiableBy < ApplicationRecord
   belongs_to :attrib_type
   belongs_to :user

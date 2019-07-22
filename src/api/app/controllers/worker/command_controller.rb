@@ -1,3 +1,4 @@
+# typed: true
 class Worker::CommandController < ApplicationController
   def run
     required_parameters :cmd, :project, :package, :repository, :arch

@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class RequestStatechange < Request
     self.message_bus_routing_key = 'request.state_change'

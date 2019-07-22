@@ -1,3 +1,4 @@
+# typed: false
 # rubocop:disable Metrics/ModuleLength
 module StagingProject
   extend ActiveSupport::Concern

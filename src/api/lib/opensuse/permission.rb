@@ -1,3 +1,4 @@
+# typed: true
 # require "project"
 # require "package"
 

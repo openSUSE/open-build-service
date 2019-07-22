@@ -1,3 +1,4 @@
+# typed: false
 
 class TempMI < ApplicationRecord
   self.table_name = 'maintenance_incidents'

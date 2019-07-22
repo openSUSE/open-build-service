@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class Packtrack < Base
     self.message_bus_routing_key = 'repo.packtrack'

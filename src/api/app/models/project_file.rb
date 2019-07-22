@@ -1,3 +1,4 @@
+# typed: true
 # Backend::File model to represent files that belongs to the project in the backend
 # Special files that are stored in /source/project/ folder
 #   _project/_meta (using meta=1 in the query),

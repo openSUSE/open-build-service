@@ -1,3 +1,4 @@
+# typed: false
 module Webui::UserOrGroupsRolesHelper
   def display_name(object)
     if object.is_a?(User) && object.realname.present?

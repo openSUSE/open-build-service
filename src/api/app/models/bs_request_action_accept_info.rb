@@ -1,3 +1,4 @@
+# typed: false
 #
 class BsRequestActionAcceptInfo < ApplicationRecord
   #### Includes and extends

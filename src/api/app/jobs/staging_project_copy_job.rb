@@ -1,3 +1,4 @@
+# typed: true
 class StagingProjectCopyJob < ApplicationJob
   def perform(staging_workflow_project_name, original_staging_project_name, staging_project_copy_name, user_id)
     User.find(user_id).run_as do

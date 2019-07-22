@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class UndeletePackage < Base
     self.message_bus_routing_key = 'package.undelete'

@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 require Rails.root.join('db/data/20170831143534_convert_notifications_event_payload_to_json.rb')
 

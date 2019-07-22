@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class DeleteProject < Base
     self.message_bus_routing_key = 'project.delete'

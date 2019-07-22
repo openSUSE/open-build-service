@@ -1,3 +1,4 @@
+# typed: true
 class Staging::ExcludedRequestsController < ApplicationController
   before_action :require_login, except: [:index]
   before_action :set_project

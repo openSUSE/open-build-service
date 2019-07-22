@@ -1,3 +1,4 @@
+# typed: false
 module ObsFactory
   # this class tracks the differences between Factory and the upcoming release
   class DistributionStrategyOpenSUSELeap15 < DistributionStrategyFactory

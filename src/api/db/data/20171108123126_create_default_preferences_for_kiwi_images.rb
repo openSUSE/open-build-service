@@ -1,3 +1,4 @@
+# typed: true
 class CreateDefaultPreferencesForKiwiImages < ActiveRecord::Migration[5.1]
   def up
     images = Kiwi::Image.includes(:preferences).where(kiwi_preferences: { id: nil })

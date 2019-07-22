@@ -1,3 +1,4 @@
+# typed: true
 class BsRequest
   module DataTable
     class Row

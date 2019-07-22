@@ -1,3 +1,4 @@
+# typed: true
 class Directory
   def self.hashed(opts)
     project = opts.delete :project

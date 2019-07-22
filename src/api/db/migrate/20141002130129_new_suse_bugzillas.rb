@@ -1,3 +1,4 @@
+# typed: false
 class NewSuseBugzillas < ActiveRecord::Migration[4.2]
   def up
     t = IssueTracker.find_by_name('bnc')

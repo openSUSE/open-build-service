@@ -1,3 +1,4 @@
+# typed: false
 class EventSubscription
   class FindForEvent
     attr_reader :event

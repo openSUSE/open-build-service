@@ -1,3 +1,4 @@
+# typed: false
 require 'browser_helper'
 
 RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: true do

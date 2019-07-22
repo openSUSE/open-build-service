@@ -1,3 +1,4 @@
+# typed: false
 module APIInstrumentation
   module ControllerRuntime
     extend ActiveSupport::Concern

@@ -1,3 +1,4 @@
+# typed: false
 class Notification < ApplicationRecord
   belongs_to :subscriber, polymorphic: true
 

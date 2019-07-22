@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 
 RSpec.describe Webui::ObsFactory::ApplicationHelper, type: :helper do

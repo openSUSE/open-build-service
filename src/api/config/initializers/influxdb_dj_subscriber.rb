@@ -1,3 +1,4 @@
+# typed: true
 if CONFIG['influxdb_hosts']
   ActiveSupport::Notifications.subscribe(/active_job/) do |*args|
     event = ActiveSupport::Notifications::Event.new(*args)

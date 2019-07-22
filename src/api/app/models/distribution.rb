@@ -1,3 +1,4 @@
+# typed: false
 class Distribution < ApplicationRecord
   validates :vendor, :version, :name, :reponame, :repository, :project, presence: true
 

@@ -1,3 +1,4 @@
+# typed: true
 module ProjectConfigurationService
   class ProjectConfigurationPresenter
     attr_reader :config

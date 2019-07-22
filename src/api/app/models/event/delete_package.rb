@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class DeletePackage < Base
     self.message_bus_routing_key = 'package.delete'

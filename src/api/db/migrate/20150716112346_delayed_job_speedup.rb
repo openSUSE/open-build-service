@@ -1,3 +1,4 @@
+# typed: true
 class DelayedJobSpeedup < ActiveRecord::Migration[4.2]
   def up
     remove_index :delayed_jobs, :locked_at

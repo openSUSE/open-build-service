@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :upload_job, class: Cloud::User::UploadJob do
     user

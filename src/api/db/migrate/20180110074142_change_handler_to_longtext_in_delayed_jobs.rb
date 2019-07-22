@@ -1,3 +1,4 @@
+# typed: false
 class ChangeHandlerToLongtextInDelayedJobs < ActiveRecord::Migration[5.1]
   reversible do |dir|
     dir.up do

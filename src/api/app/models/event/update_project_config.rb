@@ -1,3 +1,4 @@
+# typed: strict
 module Event
   class UpdateProjectConfig < Base
     self.message_bus_routing_key = 'project.update_project_conf'

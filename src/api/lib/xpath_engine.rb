@@ -1,3 +1,4 @@
+# typed: false
 # rubocop:disable Metrics/LineLength
 class XpathEngine
   require 'rexml/parsers/xpathparser'

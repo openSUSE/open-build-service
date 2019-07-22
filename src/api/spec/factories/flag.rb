@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :flag do
     position { 1 }

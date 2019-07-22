@@ -1,3 +1,4 @@
+# typed: true
 class AddAndRemoveSomeIndexInBsRequestActions < ActiveRecord::Migration[5.0]
   def change
     remove_index :bs_request_actions, :target_project_id

@@ -1,3 +1,4 @@
+# typed: true
 module Event
   class BuildFail < Build
     include BuildLogSupport

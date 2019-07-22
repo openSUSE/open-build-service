@@ -1,3 +1,4 @@
+# typed: true
 class MainController < ApplicationController
   skip_before_action :extract_user, only: [:notfound]
 

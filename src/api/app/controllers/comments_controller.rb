@@ -1,3 +1,4 @@
+# typed: false
 class CommentsController < ApplicationController
   before_action :find_obj, only: [:index, :create]
 

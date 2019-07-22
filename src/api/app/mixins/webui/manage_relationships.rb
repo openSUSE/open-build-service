@@ -1,3 +1,4 @@
+# typed: false
 module Webui::ManageRelationships
   def redirect_after_save(what)
     if switch_to_webui2

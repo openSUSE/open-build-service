@@ -1,3 +1,4 @@
+# typed: true
 module OwnerSearch
   class Owned < Base
     # FIXME: add devel packages, but how do recursive lookup fast in SQL?

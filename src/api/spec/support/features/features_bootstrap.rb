@@ -1,3 +1,4 @@
+# typed: false
 module FeaturesBootstrap
   def is_bootstrap?
     ENV['BOOTSTRAP'].present?

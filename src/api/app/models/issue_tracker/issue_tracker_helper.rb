@@ -1,3 +1,4 @@
+# typed: true
 class IssueTracker::IssueTrackerHelper
   attr_reader :tracker, :issue_id
   attr_accessor :url, :summary

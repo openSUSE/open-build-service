@@ -1,3 +1,4 @@
+# typed: false
 module FlipperFeature
   def feature_enabled?(feature)
     return if Flipper.enabled?(feature.to_sym, User.possibly_nobody)

@@ -1,3 +1,4 @@
+# typed: false
 class Relationship < ApplicationRecord
   belongs_to :role
 

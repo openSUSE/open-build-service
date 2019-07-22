@@ -1,3 +1,4 @@
+# typed: false
 require 'builder'
 
 class IssueTrackerWriteToBackendJob < ApplicationJob

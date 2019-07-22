@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :distribution do
     vendor { Faker::Lorem.word }

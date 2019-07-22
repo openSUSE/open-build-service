@@ -1,3 +1,4 @@
+# typed: true
 class ConfigurationWriteToBackendJob < ApplicationJob
   queue_as :quick
 

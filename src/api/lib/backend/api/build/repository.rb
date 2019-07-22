@@ -1,3 +1,4 @@
+# typed: true
 module Backend
   module Api
     module Build

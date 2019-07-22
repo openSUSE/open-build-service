@@ -1,3 +1,4 @@
+# typed: false
 class RemoveBlacklistTags < ActiveRecord::Migration[5.1]
   def change
     drop_table 'blacklist_tags', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|

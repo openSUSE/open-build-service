@@ -1,3 +1,4 @@
+# typed: false
 class PublishedController < ApplicationController
   def index
     prj = Project.find_by_name!(params[:project])

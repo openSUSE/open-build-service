@@ -1,3 +1,4 @@
+# typed: false
 FactoryBot.define do
   factory :check, class: Status::Check do
     sequence(:name) { |n| "check_#{n}" }

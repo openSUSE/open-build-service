@@ -1,3 +1,4 @@
+# typed: false
 require 'rails_helper'
 require 'nokogiri'
 # WARNING: If you change tests make sure you uncomment this line

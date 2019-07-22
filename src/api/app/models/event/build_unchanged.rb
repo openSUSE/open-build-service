@@ -1,3 +1,4 @@
+# typed: strong
 module Event
   class BuildUnchanged < Build
     self.message_bus_routing_key = 'package.build_unchanged'

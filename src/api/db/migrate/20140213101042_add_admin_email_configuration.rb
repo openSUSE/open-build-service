@@ -1,3 +1,4 @@
+# typed: false
 class AddAdminEmailConfiguration < ActiveRecord::Migration[4.2]
   def self.up
     return if Configuration.column_names.include? 'admin_email'

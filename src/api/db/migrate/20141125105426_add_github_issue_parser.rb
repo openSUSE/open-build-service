@@ -1,3 +1,4 @@
+# typed: false
 class AddGithubIssueParser < ActiveRecord::Migration[4.2]
   def self.up
     # rubocop:disable Metrics/LineLength

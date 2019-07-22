@@ -1,3 +1,4 @@
+# typed: true
 class FullTextSearch
   include ActiveModel::Serializers::JSON
 

@@ -1,3 +1,4 @@
+# typed: false
 class SearchController < ApplicationController
   require_dependency 'xpath_engine'
 

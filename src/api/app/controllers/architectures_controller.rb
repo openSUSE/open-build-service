@@ -1,3 +1,4 @@
+# typed: false
 require 'opensuse/validator'
 
 class ArchitecturesController < ApplicationController

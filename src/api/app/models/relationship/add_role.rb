@@ -1,3 +1,4 @@
+# typed: true
 class Relationship::AddRole
   class SaveError < APIError; end
 

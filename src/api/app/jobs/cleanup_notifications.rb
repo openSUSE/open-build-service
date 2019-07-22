@@ -1,3 +1,4 @@
+# typed: true
 class CleanupNotifications < ApplicationJob
   def perform
     Notification::RssFeedItem.cleanup

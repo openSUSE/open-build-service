@@ -1,3 +1,4 @@
+# typed: false
 class Webui::RequestController < Webui::WebuiController
   helper 'webui/package'
 

@@ -1,3 +1,4 @@
+# typed: false
 class BsRequestAction < ApplicationRecord
   #### Includes and extends
   include ParsePackageDiff

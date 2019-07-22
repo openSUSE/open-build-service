@@ -1,3 +1,4 @@
+# typed: false
 module Webui2::AttributeController
   def webui2_new
     @attribute_types = AttribType.includes(:attrib_namespace).all.sort_by(&:fullname)

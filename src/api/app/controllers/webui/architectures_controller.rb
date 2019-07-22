@@ -1,3 +1,4 @@
+# typed: false
 # Enabling/Disabling default architectures
 class Webui::ArchitecturesController < Webui::WebuiController
   before_action :require_admin

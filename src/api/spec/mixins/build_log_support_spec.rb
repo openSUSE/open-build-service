@@ -1,3 +1,4 @@
+# typed: false
 require 'webmock/rspec'
 require 'rails_helper'
 

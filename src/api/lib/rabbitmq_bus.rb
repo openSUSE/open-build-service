@@ -1,3 +1,4 @@
+# typed: false
 class RabbitmqBus
   cattr_accessor :connection, :exchange, :failed
 

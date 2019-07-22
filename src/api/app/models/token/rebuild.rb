@@ -1,3 +1,4 @@
+# typed: true
 class Token::Rebuild < Token
   def self.token_name
     'rebuild'

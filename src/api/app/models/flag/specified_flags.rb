@@ -1,3 +1,4 @@
+# typed: true
 class Flag::SpecifiedFlags
   def initialize(prj_or_pkg, flag_type)
     @flags = {}

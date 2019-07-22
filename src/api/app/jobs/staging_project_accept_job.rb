@@ -1,3 +1,4 @@
+# typed: true
 class StagingProjectAcceptJob < ApplicationJob
   queue_as :staging
 

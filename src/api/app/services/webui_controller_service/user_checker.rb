@@ -1,3 +1,4 @@
+# typed: true
 module WebuiControllerService
   class UserChecker
     attr_reader :user_login, :http_request
