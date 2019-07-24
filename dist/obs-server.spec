@@ -111,6 +111,7 @@ BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
 BuildRequires:  perl-XML-Simple
+BuildRequires:  perl-XML-Structured
 BuildRequires:  procps
 BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
@@ -158,6 +159,7 @@ Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
+Requires:       perl-XML-Structured
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
