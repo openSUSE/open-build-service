@@ -15,7 +15,7 @@ function cmMarkDiffLines(id) {
   $('#revision_details_' + id + ' .cm-negative').parents('.CodeMirror-line').addClass('CodeMirror-negative-line');
 }
 
-function use_codemirror(id, read_only, mode) {
+function use_codemirror(id, read_only, mode, big_editor) {
   var codeMirrorOptions = {
     lineNumbers: true,
     matchBrackets: false,
@@ -36,6 +36,10 @@ function use_codemirror(id, read_only, mode) {
   var textarea = $('#editor_' + id);
   var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
   editor.id = id;
+  if (big_editor) {
+    $(editor.getWrapperElement()).addClass('big-editor');
+    editor.refresh();
+  }
 
   cmMarkDiffLines(id);
   editor.on('scroll', function() { cmMarkDiffLines(id); });
