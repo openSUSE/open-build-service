@@ -2376,7 +2376,7 @@ sub publish {
 	next unless @s;
 	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
 	if ($c) {
-	  my @d = qw{arch name epoch version release disturl buildtime};
+	  my @d = qw{arch name epoch version release disturl buildtime provides};
 	  $res = {};
 	  for (@$c) {
 	    my $dd = shift @d;
@@ -2397,6 +2397,11 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
+        # catch provided product cpeid strings
+        if (my ($cpeid) = grep {$_ =~ m/^product-cpeid\(\)/} @{$res->{"provides"}}) {
+          $cpeid =~ s/.* = //;
+          $pt->{'cpeid'} = BSHTTP::urldecode($cpeid);
+        }
 	$packtrack->{$bin} = $pt;
 	if ($pt->{'arch'}) {
 	  $reportfile = $bin;
@@ -2438,6 +2443,7 @@ sub publish {
 	$pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
 	$pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
 	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
+	$pt->{'cpeid'} = BSHTTP::urldecode($report->{'cpeid'}) if $report->{'cpeid'};
         # need a way to get disturl, buildtime and binaryid...
 	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
 	$pt->{'ismedium'} = $medium;
