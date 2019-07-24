@@ -972,7 +972,7 @@ EOL
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
-    BSUtil::cp("$extrep/Release", undef, "$extrep/InRelease.tmp");
+    BSUtil::cp("$extrep/Release", "$extrep/InRelease.tmp");
     qsystem($BSConfig::sign, @signargs, '-c', "$extrep/InRelease.tmp") && die("    sign failed: $?\n");
     rename("$extrep/InRelease.tmp","$extrep/InRelease");
   }
