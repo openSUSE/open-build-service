@@ -8,6 +8,7 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
   var architecture = info[1];
   var status = statusHash[repository][architecture][packageName] || {};
   var code = status.code;
+  var cellContent = {};
   if (code === undefined) return null;
 
   var klass = 'build-state-' + code;
@@ -25,7 +26,11 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
     }
   }
   output += ' class="' + klass + '">' + code + '</a>';
-  return output;
+
+  cellContent.display = output;
+  cellContent.value = code;
+
+  return cellContent;
 }
 
 function initializeMonitorDataTable() {
@@ -61,7 +66,12 @@ function initializeMonitorDataTable() {
         data: null,
         className: 'text-center',
         render: function (packageName, type, row, meta) {
-          return statusCell(meta, statusHash, tableInfo, projectName, packageName);
+          var cellContent = statusCell(meta, statusHash, tableInfo, projectName, packageName);
+          if (cellContent === null) return null;
+          // Value to display in the cell
+          if (type === 'display') return cellContent.display;
+          // Value to sort or filter by
+          return cellContent.value;
         }
       }
     ]
