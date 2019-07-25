@@ -14,6 +14,7 @@ my $basepath = join('/',@fp);
 @INC = (
   $basepath . "/_chooseparser/lib3" ,
   $basepath . "/.." ,
+  @INC
 );
 
 require XML::Structured;

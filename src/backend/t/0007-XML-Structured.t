@@ -15,17 +15,17 @@ my $tcounter  = 0;
 my @tcS = ();
 
 $tcS[0] = {
-    xml => '<user login="foo" password="bar" />',
+    xml => '<user login="foo" password="bar"/>',
     dtd => [ 'user' => 'login', 'password'],
     expected_in  => { 'login' => 'foo', 'password' => 'bar' },
-    expected_out => '<user login="foo" password="bar" />'
+    expected_out => '<user login="foo" password="bar"/>'
 };
 
 $tcS[1] = {
     xml => '<user><login>foo</login><password>bar</password></user>',
     dtd => [ 'user' => 'login', 'password' ],
     expected_in => { 'login' => 'foo', 'password' => 'bar' },
-    expected_out => '<user login="foo" password="bar" />'
+    expected_out => '<user login="foo" password="bar"/>'
 
 };
 
@@ -119,7 +119,7 @@ $tcS[5] = {
                ],
 ,xml => '
         <user login="foo">
-          <address street="broadway 7" city="new york" />
+          <address street="broadway 7" city="new york"/>
         </user>
 '
     ,expected_in => 
@@ -131,7 +131,7 @@ $tcS[5] = {
           'login' => 'foo'
         }
     ,expected_out => '<user login="foo">
-  <address street="broadway 7" city="new york" />
+  <address street="broadway 7" city="new york"/>
 </user>'
 };
 $tcS[6] = {
@@ -144,8 +144,8 @@ $tcS[6] = {
                ],
         xml =>
         '<user login="foo">
-  <address street="broadway 7" city="new york" />
-  <address street="rural road 12" city="tempe" />
+  <address street="broadway 7" city="new york"/>
+  <address street="rural road 12" city="tempe"/>
 </user>'
     ,expected_in => 
 {
@@ -162,8 +162,8 @@ $tcS[6] = {
           'login' => 'foo'
         }
     ,expected_out => '<user login="foo">
-  <address street="broadway 7" city="new york" />
-  <address street="rural road 12" city="tempe" />
+  <address street="broadway 7" city="new york"/>
+  <address street="rural road 12" city="tempe"/>
 </user>'
 };
 
@@ -196,13 +196,15 @@ xml=>'
                          'city' => 'tempe'
                        }
                      ],
-          '_content' => 'hello world'
+          '_content' => 'hello
+          world'
         },
         expected_out=>
         '<user login="foo">
-  <address street="broadway 7" city="new york" />
-  <address street="rural road 12" city="tempe" />
-  hello world
+  <address street="broadway 7" city="new york"/>
+  <address street="rural road 12" city="tempe"/>
+  hello
+          world
 </user>'
 };
 
@@ -245,17 +247,17 @@ sub all_my_tests {
     #
 
     my $tc_e1 = {
-        xml => '<user login="foo" password="bar" bar="foo" />',
+        xml => '<user login="foo" password="bar" bar="foo"/>',
         dtd => [ 'user' => 'login', 'password'],
     };
 
     eval {
       $got = XMLin($tc_e1->{dtd},$tc_e1->{xml});
     };
-    is($@,"unknown attribute: bar\n","Checking unknown attribute");
+    like($@,qr/unknown attribute.*bar/,"Checking unknown attribute");
 
     $tc_e1 = {
-        xml => '<user login="foo" password="bar" password="foo" />',
+        xml => '<user login="foo" password="bar" password="foo"/>',
         dtd => [ 'user' => 'login', 'password'],
     };
 
@@ -273,11 +275,11 @@ sub all_my_tests {
     eval {
       $got = XMLin($tc_e1->{dtd},$tc_e1->{xml});
     };
-    like($@,qr/(mismatched tag|tag mismatch)/,"Checking mismatched tag");
+    like($@,qr/unknown element.*foo/,"Checking unknown element");
 
     ####
     $tc_e1 = {
-        xml => '<user login="foo" password="bar"><foo bar="" /></user>',
+        xml => '<user login="foo" password="bar"><foo bar=""/></user>',
         dtd => [ 'user' => 'login', 'password','foo'],
     };
 

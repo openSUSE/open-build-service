@@ -27,6 +27,7 @@ BEGIN {
   $wd ||= '.';
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
+  $XML::Structured::pureperl = 1 unless defined $XML::Structured::pureperl;
 }
 
 use Digest::MD5 ();

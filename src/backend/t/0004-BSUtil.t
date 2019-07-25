@@ -128,7 +128,7 @@ SKIP: {
 
   # XML test hash
   my $xml_test = {
-    xml => '<user login="foo" password="bar" />',
+    xml => '<user login="foo" password="bar"/>',
     dtd => [ 'user' => 'login', 'password'],
     pstruct  => { 'login' => 'foo', 'password' => 'bar' },
   };
