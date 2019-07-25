@@ -1,20 +1,25 @@
 For Updaters from OBS 2.9 to OBS 2.10
 =====================================
 
-Note: * Update from OBS 2.5 should also work, but is untested.
-        A direct update from OBS 2.4 or older will not work.
-        It's recommended to wait for all pending delayed jobs to be processed before
-        creating a DB dump or running the migrations.
-        To see the number of pending delayed jobs run
-        `(cd /srv/www/obs/api; bundle exec rails r -e production "puts Delayed::Job.count")`
+Note: Update from OBS 2.5 should also work, but it is not fully tested.
+      A direct update from OBS 2.4 or older will not work.
+      It's recommended to wait for all pending delayed jobs to be processed before
+      creating a DB dump or running the migrations.
+      To see the number of pending delayed jobs run
+
+        cd /srv/www/obs/api
+        bin/bundle exec bin/rails r -e production "puts Delayed::Job.count" RAILS_ENV=production
 
 
   1) The format of the OBS options.yml is now distinguishing between Rails environments.
-     Please run following command: '(cd /srv/www/obs/api/; rake migrate_options_yml)'
+     Please run following commands: 
+
+         cd /srv/www/obs/api/
+         RAILS_ENV=production bin/rake migrate_options_yml
 
   2) Remove the OBS 2.9 Repository
 
-        zypper rs OBS:Server:2.9
+        zypper rr OBS:Server:2.9
 
   3) Add the OBS 2.10 Repository and update repository cache
 
@@ -25,36 +30,24 @@ Note: * Update from OBS 2.5 should also work, but is untested.
 
         zypper dup --from OBS_Server_2.10
 
-# Needed in case of a ruby update
-#
-# 5) Change to ruby2.5
-#
-#       edit /etc/apache2/conf.d/mod_passenger.conf:
-#
-#       PassengerRuby "/usr/bin/ruby.ruby2.5"
+    NOTE: You may need to switch also your base distribution to a newer version. Adapt all repositories for that
+          and do an
 
-  6) Migrate database
+        zypper dup
+
+      instead of the above command
+
+  5) Migrate database
 
         cd /srv/www/obs/api/
         RAILS_ENV="production" bin/rails db:migrate:with_data
 
-  7) Make sure that log and tmp are owned by wwwrun
+  6) Make sure that log and tmp are owned by wwwrun
 
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  8) Restart following services in this order
-
-        systemctl restart apache2
-        systemctl restart obs-api-support.target
-        systemctl restart memcached
-
-  9) Enable and start the new services
-
-        systemctl enable obsservicedispatch
-        systemctl start obsservicedispatch
-
-     obsservicedispatch must run on the host where the src server is running.
+  7) Reboot your system to restart all OBS components
 
 
 For Updaters to OBS 2.9 from OBS 2.8
@@ -116,7 +109,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
 For Updaters to OBS 2.8 from OBS 2.7
 ====================================
 
-Note: Update from OBS 2.5 should also work, but is untested.
+Note: Update from OBS 2.5 should also work, but is not fully tested.
       A direct update from OBS 2.4 or older will not work.
       It's recommended to wait for all pending delayed jobs to be processed before
       creating a DB dump or running the migrations.
