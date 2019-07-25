@@ -7,11 +7,18 @@ RSpec.feature 'Bootstrap_MaintainedProjects', type: :feature, js: true, vcr: tru
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: openSUSE_project) }
 
   describe 'index page' do
-    scenario 'without login' do
-      visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
-      expect(page).to have_text('Maintained Projects')
-      expect(page).not_to have_selector('#new-maintenance-project-modal')
-      expect(page).not_to have_selector('#delete-maintained-project-modal')
+    context 'without login' do
+      before do
+        # The maintenance project factory needs a user logged in, so we fake it just for the creation
+        admin_user.run_as { maintenance_project }
+      end
+
+      scenario 'maintenance projects are not shown' do
+        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        expect(page).to have_text('Maintained Projects')
+        expect(page).not_to have_selector('#new-maintenance-project-modal')
+        expect(page).not_to have_selector('#delete-maintained-project-modal')
+      end
     end
 
     context 'with admin login' do
