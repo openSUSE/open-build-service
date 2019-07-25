@@ -83,8 +83,12 @@ module Event
       payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], true) }
     end
 
+    def payload_without_target_project?
+      payload['actions'].any? { |action| !Project.exists_by_name(action['targetproject']) }
+    end
+
     def payload_with_diff
-      return payload if source_from_remote?
+      return payload if source_from_remote? || payload_without_target_project?
 
       ret = payload
       payload['actions'].each do |a|
