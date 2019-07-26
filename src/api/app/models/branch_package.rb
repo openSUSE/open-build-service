@@ -249,7 +249,7 @@ class BranchPackage
           else
             msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
           end
-          Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name,  p[:copy_from_devel].project.name, p[:copy_from_devel].name,
+          Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:copy_from_devel].project.name, p[:copy_from_devel].name,
                                               User.session!.login, comment: msg, keeplink: 1, expand: 1)
         end
       end

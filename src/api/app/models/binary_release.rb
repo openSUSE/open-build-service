@@ -145,7 +145,7 @@ class BinaryRelease < ApplicationRecord
 
       node = {}
       node[:package] = release_package.name if release_package
-      node[:time] = self.binary_releasetime if self.binary_releasetime
+      node[:time] = binary_releasetime if binary_releasetime
       node[:flavor] = flavor if flavor
       binary.publish(node) unless node.empty?
 
