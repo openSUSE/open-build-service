@@ -92,7 +92,8 @@ GEM
     childprocess (1.0.1)
       rake (< 13.0)
     chunky_png (1.3.11)
-    clockwork (2.0.3)
+    clockwork (2.0.4)
+      activesupport
       tzinfo
     cocoon (1.2.14)
     codecov (0.1.14)
