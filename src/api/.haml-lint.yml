@@ -34,10 +34,6 @@ linters:
       - Style/IfUnlessModifier
       - Style/Next
       - Style/WhileUntilModifier
-    exclude: 
-      # the linter has trouble understanding the if/else of the view
-      - 'app/views/webui2/webui/user/_activity_date_commits.html.haml'
-      - 'app/views/webui2/webui/user/_activity_date_commits_project.html.haml'
 
 exclude:
 - 'vendor/bundle/**/*'

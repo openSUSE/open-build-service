@@ -3,7 +3,7 @@
 .h5
   Contributions on #{date}
 - if activities_per_date[:commits].present?
-  = render partial: 'activity_date_commits', locals: { projects: activities_per_date[:commits] }
+  = activity_date_commits(activities_per_date[:commits])
 - if activities_per_date[:requests_created].present?
   .h6.mt-3
     = pluralize(activities_per_date[:requests_created].size, 'request')
