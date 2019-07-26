@@ -38,53 +38,8 @@ module Event
       { 'X-OBS-Review-By_Project' => payload['by_project'] }
     end
 
-    def headers_for_actions
-      ret = {}
-      payload['actions'].each_with_index do |a, index|
-        if payload['actions'].length == 1 || index.zero?
-          suffix = 'X-OBS-Request-Action'
-        else
-          suffix = "X-OBS-Request-Action-#{index}"
-        end
-
-        ret[suffix + '-type'] = a['type']
-        if a['targetpackage']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
-        elsif a['targetrepository']
-          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetrepository']}"
-        elsif a['targetproject']
-          ret[suffix + '-target'] = a['targetproject']
-        end
-        if a['sourcepackage']
-          ret[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
-        elsif a['sourceproject']
-          ret[suffix + '-source'] = a['sourceproject']
-        end
-      end
-      ret
-    end
-
     def actions_summary
       BsRequest.actions_summary(payload)
-    end
-
-    def calculate_diff(a)
-      return if a['type'] != 'submit'
-      raise 'We need action_id' unless a['action_id']
-      action = BsRequestAction.find(a['action_id'])
-      begin
-        action.sourcediff(view: nil, withissues: 0)
-      rescue BsRequestAction::Errors::DiffError
-        return # can't help
-      end
-    end
-
-    def source_from_remote?
-      payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], true) }
-    end
-
-    def payload_without_target_project?
-      payload['actions'].any? { |action| !Project.exists_by_name(action['targetproject']) }
     end
 
     def payload_with_diff
@@ -112,12 +67,6 @@ module Event
       [User.find_by_login(payload['author'])]
     end
 
-    def action_maintainers(prjname, pkgname)
-      payload['actions'].map do |action|
-        _roles('maintainer', action[prjname], action[pkgname])
-      end.flatten.uniq
-    end
-
     def target_maintainers
       action_maintainers('targetproject', 'targetpackage')
     end
@@ -136,10 +85,61 @@ module Event
 
     private
 
+    def action_maintainers(prjname, pkgname)
+      payload['actions'].map do |action|
+        _roles('maintainer', action[prjname], action[pkgname])
+      end.flatten.uniq
+    end
+
+    def calculate_diff(a)
+      return if a['type'] != 'submit'
+      raise 'We need action_id' unless a['action_id']
+      action = BsRequestAction.find(a['action_id'])
+      begin
+        action.sourcediff(view: nil, withissues: 0)
+      rescue BsRequestAction::Errors::DiffError
+        return # can't help
+      end
+    end
+
     def find_watchers(project_key)
       project_names = payload['actions'].map { |action| action[project_key] }.uniq
       watched_projects = WatchedProject.where(project: Project.where(name: project_names))
       User.where(id: watched_projects.select(:user_id))
+    end
+
+    def headers_for_actions
+      ret = {}
+      payload['actions'].each_with_index do |a, index|
+        if payload['actions'].length == 1 || index.zero?
+          suffix = 'X-OBS-Request-Action'
+        else
+          suffix = "X-OBS-Request-Action-#{index}"
+        end
+
+        ret[suffix + '-type'] = a['type']
+        if a['targetpackage']
+          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+        elsif a['targetrepository']
+          ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetrepository']}"
+        elsif a['targetproject']
+          ret[suffix + '-target'] = a['targetproject']
+        end
+        if a['sourcepackage']
+          ret[suffix + '-source'] = "#{a['sourceproject']}/#{a['sourcepackage']}"
+        elsif a['sourceproject']
+          ret[suffix + '-source'] = a['sourceproject']
+        end
+      end
+      ret
+    end
+
+    def source_from_remote?
+      payload['actions'].any? { |action| Project.unscoped.is_remote_project?(action['sourceproject'], true) }
+    end
+
+    def payload_without_target_project?
+      payload['actions'].any? { |action| !Project.exists_by_name(action['targetproject']) }
     end
   end
 end
