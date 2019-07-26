@@ -57,6 +57,54 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(opts)
   end
 
+  def merge_into_maintenance_incident(incident_project)
+    # copy all or selected packages and project source files from base project
+    # we don't branch from it to keep the link target.
+    pkg = _merge_pkg_into_maintenance_incident(incident_project)
+
+    incident_project.save!
+    incident_project.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
+    pkg
+  end
+
+  def execute_accept(opts)
+    # create or merge into incident project
+    incident_project = Project.get_by_name(target_project)
+
+    # the incident got created before
+    self.target_package = merge_into_maintenance_incident(incident_project)
+
+    # update action with real target project
+    self.target_project = incident_project.name
+
+    source_cleanup if sourceupdate == 'cleanup'
+
+    # create a patchinfo if missing and incident has just been created
+    if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
+      Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request)
+    end
+
+    save
+  end
+
+  def expand_targets(ignore_build_state)
+    # find maintenance project
+    maintenance_project = nil
+    if target_project
+      maintenance_project = Project.get_by_name(target_project)
+    else
+      maintenance_project = Project.get_maintenance_project
+      self.target_project = maintenance_project.name
+    end
+    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
+      raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
+    end
+    raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
+    super(ignore_build_state)
+  end
+
+  private
+
   def _merge_pkg_into_maintenance_incident(incident_project)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
@@ -154,52 +202,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     new_pkg.sources_changed
     new_pkg
-  end
-
-  def merge_into_maintenance_incident(incident_project)
-    # copy all or selected packages and project source files from base project
-    # we don't branch from it to keep the link target.
-    pkg = _merge_pkg_into_maintenance_incident(incident_project)
-
-    incident_project.save!
-    incident_project.store(comment: "maintenance_incident request #{bs_request.number}", request: bs_request)
-    pkg
-  end
-
-  def execute_accept(opts)
-    # create or merge into incident project
-    incident_project = Project.get_by_name(target_project)
-
-    # the incident got created before
-    self.target_package = merge_into_maintenance_incident(incident_project)
-
-    # update action with real target project
-    self.target_project = incident_project.name
-
-    source_cleanup if sourceupdate == 'cleanup'
-
-    # create a patchinfo if missing and incident has just been created
-    if opts[:check_for_patchinfo] && !incident_project.packages.joins(:package_kinds).where("kind = 'patchinfo'").exists?
-      Patchinfo.new.create_patchinfo_from_request(incident_project, bs_request)
-    end
-
-    save
-  end
-
-  def expand_targets(ignore_build_state)
-    # find maintenance project
-    maintenance_project = nil
-    if target_project
-      maintenance_project = Project.get_by_name(target_project)
-    else
-      maintenance_project = Project.get_maintenance_project
-      self.target_project = maintenance_project.name
-    end
-    unless maintenance_project.is_maintenance_incident? || maintenance_project.is_maintenance?
-      raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
-    end
-    raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
-    super(ignore_build_state)
   end
 
   #### Alias of methods

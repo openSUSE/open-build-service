@@ -215,23 +215,6 @@ module Event
       self.class.name.gsub('Event::', '').underscore
     end
 
-    def obj_roles(obj, role)
-      # old/deleted obj
-      return [] unless obj || role.blank?
-
-      rel = obj.relationships.where(role: Role.hashed[role])
-      receivers = rel.map { |r| r.user_id ? r.user : r.group }
-      if receivers.empty? && obj.respond_to?(:project)
-        receivers = obj_roles(obj.project, role)
-      end
-
-      # for now we define develpackage maintainers as being maintainers too
-      if obj.respond_to?(:develpackage)
-        receivers.concat(obj_roles(obj.develpackage, role))
-      end
-      receivers
-    end
-
     def maintainers
       Rails.logger.debug "Maintainers #{payload.inspect}"
       ret = _roles('maintainer', payload['project'], payload['package'])
@@ -315,6 +298,23 @@ module Event
       values[shortenable_key.to_s] = shortenable_content.mb_chars.limit(new_size)
 
       values
+    end
+
+    def obj_roles(obj, role)
+      # old/deleted obj
+      return [] unless obj || role.blank?
+
+      rel = obj.relationships.where(role: Role.hashed[role])
+      receivers = rel.map { |r| r.user_id ? r.user : r.group }
+      if receivers.empty? && obj.respond_to?(:project)
+        receivers = obj_roles(obj.project, role)
+      end
+
+      # for now we define develpackage maintainers as being maintainers too
+      if obj.respond_to?(:develpackage)
+        receivers.concat(obj_roles(obj.develpackage, role))
+      end
+      receivers
     end
   end
 end

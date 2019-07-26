@@ -99,6 +99,80 @@ class BranchPackage
     { data: create_branch_packages(tprj) }
   end
 
+  private
+
+  def add_autocleanup_attribute(tprj)
+    at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
+    a = Attrib.new(project: tprj, attrib_type: at)
+    a.values << AttribValue.new(value: (Time.now + @auto_cleanup.days), position: 1)
+    a.save
+  end
+
+  def check_for_update_project(p)
+    pkg = p[:package]
+    prj = p[:link_target_project]
+    if pkg.is_a?(Package)
+      logger.debug "Check Package #{p[:package].project.name}/#{p[:package].name}"
+      prj = pkg.project
+      pkg_name = pkg.name
+    else
+      pkg_name = pkg
+      logger.debug "Check package string #{pkg}"
+    end
+    # Check for defined update project
+    update_project = update_project_for_project(prj)
+    return unless update_project
+
+    pa = update_project.packages.find_by(name: pkg_name)
+    if pa
+      # We have a package in the update project already, take that
+      p[:package] = pa
+      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+        p[:link_target_project] = pa.project
+        logger.info "branch call found package in update project #{pa.project.name}"
+      end
+      if p[:link_target_project].find_package(pa.name) != pa
+        # our link target has no project link finding the package.
+        # It got found via update project for example, so we need to use it's source
+        p[:copy_from_devel] = p[:package]
+      end
+    else
+      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+        p[:link_target_project] = update_project
+      end
+      update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
+      if update_pkg
+        # We have no package in the update project yet, but sources are reachable via project link
+        up = update_project.develproject.find_package(pkg_name) if update_project.develproject
+        if defined?(up) && up
+          # nevertheless, check if update project has a devel project which contains an instance
+          p[:package] = up
+          unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+            p[:link_target_project] = up.project unless @copy_from_devel
+          end
+          logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
+        else
+          logger.info "link target will use old update in update project #{prj.name}"
+        end
+      else
+        # The defined update project can't reach the package instance at all.
+        # So we need to create a new package and copy sources
+        params[:missingok] = 1 # implicit missingok or better report an error ?
+        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a?(Package)
+        p[:package] = pkg_name
+      end
+    end
+    # Reset target package name
+    # not yet existing target package
+    p[:target_package] = p[:package]
+    # existing target
+    p[:target_package] = p[:package].name if p[:package].is_a?(Package)
+    # user specified target name
+    p[:target_package] = params[:target_package] if params[:target_package]
+    # extend parameter given
+    p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
+  end
+
   def create_branch_packages(tprj)
     # collect also the needed repositories here
     response = nil
@@ -239,78 +313,6 @@ class BranchPackage
     tprj
   end
 
-  def add_autocleanup_attribute(tprj)
-    at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
-    a = Attrib.new(project: tprj, attrib_type: at)
-    a.values << AttribValue.new(value: (Time.now + @auto_cleanup.days), position: 1)
-    a.save
-  end
-
-  def report_dryrun
-    @packages.sort! { |x, y| x[:target_package] <=> y[:target_package] }
-    builder = Builder::XmlMarkup.new(indent: 2)
-    builder.collection do
-      @packages.each do |p|
-        if p[:package].is_a?(Package)
-          builder.package(project: p[:link_target_project].name, package: p[:package].name) do
-            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(project: @target_project, package: p[:target_package])
-          end
-        else
-          builder.package(project: p[:link_target_project], package: p[:package]) do
-            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(project: @target_project, package: p[:target_package])
-          end
-        end
-      end
-    end
-  end
-
-  def find_package_targets
-    @packages.each do |p|
-      determine_details_about_package_to_branch(p)
-    end
-
-    @packages.each { |p| extend_packages_to_link(p) }
-
-    # avoid double hits eg, when the same update project is used by multiple GA projects
-    seen = {}
-    @packages.each do |p|
-      @packages.delete(p) if seen[p[:package]]
-      seen[p[:package]] = true
-    end
-  end
-
-  def lookup_incident_pkg(p)
-    return unless p[:package].is_a?(Package)
-    @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-    @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
-    incident_pkg = nil
-    p[:link_target_project].maintenance_projects.each do |mp|
-      # no defined devel area or no package inside, but we branch from a release are: check in open incidents
-
-      # only approved maintenance projects
-      next unless @maintenance_projects.include?(mp.maintenance_project)
-
-      answer = Backend::Api::Search.incident_packages(p[:link_target_project].name, p[:package].name, mp.maintenance_project.name)
-      data = REXML::Document.new(answer)
-      data.elements.each('collection/package') do |e|
-        ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
-        if ipkg.nil?
-          logger.error 'read permission or data inconsistency, backend delivered package ' \
-                       "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
-        elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
-          # is a newer incident ?
-          if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
-            incident_pkg = ipkg
-          end
-        end
-      end
-    end
-    # newest incident pkg or nil
-    incident_pkg
-  end
-
   def determine_details_about_package_to_branch(p)
     return unless p[:link_target_project].is_a?(Project) # only for local source projects
 
@@ -371,77 +373,6 @@ class BranchPackage
     raise InvalidFilelistError, 'no srcmd5 revision found'
   end
 
-  def check_for_update_project(p)
-    pkg = p[:package]
-    prj = p[:link_target_project]
-    if pkg.is_a?(Package)
-      logger.debug "Check Package #{p[:package].project.name}/#{p[:package].name}"
-      prj = pkg.project
-      pkg_name = pkg.name
-    else
-      pkg_name = pkg
-      logger.debug "Check package string #{pkg}"
-    end
-    # Check for defined update project
-    update_project = update_project_for_project(prj)
-    return unless update_project
-
-    pa = update_project.packages.find_by(name: pkg_name)
-    if pa
-      # We have a package in the update project already, take that
-      p[:package] = pa
-      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-        p[:link_target_project] = pa.project
-        logger.info "branch call found package in update project #{pa.project.name}"
-      end
-      if p[:link_target_project].find_package(pa.name) != pa
-        # our link target has no project link finding the package.
-        # It got found via update project for example, so we need to use it's source
-        p[:copy_from_devel] = p[:package]
-      end
-    else
-      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-        p[:link_target_project] = update_project
-      end
-      update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
-      if update_pkg
-        # We have no package in the update project yet, but sources are reachable via project link
-        up = update_project.develproject.find_package(pkg_name) if update_project.develproject
-        if defined?(up) && up
-          # nevertheless, check if update project has a devel project which contains an instance
-          p[:package] = up
-          unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-            p[:link_target_project] = up.project unless @copy_from_devel
-          end
-          logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
-        else
-          logger.info "link target will use old update in update project #{prj.name}"
-        end
-      else
-        # The defined update project can't reach the package instance at all.
-        # So we need to create a new package and copy sources
-        params[:missingok] = 1 # implicit missingok or better report an error ?
-        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a?(Package)
-        p[:package] = pkg_name
-      end
-    end
-    # Reset target package name
-    # not yet existing target package
-    p[:target_package] = p[:package]
-    # existing target
-    p[:target_package] = p[:package].name if p[:package].is_a?(Package)
-    # user specified target name
-    p[:target_package] = params[:target_package] if params[:target_package]
-    # extend parameter given
-    p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
-  end
-
-  def update_project_for_project(prj)
-    updateprj = prj.update_instance(@up_attribute_namespace, @up_attribute_name)
-    return updateprj if updateprj != prj
-    nil
-  end
-
   # add packages which link them in the same project to support build of source with multiple build descriptions
   def extend_packages_to_link(p)
     return unless p[:package].is_a?(Package) # only for local packages
@@ -482,14 +413,19 @@ class BranchPackage
     end
   end
 
-  def set_update_project_attribute
-    aname = params[:update_project_attribute] || 'OBS:UpdateProject'
-    update_project_at = aname.split(/:/)
-    if update_project_at.length != 2
-      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+  def find_package_targets
+    @packages.each do |p|
+      determine_details_about_package_to_branch(p)
     end
-    @up_attribute_namespace = update_project_at[0]
-    @up_attribute_name = update_project_at[1]
+
+    @packages.each { |p| extend_packages_to_link(p) }
+
+    # avoid double hits eg, when the same update project is used by multiple GA projects
+    seen = {}
+    @packages.each do |p|
+      @packages.delete(p) if seen[p[:package]]
+      seen[p[:package]] = true
+    end
   end
 
   def find_packages_to_branch
@@ -572,6 +508,56 @@ class BranchPackage
     raise NotFoundError, 'no packages found by search criteria' if @packages.empty?
   end
 
+  def lookup_incident_pkg(p)
+    return unless p[:package].is_a?(Package)
+    @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
+    @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
+    incident_pkg = nil
+    p[:link_target_project].maintenance_projects.each do |mp|
+      # no defined devel area or no package inside, but we branch from a release are: check in open incidents
+
+      # only approved maintenance projects
+      next unless @maintenance_projects.include?(mp.maintenance_project)
+
+      answer = Backend::Api::Search.incident_packages(p[:link_target_project].name, p[:package].name, mp.maintenance_project.name)
+      data = REXML::Document.new(answer)
+      data.elements.each('collection/package') do |e|
+        ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
+        if ipkg.nil?
+          logger.error 'read permission or data inconsistency, backend delivered package ' \
+                       "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
+        elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
+          # is a newer incident ?
+          if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
+            incident_pkg = ipkg
+          end
+        end
+      end
+    end
+    # newest incident pkg or nil
+    incident_pkg
+  end
+
+  def report_dryrun
+    @packages.sort! { |x, y| x[:target_package] <=> y[:target_package] }
+    builder = Builder::XmlMarkup.new(indent: 2)
+    builder.collection do
+      @packages.each do |p|
+        if p[:package].is_a?(Package)
+          builder.package(project: p[:link_target_project].name, package: p[:package].name) do
+            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
+            builder.target(project: @target_project, package: p[:target_package])
+          end
+        else
+          builder.package(project: p[:link_target_project], package: p[:package]) do
+            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
+            builder.target(project: @target_project, package: p[:target_package])
+          end
+        end
+      end
+    end
+  end
+
   def set_target_project
     if params[:target_project]
       @target_project = params[:target_project]
@@ -589,5 +575,21 @@ class BranchPackage
     end
     return unless @target_project && !Project.valid_name?(@target_project)
     raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
+  end
+
+  def set_update_project_attribute
+    aname = params[:update_project_attribute] || 'OBS:UpdateProject'
+    update_project_at = aname.split(/:/)
+    if update_project_at.length != 2
+      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+    end
+    @up_attribute_namespace = update_project_at[0]
+    @up_attribute_name = update_project_at[1]
+  end
+
+  def update_project_for_project(prj)
+    updateprj = prj.update_instance(@up_attribute_namespace, @up_attribute_name)
+    return updateprj if updateprj != prj
+    nil
   end
 end

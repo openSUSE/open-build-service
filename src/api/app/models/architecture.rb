@@ -23,10 +23,6 @@ class Architecture < ApplicationRecord
 
   #### Class methods using self. (public and then private)
 
-  def discard_cache
-    Rails.cache.delete('archcache')
-  end
-
   def self.archcache
     Rails.cache.fetch('archcache') do
       Architecture.all.map { |arch| [arch.name, arch] }.to_h
@@ -56,6 +52,13 @@ class Architecture < ApplicationRecord
   def to_s
     name
   end
+
+  private
+
+  def discard_cache
+    Rails.cache.delete('archcache')
+  end
+
   #### Alias of methods
 end
 
