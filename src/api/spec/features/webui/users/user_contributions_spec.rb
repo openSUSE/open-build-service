@@ -44,9 +44,18 @@ RSpec.describe 'Bootstrap_User Contributions', type: :feature, js: true do
       let!(:comment) { create(:comment_request, commentable: request, user: user) }
       let!(:review) { create(:review, bs_request: request, reviewer: user, by_user: user, state: :accepted) }
 
-      it 'shows 3' do
+      before do
         visit user_path(login: user.login)
+      end
+
+      it 'shows 3' do
         expect(page).to have_text('3 contributions')
+      end
+
+      it 'renders single day contributions' do
+        expect(page).to have_css('td.activity-percentil1')
+        find('td.activity-percentil1').click
+        expect(page.text).to match(/Contributions on .*\n1 request created\n1\n1 review done\nin requests: 1\n1 comment written/)
       end
     end
   end
