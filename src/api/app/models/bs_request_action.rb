@@ -182,12 +182,6 @@ class BsRequestAction < ApplicationRecord
     attributes
   end
 
-  def render_xml_source(node)
-    attributes = xml_package_attributes('source')
-    attributes[:rev] = source_rev if source_rev.present?
-    node.source(attributes)
-  end
-
   def render_xml_target(node)
     attributes = xml_package_attributes('target')
     attributes[:releaseproject] = target_releaseproject if target_releaseproject.present?
@@ -344,28 +338,24 @@ class BsRequestAction < ApplicationRecord
     reviews.uniq
   end
 
-  #
-  # find default reviewers of a project/package via role
-  #
-  def find_reviewers(obj)
-    # obj can be a project or package object
-    reviewers = []
-    reviewer_id = Role.hashed['reviewer'].id
-
-    # check for reviewers in a package first
-    obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
-      reviewers << User.find(r)
-    end
-    obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
-      reviewers << Group.find(r)
-    end
-    reviewers += find_reviewers(obj.project) if obj.class == Package
-
-    reviewers
-  end
-
   def request_changes_state(_state)
     # only groups care for now
+  end
+
+  def check_maintenance_release(pkg, repo, arch)
+    binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
+    binary_elements = binaries.elements('binary')
+
+    raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'" if binary_elements.empty?
+
+    # check that we did not skip a source change of patchinfo
+    data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
+    verifymd5 = data['srcmd5']
+    history = Xmlhash.parse(Backend::Api::BuildResults::Binaries.history(pkg.project.name, repo.name, pkg.name, arch.name))
+    last = history.elements('entry').last
+    return if last && last['srcmd5'].to_s == verifymd5.to_s
+
+    raise BuildNotFinished, "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
   end
 
   def get_releaseproject(_pkg, _tprj)
@@ -408,22 +398,6 @@ class BsRequestAction < ApplicationRecord
     source_package.commit_opts = { comment: bs_request.description, request: bs_request }
     source_package.destroy
     Package.source_path(self.source_project, self.source_package)
-  end
-
-  def check_maintenance_release(pkg, repo, arch)
-    binaries = Xmlhash.parse(Backend::Api::BuildResults::Binaries.files(pkg.project.name, repo.name, arch.name, pkg.name))
-    binary_elements = binaries.elements('binary')
-
-    raise BuildNotFinished, "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'" if binary_elements.empty?
-
-    # check that we did not skip a source change of patchinfo
-    data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
-    verifymd5 = data['srcmd5']
-    history = Xmlhash.parse(Backend::Api::BuildResults::Binaries.history(pkg.project.name, repo.name, pkg.name, arch.name))
-    last = history.elements('entry').last
-    return if last && last['srcmd5'].to_s == verifymd5.to_s
-
-    raise BuildNotFinished, "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity
@@ -671,25 +645,6 @@ class BsRequestAction < ApplicationRecord
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
-  def check_action_permission_source!
-    return unless source_project
-
-    sprj = Project.get_by_name(source_project)
-    raise UnknownProject, "Unknown source project #{source_project}" unless sprj
-    unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
-      raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
-    end
-
-    if source_package
-      spkg = Package.get_by_project_and_name(source_project, source_package, use_source: true, follow_project_links: true)
-      spkg.check_weak_dependencies! if spkg && sourceupdate == 'cleanup'
-    end
-
-    check_permissions_for_sources!
-
-    sprj
-  end
-
   def check_action_permission!(skip_source = nil)
     # find objects if specified or report error
     role = nil
@@ -753,43 +708,6 @@ class BsRequestAction < ApplicationRecord
     end
 
     check_permissions!
-  end
-
-  def check_action_permission_target!
-    return unless target_project
-
-    tprj = Project.get_by_name(target_project)
-    if tprj.is_a?(Project)
-      if tprj.is_maintenance_release? && action_type == :submit
-        raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
-                                     'a submit self is not possible, please use the maintenance workflow instead.'
-      end
-      a = tprj.find_attribute('OBS', 'RejectRequests')
-      if a && a.values.first
-        if a.values.length < 2 || a.values.find_by_value(action_type)
-          raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
-        end
-      end
-    end
-    if target_package
-      if Package.exists_by_project_and_name(target_project, target_package) ||
-         action_type.in?([:delete, :change_devel, :add_role, :set_bugowner])
-        tpkg = Package.get_by_project_and_name(target_project, target_package)
-      end
-      a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
-      if defined?(a) && a && a.values.first
-        if a.values.length < 2 || a.values.find_by_value(action_type)
-          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
-                                 "requests because: #{a.values.first.value}"
-        end
-      end
-    end
-
-    tprj
-  end
-
-  def check_permissions!
-    # to be overloaded in action classes if needed
   end
 
   def expand_targets(ignore_build_state)
@@ -883,11 +801,6 @@ class BsRequestAction < ApplicationRecord
     end
   end
 
-  def set_target_associations
-    self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
-    self.target_project_object = Project.find_by_name(target_project)
-  end
-
   def is_target_maintainer?(user)
     user && user.can_modify?(target_package_object || target_project_object)
   end
@@ -899,6 +812,62 @@ class BsRequestAction < ApplicationRecord
 
   private
 
+  def check_action_permission_source!
+    return unless source_project
+
+    sprj = Project.get_by_name(source_project)
+    raise UnknownProject, "Unknown source project #{source_project}" unless sprj
+    unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
+      raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
+    end
+
+    if source_package
+      spkg = Package.get_by_project_and_name(source_project, source_package, use_source: true, follow_project_links: true)
+      spkg.check_weak_dependencies! if spkg && sourceupdate == 'cleanup'
+    end
+
+    check_permissions_for_sources!
+
+    sprj
+  end
+
+  def check_action_permission_target!
+    return unless target_project
+
+    tprj = Project.get_by_name(target_project)
+    if tprj.is_a?(Project)
+      if tprj.is_maintenance_release? && action_type == :submit
+        raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
+                                     'a submit self is not possible, please use the maintenance workflow instead.'
+      end
+      a = tprj.find_attribute('OBS', 'RejectRequests')
+      if a && a.values.first
+        if a.values.length < 2 || a.values.find_by_value(action_type)
+          raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
+        end
+      end
+    end
+    if target_package
+      if Package.exists_by_project_and_name(target_project, target_package) ||
+         action_type.in?([:delete, :change_devel, :add_role, :set_bugowner])
+        tpkg = Package.get_by_project_and_name(target_project, target_package)
+      end
+      a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
+      if defined?(a) && a && a.values.first
+        if a.values.length < 2 || a.values.find_by_value(action_type)
+          raise RequestRejected, "The target package #{target_project} / #{target_package} is not accepting " \
+                                 "requests because: #{a.values.first.value}"
+        end
+      end
+    end
+
+    tprj
+  end
+
+  def check_permissions!
+    # to be overloaded in action classes if needed
+  end
+
   def check_permissions_for_sources!
     return unless sourceupdate.in?(['update', 'cleanup']) || updatelink
 
@@ -906,6 +875,35 @@ class BsRequestAction < ApplicationRecord
                     Project.get_by_name(source_project)
 
     raise LackingMaintainership if !source_object.is_a?(String) && !User.possibly_nobody.can_modify?(source_object)
+  end
+
+  # find default reviewers of a project/package via role
+  def find_reviewers(obj)
+    # obj can be a project or package object
+    reviewers = []
+    reviewer_id = Role.hashed['reviewer'].id
+
+    # check for reviewers in a package first
+    obj.relationships.users.where(role_id: reviewer_id).pluck(:user_id).each do |r|
+      reviewers << User.find(r)
+    end
+    obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
+      reviewers << Group.find(r)
+    end
+    reviewers += find_reviewers(obj.project) if obj.class == Package
+
+    reviewers
+  end
+
+  def render_xml_source(node)
+    attributes = xml_package_attributes('source')
+    attributes[:rev] = source_rev if source_rev.present?
+    node.source(attributes)
+  end
+
+  def set_target_associations
+    self.target_package_object = Package.find_by_project_and_name(target_project, target_package)
+    self.target_project_object = Project.find_by_name(target_project)
   end
 
   #### Alias of methods

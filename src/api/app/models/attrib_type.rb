@@ -62,28 +62,6 @@ class AttribType < ApplicationRecord
     "#{attrib_namespace}:#{name}"
   end
 
-  def create_one_rule(node)
-    if node['user'].blank? && node['group'].blank? && node['role'].blank?
-      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
-    end
-    new_rule = {}
-    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
-    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
-    new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
-    attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
-  end
-
-  def update_default_values(default_elements)
-    default_values.delete_all
-    position = 1
-    default_elements.each do |d|
-      d.elements('value') do |v|
-        default_values << AttribDefaultValue.new(value: v, position: position)
-        position += 1
-      end
-    end
-  end
-
   def update_from_xml(xmlhash)
     transaction do
       # defined permissions
@@ -139,6 +117,30 @@ class AttribType < ApplicationRecord
       super(options)
     else
       super(methods: [:attrib_namespace_name])
+    end
+  end
+
+  private
+
+  def create_one_rule(node)
+    if node['user'].blank? && node['group'].blank? && node['role'].blank?
+      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
+    end
+    new_rule = {}
+    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
+    new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
+    attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
+  end
+
+  def update_default_values(default_elements)
+    default_values.delete_all
+    position = 1
+    default_elements.each do |d|
+      d.elements('value') do |v|
+        default_values << AttribDefaultValue.new(value: v, position: position)
+        position += 1
+      end
     end
   end
 

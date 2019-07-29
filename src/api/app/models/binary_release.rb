@@ -133,34 +133,9 @@ class BinaryRelease < ApplicationRecord
     self.binary_releasetime = Time.now
   end
 
-  def set_release_time
-    # created_at, but readable in database
-    self.binary_releasetime ||= Time.now
-  end
-
-  def update_for_product
-    repository.product_update_repositories.map { |i| i.product if i.product }.uniq
-  end
-
-  def product_medium
-    repository.product_medium.find_by(name: medium)
-  end
-
   # esp. for docker/appliance/python-venv-rpms and friends
   def medium_container
     on_medium.try(:release_package)
-  end
-
-  # renders all values, which are used as identifier of a binary entry.
-  def render_attributes
-    attributes = { project: repository.project.name, repository: repository.name }
-    [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
-      value = send(key)
-      next unless value
-      ekey = key.to_s.gsub(/^binary_/, '')
-      attributes[ekey] = value
-    end
-    attributes
   end
 
   def render_xml
@@ -170,7 +145,7 @@ class BinaryRelease < ApplicationRecord
 
       node = {}
       node[:package] = release_package.name if release_package
-      node[:time] = self.binary_releasetime if self.binary_releasetime
+      node[:time] = binary_releasetime if binary_releasetime
       node[:flavor] = flavor if flavor
       binary.publish(node) unless node.empty?
 
@@ -222,6 +197,34 @@ class BinaryRelease < ApplicationRecord
       (binary_id.nil? || binary_id == binary_hash['binaryid']) &&
       binary_buildtime == buildtime
   end
+
+  private
+
+  def product_medium
+    repository.product_medium.find_by(name: medium)
+  end
+
+  # renders all values, which are used as identifier of a binary entry.
+  def render_attributes
+    attributes = { project: repository.project.name, repository: repository.name }
+    [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
+      value = send(key)
+      next unless value
+      ekey = key.to_s.gsub(/^binary_/, '')
+      attributes[ekey] = value
+    end
+    attributes
+  end
+
+  def set_release_time
+    # created_at, but readable in database
+    self.binary_releasetime ||= Time.now
+  end
+
+  def update_for_product
+    repository.product_update_repositories.map { |i| i.product if i.product }.uniq
+  end
+
   #### Alias of methods
 end
 

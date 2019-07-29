@@ -24,16 +24,6 @@ class BsRequestActionDelete < BsRequestAction
     errors.add(:target_project, 'must not target package and target repository') if target_repository && target_package
   end
 
-  def remove_repository(opts)
-    prj = Project.get_by_name(target_project)
-    r = prj.repositories.find_by_name(target_repository)
-    unless r
-      raise RepositoryMissing, "The repository #{target_project} / #{target_repository} does not exist"
-    end
-    r.destroy
-    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
-  end
-
   def render_xml_attributes(node)
     attributes = xml_package_attributes('target')
     attributes[:repository] = target_repository if target_repository.present?
@@ -72,6 +62,18 @@ class BsRequestActionDelete < BsRequestAction
       project.destroy
       return "/source/#{target_project}"
     end
+  end
+
+  private
+
+  def remove_repository(opts)
+    prj = Project.get_by_name(target_project)
+    r = prj.repositories.find_by_name(target_repository)
+    unless r
+      raise RepositoryMissing, "The repository #{target_project} / #{target_repository} does not exist"
+    end
+    r.destroy
+    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
   end
 
   #### Alias of methods

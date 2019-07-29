@@ -22,6 +22,17 @@ class AttribNamespace < ApplicationRecord
     name
   end
 
+  def update_from_xml(node)
+    transaction do
+      attrib_namespace_modifiable_bies.delete_all
+      # store permission settings
+      node.elements('modifiable_by') { |element| create_one_rule(element) }
+      save
+    end
+  end
+
+  private
+
   def create_one_rule(node)
     if !node['user'] && !node['group']
       raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
@@ -30,15 +41,6 @@ class AttribNamespace < ApplicationRecord
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']
     new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
     attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(new_rule)
-  end
-
-  def update_from_xml(node)
-    transaction do
-      attrib_namespace_modifiable_bies.delete_all
-      # store permission settings
-      node.elements('modifiable_by') { |element| create_one_rule(element) }
-      save
-    end
   end
 
   #### Alias of methods

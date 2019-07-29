@@ -10,19 +10,6 @@ module Event
       "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
     end
 
-    def faillog
-      size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
-      offset = size - 18 * 1024
-      offset = 0 if offset < 0
-      log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
-      log.encode!(invalid: :replace, undef: :replace, universal_newline: true)
-      log = log.chomp.lines
-      log = log.slice(-29, log.length) if log.length > 30
-      log.join
-    rescue Backend::Error
-      nil
-    end
-
     def expanded_payload
       payload.merge('faillog' => faillog)
     end
@@ -34,6 +21,21 @@ module Event
       h['X-OBS-Worker'] = payload['workerid']
       h['X-OBS-Rebuild-Reason'] = payload['reason']
       h
+    end
+
+    private
+
+    def faillog
+      size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
+      offset = size - 18 * 1024
+      offset = 0 if offset < 0
+      log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
+      log.encode!(invalid: :replace, undef: :replace, universal_newline: true)
+      log = log.chomp.lines
+      log = log.slice(-29, log.length) if log.length > 30
+      log.join
+    rescue Backend::Error
+      nil
     end
   end
 end

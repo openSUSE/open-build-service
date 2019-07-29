@@ -7,10 +7,6 @@ module Event
 
     after_create :increase_commits
 
-    def increase_commits
-      CommitActivity.create_from_event_payload(payload)
-    end
-
     def subject
       "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
     end
@@ -19,6 +15,12 @@ module Event
       attribs['comment'] = attribs['comment'][0..800] if attribs['comment'].present?
       attribs['files'] = attribs['files'][0..800] if attribs['files'].present?
       super(attribs, keys)
+    end
+
+    private
+
+    def increase_commits
+      CommitActivity.create_from_event_payload(payload)
     end
   end
 end

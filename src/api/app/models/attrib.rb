@@ -84,10 +84,6 @@ class Attrib < ApplicationRecord
       (attrib_type.value_count && (attrib_type.value_count != values.length)) # If value_count != values.length
   end
 
-  def write_container_attributes
-    container.write_attributes if container && !container.destroyed?
-  end
-
   def update_with_associations(values = [], issues = [])
     #--- update issues ---#
     changed = false
@@ -140,6 +136,10 @@ class Attrib < ApplicationRecord
   def validate_allowed_values_for_attrib_type
     value_count = attrib_type.try(:value_count)
     errors[:values] << "has #{values.length} values, but only #{value_count} are allowed" if value_count && value_count != values.length
+  end
+
+  def write_container_attributes
+    container.write_attributes if container && !container.destroyed?
   end
 end
 

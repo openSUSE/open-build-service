@@ -928,29 +928,6 @@ class BsRequest < ApplicationRecord
     save!
   end
 
-  def apply_default_reviewers
-    reviewers = collect_default_reviewers!
-    # apply reviewers
-    reviewers.each do |r|
-      if r.class == User
-        next if reviews.any? { |a| a.by_user == r.login }
-        reviews.new(by_user: r.login, state: :new)
-      elsif r.class == Group
-        next if reviews.any? { |a| a.by_group == r.title }
-        reviews.new(by_group: r.title, state: :new)
-      elsif r.class == Project
-        next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
-        reviews.new(by_project: r.name, state: :new)
-      elsif r.class == Package
-        next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
-        reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
-      else
-        raise 'Unknown review type'
-      end
-    end
-    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
-  end
-
   def notify
     notify = notify_parameters
     Event::RequestCreate.create(notify)
@@ -1068,30 +1045,6 @@ class BsRequest < ApplicationRecord
     newactions.each { |a| bs_request_actions << a }
   end
 
-  def update_cache
-    target_package_ids = bs_request_actions.with_target_package.pluck(:target_package_id)
-    target_project_ids = bs_request_actions.with_target_project.pluck(:target_project_id)
-
-    user_ids = Relationship.where(package_id: target_package_ids).or(
-      Relationship.where(project_id: target_project_ids)
-    ).groups.joins(:groups_users).pluck('groups_users.user_id')
-
-    user_ids += Relationship.where(package_id: target_package_ids).or(
-      Relationship.where(project_id: target_project_ids)
-    ).users.pluck(:user_id)
-
-    user_ids << User.find_by_login!(creator).id
-
-    # rubocop:disable Rails/SkipsModelValidations
-    # Skipping Model validations in this case is fine as we only want to touch
-    # the associated user models to invalidate the cache keys
-    Group.joins(:relationships).where(relationships: { package_id: target_package_ids }).or(
-      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })
-    ).update_all(updated_at: Time.now)
-    User.where(id: user_ids).update_all(updated_at: Time.now)
-    # rubocop:enable Rails/SkipsModelValidations
-  end
-
   def forward_to(project:, package: nil, options: {})
     new_request = BsRequest.new(description: options[:description])
     BsRequest.transaction do
@@ -1118,6 +1071,29 @@ class BsRequest < ApplicationRecord
   end
 
   private
+
+  def apply_default_reviewers
+    reviewers = collect_default_reviewers!
+    # apply reviewers
+    reviewers.each do |r|
+      if r.class == User
+        next if reviews.any? { |a| a.by_user == r.login }
+        reviews.new(by_user: r.login, state: :new)
+      elsif r.class == Group
+        next if reviews.any? { |a| a.by_group == r.title }
+        reviews.new(by_group: r.title, state: :new)
+      elsif r.class == Project
+        next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
+        reviews.new(by_project: r.name, state: :new)
+      elsif r.class == Package
+        next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
+        reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
+      else
+        raise 'Unknown review type'
+      end
+    end
+    self.state = :review if reviews.any? { |a| a.state.to_sym == :new }
+  end
 
   #
   # Find out about defined reviewers in target
@@ -1191,6 +1167,30 @@ class BsRequest < ApplicationRecord
     end
     raise Review::NotFoundError unless review_comment
     review_comment
+  end
+
+  def update_cache
+    target_package_ids = bs_request_actions.with_target_package.pluck(:target_package_id)
+    target_project_ids = bs_request_actions.with_target_project.pluck(:target_project_id)
+
+    user_ids = Relationship.where(package_id: target_package_ids).or(
+      Relationship.where(project_id: target_project_ids)
+    ).groups.joins(:groups_users).pluck('groups_users.user_id')
+
+    user_ids += Relationship.where(package_id: target_package_ids).or(
+      Relationship.where(project_id: target_project_ids)
+    ).users.pluck(:user_id)
+
+    user_ids << User.find_by_login!(creator).id
+
+    # rubocop:disable Rails/SkipsModelValidations
+    # Skipping Model validations in this case is fine as we only want to touch
+    # the associated user models to invalidate the cache keys
+    Group.joins(:relationships).where(relationships: { package_id: target_package_ids }).or(
+      Group.joins(:relationships).where(relationships: { project_id: target_project_ids })
+    ).update_all(updated_at: Time.now)
+    User.where(id: user_ids).update_all(updated_at: Time.now)
+    # rubocop:enable Rails/SkipsModelValidations
   end
 end
 
