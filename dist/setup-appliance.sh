@@ -635,12 +635,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   prepare_obssigner
 
   if [[ $GPG_KEY_CREATED == 1 ]];then
-    pushd .
-    # avoid systemctl
-    cd /etc/init.d
-    ./obssrcserver reload
-    ./obsrepserver reload
-    popd
+    systemctl reload obssrcserver
+    systemctl reload obsrepserver
   fi
 
   check_required_backend_services
