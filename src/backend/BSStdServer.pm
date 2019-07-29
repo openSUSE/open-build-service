@@ -323,7 +323,8 @@ sub server {
     }
   }
   mkdir_p($rundir);
-  die("cannot write to rundir '$rundir'\n") unless POSIX::access($rundir, POSIX::W_OK);
+  my $login = getpwuid($<);
+  die("cannot write to rundir '$rundir' as user '$login'\n") unless POSIX::access($rundir, POSIX::W_OK);
   # intialize xml converter to speed things up
   XMLin(['startup' => '_content'], '<startup>x</startup>');
 
