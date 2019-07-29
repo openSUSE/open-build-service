@@ -566,6 +566,16 @@ getent passwd obsapidelayed >/dev/null || \
   /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
+# On upgrade keep the values for the %post script
+if [ "$1" == 2 ]; then
+  systemctl --quiet is-enabled obsapidelayed.service && touch %{_rundir}/enable_obs-api-support.target
+  if systemctl --quiet is-active  obsapidelayed.service;then
+    touch %{_rundir}/start_obs-api-support.target
+    systemctl stop    obsapidelayed.service
+    systemctl disable obsapidelayed.service
+  fi
+fi
+
 %post -n obs-common
 %service_add_post obsstoragesetup.service
 %{fillup_and_insserv -n obs-server}
@@ -601,15 +611,13 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 touch /srv/www/obs/api/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
-if [ "$1" -gt 1 ]; then
-  if systemctl --quiet is-enabled obsapidelayed.service 2> /dev/null; then
-    systemctl enable obs-api-support.target
-  fi
-  if systemctl --quiet is-active obsapidelayed.service; then
-    systemctl stop obsapidelayed.service
-    systemctl daemon-reload
-    systemctl start obs-api-support.target
-  fi
+if [ -e %{_rundir}/enable_obs-api-support.target ];then
+  systemctl enable obs-api-support.target
+  rm %{_rundir}/enable_obs-api-support.target
+fi
+if [ -e %{_rundir}/start_obs-api-support.target ];then
+  systemctl start  obs-api-support.target
+  rm %{_rundir}/start_obs-api-support.target
 fi
 
 %postun -n obs-api
