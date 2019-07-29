@@ -1,7 +1,7 @@
 [Unit]
 Description=OBS API Setup
 Before=apache2.service
-After=network-online.target
+After=network-online.target mariadb.service
 
 [Service]
 Type=oneshot
