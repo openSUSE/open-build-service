@@ -77,4 +77,31 @@ RSpec.describe 'rollout' do
 
     it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
   end
+
+  context 'with Staff users' do
+    let!(:staff_user_1) { create(:staff_user, in_rollout: false) }
+    let!(:staff_user_2) { create(:staff_user, in_rollout: false) }
+    let!(:staff_user_3) { create(:staff_user) }
+    let(:users) { User.staff }
+
+    describe 'staff_on' do
+      let(:task) { 'rollout:staff_on' }
+
+      it 'will move all Staff users to Rollout Program' do
+        expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(3)
+      end
+
+      it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(6) }
+    end
+
+    describe 'staff_off' do
+      let(:task) { 'rollout:staff_off' }
+
+      it 'will move all Staff users out of Rollout Program' do
+        expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(0)
+      end
+
+      it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3) }
+    end
+  end
 end

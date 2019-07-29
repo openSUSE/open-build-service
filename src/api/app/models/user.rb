@@ -72,6 +72,8 @@ class User < ApplicationRecord
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
+  scope :staff, -> { joins(:roles).where('roles.title = ?', 'Staff') }
+  scope :not_staff, -> { where.not(id: User.staff.pluck(:id)) }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
