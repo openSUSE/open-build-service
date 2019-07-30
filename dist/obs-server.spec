@@ -31,6 +31,7 @@
 %endif
 
 %define secret_key_file /srv/www/obs/api/config/secret.key
+%define obs_backend_data_dir /srv/obs
 
 %if ! %{defined _restart_on_update_reload}
 %define _restart_on_update_reload() (\
@@ -703,6 +704,17 @@ fi
 # created via %%post, since rpm fails otherwise while switching from
 # directory to symlink
 %ghost /usr/lib/obs/server/build
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/build
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/events
+%attr(0700, root, root)     %dir %{obs_backend_data_dir}/gnupg
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/info
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/jobs
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/log
+%attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/projects
+%attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/run
+%attr(0755, obsservicerun, obsrun) %dir %{obs_backend_data_dir}/service
+
 
 # formerly obs-source_service
 %{_unitdir}/obsservice.service
