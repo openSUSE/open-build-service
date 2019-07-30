@@ -15,11 +15,18 @@ RSpec.describe Backend::File, vcr: true do
   let(:somefile_txt_url) { "/source/#{user.home_project_name}/#{package_with_file.name}/somefile.txt" }
 
   # Needed because full_path is only defined in subclasses of Backend::File
-  class TestBackendFile < Backend::File
-    attr_accessor :somefile
-    def full_path(_query)
-      URI.encode(somefile)
+  let(:backend_file_class) do
+    Class.new(described_class) do
+      attr_accessor :somefile
+
+      def full_path(_query)
+        URI.encode(somefile)
+      end
     end
+  end
+
+  before do
+    stub_const('TestBackendFile', backend_file_class)
   end
 
   subject { TestBackendFile.new(name: 'fake_filename', somefile: somefile_txt_url) }
