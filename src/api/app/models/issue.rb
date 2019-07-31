@@ -10,6 +10,13 @@ class Issue < ApplicationRecord
   belongs_to :issue_tracker
   belongs_to :owner, class_name: 'User'
 
+  validate :name_validation, on: :create
+
+  def name_validation
+    return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
+    errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
+  end
+
   scope :stateless, -> { where(state: nil) }
 
   def self.find_or_create_by_name_and_tracker(name, issue_tracker_name, force_update = nil)
@@ -48,9 +55,7 @@ class Issue < ApplicationRecord
   end
 
   def self.valid_name?(tracker, name)
-    # We only verify cve format atm. This should be done via a regexp definition in the
-    # tracker definition in future
-    !tracker.cve? || /^\d\d\d\d-\d+$/ =~ name
+    tracker.show_label_for(name).match?(tracker.regex)
   end
 
   after_create :fetch_issues

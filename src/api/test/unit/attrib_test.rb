@@ -128,7 +128,8 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribIssues')
     attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
 
-    attrib.issues << Issue.new(name: '12345')
+    bnc = IssueTracker.find_by_name('bnc')
+    attrib.issues << Issue.new(name: '12345', issue_tracker: bnc)
     assert_not attrib.valid?
     assert_equal ["can't have issues"], attrib.errors.messages[:issues]
     attrib_type.issue_list = true
