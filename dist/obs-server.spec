@@ -570,7 +570,11 @@ getent passwd obsapidelayed >/dev/null || \
 
 # On upgrade keep the values for the %post script
 if [ "$1" == 2 ]; then
-  systemctl --quiet is-enabled obsapidelayed.service && touch %{_rundir}/enable_obs-api-support.target
+  # Cannot use "sytemctl is-enabled obsapidelayed.service" here
+  # as it throws an error like "Can't determine current runlevel"
+  if [ -e /etc/init.d/rc3.d/S50obsapidelayed ];then
+    touch %{_rundir}/enable_obs-api-support.target
+  fi
   if systemctl --quiet is-active  obsapidelayed.service;then
     touch %{_rundir}/start_obs-api-support.target
     systemctl stop    obsapidelayed.service
@@ -613,6 +617,8 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 touch /srv/www/obs/api/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
+# This must be done after %%service_add_post. Otherwise the distribution preset is
+# take, which is disabled in case of obs-api-support.target
 if [ -e %{_rundir}/enable_obs-api-support.target ];then
   systemctl enable obs-api-support.target
   rm %{_rundir}/enable_obs-api-support.target
