@@ -28,7 +28,7 @@ module ObsFactory
         'search'
       when 'repo-checker'
         'cog'
-      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers', 'backports-reviewers'
+      when 'sle-release-managers', 'leap-reviewers', 'caasp-release-managers', 'backports-reviewers', 'origin-reviewers', 'origin-reviewers-maintenance'
         'users'
       when 'security-team'
         'user-shield'
