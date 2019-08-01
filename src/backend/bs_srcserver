@@ -1144,15 +1144,20 @@ sub getprojpack {
       };
     }
     my @packages;
-    @packages = findpackages($projid, $proj, 2) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
-    @packages = @{$cgi->{'package'}} if $proj->{'remoteurl'} && $cgi->{'package'} && $cgi->{'parseremote'};
-    my $missing_packages = grep {$_ eq ':missing_packages'} @packages;
-    if (!$proj->{'remoteurl'} && !$missing_packages && !$cgi->{'nopackages'}) {
-      BSSrcServer::Multibuild::prunemultibuild($projid, \@packages);
-    }
-    if ($missing_packages) {
-      @packages = grep {$_ ne ':missing_packages'} @packages;
-      $jinfo->{'missingpackages'} = 1;
+    if ($cgi->{'nopackages'}) {
+      @packages = ();
+    } elsif ($proj->{'remoteurl'}) {
+      @packages = @{$cgi->{'package'}} if $cgi->{'package'} && $cgi->{'parseremote'};
+    } elsif ($cgi->{'buildinfo'}) {
+      @packages = @{$cgi->{'package'}} if $cgi->{'package'};
+    } else {
+      @packages = findpackages($projid, $proj, 2);
+      if (grep {$_ eq ':missing_packages'} @packages) {
+        $jinfo->{'missingpackages'} = 1;
+        @packages = grep {$_ ne ':missing_packages'} @packages;
+      } else {
+        BSSrcServer::Multibuild::prunemultibuild($projid, \@packages);
+      }
     }
     next if $repoids && !grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
     next if $packids && !grep {$packids->{$_}} @packages;
@@ -1262,7 +1267,7 @@ sub getprojpack {
       ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
       $pack ||= {} if $proj->{'link'};
       if (!$pack) {
-	$pinfo->{'error'} = 'no metadata';
+	$pinfo->{'error'} = 'package does not exist';
 	next;
       }
       for (qw{build publish debuginfo useforbuild bcntsynctag sourceaccess privacy access lock releasename}) {
