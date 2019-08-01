@@ -190,7 +190,7 @@ sub run {
   
   die("no eventdir configured\n") unless $conf->{'eventdir'};
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
-  BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
+  BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
   BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
   $| = 1;

@@ -186,25 +186,20 @@ sub mkdir_p {
   return 1;
 }
 
-=head2 mkdir_p_chown - create directory recursivly and change ownership
+=head2 chown_multiple - change the ownership of multiple files/dirs
 
- calls mkdir_p and changes ownership of the created directory to the
- supplied user and group if provided.
+ BSUtil::chown_multiple($user, $group, $file1...);
 
 =cut
 
-sub mkdir_p_chown {
-  my ($dir, $user, $group) = @_;
-
-  if (!(-d $dir)) {
-    mkdir_p($dir) || return undef;
-  }
-  return 1 unless defined($user) || defined($group);
-
-  $user = -1 unless defined $user;
-  $group = -1 unless defined $group;
+sub chown_multiple {
+  my ($user, $group, @files) = @_;
+  return 1 unless @files && (defined($user) || defined($group));
+  my $ret = 1;
   my $ouser = $user;
   my $ogroup = $group;
+  $user = -1 unless defined $user;
+  $group = -1 unless defined $group;
   
   if ($user  !~ /^-?\d+$/ && !defined($user = getpwnam($user))) {
     warn "user $ouser unknown\n";
@@ -215,14 +210,33 @@ sub mkdir_p_chown {
     return undef
   }
 
-  my @s = stat($dir);
-  if ($s[4] != $user || $s[5] != $group) {
-    if (!chown $user, $group, $dir) {
-      warn "failed to chown $dir to $user:$group\n";
-      return undef;
+  for my $file (@files) {
+    my @s = stat($file);
+    next unless @s;
+    if ((defined($ouser) && $s[4] != $user) || (defined($ogroup) && $s[5] != $group)) {
+      if (!chown $user, $group, $file) {
+        warn "failed to chown $file to $user:$group\n";
+        $ret = undef;
+      }
     }
   }
-  return 1;
+  return $ret;
+}
+
+=head2 mkdir_p_chown - create directory recursivly and change ownership
+
+ calls mkdir_p and changes ownership of the created directory to the
+ supplied user and group if provided.
+
+=cut
+
+sub mkdir_p_chown {
+  my ($dir, $user, $group) = @_;
+
+  if (! -d $dir) {
+    mkdir_p($dir) || return undef;
+  }
+  return chown_multiple($user, $group, $dir);
 }
 
 sub drop_privs_to {
@@ -871,8 +885,9 @@ sub openlog {
   return unless defined $logfile;
   $logfile = "$logdir/$logfile" unless $logfile =~ /\//;
   my ($ld) = $logfile =~ m-(.*)/- ;
-  BSUtil::mkdir_p_chown($ld, $user, $group) if $ld && defined($user) || defined($group);
+  mkdir_p_chown($ld, $user, $group) if $ld;
   open(STDOUT, '>>', $logfile) || die("Could not open $logfile: $!\n");
+  chown_multiple($user, $group, $logfile);
   open(STDERR, ">&STDOUT");
 }
 
