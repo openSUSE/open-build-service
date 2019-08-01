@@ -104,6 +104,15 @@ We are not tagging commits anymore, but these are the labels and their descripti
   * [doc]     - Any documentation related changes
   * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
 
+## Mind the Automated Reviews
+Please make sure to mind our continuous integration cycle that includes:
+
+- code style linting with tools like rubocop, jshint, haml-lint etc.
+- static code analysis with [codeclimate](https://codeclimate.com/github/openSUSE/open-build-service)
+- security code analysis with [hakiri](https://hakiri.io/github/openSUSE/open-build-service/)
+- automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)
+
+If one of the goes wrong for your pull request please address the issue.
 
 ## The Perfect Pull Request
 
@@ -122,16 +131,6 @@ In order to help reviewers:
   - add benchmarks
    
 \* _Review app can be enabled by applying the `review-app` label to the pull request, it should be done by a member of the OBS team._
-
-## Mind the Automated Reviews
-Please make sure to mind our continuous integration cycle that includes:
-
-- code style linting with tools like rubocop, jshint, haml-lint etc.
-- static code analysis with [codeclimate](https://codeclimate.com/github/openSUSE/open-build-service)
-- security code analysis with [hakiri](https://hakiri.io/github/openSUSE/open-build-service/)
-- automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)
-
-If one of the goes wrong for your pull request please address the issue.
 
 ## Tell Us If You Need Help
 
