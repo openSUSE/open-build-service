@@ -25,17 +25,7 @@ with your changes. A developer of the [open-build-service team](https://github.c
 will review your pull-request. And if the pull request gets a positive review
 the reviewer will merge it.
 
-However, please bear in mind the following things:
-
-## Give Context
-
-In order to help reviewers, it is always good have some context about your
-changes. Depending on your changes, this includes:
-
-- Screenshots, GIFs, review app for visual changes. The review app is added by a
-  member of the OBS team by applying the `review-app` label to a pull request.
-- [osc](https://github.com/openSUSE/osc) commands to test your changes.
-- Short description to help understand why the changes are needed.
+But first, please bear in mind the following guidelines to create the perfect pull request:
 
 ## Discuss Large Changes in Advance
 
@@ -87,7 +77,7 @@ Please also:
 - **Mention related issues**
 
   If this commit fixes an issue you need to mention it like `Fixes #1234`
-  
+
 - **Give kudos to Co-authors**
 
   If the commit has more than one author tag them with `Co-authored-by: name <name@example.com>`.
@@ -113,6 +103,25 @@ We are not tagging commits anymore, but these are the labels and their descripti
   * [dist]    - Modifies something inside /dist directory
   * [doc]     - Any documentation related changes
   * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
+
+## The Perfect Pull Request
+
+Please, add a good description to your pull request. Explain what moved you to add that new feature or what was the issue you are trying to fix. Also describe briefly the solution you propose.
+
+In order to help reviewers:
+
+- Explain the workflow they have to follow to get to the feature.
+- Explain how they can test your changes, providing some sample data if possible.
+- Provide [osc](https://github.com/openSUSE/osc) commands to test your changes if that is the case.
+- For visual or design-related pull requests:
+  - add screenshots or GIFs,
+  - enable review app*
+- For performance-related pull requests:
+  - add sample data in the review app* and put links in the pull request's description
+  - add benchmarks
+
+\* _Review app can be enabled by applying the `review-app` label to the pull request, it should be done by a member of the OBS team._
+
 
 ## Mind the Automated Reviews
 Please make sure to mind our continuous integration cycle that includes:
@@ -160,7 +169,7 @@ We are using priority labels from **P1** to **P4** for our issues. So if you are
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to Contribute Documentation
-The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository. 
+The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
 
 # How to Conduct Yourself when Contributing
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
