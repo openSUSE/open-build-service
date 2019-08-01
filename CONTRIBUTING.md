@@ -25,7 +25,17 @@ with your changes. A developer of the [open-build-service team](https://github.c
 will review your pull-request. And if the pull request gets a positive review
 the reviewer will merge it.
 
-But first, please bear in mind the following guidelines to create the perfect pull request:
+However, please bear in mind the following things:
+
+## Give Context
+
+In order to help reviewers, it is always good have some context about your
+changes. Depending on your changes, this includes:
+
+- Screenshots, GIFs, review app for visual changes. The review app is added by a
+  member of the OBS team by applying the `review-app` label to a pull request.
+- [osc](https://github.com/openSUSE/osc) commands to test your changes.
+- Short description to help understand why the changes are needed.
 
 ## Discuss Large Changes in Advance
 
@@ -113,24 +123,6 @@ Please make sure to mind our continuous integration cycle that includes:
 - automated test runs for the frontend and backend test suites with [circle-ci](https://circleci.com/gh/openSUSE/workflows/open-build-service)
 
 If one of the goes wrong for your pull request please address the issue.
-
-## The Perfect Pull Request
-
-Please, add a good description to your pull request. Explain what moved you to add that new feature or what was the issue you are trying to fix. Also describe briefly the solution you propose.
-
-In order to help reviewers:
-
-- Explain the workflow they have to follow to get to the feature.
-- Explain how they can test your changes, providing some sample data if possible.
-- Provide [osc](https://github.com/openSUSE/osc) commands to test your changes if that is the case.
-- For visual or design-related pull requests:
-  - add screenshots or GIFs,
-  - enable review app *
-- For performance-related pull requests:
-  - add sample data in the review app and put links in the pull request's description *
-  - add benchmarks
-   
-\* _Review app can be enabled by applying the `review-app` label to the pull request, it should be done by a member of the OBS team._
 
 ## Tell Us If You Need Help
 
