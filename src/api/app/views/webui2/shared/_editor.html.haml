@@ -1,11 +1,12 @@
 :ruby
   save ||= {}
-  style ||= { read_only: false, big_editor: true }
+  options = { read_only: false, big_editor: true }
+  options.merge!(style) if defined?(style)
   uid ||= next_codemirror_uid
-  content_for(:head_style, codemirror_style(style))
+  content_for(:head_style, codemirror_style(options))
 
-%div{ class: "card #{'editable' unless style[:read_only]}" }
-  - unless style[:read_only]
+%div{ class: "card #{'editable' unless options[:read_only]}" }
+  - unless options[:read_only]
     .sticky-top.bg-light{ id: "top_#{uid}" }
       .card-header
         .d-flex.justify-content-between
@@ -30,7 +31,7 @@
 
   = text_area_tag("editor_#{uid}", text, cols: '0', rows: '0', data: data, class: 'form-control')
 
-  - unless style[:read_only]
+  - unless options[:read_only]
     .bg-light{ id: "bottom_#{uid}" }
       .card-footer
         .d-flex.justify-content-end
@@ -46,8 +47,8 @@
             %i.fa.fa-save
             Save
 
-- unless style[:read_only]
+- unless options[:read_only]
   = render partial: 'shared/editor_modal', locals: { uid: uid }
 
 - content_for :ready_function do
-  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}', #{style[:big_editor]});
+  use_codemirror(#{uid}, #{options[:read_only]}, '#{mode}', #{options[:big_editor]});
