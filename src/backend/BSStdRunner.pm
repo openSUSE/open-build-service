@@ -32,9 +32,6 @@ use BSRunner;
 
 use strict;
 
-my $bsdir = $BSConfig::bsdir || "/srv/obs";
-my $rundir = $BSConfig::rundir ||  $BSConfig::rundir || "$bsdir/run";
-
 sub lsevents {
   my ($conf) = @_;
   my $myeventdir = $conf->{'eventdir'};
@@ -189,6 +186,8 @@ sub run {
   exit(0) if @$args && $args->[0] eq '--test';
   
   die("no eventdir configured\n") unless $conf->{'eventdir'};
+  my $bsdir = $BSConfig::bsdir || "/srv/obs";
+  my $rundir = $conf->{'rundir'} || $BSConfig::rundir || "$bsdir/run";
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
   BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
   BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
@@ -231,7 +230,7 @@ sub run {
   $conf->{'filechecks'}->{"$rundir/$runname.exit"} ||= \&fc_exit;
   $conf->{'filechecks'}->{"$rundir/$runname.restart"} ||= \&fc_restart;
   $conf->{'logfile'} = $logfile if $logfile;
-  $conf->{'critlogfile'} ||= "$bsdir/log/$name.crit.log";
+  $conf->{'critlogfile'} ||= "$BSConfig::logdir/$name.crit.log";
 
   compile_dispatches($conf);
 
