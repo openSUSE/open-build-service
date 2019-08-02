@@ -1,6 +1,7 @@
 :ruby
   save ||= {}
-  style ||= { read_only: false, big_editor: true }
+  style ||= {}
+  style.reverse_merge!(read_only: false, big_editor: true)
   uid ||= next_codemirror_uid
   content_for(:head_style, codemirror_style(style))
 
