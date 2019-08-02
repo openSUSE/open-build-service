@@ -41,8 +41,6 @@ our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
 
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
-
 sub stdreply {
   my @rep = @_;
   return unless @rep && defined($rep[0]);
@@ -104,6 +102,7 @@ my $configurationcheck = 0;
 
 sub periodic {
   my ($conf) = @_;
+  my $rundir = $conf->{'rundir'};
   if (-e "$rundir/$conf->{'name'}.exit") {
     BSServer::msg("$conf->{'name'} exiting...");
     unlink("$conf->{'ajaxsocketpath'}.lock") if $conf->{'ajaxsocketpath'};
@@ -206,6 +205,7 @@ sub server {
   }
 
   if ($args && @$args) {
+    my $rundir = ($conf ? $conf->{'rundir'} : undef) || $BSConfig::rundir || "$BSConfig::bsdir/run";
     if ($args->[0] eq '--test') {
       exit 0;
     }
@@ -239,6 +239,7 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
+    $conf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
     $conf->{'verifiers'} ||= $BSVerify::verifiers;
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
@@ -246,12 +247,12 @@ sub server {
     $conf->{'authorize'} ||= \&authorize;
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
-    $conf->{'serverstatus'} ||= "$rundir/$name.status";
+    $conf->{'serverstatus'} ||= "$conf->{'rundir'}/$name.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'run'} ||= \&BSServer::server;
-    $conf->{'slowrequestlog'} ||= "$bsdir/log/$name.slow.log" if $conf->{'slowrequestthr'};
-    $conf->{'slowrequestlog2'} ||= "$bsdir/log/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
-    $conf->{'critlogfile'} ||= "$bsdir/log/$name.crit.log";
+    $conf->{'slowrequestlog'} ||= "$BSConfig::logdir/$name.slow.log" if $conf->{'slowrequestthr'};
+    $conf->{'slowrequestlog2'} ||= "$BSConfig::logdir/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
+    $conf->{'critlogfile'} ||= "$BSConfig::logdir/$name.crit.log";
     $conf->{'name'} = $name;
     $conf->{'logfile'} = $logfile if $logfile;
     BSDispatch::compile($conf);
@@ -274,6 +275,7 @@ sub server {
   }
   if ($aconf) {
     require BSHandoff;
+    $aconf->{'rundir'} ||= $BSConfig::rundir || "$BSConfig::bsdir/run";
     $aconf->{'verifiers'} ||= $BSVerify::verifiers;
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
@@ -318,10 +320,11 @@ sub server {
       eval {
         $aconf->{'run'}->($aconf);
       };
-      writestr("$rundir/$name.AJAX.died", undef, $@);
+      writestr("$aconf->{'rundir'}/$name.AJAX.died", undef, $@);
       BSUtil::diecritical("AJAX died: $@");
     }
   }
+  my $rundir = $conf->{'rundir'};
   mkdir_p($rundir);
   if (!POSIX::access($rundir, POSIX::W_OK)) {
     my $user = getpwuid($<) || $<;
