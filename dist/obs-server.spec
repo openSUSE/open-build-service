@@ -509,6 +509,24 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %restart_on_update memcached
 
+%preun -n obs-api
+# On upgrade keep the values for the %post script
+echo "preun: $1" >> /var/log/obs-api_rpm.log
+if [ "$1" == 1 ]; then
+  echo "Upgrading" >> /var/log/obs-api_rpm.log
+  if systemctl is-enabled obsapidelayed.service;then
+    echo "touching %{_rundir}/enable_obs-api-support.target" >> /var/log/obs-api_rpm.log
+    touch %{_rundir}/enable_obs-api-support.target
+  fi
+  if systemctl --quiet is-active  obsapidelayed.service;then
+    echo "touching %{_rundir}/start_obs-api-support.target" >> /var/log/obs-api_rpm.log
+    touch %{_rundir}/start_obs-api-support.target
+    systemctl stop    obsapidelayed.service
+    systemctl disable obsapidelayed.service
+  fi
+fi
+
+
 %postun -n obs-api
 %insserv_cleanup
 %restart_on_update obsapisetup
