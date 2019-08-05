@@ -43,13 +43,18 @@ Note: * Update from OBS 2.5 should also work, but is untested.
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  8) Restart following services in this order
+  8) (optional) enable the new UI theme
+  
+        cd /srv/www/obs/api/
+        RAILS_ENV="production" bin/rails "Flipper[:bootstrap].enable"
+
+  9) Restart following services in this order
 
         systemctl restart apache2
         systemctl restart obs-api-support.target
         systemctl restart memcached
 
-  9) Enable and start the new services
+  10) Enable and start the new services
 
         systemctl enable obsservicedispatch
         systemctl start obsservicedispatch
