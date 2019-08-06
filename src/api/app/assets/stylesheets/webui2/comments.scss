@@ -2,6 +2,10 @@
   .media .media-body {
     hyphens: auto;
 
+    p:not(:first-child) {
+      max-width: 600px;
+    }
+
     pre, code {
       @extend .p-2;
       @extend .bg-light;
