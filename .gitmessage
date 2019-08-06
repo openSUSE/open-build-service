@@ -1,7 +1,7 @@
 # A title that summarizes **what** has been done
 
 # If you can't explain **what** you have done only in the title
-# then elaborate on it in the body 
+# then elaborate on it in the body
 # * ...
 
 # Explain **why** you have changed this instead of the *how*.
@@ -19,10 +19,12 @@
 # Co-authored-by: Ana María Martínez Gómez <anamaria@martinezgomez.name>
 # Co-authored-by: Björn Geuken <bgeuken@suse.de>
 # Co-authored-by: Stephan Kulow <coolo@suse.de>
+# Co-authored-by: Daniel Donisa <daniel.donisa@suse.com>
 # Co-authored-by: Dany Marcoux <dmarcoux@suse.com>
 # Co-authored-by: David Kang <dkang@suse.com>
 # Co-authored-by: Eduardo Navarro <enavarro@suse.com>
 # Co-authored-by: Henne Vogelsang <hvogel@opensuse.org>
+# Co-authored-by: Lukas Krause <lkrause@suse.de>
 # Co-authored-by: Saray Cabrera Padrón <scabrerapadron@suse.de>
 # Co-authored-by: Victor Pereira <vpereira@suse.com>
 # Co-authored-by: Adrian Schröter <adrian@suse.de>
