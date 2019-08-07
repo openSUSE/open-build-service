@@ -1,13 +1,13 @@
 %ul.list-inline
   - if User.session
     %li.list-inline-item
-      %button.btn.btn-sm.btn-outline-secondary{ data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
+      %button.btn.btn-outline-secondary{ data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
         Reply
   - if policy(comment).destroy?
     %li.list-inline-item
       = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
       = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
-                class: 'delete_link btn btn-sm btn-outline-danger', title: 'Delete comment') do
+                class: 'delete_link btn btn-outline-danger', title: 'Delete comment') do
         Delete
 - if User.session
   .collapse{ id: "reply_form_of_#{comment.id}" }

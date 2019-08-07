@@ -1,4 +1,4 @@
-.small#project-buildstatus
+#project-buildstatus
   - if buildresults.blank?
     - if project.remoteurl
       %p
@@ -29,7 +29,7 @@
         .collapse{ class: "collapse-project-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
           - build_results.sort_by(&:architecture).each do |build_result|
             .row.py-1
-              .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap{ title: "#{repository} summary" }
+              .col-4.col-sm-3.offset-1.offset-sm-2.text-nowrap{ title: "#{repository} summary" }
                 = webui2_repository_status_icon(status: build_result.state, details: build_result.details)
                 %span.ml-1
                   = link_to(build_result.architecture, { action: :monitor,
