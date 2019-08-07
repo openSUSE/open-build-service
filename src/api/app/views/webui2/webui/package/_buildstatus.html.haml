@@ -1,5 +1,5 @@
 - unless buildresults.excluded_counter.zero? && !buildresults.show_all
-  .mt-3.small.custom-control-checkbox
+  .mt-3.custom-control-checkbox
     = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
                     onchange: "updateBuildResult('#{index}')")
     - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
@@ -9,7 +9,7 @@
 - buildresults.results.each_pair do |package, results|
   %h5.text-primary.mt-3.mb-3= package
   .mb-2#package-buildstatus
-    .small.px-3
+    .px-3
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
@@ -31,7 +31,7 @@
           .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
                      data: { repository: repository_name, main: package_name } }
             .row.py-1
-              .col-4.col-sm-3.offset-2.offset-sm-4.text-nowrap
+              .col-4.col-sm-3.offset-1.offset-sm-2.text-nowrap
                 - if !result.is_repository_in_db
                   %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
                 - else
