@@ -38,7 +38,7 @@
                   = webui2_repository_status_icon(status: result.state, details: result.details)
                 %span.ml-1
                   = result.architecture
-              .col-6.col-sm-5.buildstatus.text-nowrap
+              .col-6.col-sm-5.text-nowrap
                 = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
