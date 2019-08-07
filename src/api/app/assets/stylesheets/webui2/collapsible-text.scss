@@ -2,7 +2,7 @@
   .obs-collapsible-textbox {
     padding-right: 1em;
     hyphens: auto;
-    max-width: 600px;
+    max-width: $seventy-five-chars;
 
     .obs-collapsible-text {
       overflow: hidden;

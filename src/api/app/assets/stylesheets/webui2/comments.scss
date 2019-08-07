@@ -3,7 +3,7 @@
     hyphens: auto;
 
     p:not(:first-child) {
-      max-width: 600px;
+      max-width: $seventy-five-chars;
     }
 
     pre, code {
