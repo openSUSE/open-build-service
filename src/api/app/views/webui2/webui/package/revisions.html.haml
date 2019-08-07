@@ -4,7 +4,9 @@
   = render(partial: 'tabs', locals: { project: @project, package: @package })
 
   .card-body
-    %h3 #{@pagetitle} (#{@revisions.count})
+    %h3
+      = @pagetitle
+      %span.badge.badge-primary= @revisions.count
     - if @revisions.present?
       .list-group
         - @revisions.each do |revision|
