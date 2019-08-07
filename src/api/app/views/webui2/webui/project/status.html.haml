@@ -27,7 +27,7 @@
       .custom-control.custom-checkbox
         = check_box_tag(:include_versions, true, @include_versions, class: 'custom-control-input')
         = label_tag(:include_versions, 'Include version updates', class: 'custom-control-label')
-      = submit_tag('Filter results', class: 'btn btn-sm btn-primary px-4 mt-2')
+      = submit_tag('Filter results', class: 'btn btn-primary mt-2')
 
     - if @packages.present?
       .mt-4
