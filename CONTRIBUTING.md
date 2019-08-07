@@ -208,7 +208,7 @@ make sure you run all this from a filesystem that supports this.
    git submodule update
    ```
 
-5. Build your development environment with (make sure your user has access to Docker):
+5. Build your development environment with:
 
     ```
     rake docker:build
