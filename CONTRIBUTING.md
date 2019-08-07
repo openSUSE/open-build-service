@@ -228,7 +228,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
      The easiest way to start building is to create an interconnect to our reference server. All resources from the openSUSE instance, including the base distributions, can be used that way.
      To set this up, follow these steps:
      * Login as Admin and go to 'Configuration' page.
-     * Go to the 'Interconnect' tab and press 'Save changes'. That creates an interconnect to build.opensuse.org.
+     * Go to the 'Interconnect' tab and press 'Connect' on 'Standard OBS instance'. That creates an interconnect to build.opensuse.org.
      * Now in any other project you can choose from a wide range of distributions to build your packages on the 'Repositories' tab.
 
 9. Changed something in the frontend? Test your changes!
