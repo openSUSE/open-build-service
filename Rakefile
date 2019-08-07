@@ -17,7 +17,6 @@ services:
       args:
         CONTAINER_USERID: #{CONTAINER_USERID}
     volumes:
-      - .:/obs
       - ./docker-files/home/.bash_history:/home/frontend/.bash_history
       - ./docker-files/home/.irb_history:/home/frontend/.irb_history
       - ./docker-files/home/.pry_history:/home/frontend/.pry_history
