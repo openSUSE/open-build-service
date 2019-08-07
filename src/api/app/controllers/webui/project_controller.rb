@@ -426,6 +426,7 @@ class Webui::ProjectController < Webui::WebuiController
   def edit_comment
     @package = @project.find_package(params[:package])
 
+    switch_to_webui2
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     unless User.session!.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
@@ -440,7 +441,6 @@ class Webui::ProjectController < Webui::WebuiController
     attr.save!
     v.save!
     @comment = params[:text]
-    switch_to_webui2
   end
 
   def status
