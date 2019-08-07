@@ -11,13 +11,12 @@
         %tr
           %td.reponame.text-word-break-all
             - repository_name = repository.try(&:name)
-            %strong{ title: repository_name || 'All' }
-              - if repository.nil?
-                All
-              - elsif package
-                = link_to(repository_name, package_binaries_path(project: project, package: package, repository: repository_name))
-              - else
-                = link_to(repository_name, action: :state, project: project, repository: repository_name)
+            - if repository.nil?
+              All
+            - elsif package
+              = link_to(repository_name, package_binaries_path(project: project, package: package, repository: repository_name))
+            - else
+              = link_to(repository_name, action: :state, project: project, repository: repository_name)
           - ([nil] + architectures).each do |architecture|
             %td.text-center{ class: architecture && repository ? nil : 'all_flag' }
               = flag_column(flags, repository_name, architecture.try(&:name))
