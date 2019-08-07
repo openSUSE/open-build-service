@@ -29,7 +29,7 @@
                   - archlist.each do |arch|
                     - tableinfo << [repo, arch]
                     %th.text-center
-                      = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'fa-xs mr-1')
+                      = webui2_repository_status_icon(status: @repostatushash[repo][arch], html_class: 'mr-1')
                       = arch
             %tbody{ data: { packagenames: @packagenames, project: @project, statushash: @statushash.to_json, tableinfo: tableinfo } }
 
