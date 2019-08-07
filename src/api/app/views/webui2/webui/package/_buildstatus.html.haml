@@ -31,14 +31,14 @@
           .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
                      data: { repository: repository_name, main: package_name } }
             .row.py-1
-              .col-4.col-sm-3.offset-1.offset-sm-2.text-nowrap
+              .col-4.col-sm-4.col-xl-3.ml-2.text-nowrap
                 - if !result.is_repository_in_db
                   %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
                 - else
                   = webui2_repository_status_icon(status: result.state, details: result.details)
                 %span.ml-1
                   = result.architecture
-              .col-6.col-sm-5.text-nowrap
+              .col-6.col-sm-5.col-xl-6.ml-2.text-nowrap
                 = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
