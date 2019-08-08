@@ -11,13 +11,13 @@
       .card-header
         .d-flex.justify-content-between
           .btn-group.pl-2
-            %button.btn.btn-secondary.btn-sm{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
+            %button.btn.btn-secondary{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
               %i.fa.fa-undo
               Undo
-            %button.btn.btn-secondary.btn-sm{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
+            %button.btn.btn-secondary{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
               %i.fa.fa-redo
               Redo
-          %button.btn.btn-warning.btn-sm{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
+          %button.btn.btn-warning{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
             %i.fa.fa-cog
       .progress.short-progress.rounded-0.d-none{ id: "loading_#{uid}" }
         .progress-bar.progress-bar-striped.progress-bar-animated.w-100
