@@ -47,9 +47,9 @@
         .row
           .col
             %label Line wrapping:
-            %button.btn.btn-sm.btn-block.btn-danger{ onclick: "editors[#{uid}].Wrap(this)" }
+            %button.btn.btn-block.btn-danger{ onclick: "editors[#{uid}].Wrap(this)" }
               off
           .col
             %label Parenthesis matching:
-            %button.btn.btn-sm.btn-block.btn-danger{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);" }
+            %button.btn.btn-block.btn-danger{ id: "match_#{uid}", onclick: "editors[#{uid}].Match(this);" }
               off
