@@ -1,4 +1,4 @@
-/srv/obs/log/[^s]*.log /srv/obs/log/s[^r]* /srv/obs/log/srcrep.log /srv/obs/log/src_server.log {
+/srv/obs/log/[^s]*.log /srv/obs/log/s[^r]*.log /srv/obs/log/srcrep.log /srv/obs/log/src_server.log {
     su obsrun obsrun
     compress
     dateext
