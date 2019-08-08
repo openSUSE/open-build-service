@@ -1,6 +1,6 @@
 include ../../Makefile.include
 
-OBS_BACKEND_DATA_SUBDIRS := build events info jobs log projects repos run sources trees workers
+OBS_BACKEND_DATA_SUBDIRS := build events info jobs log projects repos run sources trees workers service
 OBS_BACKEND_DATA_DIR := /srv/obs
 
 prepare_dirs:
@@ -27,6 +27,7 @@ install_data_dirs: prepare_dirs
 	$(foreach data_dir,$(OBS_BACKEND_DATA_SUBDIRS), \
 		$(shell $(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/$(data_dir) ) \
 	)
+	install -d -m 700 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/gnupg
 
 
 test_unit: bs_config
