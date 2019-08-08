@@ -8,7 +8,7 @@
   %hr
   .row
     - (action[:sourcediff] || []).each do |sourcediff|
-      .col-md-8
+      .col-lg-8
         .clearfix.mb-2
           .btn-group.float-right
             %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: action[:spkg] } }
@@ -42,7 +42,7 @@
             .mb-2
               %p.lead
                 No source changes.
-      .col-md-4
+      .col-lg-4
         = render partial: 'webui2/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_counter }
         - if sourcediff['issues'].present?
           = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
