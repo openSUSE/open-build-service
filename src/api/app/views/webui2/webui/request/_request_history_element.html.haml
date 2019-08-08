@@ -11,5 +11,4 @@
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
         #{time_ago_in_words(element.created_at)} ago
 
-    .text-muted
-      = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment }

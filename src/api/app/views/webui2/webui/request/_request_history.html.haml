@@ -8,7 +8,6 @@
       = link_to('#request-creation', title: l(bs_request.created_at.utc), name: 'request-creation') do
         #{time_ago_in_words(bs_request.created_at)} ago
 
-    .text-muted
-      = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
 
 = render partial: 'request_history_element', collection: history, as: :element
