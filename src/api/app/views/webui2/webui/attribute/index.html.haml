@@ -7,11 +7,11 @@
   .card-body
     %h3= @pagetitle
     - if @attributes.present?
-      %table.responsive.table.table-striped.table-bordered#attributes
+      %table.responsive.table.table-striped.table-bordered.w-100#attributes
         %thead
           %tr
-            %th.w-50 Attributes
-            %th.w-25 Values
+            %th Attributes
+            %th Values
             - if can_update_container
               %th Actions
         %tbody
