@@ -4,7 +4,9 @@
       %i.fa.fa-lg{ icon_for_status(message) }
     .col
       = user_with_realname_and_icon(message.user, short: true)
-      wrote #{time_ago_in_words(message.created_at)} ago
+      wrote
+      %u
+        #{time_ago_in_words(message.created_at)} ago
       - if User.admin_session?
         .float-right
           = link_to(status_message_path(message), method: :delete, title: 'Remove status message') do
