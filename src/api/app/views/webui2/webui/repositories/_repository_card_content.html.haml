@@ -2,7 +2,7 @@
 .card-body
   - if repository.path_elements.present?
     %strong Repository paths:
-    %ul.list-unstyled.ml-3
+    %ol.list-unstyled.ml-3
       - repository.path_elements.each_with_index do |path, index|
         - if index < number_paths
           = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
