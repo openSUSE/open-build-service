@@ -797,4 +797,39 @@ RSpec.describe Package, vcr: true do
 
     it { expect { first_maintained_package.add_containers({}) }.not_to raise_error }
   end
+
+  describe '#resolve_devel_package' do
+    let!(:stable_project) { create(:project, name: 'stable_project') }
+    let!(:stable_apache) { create(:package, name: 'apache', project: stable_project) }
+
+    let!(:unstable_project) { create(:project, name: 'unstable_project') }
+    let!(:unstable_apache) { create(:package, name: 'apache', project: unstable_project) }
+
+    subject { stable_apache.resolve_devel_package }
+
+    context 'with develproject' do
+      before do
+        stable_project.develproject = unstable_project
+      end
+
+      it { expect(subject).to eq(unstable_apache) }
+    end
+
+    context 'with develpackage' do
+      before do
+        stable_apache.develpackage = unstable_apache
+      end
+
+      it { expect(subject).to eq(unstable_apache) }
+    end
+
+    context 'with cycle' do
+      before do
+        stable_apache.develpackage = unstable_apache
+        unstable_apache.develpackage = stable_apache
+      end
+
+      it { expect { subject }.to raise_error(Package::CycleError) }
+    end
+  end
 end
