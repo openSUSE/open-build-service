@@ -11,8 +11,8 @@
       .col-md-8
         %h3#project-title
           = @project.title.presence || @project
-          - if @project.url.present?
-            %small= link_to(@project.url, @project.url)
+        - if @project.url.present?
+          = link_to(@project.url, @project.url, class: 'mb-3 d-block')
         #description-text
           - if @project.description.blank?
             %i No description set
