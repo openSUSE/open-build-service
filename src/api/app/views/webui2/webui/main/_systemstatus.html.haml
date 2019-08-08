@@ -3,12 +3,12 @@
   .card-body
     - if busy
       .aligncenter#overallgraph
-      %p.text-muted.small
+      %p
         The above graphs show the number of active build jobs last week,
         currently #{building_workers} of #{overall_workers} build hosts
         are busy building packages.
         At the moment #{waiting_packages} packages are waiting on the different architectures.
-    %p.text-muted.small
+    %p
       = host_title
       hosts
       %b= number_with_delimiter(system_stats[:projects])
