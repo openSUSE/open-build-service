@@ -11,12 +11,12 @@
         -# rubocop:enable Rails/OutputSafety
         .row.no-gutters.text-center#proceed-list
           = render partial: 'proceed-list'
-    = render(partial: 'systemstatus', locals: { busy: @busy,
-                                                building_workers: @building_workers,
-                                                overall_workers: @overall_workers,
-                                                waiting_packages: @waiting_packages,
-                                                host_title: @configuration['title'],
-                                                system_stats: @system_stats })
+    = render(partial: 'system_status', locals: { busy: @busy,
+                                                 building_workers: @building_workers,
+                                                 overall_workers: @overall_workers,
+                                                 waiting_packages: @waiting_packages,
+                                                 host_title: @configuration['title'],
+                                                 system_stats: @system_stats })
   .col-md-4
     - if !User.session && can_register
       .card.mb-3
