@@ -21,8 +21,7 @@ function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
   var defaultRemoteParams = {
     processing: true,
     serverSide: true,
-    ajax: $(cssSelector).data('source'),
-    pagingType: 'full_numbers'
+    ajax: $(cssSelector).data('source')
   };
   var newParams = $.extend(defaultRemoteParams, DEFAULT_DT_PARAMS, params);
 
