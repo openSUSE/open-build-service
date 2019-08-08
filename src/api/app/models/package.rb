@@ -723,12 +723,11 @@ class Package < ApplicationRecord
         # Take project wide devel project definitions into account
         prj = pkg.project.develproject
         prj_name = prj.name
-        pkg = prj.packages.get_by_name(pkg.name)
+        pkg = prj.packages.find_by(name: pkg.name)
         return if pkg.nil?
       end
       pkg = self if pkg.id == id
     end
-    # logger.debug "WORKED - #{pkg.inspect}"
     pkg
   end
 
