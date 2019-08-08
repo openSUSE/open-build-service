@@ -1,0 +1,16 @@
+.card.mb-3
+  %h5.card-header
+    System Status
+    - if busy
+      %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
+                                                  content: render(partial: 'system_status_legend',
+                                                                  locals: { building_workers: building_workers,
+                                                                            overall_workers: overall_workers,
+                                                                            waiting_packages: waiting_packages,
+                                                                            host_title: host_title,
+                                                                            system_stats: system_stats }) } }
+  .card-body
+    - if busy
+      .aligncenter#overallgraph
+  :javascript
+    plotbusyworkers(#{Webui::MonitorHelper.print_statistics_array(busy)});

@@ -1,0 +1,23 @@
+%p
+  The
+  %em System Status
+  graph shows the number of active build jobs for this week.
+  %b= building_workers
+  of
+  %b= overall_workers
+  build hosts are currently building packages.
+%p
+  At the moment,
+  %b= waiting_packages
+  packages are waiting on the different architectures.
+%p
+  = host_title
+  hosts
+  %b= number_with_delimiter(system_stats[:projects])
+  projects, with
+  %b= number_with_delimiter(system_stats[:packages])
+  packages, in
+  %b= number_with_delimiter(system_stats[:repositories])
+  repositories and is used by
+  %b= number_with_delimiter(system_stats[:users])
+  confirmed developers.
