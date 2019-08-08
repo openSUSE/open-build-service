@@ -1,7 +1,7 @@
 - number_paths = 3
 .card-body
   - if repository.path_elements.present?
-    Repository paths:
+    %strong Repository paths:
     %ul.list-unstyled.ml-3
       - repository.path_elements.each_with_index do |path, index|
         - if index < number_paths
