@@ -15,7 +15,7 @@ Read this guide on how to do that.
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
 6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
-
+7. [How to Setup an OBS Development Environment on macOS](#how-to-setup-an-obs-development-environment-on-macos)
 
 # How to Contribute Code
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
@@ -245,6 +245,45 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     ```
 
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
+
+# How to Setup an OBS Development Environment on macOS
+The Open Build Service requires a case-sensitive filesystem. You can check if your Mac uses a case-sensitive filesystem
+in the Diskutil for example. If not there are a couple of ways to work around this problem. One of them is to create
+a Apple Disk Image with a case-sensitive filesystem and to run the Open Build Service docker setup from there.
+
+#### Prerequirements:
+* Ruby
+* Rake
+* GIT
+* Docker & Docker-Compose (you can get the stable version through the following link
+  [Docker stable for macOS](https://download.docker.com/mac/stable/Docker.dmg). It already includes docker-compose)
+
+1. Create the Apple Disk Image with a case-sensitive filesystem (in this example 'case-sensitive HFS+')
+```bash
+hdiutil create -megabytes 4096 -fs 'Case-sensitive Journaled HFS+' -volname OBS ./obs.dmg
+```
+
+2. Mount the Apple Disk Image
+
+```bash
+hdiutil attach ./obs.dmg
+```
+
+The "hdiutil attach" output should show where the image got mounted (usually somewhere in '/Volumes')
+
+```bash
+/dev/disk9s2    Apple_HFS    /Volumes/OBS
+```
+
+3. Navigate into the mounted Volume
+```bash
+cd /Volumes/OBS
+```
+4. Start Docker through the Launchpad. A small docker icon should show up in the systemtray (you can see the current state of the service by clicking on it).
+
+5. Follow the instructions **3-6** from the [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment) chapter.
+
+
 
 # Happy Hacking! - :heart: Your Open Build Service Team
 
