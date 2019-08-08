@@ -84,7 +84,7 @@
       .card-header.d-flex.justify-content-between
         %h5
           Request History
-      .card-body.small#request-history
+      .card-body#request-history
         = render partial: 'request_history', locals: { bs_request: @bs_request, history: @history }
 
 - if User.session

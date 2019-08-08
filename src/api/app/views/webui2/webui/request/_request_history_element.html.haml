@@ -1,6 +1,6 @@
 %hr
 .media.mt-2
-  = image_tag_for(element.user, size: 32, custom_class: 'mr-3')
+  = image_tag_for(element.user, size: 38, custom_class: 'mr-3')
   .media-body
     %p
       = link_to(element.user, user_show_path(element.user))
@@ -11,5 +11,4 @@
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
         #{time_ago_in_words(element.created_at)} ago
 
-    .text-muted
-      = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment }
+    = render partial: 'webui/webui/collapsible_text', locals: { text: element.comment }
