@@ -1,5 +1,5 @@
-.row
-  .col
+.row.mb-3
+  .col-12.col-md-5
     %p
       During this period
       = render partial: 'pulse_list_commits', locals: { commits: commits, updates: updates }
@@ -11,7 +11,7 @@
       = render partial: 'pulse_list_branches', locals: { branches: branches }
       = render partial: 'pulse_list_comments', locals: { comments: comments }
 
-  .col
+  .col-12.col-md-7
     = render partial: 'pulse_list_requests_box', locals: { project: project,
                                                            requests: requests,
                                                            requests_by_percentage: requests_by_percentage,
