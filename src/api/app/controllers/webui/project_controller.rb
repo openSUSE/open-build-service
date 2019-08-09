@@ -430,7 +430,7 @@ class Webui::ProjectController < Webui::WebuiController
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     unless User.session!.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
-      @error = "Can't create attributes in #{@package}"
+      flash.now[:error] = "Can't create attributes in #{@package}"
       return
     end
 
