@@ -19,7 +19,7 @@
     "build-results"
     "comments";
   @include media-breakpoint-up(lg) {
-    grid-template-columns: 1fr 350px;
+    grid-template-columns: 2fr 1fr;
     grid-template-rows: auto 1fr;
     grid-template-areas:
       "list     build-results"
