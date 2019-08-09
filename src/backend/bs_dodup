@@ -370,7 +370,7 @@ sub cmppkg {
 }
 
 sub addpkg {
-  my ($cache, $p, $archfilter) = @_; 
+  my ($cache, $p, $archfilter, $doddata) = @_; 
 
   return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
   return if $archfilter && !$archfilter->{$p->{'arch'}};
@@ -378,7 +378,8 @@ sub addpkg {
     return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
   }
   $p->{'path'} = delete $p->{'location'};
-  my $key = "$p->{'name'}.$p->{'arch'}";
+  # Index the cache with the DoD architecure (scheduler) name. not the package architecture name, a package can change its architecture between multiple versions
+  my $key = "$p->{'name'}.$doddata->{'arch'}";
   return if $cache->{$key} && cmppkg($cache->{$key}, $p) > 0;   # highest version only
   $cache->{$key} = $p; 
 }
@@ -393,7 +394,7 @@ sub parsemetadata {
       $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
     }
   }
-  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $doddata) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
   $baseurl =~ s/\/$//;
   $cache->{'/url'} = $baseurl;
   BSUtil::store("$file.parsed", $file, $cache);
