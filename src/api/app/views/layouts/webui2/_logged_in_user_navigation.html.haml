@@ -1,6 +1,8 @@
 %li.nav-item
   = link_to(home_path, id: 'link-to-user-home', class: 'nav-link') do
     = User.session!.login
+%li.nav-item.dropdown
+  = render partial: 'layouts/webui2/watchlist_dropdown'
 %li.nav-item
   - tasks = User.session!.tasks
   = link_to(user_tasks_path, class: 'nav-link') do

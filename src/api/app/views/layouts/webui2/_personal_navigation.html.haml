@@ -1,4 +1,4 @@
-%ul.nav.nav-pills.justify-content-end
+%ul.navbar-nav
   - if User.session
     = render partial: 'layouts/webui2/logged_in_user_navigation'
   - elsif CONFIG['kerberos_mode']

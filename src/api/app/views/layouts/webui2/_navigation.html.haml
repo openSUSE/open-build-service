@@ -5,9 +5,8 @@
                           aria: { controls: 'global-navigation', expanded: 'false', label: 'Toggle navigation' } }
     %span.navbar-toggler-icon
   .collapse.navbar-collapse#global-navigation
-    %ul.navbar-nav.ml-auto
-      - if User.session
-        %li.nav-item.dropdown
-          = render partial: 'layouts/webui2/watchlist_dropdown'
+    %ul.navbar-nav
       %li.nav-item
         = render partial: 'layouts/webui2/search'
+    .col-auto.ml-auto#personal-navigation
+      = render partial: 'layouts/webui2/personal_navigation'

@@ -1,10 +1,10 @@
 #personal-navigation {
     & .nav-item a {
         font-size: 0.9rem;
-        color: $primary;
+        color: $gray-400;
 
         &:hover {
-            color: $secondary;
+            color: $gray-300;
         }
     }
 
