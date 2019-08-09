@@ -11,9 +11,9 @@
       .col-md-8
         .clearfix.mb-2
           .btn-group.float-right
-            %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: action[:spkg] } }
+            %button.btn.btn-outline-secondary.expand-diffs{ data: { package: action[:spkg] } }
               Expand all
-            %button.btn.btn-sm.btn-outline-secondary.collapse-diffs{ data: { package: action[:spkg] } }
+            %button.btn.btn-outline-secondary.collapse-diffs{ data: { package: action[:spkg] } }
               Collapse all
 
         - if sourcediff[:error]
