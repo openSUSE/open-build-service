@@ -7,14 +7,26 @@ body {
 }
 
 #footer {
-  background-color: $gray-300;
+  strong {
+    color: $gray-300;
+  }
 
   & a {
     font-size: .9rem;
-    color: $link-hover-color;
+    color: $gray-400;
 
     &:hover {
-        color: $link-color;
+        color: $gray-300;
+    }
+  }
+
+  ul {
+    @extend .list-unstyled;
+    @extend .mt-1;
+  }
+  #footer-legal {
+    p {
+      color: $gray-300;
     }
   }
 }
