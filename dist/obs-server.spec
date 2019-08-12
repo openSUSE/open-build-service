@@ -720,6 +720,7 @@ fi
 %attr(0755, obsrun, obsrun) %dir %{obs_backend_data_dir}/projects
 %attr(0775, obsrun, obsrun) %dir %{obs_backend_data_dir}/run
 %attr(0755, obsservicerun, obsrun) %dir %{obs_backend_data_dir}/service
+%attr(0755, obsservicerun, obsrun) %dir %{obs_backend_data_dir}/service/log
 
 
 # formerly obs-source_service
