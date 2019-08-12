@@ -1,7 +1,7 @@
 .row
   - if User.session
     .col
-      %strong
+      %strong.text-uppercase
         = User.session!
       %ul
         %li= link_to('Your Profile', user_show_path(User.session!))
@@ -12,14 +12,14 @@
         %li= link_to('Logout', session_destroy_path, method: :delete)
   - if ::Configuration.anonymous
     .col
-      %strong Locations
+      %strong.text-uppercase Locations
       %ul
         %li= link_to('Projects', projects_path)
         %li= link_to('Search', search_path, class: 'search-link')
         - unless @spider_bot
           %li= link_to('Status Monitor', monitor_path)
   .col
-    %strong Help
+    %strong.text-uppercase Help
     %ul
       %li= link_to('Open Build Service', 'http://openbuildservice.org/')
       %li= link_to('OBS Manuals', 'http://openbuildservice.org/help/manuals/')
@@ -29,13 +29,13 @@
       - if Announcement.last.present?
         %li= link_to('Latest Announcement', announcement_path(Announcement.last))
   .col
-    %strong Contact
+    %strong.text-uppercase Contact
     %ul
       %li= link_to('Mailing List', 'http://lists.opensuse.org/opensuse-buildservice/')
       %li= link_to('Forums', 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29')
       %li= link_to('Chat (IRC)', 'irc://irc.opensuse.org/opensuse-buildservice')
       %li= link_to('Twitter', 'http://twitter.com/OBShq')
-.row#footer-legal
+.row.mt-4#footer-legal
   .col
     %p.text-center
       = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')

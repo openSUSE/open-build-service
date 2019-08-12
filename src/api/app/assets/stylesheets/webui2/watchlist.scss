@@ -4,4 +4,12 @@
       z-index: 1050;
     }
   }
+
+  #watchlist {
+    color: $gray-400;
+
+    &:hover {
+      color: $gray-300;
+    }
+  }
 }
