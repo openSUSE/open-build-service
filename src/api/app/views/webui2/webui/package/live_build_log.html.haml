@@ -35,5 +35,7 @@
       = render partial: 'live_build_log_controls'
 
 :javascript
-  liveLog = new LiveLog('#log-space-wrapper', '.start_refresh', '.stop_refresh', '#status', #{@finished}, '#log-info').initialize();
+  liveLog = new LiveLog('#log-space-wrapper', '.start_refresh', '.stop_refresh', '#status', #{@finished}, '#log-info',
+                        '#{path_to_image('favicon-warning.ico')}', '#{path_to_image('favicon-info.ico')}',
+                        '#{path_to_image('favicon.ico')}').initialize();
 

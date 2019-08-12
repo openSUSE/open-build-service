@@ -1,8 +1,11 @@
-var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info) {
+var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info, faviconFinished, faviconRunning, faviconPaused) {
   this.wrapper = $(wrapperId);
   this.startButton = $(startButton);
   this.stopButton = $(stopButton);
   this.status = $(status);
+  this.faviconFinished = faviconFinished;
+  this.faviconRunning = faviconRunning;
+  this.faviconPaused = faviconPaused;
   this.initial = true;
   this.lastScroll = 0;
   this.ajaxRequest = 0;
@@ -27,6 +30,7 @@ $.extend(LiveLog.prototype, {
       this.lastScroll = 0;
       this.loadContent();
       this.indicatorStatus('running');
+      this.faviconStatus(this.faviconRunning);
       this.startButton.hide();
       this.stopButton.show();
     }
@@ -36,6 +40,7 @@ $.extend(LiveLog.prototype, {
   stop: function() {
     this.autoRefresh = false;
     this.indicatorStatus('paused');
+    this.faviconStatus(this.faviconPaused);
     this.stopAjaxRequest();
     this.stopButton.hide();
     this.startButton.show();
@@ -71,6 +76,7 @@ $.extend(LiveLog.prototype, {
     this.stop();
     this.status.html('Build finished');
     this.indicatorStatus('finished');
+    this.faviconStatus(this.faviconFinished);
     this.hideAbort();
   },
 
@@ -93,6 +99,11 @@ $.extend(LiveLog.prototype, {
   indicatorStatus: function(status) { // jshint ignore:line
     this.logInfo.children().hide();
     this.logInfo.children('.' + status).show();
+  },
+
+  faviconStatus: function(source) { // jshint ignore:line
+    if (typeof source !== 'undefined')
+      $("link[rel='shortcut icon']").attr("href", source);
   },
 
   checkScroll: function() {

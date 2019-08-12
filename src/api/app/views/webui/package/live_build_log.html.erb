@@ -47,5 +47,7 @@
 <% end %>
 
 <%= content_for :ready_function do %>
-  liveLog = new LiveLog('#log_space_wrapper', '.start_refresh', '.stop_refresh', '#status', <%= @finished %>, '#log-info').initialize();
+  liveLog = new LiveLog('#log_space_wrapper', '.start_refresh', '.stop_refresh', '#status', <%= @finished %>, '#log-info',
+                        '<%= path_to_image('favicon-warning.ico') %>', '<%= path_to_image('favicon-info.ico') %>',
+                        '<%= path_to_image('favicon.ico') %>').initialize();
 <% end -%>
