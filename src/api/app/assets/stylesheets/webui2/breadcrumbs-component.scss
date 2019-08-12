@@ -4,8 +4,13 @@ ol.breadcrumb {
   & li {
     font-size: 0.9rem;
 
+    &.active {
+      color: $gray-700;
+      font-weight: bold;
+    }
+
     & a {
-      color: $gray-600;
+      color: $gray-700;
     }
   }
 }
