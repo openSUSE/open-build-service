@@ -6,25 +6,22 @@ $gray-300: #e9ecef;
 $gray-400: #aeaeae;
 $gray-500: #878c92;
 
-$obs_green: #008000;
-$obs_blue: #069;
-$obs_yellow: #f0ad4e;
-$obs_cyan: #007a7c;
-
-$primary: $obs_green;
-$secondary: $obs_blue;
-$warning: $obs_yellow;
-$info: $obs_cyan;
-$success: $obs_green;
-
-$card-cap-bg: $gray-200;
-$link-hover-color: $obs_green;
-$link-color: $obs_blue;
-
-$blue: #00f;
-$green: #090;
+$blue: #069;
+$green: #008000;
 $pink: #708;
 $indigo: #219;
 $purple: #30a;
 $teal: #164;
 $orange: #a50;
+$yellow: #f0ad4e;
+$cyan: #007a7c;
+
+$primary: $green;
+$secondary: $blue;
+$warning: $yellow;
+$info: $cyan;
+$success: $green;
+
+$card-cap-bg: $gray-200;
+$link-hover-color: $green;
+$link-color: $blue;
