@@ -51,6 +51,16 @@
   color: $yellow;
 }
 
+.table-striped .odd {
+  .build-state-succeeded {
+    color: darken($green, 5%);
+  }
+
+  .build-state-unresolvable, .build-state-broken, .build-state-failed {
+    color: darken($red, 10%);
+  }
+}
+
 .repository-state-default {
   @extend .text-black-50;
 }
