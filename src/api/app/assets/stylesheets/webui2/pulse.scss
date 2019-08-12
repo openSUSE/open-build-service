@@ -1,14 +1,14 @@
 #pulse {
   .request-state-new {
-    color: $obs_blue;
+    color: $blue;
   }
 
   .request-state-review {
-    color: $obs_yellow;
+    color: $yellow;
   }
 
   .request-state-accepted {
-    color: $obs_green;
+    color: $green;
   }
 
   .request-state-declined {
@@ -24,15 +24,15 @@
   }
 
   .progress-state-new {
-    background-color: $obs_blue;
+    background-color: $blue;
   }
 
   .progress-state-review {
-    background-color: $obs_yellow;
+    background-color: $yellow;
   }
 
   .progress-state-accepted {
-    background-color: $obs_green;
+    background-color: $green;
   }
 
   .progress-state-declined {
