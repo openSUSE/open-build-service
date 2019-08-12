@@ -40,18 +40,18 @@
   .cm-error {color: $danger;}
 
   .cm-negative {
-    color: $danger;
+    color: inherit;
   }
 
   .CodeMirror-negative-line {
-    background: rgba($danger, 0.1);
+    background: rgba($danger, 0.3);
   }
   .cm-positive {
-    color: $success;
+    color: inherit;
   }
 
   .CodeMirror-positive-line {
-    background: rgba($success, 0.1);
+    background: rgba($success, 0.3);
   }
 
   .CodeMirror-gutters {
