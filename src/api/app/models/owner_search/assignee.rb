@@ -87,6 +87,9 @@ module OwnerSearch
 
     def parse_binary_info(b, prj)
       return unless b['project'] == prj.name
+      # a binary without a package container? can only only happen
+      # with manual snapshot repos...
+      return if b['package'].blank?
 
       package_name = b['package']
       package_name.gsub!(/\.[^\.]*$/, '') if prj.is_maintenance_release?
