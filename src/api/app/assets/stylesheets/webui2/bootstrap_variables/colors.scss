@@ -6,13 +6,16 @@ $gray-300: #e9ecef;
 $gray-400: #aeaeae;
 $gray-500: #878c92;
 
-$obs_green: #690;
+$obs_green: #008000;
 $obs_blue: #069;
 $obs_yellow: #f0ad4e;
+$obs_cyan: #007a7c;
 
 $primary: $obs_green;
 $secondary: $obs_blue;
 $warning: $obs_yellow;
+$info: $obs_cyan;
+$success: $obs_green;
 
 $card-cap-bg: $gray-200;
 $link-hover-color: $obs_green;
