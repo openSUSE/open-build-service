@@ -481,6 +481,7 @@ DEPENDENCIES
   cocoon
   codecov
   codemirror-rails
+  coderay
   coffee-rails
   colorize
   coveralls
