@@ -1070,7 +1070,7 @@ class Package < ApplicationRecord
     return false if name == '0'
     return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
-    allowed_characters = /[-+\w\.#{ allow_multibuild ? ':' : '' }]/
+    allowed_characters = /[-+\w\.#{allow_multibuild ? ':' : ''}]/
     reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
     reg_exp.match?(name)
   end

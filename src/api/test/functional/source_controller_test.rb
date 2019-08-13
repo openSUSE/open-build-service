@@ -76,7 +76,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source?cmd=orderkiwirepos', params: kiwi_config_http, headers: { 'Content-Type' => 'text/xml' }
     assert_response 200
     converted_xml = Xmlhash.parse(response.body)
-    first  = converted_xml['repository'].first
+    first = converted_xml['repository'].first
     second = converted_xml['repository'].second
     assert_equal first['source']['path'], 'http://example.com/download/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
     assert_equal second['source']['path'], 'http://example.com/download/BaseDistro2.0/BaseDistro2_repo'
@@ -97,7 +97,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source?cmd=orderkiwirepos', params: kiwi_config_obs, headers: { 'Content-Type' => 'text/xml' }
     assert_response 200
     converted_xml = Xmlhash.parse(response.body)
-    first  = converted_xml['repository'].first
+    first = converted_xml['repository'].first
     second = converted_xml['repository'].second
     assert_equal first['source']['path'], 'obs://BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
     assert_equal second['source']['path'], 'obs://BaseDistro2.0/BaseDistro2_repo'
