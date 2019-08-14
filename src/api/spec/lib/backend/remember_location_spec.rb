@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe Backend::RememberLocation do
   let(:with_remember_location_class) do
     Class.new do
+      extend Backend::RememberLocation
+
       def self.run
         raise 'Backend module missing' unless Thread.current[:_influxdb_obs_backend_api_module] == 'WithRememberLocation'
         raise 'Backend method missing' unless Thread.current[:_influxdb_obs_backend_api_method] == 'run'
