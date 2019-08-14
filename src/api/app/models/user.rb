@@ -281,7 +281,7 @@ class User < ApplicationRecord
       mark_login!
       self
     else
-      update_attributes!(login_failure_count: login_failure_count + 1)
+      count_login_failure
       nil
     end
   end
@@ -860,6 +860,10 @@ class User < ApplicationRecord
 
   def mark_login!
     update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
+  end
+
+  def count_login_failure
+    update_attributes(login_failure_count: login_failure_count + 1)
   end
 
   def send_metric_for_beta_change

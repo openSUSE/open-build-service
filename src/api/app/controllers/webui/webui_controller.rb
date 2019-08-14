@@ -178,7 +178,10 @@ class Webui::WebuiController < ActionController::Base
 
       if User.session!.is_active?
         User.session!.update_user_info_from_proxy_env(request.env)
+        User.session!.mark_login!
+        send_login_information_rabbitmq(:success)
       else
+        User.session!.count_login_failure
         session[:login] = nil
         User.session = User.find_nobody!
         send_login_information_rabbitmq(:disabled) if previous_user != User.possibly_nobody.login

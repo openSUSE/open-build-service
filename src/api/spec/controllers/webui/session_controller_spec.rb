@@ -129,16 +129,7 @@ RSpec.describe Webui::SessionController do
 
     before do
       # Fake proxy mode
-      stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on))
-    end
-
-    it 'logs in a user when the header is set' do
-      request.headers['HTTP_X_USERNAME'] = user.login
-
-      # a rather unusual place to go, but this isn't really
-      # about the session controller but about basic proxy mode
-      get :new
-      expect(User.session!).to eq(user)
+      stub_const('CONFIG', CONFIG.merge('proxy_auth_mode' => :on, 'proxy_auth_logout_page' => '/'))
     end
 
     it 'does not log in any user when no header is set' do
@@ -146,17 +137,66 @@ RSpec.describe Webui::SessionController do
       expect(User.session).to be_nil
     end
 
-    it 'creates a new user account if user does not exist in OBS' do
-      request.headers['HTTP_X_USERNAME'] = username
-      request.headers['HTTP_X_EMAIL'] = 'new_user@obs.com'
-      request.headers['HTTP_X_FIRSTNAME'] = 'Bob'
-      request.headers['HTTP_X_LASTNAME'] = 'Geldof'
+    context 'when header is set' do
+      before do
+        request.headers['HTTP_X_USERNAME'] = user.login
+      end
 
-      get :new
-      user = User.where(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
-      expect(user).to exist
+      it 'logs in a user' do
+        # a rather unusual place to go, but this isn't really
+        # about the session controller but about basic proxy mode
+        get :new
+        expect(User.session!).to eq(user)
+      end
 
-      expect(User.session!.login).to eq(user.first.login)
+      it 'updates last_logged_in_at and login_failure_count' do
+        user.update_attributes(last_logged_in_at: nil)
+
+        get :new
+        expect(user.reload.last_logged_in_at).not_to be_nil
+        expect(user.login_failure_count).to eq(0)
+      end
+    end
+
+    context 'when user does not exist in OBS' do
+      before do
+        request.headers['HTTP_X_USERNAME'] = username
+        request.headers['HTTP_X_EMAIL'] = 'new_user@obs.com'
+        request.headers['HTTP_X_FIRSTNAME'] = 'Bob'
+        request.headers['HTTP_X_LASTNAME'] = 'Geldof'
+      end
+
+      it 'creates a new user account' do
+        get :new
+        user = User.where(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
+        expect(user).to exist
+
+        expect(User.session!.login).to eq(user.first.login)
+      end
+
+      it 'sets last_logged_in_at and login_failure_count on creation' do
+        get :new
+        user = User.find_by(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
+        expect(user.last_logged_in_at).not_to be_nil
+        expect(user.login_failure_count).to eq(0)
+      end
+    end
+
+    context 'when the user is not confirmed' do
+      let!(:unconfirmed_user) { create(:user, login: 'unconfirmed_proxy_user') }
+      let(:username) { 'unconfirmed_user' }
+
+      before do
+        request.headers['HTTP_X_USERNAME'] = unconfirmed_user.login
+      end
+
+      it 'tracks a failure and send message to RabbitMQ', rabbitmq: '#' do
+        expect(unconfirmed_user.reload.login_failure_count).to eq(0)
+        get :new
+        expect(unconfirmed_user.reload.login_failure_count).to eq(1)
+        expect(User.session).to be_nil
+        expect_message('opensuse.obs.metrics', 'user.create value=1')
+      end
     end
   end
 end
