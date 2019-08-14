@@ -9,6 +9,14 @@ RSpec.describe User do
   let(:input) { { 'Event::RequestCreate' => { source_maintainer: '1' } } }
   let(:project_with_package) { create(:project_with_package, name: 'project_b') }
 
+  before do
+    Timecop.freeze(Time.zone.today)
+  end
+
+  after do
+    Timecop.return
+  end
+
   describe 'validations' do
     it { is_expected.to validate_presence_of(:login).with_message('must be given') }
     it { is_expected.to validate_length_of(:login).is_at_least(2).with_message('must have more than two characters') }
@@ -85,7 +93,7 @@ RSpec.describe User do
       user = User.new
       expect(user.last_logged_in_at).to be(nil)
       user.save
-      expect(user.last_logged_in_at).to be_within(30.seconds).of(Time.now)
+      expect(user.last_logged_in_at).to eq(Time.zone.today)
     end
   end
 
@@ -418,12 +426,12 @@ RSpec.describe User do
 
   describe '.mark_login!' do
     before do
-      user.update_attributes!(login_failure_count: 7, last_logged_in_at: 3.hours.ago)
+      user.update_attributes!(login_failure_count: 7, last_logged_in_at: Time.zone.yesterday)
       user.mark_login!
     end
 
     it "updates the 'last_logged_in_at'" do
-      expect(user.last_logged_in_at).to be > 30.seconds.ago
+      expect(user.last_logged_in_at).to eq(Time.zone.today)
     end
 
     it "resets the 'login_failure_count'" do
@@ -432,14 +440,14 @@ RSpec.describe User do
   end
 
   describe '#find_with_credentials' do
-    let(:user) { create(:user, login: 'login_test', login_failure_count: 7, last_logged_in_at: 3.hours.ago) }
+    let(:user) { create(:user, login: 'login_test', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday) }
 
     context 'when user exists' do
       subject { User.find_with_credentials(user.login, 'buildservice') }
 
       it { is_expected.to eq(user) }
       it { expect(subject.login_failure_count).to eq(0) }
-      it { expect(subject.last_logged_in_at).to be > 30.seconds.ago }
+      it { expect(subject.last_logged_in_at).to eq(Time.zone.today) }
     end
 
     context 'when user does not exist' do
@@ -461,7 +469,7 @@ RSpec.describe User do
       end
 
       let(:user) do
-        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: 3.hours.ago, email: 'tux@suse.de')
+        create(:user, login: 'tux', realname: 'penguin', login_failure_count: 7, last_logged_in_at: Time.zone.yesterday, email: 'tux@suse.de')
       end
 
       before do
@@ -475,7 +483,7 @@ RSpec.describe User do
 
         it { is_expected.to eq(user) }
         it { expect(subject.login_failure_count).to eq(0) }
-        it { expect(subject.last_logged_in_at).to be > 30.seconds.ago }
+        it { expect(subject.last_logged_in_at).to eq(Time.zone.today) }
 
         it 'updates user data received from the LDAP server' do
           expect(subject.email).to eq('John@obs.de')
@@ -493,7 +501,7 @@ RSpec.describe User do
           expect(subject.realname).to eq('new_user')
           expect(subject.state).to eq('confirmed')
           expect(subject.login_failure_count).to eq(0)
-          expect(subject.last_logged_in_at).to be > 30.seconds.ago
+          expect(subject.last_logged_in_at).to eq(Time.zone.today)
         end
       end
     end

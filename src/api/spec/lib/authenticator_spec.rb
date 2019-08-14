@@ -9,6 +9,11 @@ RSpec.describe Authenticator do
 
     before do
       allow(session_mock).to receive(:[]).with(:login)
+      Timecop.freeze(Time.zone.today)
+    end
+
+    after do
+      Timecop.return
     end
 
     context 'in proxy mode' do
@@ -101,7 +106,7 @@ RSpec.describe Authenticator do
             expect(authenticator.http_user).to eq(new_user.first)
           end
 
-          it { expect(authenticator.http_user.last_logged_in_at).to be_within(30.seconds).of(Time.now) }
+          it { expect(authenticator.http_user.last_logged_in_at).to eq(Time.zone.today) }
         end
 
         context 'but user is unconfirmed' do

@@ -149,12 +149,11 @@ RSpec.describe Webui::SessionController do
         expect(User.session!).to eq(user)
       end
 
-      it 'updates last_logged_in_at and login_failure_count' do
+      it 'updates last_logged_in_at' do
         user.update_attributes(last_logged_in_at: nil)
 
         get :new
-        expect(user.reload.last_logged_in_at).not_to be_nil
-        expect(user.login_failure_count).to eq(0)
+        expect(user.reload.last_logged_in_at).to eq(Time.zone.today)
       end
     end
 
@@ -174,11 +173,10 @@ RSpec.describe Webui::SessionController do
         expect(User.session!.login).to eq(user.first.login)
       end
 
-      it 'sets last_logged_in_at and login_failure_count on creation' do
+      it 'sets last_logged_in_at on creation' do
         get :new
         user = User.find_by(login: username, realname: 'Bob Geldof', email: 'new_user@obs.com')
-        expect(user.last_logged_in_at).not_to be_nil
-        expect(user.login_failure_count).to eq(0)
+        expect(user.last_logged_in_at).to eq(Time.zone.today)
       end
     end
 

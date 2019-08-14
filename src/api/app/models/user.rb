@@ -149,7 +149,7 @@ class User < ApplicationRecord
     self.state ||= 'unconfirmed'
 
     # Set the last login time etc. when the record is created at first.
-    self.last_logged_in_at = Time.now
+    self.last_logged_in_at = Time.zone.today
 
     self.login_failure_count = 0 if login_failure_count.nil?
   end
@@ -859,7 +859,7 @@ class User < ApplicationRecord
   end
 
   def mark_login!
-    update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
+    update_attributes(last_logged_in_at: Time.zone.today, login_failure_count: 0)
   end
 
   def count_login_failure
