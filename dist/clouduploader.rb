@@ -114,12 +114,12 @@ module CloudUploader
   class Azure
     def initialize(backend_image_file, image_filename, job_data)
       ENV['HOME'] = Dir.pwd
-      @subscription      = job_data['subscription']
-      @storage_account   = job_data['storage_account']
-      @resource_group    = job_data['resource_group']
-      @container         = job_data['container']
-      @image_name        = job_data['image_name'].to_s
-      @image_name        = calculate_image_name(image_filename) if @image_name.empty?
+      @subscription = job_data['subscription']
+      @storage_account = job_data['storage_account']
+      @resource_group = job_data['resource_group']
+      @container = job_data['container']
+      @image_name = job_data['image_name'].to_s
+      @image_name = calculate_image_name(image_filename) if @image_name.empty?
       @uncompressed_file = uncompress(backend_image_file)
       @remote_file_name  = File.basename(@uncompressed_file)
       @application_id, @application_key = decrypt([job_data['application_id'], job_data['application_key']])
