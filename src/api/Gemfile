@@ -85,6 +85,8 @@ gem 'rails-timeago', '~> 2.0'
 gem 'deep_cloneable', '~> 2.4.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
+# Add syntax highlight in ruby
+gem 'coderay'
 
 group :development, :production do
   # to have the delayed job daemon
