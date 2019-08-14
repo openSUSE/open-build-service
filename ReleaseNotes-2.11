@@ -31,6 +31,7 @@ Generic:
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
+ * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror 
 
 Backend & build support:
  * 
