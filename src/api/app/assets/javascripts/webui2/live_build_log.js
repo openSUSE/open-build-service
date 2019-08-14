@@ -1,4 +1,4 @@
-var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info, faviconFinished, faviconRunning, faviconPaused) {
+var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info, faviconFinished, faviconRunning, faviconPaused, faviconSucceeded, faviconFailed) {
   this.wrapper = $(wrapperId);
   this.startButton = $(startButton);
   this.stopButton = $(stopButton);
@@ -6,6 +6,8 @@ var LiveLog = function(wrapperId, startButton, stopButton, status, finished, inf
   this.faviconFinished = faviconFinished;
   this.faviconRunning = faviconRunning;
   this.faviconPaused = faviconPaused;
+  this.faviconSucceeded = faviconSucceeded;
+  this.faviconFailed = faviconFailed;
   this.initial = true;
   this.lastScroll = 0;
   this.ajaxRequest = 0;
@@ -70,12 +72,24 @@ $.extend(LiveLog.prototype, {
     this.lastScroll = window.pageYOffset;
   },
 
-  finish: function() { // jshint ignore:line
+  finish: function(status) { // jshint ignore:line
     this.finished = true;
     this.stop();
-    this.status.html('Build finished');
-    this.indicatorStatus('finished');
-    this.faviconStatus(this.faviconFinished);
+    if (status === 'failed') {
+      this.status.html('Build failed');
+      this.indicatorStatus('failed');
+      this.faviconStatus(this.faviconFailed);
+    }
+    else if (status === 'succeeded') {
+      this.status.html('Build succeeded');
+      this.indicatorStatus('succeeded');
+      this.faviconStatus(this.faviconSucceeded);
+    }
+    else {
+      this.status.html('Build finished');
+      this.indicatorStatus('finished');
+      this.faviconStatus(this.faviconFinished);
+    }
     this.hideAbort();
     this.stopButton.addClass('d-none');
     this.startButton.addClass('d-none');
