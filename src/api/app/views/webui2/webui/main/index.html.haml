@@ -1,7 +1,7 @@
 - @pagetitle = 'Welcome'
 
 .row
-  .col-md-8
+  .col-md-8.col-lg-7
     .card.mb-3
       .card-body
         %h2
@@ -17,7 +17,7 @@
                                                  waiting_packages: @waiting_packages,
                                                  host_title: @configuration['title'],
                                                  system_stats: @system_stats })
-  .col-md-4
+  .col-md-4.col-lg-5
     - if !User.session && can_register
       .card.mb-3
         %h5.card-header New here? Sign up!
