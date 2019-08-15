@@ -13,7 +13,10 @@ class EventSubscription < ApplicationRecord
     target_watcher: 'Watching the target project'
   }.freeze
 
-  enum channel: [:disabled, :instant_email]
+  enum channel: {
+    disabled: 0,
+    instant_email: 1
+  }
 
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
