@@ -1,8 +1,27 @@
 class Kiwi::Preference < ApplicationRecord
   belongs_to :image, inverse_of: :preferences
 
-  enum type_image: [:btrfs, :clicfs, :cpio, :docker, :ext2, :ext3, :ext4, :iso, :lxc, :oem,
-                    :product, :pxe, :reiserfs, :split, :squashfs, :tbz, :vmx, :xfs, :zfs], _prefix: :image_type
+  enum type_image: {
+    btrfs: 0,
+    clicfs: 1,
+    cpio: 2,
+    docker: 3,
+    ext2: 4,
+    ext3: 5,
+    ext4: 6,
+    iso: 7,
+    lxc: 8,
+    oem: 9,
+    product: 10,
+    pxe: 11,
+    reiserfs: 12,
+    split: 13,
+    squashfs: 14,
+    tbz: 15,
+    vmx: 16,
+    xfs: 17,
+    zfs: 18
+  }, _prefix: :image_type
 
   validates :type_image, inclusion: { in: type_images.keys }, allow_nil: true
   validates :version, format: { with: /\A\d+\.\d+\.\d+\z/ }

@@ -5,7 +5,19 @@ module Kiwi
 
     # we need to add a prefix, to avoid generating class methods that already
     # exist in Active Record, such as "delete"
-    enum kiwi_type: [:bootstrap, :delete, :docker, :image, :iso, :lxc, :oem, :pxe, :split, :testsuite, :vmx], _prefix: :type
+    enum kiwi_type: {
+      bootstrap: 0,
+      delete: 1,
+      docker: 2,
+      image: 3,
+      iso: 4,
+      lxc: 5,
+      oem: 6,
+      pxe: 7,
+      split: 8,
+      testsuite: 9,
+      vmx: 10
+    }, _prefix: :type
 
     scope :type_image, -> { where(kiwi_type: :image) }
 

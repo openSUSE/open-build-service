@@ -1,7 +1,9 @@
 class Kiwi::Description < ApplicationRecord
   belongs_to :image, inverse_of: :description
 
-  enum description_type: [:system]
+  enum description_type: {
+    system: 0
+  }
 
   validates :description_type, inclusion: { in: description_types.keys }
 
