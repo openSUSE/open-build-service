@@ -148,7 +148,7 @@ RSpec.describe Review do
         :history_element_review_accepted,
         review: review,
         user: user,
-        created_at: Faker::Time.forward(1)
+        created_at: Faker::Time.forward(days: 1)
       )
     end
 
@@ -166,7 +166,7 @@ RSpec.describe Review do
           :history_element_review_accepted,
           review: review2,
           user: user,
-          created_at: Faker::Time.forward(2)
+          created_at: Faker::Time.forward(days: 2)
         )
       end
 
@@ -181,7 +181,7 @@ RSpec.describe Review do
           :review,
           by_user: user.login,
           review_id: review.id,
-          updated_at: Faker::Time.forward(2),
+          updated_at: Faker::Time.forward(days: 2),
           state: :new
         )
       end
@@ -221,7 +221,7 @@ RSpec.describe Review do
         :history_element_review_declined,
         review: review,
         user: user,
-        created_at: Faker::Time.forward(1)
+        created_at: Faker::Time.forward(days: 1)
       )
     end
 
@@ -239,7 +239,7 @@ RSpec.describe Review do
           :history_element_review_declined,
           review: review2,
           user: user,
-          created_at: Faker::Time.forward(2)
+          created_at: Faker::Time.forward(days: 2)
         )
       end
 
@@ -254,7 +254,7 @@ RSpec.describe Review do
           :review,
           by_user: user.login,
           review_id: review.id,
-          updated_at: Faker::Time.forward(2),
+          updated_at: Faker::Time.forward(days: 2),
           state: :new
         )
       end

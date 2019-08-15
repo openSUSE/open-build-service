@@ -8,7 +8,7 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
         type: :issue_created,
         name: Faker::Lorem.word,
         tracker: Faker::Lorem.word,
-        when: Faker::Date.forward(10)
+        when: Faker::Date.forward(days: 10)
       )
     end
     let(:expected_xml_hash1) do
@@ -25,7 +25,7 @@ RSpec.describe Statistics::MaintenanceStatisticDecorator do
         type: :review_accepted,
         who: Faker::Lorem.word,
         id: rand(100),
-        when: Faker::Date.forward(10)
+        when: Faker::Date.forward(days: 10)
       )
     end
     let(:expected_xml_hash2) do

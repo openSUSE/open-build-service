@@ -5,7 +5,7 @@ RSpec.feature 'Bootstrap_Projects', type: :feature, js: true, vcr: true do
   let(:project) { user.home_project }
   let!(:admin_user) { create(:admin_user) }
   describe 'creating packages in projects owned by user, eg. home projects' do
-    let(:very_long_description) { Faker::Lorem.paragraph(20) }
+    let(:very_long_description) { Faker::Lorem.paragraph(sentence_count: 20) }
 
     before do
       login user

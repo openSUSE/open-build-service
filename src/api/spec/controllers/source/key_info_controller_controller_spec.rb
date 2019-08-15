@@ -5,8 +5,8 @@ RSpec.describe Source::KeyInfoController, type: :controller do
   describe 'GET #show' do
     let(:user) { create(:confirmed_user) }
     let(:project) { create(:project, name: 'test_project', title: 'Test Project') }
-    let(:gpg_public_key) { Faker::Lorem.characters(1024) }
-    let(:ssl_certificate) { Faker::Lorem.characters(1024) }
+    let(:gpg_public_key) { Faker::Lorem.characters(number: 1024) }
+    let(:ssl_certificate) { Faker::Lorem.characters(number: 1024) }
     let(:keyinfo_response) do
       <<-XML
         <keyinfo project="Test">
