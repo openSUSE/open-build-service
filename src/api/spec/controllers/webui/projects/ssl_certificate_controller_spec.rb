@@ -4,7 +4,7 @@ require 'webmock/rspec'
 RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
   describe 'GET #show' do
     let(:project) { create(:project, name: 'test_project', title: 'Test Project') }
-    let(:gpg_public_key) { Faker::Lorem.characters(1024) }
+    let(:gpg_public_key) { Faker::Lorem.characters(number: 1024) }
 
     before do
       Rails.cache.clear
@@ -16,7 +16,7 @@ RSpec.describe Webui::Projects::SslCertificateController, type: :controller do
     end
 
     context 'with a project that has an ssl certificate' do
-      let(:ssl_certificate) { Faker::Lorem.characters(1024) }
+      let(:ssl_certificate) { Faker::Lorem.characters(number: 1024) }
       let(:keyinfo_response) do
         <<-XML
           <keyinfo project="Test">

@@ -4077,7 +4077,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_store_invalid_package
     login_tom
-    name = Faker::Lorem.characters(255)
+    name = Faker::Lorem.characters(number: 255)
     url = url_for(controller: :source_project_package_meta, action: :update, project: 'home:tom', package: name)
     put url, params: "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response 400
@@ -4089,7 +4089,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_store_invalid_project
     login_tom
-    name = "home:tom:#{Faker::Lorem.characters(255)}"
+    name = "home:tom:#{Faker::Lorem.characters(number: 255)}"
     url = url_for(controller: :source_project_meta, action: :update, project: name)
     put url, params: "<project name='#{name}'> <title/> <description/></project>"
     assert_response 400

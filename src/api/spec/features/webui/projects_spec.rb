@@ -38,7 +38,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'creating packages in projects owned by user, eg. home projects' do
-    let(:very_long_description) { Faker::Lorem.paragraph(20) }
+    let(:very_long_description) { Faker::Lorem.paragraph(sentence_count: 20) }
 
     before do
       login user

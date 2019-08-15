@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :kiwi_package_group, class: Kiwi::PackageGroup do
     association :image, factory: :kiwi_image
 
-    kiwi_type { Kiwi::PackageGroup.kiwi_types.keys[Faker::Number.between(0, Kiwi::PackageGroup.kiwi_types.keys.length - 1)] }
+    kiwi_type { Kiwi::PackageGroup.kiwi_types.keys[Faker::Number.between(from: 0, to: Kiwi::PackageGroup.kiwi_types.keys.length - 1)] }
     profiles { Faker::Creature::Cat.name }
     pattern_type { Faker::Creature::Cat.name }
 

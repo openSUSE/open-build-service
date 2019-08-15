@@ -150,7 +150,7 @@ RSpec.describe Statistics::MaintenanceStatistic do
           :history_element_review_accepted,
           review: new_review,
           user: user,
-          created_at: Faker::Time.forward(2)
+          created_at: Faker::Time.forward(days: 2)
         )
         new_review.state = :accepted
         new_review.save!

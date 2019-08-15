@@ -15,7 +15,7 @@ RSpec.describe Webui::Projects::PublicKeyController, type: :controller do
     end
 
     context 'with a project that has a public key' do
-      let(:gpg_public_key) { Faker::Lorem.characters(1024) }
+      let(:gpg_public_key) { Faker::Lorem.characters(number: 1024) }
       let(:keyinfo_response) do
         <<-XML
           <keyinfo project="Test">

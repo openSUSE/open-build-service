@@ -17,7 +17,7 @@ RSpec.describe Event::CommentForProject do
     subject! { event.save }
 
     context 'with the payload small enough to fit into the payload column' do
-      let(:comment_body) { Faker::Lorem.characters(50) }
+      let(:comment_body) { Faker::Lorem.characters(number: 50) }
 
       it { expect(event).to be_persisted }
       it { expect(event.payload['comment_body'].bytesize).to eq(50) }
@@ -26,7 +26,7 @@ RSpec.describe Event::CommentForProject do
     context 'with the comment body too long for the payload column' do
       # The events.payload column has a max char limit of 65535 so this comment cannot fit
       # in the payload unless it is shortened
-      let(:comment_body) { Faker::Lorem.characters(65_535) }
+      let(:comment_body) { Faker::Lorem.characters(number: 65_535) }
       let(:event) do
         Event::CommentForProject.new(
           project: project.name,

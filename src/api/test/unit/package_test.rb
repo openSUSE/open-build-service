@@ -216,7 +216,7 @@ class PackageTest < ActiveSupport::TestCase
     assert_raise(ActiveRecord::RecordInvalid) do
       @package.save!
     end
-    @package.name = Faker::Lorem.characters(255)
+    @package.name = Faker::Lorem.characters(number: 255)
     e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.save!
     end
