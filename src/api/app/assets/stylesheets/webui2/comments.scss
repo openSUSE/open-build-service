@@ -1,6 +1,16 @@
 #comments {
   .media .media-body {
-    hyphens: auto;
+
+    // hyphens isn't supported on Desktop chrome
+    // https://caniuse.com/#search=hyphens
+    @supports(hyphens:auto) {
+      hyphens: auto;
+    }
+    @supports not(hyphens: auto) {
+      // break-word is depreacted. But works on Chrome well
+      // https://developer.mozilla.org/en-US/docs/Web/CSS/word-break
+      word-break: break-word;
+    }
 
     p:not(:first-child) {
       max-width: $seventy-five-chars;
