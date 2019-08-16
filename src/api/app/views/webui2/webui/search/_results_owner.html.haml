@@ -2,10 +2,9 @@
   %h4 Results:
   - results.each do |result|
     .search_result.mt-3
-      %h6
-        Responsible for
-        #{project_or_package_link project: result.project, package: result.package, short: false}
-        in #{result.rootproject}
+      Responsible for
+      #{project_or_package_link project: result.project, package: result.package, short: false}
+      in #{result.rootproject}
 
       %ul.list-unstyled
         - users_and_groups = (result.users || {}).merge(result.groups || {}) { |_role, user, group| user.concat(group) }
@@ -13,10 +12,11 @@
           %li.mt-3
             :ruby
               emails = records.map(&:email).reject(&:blank?).join(', ')
-            = role.capitalize.pluralize
-            - if emails.present? && User.session
-              = mail_to(emails) do
-                %i.far.fa-envelope.ml-1{ title: "Send email to #{role.pluralize(records.size)}" }
+            %h6
+              = role.capitalize.pluralize
+              - if emails.present? && User.session
+                = mail_to(emails) do
+                  %i.far.fa-envelope.ml-1{ title: "Send email to #{role.pluralize(records.size)}" }
             .d-flex.flex-wrap.flex-column.flex-md-row
               - records.each do |record|
                 .card.m-1.p-2.search-result

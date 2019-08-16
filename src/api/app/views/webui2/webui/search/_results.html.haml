@@ -15,7 +15,7 @@
         = project_or_package_link(project: project, package: package, short: false, trim_to: nil)
         %span.d-none= result.sphinx_attributes
         = ": #{result.title}" if result.title.present?
-      %p.pl-4.small.text-muted
+      %p.pl-4
         - if result.description.blank?
           = '...'
         - else
