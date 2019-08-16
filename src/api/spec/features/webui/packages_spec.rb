@@ -243,8 +243,8 @@ RSpec.feature 'Packages', type: :feature, js: true do
     scenario 'live build finishes succesfully' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
 
-      find('#status', text: 'Build finished') # to wait until it loads
-      expect(page).to have_text('Build finished')
+      find('#status', text: 'Build') # to wait until it loads
+      expect(page).to have_text('Build')
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
     end
 
