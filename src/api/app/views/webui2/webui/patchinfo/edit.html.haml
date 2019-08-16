@@ -11,15 +11,17 @@
         = render partial: 'webui/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
                                                           data: { source: autocomplete_users_path } }
       .form-group.col-md-6
-        = form.label(:summary)
-        %abbr.text-danger{ title: 'required (minimum 10 characters)' } *
+        = form.label(:summary) do
+          Summary
+          %abbr.text-danger{ title: 'required' } *
+          %small.form-text Summarize the changes (minimum 10 characters)
         = form.text_area(:summary, required: true, class: 'form-control', minlength: 10)
-        %small.form-text.text-muted Summarize the changes
       .form-group.col-md-6
-        = form.label(:description)
-        %abbr.text-danger{ title: 'required (minimum 50 characters)' } *
+        = form.label(:description) do
+          Description
+          %abbr.text-danger{ title: 'required' } *
+          %small.form-text Fully describe the changes (minimum 50 characters)
         = form.text_area(:description, required: true, rows: 8, class: 'form-control', minlength: 50)
-        %small.form-text.text-muted Fully describe the changes
       .form-group.col-4.col-md-2
         = form.label(:version)
         = form.text_field(:version, class: 'form-control')
