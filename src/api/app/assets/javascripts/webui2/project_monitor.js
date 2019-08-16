@@ -39,6 +39,13 @@ function initializeMonitorDataTable() {
   var statusHash = data.statushash;
   var tableInfo = data.tableinfo;
   var projectName = data.project;
+  var longestPackageName = packageNames.reduce(function (a, b) { return a.length > b.length ? a : b; }).length;
+  if (longestPackageName < '10') {
+    var longestPackageName = '10'
+  }
+  if (longestPackageName > '50') {
+    var longestPackageName = '50'
+  }
 
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
     scrollX: true,
@@ -52,7 +59,7 @@ function initializeMonitorDataTable() {
     },
     columnDefs: [
       {
-        width: 150,
+        width: longestPackageName + 'ch',
         targets: 0,
         className: 'text-left',
         data: null,
