@@ -191,6 +191,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       end
     end
   end
+
   scenario 'adding a valid file' do
     login user
 
