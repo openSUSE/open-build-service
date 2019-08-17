@@ -193,8 +193,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario 'adding a valid file' do
-    login user
-
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
@@ -207,8 +205,6 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
   end
 
   scenario 'adding an invalid file' do
-    login user
-
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
