@@ -72,24 +72,24 @@ $.extend(LiveLog.prototype, {
     this.lastScroll = window.pageYOffset;
   },
 
+  buildStatusDetails: function(status) {
+    switch (status) {
+      case 'failed':
+        return {content: 'Build failed', indicator: 'failed', favicon: this.faviconFailed};
+      case 'succeeded':
+        return {content: 'Build succeeded', indicator: 'succeeded', favicon: this.faviconSucceeded};
+      default:
+        return {content: 'Build finished', indicator: 'finished', favicon: this.faviconFinished};
+    }
+  },
+
   finish: function(status) { // jshint ignore:line
     this.finished = true;
     this.stop();
-    if (status === 'failed') {
-      this.status.html('Build failed');
-      this.indicatorStatus('failed');
-      this.faviconStatus(this.faviconFailed);
-    }
-    else if (status === 'succeeded') {
-      this.status.html('Build succeeded');
-      this.indicatorStatus('succeeded');
-      this.faviconStatus(this.faviconSucceeded);
-    }
-    else {
-      this.status.html('Build finished');
-      this.indicatorStatus('finished');
-      this.faviconStatus(this.faviconFinished);
-    }
+    var statusDetails = this.buildStatusDetails(status);
+    this.status.html(statusDetails.content);
+    this.indicatorStatus(statusDetails.indicator);
+    this.faviconStatus(statusDetails.favicon);
     this.hideAbort();
     this.stopButton.addClass('d-none');
     this.startButton.addClass('d-none');
