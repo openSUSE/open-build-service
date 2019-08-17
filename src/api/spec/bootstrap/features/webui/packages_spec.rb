@@ -191,4 +191,33 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
       end
     end
   end
+  scenario 'adding a valid file' do
+    login user
+
+    visit package_show_path(project: user.home_project, package: package)
+    click_link('Add file')
+
+    click_button('Add an empty file')
+    fill_in 'Filename', with: 'new_file'
+    click_button('Upload')
+
+    expect(page).to have_text('The files have been successfully saved.')
+    expect(page).to have_link('new_file')
+  end
+
+  scenario 'adding an invalid file' do
+    login user
+
+    visit package_show_path(project: user.home_project, package: package)
+    click_link('Add file')
+
+    click_button('Add an empty file')
+    fill_in 'Filename', with: 'inv/alid'
+    click_button('Upload')
+
+    expect(page).to have_text("Error while creating '' file: 'inv/alid' is not a valid filename.")
+
+    click_link(package.name)
+    expect(page).not_to have_link('inv/alid')
+  end
 end
