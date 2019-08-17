@@ -4,23 +4,26 @@
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     %h3
-      Upload file to #{@project.name}/#{@package.name}
+      Upload files to #{@project.name}/#{@package.name}
     = form_tag({ action: :save_file, project: @project, package: @package }, multipart: true) do
       .form-group.package-add-file
-        %label{ for: :filename }
-          %strong Filename:
-        = text_field_tag :filename, '', size: 80, maxlength: 200, class: 'form-control',
-        required: true, placeholder: 'Taken from uploaded file if empty...'
-        %small.form-text.text-muted
-          If only a filename is provided, an empty file is created (touched).
-      .form-group.package-add-file
-        %label{ for: :file_url }
-          %strong File URL:
-        = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', required: true, type: :url
-        %small.form-text.text-muted
-          URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
-      .form-group.package-add-file
         .custom-file
-          = file_field_tag 'file', class: 'custom-file-input', id: 'file', required: true
-          %label.custom-file-label-with-overflow{ for: 'file' } Choose a file
-      = submit_tag 'Save', class: 'btn btn-sm btn-primary', id: :submit_button
+          = file_field_tag 'files[]', class: 'custom-file-input', multiple: true, id: 'files'
+          %label.custom-file-label-with-overflow{ for: 'file' } Add local files
+      .card.mb-3
+        %ul.list-group.list-group-flush#filelist
+        %ul.list-group.list-group-flush#namelist
+        %ul.list-group.list-group-flush#linklist
+
+      .d-flex.align-items-center.mb-2
+        %button.btn.btn-secondary.mr-2#add-empty-file{ type: 'button' }
+          %i.fa.fa-file
+          Add an empty file
+        %button.btn.btn-secondary.mr-2#add-remote-file{ type: 'button' }
+          %i.fa.fa-link
+          Add a remote file
+        %small.form-text.text-muted.m-0#link-text
+          URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
+      = text_area_tag 'comment', nil, placeholder: 'Commit message', class: 'form-control mb-2'
+      .d-flex
+        = submit_tag 'Upload', class: 'btn btn-primary ml-auto', id: :submit_button, disabled: true

@@ -268,10 +268,11 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
+    find('#add-empty-file').click
     fill_in 'Filename', with: 'new_file'
-    click_button('Save')
+    click_button('Upload')
 
-    expect(page).to have_text("The file 'new_file' has been successfully saved.")
+    expect(page).to have_text('The files have been successfully saved.')
     expect(page).to have_link('new_file')
   end
 
@@ -281,10 +282,11 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
+    find('#add-empty-file').click
     fill_in 'Filename', with: 'inv/alid'
-    click_button('Save')
+    click_button('Upload')
 
-    expect(page).to have_text("Error while creating 'inv/alid' file: 'inv/alid' is not a valid filename.")
+    expect(page).to have_text("Error while creating '' file: 'inv/alid' is not a valid filename.")
 
     click_link(package.name)
     expect(page).not_to have_link('inv/alid')

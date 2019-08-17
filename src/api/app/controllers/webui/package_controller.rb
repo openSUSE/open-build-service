@@ -675,8 +675,12 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     file = params[:file]
+    files = params[:files]
     file_url = params[:file_url]
+    file_urls = params[:file_urls]
     filename = params[:filename]
+    filenames = params[:filenames]
+    files_new = params[:files_new] # Contains a list of filenames to create new files
 
     errors = []
 
@@ -697,8 +701,26 @@ class Webui::PackageController < Webui::WebuiController
         end
       elsif filename.present? # No file is provided so we just create an empty new file (touch)
         @package.save_file(filename: filename)
-      else
+      elsif file_urls.blank? && files.blank? && files_new.blank?
         errors << 'No file or URI given'
+      end
+
+      # Allow to submit multiple kinds of data at once
+      if file_urls.present?
+        services = @package.services
+
+        # file_urls is an array of arrays, where [0] is the name and [1] is the url
+        file_urls.each do |name, url|
+          services.addDownloadURL(name, url)
+        end
+
+        unless services.save
+          errors << "Failed to add file from URL '#{file_url}'"
+        end
+      end
+      if files.present? || files_new.present?
+        # We are getting uploaded files in an array, with a hash containing name changes and array with new filenames
+        @package.save_files(files: files, filenames: filenames, files_new: files_new, comment: params[:comment])
       end
     rescue APIError => e
       errors << e.message
@@ -709,7 +731,11 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if errors.empty?
-      message = "The file '#{filename}' has been successfully saved."
+      if file_urls.present? || files.present? || files_new.present?
+        message = 'The files have been successfully saved.'
+      else
+        message = "The file '#{filename}' has been successfully saved."
+      end
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:success] = message
