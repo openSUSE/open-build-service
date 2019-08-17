@@ -268,7 +268,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
-    find('#add-empty-file').click
+    click_button('Add an empty file')
     fill_in 'Filename', with: 'new_file'
     click_button('Upload')
 
@@ -282,7 +282,7 @@ RSpec.feature 'Packages', type: :feature, js: true do
     visit package_show_path(project: user.home_project, package: package)
     click_link('Add file')
 
-    find('#add-empty-file').click
+    click_button('Add an empty file')
     fill_in 'Filename', with: 'inv/alid'
     click_button('Upload')
 
