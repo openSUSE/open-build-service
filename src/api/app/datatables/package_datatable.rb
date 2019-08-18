@@ -34,6 +34,7 @@ class PackageDatatable < Datatable
       }
     end
   end
+
   def name_with_link(record)
     name = []
     name << link_to(record.name, package_show_path(package: record, project: @project))
