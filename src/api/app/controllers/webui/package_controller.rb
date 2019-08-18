@@ -709,9 +709,9 @@ class Webui::PackageController < Webui::WebuiController
       if file_urls.present?
         services = @package.services
 
-        # file_urls is an array of arrays, where [0] is the name and [1] is the url
-        file_urls.each do |name, url|
-          services.addDownloadURL(name, url)
+        # file_urls is an array, where even index is name and odd index is url
+        Hash[*file_urls].each do |name, url|
+          services.addDownloadURL(url, name)
         end
 
         unless services.save

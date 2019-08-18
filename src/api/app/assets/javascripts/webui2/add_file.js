@@ -1,4 +1,3 @@
-var enumerateLinks = 0;
 function createInputs(item) {
   var filelist = $(item.list);
   var li = document.createElement('li');
@@ -43,8 +42,7 @@ $(document).ready(function() {
     toggleUpload($('#namelist > li').length);
   });
   $('#add-remote-file').on('click', function(event) { // jshint ignore:line
-    createInputs({list: '#linklist', icon: 'link', remove: true, inputs: [{name: 'file_urls[' + enumerateLinks + '][]', placeholder: 'Name', value: ''}, {name: 'file_urls[' + enumerateLinks + '][]', placeholder: 'URL', value: ''}]});
-    enumerateLinks++;
+    createInputs({list: '#linklist', icon: 'link', remove: true, inputs: [{name: 'file_urls[]', placeholder: 'Name', value: ''}, {name: 'file_urls[]', placeholder: 'URL', value: ''}]});
     toggleUpload($('#linklist > li').length);
   });
 });
