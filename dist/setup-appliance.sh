@@ -25,7 +25,7 @@ function check_unit {
 
   ENABLED=`systemctl is-enabled $srv 2>/dev/null`
   if [[ "$ENABLED" != "enabled" ]]; then
-    systemctl enable $srv
+    systemctl enable --now $srv
     if [[ $? -gt 0 ]];then
       logline "WARNING: Enabling $srv daemon failed."
     else
@@ -441,7 +441,7 @@ function check_required_backend_services {
   for srv in $REQUIRED_SERVICES ;do
     ENABLED=`systemctl is-enabled $srv`
     ACTIVE=`systemctl is-active $srv`
-    [[ "$ENABLED" == "enabled" ]] || systemctl enable $srv
+    [[ "$ENABLED" == "enabled" ]] || systemctl enable --now $srv
     [[ "$ACTIVE" == "active" ]] || systemctl start $srv
   done
 
@@ -461,7 +461,7 @@ function check_recommended_backend_services {
       ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
       case $rv in
         y|yes|Y|YES)
-          systemctl enable $srv
+          systemctl enable --now $srv
           systemctl start $srv
         ;;
       esac
