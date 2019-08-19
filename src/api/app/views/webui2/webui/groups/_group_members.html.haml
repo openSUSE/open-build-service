@@ -25,11 +25,10 @@
                   class: 'group-member-removal float-right', title: 'Remove member from group') do
                   %i.fas.fa-sm.fa-times-circle.text-danger
               .card-body.ml-2
-                %b
-                  = link_to(user_show_path(user)) do
-                    = display_name(user)
+                = link_to(user_show_path(user)) do
+                  = display_name(user)
 
-                .custom-control.custom-checkbox
+                .custom-control.custom-checkbox.mt-2
                   = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'custom-control-input group-maintainership',
                     name: :maintainer, disabled: !write_access, data: { method: :patch,
                     url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
