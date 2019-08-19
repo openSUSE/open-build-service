@@ -14,6 +14,20 @@
   color: $purple;
 }
 
+.table-striped .odd {
+  .patchinfo-category-recommended {
+    color: darken($green, 5%);
+  }
+
+  .patchinfo-category-security {
+    color: darken($red, 10%);
+  }
+
+  .patchinfo-category-optional {
+    color: darken($cyan, 5%);
+  }
+}
+
 .patchinfo {
   .badge {
     &.badge-rating, &.badge-category, &.badge-blocked {
