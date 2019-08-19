@@ -6,7 +6,7 @@
     .patchinfo.row
       .col-md-8
         = patchinfo_header(@patchinfo, @pkg_names)
-        .mt-3#description-text
+        #description-text
           = render partial: 'webui/webui/collapsible_text', locals: { text: @patchinfo.description }
       .col-md-4
         = render partial: 'side_elements', locals: { patchinfo: @patchinfo, packager: @packager }
@@ -42,7 +42,7 @@
             .media-body.mb-3
               = patchinfo_issue_link(issue[1], issue[0], issue[2])
               - if issue[3].present?
-                %small.d-block.text-muted= issue[3]
+                %div= issue[3]
   .col-md-6
     .card.mb-3
       %h5.card-header Selected Binaries
