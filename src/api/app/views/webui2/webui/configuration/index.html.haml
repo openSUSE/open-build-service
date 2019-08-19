@@ -7,8 +7,7 @@
     %h3 Configure your Open Build Service instance
     = form_for(@configuration, url: { action: :update }) do |f|
       .h5.mt-4 Frontpage Greeting
-      %p.text-muted
-        Change the text that is displayed as greeting on the frontpage
+      %p Change the text that is displayed as greeting on the frontpage.
       .form-group
         = f.label :title
         %abbr.text-danger{ title: 'required' } *
@@ -19,7 +18,7 @@
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
 
       .h5.mt-4 Base Configuration
-      %p.text-muted
+      %p
         %i.fas.fa-exclamation-triangle.text-warning
         Backend restart is needed after a change here.
       .form-group
