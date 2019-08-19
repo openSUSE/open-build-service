@@ -82,7 +82,7 @@ gem 'experimental-influxdb-rails', '>=1.0.0.beta5'
 # for client side time ago
 gem 'rails-timeago', '~> 2.0'
 # for copying objects with their relations
-gem 'deep_cloneable', '~> 2.4.0'
+gem 'deep_cloneable', '~> 3.0.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
