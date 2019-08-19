@@ -4,9 +4,9 @@
 .card.mb-3
   = render partial: 'tabs'
   .card-body
-    %h3.mb-4 Configure your Open Build Service instance
+    %h3 Configure your Open Build Service instance
     = form_for(@configuration, url: { action: :update }) do |f|
-      .h5 Frontpage Greeting
+      .h5.mt-4 Frontpage Greeting
       %p.text-muted
         Change the text that is displayed as greeting on the frontpage
       .form-group
