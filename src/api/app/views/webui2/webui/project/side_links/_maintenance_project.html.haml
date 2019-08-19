@@ -10,5 +10,5 @@
     %i.fa.fa-exclamation-circle.text-danger
   - else
     %i.fa.fa-check-circle.text-success
-  = link_to(project_maintained_projects_path(project)) do
+  = link_to(projects_project_maintained_projects_path(project)) do
     = pluralize(maintained_projects.size, 'maintained project')
