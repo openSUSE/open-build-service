@@ -142,21 +142,41 @@ with us in the pull-request, over the
 developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
-# How to Review Code Submissions
-We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews/) and we...
+# The Perfect Pull Request Review
 
-- ...mark nitpicks inside the comment somehow (with the 💭 emoji or *nitpick*: blah blah)
-- ...approve the pull request if our review only contains nitpicks
-- ...request changes on the pull request if our review contains one non-nitpick
-- ...just submit the review as comment if we can not review all of the code and just want to leave a comment
+We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
-Nitpicks are things you as reviewer don't care about if they end up in the code-base. Things like
+Every pull request has to be reviewed to ensure the code is effective, understandable, maintainable and secure.
 
-- Style changes we have not agreed on in rubocop rules yet
-- Bigger refactorings that are out of scope for the pull-request
-- Things new to you that you don't understand and would like to have an explanation for
+The changes must be tested locally or in the review app.
 
-We don't dismiss open review requests unless we know the reviewer is not going to be reachable for a while (a few days, for example) and feedback has been addressed.
+Provide constructive feedback and be mindful of the tone you use when reviewing.
+
+## How to Provide Constructive Feedback
+
+We took inspiration from [GitLab](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/code_review.md).
+
+- Be respectful.
+- Accept that many decisions are opinions. Discuss tradeoffs, which you prefer, and reach a resolution quickly.
+- Propose solutions instead of only requesting changes. ("What do you think about naming this :user_id?").
+- Ask for clarification  ("I didn't understand. Can you clarify?") and consider one-on-one chats or video calls if there are too many "I didn't understand" or "Alternative solution:" comments. Post a follow-up comment summarizing the discussion.
+- Avoid selective ownership of code. ("mine", "not mine", "yours").
+- Avoid using terms that could be seen as referring to personal traits. ("dumb", "stupid"). Assume everyone is attractive, intelligent, and well-meaning.
+- Be explicit. Remember people don't always understand your intentions online.
+- Be humble. ("I'm not sure - let's look it up."). Remember, reviews aren't about showing off.
+- Don't use hyperbole. ("always", "never", "endlessly", "nothing").
+- Be careful about the use of sarcasm. Everything we do is public; what seems like good-natured ribbing to you and a long-time colleague might come off as mean and unwelcoming to a person new to the project.
+- Avoid asking for changes which are out of scope. Those should be addressed at another time (open an issue or send a PR).
+
+## When to Merge Pull Requests
+
+In order to merge a pull request, it needs:
+
+- all of the required GitHub checks to pass (waiting for all of them to pass is recommended)
+- a review from at least 1 team member (2 reviews are recommended)
+- all requested changes to be addressed*
+
+\* Dismissing a review with requested changes is possible only if the reviewer is not reachable for a while and the requested changes are addressed and approved by another team member.
 
 # How to Contribute Bug Reports
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
