@@ -23,10 +23,16 @@ function check_unit {
 
   echo "Checking unit $srv ..."
 
-  logline "Enabling $srv"
-  execute_silently systemctl enable $srv
-  if [[ $? -gt 0 ]];then
-    logline "WARNING: Enabling $srv daemon failed."
+  ENABLED=`systemctl is-enabled $srv 2>/dev/null`
+  if [[ "$ENABLED" != "enabled" ]]; then
+    systemctl enable $srv
+    if [[ $? -gt 0 ]];then
+      logline "WARNING: Enabling $srv daemon failed."
+    else
+      logline "Enabling $srv"
+    fi
+  else
+    logline "$srv is already enabled"
   fi
 
   STATUS=`systemctl is-active $srv 2>/dev/null`
