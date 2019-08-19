@@ -3,6 +3,8 @@ class PackageDatatable < Datatable
   def_delegator :@view, :link_to
   def_delegator :@view, :package_show_path
   def_delegator :@view, :time_ago_in_words
+  def_delegator :@view, :content_tag
+  def_delegator :@view, :safe_join
 
   def initialize(params, opts = {})
     @project = opts[:project]
@@ -27,9 +29,16 @@ class PackageDatatable < Datatable
   def data
     records.map do |record|
       {
-        name: link_to(record.name, package_show_path(package: record, project: @project)),
+        name: name_with_link(record),
         changed: time_ago_in_words(Time.at(record.updated_at.to_i))
       }
     end
+  end
+
+  def name_with_link(record)
+    name = []
+    name << link_to(record.name, package_show_path(package: record, project: @project))
+    name << content_tag(:span, 'Link', class: 'badge badge-info') if record.is_link?
+    safe_join(name, ' ')
   end
 end
