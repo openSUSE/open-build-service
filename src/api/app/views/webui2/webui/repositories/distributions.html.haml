@@ -4,7 +4,7 @@
 .card.mb-3
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
-    %h3.mb-3 Add Repositories to #{@project}
+    %h3 Add Repositories to #{@project}
     - @distributions.each do |vendor, list|
       %h6.pt-3
         - if resolve_asset_path("distributions/#{vendor.downcase}.svg")
