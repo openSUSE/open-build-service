@@ -9,12 +9,14 @@
       .h5.mt-4 Frontpage Greeting
       %p Change the text that is displayed as greeting on the frontpage.
       .form-group
-        = f.label :title
-        %abbr.text-danger{ title: 'required' } *
+        = f.label(:title) do
+          Title
+          %abbr.text-danger{ title: 'required' } *
         = f.text_field :title, required: true, autofocus: true, class: 'form-control'
       .form-group
-        = f.label :description
-        %abbr.text-danger{ title: 'required' } *
+        = f.label(:description) do
+          Description
+          %abbr.text-danger{ title: 'required' } *
         ~ f.text_area :description, rows: 7, required: true, class: 'form-control'
 
       .h5.mt-4 Base Configuration
@@ -22,20 +24,20 @@
         %i.fas.fa-exclamation-triangle.text-warning
         Backend restart is needed after a change here.
       .form-group
-        = f.label :name
-        %abbr.text-danger{ title: 'required' } *
+        = f.label(:name) do
+          Name
+          %abbr.text-danger{ title: 'required' } *
+          %small.form-text The instance name which gets generated into each package. Short string only, no white spaces recommended.
         = f.text_field :name, required: true, class: 'form-control'
-        %small.text-muted
-          The instance name which gets generated into each package. Short string only, no white spaces recommended.
       .form-group
-        = f.label :unlisted_projects_filter_description
+        = f.label(:unlisted_projects_filter_description) do
+          Unlisted projects filter description
+          %small.form-text The description that will appear in projects list for explaining the exclusion filter.
         = f.text_field :unlisted_projects_filter_description, class: 'form-control'
-        %small.text-muted
-          The description that will appear in projects list for explaining the exclusion filter.
       .form-group
-        = f.label :unlisted_projects_filter
+        = f.label(:unlisted_projects_filter) do
+          Unlisted projects filter
+          %small.form-text The exclusion filter itself. It is a Regular Expression (eg: ^home:.*).
         = f.text_field :unlisted_projects_filter, class: 'form-control'
-        %small.text-muted
-          The exclusion filter itself. Is a Regular Expression (eg: ^home:.*)
 
       = f.submit 'Update', class: 'btn btn-primary'
