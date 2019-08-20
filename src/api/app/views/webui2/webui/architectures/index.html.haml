@@ -9,9 +9,9 @@
     %p
       Toggle the availability of architectures.
     .form-group
-      = button_tag('All', type: 'submit', class: 'btn btn-sm btn-outline-primary filter-button mr-1', value: true,
+      = button_tag('All', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: true,
         data: { remote: true, url: bulk_update_availability_path(archs: { all: true }), method: :patch })
-      = button_tag('None', type: 'submit', class: 'btn btn-sm btn-outline-primary filter-button mr-1', value: false,
+      = button_tag('None', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: false,
         data: { remote: true, url: bulk_update_availability_path(archs: { all: false }), method: :patch })
       %i.fas.fa-spinner.invisible
     .form-group.d-flex.flex-wrap
