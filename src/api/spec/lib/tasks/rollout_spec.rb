@@ -12,11 +12,18 @@ RSpec.describe 'rollout' do
   let!(:non_rollout_in_group_user) { create(:user_with_groups, in_rollout: false) }
   let!(:non_recently_logged_user) do
     user = create(:confirmed_user, in_rollout: false)
-    user.last_logged_in_at = Time.now - 1.year
+    user.last_logged_in_at = Time.zone.today.prev_year
     user.save!
   end
-
   let(:all_in_rollout_users) { User.where(in_rollout: true) }
+
+  before do
+    Timecop.freeze(Time.zone.today)
+  end
+
+  after do
+    Timecop.return
+  end
 
   describe 'all_on' do
     let(:task) { 'rollout:all_on' }
@@ -58,7 +65,7 @@ RSpec.describe 'rollout' do
 
   describe 'recently_logged_users' do
     let(:task) { 'rollout:recently_logged_users' }
-    let(:users) { User.where(last_logged_in_at: 3.months.ago.midnight..Time.zone.now) }
+    let(:users) { User.where(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today) }
 
     it 'will move all recently logged users to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(3).to(6)
@@ -69,7 +76,7 @@ RSpec.describe 'rollout' do
 
   describe 'non_recently_logged_users' do
     let(:task) { 'rollout:non_recently_logged_users' }
-    let(:users) { User.where.not(last_logged_in_at: 3.months.ago.midnight..Time.zone.now) }
+    let(:users) { User.where.not(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today) }
 
     it 'will move all non-recently-logged users to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(0).to(1)

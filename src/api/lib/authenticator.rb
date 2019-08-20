@@ -185,9 +185,7 @@ class Authenticator
         @http_user = User.create_user_with_fake_pw!(login: proxy_user, state: User.default_user_state)
       end
 
-      @http_user.last_logged_in_at = Time.now
-      # update user data from login proxy headers
-      @http_user.update_user_info_from_proxy_env(request.env)
+      @http_user.update_login_values(request.env)
     else
       Rails.logger.error 'No X-username header was sent by login proxy!'
     end

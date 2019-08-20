@@ -149,7 +149,7 @@ class User < ApplicationRecord
     self.state ||= 'unconfirmed'
 
     # Set the last login time etc. when the record is created at first.
-    self.last_logged_in_at = Time.now
+    self.last_logged_in_at = Time.zone.today
 
     self.login_failure_count = 0 if login_failure_count.nil?
   end
@@ -281,7 +281,7 @@ class User < ApplicationRecord
       mark_login!
       self
     else
-      update_attributes!(login_failure_count: login_failure_count + 1)
+      count_login_failure
       nil
     end
   end
@@ -385,22 +385,6 @@ class User < ApplicationRecord
 
   def branch_project_name(branch)
     "#{home_project_name}:branches:#{branch}"
-  end
-
-  # updates users email address and real name using data transmitted by authentication proxy
-  def update_user_info_from_proxy_env(env)
-    proxy_email = env['HTTP_X_EMAIL']
-    if proxy_email.present? && email != proxy_email
-      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{proxy_email}"
-      self.email = proxy_email
-      save
-    end
-    return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
-    realname = env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
-    return unless self.realname != realname
-
-    self.realname = realname
-    save
   end
 
   #####################
@@ -859,7 +843,36 @@ class User < ApplicationRecord
   end
 
   def mark_login!
-    update_attributes(last_logged_in_at: Time.now, login_failure_count: 0)
+    update_attributes(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+  end
+
+  def count_login_failure
+    update_attributes(login_failure_count: login_failure_count + 1)
+  end
+
+  def proxy_realname(env)
+    return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
+    env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
+  end
+
+  def update_login_values(env)
+    # updates user's email and real name using data transmitted by authentication proxy
+    self.email = env['HTTP_X_EMAIL'] if env['HTTP_X_EMAIL'].present?
+    self.realname = proxy_realname(env) if proxy_realname(env)
+
+    self.last_logged_in_at = Time.zone.today
+    self.login_failure_count = 0
+
+    if changes.any?
+      if changes.keys.include?('email')
+        logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}"
+      end
+
+      # At this point some login value changed, so a successful log in is tracked
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+    end
+
+    save
   end
 
   def send_metric_for_beta_change

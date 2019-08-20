@@ -177,8 +177,9 @@ class Webui::WebuiController < ActionController::Base
       User.session = user_checker.find_or_create_user!
 
       if User.session!.is_active?
-        User.session!.update_user_info_from_proxy_env(request.env)
+        User.session!.update_login_values(request.env)
       else
+        User.session!.count_login_failure
         session[:login] = nil
         User.session = User.find_nobody!
         send_login_information_rabbitmq(:disabled) if previous_user != User.possibly_nobody.login

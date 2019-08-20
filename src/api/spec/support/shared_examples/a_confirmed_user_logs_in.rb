@@ -8,6 +8,6 @@ RSpec.shared_examples 'a confirmed user logs in' do
     end
 
     it { expect(authenticator.http_user).to eq(user) }
-    it { expect(authenticator.http_user.last_logged_in_at).to be_within(30.seconds).of(Time.now) }
+    it { expect(authenticator.http_user.last_logged_in_at).to eq(Time.zone.today) }
   end
 end

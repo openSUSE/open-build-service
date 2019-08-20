@@ -19,6 +19,7 @@ module WebuiControllerService
       if user.exists?
         User.find_by!(login: user_login)
       else
+        # This will end up in a before_validation(on: :create) that updates last_logged_in_at.
         User.create_user_with_fake_pw!(login: user_login,
                                        email: http_request.env['HTTP_X_EMAIL'],
                                        state: User.default_user_state,
