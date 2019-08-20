@@ -11,12 +11,12 @@
                            method: :post },
                    class: 'btn btn-primary interconnect' do
         Connect
-  .interconnect-info.text-muted
+  %div{ class: "#{'text-muted' unless exists}" }
     %i.fa.fa-cubes{ class: "#{'text-secondary' if exists}" }
     - if exists
       = link_to(name, project_show_path(project: name))
     - else
       = name
-  %p.text-muted
+  %div{ class: "#{'text-muted' unless exists}" }
     %i.fas.fa-link
     = remoteurl
