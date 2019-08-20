@@ -26,6 +26,6 @@ table.dataTable.table-sm {
 
   td { 
     white-space: normal !important;
-    word-break: break-all;
+    @extend .text-break;
   }
 }
