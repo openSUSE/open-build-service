@@ -16,15 +16,15 @@
     .d-flex.flex-wrap
       - group.users.each do |user|
         .card.m-1.p-2.group-user
+          - if write_access
+            = link_to(group_user_path(group_title: group.title, user_login: user.login), data: { method: :delete, remote: true },
+              id: user.login, class: 'group-member-removal text-right', title: 'Remove member from group') do
+              %i.fas.fa-sm.fa-times-circle.text-danger
           .row.no-gutters
-            .col-md-2
+            .col-md-3
               = image_tag_for(user, size: 80, custom_class: 'align-self-center')
-            .col-md-10
-              - if write_access
-                = link_to(group_user_path(group_title: group.title, user_login: user.login), data: { method: :delete, remote: true },
-                  class: 'group-member-removal float-right', title: 'Remove member from group') do
-                  %i.fas.fa-sm.fa-times-circle.text-danger
-              .card-body.ml-2
+            .col-md-9
+              .card-body.py-1
                 = link_to(user_show_path(user)) do
                   = display_name(user)
 
