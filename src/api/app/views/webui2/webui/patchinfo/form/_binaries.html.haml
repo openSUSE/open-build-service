@@ -3,9 +3,10 @@
   - if binarylist.present? || binaries.present?
     .form-row
       .col
+        %small.form-text Available binaries
         = select_tag(:available_binaries, options_for_select(binarylist.to_a), multiple: true, size: 6, class: 'custom-select')
-        %small.form-text.text-muted Available binaries
       .col-auto
+        %br
         %button.btn.btn-sm.btn-secondary.mb-1#select-binary{ type: 'button', title: 'Select binary' } >
         %br
         %button.btn.btn-sm.btn-secondary.mb-1#select-binaries{ type: 'button', title: 'Select all binaries' } >>
@@ -14,7 +15,7 @@
         %br
         %button.btn.btn-sm.btn-secondary.mb-1#unselect-binary{ type: 'button', title: 'Unselect binary' } <
       .col
+        %small.form-text Selected binaries
         = form.select(:binaries, options_for_select(binaries.to_a), { include_hidden: false }, multiple: true, size: 6, class: 'custom-select')
-        %small.form-text.text-muted Selected binaries
   - else
-    %p No binaries available
+    %p.font-italic No binaries available
