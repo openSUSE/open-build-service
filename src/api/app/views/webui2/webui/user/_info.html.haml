@@ -24,42 +24,36 @@
                   #{group.tasks} #{'task'.pluralize(group.tasks)}
 
     - if User.session
-      = mail_to user.email, title: "Send mail to #{user.name}" do
+      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
         %i.fas.fa-envelope
         = user.email
-      %br
-
     - if is_user
-      - if configuration.accounts_editable?(user)
-        - if account_edit_link.present?
-          = link_to account_edit_link do
-            %i.fas.fa-user-edit
-            Edit your account
-        - else
-          = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }) do
-            %i.fas.fa-user-edit
-            Edit your account
-        %br
-      - if configuration.passwords_changable?(user)
-        = link_to('#', data: { toggle: 'modal', target: '#password-modal' }) do
-          %i.fas.fa-key
-          Change your password
-        %br
-      = link_to user_notifications_path do
-        %i.fas.fa-bell
-        Change your notifications
-      - if user.rss_token
-        %br
-        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications') do
-          %i.fas.fa-rss-square
-          RSS for notifications
-      %br
       - if user.in_beta?
-        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post) do
+        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post, class: 'd-block') do
           %i.fas.fa-sign-out-alt
           Leave public beta program
       - else
-        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post) do
+        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post, class: 'd-block') do
           %i.fas.fa-sign-in-alt
           Join public beta program
+      - if configuration.accounts_editable?(user)
+        - if account_edit_link.present?
+          = link_to(account_edit_link, class: 'd-block') do
+            %i.fas.fa-user-edit
+            Edit your account
+        - else
+          = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'd-block') do
+            %i.fas.fa-user-edit
+            Edit your account
+      - if configuration.passwords_changable?(user)
+        = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'd-block') do
+          %i.fas.fa-key
+          Change your password
+      = link_to(user_notifications_path, class: 'd-block') do
+        %i.fas.fa-bell
+        Change your notifications
+      - if user.rss_token
+        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications', class: 'd-block') do
+          %i.fas.fa-rss-square
+          RSS for notifications
 
