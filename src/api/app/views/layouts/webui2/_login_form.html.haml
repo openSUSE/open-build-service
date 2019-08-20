@@ -18,6 +18,6 @@
         .form-group
           = label_tag(:password, 'Password', class: 'text-light')
           = password_field_tag(:password, nil, placeholder: 'Password', required: true, class: 'form-control')
-        .float-right
-          = submit_tag('Log In', class: 'btn btn-success')
         .clearfix
+          .float-right
+            = submit_tag('Log In', class: 'btn btn-success')
