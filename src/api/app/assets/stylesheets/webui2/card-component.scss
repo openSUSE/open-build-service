@@ -8,6 +8,14 @@
     h1, h2, h3, h4, h5, h6 {
       color: $primary;
     }
+
+    .description {
+      max-width: $seventy-five-chars;
+    }
+
+    #proceed-list {
+      max-width: $seventy-five-chars;
+    }
   }
 
   .nav-tabs .nav-link.active {
