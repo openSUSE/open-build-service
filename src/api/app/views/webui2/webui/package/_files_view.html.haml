@@ -20,7 +20,7 @@
     .pt-4
       = link_to(package_add_file_path(project, package)) do
         %i.fas.fa-plus-circle.text-primary
-        Add file
+        Add files
     = render(partial: 'delete_file_dialog', locals: { project: project, package: package })
 - unless files.blank? || spider_bot
   - if revision.present?

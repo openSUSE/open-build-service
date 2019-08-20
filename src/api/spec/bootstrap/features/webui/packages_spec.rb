@@ -194,7 +194,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
   scenario 'adding a valid file' do
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add file')
+    click_link('Add files')
 
     click_button('Add an empty file')
     fill_in 'Filename', with: 'new_file'
@@ -206,7 +206,7 @@ RSpec.feature 'Bootstrap_Packages', type: :feature, js: true, vcr: true do
 
   scenario 'adding an invalid file' do
     visit package_show_path(project: user.home_project, package: package)
-    click_link('Add file')
+    click_link('Add files')
 
     click_button('Add an empty file')
     fill_in 'Filename', with: 'inv/alid'
