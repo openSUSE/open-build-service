@@ -2,44 +2,34 @@
   .card-body
     = image_tag_for(user)
 
-    %h4.home-usertitle.mt-4
-      #home-realname
-        = user.realname
-    %h4.d-inline-block#home-login
-      = user.login
+    - if is_user && user.in_beta?
+      %p.bg-info.text-light.text-center
+        In public beta program
+    %h4.mb-0.mt-4#home-realname
+      = user.realname
+    %h5.d-inline-block.mb-0.align-middle.text-muted#home-login= user.login
     - role_titles.each do |title|
-      %span.badge.badge-secondary.align-top
+      %span.badge.badge-secondary
         = title.upcase
 
-    - if User.session
-      %p
-        = mail_to user.email, title: "Send mail to #{user.name}" do
-          %i.fas.fa-envelope
-          = user.email
-
     - if groups.any?
-      Member of the #{'group'.pluralize(groups.size)}
-      %ul
-        - groups.each do |group|
-          %li
-            = link_to(group_show_path(group)) do
-              #{group.title}
-              %span.badge.badge-primary.align-top
-                #{group.tasks} #{'task'.pluralize(group.tasks)}
+      .my-3
+        Member of the #{'group'.pluralize(groups.size)}
+        %ul
+          - groups.each do |group|
+            %li
+              = link_to(group_show_path(group)) do
+                #{group.title}
+                %span.badge.badge-primary.align-baseline
+                  #{group.tasks} #{'task'.pluralize(group.tasks)}
+
+    - if User.session
+      = mail_to user.email, title: "Send mail to #{user.name}" do
+        %i.fas.fa-envelope
+        = user.email
+      %br
 
     - if is_user
-      - if user.in_beta?
-        %p
-          .badge.badge-info
-            In public beta program
-        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post) do
-          %i.fas.fa-sign-out-alt
-          Leave public beta program
-      - else
-        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post) do
-          %i.fas.fa-sign-in-alt
-          Join public beta program
-      %br
       - if configuration.accounts_editable?(user)
         - if account_edit_link.present?
           = link_to account_edit_link do
@@ -58,9 +48,18 @@
       = link_to user_notifications_path do
         %i.fas.fa-bell
         Change your notifications
-      %br
       - if user.rss_token
+        %br
         = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications') do
           %i.fas.fa-rss-square
           RSS for notifications
+      %br
+      - if user.in_beta?
+        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post) do
+          %i.fas.fa-sign-out-alt
+          Leave public beta program
+      - else
+        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post) do
+          %i.fas.fa-sign-in-alt
+          Join public beta program
 
