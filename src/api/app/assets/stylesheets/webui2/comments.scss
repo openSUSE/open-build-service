@@ -6,7 +6,7 @@
       max-width: $seventy-five-chars;
     }
 
-    pre, code {
+    pre {
       @extend .p-2;
       @extend .bg-light;
       @extend .text-pre-wrap;
