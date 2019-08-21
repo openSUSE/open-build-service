@@ -18,10 +18,14 @@ module OBSApi
       IssueTracker.all.each do |t|
         fulldoc = t.get_markdown(fulldoc)
       end
+      fulldoc
+    end
+
+    def block_html(raw_html)
       # sanitize the HTML we get
-      Sanitize.fragment(fulldoc, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
-                                                        elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
-                                                        remove_contents: true))
+      Sanitize.fragment(raw_html, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
+                                                         elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
+                                                         remove_contents: true))
     end
 
     # unfortunately we can't call super (into C) - see vmg/redcarpet#51
