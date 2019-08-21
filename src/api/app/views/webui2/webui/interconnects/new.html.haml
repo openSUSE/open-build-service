@@ -4,8 +4,8 @@
   = render partial: 'tabs'
   .card-body
     %h3= @pagetitle
-    %p Connect a remote Open Build Service instance
-    .list-group.my-3
+    %p Connect a remote Open Build Service instance.
+    .list-group
       = render partial: 'interconnect_button', locals: { name: 'openSUSE.org',
                                                          remoteurl: 'https://api.opensuse.org/public',
                                                          title: 'Standard OBS instance at build.opensuse.org',
@@ -26,8 +26,8 @@
                                                          exists: Project.exists?(name: 'Packman') }
       .list-group-item
         .d-flex.w-100.justify-content-between
-          %h5.mb-1 Custom OBS instance
-          = button_tag 'Add', class: 'btn btn-sm btn-primary', data: { toggle: 'modal', target: '#interconnect-modal' }
-        %small.text-muted This project is representing a remote build service instance.
+          %h5 Custom OBS instance
+          = button_tag 'Add', class: 'btn btn-primary', data: { toggle: 'modal', target: '#interconnect-modal' }
+        %div This project is representing a remote build service instance.
 
 = render partial: 'interconnect_modal'
