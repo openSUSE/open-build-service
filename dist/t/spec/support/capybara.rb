@@ -29,7 +29,7 @@ if hostname.empty?
   hostname = ipaddress
 end
 
-Capybara.app_host = ENV['SMOKETEST_HOST'].nil? ? "https://#{hostname}" : "http://localhost:3000"
+Capybara.app_host = ENV.fetch('SMOKETEST_HOST', "https://#{hostname}")
 
 RSpec.configure do |config|
   config.include Capybara::DSL
