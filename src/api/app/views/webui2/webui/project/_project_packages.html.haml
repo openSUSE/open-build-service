@@ -1,7 +1,7 @@
 .card-body
   - if packages.present?
     .obs-dataTable
-      %table.table.table-sm.table-striped.table-bordered.w-100#packages-table{ data: { source: package_index_path(project: project) } }
+      %table.table.table-sm.table-bordered.w-100#packages-table{ data: { source: package_index_path(project: project) } }
         %thead
           %tr
             %th.w-75 Name

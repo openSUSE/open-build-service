@@ -9,7 +9,7 @@
         = @incidents.count
 
     -# haml-lint:disable MultilinePipe
-    %table.w-100.responsive.table.table-sm.table-striped.table-bordered#incident-table{ data: { |
+    %table.w-100.responsive.table.table-sm.table-bordered#incident-table{ data: { |
     source: project_maintenance_incidents_path(project_name: @project.name) } } |
       -# haml-lint:enable MultilinePipe
       %thead
