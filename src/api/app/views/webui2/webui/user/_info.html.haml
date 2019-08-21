@@ -2,18 +2,20 @@
   .card-body
     = image_tag_for(user)
 
-    - if is_user && user.in_beta?
-      %p.bg-info.text-light.text-center
-        In public beta program
     %h4.mb-0.mt-4#home-realname
       = user.realname
-    %h5.d-inline-block.mb-0.align-middle.text-muted#home-login= user.login
+    %h5.d-inline-block.mb-0.align-middle.text-muted#home-login
+      = user.login
+    - if User.session
+      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+        %i.fas.fa-envelope
+        = user.email
     - role_titles.each do |title|
       %span.badge.badge-secondary
         = title.upcase
 
     - if groups.any?
-      .my-3
+      .mt-4
         Member of the #{'group'.pluralize(groups.size)}
         %ul
           - groups.each do |group|
@@ -23,37 +25,40 @@
                 %span.badge.badge-primary.align-baseline
                   #{group.tasks} #{'task'.pluralize(group.tasks)}
 
-    - if User.session
-      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope
-        = user.email
     - if is_user
-      - if user.in_beta?
-        = link_to(user_save_path(user: { login: user.login, in_beta: 0 }), method: :post, class: 'd-block') do
-          %i.fas.fa-sign-out-alt
-          Leave public beta program
-      - else
-        = link_to(user_save_path(user: { login: user.login, in_beta: 1 }), method: :post, class: 'd-block') do
-          %i.fas.fa-sign-in-alt
-          Join public beta program
-      - if configuration.accounts_editable?(user)
-        - if account_edit_link.present?
-          = link_to(account_edit_link, class: 'd-block') do
-            %i.fas.fa-user-edit
-            Edit your account
-        - else
-          = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'd-block') do
-            %i.fas.fa-user-edit
-            Edit your account
-      - if configuration.passwords_changable?(user)
-        = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'd-block') do
-          %i.fas.fa-key
-          Change your password
-      = link_to(user_notifications_path, class: 'd-block') do
-        %i.fas.fa-bell
-        Change your notifications
-      - if user.rss_token
-        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'), title: 'RSS Feed for Notifications', class: 'd-block') do
-          %i.fas.fa-rss-square
-          RSS for notifications
+      .mt-4
+        = form_tag user_save_path, id: 'beta-form' do
+          .custom-control.custom-switch
+            = hidden_field_tag 'user[in_beta]', false
+            = check_box_tag('user[in_beta]', !user.in_beta, user.in_beta, class: 'custom-control-input', id: 'beta-switch')
+            = label_tag 'Public Beta Program', nil, class: 'custom-control-label', for: 'beta-switch'
+            = hidden_field_tag('user[login]', user.login)
+            %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
+                                                        content: 'In our <strong>beta program</strong> you can try the latest features we ' + |
+                                                                  'develop, so you can give us feedback before we release them.' } } |
 
+      .mt-4
+        - if configuration.accounts_editable?(user)
+          - if account_edit_link.present?
+            = link_to(account_edit_link, class: 'd-block') do
+              %i.fas.fa-user-edit
+              Edit your account
+          - else
+            = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'd-block') do
+              %i.fas.fa-user-edit
+              Edit your account
+        - if configuration.passwords_changable?(user)
+          = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'd-block') do
+            %i.fas.fa-key
+            Change your password
+        = link_to(user_notifications_path, class: 'd-block') do
+          %i.fas.fa-bell
+          Change your notifications
+        - if user.rss_token
+          = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
+                                                title: 'RSS Feed for Notifications', class: 'd-block') do
+            %i.fas.fa-rss-square
+            RSS for notifications
+
+:javascript
+  switchBeta();
