@@ -37,5 +37,9 @@ module OBSApi
       end
       "<a href='#{link}'#{title}>#{content}</a>"
     end
+
+    def block_code(code, language)
+      CodeRay.scan(code, language).div(css: :class)
+    end
   end
 end
