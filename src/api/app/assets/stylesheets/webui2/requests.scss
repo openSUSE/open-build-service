@@ -31,3 +31,9 @@
 .request-flag-declined {
   @extend .text-danger;
 }
+
+#request-history {
+  .media .media-body {
+    @extend .text-break;
+  }
+}
