@@ -43,6 +43,7 @@ BuildRequires:  openldap2-devel
 BuildRequires:  python-devel
 BuildRequires:  ruby2.5-devel
 BuildRequires:  rubygem(ruby:2.5.0:bundler)
+BuildRequires:  chrpath
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -111,11 +112,6 @@ test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rack-%{rack_version}/rack.g
 # run gem clean up script
 /usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
 
-# work around sassc bug - and install libsass
-sassc_dir=$(ls -1d %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/sassc-2*)
-install -D -m 755 $sassc_dir/ext/libsass/lib/libsass.so $sassc_dir/lib
-sed -i -e 's,/ext/libsass,,' $sassc_dir/lib/sassc/native.rb
-
 # Remove sources of extensions, we don't need them
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/ext/
 
@@ -144,6 +140,9 @@ done
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
   chmod a-x $file
 done
+
+# Remove rpaths from files
+chrpath --delete %{buildroot}%_libdir/obs-api/ruby/*/gems/sassc-*-x86_64-linux/lib/sassc/libsass.so
 
 %files
 %_libdir/obs-api
