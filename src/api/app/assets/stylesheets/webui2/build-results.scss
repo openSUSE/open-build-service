@@ -20,14 +20,17 @@
 
 .build-state-succeeded {
   color: $green;
+  & i.fa { @extend .fa-check; }
 }
 
 .build-state-building {
   color: $blue;
+  & i.fa { @extend .fa-cog; }
 }
 
 .build-state-scheduled {
   color: $cyan;
+  & i.fa { @extend .fa-calendar-alt; }
 }
 
 .build-state-signing, .build-state-finished {
@@ -35,7 +38,10 @@
 }
 
 .build-state-unresolvable, .build-state-broken, .build-state-failed {
-  color: $red;
+  @extend .text-white;
+  @extend .bg-danger;
+  @extend .px-1;
+  & i.fa { @extend .fa-exclamation-triangle; }
 }
 
 .build-state-disabled {
@@ -45,10 +51,17 @@
   @extend .text-white;
   @extend .bg-secondary;
   @extend .px-1;
+  & i.fa { @extend .fa-lock; }
 }
 
-.build-state-scheduled-warning, .build-state-unknown {
+.build-state-scheduled-warning {
   color: $orange;
+  & i.fa { @extend .fa-bolt; }
+}
+
+.build-state-unknown {
+  color: $orange;
+  & i.fa { @extend .fa-eye; }
 }
 
 .table-striped .odd {

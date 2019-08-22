@@ -25,7 +25,7 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
       output += ' data-content="' + status.details + '" data-placement="right" data-toggle="popover"';
     }
   }
-  output += ' class="' + klass + '">' + code + '</a>';
+  output += ' class="' + klass + '">' + '<i class="fa"></i>' + ' ' + code + '</a>';
 
   cellContent.display = output;
   cellContent.value = code;
