@@ -1,4 +1,4 @@
-var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info, faviconFinished, faviconRunning, faviconPaused) {
+var LiveLog = function(wrapperId, startButton, stopButton, status, finished, info, faviconFinished, faviconRunning, faviconPaused, faviconSucceeded, faviconFailed) {
   this.wrapper = $(wrapperId);
   this.startButton = $(startButton);
   this.stopButton = $(stopButton);
@@ -6,6 +6,8 @@ var LiveLog = function(wrapperId, startButton, stopButton, status, finished, inf
   this.faviconFinished = faviconFinished;
   this.faviconRunning = faviconRunning;
   this.faviconPaused = faviconPaused;
+  this.faviconSucceeded = faviconSucceeded;
+  this.faviconFailed = faviconFailed;
   this.initial = true;
   this.lastScroll = 0;
   this.ajaxRequest = 0;
@@ -70,12 +72,24 @@ $.extend(LiveLog.prototype, {
     this.lastScroll = window.pageYOffset;
   },
 
-  finish: function() { // jshint ignore:line
+  buildStatusDetails: function(status) {
+    switch (status) {
+      case 'failed':
+        return {content: 'Build failed', indicator: 'failed', favicon: this.faviconFailed};
+      case 'succeeded':
+        return {content: 'Build succeeded', indicator: 'succeeded', favicon: this.faviconSucceeded};
+      default:
+        return {content: 'Build finished', indicator: 'finished', favicon: this.faviconFinished};
+    }
+  },
+
+  finish: function(status) { // jshint ignore:line
     this.finished = true;
     this.stop();
-    this.status.html('Build finished');
-    this.indicatorStatus('finished');
-    this.faviconStatus(this.faviconFinished);
+    var statusDetails = this.buildStatusDetails(status);
+    this.status.html(statusDetails.content);
+    this.indicatorStatus(statusDetails.indicator);
+    this.faviconStatus(statusDetails.favicon);
     this.hideAbort();
     this.stopButton.addClass('d-none');
     this.startButton.addClass('d-none');
