@@ -51,24 +51,6 @@
   color: $orange;
 }
 
-.table-striped .odd {
-  .build-state-succeeded {
-    color: darken($green, 5%);
-  }
-
-  .build-state-scheduled {
-    color: darken($cyan, 5%);
-  }
-
-  .build-state-unresolvable, .build-state-broken, .build-state-failed {
-    color: darken($red, 10%);
-  }
-
-  .build-state-scheduled-warning, .build-state-unknown {
-    color: darken($orange, 5%);
-  }
-}
-
 .repository-state-default {
   @extend .text-black-50;
 }
