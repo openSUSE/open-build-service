@@ -61,48 +61,17 @@ of code to be reviewed.
 ## Proper Commit Messages
 
 We are keen on proper commit messages because they will help us to maintain
-this piece of code in the future.
+this piece of code in the future. So for the benefit of all the people who will
+look at this commit now and in the future, follow this style:
 
 - The title of your commit should summarizes **what** has been done
   - If the title is to small to explain **what** you have done then elaborate on it in the body
-- Explain **why** you have changed this instead of the *how*. This is the most important content of the message.
-- Explain potential side-effects of this change, if there are any
+- The body of your commit should explain **why** you have changed this. This is
+  the most important content of the message!
+- Make sure you also explain potential side-effects of this change, if there are any.
 
-Please also:
-
-- **Leave a blank line between the commit subject and body**
-
-  Tools like rebase could not work properly otherwise.
-
-- **Mention related issues**
-
-  If this commit fixes an issue you need to mention it like `Fixes #1234`
-
-- **Give kudos to Co-authors**
-
-  If the commit has more than one author tag them with `Co-authored-by: name <name@example.com>`.
-
-- **Try that the commit subject is not longer than 50 characters**
-
-- **Try that each line of the commit body is not longer than 72 characters**
-
-- **Try to avoid meaningless words/phrases**
-
-  When possible avoid using words/phrases such as _obviously_, _basically_, _simply_, _of course_, _everyone knows_ and _easy_.
-
-- **Preferably use `-` for lists**
-
-  Do not use `*` as it is also used for _emphasis_.
-
-**Please note** that we used to tag our commits to specify the areas affected by the change.
-We are not tagging commits anymore, but these are the labels and their descriptions in case you review some old code:
-
-  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and its views
-  * [backend] - Changes in the perl-written backend of OBS
-  * [ci]      - Changes that affect our test suite
-  * [dist]    - Modifies something inside /dist directory
-  * [doc]     - Any documentation related changes
-  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
+Please also mind common sense rules for commit messages, we wrote some down in our wiki
+https://github.com/openSUSE/open-build-service/wiki/Commit-Style
 
 ## Proper Pull Request
 
