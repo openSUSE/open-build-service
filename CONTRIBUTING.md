@@ -98,46 +98,71 @@ developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
 # How to review code submissions
+Prerequisites: familiarity with [GitHub pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
-We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
+We believe every code submission should be reviewed by another developer to determine its *maintainability*.
+That means you, the reviewer, should check that the submitted code is:
 
-Every pull request has to be reviewed to ensure the code is effective, understandable, maintainable and secure.
+- functional
+- tested
+- secure
+- effective
+- understandable
 
-The changes must be tested locally or in the review app.
+We also consider code reviews to be one of the best ways to share knowledge about language features/syntax, design and software architecture. So please take this seriously.
 
-Provide constructive feedback and be mindful of the tone you use when reviewing.
+## How to Test Code Submissions
+Changes to the business logic/behavior of the Open Build Service should alway be accompanied by tests
+([frontend](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec)/
+[backend](https://github.com/openSUSE/open-build-service/tree/master/src/backend/t)) that will be run
+by our continuous integration.
 
-## How to Provide Constructive Feedback
+However there is often a significant difference between something functional and something usable.
+So we strongly encourage manual testing during the code review. For this you should either check
+out the changes locally (see the "view command line instructions" link at the bottom of every PR)
+and run them in your development environment.
 
-We took inspiration from [GitLab](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/code_review.md).
+Or you make use of our [review app bot](https://github.com/openSUSE/open-build-service/wiki/Review-apps)
+(by applying the `review-app` label to the PR) which will deploy the code to
+our review server and tell you how to access it in a comment.
 
-- Be respectful.
-- Accept that many decisions are opinions. Discuss tradeoffs, which you prefer, and reach a resolution quickly.
-- Propose solutions instead of only requesting changes. ("What do you think about naming this :user_id?").
-- Ask for clarification  ("I didn't understand. Can you clarify?") and consider one-on-one chats or video calls if there are too many "I didn't understand" or "Alternative solution:" comments. Post a follow-up comment summarizing the discussion.
-- Avoid selective ownership of code. ("mine", "not mine", "yours").
-- Avoid using terms that could be seen as referring to personal traits. ("dumb", "stupid"). Assume everyone is attractive, intelligent, and well-meaning.
-- Be explicit. Remember people don't always understand your intentions online.
-- Be humble. ("I'm not sure - let's look it up."). Remember, reviews aren't about showing off.
-- Don't use hyperbole. ("always", "never", "endlessly", "nothing").
-- Be careful about the use of sarcasm. Everything we do is public; what seems like good-natured ribbing to you and a long-time colleague might come off as mean and unwelcoming to a person new to the project.
-- Avoid asking for changes which are out of scope. Those should be addressed at another time (open an issue or send a PR).
+## How to Provide Feedback
 
-## When to Merge Pull Requests
+The tone of your code review will greatly influence morale within our community.
+
+Harsh language in code reviews creates a hostile environment, opinionated language turns people defensive. Often leading to heated discussions and hurt feelings. On the other hand a positive tone can contribute to a more inclusive environment. People start to feel safe, healthy and lively discussions evolve.
+
+So here are some basic rules we aspire to follow (we took inspiration from [GitLab](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/code_review.md) for these) to foster constructive, positive feedback.
+
+- **Be respectful** to each other: We are in this together!
+- **Be humble**: Reviews aren't about showing off (Example: "I'm not sure - let's look it up.")
+- **Be explicit**: People don't always understand your intentions online.
+- **Be careful about the use of sarcasm**: Everything we do is public; what seems like good-natured kidding to you and a long-time friend, might come off as mean and unwelcoming to a person new to the project
+- Accept that many decisions are opinions: Discuss trade-offs and preferences openly
+- Propose solutions instead of only requesting changes. (Example: *"What do you think about naming this `:user_id` instead of `:db_user`?"*)
+- Ask for clarification instead of assuming things (Example: *"I don't understand this change. Can you clarify this for me please?"*)
+- Consider one-on-one chats or video calls if there are too many things that are not clear. Afterward post a follow-up comment summarizing the discussion you had, so everybody can follow your decision.
+- Avoid expressing selective ownership of code (*"my code"*, *"not my code"*, *"your code"*), we are a community and share ownership
+- Avoid using terms that could be seen as referring to personal traits. (Example: *"dumb"*, *"stupid"*, *"simple"*). Assume everyone is attractive, intelligent, and well-meaning, because everyone is!
+- Don't use hyperbole. (Example: *"always"*, *"never"*, *"endlessly"*, *"nothing"*).
+- Avoid asking for changes which are out of scope. Things out of scope should be addressed at another time (open an issue or send a PR).
+
+## How to Merge Pull Requests
 
 In order to merge a pull request, it needs:
 
-- all of the required GitHub checks to pass (waiting for all of them to pass is recommended)
-- a review from at least 1 team member (2 reviews are recommended)
-- all requested changes to be addressed*
+- The **required** GitHub checks to pass (waiting for all checks to pass is recommended)
+- A review from at least one OBS developer
+- All requested changes to be addressed*
 
-\* Dismissing a review with requested changes is possible only if the reviewer is not reachable for a while and the requested changes are addressed and approved by another team member.
+\* Dismissing a review with requested changes should only be done if we know the reviewer is not reachable for a while.
 
 # How to Contribute Bug Reports
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
 
 We are using priority labels from **P1** to **P4** for our issues. So if you are a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) you are supposed to
+
 * P1: Urgent - Fix this next even if you still have other issues assigned to you.
 * P2: High   - Fix this after you have fixed all your other issues.
 * P3: Medium - Fix this when you have time.
