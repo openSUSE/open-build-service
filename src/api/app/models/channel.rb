@@ -43,59 +43,6 @@ class Channel < ApplicationRecord
     "#{package.name}.#{project_name}"
   end
 
-  def _update_from_xml_targets(xmlhash)
-    # sync channel targets
-    hasharray = []
-    xmlhash.elements('target').each do |p|
-      prj = Project.find_by_name(p['project'])
-      next unless prj
-      r = prj.repositories.find_by_name(p['repository'])
-      next unless r
-      hasharray << { project: r.project,
-                     repository: r, id_template: p['id_template'],
-                     requires_issue: p['requires_issue'],
-                     disabled: p.key?('disabled') }
-    end
-    sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
-  end
-
-  def _update_from_xml_binary_lists(xmlhash)
-    # sync binary lists
-    hasharray = []
-    xmlhash.elements('binaries').each do |p|
-      repository = nil
-      project = p['project']
-      if project.present?
-        project = Project.find_by_name(project)
-        next unless project
-        repository = project.repositories.find_by_name(p['repository']) if p['repository']
-        next unless repository
-      end
-      arch = nil
-      arch = Architecture.find_by_name!(p['arch']) if p['arch']
-      hasharray << { project: project, architecture: arch,
-                     repository: repository }
-    end
-    sync_hash_with_model(ChannelBinaryList, channel_binary_lists, hasharray)
-  end
-
-  def _update_from_xml_binaries(cbl, xmlhash)
-    hasharray = []
-    xmlhash.each do |b|
-      arch = nil
-      arch = Architecture.find_by_name!(b['arch']) if b['arch']
-      hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
-               project: nil, architecture: arch,
-               package: b['package'], repository: nil }
-      if b['project']
-        hash[:project] = Project.get_by_name(b['project'])
-        hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
-      end
-      hasharray << hash
-    end
-    sync_hash_with_model(ChannelBinary, cbl.channel_binaries, hasharray)
-  end
-
   def update_from_xml(xmlhash)
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
 
@@ -173,6 +120,61 @@ class Channel < ApplicationRecord
       # enable package
       target_package.enable_for_repository(repo_name)
     end
+  end
+
+  private
+
+  def _update_from_xml_binaries(cbl, xmlhash)
+    hasharray = []
+    xmlhash.each do |b|
+      arch = nil
+      arch = Architecture.find_by_name!(b['arch']) if b['arch']
+      hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
+               project: nil, architecture: arch,
+               package: b['package'], repository: nil }
+      if b['project']
+        hash[:project] = Project.get_by_name(b['project'])
+        hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
+      end
+      hasharray << hash
+    end
+    sync_hash_with_model(ChannelBinary, cbl.channel_binaries, hasharray)
+  end
+
+  def _update_from_xml_binary_lists(xmlhash)
+    # sync binary lists
+    hasharray = []
+    xmlhash.elements('binaries').each do |p|
+      repository = nil
+      project = p['project']
+      if project.present?
+        project = Project.find_by_name(project)
+        next unless project
+        repository = project.repositories.find_by_name(p['repository']) if p['repository']
+        next unless repository
+      end
+      arch = nil
+      arch = Architecture.find_by_name!(p['arch']) if p['arch']
+      hasharray << { project: project, architecture: arch,
+                     repository: repository }
+    end
+    sync_hash_with_model(ChannelBinaryList, channel_binary_lists, hasharray)
+  end
+
+  def _update_from_xml_targets(xmlhash)
+    # sync channel targets
+    hasharray = []
+    xmlhash.elements('target').each do |p|
+      prj = Project.find_by_name(p['project'])
+      next unless prj
+      r = prj.repositories.find_by_name(p['repository'])
+      next unless r
+      hasharray << { project: r.project,
+                     repository: r, id_template: p['id_template'],
+                     requires_issue: p['requires_issue'],
+                     disabled: p.key?('disabled') }
+    end
+    sync_hash_with_model(ChannelTarget, channel_targets, hasharray)
   end
 end
 

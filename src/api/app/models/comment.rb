@@ -26,6 +26,18 @@ class Comment < ApplicationRecord
     body
   end
 
+  def blank_or_destroy
+    if children.exists?
+      self.body = 'This comment has been deleted'
+      self.user = User.find_nobody!
+      save!
+    else
+      destroy
+    end
+  end
+
+  private
+
   def create_notification(params = {})
     params[:commenter] = user.login
     params[:comment_body] = body
@@ -48,6 +60,10 @@ class Comment < ApplicationRecord
     end
   end
 
+  def delete_parent_if_unused
+    parent.destroy if parent && parent.user.is_nobody? && parent.children.length.zero?
+  end
+
   # build an array of users, commenting or being mentioned on the commentable of this comment
   def involved_users
     users = Set.new
@@ -62,22 +78,6 @@ class Comment < ApplicationRecord
     end
     users += User.where(login: users_mentioned).pluck(:login)
     users.to_a
-  end
-
-  def blank_or_destroy
-    if children.exists?
-      self.body = 'This comment has been deleted'
-      self.user = User.find_nobody!
-      save!
-    else
-      destroy
-    end
-  end
-
-  private
-
-  def delete_parent_if_unused
-    parent.destroy if parent && parent.user.is_nobody? && parent.children.length.zero?
   end
 
   def validate_parent_id

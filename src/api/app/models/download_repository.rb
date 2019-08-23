@@ -12,6 +12,8 @@ class DownloadRepository < ApplicationRecord
 
   delegate :to_s, to: :id
 
+  private
+
   def architecture_inclusion
     # Workaround for rspec validation test (validate_presence_of(:repository_id))
     return unless repository

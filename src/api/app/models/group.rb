@@ -123,15 +123,6 @@ class Group < ApplicationRecord
     to_s
   end
 
-  def involved_projects_ids
-    # just for maintainer for now.
-    role = Role.hashed['maintainer']
-
-    ### all projects where user is maintainer
-    Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
-  end
-  protected :involved_projects_ids
-
   def involved_projects
     # now filter the projects that are not visible
     Project.where(id: involved_projects_ids)
@@ -197,6 +188,16 @@ class Group < ApplicationRecord
 
   def maintainer?(user)
     group_maintainers.where(user: user).exists?
+  end
+
+  private
+
+  def involved_projects_ids
+    # just for maintainer for now.
+    role = Role.hashed['maintainer']
+
+    ### all projects where user is maintainer
+    Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
   end
 end
 

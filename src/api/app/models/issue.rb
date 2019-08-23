@@ -12,12 +12,9 @@ class Issue < ApplicationRecord
 
   validate :name_validation, on: :create
 
-  def name_validation
-    return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
-    errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
-  end
-
   scope :stateless, -> { where(state: nil) }
+
+  after_create :fetch_issues
 
   def self.find_or_create_by_name_and_tracker(name, issue_tracker_name, force_update = nil)
     find_by_name_and_tracker(name, issue_tracker_name, force_update: force_update, create_missing: true)
@@ -58,7 +55,6 @@ class Issue < ApplicationRecord
     tracker.show_label_for(name).match?(tracker.regex)
   end
 
-  after_create :fetch_issues
   def fetch_issues
     IssueTrackerFetchIssuesJob.perform_later(issue_tracker.id)
   end
@@ -141,6 +137,13 @@ class Issue < ApplicationRecord
   #        and change app/views/source/_package_issues.xml.builder to use issues directly
   def issue
     self
+  end
+
+  private
+
+  def name_validation
+    return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
+    errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
   end
 end
 
