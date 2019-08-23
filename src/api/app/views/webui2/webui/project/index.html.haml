@@ -5,7 +5,7 @@
     .card-body
       %h3 Main Projects
       .table-responsive
-        %table.table.table-sm.table-striped.table-bordered
+        %table.table.table-sm.table-bordered.table-hover
           %thead
             %tr
               %th Name
@@ -32,8 +32,8 @@
             Add New Project
           = render partial: 'new_project_modal', locals: { configuration: @configuration }
 
-    %table.responsive.table.table-sm.table-striped.table-bordered.w-100#projects-datatable{ data: { source: projects_path(format: :json),
-                                                                                                    all: 'false' } }
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                  all: 'false' } }
       %thead
         %tr
           %th Name

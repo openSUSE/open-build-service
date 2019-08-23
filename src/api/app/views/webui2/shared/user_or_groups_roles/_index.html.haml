@@ -15,7 +15,7 @@
 #involved-users{ data: data }
   - if users.present?
     %h3 User Roles
-    %table.responsive.table.table-sm.table-striped.table-bordered.w-100#user-table
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#user-table
       %thead
         %tr
           %td Username
@@ -41,7 +41,7 @@
 
   - if @groups.present?
     %h3 Group Roles
-    %table.responsive.table.table-sm.table-striped.table-bordered.w-100#group-table
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#group-table
       %thead
         %tr
           %td Group name

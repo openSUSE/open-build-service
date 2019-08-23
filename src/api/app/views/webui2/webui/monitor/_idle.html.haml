@@ -9,7 +9,7 @@
     %p
       = idle_hosts.size
       of #{pluralize(worker_status['clients'], 'host')} idle.
-    %table.responsive.table.table-sm.table-striped.table-bordered
+    %table.responsive.table.table-sm.table-bordered.table-hover
       %thead
         %tr
           %th Host
