@@ -1,4 +1,3 @@
-# Request for Contributions
 We are always looking for contributions to the Open Build Service.
 
 In particular, this community seeks the following types of contributions:
@@ -16,8 +15,8 @@ Read this guide on how to do that.
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
 6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
 
-
 # How to Contribute Code
+
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 
 If you want to contribute code, fork the repository and make a pull-request
@@ -79,6 +78,7 @@ In order to make it as easy as possible for other developers to review your pull
 follow what we ask in the pull request template that comes up if you open a new one.
 
 ## Mind the Automated Reviews
+
 Please make sure to mind our continuous integration cycle that includes:
 
 - code style linting with tools like rubocop, jshint, haml-lint etc.
@@ -98,6 +98,7 @@ developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
 # How to review code submissions
+
 Prerequisites: familiarity with [GitHub pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
 We believe every code submission should be reviewed by another developer to determine its *maintainability*.
@@ -112,6 +113,7 @@ That means you, the reviewer, should check that the submitted code is:
 We also consider code reviews to be one of the best ways to share knowledge about language features/syntax, design and software architecture. So please take this seriously.
 
 ## How to Test Code Submissions
+
 Changes to the business logic/behavior of the Open Build Service should alway be accompanied by tests
 ([frontend](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec)/
 [backend](https://github.com/openSUSE/open-build-service/tree/master/src/backend/t)) that will be run
@@ -158,6 +160,7 @@ In order to merge a pull request, it needs:
 \* Dismissing a review with requested changes should only be done if we know the reviewer is not reachable for a while.
 
 # How to Contribute Bug Reports
+
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
 
@@ -169,15 +172,18 @@ We are using priority labels from **P1** to **P4** for our issues. So if you are
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to Contribute Documentation
+
 The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
 
 # How to Conduct Yourself when Contributing
+
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https:/en.openSUSE.org/openSUSE:Board) know!
 
 # How to Setup an OBS Development Environment
+
 We are using [docker](https://www.docker.com/) to create our development
 environment. All the tools needed for this are available for Linux, MacOS and
 Windows.
@@ -247,4 +253,3 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
 
 # Happy Hacking! - :heart: Your Open Build Service Team
-
