@@ -104,7 +104,7 @@ We are not tagging commits anymore, but these are the labels and their descripti
   * [doc]     - Any documentation related changes
   * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
 
-## The Perfect Pull Request
+## Proper Pull Request
 
 Please, add a good description to your pull request. Explain what moved you to add that new feature or what was the issue you are trying to fix. Also describe briefly the solution you propose.
 
@@ -142,7 +142,7 @@ with us in the pull-request, over the
 developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
-# The Perfect Pull Request Review
+# How to review code submissions
 
 We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
