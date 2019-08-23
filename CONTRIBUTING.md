@@ -106,22 +106,8 @@ We are not tagging commits anymore, but these are the labels and their descripti
 
 ## Proper Pull Request
 
-Please, add a good description to your pull request. Explain what moved you to add that new feature or what was the issue you are trying to fix. Also describe briefly the solution you propose.
-
-In order to help reviewers:
-
-- Explain the workflow they have to follow to get to the feature.
-- Explain how they can test your changes, providing some sample data if possible.
-- Provide [osc](https://github.com/openSUSE/osc) commands to test your changes if that is the case.
-- For visual or design-related pull requests:
-  - add screenshots or GIFs,
-  - enable review app*
-- For performance-related pull requests:
-  - add sample data in the review app* and put links in the pull request's description
-  - add benchmarks
-
-\* _Review app can be enabled by applying the `review-app` label to the pull request, it should be done by a member of the OBS team._
-
+In order to make it as easy as possible for other developers to review your pull request we ask you to
+follow what we ask in the pull request template that comes up if you open a new one.
 
 ## Mind the Automated Reviews
 Please make sure to mind our continuous integration cycle that includes:
