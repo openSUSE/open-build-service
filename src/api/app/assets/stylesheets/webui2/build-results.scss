@@ -23,15 +23,21 @@
 }
 
 .build-state-building {
-  color: $blue;
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $blue;
 }
 
 .build-state-scheduled {
-  color: $cyan;
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $cyan;
 }
 
 .build-state-signing, .build-state-finished {
-  color: $dark;
+  color: black;
+  @extend .px-1;
+  background-color: $yellow;
 }
 
 .build-state-unresolvable, .build-state-broken, .build-state-failed {
@@ -39,15 +45,24 @@
 }
 
 .build-state-disabled {
-  @extend .text-black-50;
-}
-.build-state-blocked {
   @extend .text-white;
-  @extend .bg-secondary;
   @extend .px-1;
+  background-color: $gray-600;
 }
 
-.build-state-scheduled-warning, .build-state-unknown {
+.build-state-blocked {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $gray-600;
+}
+
+.build-state-scheduled-warning {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $orange;
+}
+
+.build-state-unknown {
   color: $orange;
 }
 
