@@ -112,8 +112,10 @@ if proj.empty? || repo.empty? || arch.empty?
 end
 
 # verify apiurl
-puts "\nVerify API URL '#{apiurl}':
-osc -A #{apiurl} api -m GET /about > /dev/null" if verbose
+if verbose
+  puts "\nVerify API URL '#{apiurl}':
+  osc -A #{apiurl} api -m GET /about > /dev/null"
+end
 if !system("osc -A #{apiurl} api -m GET /about > /dev/null")
   puts "Verify API URL '#{apiurl}': failed"
   exit(1)
@@ -122,8 +124,10 @@ else
 end
 
 # verify proj
-puts "\nVerify proj '#{proj}':
-osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null" if verbose
+if verbose
+  puts "\nVerify proj '#{proj}':
+  osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null"
+end
 if !system("osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null")
   puts "Verify proj '#{proj}': failed"
   exit(1)
@@ -132,8 +136,10 @@ else
 end
 
 # verify repo
-puts "\nVerify repo '#{repo}':
-osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null" if verbose
+if verbose
+  puts "\nVerify repo '#{repo}':
+  osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null"
+end
 if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null")
   puts "Verify repo '#{repo}': failed"
   exit(1)
@@ -142,8 +148,10 @@ else
 end
 
 # verify arch
-puts "\nVerify arch '#{arch}':
-osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null" if verbose
+if verbose
+  puts "\nVerify arch '#{arch}':
+  osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null"
+end
 if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null")
   puts "Verify arch '#{arch}': failed"
   exit(1)
@@ -181,15 +189,23 @@ puts "
 # Project meta #
 ################"
 # retrieve project meta and configuration data
-puts "\nRetrieve project meta data:
-osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml" if verbose
-system("
-osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml") if !trialrun
+if verbose
+  puts "\nRetrieve project meta data:
+  osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml"
+end
+if !trialrun
+  system("
+  osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml")
+end
 
-puts "\nRetrieve project configuration data:
-osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf" if verbose
-system("
-osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf") if !trialrun
+if verbose
+  puts "\nRetrieve project configuration data:
+  osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf"
+end
+if !trialrun
+  system("
+  osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf")
+end
 
 puts "
 ####################
@@ -252,8 +268,10 @@ filelist.elements.each("binarylist/binary") do |binary|
 
   cmd = "osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository/#{fname} > #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}"
 
-  puts "  download:
-  #{cmd}" if verbose
+  if verbose
+    puts "  download:
+    #{cmd}"
+  end
   if trialrun
     puts "  trialrun: skip download"
     next
