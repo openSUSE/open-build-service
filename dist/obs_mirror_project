@@ -152,7 +152,7 @@ else
 end
 
 # method for verify directory
-def directory_verify (path, name, verbose, trialrun)
+def directory_verify(path, name, verbose, trialrun)
   puts "\nVerify #{name} directory '#{path}':" if verbose
   if !FileTest.directory?("#{path}")
     puts "Creating #{name} directory: #{path}"
