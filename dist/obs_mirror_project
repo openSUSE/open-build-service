@@ -94,8 +94,8 @@ if verbose
   puts repo: repo
   puts arch: arch
   puts dest: dest
-  puts apiurl:  apiurl
-  puts trialrun:  trialrun
+  puts apiurl: apiurl
+  puts trialrun: trialrun
   puts verbose: verbose
 end
 

@@ -57,7 +57,7 @@ def send_notification(from, to, subject, message)
       subject subject
       body    message
     end
-    settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false  }
+    settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false }
     settings[:domain] = ENV["HOSTNAME"] if ENV["HOSTNAME"].present?
     mail.delivery_method :smtp, settings
     mail.deliver
