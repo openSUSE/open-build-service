@@ -36,16 +36,16 @@ def modules_to_sentence(modules)
 end
 
 def build_message(build, successful_modules, failed_modules, version)
-<<MESSAGE_END
-See #{OPEN_QA}tests/overview?distri=#{DISTRIBUTION}&version=#{version}&build=#{build}&groupid=#{GROUP}
+<<~MESSAGE_END
+  See #{OPEN_QA}tests/overview?distri=#{DISTRIBUTION}&version=#{version}&build=#{build}&groupid=#{GROUP}
 
-#{failed_modules.length + successful_modules.length} modules, #{failed_modules.length} failed, #{successful_modules.length} successful
+  #{failed_modules.length + successful_modules.length} modules, #{failed_modules.length} failed, #{successful_modules.length} successful
 
-Failed:
-#{failed_modules.join("\n")}
+  Failed:
+  #{failed_modules.join("\n")}
 
-Successful:
-#{successful_modules.join("\n")}
+  Successful:
+  #{successful_modules.join("\n")}
 MESSAGE_END
 end
 
