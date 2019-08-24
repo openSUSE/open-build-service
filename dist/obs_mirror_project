@@ -82,8 +82,8 @@ optparse.parse!
 proj = options[:proj]
 repo = options[:repo]
 arch = options[:arch]
-!options[:dest].empty?    ? dest = options[:dest]     : dest = Dir.pwd
-!options[:apiurl].empty?  ? apiurl = options[:apiurl] : apiurl = "https://api.opensuse.org"
+dest = !options[:dest].empty? ? options[:dest] : Dir.pwd
+apiurl = !options[:apiurl].empty? ? options[:apiurl] : "https://api.opensuse.org"
 trialrun = options[:trialrun]
 verbose = options[:verbose]
 

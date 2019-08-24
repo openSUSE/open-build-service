@@ -75,14 +75,6 @@ Style/ClassAndModuleChildren:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 Style/ExpandPathArguments:
   Exclude:
     - 'dist/t/spec/features/0040_package_spec.rb'
