@@ -27,31 +27,31 @@ Options help:
   # Define the options, and what they do
   options[:proj] = ""
   opts.on( '-p', '--proj PROJECT',
-           "Project Name:      eg. openSUSE:13.1,Ubuntu:14.04,etc." ) do|f|
+           "Project Name:      eg. openSUSE:13.1,Ubuntu:14.04,etc." ) do |f|
     options[:proj] = f
   end
 
   options[:repo] = ""
   opts.on( '-r', '--repo REPOSITORY',
-           "Repository Name:   eg. standard,qemu,etc." ) do|f|
+           "Repository Name:   eg. standard,qemu,etc." ) do |f|
     options[:repo] = f
   end
 
   options[:arch] = ""
   opts.on( '-a', '--arch Architecture',
-           "Architecture Name: eg. i586,x86_64,etc.") do|f|
+           "Architecture Name: eg. i586,x86_64,etc.") do |f|
     options[:arch] = f
   end
 
   options[:dest] = ""
   opts.on( '-d', '--dest DESTINATION',
-           "Destination Path:  eg. /obs          Default: PWD (current working directory)" ) do|f|
+           "Destination Path:  eg. /obs          Default: PWD (current working directory)" ) do |f|
     options[:dest] = f
   end
 
   options[:apiurl] = ""
   opts.on( '-A', '--api APIURL',
-           "OSC API URL:                         Default: https://api.opensuse.org" ) do|f|
+           "OSC API URL:                         Default: https://api.opensuse.org" ) do |f|
     options[:apiurl] = f
   end
 
