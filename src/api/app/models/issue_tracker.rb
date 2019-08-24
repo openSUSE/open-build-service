@@ -49,11 +49,6 @@ class IssueTracker < ApplicationRecord
     label.gsub('@@@', issue)
   end
 
-  # expands all matches with defined urls
-  def get_html(text)
-    text.gsub(Regexp.new(regex)) { show_url_for(Regexp.last_match(1), true) }
-  end
-
   def get_markdown(text)
     text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for(Regexp.last_match(1), false)})" }
   end

@@ -11,10 +11,6 @@ class IssueTest < ActiveSupport::TestCase
     bnc = IssueTracker.find_by_name('bnc')
     url = bnc.show_url_for('0815')
     assert_equal url, 'https://bugzilla.novell.com/show_bug.cgi?id=0815'
-    html = bnc.get_html('<body><p>blah bnc#123 and bnc#789 and fate#9 via CVE-1974-42 </p></body>')
-    # rubocop:disable Metrics/LineLength
-    assert_equal html, '<body><p>blah <a href="https://bugzilla.novell.com/show_bug.cgi?id=123">bnc#123</a> and <a href="https://bugzilla.novell.com/show_bug.cgi?id=789">bnc#789</a> and fate#9 via CVE-1974-42 </p></body>'
-    # rubocop:enable Metrics/LineLength
   end
 
   def test_create_and_destroy
