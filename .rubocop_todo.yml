@@ -18,12 +18,6 @@ Lint/RescueException:
     - 'dist/openQA_mail_notification.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-Lint/ScriptPermission:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-
-# Offense count: 1
 Lint/UselessAssignment:
   Exclude:
     - 'dist/obs_mirror_project'
