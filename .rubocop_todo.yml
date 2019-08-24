@@ -73,14 +73,6 @@ Style/ClassAndModuleChildren:
   Exclude:
     - 'docs/dev/controller_template_example.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: each, for
-Style/For:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 14
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

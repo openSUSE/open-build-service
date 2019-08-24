@@ -260,7 +260,7 @@ filelist.elements.each("binarylist/binary") do |binary|
   end
 
   # re-try download 3 times
-  for i in 0..2
+  (0..2).each do |i|
     if system(cmd)
       puts "  success: download finished" if verbose
       break
