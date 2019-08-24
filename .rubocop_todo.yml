@@ -94,13 +94,6 @@ Style/FrozenStringLiteralComment:
     - 'docs/dev/controller_template_example.rb'
     - 'docs/dev/model_template_example.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Exclude:
-    - 'dist/t/spec/features/0040_package_spec.rb'
-    - 'dist/t/spec/support/capybara.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.

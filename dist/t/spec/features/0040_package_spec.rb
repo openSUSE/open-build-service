@@ -65,9 +65,7 @@ RSpec.describe "Package" do
       sleep(5)
       puts "Refreshed build results, #{counter} retries left."
       succeed_build = page.all('td', class: 'status_succeeded')
-      if succeed_build.length == 1
-        break
-      end
+      break if succeed_build.length == 1
     end
   end
 end
