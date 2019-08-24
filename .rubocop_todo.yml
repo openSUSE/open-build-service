@@ -99,15 +99,6 @@ Style/MixinUsage:
   Exclude:
     - 'dist/obs_mirror_project'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-Style/MutableConstant:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-    - 'dist/t/spec/spec_helper.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

@@ -7,14 +7,14 @@ require 'json'
 require 'mail'
 require 'yaml/store'
 
-FROM = 'obs-admin@opensuse.org'
-TO_SUCCESS = 'obs-tests@opensuse.org'
-TO_FAILED = 'obs-errors@opensuse.org'
-SMTP_SERVER = ''
-OPEN_QA = 'https://openqa.opensuse.org/'
-DISTRIBUTION = 'obs'
-VERSIONS = ['Unstable', '2.9', '2.8']
-GROUP = '17'
+FROM = 'obs-admin@opensuse.org'.freeze
+TO_SUCCESS = 'obs-tests@opensuse.org'.freeze
+TO_FAILED = 'obs-errors@opensuse.org'.freeze
+SMTP_SERVER = ''.freeze
+OPEN_QA = 'https://openqa.opensuse.org/'.freeze
+DISTRIBUTION = 'obs'.freeze
+VERSIONS = ['Unstable', '2.9', '2.8'].freeze
+GROUP = '17'.freeze
 
 def get_build_information(version)
   begin
