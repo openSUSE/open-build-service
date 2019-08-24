@@ -107,7 +107,7 @@ puts "
 if proj.empty? || repo.empty? || arch.empty?
   puts "ERROR! Miss mandatory options: '-p' or '-r' or '-a'"
   puts "Options: #{options}"
-  puts optparse.help()
+  puts optparse.help
   exit(1)
 end
 

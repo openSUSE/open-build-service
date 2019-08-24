@@ -95,13 +95,6 @@ Style/FrozenStringLiteralComment:
     - 'docs/dev/model_template_example.rb'
 
 # Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
-# Offense count: 1
 Style/MixinUsage:
   Exclude:
     - 'dist/obs_mirror_project'
