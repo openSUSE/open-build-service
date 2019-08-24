@@ -73,12 +73,6 @@ Style/ClassAndModuleChildren:
   Exclude:
     - 'docs/dev/controller_template_example.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'dist/t/spec/features/0040_package_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
