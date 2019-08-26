@@ -68,6 +68,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
     end
 
     scenario 'public beta program' do
+      skip_if_bootstrap
       # TODO: Change by have_text('In public beta program') when dropping old UI
       expect(page).not_to have_content(/(Participates in|In) public beta program/)
 
