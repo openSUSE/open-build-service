@@ -63,7 +63,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
     scenario 'with invalid data (validation fails)' do
       fill_in 'name', with: 'cool stuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      click_button('Create')
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -73,7 +73,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       create(:package, name: 'coolstuff', project: user.home_project)
 
       fill_in 'name', with: 'coolstuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      click_button('Create')
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
@@ -102,7 +102,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Create Package')
 
       fill_in 'name', with: 'coolstuff'
-      is_bootstrap? ? click_button('Create') : click_button('Accept')
+      click_button('Create')
 
       expect(page).to have_text("Package 'coolstuff' was created successfully")
       expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: 'coolstuff'))
@@ -311,7 +311,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
-      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
       # This needs global write through
       click_button('Accept')
 
@@ -348,7 +347,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
-      expect(page).to(have_text('1 result is available')) unless is_bootstrap?
       # This needs global write through
       click_button('Accept')
 
@@ -426,7 +424,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
       login(admin_user)
       visit project_show_path(project)
 
-      click_link('Advanced') unless is_bootstrap?
       click_link('Attributes')
       click_link('Add a new attribute')
       select('OBS:MaintenanceProject')
