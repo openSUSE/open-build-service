@@ -1,9 +1,0 @@
-= possibly_empty_ul class: 'horizontal-list' do
-  - if User.session
-    %li.togglable_comment{ "data-toggle": "reply_form_of_#{comment.id}" }
-      %a{ id: "reply_link_id_#{comment.id}" }
-        = sprited_text('comment_add', 'Reply')
-  - if policy(comment).destroy?
-    %li
-      = link_to(sprited_text('comment_delete', 'Delete'), comment_path(comment, no_switch: true), method: :delete, id: "delete_link_id_#{comment.id}", class: 'delete_link', remote: true,
-        'data-confirm': 'Do you really want delete this comment?')

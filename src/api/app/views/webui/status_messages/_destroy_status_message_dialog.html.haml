@@ -1,7 +1,0 @@
-.dialog.darkgrey_box
-  .box.box-shadow
-    %h2.box-header Delete Confirmation
-    .dialog-content
-      %p Really delete this status message?
-    = form_tag(status_message_path(id: params[:id]), method: :delete) do
-      = render partial: '/webui/shared/dialog_action_buttons'
