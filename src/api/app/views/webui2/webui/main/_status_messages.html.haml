@@ -7,7 +7,7 @@
         %i.fa.fa-rss
   .list-group
     - @status_messages.each do |message|
-      = render partial: 'status_messages/item', locals: { message: message }
+      = render partial: 'status_message', locals: { message: message }
     - if User.admin_session?
       .card-footer
         = link_to('#', 'data-toggle': 'modal', 'data-target': '#status-message-modal') do
