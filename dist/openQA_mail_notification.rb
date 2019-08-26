@@ -7,14 +7,14 @@ require 'json'
 require 'mail'
 require 'yaml/store'
 
-FROM = 'obs-admin@opensuse.org'
-TO_SUCCESS = 'obs-tests@opensuse.org'
-TO_FAILED = 'obs-errors@opensuse.org'
-SMTP_SERVER = ''
-OPEN_QA = 'https://openqa.opensuse.org/'
-DISTRIBUTION = 'obs'
-VERSIONS = ['Unstable', '2.9', '2.8']
-GROUP = '17'
+FROM = 'obs-admin@opensuse.org'.freeze
+TO_SUCCESS = 'obs-tests@opensuse.org'.freeze
+TO_FAILED = 'obs-errors@opensuse.org'.freeze
+SMTP_SERVER = ''.freeze
+OPEN_QA = 'https://openqa.opensuse.org/'.freeze
+DISTRIBUTION = 'obs'.freeze
+VERSIONS = ['Unstable', '2.9', '2.8'].freeze
+GROUP = '17'.freeze
 
 def get_build_information(version)
   begin
@@ -36,17 +36,17 @@ def modules_to_sentence(modules)
 end
 
 def build_message(build, successful_modules, failed_modules, version)
-<<MESSAGE_END
-See #{OPEN_QA}tests/overview?distri=#{DISTRIBUTION}&version=#{version}&build=#{build}&groupid=#{GROUP}
+  <<~MESSAGE_END
+    See #{OPEN_QA}tests/overview?distri=#{DISTRIBUTION}&version=#{version}&build=#{build}&groupid=#{GROUP}
 
-#{failed_modules.length + successful_modules.length} modules, #{failed_modules.length} failed, #{successful_modules.length} successful
+    #{failed_modules.length + successful_modules.length} modules, #{failed_modules.length} failed, #{successful_modules.length} successful
 
-Failed:
-#{failed_modules.join("\n")}
+    Failed:
+    #{failed_modules.join("\n")}
 
-Successful:
-#{successful_modules.join("\n")}
-MESSAGE_END
+    Successful:
+    #{successful_modules.join("\n")}
+  MESSAGE_END
 end
 
 def send_notification(from, to, subject, message)
@@ -57,7 +57,7 @@ def send_notification(from, to, subject, message)
       subject subject
       body    message
     end
-    settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false  }
+    settings = { address: SMTP_SERVER, port: 25, enable_starttls_auto: false }
     settings[:domain] = ENV["HOSTNAME"] if ENV["HOSTNAME"].present?
     mail.delivery_method :smtp, settings
     mail.deliver

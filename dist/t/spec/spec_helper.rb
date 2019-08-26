@@ -3,7 +3,7 @@
 # for capybara rspec support
 require 'support/capybara'
 
-SCREENSHOT_DIR = "/tmp/rspec_screens"
+SCREENSHOT_DIR = "/tmp/rspec_screens".freeze
 
 RSpec.configure do |config|
   config.before(:suite) do
@@ -36,12 +36,12 @@ def take_screenshot(example)
 end
 
 def login
-    visit "/session/new"
-    fill_in 'user-login', with: 'Admin'
-    fill_in 'user-password', with: 'opensuse'
-    click_button('log-in-button')
+  visit "/session/new"
+  fill_in 'user-login', with: 'Admin'
+  fill_in 'user-password', with: 'opensuse'
+  click_button('log-in-button')
 
-    expect(page).to have_link('link-to-user-home')
+  expect(page).to have_link('link-to-user-home')
 end
 
 def logout

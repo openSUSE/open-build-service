@@ -27,13 +27,13 @@ RSpec.describe "Package" do
     end
     click_link('ctris')
     click_link('Add file')
-    attach_file("file", File.expand_path('../../fixtures/ctris.spec', __FILE__))
+    attach_file("file", File.expand_path('../fixtures/ctris.spec', __dir__))
     click_button('Save')
     expect(page).to have_content("The file 'ctris.spec' has been successfully saved.")
 
     # second line of defense ;-)
     click_link('Add file')
-    attach_file("file", File.expand_path('../../fixtures/ctris-0.42.tar.bz2', __FILE__))
+    attach_file("file", File.expand_path('../fixtures/ctris-0.42.tar.bz2', __dir__))
     click_button('Save')
     expect(page).to have_content("The file 'ctris-0.42.tar.bz2' has been successfully saved.")
   end
@@ -65,9 +65,7 @@ RSpec.describe "Package" do
       sleep(5)
       puts "Refreshed build results, #{counter} retries left."
       succeed_build = page.all('td', class: 'status_succeeded')
-      if succeed_build.length == 1
-        break
-      end
+      break if succeed_build.length == 1
     end
   end
 end

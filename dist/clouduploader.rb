@@ -215,4 +215,5 @@ module CloudUploader
 end
 
 raise 'Wrong number of arguments, please provide: user platform upload_file targetdata filename' unless ARGV.length == 6
+
 CloudUploader.upload(*ARGV)
