@@ -1,4 +1,5 @@
 require 'uri'
+require 'cgi'
 
 module OBSApi
   class MarkdownRenderer < Redcarpet::Render::HTML
@@ -35,10 +36,11 @@ module OBSApi
         link = URI.join(::Configuration.obs_url, link)
       rescue URI::InvalidURIError
       end
-      "<a href='#{link}'#{title}>#{content}</a>"
+      "<a href='#{link}'#{title}>#{CGI.escape_html(content)}</a>"
     end
 
     def block_code(code, language)
+      language ||= :plaintext
       CodeRay.scan(code, language).div(css: :class)
     end
   end
