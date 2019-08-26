@@ -2,7 +2,7 @@ module FeaturesAuthentication
   def login(user, password = 'buildservice')
     visit session_new_path
     expect(page).to have_text 'Please Log In'
-    within('#loginform') do
+    within('#login-form') do
       fill_in 'username', with: user.login
       fill_in 'password', with: password
       click_button 'Log In'
