@@ -34,9 +34,8 @@
             = label_tag 'Public Beta Program', nil, class: 'custom-control-label', for: 'beta-switch'
             = hidden_field_tag('user[login]', user.login)
             %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
-                                                        content: 'In our <strong>beta program</strong> you can try the latest features we ' + |
-                                                                  'develop, so you can give us feedback before we release them.' } } |
-
+                                                        content: 'Join the <strong>beta program</strong> to try the latest ' + |
+                                                                 'features we develop and give us feedback on them before they go live.' } } |
       .mt-4
         - if configuration.accounts_editable?(user)
           - if account_edit_link.present?
