@@ -23,7 +23,7 @@ please review. Also you, <a href='https://unconfigured.openbuildservice.org/user
       )
     end
 
-    it "don't render users inside the text of html links" do
+    it "doesn't render users inside the text of html links" do
       expect(render_as_markdown('Group [openSUSE Leap 15.0 Incidents@DVD-Incidents](https://openqa.opensuse.org/tests/overview)')).to eq(
         "<p>Group <a href='https://openqa.opensuse.org/tests/overview'>openSUSE Leap 15.0 Incidents@DVD-Incidents</a></p>\n"
       )
