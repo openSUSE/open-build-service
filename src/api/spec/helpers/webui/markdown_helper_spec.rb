@@ -14,12 +14,18 @@ RSpec.describe Webui::MarkdownHelper do
       )
     end
 
-    it 'detects all the metions to users' do
-      expect(render_as_markdown('@alfie @milo and @Admin, please review.')).to eq(
+    it 'detects all the mentions to users' do
+      expect(render_as_markdown('@alfie @milo and @Admin, please review. Also you, @test1.')).to eq(
         "<p><a href='https://unconfigured.openbuildservice.org/user/show/alfie'>@alfie</a> \
 <a href='https://unconfigured.openbuildservice.org/user/show/milo'>@milo</a> \
 and <a href='https://unconfigured.openbuildservice.org/user/show/Admin'>@Admin</a>, \
-please review.</p>\n"
+please review. Also you, <a href='https://unconfigured.openbuildservice.org/user/show/test1'>@test1</a>.</p>\n"
+      )
+    end
+
+    it "don't render users inside the text of html links" do
+      expect(render_as_markdown('Group [openSUSE Leap 15.0 Incidents@DVD-Incidents](https://openqa.opensuse.org/tests/overview)')).to eq(
+        "<p>Group <a href='https://openqa.opensuse.org/tests/overview'>openSUSE Leap 15.0 Incidents@DVD-Incidents</a></p>\n"
       )
     end
 
