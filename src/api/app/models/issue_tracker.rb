@@ -20,17 +20,6 @@ class IssueTracker < ApplicationRecord
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = { except: [:id, :password, :user, :issues_updated], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
-  def delayed_write_to_backend
-    return unless CONFIG['global_write_through']
-    IssueTrackerWriteToBackendJob.perform_later
-  end
-
-  def update_package_meta
-    return unless CONFIG['global_write_through']
-    # We need to parse again ALL sources ...
-    UpdatePackageMetaJob.perform_later
-  end
-
   before_validation(on: :create) do
     self.issues_updated ||= Time.now
   end
@@ -60,38 +49,8 @@ class IssueTracker < ApplicationRecord
     label.gsub('@@@', issue)
   end
 
-  # expands all matches with defined urls
-  def get_html(text)
-    text.gsub(Regexp.new(regex)) { show_url_for(Regexp.last_match(1), true) }
-  end
-
   def get_markdown(text)
     text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for(Regexp.last_match(1), false)})" }
-  end
-
-  def update_issues_bugzilla
-    return unless enable_fetch
-
-    begin
-      result = bugzilla_server.search(last_change_time: self.issues_updated)
-    rescue Net::ReadTimeout, Errno::ECONNRESET
-      if (self.issues_updated + 2.days).past?
-        # failures since two days?
-        # => enforce a full update in small steps to avoid over load at bugzilla side
-        enforced_update_all_issues
-        return true
-      end
-      return false
-    end
-    ids = result['bugs'].map { |x| x['id'].to_i }
-
-    return unless private_fetch_issues(ids)
-
-    # skip callbacks to avoid scheduling expensive jobs
-
-    # rubocop:disable Rails/SkipsModelValidations
-    update_columns(issues_updated: @update_time_stamp)
-    # rubocop:enable Rails/SkipsModelValidations
   end
 
   def update_issues_github
@@ -112,30 +71,6 @@ class IssueTracker < ApplicationRecord
 
     parse_github_issues(ActiveSupport::JSON.decode(response.body))
 
-    # we skip callbacks to avoid scheduling expensive jobs
-    # rubocop:disable Rails/SkipsModelValidations
-    update_columns(issues_updated: mtime - 1.second)
-    # rubocop:enable Rails/SkipsModelValidations
-  end
-
-  def update_issues_cve
-    return unless enable_fetch
-
-    # fixed URL of all entries
-    # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-    http = Net::HTTP.start('cve.mitre.org')
-    header = http.head('/data/downloads/allitems.xml.gz')
-    mtime = Time.parse(header['Last-Modified'])
-
-    return unless mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
-
-    # new file exists
-    h = http.get('/data/downloads/allitems.xml.gz')
-    unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
-    listener = IssueTracker::CVEParser.new
-    listener.set_tracker(self)
-    parser = Nokogiri::XML::SAX::Parser.new(listener)
-    parser.parse_io(unzipedio)
     # we skip callbacks to avoid scheduling expensive jobs
     # rubocop:disable Rails/SkipsModelValidations
     update_columns(issues_updated: mtime - 1.second)
@@ -188,6 +123,11 @@ class IssueTracker < ApplicationRecord
   end
 
   private
+
+  def delayed_write_to_backend
+    return unless CONFIG['global_write_through']
+    IssueTrackerWriteToBackendJob.perform_later
+  end
 
   def fetch_bugzilla_issues(ids)
     # limit to 256 ids to avoid too much load and timeouts on bugzilla side
@@ -338,6 +278,61 @@ class IssueTracker < ApplicationRecord
     end
 
     response
+  end
+
+  def update_issues_bugzilla
+    return unless enable_fetch
+
+    begin
+      result = bugzilla_server.search(last_change_time: self.issues_updated)
+    rescue Net::ReadTimeout, Errno::ECONNRESET
+      if (self.issues_updated + 2.days).past?
+        # failures since two days?
+        # => enforce a full update in small steps to avoid over load at bugzilla side
+        enforced_update_all_issues
+        return true
+      end
+      return false
+    end
+    ids = result['bugs'].map { |x| x['id'].to_i }
+
+    return unless private_fetch_issues(ids)
+
+    # skip callbacks to avoid scheduling expensive jobs
+
+    # rubocop:disable Rails/SkipsModelValidations
+    update_columns(issues_updated: @update_time_stamp)
+    # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  def update_issues_cve
+    return unless enable_fetch
+
+    # fixed URL of all entries
+    # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
+    http = Net::HTTP.start('cve.mitre.org')
+    header = http.head('/data/downloads/allitems.xml.gz')
+    mtime = Time.parse(header['Last-Modified'])
+
+    return unless mtime.nil? || self.issues_updated.nil? || (self.issues_updated < mtime)
+
+    # new file exists
+    h = http.get('/data/downloads/allitems.xml.gz')
+    unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
+    listener = IssueTracker::CVEParser.new
+    listener.set_tracker(self)
+    parser = Nokogiri::XML::SAX::Parser.new(listener)
+    parser.parse_io(unzipedio)
+    # we skip callbacks to avoid scheduling expensive jobs
+    # rubocop:disable Rails/SkipsModelValidations
+    update_columns(issues_updated: mtime - 1.second)
+    # rubocop:enable Rails/SkipsModelValidations
+  end
+
+  def update_package_meta
+    return unless CONFIG['global_write_through']
+    # We need to parse again ALL sources ...
+    UpdatePackageMetaJob.perform_later
   end
 end
 

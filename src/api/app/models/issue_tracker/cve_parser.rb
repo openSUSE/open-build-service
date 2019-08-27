@@ -18,10 +18,6 @@ class IssueTracker::CVEParser < Nokogiri::XML::SAX::Document
     @isc_issue = my_issue_and_desc_name(name) ? true : false
   end
 
-  def my_issue_and_desc_name(name)
-    @my_issue && name == 'desc'
-  end
-
   def characters(content)
     return unless @is_desc
     @my_summary += content.chomp
@@ -36,16 +32,22 @@ class IssueTracker::CVEParser < Nokogiri::XML::SAX::Document
     @my_issue = nil
   end
 
-  def reset_values
-    @my_summary = ''
-    @is_desc = false
-  end
-
   def cve(attrs)
     cve = nil
     attrs.each_index do |i|
       cve = attrs[i][1] if attrs[i][0] == 'name'
     end
     cve
+  end
+
+  def my_issue_and_desc_name(name)
+    @my_issue && name == 'desc'
+  end
+
+  private
+
+  def reset_values
+    @my_summary = ''
+    @is_desc = false
   end
 end

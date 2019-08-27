@@ -57,12 +57,6 @@ class Buildresult
     AVAIL_STATUS_VALUES.keys.map(&:to_s)
   end
 
-  def self.code2index(code)
-    index = AVAIL_STATUS_VALUES[code.to_sym]
-    return index if index
-    raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
-  end
-
   def self.final_status?(status)
     status.in?(['succeeded', 'failed', 'unresolvable', 'broken', 'disabled', 'excluded'])
   end
@@ -97,5 +91,13 @@ class Buildresult
     end
 
     local_build_results
+  end
+
+  private
+
+  def code2index(code)
+    index = AVAIL_STATUS_VALUES[code.to_sym]
+    return index if index
+    raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
   end
 end

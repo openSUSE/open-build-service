@@ -6,12 +6,11 @@ class GroupsUser < ApplicationRecord
 
   validates :user, presence: true
   validates :group, presence: true
-  validate :validate_duplicates
+  validate :validate_duplicates, on: :create
   validates_with AllowedUserValidator
 
-  protected
+  private
 
-  validate :validate_duplicates, on: :create
   def validate_duplicates
     return unless GroupsUser.find_by(user: user, group: group)
     errors.add(:user, 'User already has this group')

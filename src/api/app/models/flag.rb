@@ -18,11 +18,6 @@ class Flag < ApplicationRecord
   end
 
   validate :validate_custom_save
-  def validate_custom_save
-    errors.add(:name, 'Please set either project or package') unless project.nil? ^ package.nil?
-    errors.add(:flag, 'There needs to be a valid flag') unless FlagHelper::TYPES.key?(flag)
-    errors.add(:status, 'Status needs to be enable or disable') unless status && (status.to_sym == :enable || status.to_sym == :disable)
-  end
 
   validates :flag, uniqueness: { scope: [:project_id, :package_id, :architecture_id, :repo] }
 
@@ -30,9 +25,41 @@ class Flag < ApplicationRecord
     FlagHelper.default_for(flag_name)
   end
 
-  def discard_forbidden_project_cache
-    Relationship.discard_cache if flag == 'access'
+  def default_status
+    compute_status('default')
   end
+
+  # TODO: used by bento. Remove when dropping old UI.
+  def effective_status
+    compute_status('effective')
+  end
+
+  # TODO: used by bento. Remove when dropping old UI.
+  def has_children
+    repo.blank? || architecture.blank?
+  end
+
+  def to_xml(builder)
+    raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?
+    options = {}
+    options['arch'] = architecture.name unless architecture.nil?
+    options['repository'] = repo unless repo.nil?
+    builder.send(status.to_s, options)
+  end
+
+  # TODO: used by bento. Remove when dropping old UI.
+  def fullname
+    ret = flag
+    ret += "_#{repo}" if repo.present?
+    ret += "_#{architecture.name}" if architecture_id.present?
+    ret
+  end
+
+  def arch
+    architecture.try(:name).to_s
+  end
+
+  private
 
   def compute_status(variant)
     all_flag = main_object.flags.find_by('flag = ? AND repo IS NULL AND architecture_id IS NULL', flag)
@@ -77,44 +104,19 @@ class Flag < ApplicationRecord
 
     Flag.default_status(flag)
   end
-  private :compute_status
 
-  def default_status
-    compute_status('default')
-  end
-
-  # TODO: used by bento. Remove when dropping old UI.
-  def effective_status
-    compute_status('effective')
-  end
-
-  # TODO: used by bento. Remove when dropping old UI.
-  def has_children
-    repo.blank? || architecture.blank?
-  end
-
-  def to_xml(builder)
-    raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?
-    options = {}
-    options['arch'] = architecture.name unless architecture.nil?
-    options['repository'] = repo unless repo.nil?
-    builder.send(status.to_s, options)
-  end
-
-  # TODO: used by bento. Remove when dropping old UI.
-  def fullname
-    ret = flag
-    ret += "_#{repo}" if repo.present?
-    ret += "_#{architecture.name}" if architecture_id.present?
-    ret
-  end
-
-  def arch
-    architecture.try(:name).to_s
+  def discard_forbidden_project_cache
+    Relationship.discard_cache if flag == 'access'
   end
 
   def main_object
     package || project
+  end
+
+  def validate_custom_save
+    errors.add(:name, 'Please set either project or package') unless project.nil? ^ package.nil?
+    errors.add(:flag, 'There needs to be a valid flag') unless FlagHelper::TYPES.key?(flag)
+    errors.add(:status, 'Status needs to be enable or disable') unless status && (status.to_sym == :enable || status.to_sym == :disable)
   end
 end
 
