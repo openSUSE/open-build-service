@@ -14,7 +14,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     @available_architectures = Architecture.available
     @repositories = @project.repositories.preload({ path_elements: { link: :project } }, :architectures)
     @repositories = @repositories.includes(:download_repositories)
-    @user_can_modify = policy(@project).update?
+    @user_can_modify = @package.present? ? policy(@package).update? : policy(@project).update?
     if switch_to_webui2
       @flags = {}
       [:build, :debuginfo, :publish, :useforbuild].each do |flag_type|
