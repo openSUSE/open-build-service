@@ -244,24 +244,4 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(find('table tr td:first-child')).to have_text('OBS:MaintenanceProject')
     end
   end
-
-  describe 'maintained projects' do
-    let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
-
-    scenario 'creating a maintened project' do
-      skip_if_bootstrap
-
-      login(admin_user)
-      visit project_show_path(maintenance_project)
-
-      click_link('Maintained Projects')
-      click_link('Add project to maintenance')
-      fill_in('Project to maintain:', with: project.name)
-      expect(page).to have_text('1 result is available')
-      click_button('Accept')
-
-      expect(page).to have_text("Added #{project.name} to maintenance")
-      expect(find('table#maintained_projects_table td:first-child')).to have_text(project.name)
-    end
-  end
 end
