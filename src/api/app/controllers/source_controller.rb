@@ -685,15 +685,15 @@ class SourceController < ApplicationController
       end
     end
 
+    job_params = params.slice(
+      :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice
+    ).permit!.to_h
+    job_params[:user] = User.session!.login
+
     if params.key?(:nodelay)
-      @project.do_project_copy(params)
+      ProjectDoProjectCopyJob.perform_now(@project.id, job_params)
       render_ok
     else
-      job_params =
-        params.slice(
-          :cmd, :user, :comment, :oproject, :withbinaries, :withhistory, :makeolder, :makeoriginolder, :noservice
-        ).permit!.to_h
-
       ProjectDoProjectCopyJob.perform_later(@project.id, job_params)
       render_invoked
     end
