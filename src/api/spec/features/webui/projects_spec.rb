@@ -5,11 +5,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
 
-  it_behaves_like 'user tab' do
-    let(:project_path) { project_show_path(user_tab_user.home_project) }
-    let(:project) { user_tab_user.home_project }
-  end
-
   scenario 'project show' do
     login user
     visit project_show_path(project: project)

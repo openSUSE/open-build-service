@@ -2,15 +2,6 @@ require 'browser_helper'
 require 'webmock/rspec'
 
 RSpec.feature 'Packages', type: :feature, js: true do
-  it_behaves_like 'user tab' do
-    let(:package) do
-      create(:package, name: 'group_test_package',
-                       project_id: user_tab_user.home_project.id)
-    end
-    let!(:maintainer_user_role) { create(:relationship, package: package, user: user_tab_user) }
-    let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
-  end
-
   let!(:user) { create(:confirmed_user, :with_home, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'other_package_test_user') }
