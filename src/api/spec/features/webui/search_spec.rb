@@ -137,27 +137,6 @@ RSpec.feature 'Search', type: :feature, js: true do
     expect(page).to have_selector('#search-results', count: 0)
   end
 
-  scenario 'search in no types' do
-    skip_if_bootstrap # This specs doesn't make sense in the Bootstrap UI since we search for packages, projects or both.
-    apache2
-    reindex_for_search
-
-    visit search_path
-    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
-
-    fill_in 'search_input', with: 'awesome'
-    click_button 'Advanced'
-    uncheck 'project'
-    uncheck 'package'
-    click_button 'Search'
-
-    within('#flash') do
-      expect(page).to have_text('Your search did not return any results.')
-    end
-
-    expect(page).to have_selector('#search-results', count: 0)
-  end
-
   scenario 'search in no fields' do
     apache2
     reindex_for_search
