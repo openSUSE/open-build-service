@@ -12,17 +12,4 @@ RSpec.feature 'Comments', type: :feature, js: true do
 
     expect(page).to have_text('Comment Body')
   end
-
-  scenario 'can be answered' do
-    skip_if_bootstrap
-
-    login user
-    visit project_show_path(user.home_project)
-
-    find('a', text: 'Reply').click
-    fill_in("reply_body_#{comment.id}", with: 'Reply Body')
-    click_button('Add reply')
-
-    expect(page).to have_text('Reply Body')
-  end
 end
