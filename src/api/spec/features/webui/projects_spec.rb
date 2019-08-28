@@ -14,24 +14,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
     expect(page).to have_css('h3', text: project.title)
   end
 
-  scenario 'changing project title and description' do
-    skip_if_bootstrap
-
-    login user
-    visit project_show_path(project: project)
-
-    click_link('Edit Project')
-    expect(page).to have_text('Edit Project')
-
-    fill_in 'project_title', with: 'My Title hopefully got changed'
-    fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
-    click_button('Accept')
-
-    visit project_show_path(project: project)
-    expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
-    expect(find(:id, 'description-text')).to have_text('New description. Not kidding.. Brand new!')
-  end
-
   describe 'creating packages in projects owned by user, eg. home projects' do
     let(:very_long_description) { Faker::Lorem.paragraph(sentence_count: 20) }
 
@@ -40,20 +22,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit project_show_path(project: user.home_project)
       click_link('Create Package')
       expect(page).to have_text("Create Package for #{user.home_project_name}")
-    end
-
-    scenario 'with valid data' do
-      skip_if_bootstrap
-
-      fill_in 'name', with: 'coolstuff'
-      fill_in 'title', with: 'cool stuff everyone needs'
-      fill_in 'description', with: very_long_description
-      click_button('Accept')
-
-      expect(page).to have_text("Package 'coolstuff' was created successfully")
-      expect(page.current_path).to eq(package_show_path(project: user.home_project_name, package: 'coolstuff'))
-      expect(find(:css, 'h3#package_title')).to have_text('cool stuff everyone needs')
-      expect(find(:css, 'pre#description-text')).to have_text(very_long_description)
     end
 
     scenario 'with invalid data (validation fails)' do
@@ -347,18 +315,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       expect(page).to have_text('You have already branched this package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
-    end
-
-    scenario 'a non-existing package' do
-      skip_if_bootstrap
-
-      fill_in('linked_project', with: 'non-existing_package')
-      fill_in('linked_package', with: package_of_another_project.name)
-      # This needs global write through
-      click_button('Accept')
-
-      expect(page).to have_text('Failed to branch: Package does not exist.')
-      expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
     end
 
     scenario 'a package with disabled access flag' do
