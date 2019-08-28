@@ -66,19 +66,5 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       expect(page).to have_css('#home-realname', text: 'John Doe')
       expect(page).to have_css("a[href='mailto:john.doe@opensuse.org']", text: 'john.doe@opensuse.org')
     end
-
-    scenario 'public beta program' do
-      skip_if_bootstrap
-      # TODO: Change by have_text('In public beta program') when dropping old UI
-      expect(page).not_to have_content(/(Participates in|In) public beta program/)
-
-      click_link('Join public beta program')
-      expect(page).to have_text("User data for user 'Jim' successfully updated.")
-      expect(page).to have_content(/(Participates in|In) public beta program/)
-
-      click_link('Leave public beta program')
-      expect(page).to have_text("User data for user 'Jim' successfully updated.")
-      expect(page).not_to have_content(/(Participates in|In) public beta program/)
-    end
   end
 end
