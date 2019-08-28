@@ -230,8 +230,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
   describe 'maintenance projects' do
     scenario 'creating a maintenance project' do
-      skip_if_bootstrap
-
       login(admin_user)
       visit project_show_path(project)
 
