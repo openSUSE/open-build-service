@@ -212,4 +212,8 @@ group :assets do
   gem 'font-awesome-sass'
   # assets for formatting dates
   gem 'momentjs-rails'
+  # for catching javascript exceptions
+  source 'https://rails-assets.org' do
+    gem 'rails-assets-airbrake-js-client'
+  end
 end

@@ -1,0 +1,25 @@
+//= require airbrake-js-client
+var errbit_id = "<%= CONFIG['errbit_javascript_api_key'] %>";
+var errbit_host = "<%= CONFIG['errbit_javascript_host'] %>";
+
+if (errbit_id) {
+  var airbrake = new airbrakeJs.Client({
+    projectId: 1,
+    projectKey: errbit_id,
+    host: errbit_host,
+    environment: 'production',
+  });
+
+  window.onerror = function (message, file, line, col, error) {
+    var promise = airbrake.notify(error);
+    promise.then(function(notice) {
+      if (notice.id) {
+        // console.log('Notified errbit. Notice:', notice.id);
+        console.log('Notified errbit.');
+      } else {
+        // console.log('Notifying errbit failed. Reason:', notice.error);
+        console.log('Notifying errbit failed!');
+      }
+    });
+  };
+};
