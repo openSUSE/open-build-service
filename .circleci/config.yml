@@ -104,16 +104,12 @@ jobs:
           command: |
             cd src/api
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
-            # reserve the latest node for bootstrap
-            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
-              echo "Testing bootstrap"
-              circleci tests glob 'spec/features/**/*_spec.rb' 'spec/bootstrap/**/*_spec.rb' > $pickfile
-              export BOOTSTRAP=1
-            else
-              # single out bootstrap and db
-              circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/\(bootstrap\|db\)' > spec.list
-              circleci tests split --total $((CIRCLE_NODE_TOTAL-1)) --split-by=timings < spec.list > $pickfile
-            fi
+
+            export BOOTSTRAP=1
+            # single out db specs
+            circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/db/' > spec.list
+            circleci tests split --total $((CIRCLE_NODE_TOTAL-1)) --split-by=timings < spec.list > $pickfile
+
             bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
