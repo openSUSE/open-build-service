@@ -24,8 +24,12 @@ table.dataTable.table-sm {
     bottom: 0.3em;
   }
 
-  td { 
+  td {
     white-space: normal !important;
     @extend .text-break;
   }
+}
+
+.table-hover tbody tr:hover {
+  background-color: $gray-300;
 }
