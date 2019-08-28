@@ -86,24 +86,28 @@ module OwnerSearch
     end
 
     def parse_binary_info(b, prj)
-      return unless b['project'] == prj.name
+      # a binary without a package container? can only only happen
+      # with manual snapshot repos...
+      return false if b['project'] != prj.name || b['package'].blank?
 
       package_name = b['package']
       package_name.gsub!(/\.[^\.]*$/, '') if prj.is_maintenance_release?
       pkg = prj.packages.find_by_name(package_name)
-      return if pkg.nil? || pkg.is_patchinfo?
+
+      return false if pkg.nil? || pkg.is_patchinfo?
 
       m = lookup_package_owner(pkg)
+
       unless m
         # collect all no matched entries
         @instances_without_definition << create_owner(pkg)
-        return
+        return false
       end
 
       # remember as deepest candidate
       if @deepest
         @deepest_match = m
-        return
+        return false
       end
 
       # add matching entry
