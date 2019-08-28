@@ -93,9 +93,7 @@ class Buildresult
     local_build_results
   end
 
-  private
-
-  def code2index(code)
+  def self.code2index(code)
     index = AVAIL_STATUS_VALUES[code.to_sym]
     return index if index
     raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
