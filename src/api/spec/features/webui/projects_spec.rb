@@ -152,19 +152,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page.current_path).to eq("/package/show/#{user.home_project_name}/some_different_name")
     end
 
-    scenario 'an existing package to an invalid target package or project' do
-      skip_if_bootstrap
-
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-      fill_in('Branch package name', with: 'something/illegal')
-      # This needs global write through
-      click_button('Accept')
-
-      expect(page).to have_text('Failed to branch: Validation failed: Name is illegal')
-      expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
-    end
-
     scenario 'an existing package were the target package already exists' do
       create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
 
@@ -175,56 +162,6 @@ RSpec.feature 'Projects', type: :feature, js: true do
 
       expect(page).to have_text('You have already branched this package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
-    end
-
-    scenario 'a package with disabled access flag' do
-      skip_if_bootstrap
-
-      create(:access_flag, status: 'disable', project: other_user.home_project)
-
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-      fill_in('Branch package name', with: 'some_different_name')
-      # This needs global write through
-      click_button('Accept')
-
-      expect(page).to have_text('Failed to branch: Package does not exist.')
-      expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
-    end
-
-    scenario 'a package with disabled sourceaccess flag' do
-      skip_if_bootstrap
-
-      create(:sourceaccess_flag, status: 'disable', project: other_user.home_project)
-
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-      fill_in('Branch package name', with: 'some_different_name')
-      # This needs global write through
-      click_button('Accept')
-
-      expect(page).to have_text('Sorry, you are not authorized to branch this Package.')
-      expect(page.current_path).to eq('/project/new_package_branch/home:Jane')
-    end
-
-    scenario 'a package and select current revision' do
-      skip_if_bootstrap
-
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-
-      find("input[id='current_revision']").set(true)
-
-      # This needs global write through
-      click_button('Accept')
-
-      expect(page).to have_text('Successfully branched package')
-      expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
-
-      visit package_show_path('home:Jane', 'branch_test_package', expand: 0)
-      click_link('_link')
-
-      expect(page).to have_xpath(".//span[@class='cm-attribute' and text()='rev']")
     end
   end
 
