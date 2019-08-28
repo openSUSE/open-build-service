@@ -23,14 +23,13 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
   end
 
   scenario 'delete user' do
-    skip 'flickering after capybara update 21.08.2019'
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
       expect(page).to have_css('td', text: 'confirmed')
       page.find('a[data-method=delete]').click
       # Accept the confirmation dialog
       page.driver.browser.switch_to.alert.accept
-      expect(page).to have_css('td', text: 'deleted')
     end
+    expect(page).to have_css('td', text: 'deleted')
   end
 
   scenario 'create user' do
