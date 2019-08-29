@@ -10,7 +10,7 @@ In particular, this community seeks the following types of contributions:
 Read this guide on how to do that.
 
 1. [How to contribute code](#how-to-contribute-code)
-2. [How to review code submissions](#how-to-review-code-submissions)
+2. [The perfect pull request review](#the-perfect-pull-request-review)
 3. [How to contribute bug reports](#how-to-contribute-bug-reports)
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
