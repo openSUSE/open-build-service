@@ -1,0 +1,54 @@
+:ruby
+  save ||= {}
+  style ||= {}
+  style.reverse_merge!(read_only: false, big_editor: true)
+  uid ||= next_codemirror_uid
+  content_for(:head_style, codemirror_style(style))
+
+%div{ class: "card #{'editable' unless style[:read_only]}" }
+  - unless style[:read_only]
+    .sticky-top.bg-light{ id: "top_#{uid}" }
+      .card-header
+        .d-flex.justify-content-between
+          .btn-group.pl-2
+            %button.btn.btn-secondary{ id: "undo_#{uid}", onclick: "editors[#{uid}].Undo(this);", disabled: true }
+              %i.fa.fa-undo
+              Undo
+            %button.btn.btn-secondary{ id: "redo_#{uid}", onclick: "editors[#{uid}].Redo(this);", disabled: true }
+              %i.fa.fa-redo
+              Redo
+          %button.btn.btn-warning{ data: { 'target': "#settings#{uid}", 'toggle': 'modal' } }
+            %i.fa.fa-cog
+      .progress.short-progress.rounded-0.d-none{ id: "loading_#{uid}" }
+        .progress-bar.progress-bar-striped.progress-bar-animated.w-100
+
+  :ruby
+    data = {}
+    data['save-url'] = save[:url] if save[:url]
+    data['save-method'] = save[:method] if save[:method]
+    data['data'] = save[:data] if save[:data]
+    text = force_utf8_and_transform_nonprintables(text)
+
+  = text_area_tag("editor_#{uid}", text, cols: '0', rows: '0', data: data, class: 'form-control')
+
+  - unless style[:read_only]
+    .bg-light{ id: "bottom_#{uid}" }
+      .card-footer
+        .d-flex.justify-content-end
+          %p
+            line:
+            %span{ id: "ln_#{uid}" } 0
+            char:
+            %span{ id: "ch_#{uid}" } 0
+        .d-flex.mb-2
+          %textarea.form-control{ id: "comment_#{uid}", disabled: true, placeholder: 'Describe your changes' }
+        .d-flex.justify-content-end
+          %button.btn.btn-danger.save{ id: "save_#{uid}", disabled: true }
+            %i.fa.fa-save
+            Save
+
+- unless style[:read_only]
+  = render partial: 'shared/editor_modal', locals: { uid: uid }
+
+- content_for :ready_function do
+  use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}', #{style[:big_editor]});

@@ -1,0 +1,73 @@
+:ruby
+  user_is_maintainer = User.possibly_nobody.can_modify?(package || project)
+  data = { 'project' => project.name }
+  if package
+    data['save-user'] = package_save_person_url
+    data['remove'] = package_remove_role_url
+    data['save-group'] = package_save_group_path
+    data['package'] = package.name
+  else
+    data['save-user'] = project_save_person_url
+    data['remove'] = project_remove_role_url
+    data['save-group'] = project_save_group_path
+  end
+
+#involved-users{ data: data }
+  - if users.present?
+    %h3 User Roles
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#user-table
+      %thead
+        %tr
+          %td Username
+          - roles.each do |role|
+            %td= role.title.capitalize
+          %td
+      %tbody
+        = render partial: 'webui2/shared/user_or_groups_roles/list',
+                 locals: { records: users, roles: roles, type: 'user',
+                           user_is_maintainer: user_is_maintainer,
+                           project: project, package: package }
+
+  - if user_is_maintainer
+    %ul.list-inline
+      %li.list-inline-item
+        = render(partial: 'webui2/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
+        = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user', class: 'nav-link') do
+          %i.fas.fa-plus-circle.text-primary
+          Add User
+        = render(partial: 'webui2/shared/user_or_groups_roles/delete_dialog')
+
+  %hr
+
+  - if @groups.present?
+    %h3 Group Roles
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#group-table
+      %thead
+        %tr
+          %td Group name
+          - roles.each do |role|
+            %td= role.title.capitalize
+          - if user_is_maintainer
+            %td
+      %tbody
+        = render partial: 'webui2/shared/user_or_groups_roles/list',
+                 locals: { records: groups, roles: roles, type: 'group',
+                           user_is_maintainer: user_is_maintainer,
+                           project: project, package: package }
+  - if user_is_maintainer
+    %ul.list-inline
+      %li.list-inline-item
+        = render(partial: 'webui2/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })
+        = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-group', class: 'nav-link') do
+          %i.fas.fa-plus-circle.text-primary
+          Add Group
+
+:javascript
+  setDataTableForUsersAndGroups();
+- if user_is_maintainer
+  :javascript
+    $(document).ready(function() {
+      $(document).on('click','.trigger', function() {
+        changeUserRole($(this));
+      });
+    });
