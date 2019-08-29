@@ -250,7 +250,7 @@ GEM
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
     mysql2 (0.5.2)
-    nio4r (2.4.0)
+    nio4r (2.5.1)
     nokogiri (1.10.4)
       mini_portile2 (~> 2.4.0)
     nokogumbo (2.0.1)
