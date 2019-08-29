@@ -27,7 +27,8 @@ Features
 ========
 
 Generic:
- * 
+ * You can track javascript errors that occur in the users browser with errbit, enable
+   it in the API configuration file options.yml.
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability

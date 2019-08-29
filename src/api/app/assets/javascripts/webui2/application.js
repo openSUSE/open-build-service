@@ -53,3 +53,4 @@
 //= require rails-timeago
 //= require webui2/kiwi_editor.js
 //= require webui2/monitor.js
+//= require webui2/airbrake-js

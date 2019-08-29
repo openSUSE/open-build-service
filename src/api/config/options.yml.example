@@ -67,6 +67,15 @@ default: &default
   #errbit_api_key: api_key_of_your_app
   #errbit_project_id:
   #errbit_host: installation.of.errbit.com
+  #
+  # If you also want to track javascript errors that occur in the users browser,
+  # you can supply this api key.
+  # PLEASE NOTE: THIS API KEY IS GOING TO GET EXPOSED TO EVERYONE VISITING YOUR OBS
+  #              INSTANCE. BE AWARE THAT ANYONE CAN SEND FAKE DATA WITH IT,
+  #              DENIAL OF SERVICE YOUR ERRBIT SERVER OR DO ANY OTHER NASTY THING
+  #              YOU CAN THINK ABOUT. BE VIGILANT!
+  #errbit_javascript_api_key: errbit api key
+  #errbit_javascript_host: errbit.example.com
 
   ##################
   # LDAP options
