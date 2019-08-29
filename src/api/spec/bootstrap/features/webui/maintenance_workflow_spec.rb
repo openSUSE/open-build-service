@@ -22,8 +22,6 @@ RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: tr
   end
 
   scenario 'maintenance workflow' do
-    skip_if_bootstrap
-
     # Step 1: The user branches a package
     ####################################
     login(user)
