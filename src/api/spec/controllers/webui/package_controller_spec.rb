@@ -207,7 +207,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(controller).to set_flash[:error] }
-      it { expect(response).to redirect_to(package_edit_path(project: source_project, package: source_package)) }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
     end
   end
 
@@ -393,60 +393,6 @@ RSpec.describe Webui::PackageController, vcr: true do
       let(:get_binaries) { get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name } }
 
       it { expect { get_binaries }.to raise_error(ActiveRecord::RecordNotFound) }
-    end
-
-    context 'with build results and no binaries' do
-      render_views
-
-      before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results_without_binaries)
-        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
-      end
-
-      it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to match(/No built binaries/) }
-    end
-
-    context 'with build results and binaries' do
-      render_views
-
-      before do
-        allow(Backend::Api::BuildResults::Status).to receive(:result_swiss_knife).and_return(fake_build_results)
-        allow_any_instance_of(Webui::PackageController).to receive(:download_url_for_file_in_repo).and_return('http://fake.com')
-        get :binaries, params: { package: source_package, project: source_project, repository: repo_for_source_project.name }
-      end
-
-      it { expect(response).to have_http_status(:success) }
-
-      it "excludes the '_statistics' files from the binaries page" do
-        assert_select 'li.binaries_list_item', text: /_statistics/, count: 0
-      end
-
-      it "lists all binaries returned as build result with a 'Download' link" do
-        assert_select 'li.binaries_list_item', count: 4 do
-          assert_select 'a', text: 'Download', count: 4
-          assert_select 'a', text: 'Details', count: 3
-        end
-      end
-
-      it 'does not show the details link for the rpmlint.log' do
-        assert_select 'li.binaries_list_item', text: /rpmlint.log/ do
-          assert_select 'a', text: 'Details', count: 0
-        end
-      end
-
-      it "shows the name of each binary together with it's size" do
-        assert_select 'li.binaries_list_item', text: /image_binary.vhdfixed.xz \(118 MB\)/
-        assert_select 'li.binaries_list_item', text: /image_binary.xz.sha256 \(1.5 KB\)/
-        assert_select 'li.binaries_list_item', text: /updateinfo.xml \(4.13 KB\)/
-        assert_select 'li.binaries_list_item', text: /rpmlint.log \(121 Bytes\)/
-      end
-
-      it 'shows a cloud upload link for binaries that can be uploaded to the cloud' do
-        assert_select 'li.binaries_list_item', text: /image_binary.vhdfixed.xz/ do
-          assert_select 'a', text: 'Cloud Upload', count: 1
-        end
-      end
     end
   end
 
@@ -1335,6 +1281,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
   end
 
+  # FIXME: This should be feature specs
   describe 'GET #statistics' do
     let!(:repository) { create(:repository, name: 'statistics', project: source_project, architectures: ['i586']) }
 
@@ -1350,32 +1297,32 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:statistics).
-          with(source_project, source_package.name, repository.name, 'i586').
+          with(source_project.name, source_package.name, repository.name, 'i586').
           and_return('<buildstatistics><disk><usage><size unit="M">30</size></usage></disk></buildstatistics>')
 
-        get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name }
+        get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name }
       end
 
-      it { expect(assigns(:statistics)).to eq('disk' => { 'usage' => { 'size' => { '_content' => '30', 'unit' => 'M' } } }) }
+      it { expect(assigns(:statistics).disk).to have_attributes(size: '30', unit: 'M', io_requests: nil, io_sectors: nil) }
       it { expect(response).to have_http_status(:success) }
     end
 
     context 'when backend does not return statistics' do
-      let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
+      let(:get_statistics) { get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name } }
 
-      it { expect { get_statistics }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect(assigns(:statistics)).to be_nil }
     end
 
     context 'when backend raises an exception' do
       before do
         allow(Backend::Api::BuildResults::Status).to receive(:statistics).
-          with(source_project, source_package.name, repository.name, 'i586').
+          with(source_project.name, source_package.name, repository.name, 'i586').
           and_raise(Backend::NotFoundError)
       end
 
-      let(:get_statistics) { get :statistics, params: { project: source_project, package: source_package, arch: 'i586', repository: repository.name } }
+      let(:get_statistics) { get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name } }
 
-      it { expect { get_statistics }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect(assigns(:statistics)).to be_nil }
     end
   end
 
