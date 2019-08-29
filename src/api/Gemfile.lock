@@ -327,7 +327,7 @@ GEM
     rake (12.3.3)
     rantly (2.0.0)
     rbtree3 (0.5.0)
-    rdoc (6.1.1)
+    rdoc (6.2.0)
     redcarpet (3.5.0)
     regexp_parser (1.6.0)
     request_store (1.4.1)
