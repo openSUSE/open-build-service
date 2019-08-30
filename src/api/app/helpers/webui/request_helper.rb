@@ -102,11 +102,6 @@ module Webui::RequestHelper
     return "#{file_element['old']['name']} -> #{filename}"
   end
 
-  def reviewer(review)
-    return "#{review[:by_project]} / #{review[:by_package]}" if review[:by_package]
-    review[:by_user] || review[:by_group] || review[:by_project]
-  end
-
   def diff_data(action_type, sourcediff)
     diff = (action_type == :delete ? sourcediff['old'] : sourcediff['new'])
 
@@ -115,14 +110,6 @@ module Webui::RequestHelper
 
   def diff_label(diff)
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
-  end
-
-  def hidden_review_payload(review)
-    capture do
-      [:by_user, :by_group, :by_project, :by_package].each do |key|
-        concat(hidden_field_tag(key, review[key])) if review[key]
-      end
-    end
   end
 
   # rubocop:disable Style/FormatStringToken, Style/FormatString
