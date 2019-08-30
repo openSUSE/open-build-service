@@ -43,7 +43,6 @@ BuildRequires:  openldap2-devel
 BuildRequires:  python-devel
 BuildRequires:  ruby2.5-devel
 BuildRequires:  rubygem(ruby:2.5.0:bundler)
-BuildRequires:  chrpath
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
@@ -140,9 +139,6 @@ done
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
   chmod a-x $file
 done
-
-# Remove rpaths from files
-chrpath --delete %{buildroot}%_libdir/obs-api/ruby/*/gems/sassc-*-x86_64-linux/lib/sassc/libsass.so
 
 %files
 %_libdir/obs-api
