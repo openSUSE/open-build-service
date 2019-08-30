@@ -1,10 +1,4 @@
 module Webui::MainHelper
-  def proceed_link(image, text, link_opts)
-    content_tag(:li,
-                link_to(sprite_tag(image, title: text), link_opts) + tag(:br) +
-                content_tag(:span, link_to(text, link_opts), class: 'proceed_text'))
-  end
-
   def icon_for_status(message)
     case message.severity
     when 1
