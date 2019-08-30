@@ -191,7 +191,9 @@ jobs:
       - run: *bootstrap_old_test_suite
       - run:
           name: Run spider
-          command: cd src/api; bundle exec rake test:spider
+          command: |
+            cd src/api
+            bundle exec rake test:spider
       - <<: *store_minitest_artefacts
 
   backend_test:
