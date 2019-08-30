@@ -1,10 +1,4 @@
 module Webui::PatchinfoHelper
-  include Webui::ProjectHelper
-  def patchinfo_bread_crumb(*args)
-    args.insert(0, link_to(@package, package_show_path(project: @project, package: @package)))
-    project_bread_crumb(*args)
-  end
-
   def patchinfo_header(patchinfo, package_names)
     list = package_names.to_sentence
     text = "Update for #{truncate(list, length: 40)}"
