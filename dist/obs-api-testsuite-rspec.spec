@@ -60,11 +60,8 @@ export RAILS_ENV=test
 bin/rake db:create db:setup
 bin/rails assets:precompile
 
-# without boostrap and migration tests
-bin/rspec -f d --exclude-pattern 'spec/bootstrap/**/*_spec.rb, spec/db/**/*_spec.rb'
-
-# with bootstrap (feature tests only)
-BOOTSTRAP=1 bin/rspec -f d -P 'spec/features/**/*_spec.rb, spec/bootstrap/**/*_spec.rb'
+# run all specs with BOOTSTRAP enabled (default)
+BOOTSTRAP=1 bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
 
 # now migration tests (if they fail they create tons of follow up errors, so run them last)
 bin/rspec -f d -P 'spec/db/**/*_spec.rb'

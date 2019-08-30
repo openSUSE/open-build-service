@@ -2,15 +2,6 @@ require 'browser_helper'
 require 'webmock/rspec'
 
 RSpec.feature 'Packages', type: :feature, js: true do
-  it_behaves_like 'user tab' do
-    let(:package) do
-      create(:package, name: 'group_test_package',
-                       project_id: user_tab_user.home_project.id)
-    end
-    let!(:maintainer_user_role) { create(:relationship, package: package, user: user_tab_user) }
-    let(:project_path) { package_show_path(project: user_tab_user.home_project, package: package) }
-  end
-
   let!(:user) { create(:confirmed_user, :with_home, login: 'package_test_user') }
   let!(:package) { create(:package_with_file, name: 'test_package', project: user.home_project) }
   let(:other_user) { create(:confirmed_user, :with_home, login: 'other_package_test_user') }
@@ -57,42 +48,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
   end
 
-  describe 'branching a package from another users project' do
-    before do
-      allow(Configuration).to receive(:cleanup_after_days).and_return(14)
-      login user
-      visit package_show_path(project: other_user.home_project, package: other_users_package)
-      click_link('Branch package')
-    end
-
-    scenario 'with AutoCleanup' do
-      skip_if_bootstrap
-
-      click_button('Ok')
-
-      expect(page).to have_text('Successfully branched package')
-      expect(page.current_path).to eq(
-        package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package)
-      )
-      visit index_attribs_path(project: user.branch_project_name(other_user.home_project_name))
-      expect(page).to have_text('OBS:AutoCleanup')
-    end
-    scenario 'without AutoCleanup' do
-      skip_if_bootstrap
-
-      find('.show-hide', visible: false).click
-      check('Disable Autocleanup')
-      click_button('Ok')
-
-      expect(page).to have_text('Successfully branched package')
-      expect(page.current_path).to eq(
-        package_show_path(project: user.branch_project_name(other_user.home_project_name), package: other_users_package)
-      )
-      visit index_attribs_path(project: user.branch_project_name(other_user.home_project_name))
-      expect(page).to have_text('No attributes set')
-    end
-  end
-
   describe 'editing package files' do
     let(:file_edit_test_package) { create(:package_with_file, name: 'file_edit_test_package', project: user.home_project) }
 
@@ -113,17 +68,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
     end
   end
 
-  scenario 'deleting a package' do
-    skip_if_bootstrap
-
-    login user
-    visit package_show_path(package: package, project: user.home_project)
-    click_link('delete-package')
-    expect(find('#del_dialog')).to have_text('Do you really want to delete this package?')
-    click_button('Accept')
-    expect(find('#flash-messages')).to have_text('Package was successfully removed.')
-  end
-
   describe 'existing requests' do
     let(:source_project) { create(:project_with_package, name: 'source_project') }
     let(:source_package) { source_project.packages.first }
@@ -141,39 +85,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
       find('a', class: 'request_link').click
       expect(page.current_path).to match('/request/show/\\d+')
     end
-  end
-
-  scenario 'requesting package deletion' do
-    skip_if_bootstrap
-
-    login user
-    visit package_show_path(package: other_users_package, project: other_user.home_project)
-    click_link('Request deletion')
-    expect(page).to have_text('Do you really want to request the deletion of package ')
-    fill_in 'description', with: 'Hey, why not?'
-    click_button('Accept')
-    expect(page).to have_text('Created delete request')
-    find('a', text: /delete request \d+/).click
-    expect(page.current_path).to match('/request/show/\\d+')
-  end
-
-  scenario "changing the package's devel project" do
-    skip_if_bootstrap
-
-    login user
-    visit package_show_path(package: package_with_develpackage, project: user.home_project)
-    click_link('Request devel project change')
-    fill_in 'description', with: 'Hey, why not?'
-    fill_in 'devel_project', with: third_project.name
-    click_button('Accept')
-
-    expect(find('#flash-messages', visible: false)).not_to be_visible
-    request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
-    expect(request).to exist
-    expect(page.current_path).to match("/request/show/#{request.first.number}")
-    expect(page).to have_text(/Created by\s+#{user.login}/)
-    expect(page).to have_text('In state review')
-    expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
   end
 
   context 'triggering package rebuild' do
@@ -246,19 +157,6 @@ RSpec.feature 'Packages', type: :feature, js: true do
       find('#status', text: 'Build') # to wait until it loads
       expect(page).to have_text('Build')
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
-    end
-
-    scenario 'download logfile succesfully' do
-      skip_if_bootstrap
-
-      visit package_show_path(project: user.home_project, package: package)
-      # test reload and wait for the build to finish
-      find('.icons-reload').click
-      find('.buildstatus a', text: 'succeeded').click
-      expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
-      first(:link, 'Download logfile').click
-      # don't bother with the umlaut
-      expect(page.source).to have_text('[1] this is my dummy logfile')
     end
   end
 

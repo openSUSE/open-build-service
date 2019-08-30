@@ -34,44 +34,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
-  describe 'GET #index' do
-    context 'showing all projects' do
-      before do
-        allow(::Configuration).to receive(:unlisted_projects_filter) { '^home:.*' }
-        home_moi_project
-        another_project
-        get :index, params: { show_all: true }
-      end
-
-      it { expect(assigns(:projects).length).to eq(2) }
-      it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template('webui/project/list') }
-    end
-
-    context 'showing filtered projects' do
-      before do
-        allow(::Configuration).to receive(:unlisted_projects_filter) { '^home:.*' }
-        home_moi_project
-        another_project
-        get :index, params: { show_all: false }
-      end
-
-      it { expect(assigns(:projects).length).to eq(1) }
-      it { expect(Project.count).to eq(2) }
-      it { is_expected.to render_template('webui/project/list') }
-    end
-
-    context 'showing projects being a spider bot' do
-      before do
-        # be a fake google bot
-        request.env['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-        get :index
-      end
-
-      it { is_expected.to render_template('webui/project/list_simple') }
-    end
-  end
-
   describe 'PATCH #update' do
     let(:project) { user.home_project }
 
@@ -235,39 +197,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns(:users)).to match_array(apache_project.users) }
     it { expect(assigns(:groups)).to match_array(apache_project.groups) }
     it { expect(assigns(:roles)).to match_array(Role.local_roles) }
-  end
-
-  describe 'GET #subprojects' do
-    before do
-      apache_project
-      @project = create(:project, name: 'Apache:Apache2')
-      @subproject1 = create(:project, name: 'Apache:Apache2:TestSubproject')
-      @subproject2 = create(:project, name: 'Apache:Apache2:TestSubproject2')
-    end
-
-    context 'subprojects' do
-      before do
-        get :subprojects, params: { project: @project }
-      end
-
-      it 'has subprojects' do
-        expect(assigns(:subprojects)).to match_array([@subproject1, @subproject2])
-        expect(assigns(:parentprojects)).to contain_exactly(apache_project)
-        expect(assigns(:siblings)).to be_empty
-      end
-    end
-
-    context 'siblingprojects' do
-      before do
-        get :subprojects, params: { project: @subproject1 }
-      end
-
-      it 'has siblingprojects' do
-        expect(assigns(:subprojects)).to be_empty
-        expect(assigns(:parentprojects)).to match_array([apache_project, @project])
-        expect(assigns(:siblings)).to contain_exactly(@subproject2)
-      end
-    end
   end
 
   describe 'GET #new' do
@@ -894,7 +823,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(response).to have_http_status(:success) }
-      it { expect(response.body).to eq('<em>Cleared comments for packages</em>') }
       it { expect(package.attribs.where(attrib_type: attribute_type)).to be_empty }
     end
   end

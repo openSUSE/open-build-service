@@ -39,24 +39,4 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       expect(page).to have_text('Successfully edited patchinfo')
     end
   end
-
-  feature 'delete Patchinfo' do
-    given(:patchinfo_package) do
-      Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.where(name: 'patchinfo').exists?
-      Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
-    end
-
-    scenario 'delete' do
-      skip_if_bootstrap
-
-      login user
-      patchinfo_package
-      visit patchinfo_show_path(project: project, package: 'patchinfo')
-      expect(page).to have_link('Delete patchinfo')
-      click_link('Delete patchinfo')
-      expect(page).to have_text('Do you really want')
-      click_button('Accept')
-      expect(page).to have_text('Patchinfo was successfully removed.')
-    end
-  end
 end
