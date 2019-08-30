@@ -5,7 +5,7 @@ class ThinkingSphinx::GuardfileExistsError < StandardError
 end
 
 class FullTextIndexJob < ApplicationJob
-  queue_as :quick
+  queue_as :sphinx_indexing
 
   def perform
     return unless Rails.env.production?
