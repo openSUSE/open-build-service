@@ -45,11 +45,6 @@ module Webui::PackageHelper
 
   include Webui::ProjectHelper
 
-  def package_bread_crumb(*args)
-    args.insert(0, link_to_if(params['action'] != 'show', @package_name || @package, package_show_path(project: @project, package: @package)))
-    project_bread_crumb(*args)
-  end
-
   def nbsp(text)
     result = ''.html_safe
     text.split(' ').each do |text_chunk|
@@ -74,10 +69,6 @@ module Webui::PackageHelper
         "#{n.to_i}#{name}"
       end
     end.compact.reverse.join(' ')
-  end
-
-  def repo_type_and_priority(repository)
-    [repository.repo_type, repository.priority].compact.join(', Priority: ')
   end
 
   def uploadable?(filename, architecture)
