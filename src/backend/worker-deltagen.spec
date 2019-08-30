@@ -14,10 +14,12 @@ mkdir -p "$odir"
 
 # check if makedeltarpm supports the '-m' option
 mopt=
-case `makedeltarpm -m 512 /dev/null /dev/null /dev/null 2>&1` in
+if test -n "@mopt@" ; them
+case `makedeltarpm -m @mopt@ /dev/null /dev/null /dev/null 2>&1` in
   *invalid\ option*) ;;
-  *) mopt="-m 512" ;;
+  *) mopt="-m @mopt@" ;;
 esac
+fi
 
 for i in *.old ; do
   if ! test -e "$i"; then

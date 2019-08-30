@@ -3062,6 +3062,24 @@ sub dobuild {
   my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   writestr("$buildroot/.build.config", undef, $config);
 
+  if ($deltamode) {
+    # replace @mopt@ in specfile
+    my $spec = readstr("$srcdir/worker-deltagen.spec");
+    my $mopt;
+    $mopt = $BSConfig::deltagen_mopt if defined $BSConfig::deltagen_mopt;
+    importbuild() unless defined &Build::queryhdrmd5;
+    eval {
+      my $bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $config) ]);
+      for (@{$bconf->{'repotype'}}) {
+        $mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
+      }
+    };
+    $mopt = 512 unless defined $mopt;
+    $mopt = '' unless $mopt;
+    $spec =~ s/\@mopt\@/$mopt/sg;
+    writestr("$srcdir/worker-deltagen.spec", undef, $spec);
+  }
+
   my $release = $buildinfo->{'release'};
   #FIXME2.6: drop the following line
   my $disturl = "obs://$BSConfig::obsname/$projid/$repoid/$buildinfo->{'srcmd5'}-$packid";
