@@ -108,7 +108,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
           # puts "ignoring #{page.response_headers.inspect}"
           next
         end
-        page.first(:id, 'header-logo')
+        page.first('.navbar-brand')
       rescue Timeout::Error
         next
       rescue ActionController::RoutingError
@@ -122,7 +122,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
         # puts "HARDCORE!! #{theone}"
       end
       next unless body
-      flashes = body.css('div#flash-messages div.ui-state-error')
+      flashes = body.css('div#flash div.alert-error')
       unless flashes.empty?
         raiseit("flash alert #{flashes.first.content.strip}", theone)
       end
