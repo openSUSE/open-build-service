@@ -55,30 +55,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
   def raiseit(message, url)
     # known issues
-    return if url =~ %r{/package/binary/BinaryprotectedProject/.*}
-    return if url =~ %r{/package/binary/download/*}
-    return if url =~ %r{/package/statistics/BinaryprotectedProject/.*}
-    return if url =~ %r{/package/statistics/SourceprotectedProject/.*}
-    return if url.end_with?('/package/binary/SourceprotectedProject/pack?arch=i586&filename=package-1.0-1.src.rpm&repository=repo')
-    return if url =~ %r{/package/revisions/SourceprotectedProject.*}
-    return if url.end_with?('/package/show/kde4/kdelibs?rev=1')
-    return if url.end_with?('/package/show/SourceprotectedProject/target')
-    return if url.end_with?('/package/users/SourceprotectedProject/pack')
-    return if url.end_with?('/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1')
-    return if url.end_with?('/package/view_file/Devel:BaseDistro:Update/pack2?file=my_file&rev=1')
-    return if url.end_with?('/package/view_file/Devel:BaseDistro:Update/Pack3?file=my_file&rev=1')
-    return if url.end_with?('/package/view_file/LocalProject/remotepackage?file=my_file&rev=1')
-    return if url.end_with?('/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=myfile&rev=1')
-    return if url.end_with?('/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1')
-    return if url.end_with?('/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1')
-    return if url.end_with?('/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1')
-    return if url.end_with?('/project/edit/RemoteInstance')
-    return if url.end_with?('/project/meta/HiddenRemoteInstance')
-    return if url.end_with?('/project/show/HiddenRemoteInstance')
-    return if url.end_with?('/project/edit/HiddenRemoteInstance')
-    return if url.end_with?('/user/show/unknown')
-    return if url.end_with?('/user/show/deleted')
     return if url =~ %r{/source/}
+    return if url.end_with?('/request/add_reviewer_dialog?number=10')
 
     warn "Found #{message} on #{url}, crawling path"
     indent = ' '
