@@ -32,17 +32,19 @@ Generic:
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
- * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror 
+ * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror
 
 Backend & build support:
- * 
+ *
 
 Bugfixes:
- * 
+ *
 
 
 Intentional changes:
 ====================
+
+  * Added a new delayjob worker systemd-service for Thinking Sphinx indexing ("obs-delayedjob-queue-sphinx-indexing.service")
 
   Features enabled by default:
     * Image Template

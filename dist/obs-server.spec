@@ -789,6 +789,7 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obs-delayedjob-queue-quick@.service
 %{_unitdir}/obs-delayedjob-queue-releasetracking.service
 %{_unitdir}/obs-delayedjob-queue-staging.service
+%{_unitdir}/obs-delayedjob-queue-sphinx-indexing.service
 %{_unitdir}/obs-sphinx.service
 %{_sbindir}/rcobs-api-support
 %{_sbindir}/rcobs-clockwork
@@ -799,6 +800,7 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobs-delayedjob-queue-project_log_rotate
 %{_sbindir}/rcobs-delayedjob-queue-releasetracking
 %{_sbindir}/rcobs-delayedjob-queue-staging
+%{_sbindir}/rcobs-delayedjob-queue-sphinx-indexing
 %{_sbindir}/rcobs-sphinx
 %{_sbindir}/rcobsapisetup
 /srv/www/obs/api/app
