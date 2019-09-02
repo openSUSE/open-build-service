@@ -5,22 +5,4 @@
         %h5.modal-title#new-package-modal-label
           Create Package for #{project.name}
       .modal-body
-        = form_tag(save_new_package_path(project)) do
-          .form-group
-            %label{ for: 'name' } Name:
-            = text_field_tag 'name', nil, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name'
-          .form-group
-            %label{ for: 'title' } Title:
-            = text_field_tag 'title', nil, size: 80, class: 'form-control', placeholder: 'Enter Title'
-          .form-group
-            %label{ for: 'description' } Description:
-            = text_area_tag 'description', nil, cols: 80, rows: 10, class: 'form-control'
-          - unless @configuration['hide_private_options']
-            .form-group.custom-control.custom-checkbox
-              = check_box_tag :source_protection, 1, false, class: 'custom-control-input', type: 'checkbox'
-              %label.custom-control-label{ for: 'source_protection' } Deny access to source of package
-          .form-group.custom-control.custom-checkbox
-            = check_box_tag :disable_publishing, 1, false, class: 'custom-control-input', type: 'checkbox'
-            %label.custom-control-label{ for: 'disable_publishing' } Disable build results publishing
-          .modal-footer
-            = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
+        = render partial: 'create_package_form', locals: { project: project }
