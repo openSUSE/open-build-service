@@ -48,7 +48,7 @@ module Webui::WebuiHelper
     prjname
   end
 
-  WEBUI2_REPO_STATUS_ICONS = {
+  REPO_STATUS_ICONS = {
     'published' => 'truck',
     'outdated_published' => 'truck',
     'publishing' => 'truck-loading',
@@ -82,8 +82,8 @@ module Webui::WebuiHelper
     REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
   end
 
-  def webui2_repo_status_icon(status)
-    WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
+  def repo_status_icon(status)
+    REPO_STATUS_ICONS[status] || 'eye'
   end
 
   def check_first(first)
@@ -100,19 +100,19 @@ module Webui::WebuiHelper
     end
   end
 
-  def webui2_repository_status_icon(status:, details: nil, html_class: '')
+  def repository_status_icon(status:, details: nil, html_class: '')
     outdated = status.sub!(/^outdated_/, '')
     description = outdated ? 'State needs recalculations, former state was: ' : ''
     description << repo_status_description(status)
     description << " (#{details})" if details
 
-    repo_state_class = webui2_repository_state_class(outdated, status)
+    repo_state_class = repository_state_class(outdated, status)
 
-    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{webui2_repo_status_icon(status)}",
+    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}",
                         data: { content: description, placement: 'top', toggle: 'popover' })
   end
 
-  def webui2_repository_state_class(outdated, status)
+  def repository_state_class(outdated, status)
     return 'outdated' if outdated
     return status =~ /broken|building|finished|publishing|published/ ? status : 'default'
   end

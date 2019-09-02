@@ -35,7 +35,7 @@
                 - if !result.is_repository_in_db
                   %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
                 - else
-                  = webui2_repository_status_icon(status: result.state, details: result.details)
+                  = repository_status_icon(status: result.state, details: result.details)
                 %span.ml-1
                   = result.architecture
               .col-6.col-sm-5.col-xl-6.ml-2.text-nowrap
