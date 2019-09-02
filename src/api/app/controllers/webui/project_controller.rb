@@ -110,6 +110,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   def new_package
     authorize @project, :update?
+
+    switch_to_webui2
   end
 
   def new_package_branch
