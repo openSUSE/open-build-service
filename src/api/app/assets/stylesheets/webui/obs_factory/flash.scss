@@ -1,0 +1,21 @@
+.ui-state-info {
+  background-color: #bfd7ff;
+  border: 1px solid #052d6d;
+  color: #000;
+
+  a:link, a:visited {
+    color: #000;
+    text-decoration: underline;
+  }
+
+  a:active, a:hover {
+    color: #000;
+    text-decoration: none;
+  }
+}
+
+.flash-message {
+  p {
+      margin: 10px;
+  }
+}

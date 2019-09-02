@@ -1,3 +1,24 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require mousetrap
+ *= require peek
+ *= require webui/icons.css.scss
+ *= require webui/obs_factory/bento.css.scss
+ *= require webui/obs_factory/style.css.scss
+ *= require webui/obs_factory/our-own-jquery-ui.css.scss
+ *= require webui/obs_factory/flash
+ *= require webui/obs_factory/utils
+ *= require webui/obs_factory/announcements.scss
+*/
+
 /* Staging projects dashboard table */
 .staging-dashboard th.staging-project {
     text-align: right;
