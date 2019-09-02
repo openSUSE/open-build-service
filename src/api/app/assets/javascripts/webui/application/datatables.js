@@ -1,1 +1,0 @@
-//= require datatables/jquery.dataTables
