@@ -5,4 +5,4 @@
         %h5.modal-title#new-package-modal-label
           Create Package for #{project.name}
       .modal-body
-        = render partial: 'create_package_form', locals: { project: project }
+        = render partial: 'create_package_form', locals: { project: project, modal: true }
