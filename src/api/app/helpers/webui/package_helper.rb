@@ -1,4 +1,6 @@
 module Webui::PackageHelper
+  include Webui::WebuiHelper
+
   def removable_file?(file_name:, package:)
     !file_name.start_with?('_service:') && !package.belongs_to_product?
   end
@@ -42,8 +44,6 @@ module Webui::PackageHelper
     else ''
     end
   end
-
-  include Webui::ProjectHelper
 
   def nbsp(text)
     result = ''.html_safe
