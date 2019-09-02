@@ -1,64 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Webui::UserHelper do
-  describe '#user_and_role' do
-    let(:user) { create(:user) }
-    let(:role) { Role.find_by(title: 'bugowner') }
-    let(:logged_in_user) { create(:user) }
-    let(:anonymous_user) { create(:user_nobody) }
-
-    context 'for logged in users' do
-      before do
-        User.session = logged_in_user
-      end
-
-      it 'displays the users realname to a user that is logged in' do
-        expect(user_and_role(user.login)).to include(link_to("#{user.realname} (#{user.login})", user_show_path(user: user)))
-      end
-
-      it 'falls back to users login if realname is empty' do
-        user.update_attributes(realname: '')
-        expect(user_and_role(user.login)).to include(link_to(user.login, user_show_path(user: user)))
-      end
-
-      it 'shows user login and role if realname is empty and role is given' do
-        user.update_attributes(realname: '')
-        expect(user_and_role(user.login, role)).to include(link_to("#{user.login} as bugowner", user_show_path(user: user)))
-      end
-
-      it 'does not show an icon if option disables it' do
-        expect(user_and_role(user.login, nil, no_icon: true)).to eq(
-          link_to("#{user.realname} (#{user.login})", user_show_path(user: user))
-        )
-      end
-
-      it 'only shows user login if short option is set' do
-        expect(user_and_role(user.login, nil, short: true)).to include(link_to(user.login, user_show_path(user: user)))
-      end
-
-      it 'appends a role name' do
-        expect(user_and_role(user.login, 'test')).to include(
-          link_to("#{user.realname} (#{user.login}) as test", user_show_path(user: user))
-        )
-      end
-    end
-
-    context 'for users that are not logged in' do
-      before do
-        user.email = 'greatguy@nowhere.fi'
-        user.save
-        User.session = anonymous_user
-      end
-
-      it 'does not link to user profiles' do
-        expect(user_and_role(user.login)).to eq(
-          "<img width=\"20\" height=\"20\" alt=\"#{CGI.escapeHTML(user.realname)}\" " \
-          "src=\"https://www.gravatar.com/avatar/803d88429659fa6549ee1a10ccdfbd47?s=20&amp;d=robohash\" />#{CGI.escapeHTML(user.realname)} (#{user.login})"
-        )
-      end
-    end
-  end
-
   describe '#user_with_realname_and_icon' do
     skip('Please add some tests')
   end

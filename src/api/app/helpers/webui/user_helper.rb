@@ -29,45 +29,6 @@ module Webui::UserHelper
     image_tag(url, width: size, height: size, alt: alt, class: opt[:css_class])
   end
 
-  def _optional_icon(user, opt)
-    if opt[:no_icon]
-      ''
-    else
-      # user_icon returns an ActiveSupport::SafeBuffer and not a String
-      user_image_tag(user)
-    end
-  end
-
-  def _printed_name(user, role, opt)
-    real_name = user.try(:realname)
-    if real_name.empty? || opt[:short]
-      printed_name = user.login.dup
-    else
-      printed_name = "#{real_name} (#{user.login})"
-    end
-    printed_name << " as #{role}" if role
-    printed_name
-  end
-
-  # @param [String] user login of the user
-  # @param [String] role title of the login
-  # @param [Hash]   options boolean flags :short, :no_icon
-  def user_and_role(user, role = nil, options = {})
-    opt = { short: false, no_icon: false }.merge(options)
-    user = User.not_deleted.find_by(login: user)
-
-    icon = _optional_icon(user, opt)
-    printed_name = _printed_name(user, role, opt)
-
-    # It's necessary to concat icon and $variable and don't use string interpolation!
-    # Otherwise we get a new string and not an ActiveSupport::SafeBuffer
-    if !User.session
-      icon + printed_name
-    else
-      icon + link_to(printed_name, user_show_path(user))
-    end
-  end
-
   def user_with_realname_and_icon(user, opts = {})
     defaults = { short: false, no_icon: false }
     opts = defaults.merge(opts)
