@@ -1,30 +1,20 @@
-- @pagetitle = "Add Attribute"
-- project_bread_crumb
-- if @package
-  - @crumb_list << link_to(@package, package_show_path(package: @package))
-  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name, package: @package))
-- else
-  - @crumb_list << link_to('Attributes', index_attribs_path(project: @project.name))
-- @crumb_list << "Add"
-- if @package
-  = render partial: "webui/package/tabs"
-- else
-  = render partial: "webui/project/tabs"
-%h2
-  = @pagetitle
-= form_for(@attribute) do |f|
-  .field
-    %p
-      = f.select :attrib_type_id, AttribType.includes(:attrib_namespace).collect { |a| [a.fullname, a.id] }.sort, include_blank: false
-      = hidden_field_tag("attrib[project_id]", @attribute.project_id)
-      = hidden_field_tag("attrib[package_id]", @attribute.package_id) if @attribute.package_id
-  %p.help-block#first-help
-    = AttribType.all.to_a.sort_by { |t| t.fullname }.first.description
-    = "Sorry, this attribute has no description" if AttribType.all.to_a.sort_by { |t| t.fullname }.first.description.blank?
-  - AttribType.all.each do |type|
-    %p.help-block.attrib-type{ id: "#{type.id}-help" }
-      = type.description
-      = "Sorry, this attribute has no description" if type.description.blank?
-  .actions
-    %p
-      = f.submit('Add')
+- @pagetitle = 'Add Attribute'
+
+.card
+  = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
+
+  .card-body
+    %h3= @pagetitle
+    = form_for(@attribute) do |form|
+      .form-row
+        = form.hidden_field(:project_id)
+        - if @attribute.package_id
+          = form.hidden_field(:package_id)
+        .col-12.col-md-auto
+          = form.collection_select(:attrib_type_id, @attribute_types, :id, :fullname, {}, class: 'form-control custom-select')
+        .col-form-label.col-12.col-md
+          - @attribute_types.each do |attribute_type|
+            %p.d-none{ id: "attribute_type-description-#{attribute_type.id}" }
+              = attribute_type.description.presence || 'Sorry, this attribute has no description'
+      = link_to('Back', index_attribs_path, class: 'btn btn-outline-secondary', role: 'button')
+      = form.submit('Add', class: 'btn btn-primary')
