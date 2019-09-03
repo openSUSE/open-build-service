@@ -243,10 +243,6 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
   end
 
-  describe '#package_bread_crumb' do
-    skip
-  end
-
   describe '#uploadable?' do
     it { expect(uploadable?('image.raw.xz', 'x86_64')).to be_truthy }
     it { expect(uploadable?('image.vhdfixed.xz', 'x86_64')).to be_truthy }

@@ -16,4 +16,25 @@ module Webui::ObsFactory::ApplicationHelper
     return 'accept' if checks.all? { |check| check.state == 'success' }
     'error'
   end
+
+  def project_bread_crumb(*args)
+    @crumb_list = [link_to('Projects', project_list_public_path)]
+    return if @spider_bot
+    # FIXME: should also work for remote
+    if @project && @project.is_a?(Project) && !@project.new_record?
+      prj_parents = nil
+      if @namespace # corner case where no project object is available
+        prj_parents = Project.parent_projects(@namespace)
+      else
+        # FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
+        prj_parents = Project.parent_projects(@project.to_s)
+      end
+      project_list = []
+      prj_parents.each do |name, short_name|
+        project_list << link_to(short_name, project_show_path(project: name))
+      end
+      @crumb_list << project_list unless project_list.empty?
+    end
+    @crumb_list += args
+  end
 end
