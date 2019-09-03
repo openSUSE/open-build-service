@@ -1,10 +1,14 @@
-.comment_new.hidden{ id: "reply_form_of_#{comment.id}" }
-  = form_for @comment, method: :post, remote: true do |f|
-    %p
-      = hidden_field_tag :commentable_type, commentable.class
-      = hidden_field_tag :commentable_id, commentable.id
-      = hidden_field_tag :no_switch, true
-      ~ f.text_area :body, size: '80x1', onkeyup: 'sz(this);', onclick: 'sz(this);', class: 'comment_reply_body', id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true
-      = f.hidden_field :parent_id, value: comment.id, id: "reply_parent_id_#{comment.id}"
-    %p
-      = f.submit 'Add reply', id: "add_reply_#{comment.id}"
+%ul.list-inline
+  - if User.session
+    %li.list-inline-item
+      %button.btn.btn-outline-secondary{ data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
+        Reply
+  - if policy(comment).destroy?
+    %li.list-inline-item
+      = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
+      = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment.id}" },
+                class: 'delete_link btn btn-outline-danger', title: 'Delete comment') do
+        Delete
+- if User.session
+  .collapse{ id: "reply_form_of_#{comment.id}" }
+    = render(partial: 'webui/comment/comment_field', locals: { comment: comment.children.new, commentable: commentable })
