@@ -121,10 +121,10 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def sourcediff
-    render partial: 'shared/editor', locals: { text: params[:text],
-                                               mode: 'diff', style: { read_only: true },
-                                               height: 'auto', width: '750px',
-                                               no_border: true, uid: params[:uid] }
+    render partial: 'webui/shared/editor', locals: { text: params[:text],
+                                                     mode: 'diff', style: { read_only: true },
+                                                     height: 'auto', width: '750px',
+                                                     no_border: true, uid: params[:uid] }
   end
 
   def changerequest

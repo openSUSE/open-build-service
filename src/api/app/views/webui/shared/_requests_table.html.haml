@@ -1,6 +1,5 @@
-%table.requests-datatable.compact{ 'data-source' => source_url,
-                                   'id' => id,
-                                   'width' => '100%' }
+%table.responsive.requests-datatable.table.table-sm.table-bordered.table-hover.w-100{ data: { source: source_url,
+  'page-length': local_assigns[:page_length] }, id: id }
   %thead
     %tr
       %th Created
@@ -10,4 +9,4 @@
       %th Type
       %th Priority
       %th
-%tbody
+  %tbody
