@@ -1,6 +1,4 @@
 class Webui::AttributeController < Webui::WebuiController
-  include Webui2::AttributeController
-
   helper :all
   before_action :set_container, only: [:index, :new, :edit]
   before_action :set_attribute, only: [:update, :destroy]
@@ -25,6 +23,8 @@ class Webui::AttributeController < Webui::WebuiController
 
     authorize @attribute, :create?
 
+    @attribute_types = AttribType.includes(:attrib_namespace).all.sort_by(&:fullname)
+
     switch_to_webui2
   end
 
@@ -39,6 +39,12 @@ class Webui::AttributeController < Webui::WebuiController
     if value_count && (value_count > values_length)
       (value_count - values_length).times { @attribute.values.build(attrib: @attribute) }
     end
+
+    if @attribute.attrib_type.issue_list
+      @issue_trackers = IssueTracker.order(:name).all
+    end
+
+    @allowed_values = @attribute.attrib_type.allowed_values.map(&:value)
 
     switch_to_webui2
   end
