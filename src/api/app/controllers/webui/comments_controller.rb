@@ -18,7 +18,7 @@ class Webui::CommentsController < Webui::WebuiController
         status = :unprocessable_entity
       end
       format.html do
-        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+        render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
       end
     end
   end
@@ -39,7 +39,7 @@ class Webui::CommentsController < Webui::WebuiController
         status = :unprocessable_entity
       end
       format.html do
-        render(partial: 'webui2/webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
+        render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
       end
     end
   end

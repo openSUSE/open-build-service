@@ -16,10 +16,10 @@
 .card-body
   .tab-content
     .tab-pane.fade.show.active#comments
-      = render partial: 'webui2/webui/comment/show', locals: { commentable: bs_request,
+      = render partial: 'webui/comment/show', locals: { commentable: bs_request,
         comment_counter_id: "#comment-counter-request-#{bs_request.number}" }
     - bs_request.superseding.includes(:comments).each do |superseded|
       - if superseded.comments.any?
         .tab-pane.fade.show{ id: "superseded-#{superseded.number}" }
-          = render partial: 'webui2/webui/comment/show', locals: { commentable: superseded,
+          = render partial: 'webui/comment/show', locals: { commentable: superseded,
             comment_counter_id: "#comment-counter-request-#{superseded.number}" }

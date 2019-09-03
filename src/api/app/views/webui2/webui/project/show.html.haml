@@ -68,7 +68,7 @@
         %span.badge.badge-primary{ id: "comment-counter-project-#{@project.id}" }
           = @comments.length
       .card-body#comments
-        = render partial: 'webui2/webui/comment/show', locals: { commentable: @project,
+        = render partial: 'webui/comment/show', locals: { commentable: @project,
           comment_counter_id: "#comment-counter-project-#{@project.id}" }
 
 = render partial: 'linking_projects_dialog', locals: { project: @project, linking_projects: @linking_projects }
