@@ -46,67 +46,6 @@ class Webui::SearchController < Webui::WebuiController
     flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 
-  # The search method does the search and renders the results
-  # if there is something to search for. If not then it just
-  # renders a search bar.
-  #
-  #  * *Args* :
-  #   - @search_text -> The search string we search for
-  #   - @search_what -> Array of result limits
-  #   - @search_where -> Array of where we search
-  #   - @search_attrib_type_id -> Limit results to this attribute type
-  #   - @search_issue -> Limit results to packages with this issue in the changelog
-  #   - @owner_limit -> Limit the amount of owners
-  #   - @owner_devel -> Follow devel links for owner search
-  # * *Returns* :
-  #   - +@results+ -> An array of results
-  def search
-    # If there is nothing to search for, just return
-    return unless params[:search_text]
-    # If the search is too short, return too
-    if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
-      flash[:error] = 'Search string must contain at least two characters.'
-      return
-    end
-
-    # request number when string starts with a #
-    if @search_text.starts_with?('#') && @search_text[1..-1].to_i > 0
-      redirect_to controller: 'request', action: 'show', number: @search_text[1..-1]
-      return
-    end
-
-    # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-    if @search_text.starts_with?('obs://')
-      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
-      unless disturl_pkgrev.nil?
-        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-      end
-      if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project, disturl_package, follow_multibuild: true)
-        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
-        return
-      else
-        redirect_back(fallback_location: root_path, notice: 'Sorry, this disturl does not compute...')
-        return
-      end
-    end
-
-    logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
-    if @search_where.empty? && !@search_attrib_type_id && !@search_issue
-      flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
-      return
-    end
-
-    @per_page = 20
-    search = FullTextSearch.new(text: @search_text,
-                                classes: @search_what,
-                                attrib_type_id: @search_attrib_type_id,
-                                fields: @search_where,
-                                issue_name: @search_issue,
-                                issue_tracker_name: @search_tracker)
-    @results = search.search(page: params[:page], per_page: @per_page)
-    flash[:notice] = 'Your search did not return any results.' if @results.empty?
-  end
-
   private
 
   # This sets the needed defaults and input we've got for instance variables
@@ -191,5 +130,66 @@ class Webui::SearchController < Webui::WebuiController
   # they are redirected to the index page.
   def check_beta
     redirect_to action: :index unless switch_to_webui2?
+  end
+
+  # The search method does the search and renders the results
+  # if there is something to search for. If not then it just
+  # renders a search bar.
+  #
+  #  * *Args* :
+  #   - @search_text -> The search string we search for
+  #   - @search_what -> Array of result limits
+  #   - @search_where -> Array of where we search
+  #   - @search_attrib_type_id -> Limit results to this attribute type
+  #   - @search_issue -> Limit results to packages with this issue in the changelog
+  #   - @owner_limit -> Limit the amount of owners
+  #   - @owner_devel -> Follow devel links for owner search
+  # * *Returns* :
+  #   - +@results+ -> An array of results
+  def search
+    # If there is nothing to search for, just return
+    return unless params[:search_text]
+    # If the search is too short, return too
+    if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
+      flash[:error] = 'Search string must contain at least two characters.'
+      return
+    end
+
+    # request number when string starts with a #
+    if @search_text.starts_with?('#') && @search_text[1..-1].to_i > 0
+      redirect_to controller: 'request', action: 'show', number: @search_text[1..-1]
+      return
+    end
+
+    # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
+    if @search_text.starts_with?('obs://')
+      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
+      unless disturl_pkgrev.nil?
+        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
+      end
+      if disturl_project.present? && disturl_package.present? && Package.exists_by_project_and_name(disturl_project, disturl_package, follow_multibuild: true)
+        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
+        return
+      else
+        redirect_back(fallback_location: root_path, notice: 'Sorry, this disturl does not compute...')
+        return
+      end
+    end
+
+    logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
+    if @search_where.empty? && !@search_attrib_type_id && !@search_issue
+      flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
+      return
+    end
+
+    @per_page = 20
+    search = FullTextSearch.new(text: @search_text,
+                                classes: @search_what,
+                                attrib_type_id: @search_attrib_type_id,
+                                fields: @search_where,
+                                issue_name: @search_issue,
+                                issue_tracker_name: @search_tracker)
+    @results = search.search(page: params[:page], per_page: @per_page)
+    flash[:notice] = 'Your search did not return any results.' if @results.empty?
   end
 end
