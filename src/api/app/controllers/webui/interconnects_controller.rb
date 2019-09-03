@@ -2,7 +2,6 @@ class Webui::InterconnectsController < Webui::WebuiController
   before_action :require_admin
 
   def new
-    @interconnect = RemoteProject.new(default_values)
     switch_to_webui2
   end
 
@@ -40,14 +39,5 @@ class Webui::InterconnectsController < Webui::WebuiController
 
   def project_params
     params.require(:project).permit(:name, :title, :remoteurl, :description)
-  end
-
-  def default_values
-    return if Project.exists?(name: 'openSUSE.org')
-
-    { name: 'openSUSE.org',
-      remoteurl: 'https://api.opensuse.org/public',
-      title: 'Remote OBS instance',
-      description: 'This project is representing a remote build service instance.' }
   end
 end
