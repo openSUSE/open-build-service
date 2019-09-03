@@ -1,12 +1,14 @@
 //= require airbrake-js-client
-var errbit_id = "<%= CONFIG['errbit_javascript_api_key'] %>";
-var errbit_host = "<%= CONFIG['errbit_javascript_host'] %>";
 
-if (errbit_id) {
+/* global console, airbrakeJs */
+var errbitId = $("meta[property='errbit:key']").attr('content');
+var errbitHost = $("meta[property='errbit:host']").attr('content');
+
+if (errbitId) {
   var airbrake = new airbrakeJs.Client({
     projectId: 1,
-    projectKey: errbit_id,
-    host: errbit_host,
+    projectKey: errbitId,
+    host: errbitHost,
     environment: 'production',
   });
 
@@ -22,4 +24,4 @@ if (errbit_id) {
       }
     });
   };
-};
+}
