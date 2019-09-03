@@ -686,6 +686,7 @@ Rails/HelperInstanceVariable:
     - 'app/helpers/webui/buildresult_helper.rb'
     - 'app/helpers/webui/kiwi/image_helper.rb'
     - 'app/helpers/webui/markdown_helper.rb'
+    - 'app/helpers/webui/obs_factory/application_helper.rb'
     - 'app/helpers/webui/package_helper.rb'
     - 'app/helpers/webui/patchinfo_helper.rb'
     - 'app/helpers/webui/project_helper.rb'
