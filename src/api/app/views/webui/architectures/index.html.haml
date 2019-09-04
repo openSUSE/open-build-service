@@ -1,24 +1,34 @@
-- @pagetitle = "Architecture Configuration"
-- @crumb_list = [@pagetitle]
-- @layouttype = 'custom'
-.grid_16.alpha.omega.box.box-shadow
+:ruby
+  @pagetitle = 'Architectures'
+
+.card.mb-3
   = render partial: 'webui/configuration/tabs'
-  .grid_16.alpha
+  .card-body#architectures
     %h3
       Architecture Availability
     %p
       Toggle the availability of architectures.
-    = form_tag(bulk_update_availability_path, method: 'patch' ) do
-      %table
-        %tr
-          %th Architecture
-          %th Availability
-        = fields_for :archs do |arch_fields|
-          - @architectures.each do |arch|
-            %tr
-              %td
-                = arch.name
-              %td
-                = arch_fields.check_box(arch.name, { checked: arch.available })
-      %p
-        = submit_tag 'Update'
+    .form-group
+      = button_tag('All', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: true,
+        data: { remote: true, url: bulk_update_availability_path(archs: { all: true }), method: :patch })
+      = button_tag('None', type: 'submit', class: 'btn btn-outline-primary filter-button mr-1', value: false,
+        data: { remote: true, url: bulk_update_availability_path(archs: { all: false }), method: :patch })
+      %i.fas.fa-spinner.invisible
+    .form-group.d-flex.flex-wrap
+      - @architectures.each do |arch|
+        .custom-control.custom-checkbox.custom-control-inline
+          = check_box_tag('available', true, arch.available, class: 'custom-control-input', id: "arch-#{arch}",
+            data: { remote: true, url: architecture_path(arch), method: :patch })
+          %label.custom-control-label.pr-2{ for: "arch-#{arch}" }
+            = arch.name
+          %i.fas.fa-spinner.invisible
+
+- content_for :ready_function do
+  :plain
+    $('#architectures').on('ajax:before ajax:complete', '.custom-control-input, .filter-button', function() {
+      $(this).prop('disabled', function(_, previousValue) { return !previousValue; });
+      $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
+    });
+    $('.filter-button').on('ajax:success', function() {
+      $('#architectures').find('input').prop('checked', $(this).val() === 'true');
+    });
