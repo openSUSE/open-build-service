@@ -1,32 +1,13 @@
-= content_for :ready_function do
-  monitor_ready();
-
-.statuslights#serverstatus
-  %h2 Server Status
-  - @workerstatus.elements("partition") do |part|
-    - unless part["name"].blank?
-      %h3= part["name"]
-    - if part.has_key? "daemon"
-      %ul
-        - part.elements("daemon") do |daemon|
-          %li.daemon_status
-            .statuswrapper
-              - state = "green"
-              - if daemon["state"] == "dead"
-                - state = "red"
-              - elsif daemon["state"] == "booting"
-                - state = "yellow"
-              %div{ class: "statuslight #{'status_' + state}", style: "margin: auto", title: "#{daemon['state']}" }
-              .statusarch
-                = daemon["arch"] ? daemon["arch"] : daemon["type"]
-              %span.hidden.statustext
-                = daemon["type"]
-                \:#{daemon['arch']}
-                \: #{daemon['state']}
-                - if daemon.has_key? "starttime"
-                  - start_time = Time.at(daemon["starttime"].to_i)
-                  for #{distance_of_time_in_words(@time_now, start_time, include_seconds: true)} (last restart: #{start_time.iso8601})
-    - else
-      %p
-        %i No daemons running!
-.clear
+%h2 Server Status
+- workerstatus.elements('partition') do |partition|
+  - if partition['name'].present?
+    %h3= partition['name']
+  - if partition.key?('daemon')
+    .row.p-2.no-gutters
+      - partition.elements('daemon') do |daemon|
+        .col-6.col-sm-3.col-md-2.col-lg-1.p-1
+          .h-100.p-2.border.text-center
+            %i.fa{ class: icon_for_daemon(daemon['state']), title: "#{daemon['state']}" }
+            %span.d-block= daemon['arch'] || daemon['type']
+  - else
+    %p No daemons running!
