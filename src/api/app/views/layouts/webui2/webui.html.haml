@@ -17,6 +17,10 @@
     - if meta_description
       %meta{ property: 'og:description', content: meta_description }
 
+    - if CONFIG['errbit_javascript_api_key'] && CONFIG['errbit_javascript_host']
+      %meta{ property: 'errbit:key', content: CONFIG['errbit_javascript_api_key'] }
+      %meta{ property: 'errbit:host', content: CONFIG['errbit_javascript_host'] }
+
     = stylesheet_link_tag 'webui2/webui2'
     = javascript_include_tag 'webui2/application'
 
