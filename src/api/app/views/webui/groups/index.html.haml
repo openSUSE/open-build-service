@@ -1,32 +1,26 @@
-- @pagetitle = "Group Management"
-- @crumb_list = [@pagetitle]
-- @layouttype = 'custom'
-.grid_16.alpha.omega.box.box-shadow
+- @pagetitle = 'Manage Groups'
+
+.card.mb-3
   = render partial: 'webui/configuration/tabs'
-  %p
-    Manage groups.
-  - unless @groups.empty?
-    %table.compact#group-table
+  .card-body
+    %h3= @pagetitle
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#manage-groups-table
       %thead
         %tr
-          %th Group name
+          %th Group Name
           %th Members
-          %th Action
       %tbody
         - @groups.each do |group|
-          %tr{ id: "group-#{valid_xml_id(group.title)}" }
+          %tr
             %td
-              = link_to(group.title, group_show_path(title: group.title), { id: group.title })
-            %td.users
-              = safe_join(group.users.map { |user| link_to(user, user_show_path(user)) }, ', ')
-            %td.nowrap
-              = link_to(sprited_text('accessories-text-editor', 'Edit Group'), group_edit_title_path(title: group.title))
-  - else
-    %p
-      %i There are no groups configured
-  %p= link_to(sprited_text('group_add', 'Add group'), controller: 'groups', action: :new)
-- if @groups.length > 0
-  :javascript
-    $(function() {
-      $('#group-table').dataTable();
-    });
+              = link_to(group, group_show_path(title: group))
+            %td
+              = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_show_path(user), title: user.login) }, ', ')
+
+    .pt-4
+      = link_to(group_new_path) do
+        %i.fas.fa-plus-circle.text-primary
+        Create Group
+
+- content_for :ready_function do
+  initializeDataTable('#manage-groups-table', { columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });
