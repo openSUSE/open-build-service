@@ -48,27 +48,7 @@ module Webui::WebuiHelper
     prjname
   end
 
-  # TODO: bento_only
   REPO_STATUS_ICONS = {
-    'published' => 'lorry',
-    'publishing' => 'cog_go',
-    'outdated_published' => 'lorry_error',
-    'outdated_publishing' => 'cog_error',
-    'unpublished' => 'lorry_flatbed',
-    'outdated_unpublished' => 'lorry_error',
-    'building' => 'cog',
-    'outdated_building' => 'cog_error',
-    'finished' => 'time',
-    'outdated_finished' => 'time_error',
-    'blocked' => 'time',
-    'outdated_blocked' => 'time_error',
-    'broken' => 'exclamation',
-    'outdated_broken' => 'exclamation',
-    'scheduling' => 'cog',
-    'outdated_scheduling' => 'cog_error'
-  }.freeze
-
-  WEBUI2_REPO_STATUS_ICONS = {
     'published' => 'truck',
     'outdated_published' => 'truck',
     'publishing' => 'truck-loading',
@@ -102,8 +82,8 @@ module Webui::WebuiHelper
     REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
   end
 
-  def webui2_repo_status_icon(status)
-    WEBUI2_REPO_STATUS_ICONS[status] || 'eye'
+  def repo_status_icon(status)
+    REPO_STATUS_ICONS[status] || 'eye'
   end
 
   def check_first(first)
@@ -120,55 +100,21 @@ module Webui::WebuiHelper
     end
   end
 
-  # TODO: bento_only
-  def repo_status_icon(status, details = nil)
-    icon = REPO_STATUS_ICONS[status] || 'eye'
-    outdated = nil
-    if /^outdated_/.match?(status)
-      status.gsub!(%r{^outdated_}, '')
-      outdated = true
-    end
-
-    description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
-    description = 'State needs recalculations, former state was: ' + description if outdated
-    description += ' (' + details + ')' if details
-
-    sprite_tag icon, title: description
-  end
-
-  def webui2_repository_status_icon(status:, details: nil, html_class: '')
+  def repository_status_icon(status:, details: nil, html_class: '')
     outdated = status.sub!(/^outdated_/, '')
     description = outdated ? 'State needs recalculations, former state was: ' : ''
     description << repo_status_description(status)
     description << " (#{details})" if details
 
-    repo_state_class = webui2_repository_state_class(outdated, status)
+    repo_state_class = repository_state_class(outdated, status)
 
-    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{webui2_repo_status_icon(status)}",
+    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}",
                         data: { content: description, placement: 'top', toggle: 'popover' })
   end
 
-  def webui2_repository_state_class(outdated, status)
+  def repository_state_class(outdated, status)
     return 'outdated' if outdated
     return status =~ /broken|building|finished|publishing|published/ ? status : 'default'
-  end
-
-  # TODO: bento_only
-  def tab(id, text, opts)
-    opts[:package] = @package.to_s if @package
-    if @project
-      if opts[:controller].to_s.ends_with?('pulse', 'meta', 'maintenance_incidents')
-        opts[:project_name] = @project.name
-      else
-        opts[:project] = @project.to_s
-      end
-    end
-    link_opts = { id: "tab-#{id}" }
-
-    if (action_name == opts[:action].to_s && opts[:controller].to_s.ends_with?(controller_name)) || opts[:selected]
-      link_opts[:class] = 'selected'
-    end
-    content_tag('li', link_to(h(text), opts), link_opts)
   end
 
   # Shortens a text if it longer than 'length'.
@@ -221,22 +167,6 @@ module Webui::WebuiHelper
     end
   end
 
-  # TODO: bento_only
-  def description_wrapper(description)
-    if description.blank?
-      content_tag(:p, id: 'description-text') do
-        content_tag(:i, 'No description set')
-      end
-    else
-      content_tag(:pre, description, id: 'description-text', class: 'plain')
-    end
-  end
-
-  # TODO: bento_only
-  def is_advanced_tab?
-    action_name.in?(['index', 'status']) || controller_name.in?(['project_configuration', 'meta', 'pulse'])
-  end
-
   def sprite_tag(icon, opts = {})
     if opts.key?(:class)
       opts[:class] += " icons-#{icon}"
@@ -272,10 +202,6 @@ module Webui::WebuiHelper
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
     style + "}\n"
-  end
-
-  def remove_dialog_tag(text)
-    link_to(text, '#', title: 'Close', id: 'remove_dialog', class: 'close-dialog')
   end
 
   def package_link(pack, opts = {})
@@ -354,17 +280,6 @@ module Webui::WebuiHelper
     role.blank? ? 'become bugowner (previous bugowners will be deleted)' : "get the role #{role}"
   end
 
-  # If there is any content add the ul tag
-  def possibly_empty_ul(html_opts, &block)
-    content = capture(&block)
-    if content.blank?
-      html_opts[:fallback]
-    else
-      html_opts.delete :fallback
-      content_tag(:ul, content, html_opts)
-    end
-  end
-
   def can_register
     return false if CONFIG['kerberos_mode']
     return true if User.admin_session?
@@ -375,18 +290,6 @@ module Webui::WebuiHelper
       return false
     end
     true
-  end
-
-  def escape_nested_list(list)
-    # The input list is not html_safe because it's
-    # user input which we should never trust!!!
-    list.map do |item|
-      "['".html_safe +
-        escape_javascript(item[0]) +
-        "', '".html_safe +
-        escape_javascript(item[1]) +
-        "']".html_safe
-    end.join(",\n").html_safe
   end
 
   def replace_jquery_meta_characters(input)

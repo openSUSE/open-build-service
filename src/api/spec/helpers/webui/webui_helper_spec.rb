@@ -63,27 +63,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#repo_status_icon' do
-    it 'renders icon' do
-      blocked = repo_status_icon('blocked')
-      expect(blocked).to include('icons-time')
-      expect(blocked).to include('No build possible atm')
-    end
-
-    it 'renders outdated icon' do
-      outdated_scheduling = repo_status_icon('outdated_scheduling')
-      expect(outdated_scheduling).to include('icons-cog_error')
-      expect(outdated_scheduling).to include('state is being calculated')
-      expect(outdated_scheduling).to include('needs recalculations')
-    end
-
-    it 'renders unknown icon' do
-      undefined_icon = repo_status_icon('undefined')
-      expect(undefined_icon).to include('icons-eye')
-      expect(undefined_icon).to include('Unknown state')
-    end
-  end
-
   describe '#bugzilla_url' do
     before do
       @configuration = { 'bugzilla_url' => 'https://bugzilla.example.org' }
@@ -126,124 +105,12 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#escape_nested_list' do
-    it 'html escapes a string' do
-      input = [['<p>home:Iggy</p>', '<p>This is a paragraph</p>'], ['<p>home:Iggy</p>', '<p>"This is a paragraph"</p>']]
-      output = "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;This is a paragraph&lt;\\/p&gt;'],\n"
-      output += "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;\\&quot;This is a paragraph\\&quot;&lt;\\/p&gt;']"
-
-      expect(escape_nested_list(input)).to eq(output)
-    end
-  end
-
   describe '#sprited_text' do
     it 'returns a img element with a matching icon class and title attribute and text' do
       expect(sprited_text('brick_edit', 'Edit description')).to eq('<img title="Edit description" ' \
                        'class="icons-brick_edit" alt="Edit description" src="/images/s.gif" /> Edit description')
       expect(sprited_text('user_add', 'Request role addition')).to eq('<img title="Request role addition" ' \
                        'class="icons-user_add" alt="Request role addition" src="/images/s.gif" /> Request role addition')
-    end
-  end
-
-  describe '#remove_dialog_tag' do
-    it "generates a link element and uses it's parameter as text field" do
-      expect(remove_dialog_tag('Some text')).to eq(
-        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some text</a>'
-      )
-      expect(remove_dialog_tag('Some other text')).to eq(
-        '<a title="Close" id="remove_dialog" class="close-dialog" href="#">Some other text</a>'
-      )
-    end
-  end
-
-  describe '#remove_dialog_tag' do
-    it "generates a 'pre' element and uses it's parameter as text field" do
-      expect(description_wrapper('some description')).to eq(
-        '<pre id="description-text" class="plain">some description</pre>'
-      )
-      expect(description_wrapper('some other description')).to eq(
-        '<pre id="description-text" class="plain">some other description</pre>'
-      )
-    end
-  end
-
-  describe '#possibly_empty_ul' do
-    context 'if the block is not blank' do
-      before do
-        @cont = proc { 'some content' }
-      end
-
-      it "embeds content returned by a block in an 'ul' element" do
-        expect(possibly_empty_ul({}, &@cont)).to eq('<ul>some content</ul>')
-      end
-
-      it "applies parameters as attributes to an 'ul' element" do
-        html_options = { class: 'list', id: 'my-list' }
-        expect(possibly_empty_ul(html_options, &@cont)).to eq('<ul class="list" id="my-list">some content</ul>')
-      end
-
-      it 'ignores a possible fallback parameter' do
-        html_options = { class: 'list', fallback: '<p><i>fallback</i></p>' }
-        expect(possibly_empty_ul(html_options, &@cont)).to eq('<ul class="list">some content</ul>')
-      end
-    end
-
-    context 'if the block is blank' do
-      before do
-        @cont = proc { '' }
-      end
-
-      context 'and a fallback option is given' do
-        before do
-          @html_options = { class: 'list', fallback: '<p><i>fallback</i></p>' }
-        end
-
-        it { expect(possibly_empty_ul(@html_options, &@cont)).to eq('<p><i>fallback</i></p>') }
-      end
-
-      context 'and no fallback option is given' do
-        it { expect(possibly_empty_ul({}, &@cont)).to be(nil) }
-      end
-    end
-  end
-
-  describe '#is_advanced_tab?' do
-    advanced_tab_actions = ['index', 'status']
-    advanced_tab_actions.each do |action|
-      context "current action is '#{action}'" do
-        before do
-          allow(controller).to receive(:action_name).and_return(action)
-        end
-
-        it { expect(is_advanced_tab?).to be(true) }
-      end
-    end
-
-    context "current action is not within #{advanced_tab_actions}" do
-      before do
-        allow(controller).to receive(:action_name).and_return('some_action')
-      end
-
-      it { expect(is_advanced_tab?).to be(false) }
-    end
-
-    advanced_tab_controllers = ['project_configuration', 'meta', 'pulse']
-    advanced_tab_controllers.each do |controller_name|
-      context "current controller is '#{controller_name}'" do
-        before do
-          allow(controller).to receive(:controller_name).and_return(controller_name)
-        end
-
-        it { expect(is_advanced_tab?).to be(true) }
-      end
-    end
-
-    context "current controller is not within #{advanced_tab_controllers}" do
-      before do
-        allow(controller).to receive(:controller_name).and_return('some_controller')
-      end
-
-      it { expect(is_advanced_tab?).to be(false) }
     end
   end
 
@@ -295,18 +162,6 @@ RSpec.describe Webui::WebuiHelper do
     context 'user is registered' do
       it { expect(can_register).to be(true) }
     end
-  end
-
-  describe '#repo_status_icon' do
-    skip('Please add some tests')
-  end
-
-  describe '#tab' do
-    skip('Please add some tests')
-  end
-
-  describe '#render_dialog' do
-    skip('Please add some tests')
   end
 
   describe '#project_or_package_link' do
