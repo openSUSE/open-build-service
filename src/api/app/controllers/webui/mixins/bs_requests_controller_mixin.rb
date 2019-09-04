@@ -7,7 +7,7 @@ module Webui
         @requests_data_table = BsRequest::DataTable::Table.new(requests_query, parsed_params[:draw])
 
         respond_to do |format|
-          format.json { render "#{ui_namespace}/shared/bs_requests/index" }
+          format.json { render 'webui/shared/bs_requests/index' }
         end
       end
     end
