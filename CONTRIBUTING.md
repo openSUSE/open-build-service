@@ -1,4 +1,3 @@
-# Request for Contributions
 We are always looking for contributions to the Open Build Service.
 
 In particular, this community seeks the following types of contributions:
@@ -16,8 +15,8 @@ Read this guide on how to do that.
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
 6. [How to setup an OBS development environment](#how-to-setup-an-obs-development-environment)
 
-
 # How to Contribute Code
+
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 
 If you want to contribute code, fork the repository and make a pull-request
@@ -61,69 +60,25 @@ of code to be reviewed.
 ## Proper Commit Messages
 
 We are keen on proper commit messages because they will help us to maintain
-this piece of code in the future.
+this piece of code in the future. So for the benefit of all the people who will
+look at this commit now and in the future, follow this style:
 
 - The title of your commit should summarizes **what** has been done
   - If the title is to small to explain **what** you have done then elaborate on it in the body
-- Explain **why** you have changed this instead of the *how*. This is the most important content of the message.
-- Explain potential side-effects of this change, if there are any
+- The body of your commit should explain **why** you have changed this. This is
+  the most important content of the message!
+- Make sure you also explain potential side-effects of this change, if there are any.
 
-Please also:
+Please also mind common sense rules for commit messages, we wrote some down in our wiki
+https://github.com/openSUSE/open-build-service/wiki/Commit-Style
 
-- **Leave a blank line between the commit subject and body**
+## Proper Pull Request
 
-  Tools like rebase could not work properly otherwise.
-
-- **Mention related issues**
-
-  If this commit fixes an issue you need to mention it like `Fixes #1234`
-
-- **Give kudos to Co-authors**
-
-  If the commit has more than one author tag them with `Co-authored-by: name <name@example.com>`.
-
-- **Try that the commit subject is not longer than 50 characters**
-
-- **Try that each line of the commit body is not longer than 72 characters**
-
-- **Try to avoid meaningless words/phrases**
-
-  When possible avoid using words/phrases such as _obviously_, _basically_, _simply_, _of course_, _everyone knows_ and _easy_.
-
-- **Preferably use `-` for lists**
-
-  Do not use `*` as it is also used for _emphasis_.
-
-**Please note** that we used to tag our commits to specify the areas affected by the change.
-We are not tagging commits anymore, but these are the labels and their descriptions in case you review some old code:
-
-  * [api]     - Changes in api related parts of app/model/ and lib/ as well as app/controllers/\*.rb and its views
-  * [backend] - Changes in the perl-written backend of OBS
-  * [ci]      - Changes that affect our test suite
-  * [dist]    - Modifies something inside /dist directory
-  * [doc]     - Any documentation related changes
-  * [webui]   - Changes in webui related parts of app/model/ and lib/ as well as app/controllers/webui/ and its views
-
-## The Perfect Pull Request
-
-Please, add a good description to your pull request. Explain what moved you to add that new feature or what was the issue you are trying to fix. Also describe briefly the solution you propose.
-
-In order to help reviewers:
-
-- Explain the workflow they have to follow to get to the feature.
-- Explain how they can test your changes, providing some sample data if possible.
-- Provide [osc](https://github.com/openSUSE/osc) commands to test your changes if that is the case.
-- For visual or design-related pull requests:
-  - add screenshots or GIFs,
-  - enable review app*
-- For performance-related pull requests:
-  - add sample data in the review app* and put links in the pull request's description
-  - add benchmarks
-
-\* _Review app can be enabled by applying the `review-app` label to the pull request, it should be done by a member of the OBS team._
-
+In order to make it as easy as possible for other developers to review your pull request we ask you to
+follow what we ask in the pull request template that comes up if you open a new one.
 
 ## Mind the Automated Reviews
+
 Please make sure to mind our continuous integration cycle that includes:
 
 - code style linting with tools like rubocop, jshint, haml-lint etc.
@@ -142,62 +97,93 @@ with us in the pull-request, over the
 developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
-# The Perfect Pull Request Review
+# How to review code submissions
 
-We make use of GitHub [pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
+Prerequisites: familiarity with [GitHub pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
-Every pull request has to be reviewed to ensure the code is effective, understandable, maintainable and secure.
+We believe every code submission should be reviewed by another developer to determine its *maintainability*.
+That means you, the reviewer, should check that the submitted code is:
 
-The changes must be tested locally or in the review app.
+- functional
+- tested
+- secure
+- effective
+- understandable
 
-Provide constructive feedback and be mindful of the tone you use when reviewing.
+We also consider code reviews to be one of the best ways to share knowledge about language features/syntax, design and software architecture. So please take this seriously.
 
-## How to Provide Constructive Feedback
+## How to Test Code Submissions
 
-We took inspiration from [GitLab](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/code_review.md).
+Changes to the business logic/behavior of the Open Build Service should alway be accompanied by tests
+([frontend](https://github.com/openSUSE/open-build-service/tree/master/src/api/spec)/
+[backend](https://github.com/openSUSE/open-build-service/tree/master/src/backend/t)) that will be run
+by our continuous integration.
 
-- Be respectful.
-- Accept that many decisions are opinions. Discuss tradeoffs, which you prefer, and reach a resolution quickly.
-- Propose solutions instead of only requesting changes. ("What do you think about naming this :user_id?").
-- Ask for clarification  ("I didn't understand. Can you clarify?") and consider one-on-one chats or video calls if there are too many "I didn't understand" or "Alternative solution:" comments. Post a follow-up comment summarizing the discussion.
-- Avoid selective ownership of code. ("mine", "not mine", "yours").
-- Avoid using terms that could be seen as referring to personal traits. ("dumb", "stupid"). Assume everyone is attractive, intelligent, and well-meaning.
-- Be explicit. Remember people don't always understand your intentions online.
-- Be humble. ("I'm not sure - let's look it up."). Remember, reviews aren't about showing off.
-- Don't use hyperbole. ("always", "never", "endlessly", "nothing").
-- Be careful about the use of sarcasm. Everything we do is public; what seems like good-natured ribbing to you and a long-time colleague might come off as mean and unwelcoming to a person new to the project.
-- Avoid asking for changes which are out of scope. Those should be addressed at another time (open an issue or send a PR).
+However there is often a significant difference between something functional and something usable.
+So we strongly encourage manual testing during the code review. For this you should either check
+out the changes locally (see the "view command line instructions" link at the bottom of every PR)
+and run them in your development environment.
 
-## When to Merge Pull Requests
+Or you make use of our [review app bot](https://github.com/openSUSE/open-build-service/wiki/Review-apps)
+(by applying the `review-app` label to the PR) which will deploy the code to
+our review server and tell you how to access it in a comment.
+
+## How to Provide Feedback
+
+The tone of your code review will greatly influence morale within our community.
+
+Harsh language in code reviews creates a hostile environment, opinionated language turns people defensive. Often leading to heated discussions and hurt feelings. On the other hand a positive tone can contribute to a more inclusive environment. People start to feel safe, healthy and lively discussions evolve.
+
+So here are some basic rules we aspire to follow (we took inspiration from [GitLab](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/code_review.md) for these) to foster constructive, positive feedback.
+
+- **Be respectful** to each other: We are in this together!
+- **Be humble**: Reviews aren't about showing off (Example: "I'm not sure - let's look it up.")
+- **Be explicit**: People don't always understand your intentions online.
+- **Be careful about the use of sarcasm**: Everything we do is public; what seems like good-natured kidding to you and a long-time friend, might come off as mean and unwelcoming to a person new to the project
+- Accept that many decisions are opinions: Discuss trade-offs and preferences openly
+- Propose solutions instead of only requesting changes. (Example: *"What do you think about naming this `:user_id` instead of `:db_user`?"*)
+- Ask for clarification instead of assuming things (Example: *"I don't understand this change. Can you clarify this for me please?"*)
+- Consider one-on-one chats or video calls if there are too many things that are not clear. Afterward post a follow-up comment summarizing the discussion you had, so everybody can follow your decision.
+- Avoid expressing selective ownership of code (*"my code"*, *"not my code"*, *"your code"*), we are a community and share ownership
+- Avoid using terms that could be seen as referring to personal traits. (Example: *"dumb"*, *"stupid"*, *"simple"*). Assume everyone is attractive, intelligent, and well-meaning, because everyone is!
+- Don't use hyperbole. (Example: *"always"*, *"never"*, *"endlessly"*, *"nothing"*).
+- Avoid asking for changes which are out of scope. Things out of scope should be addressed at another time (open an issue or send a PR).
+
+## How to Merge Pull Requests
 
 In order to merge a pull request, it needs:
 
-- all of the required GitHub checks to pass (waiting for all of them to pass is recommended)
-- a review from at least 1 team member (2 reviews are recommended)
-- all requested changes to be addressed*
+- The **required** GitHub checks to pass (waiting for all checks to pass is recommended)
+- A review from at least one OBS developer
+- All requested changes to be addressed*
 
-\* Dismissing a review with requested changes is possible only if the reviewer is not reachable for a while and the requested changes are addressed and approved by another team member.
+\* Dismissing a review with requested changes should only be done if we know the reviewer is not reachable for a while.
 
 # How to Contribute Bug Reports
+
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
 
 We are using priority labels from **P1** to **P4** for our issues. So if you are a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) you are supposed to
+
 * P1: Urgent - Fix this next even if you still have other issues assigned to you.
 * P2: High   - Fix this after you have fixed all your other issues.
 * P3: Medium - Fix this when you have time.
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to Contribute Documentation
+
 The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository.
 
 # How to Conduct Yourself when Contributing
+
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https:/en.openSUSE.org/openSUSE:Board) know!
 
 # How to Setup an OBS Development Environment
+
 We are using [docker](https://www.docker.com/) to create our development
 environment. All the tools needed for this are available for Linux, MacOS and
 Windows.
@@ -267,4 +253,3 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
 11. You can find more details about the development environment [in our wiki](https://github.com/openSUSE/open-build-service/wiki/Development-Environment-Tips-&-Tricks).
 
 # Happy Hacking! - :heart: Your Open Build Service Team
-
