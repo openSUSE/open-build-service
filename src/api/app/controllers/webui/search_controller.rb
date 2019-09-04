@@ -2,7 +2,6 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_attribute_list
   before_action :set_tracker_list
   before_action :set_parameters, except: :issue
-  before_action :check_beta, only: :issue
 
   def index
     switch_to_webui2
@@ -93,21 +92,10 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def search_what
-    # FIXME: Simplify this after webui2 final migration.
     @search_what = []
-    switch_to_webui2? ? search_what_for_webui2 : search_what_for_bento
-    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
-  end
-
-  def search_what_for_webui2
     @search_what << 'package' if params[:search_for].in?(['0', '2'])
     @search_what << 'project' if params[:search_for].in?(['0', '1'])
-  end
-
-  def search_what_for_bento
-    # TODO: bento_only
-    @search_what << 'package' if params[:package] == '1'
-    @search_what << 'project' if params[:project] == '1' || !@search_issue
+    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
   end
 
   def set_attribute_list
@@ -123,13 +111,6 @@ class Webui::SearchController < Webui::WebuiController
       ["#{t.name} (#{t.description})", t.name]
     end
     @default_tracker = ::Configuration.default_tracker
-  end
-
-  # FIXME: bento_only remove this callback when we have fully migrated to Boostrap
-  # This view only exists for webui2, if the user leaves the beta program at this point,
-  # they are redirected to the index page.
-  def check_beta
-    redirect_to action: :index unless switch_to_webui2?
   end
 
   # The search method does the search and renders the results
