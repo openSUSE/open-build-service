@@ -3,23 +3,6 @@ require 'statistics_calculations'
 class Webui::MainController < Webui::WebuiController
   skip_before_action :check_anonymous, only: [:index]
 
-  def gather_busy
-    busy = []
-    archs = Architecture.where(available: 1).map(&:worker).uniq
-    archs.each do |arch|
-      starttime = Time.now.to_i - 168.to_i * 3600
-      rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
-      values = rel.pluck(:time, :value).collect! { |time, value| [time.to_i, value.to_f] }
-      values = StatusHelper.resample(values, 400)
-      if busy.empty?
-        busy = values
-      elsif values.present?
-        busy = add_arrays(busy, values)
-      end
-    end
-    busy
-  end
-
   def index
     @status_messages = StatusMessage.alive.includes(:user).limit(4).to_a
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
@@ -44,5 +27,24 @@ class Webui::MainController < Webui::WebuiController
     end
 
     switch_to_webui2
+  end
+
+  private
+
+  def gather_busy
+    busy = []
+    archs = Architecture.where(available: 1).map(&:worker).uniq
+    archs.each do |arch|
+      starttime = Time.now.to_i - 168.to_i * 3600
+      rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
+      values = rel.pluck(:time, :value).collect! { |time, value| [time.to_i, value.to_f] }
+      values = StatusHelper.resample(values, 400)
+      if busy.empty?
+        busy = values
+      elsif values.present?
+        busy = add_arrays(busy, values)
+      end
+    end
+    busy
   end
 end

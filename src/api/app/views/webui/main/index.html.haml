@@ -1,30 +1,29 @@
 - @pagetitle = 'Welcome'
-- @layouttype = 'custom'
-.grid_11.alpha
-  .box.box-shadow
-    %h1.mainhead
-      Welcome to #{@configuration['title']}
-    = raw @configuration['description']
-    %br/
-    %ul#proceed-list
-      - if User.admin_session?
-        = proceed_link 'configure', 'Configuration', controller: 'configuration', action: 'index'
-        = proceed_link 'list', 'All Projects', controller: 'project'
-        = proceed_link 'system-search', 'Search', controller: 'search', action: 'index'
-      - else
-        = proceed_link 'start-here', 'Your Home', user_show_path(User.session!) if User.session
-        = proceed_link 'list', 'All Projects', controller: 'project'
-        = proceed_link 'system-search', 'Search', controller: 'search', action: 'index'
-        = proceed_link "document-new", 'New Project', controller: 'project', action: 'new', ns: User.session!.home_project_name if User.session
-      - unless @spider_bot
-        = proceed_link 'utilities-system-monitor', 'Status Monitor', controller: 'monitor', action: 'index'
-      = proceed_link 'drive-optical-32', 'New Image', image_templates_path
-  = render partial: 'systemstatus'
-.grid_5.omega
-  - if !User.session and can_register
-    .box.box-shadow
-      %h2.box-header New here? Sign up!
-      = render partial: 'shared/sign_up'
-  = render partial: 'sponsors'
-  = render partial: 'status_messages'
-  = render partial: 'latest_updates' if (@latest_updates and ::Configuration.anonymous)
+
+.row
+  .col-md-8.col-lg-7
+    .card.mb-3
+      .card-body
+        %h2
+          Welcome to #{@configuration['title']}
+        -# rubocop:disable Rails/OutputSafety
+        = raw @configuration['description']
+        -# rubocop:enable Rails/OutputSafety
+        .row.no-gutters.text-center#proceed-list
+          = render partial: 'proceed-list'
+    = render(partial: 'system_status', locals: { busy: @busy,
+                                                 building_workers: @building_workers,
+                                                 overall_workers: @overall_workers,
+                                                 waiting_packages: @waiting_packages,
+                                                 host_title: @configuration['title'],
+                                                 system_stats: @system_stats })
+  .col-md-4.col-lg-5
+    - if !User.session && can_register
+      .card.mb-3
+        %h5.card-header New here? Sign up!
+        .card-body
+          = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
+    = render partial: 'sponsors'
+    - if @status_messages.present? || User.admin_session?
+      = render partial: 'status_messages'
+    = render(partial: 'latest_updates') if @latest_updates && ::Configuration.anonymous

@@ -96,20 +96,4 @@ RSpec.describe Webui::StatusMessagesController do
       end
     end
   end
-
-  describe 'GET #create_status_message_dialog' do
-    before do
-      get :create_status_message_dialog, xhr: true
-    end
-
-    it { is_expected.to respond_with(:success) }
-  end
-
-  describe 'GET #destroy_status_message_dialog' do
-    before do
-      get :destroy_status_message_dialog, xhr: true
-    end
-
-    it { is_expected.to respond_with(:success) }
-  end
 end
