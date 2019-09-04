@@ -13,7 +13,6 @@ RSpec.describe Webui::InterconnectsController do
         post :new
       end
 
-      it { expect(assigns(:interconnect)).to be_a(RemoteProject) }
       it { is_expected.to render_template('webui/interconnects/new') }
     end
 
