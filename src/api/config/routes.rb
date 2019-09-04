@@ -50,12 +50,7 @@ OBSApi::Application.routes.draw do
       get 'main/systemstatus' => :systemstatus
     end
 
-    resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages' do
-      collection do
-        get 'create_status_message_dialog' => :create_status_message_dialog
-        get 'destroy_status_message_dialog' => :destroy_status_message_dialog
-      end
-    end
+    resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
       get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
