@@ -114,7 +114,7 @@ module Webui::RequestHelper
 
   # rubocop:disable Style/FormatStringToken, Style/FormatString
   def request_action_header(action, creator)
-    source_project_hash = { project: action[:sprj], package: action[:spkg] }
+    source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
 
     case action[:type]
     when :submit
