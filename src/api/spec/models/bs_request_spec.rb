@@ -127,7 +127,7 @@ RSpec.describe BsRequest, vcr: true do
     it 'fails with reasonable error' do
       expect { request.addreview(by_user: 'NOEXIST') }.to raise_error do |exception|
         expect(exception).to be_a(BsRequest::InvalidReview)
-        expect(exception.message.to_s).to eq('Review invalid: By user NOEXIST not found')
+        expect(exception.message.to_s).to eq("Review invalid: User can't be blank")
       end
     end
   end
