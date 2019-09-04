@@ -23,7 +23,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
     end
 
     respond_to do |format|
-      format.js { render 'webui2/webui/architectures/update', status: status }
+      format.js { render 'webui/architectures/update', status: status }
     end
   end
 
@@ -35,13 +35,13 @@ class Webui::ArchitecturesController < Webui::WebuiController
         ::Configuration.write_to_backend
         format.js do
           flash.now[:success] = 'Updated availability for all architectures.'
-          render 'webui2/webui/architectures/bulk_update_availability'
+          render 'webui/architectures/bulk_update_availability'
         end
         format.html { redirect_to architectures_path, success: 'Architectures successfully updated.' }
       else
         format.js do
           flash.now[:error] = 'Updating architecture availability failed.'
-          render 'webui2/webui/architectures/bulk_update_availability', status: :unprocessable_entity
+          render 'webui/architectures/bulk_update_availability', status: :unprocessable_entity
         end
         format.html { redirect_back(fallback_location: root_path, error: 'Not all architectures could be saved') }
       end
