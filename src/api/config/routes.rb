@@ -451,11 +451,7 @@ OBSApi::Application.routes.draw do
       get 'group/show/:title' => :show, constraints: { title: /[^\/]*/ }, as: 'group_show'
       get 'group/new' => :new
       post 'group/create' => :create
-      # TODO: bento_only: Drop group_edit_title and group_user_delete route
-      get 'group/edit/:title' => :edit, constraints: { title: /[^\/]*/ }, as: :group_edit_title
-      post 'group/update/:title' => :update, constraints: { title: /[^\/]*/ }, as: :group_update
       get 'group/autocomplete' => :autocomplete, as: 'autocomplete_groups'
-      delete 'group/:title/delete/:user' => :delete, constraints: { title: /[^\/]*/ }, as: :group_user_delete
     end
 
     resources :groups, only: [], param: :title, constraints: { title: /[^\/]*/ } do
