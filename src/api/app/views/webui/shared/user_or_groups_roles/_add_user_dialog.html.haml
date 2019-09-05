@@ -5,13 +5,12 @@
         .modal-header
           %h5.modal-title#edit-modal-label Add User
         .modal-body
-          = render partial: 'webui/autocomplete', locals: { html_id: 'userid', label: 'User:',
-                                                            data: { source: autocomplete_users_path } }
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'userid', label: 'User:',
+                                                                   data: { source: autocomplete_users_path } }
           .form-group
             = label_tag(:role, 'Role:')
             = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
           = hidden_field_tag 'package', package
           = hidden_field_tag 'project', project
-          = hidden_field_tag 'webui2', true
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons'
+          = render partial: 'webui/shared/dialog_action_buttons'
