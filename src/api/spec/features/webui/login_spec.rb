@@ -24,7 +24,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   end
 
   scenario 'login via login page' do
-    visit session_new_path
+    visit new_session_path
 
     within('#loginform') do
       fill_in 'username', with: user.login
@@ -96,7 +96,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     end
 
     it 'allows the user to login via the webui' do
-      visit session_new_path
+      visit new_session_path
 
       within('#loginform') do
         fill_in 'username', with: 'tux'

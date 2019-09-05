@@ -1,21 +1,21 @@
-.form#loginform{ title: "Account login" }
-  %h1= @pagetitle
-  %p
-    %label{ for: "user-login" } Username:
-    %input#user-login{ name: "username", size: "30", type: "text", value: "" }/
-    %br/
-    %br/
-    %label{ for: "user-password" } Password:
-    %input#user-password{ name: "password", size: "30", type: "password" }/
-  %p
-    %input.primary#log-in-button{ name: "login", type: "submit", value: "Log In" }/
-%p
-  - if CONFIG['proxy_auth_mode'] == :on
-    Or
-    \#{link_to 'register', CONFIG['proxy_auth_register_page'] + '?%22'}
-    as a new user.
-  - else
-    - unless CONFIG['frontend_ldap_mode'] == :on
-      Or
-      = link_to("sign up", controller: :user, action: :register_user)
-      as a new user.
+%h3= pagetitle
+
+= form_tag(form_url, options) do
+  - if proxy
+    = hidden_field_tag(:context, 'default')
+    = hidden_field_tag(:proxypath, 'reserve')
+    = hidden_field_tag(:message, 'Please log in')
+  .form-group
+    = label_tag(:username, 'Username')
+    = text_field_tag(:username, nil, placeholder: 'User Name', required: true, id: 'user-login', class: 'form-control')
+  .form-group
+    = label_tag(:password, 'Password')
+    = password_field_tag(:password, nil, placeholder: 'Password', required: true, id: 'user-password', class: 'form-control')
+  = submit_tag('Log In', name: 'login', class: 'btn btn-primary')
+  %span
+    - if proxy
+      or
+      = link_to('Register', CONFIG['proxy_auth_register_page'] + '?%22')
+    - elsif CONFIG['frontend_ldap_mode'] != :on
+      or
+      = link_to('Sign Up', user_register_user_path)

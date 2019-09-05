@@ -17,5 +17,5 @@
     = link_to(new_project_path(name: User.session!.home_project_name), class: 'nav-link') do
       Create Home
 %li.nav-item
-  = link_to(session_destroy_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+  = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
     Logout

@@ -107,7 +107,7 @@ class Webui::WebuiController < ActionController::Base
         flash[:error] = 'Please login to access the requested page.'
         mode = CONFIG['proxy_auth_mode'] || :off
         if mode == :off
-          redirect_to session_new_path
+          redirect_to new_session_path
         else
           redirect_to root_path
         end

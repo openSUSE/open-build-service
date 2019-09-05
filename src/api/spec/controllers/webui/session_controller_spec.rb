@@ -16,7 +16,7 @@ RSpec.describe Webui::SessionController do
 
     it 'tells users about wrong credentials' do
       post :create, params: { username: user.login, password: 'password123' }
-      expect(response).to redirect_to session_new_path
+      expect(response).to redirect_to new_session_path
       expect(flash[:error]).to eq('Authentication failed')
     end
 

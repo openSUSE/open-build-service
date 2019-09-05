@@ -9,7 +9,7 @@
           %li= link_to('Home Project', project_show_path(User.session!.home_project))
         - else
           %li= link_to('Create Home Project', new_project_path(name: User.session!.home_project_name))
-        %li= link_to('Logout', session_destroy_path, method: :delete)
+        %li= link_to('Logout', session_path, method: :delete)
   - if ::Configuration.anonymous
     .col
       %strong.text-uppercase Locations
