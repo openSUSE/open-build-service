@@ -2,7 +2,7 @@
 - @pagetitle = "Changes of Revision #{@rev}"
 
 - if @not_full_diff
-  = render partial: 'webui2/shared/truncated_diff_hint',
+  = render partial: 'webui/shared/truncated_diff_hint',
   locals: { path: package_rdiff_path(project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true) }
 
 .card

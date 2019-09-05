@@ -1,58 +1,57 @@
-.dialog.darkgrey_box
-  .box.box-shadow
-    %h2.box-header Create Submit Request
+.modal.fade#submit-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'submit-request-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag({ controller: 'package', action: 'submit_request' }, method: 'post') do
+        .modal-header
+          %h5.modal-title#submit-request-modal-label Create Submit Request
+        .modal-body
+          %p
+            Do you want to submit #{package_link package, rev: revision}?
+          %p.font-italic
+            You are about to send a request to the owner of the original #{package ? 'package' : 'project'}. Please describe what you have done and
+            why they should apply your changes. The owner will be notified with the following details.
 
-    %p
-      Do you want to submit #{package_link @package, rev: @revision}?
-    %p.smaller
-      = "You are about to send a request to the owner of the original #{ @package ? 'package' : 'project' }. Please describe what you have done and why they should apply your changes. The owner will be notified with the following details."
+            = hidden_field_tag(:project, project)
+            = hidden_field_tag(:package, package)
+            = hidden_field_tag(:rev, revision)
+            .form-group
+              = label_tag(:sourceproject, 'From source project:')
+              = text_field_tag(:sourceproject, project.name, disabled: true, class: 'form-control text-truncate')
+            .form-group
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'targetproject', label: 'To target project:',
+                                                                disabled: params[:readonly], value: nil,
+                                                                data: { source: autocomplete_projects_path,
+                                                                        requests_url: request_list_small_path,
+                                                                        develpackage_url: package_devel_project_path } }
+              - if params[:readonly]
+                = hidden_field_tag(:targetproject, nil)
 
-    = form_tag({controller: 'package', action: 'submit_request'}, method: 'post') do
-      = hidden_field_tag(:project, @project)
-      = hidden_field_tag(:package, @package)
-      = hidden_field_tag(:rev, @revision)
-      %p
-        = label_tag(:sourceproject, 'From source project:')
-        %br/
-        = text_field_tag(:sourceproject, elide(@project.name, 40), size: 40, disabled: true)
-        %br/
-        = label_tag(:targetproject, 'To target project:')
-        %br/
-        = text_field_tag(:targetproject, @tprj, size: 40, disabled: params[:readonly], required: true,
-                         data: { autocomplete_url: url_for(controller: :project, action: :autocomplete_projects),
-                                 requests_url: url_for(controller: :request, action: :list_small),
-                                 develpackage_url: url_for(controller: :package, action: :devel_project) })
-        %br/
+            .form-group
+              = label_tag(:targetpackage, 'To target package:')
+              = text_field_tag(:targetpackage, nil, disabled: params[:readonly], class: 'form-control')
+              - if params[:readonly]
+                = hidden_field_tag(:targetpackage, nil)
 
-        - if params[:readonly]
-          = hidden_field_tag(:targetproject, @tprj)
+            .form-group
+              = label_tag(:description, 'Description:')
+              %abbr.text-danger{ title: 'required' } *
+              ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)
 
-        = label_tag(:targetpackage, 'To target package:')
-        %br/
-        = text_field_tag(:targetpackage, @tpkg, size: 40, disabled: params[:readonly])
-        %br/
-        - if params[:readonly]
-          = hidden_field_tag(:targetpackage, @tpkg)
+            .form-group.d-none#supersede-display
+              = label_tag(:supersede_requests, 'Supersede requests:')
+              #supersede-requests
 
-        = label_tag(:description, 'Description:')
-        %br/
-        ~ text_area_tag(:description, @description, size: '40x3', required: true)
-        %br/
+            .custom-control.custom-checkbox#sourceupdate-display
+              = check_box_tag(:sourceupdate, 'cleanup', nil, class: 'custom-control-input')
+              = label_tag(:sourceupdate, 'Remove local package if request is accepted', class: 'custom-control-label')
 
-        %span.hidden#supersede-display
-          = label_tag(:supersede_requests, 'Supersede requests:')
-          %br/
-          %span#supersede-requests
+            %p.d-none#devel-project-warning
+              You are about to bypass the devel project, please submit to
+              %b#devel-project-name
+              instead.
 
-        %span#sourceupdate-display
-          = check_box_tag(:sourceupdate, 'cleanup', @cleanup_source)
-          = label_tag(:sourceupdate, 'Remove local package if request is accepted')
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
 
-      %p.hidden#devel-project-warning
-        You are about to bypass the devel project, please submit to
-        %b#devel-project-name
-        instead.
-
-      = render partial: '/webui/shared/dialog_action_buttons'
-
-= javascript_tag 'setup_request_dialog();'
+- content_for :ready_function do
+  setupRequestDialog();

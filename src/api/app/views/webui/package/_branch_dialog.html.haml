@@ -19,9 +19,9 @@
             %summary More options
             = hidden_field_tag :linked_project, project.name
             = hidden_field_tag :linked_package, package.name
-            = render partial: 'webui2/shared/package_branch_form', locals: { show_project_field: true,
+            = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: true,
                                                                              target_project: branch_project,
                                                                              package: package,
                                                                              revision: revision }
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons'
+          = render partial: 'webui/shared/dialog_action_buttons'

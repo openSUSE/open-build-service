@@ -1,47 +1,52 @@
-:ruby
-  @pagetitle = "Job history of #{@project} / #{@package_name}"
-  @metarobots = 'index,nofollow'
-  package_bread_crumb('Job history')
+- @pagetitle = "Job history of #{@project} / #{@package_name}"
+- @metarobots = 'index,nofollow'
 
-= render partial: 'webui/package/tabs'
+.card
+  = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
 
-%h3= @pagetitle
-%h6.subtitle
-  Repository / Architecture: #{params[:repository]} / #{params[:arch]}
+  .card-body
+    %h3= @pagetitle
+    %h6.subtitle
+      Repository / Architecture: #{params[:repository]} / #{params[:arch]}
 
-%table#jobhistory-table
-  %thead
-    %th Revision
-    %th Time (not formatted)
-    %th Time
-    %th Reason
-    %th Status Code
-    %th Build Time (not formatted)
-    %th Build Time
-    %th Worker
-    %th
-  %tbody
-    - @jobshistory.each do |jobhistory|
-      %tr
-        %td
-          = jobhistory.revision
-        %td
-          = jobhistory.ready_time
-        %td
-          = time_tag(Time.at(jobhistory.ready_time))
-        %td
-          - if jobhistory.reason == 'source change'
-            = link_to(jobhistory.reason, package_rdiff_path(project: @project.name, package: @package, orev: jobhistory.prev_srcmd5, rev: jobhistory.srcmd5))
-          - else
-            = jobhistory.reason
-        %td{ class: "status_#{jobhistory.code}" }
-          = jobhistory.code
-        %td
-          = jobhistory.total_time
-        %td
-          = humanize_time(jobhistory.total_time)
-        %td
-          = jobhistory.worker_id
-        %td
-          = link_to_package_from_job_history(@project, @package,
-                                             jobhistory, @is_link)
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#jobhistory-table
+      %thead
+        %th Revision
+        %th Time (not formatted)
+        %th Time
+        %th Reason
+        %th Status Code
+        %th Build Time (not formatted)
+        %th Build Time
+        %th Worker
+        %th
+      %tbody
+        - @jobshistory.each do |jobhistory|
+          %tr
+            %td
+              = jobhistory.revision
+            %td
+              = jobhistory.ready_time
+            %td
+              = time_tag(Time.at(jobhistory.ready_time))
+            %td
+              - if jobhistory.reason == 'source change'
+                = link_to(jobhistory.reason, package_rdiff_path(project: @project.name,
+                  package: @package, orev: jobhistory.prev_srcmd5, rev: jobhistory.srcmd5))
+              - else
+                = jobhistory.reason
+            %td{ class: html_class_for_state(jobhistory.code) }
+              = jobhistory.code
+            %td
+              = jobhistory.total_time
+            %td
+              = humanize_time(jobhistory.total_time)
+            %td
+              = jobhistory.worker_id
+            %td
+              - revision = (@is_link ? { srcmd5: jobhistory.srcmd5 } : { rev: jobhistory.revision })
+              - url = package_show_path(revision.merge(project: @project, package: @package))
+              = link_to(url, title: "Package:#{@package} | revision:#{jobhistory.revision}") do
+                %span.fa-stack.fa-xs.half-font-size
+                  %i.far.fa-file.fa-stack-2x
+                  %i.fas.fa-search.fa-stack-1x

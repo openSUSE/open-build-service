@@ -23,8 +23,8 @@
             Insert changes entry template
 
       -# TODO: Provide a comments field through a callback
-      = render(partial: 'shared/editor', locals: { text: @file, mode: guess_code_class(@filename),
+      = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename),
         save: { url: url_for(controller: :package, action: :save_file, method: :post), method: :post,
         data: { project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev } } })
     - else
-      = render(partial: 'shared/editor', locals: { text: @file, mode: guess_code_class(@filename), style: { read_only: true } })
+      = render(partial: 'webui/shared/editor', locals: { text: @file, mode: guess_code_class(@filename), style: { read_only: true } })

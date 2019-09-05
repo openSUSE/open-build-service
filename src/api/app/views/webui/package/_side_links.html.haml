@@ -1,0 +1,25 @@
+%ul.list-unstyled
+  - if failures > 0
+    = render partial: 'webui/package/side_links/show_failures', locals: { failures: failures, package_name: package.name, project: project }
+
+  - if devel_package
+    = render partial: 'webui/package/side_links/show_devel_package', locals: { devel_package: devel_package }
+
+  - if package.project != project
+    = render partial: 'webui/package/side_links/show_inherited_from_project', locals: { project_name: package.project.name,
+                                                                                                package_name: package.name }
+
+  - if package.developed_packages.present?
+    = render partial: 'webui/package/side_links/show_developed_packages', locals: { developed_packages: package.developed_packages }
+
+  - if package.is_patchinfo?
+    = render partial: 'webui/package/side_links/show_patchinfo', locals: { package: package, project: project }
+
+  - if package.linking_packages.present?
+    = render partial: 'webui/package/side_links/show_derived_packages', locals: { package: package, project: project }
+
+  - if linkinfo
+    = render partial: 'webui/package/side_links/show_linkinfo', locals: { package: package, project: project,
+                                                                                  linkinfo: linkinfo, revision: revision }
+
+  = render partial: 'extra_actions', locals: { project: project, package: package }

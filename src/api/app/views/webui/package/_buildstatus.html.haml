@@ -1,41 +1,46 @@
-- unless @buildresults.excluded_counter.zero? && !@buildresults.show_all
-  .show_all_box
-    = check_box_tag "show_all_#{@index}", true, @buildresults.show_all
-    - label_message = @buildresults.excluded_counter.zero? ? 'Hide' :  "Show #{@buildresults.excluded_counter}"
-    = label_tag "show_all_#{@index}", "#{label_message} excluded/disabled results"
+- unless buildresults.excluded_counter.zero? && !buildresults.show_all
+  .mt-3.custom-control-checkbox
+    = check_box_tag("show_all_#{index}", true, buildresults.show_all, class: 'custom-control-input d-none',
+                    onchange: "updateBuildResult('#{index}')")
+    - label_message = buildresults.excluded_counter.zero? ? 'Hide' : "Show #{buildresults.excluded_counter}"
+    = label_tag "show_all_#{index}" do
+      %u.custom-label #{label_message} excluded/disabled results
 
-- @buildresults.results.each_pair do |package, results|
-  %h3= package
-  #package-buildstatus
-    %table
+- buildresults.results.each_pair do |package, results|
+  %h5.text-primary.mt-3.mb-3= package
+  .mb-2#package-buildstatus
+    .px-3
       - if results.present?
         - previous_repo = nil
         - results.each do |result|
-          %tr
-            %td{ class: "no_border_bottom #{(result.repository == previous_repo) ? " no_border_top" : " "}", title: "#{result.repository}" }
-              - if result.repository != previous_repo
-                = link_to(word_break(result.repository, 22), package_binaries_path(project: @project, package: package, repository: result.repository), { title: "Binaries for #{result.repository}" })
-            %td.arch
-              .nowrap{ style: "margin: 0 0.5ex" }
+          :ruby
+            repository_name = result.repository.tr('.', '_')
+            package_name = package.tr('.:', '_')
+            expanded = collapsed_repositories[package_name] ? collapsed_repositories[package_name].exclude?(repository_name) : true
+          - if result.repository != previous_repo
+            .row.py-1.bg-light
+              .col{ title: result.repository.to_s }
+                = link_to(word_break(result.repository, 22),
+                  package_binaries_path(project: project, package: package, repository: result.repository),
+                  data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
+                = link_to('#', aria: { controls: "collapse-#{package_name}-#{repository_name}", expanded: expanded }, class: 'ml-1',
+                          data: { toggle: 'collapse' }, href: ".collapse-#{package_name}-#{repository_name}", role: 'button') do
+                  %i.fas.fa-chevron-left.expander{ title: 'Show build results for this repository' }
+                  %i.fas.fa-chevron-down.collapser{ title: 'Hide build results for this repository' }
+
+          .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
+                     data: { repository: repository_name, main: package_name } }
+            .row.py-1
+              .col-4.col-sm-4.col-xl-3.ml-2.text-nowrap
                 - if !result.is_repository_in_db
-                  = sprite_tag "time_error", alt: "Outdated result", title: "This result is outdated"
+                  %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
                 - else
-                  = repo_status_icon(result.state, result.details)
-                = result.architecture
-            = arch_repo_table_cell(result.repository, result.architecture, package, { "code" => result.code, "details" => result.details })
+                  = repository_status_icon(status: result.state, details: result.details)
+                %span.ml-1
+                  = result.architecture
+              .col-6.col-sm-5.col-xl-6.ml-2.text-nowrap
+                = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
-        %tr
-          %td
-            All the results have state
-            %strong excluded/disabled
-
-
-:javascript
-  $('.unresolvable, .blocked').click(function() {
-    var title = $(this).attr('title');
-    alert(title);
-  });
-
-  $("#show_all_#{h @index}").change(function(){ update_build_result_#{h @index}(); })
-
+        All the results have state
+        %strong excluded/disabled

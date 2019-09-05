@@ -4,7 +4,7 @@
     %h3 State of #{@repository} for #{@project} / #{@package_name}
     %ul.list-inline
       - if @configuration['download_url']
-        = render partial: 'shared/download_repository_link', locals: { project: @project, repository: @repository,
+        = render partial: 'webui/shared/download_repository_link', locals: { project: @project, repository: @repository,
                                                                        download_url: @configuration['download_url'] }
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
@@ -30,7 +30,7 @@
               %tr
                 %td.px-2 #{binary[:filename]} (#{number_to_human_size(binary[:size])})
                 %td.text-nowrap.text-right.px-2
-                  - render_partial = render partial: 'webui2/webui/package/binaries/binaries_actions', locals: { project: @project,
+                  - render_partial = render partial: 'webui/package/binaries/binaries_actions', locals: { project: @project,
                                                                                                                  package_name: @package_name,
                                                                                                                  package: @package,
                                                                                                                  binary: binary,
@@ -42,8 +42,8 @@
                     %i.fas.fa-ellipsis-h.text-secondary{ data: { toggle: 'popover', html: 'true', content: "#{render_partial}" } }
       %ul.list-inline
         - if User.possibly_nobody.can_modify?(@package)
-          = render partial: 'webui2/webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
+          = render partial: 'webui/package/binaries/trigger_rebuild_wipe_binaries', locals: { result: result, project: @project,
                                                             package: @package_name, repository: @repository }
 
-        = render partial: 'webui2/webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
+        = render partial: 'webui/package/binaries/show_statistics_job_history_build_reason', locals: { result: result,
           project: @project, package: @package_name, repository: @repository }
