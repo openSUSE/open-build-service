@@ -82,10 +82,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
   end
 
-  def delete_dialog
-    render_dialog
-  end
-
   def update_issues
     authorize @project, :update?
 

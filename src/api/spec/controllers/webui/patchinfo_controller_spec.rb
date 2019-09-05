@@ -317,13 +317,4 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       it { expect(response).to have_http_status(:success) }
     end
   end
-
-  describe 'GET #delete_dialog' do
-    before do
-      login user
-      get :delete_dialog, xhr: true, params: { project: user.home_project_name, package: patchinfo_package.name }
-    end
-
-    it { expect(response).to have_http_status(:success) }
-  end
 end
