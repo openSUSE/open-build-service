@@ -15,9 +15,6 @@ RSpec.describe Webui::BuildresultHelper do
       allow(helper).to receive(:valid_xml_id) do |rawid|
         rawid
       end
-      allow(helper).to receive(:sprite_tag) do |icon, opts|
-        sprite_tag(icon, opts)
-      end
 
       assign(:statushash, statushash)
       assign(:project, project)
@@ -43,13 +40,14 @@ RSpec.describe Webui::BuildresultHelper do
         let(:key) { key }
         let(:encoded_description) { description.gsub("'", '&#39;') } # ' is encoded as &#39;
         let(:result) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " \
-            "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a> <img title=\"#{encoded_description}\" class=" \
-            "\"icons-help\" alt=\"#{encoded_description}\" src=\"/images/s.gif\" /></td>"
+          "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{encoded_description}\" data-placement=\"top\" "\
+            'data-toggle="popover"></i>'\
+            "<a data-content=\"#{encoded_description}\" data-placement=\"right\" data-toggle=\"popover\" rel=\"nofollow\" "\
+            "class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
         end
         let(:result2) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{encoded_description}\" rel=\"nofollow\" " \
-            "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a></td>"
+          "<a data-content=\"#{encoded_description}\" data-placement=\"right\" data-toggle=\"popover\" rel=\"nofollow\" "\
+            "class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
         end
 
         include_examples 'generic case'
@@ -60,12 +58,13 @@ RSpec.describe Webui::BuildresultHelper do
       context "with #{key}" do
         let(:key) { key }
         let(:result) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " \
-            "href=\"#\">#{key}</a> <img title=\"#{description}\" class=\"icons-help\" alt=\"#{description}\" src=\"/images/s.gif\" /></td>"
+          "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{description}\" data-placement=\"top\" data-toggle=\"popover\"></i>"\
+            "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key}\" data-content=\"#{description}\" data-placement=\"right\" "\
+            "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
         end
         let(:result2) do
-          "<td class=\"status_#{key} buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=\"#{key}\" " \
-            "href=\"#\">#{key}</a></td>"
+          "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key}\" data-content=\"#{description}\" data-placement=\"right\" "\
+            "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
         end
 
         include_examples 'generic case'
@@ -75,14 +74,13 @@ RSpec.describe Webui::BuildresultHelper do
     context 'with scheduled' do
       let(:key) { 'scheduled' }
       let(:result) do
-        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" \
-          '"scheduled" href="#">scheduled</a>' \
-          " <img title=\"#{description}\" class=\"icons-help\" alt=\"#{description}\" src=\"/images/s.gif\" />" \
-          '</td>'
+        "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{description}\" data-placement=\"top\" data-toggle=\"popover\"></i>"\
+          "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning\" data-content=\"#{description}\" data-placement=\"right\" "\
+          "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
       end
       let(:result2) do
-        "<td class=\"status_scheduled_warning buildstatus nowrap\"><a title=\"#{description}\" id=\"id-#{package}_#{repo}_#{arch}\" class=" \
-          '"scheduled" href="#">scheduled</a></td>'
+        "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning\" data-content=\"#{description}\" data-placement=\"right\" "\
+        "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
       end
 
       include_examples 'generic case'
@@ -91,7 +89,8 @@ RSpec.describe Webui::BuildresultHelper do
     context 'without status' do
       let(:statushash) { { repo.name => { arch => { package.name => nil } } } }
       let(:result) do
-        "<td class=\"  buildstatus nowrap\"><a rel=\"nofollow\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\"></a></td>"
+        '<a data-placement="right" data-toggle="popover" rel="nofollow" class=" " '\
+         "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\"></a>"
       end
 
       it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq(result) }

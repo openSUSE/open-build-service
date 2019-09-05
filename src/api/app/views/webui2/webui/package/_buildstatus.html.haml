@@ -39,7 +39,7 @@
                 %span.ml-1
                   = result.architecture
               .col-6.col-sm-5.col-xl-6.ml-2.text-nowrap
-                = webui2_arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
+                = arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
           - previous_repo = result.repository
       - else
         All the results have state
