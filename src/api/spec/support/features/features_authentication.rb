@@ -1,6 +1,6 @@
 module FeaturesAuthentication
   def login(user, password = 'buildservice')
-    visit session_new_path
+    visit new_session_path
     expect(page).to have_text 'Please Log In'
     within('#loginform') do
       fill_in 'username', with: user.login
@@ -12,7 +12,7 @@ module FeaturesAuthentication
   end
 
   def logout
-    visit session_destroy_path
+    visit session_path(method: :delete)
     expect(page).to have_no_link('link-to-user-home')
     User.session = nil
   end

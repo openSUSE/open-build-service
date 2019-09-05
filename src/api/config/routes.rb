@@ -420,11 +420,7 @@ OBSApi::Application.routes.draw do
 
     resources :announcements, only: :show, controller: 'webui/announcements'
 
-    controller 'webui/session' do
-      get 'session/new' => :new
-      post 'session/create' => :create
-      delete 'session/destroy' => :destroy
-    end
+    resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
 
     get 'user/notifications' => :index, constraints: cons, controller: 'webui/users/subscriptions'
     put 'user/notifications' => :update, constraints: cons, controller: 'webui/users/subscriptions'

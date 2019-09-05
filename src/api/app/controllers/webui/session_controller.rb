@@ -12,7 +12,7 @@ class Webui::SessionController < Webui::WebuiController
 
     unless user
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
-      redirect_to(session_new_path, error: 'Authentication failed')
+      redirect_to(new_session_path, error: 'Authentication failed')
       return
     end
 
@@ -59,6 +59,6 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def referer_was_login?
-    request.referer && request.referer.end_with?(session_new_path)
+    request.referer && request.referer.end_with?(new_session_path)
   end
 end

@@ -1,7 +1,7 @@
 - if !User.session
   .alert.alert-warning{ role: 'alert' }
     Login required, please
-    = link_to('login', session_new_url)
+    = link_to('login', new_session_url)
     - if can_register
       or
       = link_to('signup', user_register_user_url)

@@ -202,7 +202,7 @@ module Webui
       opts[:do_assert] = false
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
-      visit session_new_path
+      visit new_session_path
       within('#loginform') do
         fill_in 'username', with: user
         fill_in 'password', with: password
