@@ -4,6 +4,10 @@ module Webui::WebuiHelper
   include ActionView::Helpers::AssetTagHelper
   include Webui::BuildresultHelper
 
+  def remove_dialog_tag(text)
+    link_to(text, '#', title: 'Close', id: 'remove_dialog', class: 'close-dialog')
+  end
+
   def bugzilla_url(email_list = '', desc = '')
     return '' if @configuration['bugzilla_url'].blank?
     assignee = email_list.first if email_list
