@@ -45,19 +45,15 @@ class Webui::ProjectController < Webui::WebuiController
                                             :remove_target_request, :remove_target_request_dialog, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
-    return if switch_to_webui2
-    @show_all = (params[:show_all].to_s == 'true')
-    projects = Project.all
-    projects = projects.filtered_for_list unless @show_all
-    @projects = projects.pluck(:name, :title)
+    switch_to_webui2
 
-    atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
-    @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
-
-    if @spider_bot
-      render :list_simple
-    else
-      render :list
+    respond_to do |format|
+      format.html do
+        render :index,
+               locals: { important_projects:
+                         active_very_important_projects.pluck(:name, :title) }
+      end
+      format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
     end
   end
 
@@ -532,6 +528,18 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   private
+
+  def show_all?
+    (params[:all].to_s == 'true')
+  end
+
+  def active_very_important_projects
+    Project.find_by_attribute_type(very_important_project_attribute)
+  end
+
+  def very_important_project_attribute
+    AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
+  end
 
   def monitor_buildresult
     @legend = Buildresult::STATUS_DESCRIPTION
