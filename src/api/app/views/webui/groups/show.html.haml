@@ -1,52 +1,55 @@
-- @pagetitle = "Group #{@group.title}"
-- @layouttype = "custom"
-- @crumb_list = ['Group', @group.title]
+- @pagetitle = "Group #{@group}"
 
-.grid_16.alpha.omega.box.box-shadow
-  .box-header.header-tabs
-    %ul
-      %li.selected
-        %a#reviews-in-tab{ data: { id: 'reviews-in' } }
-          Incoming Reviews
-        = sprite_tag('reload', title: 'Reload', class: 'result_reload', data: { table: 'reviews_in_table' })
-        = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
-      %li
-        %a#requests-in-tab{ data: { id: 'requests-in' } }
-          Incoming Requests
-        = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'requests_in_table' })
-        = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
-      %li
-        %a#all-requests-tab{ data: { id: 'all-requests' } }
-          All Requests
-        = sprite_tag('reload', title: 'Reload', class: 'result_reload hidden', data: { table: 'all_requests_table' })
-        = image_tag('ajax-loader.gif', class: 'result_spinner hidden')
-      %li
-        %a#group-members-tab{ data: { id: 'group-members' } }
+.card
+  .bg-light
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+      %li.nav-item
+        %a.active.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
+          data: { toggle: 'tab' }, href: '#group-members', role: 'tab' }
           Group Members
-  .grid_16.alpha.content-tabs
-    .content-tab#reviews-in
-      %h3 Incoming Reviews
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
-    .content-tab.hidden#requests-in
-      %h3 Incoming Requests
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
-    .content-tab.hidden#all-requests
-      %h3 All Requests
-      = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
-    .content-tab.hidden#group-members
-      %h3 Group Members
-      - if User.admin_session? || @group.group_maintainers.where(user: User.possibly_nobody).exists?
-        .grid_16{ style: "margin-bottom: 10px;" }
-          = link_to(sprited_text('brick_edit', 'Edit group members'), group_edit_title_path(title: @group.title))
-      %table#group-members-table
-        %thead
-          %tr
-            %th Login Name
-        %tbody
-          - if @group.users.any?
-            - @group.users.each do |user|
-              %tr
-                %td= link_to(user.login, user_show_path(user))
-          - else
-            %tr
-              %td This group does not contain users.
+          %span.badge.badge-primary
+            = @group.users.size
+      %li.nav-item
+        %a.nav-link.text-nowrap#reviews-in-tab{ aria: { controls: 'reviews-in', selected: 'true' },
+        data: { toggle: 'tab' }, href: '#reviews-in', role: 'tab' }
+          Incoming Reviews
+          %span.badge.badge-primary
+            = @group.involved_reviews.size
+      %li.nav-item
+        %a.nav-link.text-nowrap#requests-in-tab{ aria: { controls: 'requests-in' }, data: { toggle: 'tab' }, href: '#requests-in', role: 'tab' }
+          Incoming Requests
+          %span.badge.badge-primary
+            = @group.incoming_requests.size
+      %li.nav-item
+        %a.nav-link.text-nowrap#all-requests-tab{ aria: { controls: 'all-requests' }, data: { toggle: 'tab' }, href: '#all-requests', role: 'tab' }
+          All Requests
+          %span.badge.badge-primary
+            = @group.all_requests_count
+      %li.nav-item.dropdown
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        .dropdown-menu.dropdown-menu-right
+
+  .card-body
+    .tab-content
+      .tab-pane.show.active#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
+        %h3 Group Members
+        = render(partial: 'group_members', locals: { group: @group })
+
+      .tab-pane#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
+        %h3 Incoming Reviews
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'reviews_in_table', source_url: group_requests_path(@group) })
+
+      .tab-pane#requests-in{ aria: { controls: 'requests-in' }, role: 'tabpanel' }
+        %h3 Incoming Requests
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'requests_in_table', source_url: group_requests_path(@group) })
+
+      .tab-pane#all-requests{ aria: { controls: 'all-requests' }, role: 'tabpanel' }
+        %h3 All Requests
+        = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: group_requests_path(@group) })
+
+- content_for :ready_function do
+  :plain
+    var hash = document.location.hash;
+    if (hash) {
+      $('.nav-tabs a[href="' + hash.replace('tab-', '') + '"]').tab('show');
+    }

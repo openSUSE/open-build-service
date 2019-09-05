@@ -1,6 +1,6 @@
 class Webui::GroupsController < Webui::WebuiController
   before_action :require_login, except: [:show, :autocomplete]
-  before_action :set_group, only: [:show, :update, :edit, :delete]
+  before_action :set_group, only: :show
   after_action :verify_authorized, except: [:show, :autocomplete]
 
   def index
@@ -22,13 +22,6 @@ class Webui::GroupsController < Webui::WebuiController
     switch_to_webui2
   end
 
-  # TODO: bento_only: For bootstrap views we use Groups::UsersController
-  def edit
-    authorize @group, :update?
-    @roles = Role.global_roles
-    @members = @group.users.pluck(:login).map! { |login| { 'name' => login } }
-  end
-
   def create
     authorize Group, :create?
 
@@ -41,24 +34,9 @@ class Webui::GroupsController < Webui::WebuiController
     end
   end
 
-  def update
-    authorize @group, :update?
-
-    if @group.replace_members(group_params[:members])
-      flash[:success] = "Group '#{@group.title}' successfully updated."
-      redirect_to group_edit_title_path(title: @group.title)
-    else
-      redirect_back(fallback_location: root_path, error: "Group can't be saved: #{@group.errors.full_messages.to_sentence}")
-    end
-  end
-
   def autocomplete
     groups = Group.where('title LIKE ?', "#{params[:term]}%").pluck(:title) if params[:term]
     render json: groups || []
-  end
-
-  def delete
-    return if switch_to_webui2
   end
 
   private

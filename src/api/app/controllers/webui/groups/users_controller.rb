@@ -30,9 +30,9 @@ module Webui
 
         if @group.remove_user(@user)
           flash.now[:success] = "Removed user from group '#{@group}'"
-          render 'webui2/webui/webui/flash', status: :ok
+          render 'flash', status: :ok
         else
-          render 'webui2/webui/webui/flash', status: :bad_request
+          render 'flash', status: :bad_request
         end
       end
 
@@ -46,15 +46,15 @@ module Webui
           group_maintainer = GroupMaintainer.create(user: @user, group: @group)
           if group_maintainer.valid?
             flash.now[:success] = "Gave maintainer rights to '#{@user}'"
-            render 'webui2/webui/webui/flash', status: :ok
+            render 'flash', status: :ok
           else
             flash.now[:error] = "Couldn't make user '#{user}' maintainer: #{group_maintainer.errors.full_messages.to_sentence}"
-            render 'webui2/webui/webui/flash', status: :bad_request
+            render 'flash', status: :bad_request
           end
         else
           @group.group_maintainers.where(user: @user).destroy_all
           flash.now[:success] = "Removed maintainer rights from '#{@user}'"
-          render 'webui2/webui/webui/flash', status: :ok
+          render 'flash', status: :ok
         end
       end
 
@@ -65,7 +65,7 @@ module Webui
         return if @group
 
         flash.now[:error] = "Group '#{params[:group_title]}' not found"
-        render 'webui2/webui/webui/flash', status: :not_found
+        render 'flash', status: :not_found
       end
 
       def set_user
@@ -73,7 +73,7 @@ module Webui
         return if @user
 
         flash.now[:error] = "User '#{params[:user_login]}' not found in group '#{@group}'"
-        render 'webui2/webui/webui/flash', status: :not_found
+        render 'flash', status: :not_found
       end
     end
   end
