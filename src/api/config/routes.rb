@@ -170,7 +170,6 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/update_issues/:project/:package' => :update_issues, as: 'update_issues_patchinfo'
       get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons, defaults: { format: 'html' }
       get 'patchinfo/new_tracker' => :new_tracker
-      get 'patchinfo/delete_dialog' => :delete_dialog
     end
 
     controller 'webui/repositories' do

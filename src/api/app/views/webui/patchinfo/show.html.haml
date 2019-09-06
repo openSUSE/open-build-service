@@ -1,86 +1,53 @@
 - @pagetitle = @package
-- patchinfo_bread_crumb 'Patchinfo'
-= render partial: 'webui/package/tabs'
-.section
-  .grid_8.alpha
-    .box.show_left.show_right
-      .box{ style: "background-color:#DDDDDD; margin-top: 0" }
-        %h2{ style: "display: inline" }
-          = @patchinfo.category
-          update for #{truncate(@pkg_names.join(', '), length: 20)}
+
+.card.mb-3
+  = render partial: 'webui2/webui/package/tabs', locals: { project: @project, package: @package }
+  .card-body
+    .patchinfo.row
+      .col-md-8
+        = patchinfo_header(@patchinfo, @pkg_names)
+        #description-text
+          = render partial: 'webui/webui/collapsible_text', locals: { text: @patchinfo.description }
+      .col-md-4
+        = render partial: 'side_elements', locals: { patchinfo: @patchinfo, packager: @packager }
+
+      .col-md-12
         - if User.possibly_nobody.can_modify?(@package)
-          %ul.horizontal-list
-            %li
-              = link_to sprite_tag('package_edit'), edit_patchinfo_path(project: @project, package: @package)
-              = link_to "Edit patchinfo", edit_patchinfo_path(project: @project, package: @package), id: 'edit-patchinfo'
-            %li
-              = link_to(sprite_tag('package_delete'), { action: :delete_dialog, package: @package, project: @project }, remote: true)
-              = link_to('Delete patchinfo', { action: :delete_dialog, package: @package, project: @project }, remote: true, id: 'delete-patchinfo')
-      - if @patchinfo.block
-        .box.ui-state-error.ui-widget-shadow{ style: "min-height:15px;" }
-          %b This update is currently blocked:
-          %br/
-          - if @patchinfo.block_reason.present?
-            = @patchinfo.block_reason
-          - else
-            No reason entered.
-      %strong#summary= @patchinfo.summary
-      %br/
-      %label#info
-      - if @packager
-        This update was submitted from #{user_with_realname_and_icon(@packager)} and rated as
-      - else
-        This update is rated as
-      %span{ style: "color: #{patchinfo_rating_color(@patchinfo.rating)}" }= @patchinfo.rating
-    .box.show_left.show_right
-      %b Description:
-      %br/
-      = description_wrapper(@patchinfo.description)
-    - if @patchinfo.message.present?
-      .box.show_left.show_right
-        %strong Message:
-        %pre.plain= @patchinfo.message
-    - if @patchinfo.version
-      .box.show_left.show_right
-        %b Version:
-        %span= @patchinfo.version
-    .box.show_left.show_right
-      %b Fixed bugs:
-      - if @patchinfo.issues.present?
-        %ul
-          - @patchinfo.issues.each do |issue|
-            - if issue[0] == "CVE"
-              %li
-                = link_to((issue[1]).to_s, issue[2]) + ": #{issue[3]}"
-            - else
-              %li
-                = link_to("#{issue[0]}##{issue[1]}", issue[2]) + ": #{issue[3]}"
-    .box.show_left.show_right
-      %b Required actions:
-      %br/
-      %ul
-        %li
-          Relogin suggested:
-          - if @patchinfo.relogin_needed
-            = image_tag "ok.png", id: "relogin_true"
-          - else
-            = image_tag "req-decline.png", id: "relogin_false"
-        %li
-          Reboot suggested:
-          - if @patchinfo.reboot_needed
-            = image_tag "ok.png", id: "reboot_true"
-          - else
-            = image_tag "req-decline.png", id: "reboot_false"
-        %li
-          Package-manager restart:
-          - if @patchinfo.zypp_restart_needed
-            = image_tag "ok.png", id: "zypp_true"
-          - else
-            = image_tag "req-decline.png", id: "zypp_false"
-    - unless @patchinfo.binaries.empty?
-      .box.show_left.show_right
-        %b Selected binaries:
-        %br/
-        %ul
-          - @patchinfo.binaries.each do |bin|
-            %li= bin
+          %ul.list-inline.mb-0
+            %li.list-inline-item
+              = link_to(edit_patchinfo_path(project: @project, package: @package)) do
+                %i.fas.fa-edit.text-secondary
+                Edit patchinfo
+            %li.list-inline-item
+              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-patchinfo-modal' }) do
+                %i.fas.fa-times-circle.text-danger
+                Delete patchinfo
+          = render partial: 'delete_patchinfo_modal', locals: { project: @project, package: @package }
+
+.patchinfo.row
+  - if @patchinfo.message.present?
+    .col-md-12
+      .card.mb-3
+        %h5.card-header Message
+        .card-body
+          = simple_format @patchinfo.message
+
+  .col-md-6
+    .card.mb-3
+      %h5.card-header Fixed bugs
+      .card-body
+        - @patchinfo.issues.each do |issue|
+          .media
+            %i.pt-1.mr-1.fas.fa-bug.text-danger
+            .media-body.mb-3
+              = patchinfo_issue_link(issue[1], issue[0], issue[2])
+              - if issue[3].present?
+                %div= issue[3]
+  .col-md-6
+    .card.mb-3
+      %h5.card-header Selected Binaries
+      .card-body.binaries
+        - @patchinfo.binaries.each do |binary|
+          %span.badge.badge-warning
+            %i.mr-1.fa.fa-archive
+            = binary
