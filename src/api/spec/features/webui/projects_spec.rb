@@ -149,7 +149,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
   end
 
-  describe 'branching' do
+  describe 'branching', vcr: true do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
     let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
@@ -218,7 +218,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
   end
 
-  describe 'maintenance incidents' do
+  describe 'maintenance incidents', vcr: true do
     let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
     let(:target_repository) { create(:repository, name: 'theone') }
 
