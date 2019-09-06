@@ -9,11 +9,7 @@ module Webui
         @requests_data_table = BsRequest::DataTable::Table.new(requests_query, params[:draw])
 
         respond_to do |format|
-          if switch_to_webui2?
-            format.json { render 'webui2/shared/bs_requests/index' }
-          else
-            format.json
-          end
+          format.json { render 'webui/shared/bs_requests/index' }
         end
         switch_to_webui2
       end

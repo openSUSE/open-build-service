@@ -9,8 +9,8 @@
   .card-body
     %h3= @pagetitle
     - if User.possibly_nobody.can_modify?(@project)
-      = render partial: 'shared/editor', locals: { text: @meta, mode: 'xml',
+      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
         save: { url: project_meta_path(@project), method: :put,
         data: { project: @project.name, submit: 'meta' } } }
     - else
-      = render partial: 'shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }
+      = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }

@@ -354,11 +354,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     respond_to do |format|
       format.html { redirect_to({ action: :status, project: @project }, success: 'Cleared comments for packages.') }
-      if switch_to_webui2?
-        format.js { render 'webui2/webui/project/clear_failed_comment' }
-      else
-        format.js { render js: '<em>Cleared comments for packages</em>' }
-      end
+      format.js { render 'clear_failed_comment' }
     end
     switch_to_webui2
   end

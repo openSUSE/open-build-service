@@ -1,29 +1,29 @@
 %ul.list-unstyled
   - if project.is_maintenance?
-    = render partial: 'webui2/webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
-                                                                                       project: project,
-                                                                                       maintained_projects: maintained_projects }
+    = render partial: 'webui/project/side_links/maintenance_project', locals: { open_maintenance_incidents: open_maintenance_incidents,
+                                                                                project: project,
+                                                                                maintained_projects: maintained_projects }
   - else
     - if nr_of_problem_packages && nr_of_problem_packages.positive?
-      = render partial: 'webui2/webui/project/side_links/project_monitor', locals: { project: project,
-                                                                                     nr_of_problem_packages: nr_of_problem_packages }
+      = render partial: 'webui/project/side_links/project_monitor', locals: { project: project,
+                                                                              nr_of_problem_packages: nr_of_problem_packages }
 
     - if has_patchinfo
-      = render partial: 'webui2/webui/project/side_links/patchinfo_present', locals: { project: project }
+      = render partial: 'webui/project/side_links/patchinfo_present', locals: { project: project }
 
     - if project.is_maintenance_incident?
-      = render partial: 'webui2/webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
-                                                                                      project: project,
-                                                                                      open_release_requests: open_release_requests }
+      = render partial: 'webui/project/side_links/incident_project', locals: { has_patchinfo: has_patchinfo,
+                                                                               project: project,
+                                                                               open_release_requests: open_release_requests }
 
     - if release_targets.present?
-      = render partial: 'webui2/webui/project/side_links/release_targets', locals: { project: project,
-                                                                                     release_targets: release_targets }
+      = render partial: 'webui/project/side_links/release_targets', locals: { project: project,
+                                                                              release_targets: release_targets }
 
   - if requests.present?
-    = render partial: 'webui2/webui/project/side_links/requests', locals: { requests: requests,
-                                                                            project: project,
-                                                                            package: package }
+    = render partial: 'webui/project/side_links/requests', locals: { requests: requests,
+                                                                     project: project,
+                                                                     package: package }
 
   - if project.defines_remote_instance?
     %li

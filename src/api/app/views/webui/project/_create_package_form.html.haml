@@ -18,6 +18,6 @@
     %label.custom-control-label{ for: 'disable_publishing' } Disable build results publishing
   - if defined?(modal)
     .modal-footer
-      = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
+      = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
   - else
     = submit_tag('Create', class: 'btn btn-primary px-4')
