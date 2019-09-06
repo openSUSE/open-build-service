@@ -305,6 +305,8 @@ PUT /source/<project>/_meta
 
   Write project meta file.
 
+  If the project does not exist, create it.
+
 Parameters:
 
   comment: comment, optional
@@ -549,6 +551,8 @@ PUT /source/<project>/<package>/_meta
 
   Write project meta data. Writing of the project meta data commits the packages
   contained in the project to the build backend.
+
+  If the package does not exist, create it.
 
 Parameters:
 
