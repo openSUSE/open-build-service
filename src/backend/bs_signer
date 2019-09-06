@@ -337,6 +337,21 @@ sub rsasign {
   }
 }
 
+sub signappx {
+  my ($signfile, $jobdir, $cert, @signargs) = @_;
+  my $ocfile = "$jobdir/othercerts.der";
+  my @othercerts;
+  push @othercerts, '--othercerts', $ocfile if -f $ocfile && -s _ < 100000;
+  my $certfile = "$uploaddir/signer.cert.$$";
+  mkdir_p($uploaddir);
+  writestr($certfile, undef, $cert);
+  eval {
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '--appx', '--cert', $certfile, @othercerts, $signfile);
+  };
+  unlink($certfile);
+  die($@) if $@;
+}
+
 sub fixup_sha256_checksum {
   my ($jobdir, $shafile, $isofile) = @_;
   return if ((-s "$jobdir/$shafile") || 0) > 65536;
@@ -390,7 +405,7 @@ sub signjob {
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign|AppImage)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign|AppImage|appx)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -408,6 +423,7 @@ sub signjob {
     }
   }
   if (@signfiles) {
+    my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
@@ -445,6 +461,19 @@ sub signjob {
       push @signargs, '-P', "$uploaddir/signer.$$";
       push @signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
     }
+    my $cert;
+    if ($needcert) {
+      # this is kind of racy. should do it with one call.
+      my $param = {
+        'uri' => "$BSConfig::srcserver/getsslcert",
+        'timeout' => 60,
+      };
+      my @args;
+      push @args, "project=$projid";
+      push @args, "autoextend=1";
+      $cert = BSRPC::rpc($param, undef, @args);
+      die("returned cert is empty") unless $cert && length($cert) >= 16;
+    }
     unlink("$jobdir/.checksums");
 
     my $followupfile;
@@ -463,6 +492,10 @@ sub signjob {
 
     eval {
       for my $signfile (@signfiles) {
+	if ($signfile =~ /\.appx$/) {
+	  signappx("$jobdir/$signfile", $jobdir, $cert, @signargs);
+	  next;
+        }
 	if ($signfile =~ /\.iso$/) {
 	  signiso("$jobdir/$signfile", $pubkey, @signargs);
 	  next;
