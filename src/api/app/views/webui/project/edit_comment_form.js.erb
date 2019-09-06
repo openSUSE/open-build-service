@@ -1,3 +1,2 @@
-$('#<%= params[:update] %>').
-  replaceWith('<%= escape_javascript(render(partial: 'edit_comment_form', comment: @comment, project: @project, error: @error)) %>');
-
+$('td[data-package-name="<%= params[:package] %>"]').
+  html('<%= escape_javascript(render(partial: 'edit_comment_form')) %>');
