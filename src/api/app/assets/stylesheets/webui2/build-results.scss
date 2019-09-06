@@ -45,9 +45,7 @@
 }
 
 .build-state-disabled {
-  @extend .text-white;
-  @extend .px-1;
-  background-color: $gray-600;
+  color: $gray-600;
 }
 
 .build-state-blocked {
