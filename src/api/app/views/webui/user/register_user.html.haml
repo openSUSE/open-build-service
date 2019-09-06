@@ -1,9 +1,10 @@
-- @pagetitle = "Sign Up"
-%h2
-  = @pagetitle
-  for an #{@configuration['title']} account
+- @pagetitle = 'Create User'
 
-- if can_register
-  = render partial: 'shared/sign_up'
-- else
-  %p Sorry, sign up is disabled
+.card.mb-3
+  .card-body
+    .col-lg-6.pl-0
+      - if can_register
+        %h3= @pagetitle
+        = render partial: 'webui2/shared/sign_up', locals: { submit_btn_text: 'Create' }
+      - else
+        %p Sorry, sign up is disabled
