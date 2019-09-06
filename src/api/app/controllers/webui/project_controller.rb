@@ -8,41 +8,29 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults]
 
   before_action :require_login, only: [:create, :toggle_watch, :destroy, :new,
-                                       :new_release_request, :new_package_branch, :new_package, :edit_comment]
+                                       :new_release_request, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
-                                     :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
+                                     :new_package,
+                                     :show, :buildresult,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
                                      :requests, :save, :monitor, :toggle_watch,
-                                     :edit, :edit_comment,
-                                     :status, :maintained_projects,
-                                     :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
-                                     :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
+                                     :edit_comment, :status,
+                                     :unlock, :save_person, :save_group, :remove_role,
                                      :move_path, :clear_failed_comment, :pulse]
 
   before_action :set_project_by_id, only: [:update]
 
-  before_action :load_project_info, only: [:show, :packages_simple, :rebuild_time,
-                                           :maintained_projects, :add_maintained_project_dialog,
-                                           :add_maintained_project, :remove_maintained_project]
+  before_action :load_project_info, only: [:show, :packages_simple, :rebuild_time]
 
-  before_action :load_releasetargets, only: [:show, :incident_request_dialog]
+  before_action :load_releasetargets, only: :show
 
-  before_action :require_maintenance_project, only: [:maintained_projects,
-                                                     :add_maintained_project_dialog,
-                                                     :add_maintained_project,
-                                                     :remove_maintained_project]
-
-  before_action :set_maintained_project, only: [:remove_maintained_project]
   before_action :check_ajax, only: [:buildresult, :edit_comment_form]
 
-  after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages, :autocomplete_repositories,
-                                            :users, :subprojects, :new, :incident_request_dialog, :release_request_dialog, :show,
-                                            :packages_simple, :linking_projects, :buildresult, :delete_dialog, :requests, :monitor, :status,
-                                            :maintained_projects, :add_maintained_project_dialog, :unlock_dialog,
-                                            :incident_request_dialog, :release_request_dialog, :new_release_request,
-                                            :remove_target_request, :remove_target_request_dialog, :toggle_watch, :edit_comment, :edit_comment_form]
+  after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
+                                            :autocomplete_repositories, :users, :subprojects, :new, :show,
+                                            :packages_simple, :buildresult, :requests, :monitor, :status, :new_release_request,
+                                            :remove_target_request, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
     return if switch_to_webui2
@@ -114,22 +102,6 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
-  def new_package_branch
-    authorize @project, :update?
-
-    @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
-  end
-
-  def incident_request_dialog
-    # TODO: Currently no way to find out where to send until the project 'maintained' relationship
-    #      is really used. The API will find out magically here though.
-    render_dialog
-  end
-
-  def release_request_dialog
-    render_dialog
-  end
-
   def new_release_request
     if params[:skiprequest]
       # FIXME2.3: do it directly here, api function missing
@@ -179,30 +151,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   def packages_simple; end
 
-  # bento_only
-  def linking_projects
-    @linking_projects = @project.linked_by_projects.pluck(:name)
-    render_dialog
-  end
-
-  def add_person
-    authorize @project, :update?
-  end
-
-  def add_group
-    authorize @project, :update?
-  end
-
   def buildresult
     switch_to_webui2
     render partial: 'buildstatus', locals: { project: @project,
                                              buildresults: @project.buildresults,
                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
-  end
-
-  def delete_dialog
-    @linking_projects = @project.linked_by_projects.pluck(:name)
-    render_dialog
   end
 
   def destroy
@@ -288,16 +241,12 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        format.html { redirect_to(project_show_path(@project), success: 'Project was successfully updated.') }
+        flash[:success] = 'Project was successfully updated.'
       else
         flash[:error] = 'Failed to update project'
-        format.html { render :edit }
       end
+      format.html { redirect_to project_show_path(@project) }
     end
-  end
-
-  def remove_target_request_dialog
-    render_dialog
   end
 
   def remove_target_request
@@ -416,10 +365,6 @@ class Webui::ProjectController < Webui::WebuiController
     switch_to_webui2
   end
 
-  def edit
-    authorize @project, :update?
-  end
-
   def edit_comment_form
     switch_to_webui2
   end
@@ -479,47 +424,6 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     switch_to_webui2
-  end
-
-  # TODO: bento_only
-  def maintained_projects
-    @maintained_projects = @project.maintained_project_names
-  end
-
-  # TODO: bento_only
-  def add_maintained_project_dialog
-    render_dialog
-  end
-
-  # TODO: bento_only
-  def add_maintained_project
-    authorize @project, :update?
-
-    maintained_project = Project.find_by(name: params[:maintained_project])
-    if maintained_project
-      @project.maintained_projects.create!(project: maintained_project)
-      @project.store
-      redirect_to({ action: 'maintained_projects', project: @project }, success: "Added #{params[:maintained_project]} to maintenance")
-    else
-      # TODO: Better redirect to the project (maintained project tab), where the user actually came from
-      redirect_back(fallback_location: root_path, error: "Failed to add #{params[:maintained_project]} to maintenance")
-    end
-  end
-
-  # TODO: bento_only
-  def remove_maintained_project
-    authorize @project, :update?
-    maintained_project = MaintainedProject.find_by(project: @maintained_project)
-    if maintained_project && @project.maintained_projects.destroy(maintained_project)
-      @project.store
-      redirect_to({ action: 'maintained_projects', project: @project }, success: "Removed #{@maintained_project} from maintenance")
-    else
-      redirect_back(fallback_location: root_path, error: "Failed to remove #{@maintained_project} from maintenance")
-    end
-  end
-
-  def unlock_dialog
-    render_dialog
   end
 
   def unlock
