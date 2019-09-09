@@ -1,28 +1,26 @@
-.dialog.darkgrey_box.hidden{ style: "width: 500px; left: 45%;" }
-  .box.box-shadow
-    %h2.box-header Edit Kiwi Details
+.modal.fade#description-edit{ 'tabindex': '-1', role: 'dialog' }
+  .modal-dialog{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title Edit Kiwi Details
 
-    .dialog-content
-      %p
-        = f.label :name
-        = f.text_field :name, data: { default: f.object.name }
+      #flash-messages
+        %p.ui-state-error.alert-danger.p-3.mb-0.d-none
+          Kiwi Image name cannot be empty!
+      .modal-body
+        .dialog
+          = f.label :name
+          = f.text_field :name, data: { default: f.object.name }, class: 'form-control'
 
-      %p
-        = f.fields_for :description, f.object.description do |description_fields|
-          %p
+          = f.fields_for :description, f.object.description do |description_fields|
             = description_fields.label :author
-            = description_fields.text_field :author, data: { default: description_fields.object.author }
-          %p
+            = description_fields.text_field :author, data: { default: description_fields.object.author }, class: 'form-control'
             = description_fields.label :contact
-            = description_fields.text_field :contact, data: { default: description_fields.object.contact }
-          %p
+            = description_fields.text_field :contact, data: { default: description_fields.object.contact }, class: 'form-control'
             = description_fields.label :specification
-            = description_fields.text_field :specification, data: { default: description_fields.object.specification }
+            = description_fields.text_field :specification, data: { default: description_fields.object.specification }, class: 'form-control'
 
-    %p#flash-messages
-      %p.ui-state-error.ui-widget-shadow.hidden
-        Kiwi Image name can not be empty!
-
-    .dialog-buttons
-      = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog')
-      = link_to('Continue', '#', title: 'Continue', class: 'close-description-dialog')
+      .modal-footer
+        %a.btn.btn-sm.btn-outline-danger.px-4{ data: { dismiss: 'modal' } }
+          Cancel
+        = link_to('Continue', '#', title: 'Continue', class: 'btn btn-sm btn-primary px-4 close-description-dialog')

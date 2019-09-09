@@ -1,9 +1,20 @@
-- @layouttype = 'custom'
+:ruby
+  @layouttype = 'custom'
+  @project = @image.package.try(:project)
+  @package = @image.package
 
-.grid_16.alpha.omega.box.box-shadow
-  = render partial: 'webui/kiwi/tabs'
-  = render partial: 'base_info'
-.grid_10.alpha.box.box-shadow
-  = render partial: 'details_overview'
-.grid_6.omega.box.box-shadow
-  = render partial: 'build_info'
+.row
+  .col-12
+    .card.mb-3
+      = render partial: 'webui/kiwi/tabs'
+      .card-body
+        = render partial: 'base_info', locals: { author: @author, contact: @contact, image: @image,
+                                                 description: @description, package: @package,
+                                                 is_edit_software_action: @is_edit_software_action, is_edit_details_action: @is_edit_details_action }
+  .col-md-8
+    .card.mb-3
+      = render partial: 'details_overview', locals: { author: @author, contact: @contact, image: @image,
+                                                      repositories_count: @repositories_count, packages_count: @packages_count }
+  .col-md-4
+    .mb-3
+      = render partial: 'build_info', locals: { project: @project.name, package: @package.name }
