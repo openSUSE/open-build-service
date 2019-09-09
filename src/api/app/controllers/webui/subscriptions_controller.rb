@@ -16,7 +16,7 @@ class Webui::SubscriptionsController < Webui::WebuiController
   ensure
     respond_to do |format|
       format.html { redirect_to action: :index }
-      format.js { render 'webui2/webui/subscriptions/update' }
+      format.js { render 'webui/subscriptions/update' }
     end
   end
 
