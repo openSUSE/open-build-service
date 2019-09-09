@@ -1,18 +1,7 @@
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:show, :edit, :list_my]
-  before_action :require_login, only: [:edit, :save, :index, :update, :delete]
-  before_action :require_admin, only: [:edit, :index, :update, :delete]
-
-  def index
-    respond_to do |format|
-      format.html do
-        @users = User.list unless switch_to_webui2?
-      end
-      format.json { render json: UserConfigurationDatatable.new(params, view_context: view_context) }
-    end
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
-  end
+  before_action :require_login, only: [:edit, :save, :update, :delete]
+  before_action :require_admin, only: [:edit, :update, :delete]
 
   def show
     @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
@@ -104,42 +93,6 @@ class Webui::UserController < Webui::WebuiController
 
   def save_dialog
     render_dialog
-  end
-
-  def register
-    opts = { realname: params[:realname], login: params[:login], state: params[:state],
-             password: params[:password], password_confirmation: params[:password_confirmation],
-             email: params[:email] }
-
-    begin
-      UnregisteredUser.register(opts)
-    rescue APIError => e
-      flash[:error] = e.message
-      redirect_back(fallback_location: root_path)
-      return
-    end
-
-    flash[:success] = "The account '#{params[:login]}' is now active."
-
-    if User.admin_session?
-      redirect_to controller: :user, action: :index
-    else
-      session[:login] = opts[:login]
-      User.session = User.find_by!(login: session[:login])
-      if User.session!.home_project
-        redirect_to project_show_path(User.session!.home_project)
-      else
-        redirect_to root_path
-      end
-    end
-  end
-
-  def register_user
-    switch_to_webui2
-  end
-
-  def signup
-    switch_to_webui2
   end
 
   def password_dialog

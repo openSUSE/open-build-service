@@ -379,12 +379,6 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-      get 'users' => :index
-
-      post 'user/register' => :register
-      get 'user/register_user' => :register_user
-      get 'user/signup' => :signup
-
       post 'user/save' => :save, constraints: cons
       get 'user/save_dialog' => :save_dialog
 
@@ -411,6 +405,16 @@ OBSApi::Application.routes.draw do
     controller 'webui/users/announcements' do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
+
+    resources :users, only: [:index, :new, :create], controller: 'webui/users'
+
+    get 'signup', to: 'webui/users#new', as: :signup
+
+    # TODO
+    # keep those routes reachable, but remove them later as
+    # nobody access it anymore
+    get 'user/signup', to: redirect('/signup')
+    get 'user/register_user', to: redirect('/signup')
 
     resources :announcements, only: :show, controller: 'webui/announcements'
 

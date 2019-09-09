@@ -10,15 +10,6 @@ RSpec.describe Webui::UserController do
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_admin) }
 
-  describe 'GET #index' do
-    before do
-      login admin_user
-      get :index
-    end
-
-    it { is_expected.to render_template('webui/user/index') }
-  end
-
   describe 'GET #show' do
     shared_examples 'a non existent account' do
       before do
@@ -336,44 +327,6 @@ RSpec.describe Webui::UserController do
   end
 
   describe 'GET #save_dialog' do
-    skip
-  end
-
-  describe 'POST #register' do
-    let!(:new_user) { build(:user, login: 'moi_new') }
-
-    context 'when existing user is already registered with this login' do
-      before do
-        already_registered_user = create(:confirmed_user, login: 'previous_user')
-        post :register, params: { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
-      end
-
-      it { expect(flash[:error]).not_to be(nil) }
-      it { expect(response).to redirect_to root_path }
-    end
-
-    context 'when home project creation enabled' do
-      before do
-        allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(true)
-        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
-      end
-
-      it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
-      it { expect(response).to redirect_to project_show_path(new_user.home_project) }
-    end
-
-    context 'when home project creation disabled' do
-      before do
-        allow(Configuration).to receive(:allow_user_to_create_home_project).and_return(false)
-        post :register, params: { login: new_user.login, email: new_user.email, password: 'buildservice' }
-      end
-
-      it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
-      it { expect(response).to redirect_to root_path }
-    end
-  end
-
-  describe 'GET #register_user' do
     skip
   end
 

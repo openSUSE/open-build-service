@@ -1,0 +1,8 @@
+= render partial: 'webui/main/breadcrumb_items'
+- case action_name
+  - when 'index'
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Manage Users
+  - when 'new'
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Sign Up

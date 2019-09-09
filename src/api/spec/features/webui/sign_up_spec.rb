@@ -45,7 +45,7 @@ RSpec.feature 'Sign up', type: :feature, js: true do
     expect(page).to have_link('Log In')
     expect(page).not_to have_link('Sign Up')
 
-    visit user_register_user_path
+    visit new_user_path
     expect(page).to have_text('Sorry, sign up is disabled')
   end
 end
