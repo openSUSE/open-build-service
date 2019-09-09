@@ -22,5 +22,5 @@
                                                                  involved_projects: @iprojects,
                                                                  involved_packages: @ipackages }
 
-= render partial: 'password_dialog', locals: { user: @displayed_user }
-= render partial: 'edit_dialog', locals: { user: @displayed_user }
+= render partial: 'webui/user/password_dialog', locals: { user: @displayed_user }
+= render partial: 'webui/user/edit_dialog', locals: { user: @displayed_user }
