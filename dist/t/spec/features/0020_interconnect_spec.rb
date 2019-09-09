@@ -11,9 +11,9 @@ RSpec.describe "Interconnect" do
 
   it "should be able to create link" do
     visit "/interconnects/new"
-    # Don't wait for the javascript text replacement...
-    page.execute_script("$('input[type=\"submit\"]').prop('disabled', false)")
-    click_button('Create Remote project')
+    within('div[data-interconnect="openSUSE.org"]') do
+      click_button('Connect')
+    end
     expect(page).to have_content("Project 'openSUSE.org' was successfully created.")
   end
 end

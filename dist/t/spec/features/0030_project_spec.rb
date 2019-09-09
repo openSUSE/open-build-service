@@ -10,20 +10,20 @@ RSpec.describe "Project" do
   end
 
   it "should be able to create" do
-    within("div#subheader") do
+    within("div#personal-navigation") do
       click_link('Create Home')
     end
-    page.has_button?('Create Project') ? click_button('Create Project') : click_button('Accept')
+    click_button('Accept')
     expect(page).to have_content("Project 'home:Admin' was created successfully")
   end
 
   it "should be able to add repositories" do
-    within("div#subheader") do
+    within("div#personal-navigation") do
       click_link('Home Project')
     end
     click_link('Repositories')
-    click_link('Add repositories')
-    check('repo_openSUSE_Leap_15_1')
+    click_link('Add from a Distribution')
+    check('repo_openSUSE_Leap_15_1', allow_label_click: true)
     expect(page).to have_content("Successfully added repository 'openSUSE_Leap_15.1'")
   end
 end
