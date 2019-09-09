@@ -1,38 +1,25 @@
-.box-header.header-tabs
-  %ul
-    %li.selected
-      %a.result-select-link#result-select-link{ href: '#' } Build Results
-      = sprite_tag('reload', title: 'Reload', accesskey: 'r', onclick: 'update_build_result()', class: "result_reload", id: "result_reload")
-      = image_tag('ajax-loader.gif', id: "result_spinner")
+:ruby
+  index ||= ''
+  ajax_data = {}
+  ajax_data['project'] = h(project) if defined?(project)
+  ajax_data['package'] = h(package) if defined?(package)
+  ajax_data['index'] = h(index) if defined?(index)
 
-.result-display#result-display
+.card
+  .bg-light#buildresult-urls{ data: { buildresult_url: defined?(package) ? package_buildresult_path : project_buildresult_path } }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap#buildresult-box{ role: 'tablist', data: ajax_data }
+      %li.nav-item
+        = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
+          data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+          Build Results
+  .card-body
+    .tab-content
+      .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+        .btn.btn-sm.btn-outline-primary.mb-2.build-refresh{ accesskey: 'r', title: 'Refresh Build Results' }
+          Refresh
+          %i.fas.fa-sm.fa-sync-alt{ id: "build#{index}-reload" }
+        .result
 
-- ajax_data = []
-- ajax_data.push("'project': '#{h(@project)}'")
-- ajax_data.push("'package': '#{h(@package)}'")
-- ajax_data = raw(ajax_data.join ', ')
-
-= javascript_tag do
-  :plain
-    function update_build_result() {
-      $('#result_spinner').show();
-      $('#result_reload').hide();
-      $.ajax({
-        url: '#{ url_for(controller: '/webui/kiwi/images', action: 'build_result') }',
-        data: {#{ajax_data}},
-        success: function(data) {
-          $('#result-display').html(data);
-        },
-        error: function(data) {
-          $('#result-display').html('<p>No build results available</p>');
-        },
-        complete: function(data) {
-          $('#result_spinner').hide();
-          if ($('#result-select-link').parent().hasClass('selected')) {
-            $('#result_reload').show();
-          }
-        }
-      });
-    }
-
-    update_build_result();
+:javascript
+  updateBuildResult('#{index}');
+  $('.build-refresh').click(function() { updateBuildResult('#{index}'); });

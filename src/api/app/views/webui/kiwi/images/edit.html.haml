@@ -1,27 +1,39 @@
 - @layouttype = 'custom'
-= content_for :ready_function do
-  isOutdatedUrl = '#{url_for(controller: 'kiwi/images', action: :show, id: @image)}'
+- @package = @image.package
 
 = form_for @image, html: { id: 'kiwi-image-update-form' } do |f|
-  .grid_16.alpha.omega.box.box-shadow
-    = render partial: 'webui/kiwi/tabs'
-    = render partial: 'base_info', locals: { f: f }
+  .row
+    .col-12
+      .card.mb-3
+        = render partial: 'webui/kiwi/tabs'
+        .card-body
+          = render partial: 'base_info', locals: { f: f, author: @author, contact: @contact,
+                                                   image: @image, description: @description, package: @package,
+                                                   is_edit_software_action: @is_edit_software_action,
+                                                   is_edit_details_action: @is_edit_details_action }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-preferences{ class: "#{'hidden' if @is_edit_software_action}" }
-    = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
+    .col-12#kiwi-preferences{ class: "#{'d-none' unless @is_edit_details_action}" }
+      = render partial: 'webui/kiwi/images/preferences', locals: { f: f }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-profiles-section{ class: "#{'hidden' unless @is_edit_software_action}" }
-    = render partial: 'webui/kiwi/images/profiles', locals: { f: f }
+    .col-12#kiwi-image-profiles-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/profiles', locals: { f: f }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-repositories-section{ class: "#{'hidden' unless @is_edit_software_action}" }
-    = render partial: 'webui/kiwi/images/repositories', locals: { f: f }
+    .col-12#kiwi-image-repositories-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/repositories', locals: { f: f, image: @image }
 
-  .grid_16.alpha.omega.box.box-shadow#kiwi-image-packages-section{ class: "#{'hidden' unless @is_edit_software_action}" }
-    = render partial: 'webui/kiwi/images/packages', locals: { f: f }
+    .col-12#kiwi-image-packages-section{ class: "#{'d-none' unless @is_edit_software_action}" }
+      .card.mb-3
+        = render partial: 'webui/kiwi/images/packages', locals: { f: f, package_groups: @package_groups }
 
-  .grid_2.alpha.omega.box.box-shadow.kiwi-button
-    %h3
-      #kiwi-image-update-form-save= sprite_tag("page_save", title: 'Save') + ' Save'
-  .grid_2.alpha.omega.box.box-shadow.kiwi-button
-    %h3
-      #kiwi-image-update-form-revert{ class: "#{'enabled' if flash[:error]}" }= sprite_tag("page_save", title: 'Revert') + ' Revert'
+    .col-12.d-flex.justify-content-end
+      .btn.btn-primary.disabled#kiwi-image-update-form-save
+        %i.fas.fa-save
+        Save
+      .btn.btn-danger.ml-3#kiwi-image-update-form-revert{ class: "#{'disabled' unless flash[:error]}" }
+        %i.fas.fa-undo
+        Revert
+
+- content_for :ready_function do
+  initializeKiwi('#{url_for(controller: 'kiwi/images', action: :show, id: @image)}')
