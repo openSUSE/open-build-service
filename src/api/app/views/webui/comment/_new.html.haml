@@ -4,7 +4,7 @@
     = link_to('login', new_session_url)
     - if can_register
       or
-      = link_to('signup', user_register_user_url)
+      = link_to('signup', new_user_url)
     in order to comment
 - else
   = render(partial: 'webui/comment/comment_field', locals: { comment: Comment.new, commentable: commentable })

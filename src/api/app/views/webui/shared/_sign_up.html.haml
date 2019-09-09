@@ -4,7 +4,7 @@
   - else
     %p= link_to 'Use this link to Sign Up', CONFIG['proxy_auth_register_page']
 - else
-  = form_tag({ controller: 'user', action: 'register', method: :post }, class: 'sign-up', autocomplete: 'off') do
+  = form_tag(users_path, method: :post, class: 'sign-up', autocomplete: 'off') do
     .form-group
       = label_tag 'login', 'Username:'
       %abbr.text-danger{ title: 'required' } *

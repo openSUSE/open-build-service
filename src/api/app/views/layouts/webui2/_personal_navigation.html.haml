@@ -10,7 +10,7 @@
                                                              proxy: true,
                                                              can_signup: CONFIG['proxy_auth_register_page'].present? }
   - else
-    = render partial: 'layouts/webui2/login_form', locals: { signup_url: user_signup_path,
+    = render partial: 'layouts/webui2/login_form', locals: { signup_url: signup_path,
                                                              form_url: session_path,
                                                              options: { method: :post },
                                                              proxy: false,

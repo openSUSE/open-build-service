@@ -41,7 +41,7 @@
           %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
     - else
       - if can_register
-        = link_to 'Sign Up', user_register_user_path
+        = link_to 'Sign Up', new_user_path
         |
       = link_to 'Log In', new_session_path, id: 'login-trigger'
       #login-form

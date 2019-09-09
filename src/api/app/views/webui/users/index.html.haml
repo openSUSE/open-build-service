@@ -18,7 +18,7 @@
       %tbody
 
     .pt-4
-      = link_to(user_register_user_path) do
+      = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create' )) do
         %i.fas.fa-plus-circle.text-primary
         Create User
 

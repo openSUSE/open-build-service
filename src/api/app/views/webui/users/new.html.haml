@@ -1,0 +1,8 @@
+.card.mb-3
+  .card-body
+    .col-lg-6.pl-0
+      - if can_register
+        %h3= @pagetitle.capitalize
+        = render partial: 'webui/shared/sign_up', locals: { submit_btn_text: @submit_btn_text.capitalize }
+      - else
+        %p Sorry, sign up is disabled
