@@ -410,6 +410,12 @@ OBSApi::Application.routes.draw do
 
     get 'signup', to: 'webui/users#new', as: :signup
 
+    # TODO
+    # keep those routes reachable, but remove them later as
+    # nobody access it anymore
+    get 'user/signup', to: redirect('/signup')
+    get 'user/register_user', to: redirect('/signup')
+
     resources :announcements, only: :show, controller: 'webui/announcements'
 
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
