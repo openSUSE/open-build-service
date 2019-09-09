@@ -10,6 +10,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :set_project, only: [:show, :index, :users, :linking_packages, :dependency, :binary, :binaries,
                                      :requests, :statistics, :commit, :revisions, :submit_request_dialog,
+                                     :branch_diff_info,
                                      :add_person, :add_group, :rdiff, :save_new,
                                      :save, :delete_dialog,
                                      :remove, :add_file, :save_file, :remove_file, :save_person,
@@ -20,6 +21,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
                                          :requests, :statistics, :commit, :revisions, :submit_request_dialog,
+                                         :branch_diff_info,
                                          :add_person, :add_group, :rdiff,
                                          :save, :save_meta, :delete_dialog,
                                          :remove, :add_file, :save_file, :remove_file, :save_person,
@@ -35,6 +37,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :linking_packages, :linking_packages, :dependency,
+                                         :branch_diff_info,
                                          :binary, :binaries, :users, :requests, :statistics, :commit,
                                          :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result,
@@ -540,6 +543,10 @@ class Webui::PackageController < Webui::WebuiController
       return false
     end
     true
+  end
+
+  def branch_diff_info
+    switch_to_webui2
   end
 
   private :check_package_name_for_new

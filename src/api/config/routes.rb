@@ -100,6 +100,7 @@ OBSApi::Application.routes.draw do
     defaults format: 'html' do
       controller 'webui/package' do
         get 'package/show/:project/:package' => :show, as: 'package_show', constraints: cons
+        get 'package/branch_diff_info/:project/:package' => :branch_diff_info, as: 'package_branch_diff_info', constraints: cons
         get 'package/dependency/:project/:package' => :dependency, constraints: cons, as: 'package_dependency'
         get 'package/binary/:project/:package/:repository/:arch/:filename' => :binary, constraints: cons, as: 'package_binary'
         get 'package/binary/download/:project/:package/:repository/:arch/:filename' => :binary_download,

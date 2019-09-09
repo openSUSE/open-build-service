@@ -53,7 +53,31 @@ function setupRequestDialog() { // jshint ignore:line
     updateSupersedeAndDevelPackageDisplay();
   });
 
+  prefillSubmitRequestForm();
+
   updateSupersedeAndDevelPackageDisplay();
+}
+
+/*
+  This prefills the dialog with data coming from the package prefill endpoint.
+  The actual url has to be set in the link that shows the modal (coming as `e.relatedTarget`),
+  as a url data attribute.
+ */
+function prefillSubmitRequestForm() {
+  $('#submit-request-modal').on('show.bs.modal', function(e) {
+    $.ajax({
+      url: $(e.relatedTarget).data().url,
+      dataType: 'json',
+      contentType: 'application/json; charset=utf-8',
+      accept: 'application/json',
+      success: function (e) {
+        $('#targetpackage').attr('value', e.targetPackage);
+        $('#targetproject').attr('value', e.targetProject);
+        $('#description').val(e.description);
+        $('#sourceupdate').attr('checked', e.cleanupSource);
+      }
+    });
+  });
 }
 
 function requestAddReviewAutocomplete() { // jshint ignore:line

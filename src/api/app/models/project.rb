@@ -1535,6 +1535,12 @@ class Project < ApplicationRecord
     @missing_checks ||= calculate_missing_checks
   end
 
+  # This is not what makes a Package a branch, we only use this to prefill the submit request
+  # dialog in the UI. Please do not rely on this!
+  def branch?
+    name.include?(':branches:') # Rather ugly decision finding...
+  end
+
   private
 
   def discard_cache
