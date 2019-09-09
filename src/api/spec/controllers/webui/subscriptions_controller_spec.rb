@@ -14,7 +14,7 @@ RSpec.describe Webui::SubscriptionsController do
     it { is_expected.to use_before_action(:require_admin) }
   end
 
-  describe 'PUT #index' do
+  describe 'PUT #update' do
     let!(:admin) { create(:admin_user) }
     include_context 'a user and subscriptions with defaults'
 
