@@ -381,7 +381,7 @@ GEM
       sexp_processor (~> 4.9)
     rubyzip (1.2.3)
     safe_yaml (1.0.5)
-    sanitize (5.0.0)
+    sanitize (5.1.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.8.0)
       nokogumbo (~> 2.0)
