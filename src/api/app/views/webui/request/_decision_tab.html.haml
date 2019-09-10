@@ -7,7 +7,7 @@
       .custom-control.custom-checkbox
         = check_box_tag('add_submitter_as_maintainer_0', "#{action[:tprj]}_#_#{action[:tpkg]}", false, class: 'custom-control-input')
         %label.custom-control-label{ for: 'add_submitter_as_maintainer_0' }
-          Add #{link_to(request_creator, user_show_path(request_creator))} as maintainer for
+          Add #{link_to(request_creator, user_path(request_creator))} as maintainer for
           #{project_or_package_link(project: action[:tprj], package: action[:tpkg], short: true)}
     - (action[:forward] || []).each_with_index do |forward, index|
       .custom-control.custom-checkbox

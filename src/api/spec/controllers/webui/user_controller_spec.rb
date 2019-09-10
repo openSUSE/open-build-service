@@ -10,53 +10,6 @@ RSpec.describe Webui::UserController do
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_admin) }
 
-  describe 'GET #show' do
-    shared_examples 'a non existent account' do
-      before do
-        request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to(root_url)
-        get :show, params: { user: user }
-      end
-
-      it { expect(controller).to set_flash[:error].to("User not found #{user}") }
-      it { expect(response).to redirect_to(root_url) }
-    end
-
-    context 'when the current user is admin' do
-      before { login admin_user }
-
-      it 'deleted users are shown' do
-        get :show, params: { user: deleted_user }
-        expect(response).to render_template('webui/user/show')
-      end
-
-      describe 'showing a non valid users' do
-        subject(:user) { 'INVALID_USER' }
-        it_should_behave_like 'a non existent account'
-      end
-    end
-
-    context "when the current user isn't admin" do
-      before { login non_admin_user }
-
-      describe 'showing a deleted user' do
-        subject(:user) { deleted_user }
-        it_should_behave_like 'a non existent account'
-      end
-
-      describe 'showing an invalid user' do
-        subject(:user) { 'INVALID_USER' }
-        it_should_behave_like 'a non existent account'
-      end
-
-      describe 'showing someone else' do
-        it 'does not include requests' do
-          get :show, params: { user: admin_user }
-          expect(assigns(:reviews)).to be_nil
-        end
-      end
-    end
-  end
-
   describe 'GET #user_edit' do
     before do
       login admin_user
@@ -85,7 +38,7 @@ RSpec.describe Webui::UserController do
         it { expect(user.email).to eq('new_valid@email.es') }
         it { expect(user.state).to eq('confirmed') }
         it { expect(user.ignore_auth_services).to be(false) }
-        it { is_expected.to redirect_to user_show_path(user) }
+        it { is_expected.to redirect_to user_path(user) }
       end
 
       context 'with invalid data' do
@@ -99,7 +52,7 @@ RSpec.describe Webui::UserController do
         it { expect(user.realname).to eq(user.realname) }
         it { expect(user.email).to eq(user.email) }
         it { expect(user.state).to eq('confirmed') }
-        it { is_expected.to redirect_to user_show_path(user) }
+        it { is_expected.to redirect_to user_path(user) }
       end
     end
 
@@ -143,7 +96,7 @@ RSpec.describe Webui::UserController do
       it { expect(user.email).to eq('new_valid@email.es') }
       it { expect(user.state).to eq('locked') }
       it { expect(user.ignore_auth_services).to be(true) }
-      it { is_expected.to redirect_to user_show_path(user) }
+      it { is_expected.to redirect_to user_path(user) }
       it "updates the user's roles" do
         expect(user.roles).not_to include(old_global_role)
         expect(user.roles).to include(*new_global_roles)

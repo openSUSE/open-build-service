@@ -27,6 +27,56 @@ RSpec.describe Webui::UsersController do
     end
   end
 
+  describe 'GET #show' do
+    shared_examples 'a non existent account' do
+      before do
+        request.env['HTTP_REFERER'] = root_url # Needed for the redirect_to(root_url)
+        get :show, params: { user: user }
+      end
+
+      it { expect(controller).to set_flash[:error].to("User not found #{user}") }
+      it { expect(response).to redirect_to(root_url) }
+    end
+
+    context 'when the current user is admin' do
+      before { login admin_user }
+
+      it 'deleted users are shown' do
+        get :show, params: { user: deleted_user }
+        expect(response).to render_template('webui/users/show')
+      end
+
+      describe 'showing a non valid users' do
+        subject(:user) { 'INVALID_USER' }
+
+        it_behaves_like 'a non existent account'
+      end
+    end
+
+    context "when the current user isn't admin" do
+      before { login non_admin_user }
+
+      describe 'showing a deleted user' do
+        subject(:user) { deleted_user }
+
+        it_behaves_like 'a non existent account'
+      end
+
+      describe 'showing an invalid user' do
+        subject(:user) { 'INVALID_USER' }
+
+        it_behaves_like 'a non existent account'
+      end
+
+      describe 'showing someone else' do
+        it 'does not include requests' do
+          get :show, params: { user: admin_user }
+          expect(assigns(:reviews)).to be_nil
+        end
+      end
+    end
+  end
+
   describe 'POST #create' do
     let!(:new_user) { build(:user, login: 'moi_new') }
 

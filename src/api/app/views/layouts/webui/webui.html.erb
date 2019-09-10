@@ -100,9 +100,9 @@
     <div id="footer" class="container_12">
     <% if User.session -%>
       <div class="grid_3">
-        <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.session!)) do %><%= User.session! %><% end %>:</strong>
+        <strong class="grey-medium spacer1"><%= link_to(user_path(User.session!)) do %><%= User.session! %><% end %>:</strong>
         <ul>
-          <li><%= link_to "Your Profile", user_show_path(User.session!) %> </li>
+          <li><%= link_to "Your Profile", user_path(User.session!) %> </li>
           <% if User.session!.home_project %>
             <li><%= link_to "Home Project", project_show_path(User.session!.home_project) %></li>
           <% else %>

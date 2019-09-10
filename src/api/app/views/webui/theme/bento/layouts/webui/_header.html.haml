@@ -13,5 +13,5 @@
         %a{ href: "http://en.opensuse.org/openSUSE:Browse#Development" } Development
       - if User.session
         %li#item-favorites{ style: "float: right;" }
-          %a{ href: "#{user_show_url(User.session!)}" } Watchlist
+          %a{ href: "#{user_url(User.session!)}" } Watchlist
     = render partial: "layouts/webui/watch_and_search"

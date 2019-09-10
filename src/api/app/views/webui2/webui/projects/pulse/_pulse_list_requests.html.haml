@@ -11,7 +11,7 @@
       - else
         was created
       by
-      = link_to(user_show_path(request.creator)) do
+      = link_to(user_path(request.creator)) do
         = request.creator
       = fuzzy_time(request.updated_at)
 

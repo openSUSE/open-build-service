@@ -393,7 +393,7 @@ OBSApi::Application.routes.draw do
 
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
-      get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
+      # get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
 
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'

@@ -6,3 +6,6 @@
   - when 'new'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Sign Up
+  - when 'show'
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      Home of #{@displayed_user}

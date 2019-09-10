@@ -12,7 +12,7 @@ module Webui::UserOrGroupsRolesHelper
   end
 
   def user_or_group_show_path(object)
-    object.is_a?(User) ? user_show_path(object) : group_show_path(object)
+    object.is_a?(User) ? user_path(object) : group_show_path(object)
   end
 
   def user_or_groups_roles_delete_path(project, type, object, package)
