@@ -84,9 +84,7 @@
 - if User.session
   - if @current_rev
     = render partial: 'branch_dialog', locals: { project: @project, package: @package, revision: @revision }
-    = render partial: 'submit_request_dialog', locals: { project: @project, package: @package, revision: @revision,
-                                                         target_project: @tprj, target_package: @tpkg,
-                                                         description: @description, cleanup_source: @cleanup_source }
+    = render partial: 'submit_request_dialog', locals: { project: @project, package: @package, revision: @revision }
   - if User.possibly_nobody.can_modify?(@package)
     = render partial: 'edit_dialog', locals: { project: @project, package: @package }
     = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
