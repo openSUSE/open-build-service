@@ -313,11 +313,7 @@ OBSApi::Application.routes.draw do
         get :index, as: :projects, on: :collection
       end
 
-      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons do
-        member do
-          get 'key_dialog'
-        end
-      end
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
