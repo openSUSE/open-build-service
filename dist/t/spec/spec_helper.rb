@@ -37,15 +37,16 @@ end
 
 def login
   visit "/session/new"
-  fill_in 'user-login', with: 'Admin'
-  fill_in 'user-password', with: 'opensuse'
-  click_button('log-in-button')
-
+  within('#loginform') do
+    fill_in 'user-login', with: 'Admin'
+    fill_in 'user-password', with: 'opensuse'
+    click_button('Log In')
+  end
   expect(page).to have_link('link-to-user-home')
 end
 
 def logout
-  within("div#subheader") do
+  within("#personal-navigation") do
     click_link('Logout')
   end
   expect(page).to have_no_link('link-to-user-home')
