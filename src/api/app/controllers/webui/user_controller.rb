@@ -1,32 +1,13 @@
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:show, :edit, :list_my]
+  before_action :check_display_user, only: [:edit, :list_my]
   before_action :require_login, only: [:edit, :save, :update, :delete]
   before_action :require_admin, only: [:edit, :update, :delete]
 
-  def show
-    @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
-    @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
-    @owned = @displayed_user.owned_packages
-    @groups = @displayed_user.groups
-    @role_titles = @displayed_user.roles.global.pluck(:title)
-    @account_edit_link = CONFIG['proxy_auth_account_page']
-
-    return unless switch_to_webui2 && (CONFIG['contribution_graph'] != :off)
-
-    @last_day = Time.zone.today
-
-    @first_day = @last_day - 52.weeks
-    # move back to the monday before (make it up to 53 weeks)
-    @first_day -= (@first_day.cwday - 1)
-
-    @activity_hash = User::Contributions.new(@displayed_user, @first_day).activity_hash
-  end
-
   def home
     if params[:user].present?
-      redirect_to action: :show, user: params[:user]
+      redirect_to user_path(params[:user])
     else
-      redirect_to action: :show, user: User.possibly_nobody
+      redirect_to user_path(User.possibly_nobody)
     end
   end
 
@@ -58,7 +39,7 @@ class Webui::UserController < Webui::WebuiController
       flash[:error] = "Couldn't update user: #{e.message}."
     end
 
-    redirect_back(fallback_location: { action: 'show', user: @displayed_user })
+    redirect_back(fallback_location: user_path(@displayed_user))
   end
 
   def edit
@@ -78,7 +59,7 @@ class Webui::UserController < Webui::WebuiController
     else
       flash[:error] = "Updating user '#{other_user}' failed: #{other_user.errors.full_messages.to_sentence}"
     end
-    redirect_back(fallback_location: user_show_path(other_user))
+    redirect_back(fallback_location: user_path(other_user))
   end
 
   def delete

@@ -3,7 +3,7 @@
   = image_tag_for(element.user, size: 38, custom_class: 'mr-3')
   .media-body
     %p
-      = link_to(element.user, user_show_path(element.user))
+      = link_to(element.user, user_path(element.user))
       - if element.class == HistoryElement::RequestSuperseded
         = link_to(element.user_action, request_show_path(element.description_extension))
       - else

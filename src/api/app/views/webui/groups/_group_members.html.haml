@@ -25,7 +25,7 @@
               = image_tag_for(user, size: 80, custom_class: 'align-self-center')
             .col-md-9
               .card-body.py-1
-                = link_to(user_show_path(user)) do
+                = link_to(user_path(user)) do
                   = display_name(user)
 
                 .custom-control.custom-checkbox.mt-2

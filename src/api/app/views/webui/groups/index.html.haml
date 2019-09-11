@@ -15,7 +15,7 @@
             %td
               = link_to(group, group_show_path(title: group))
             %td
-              = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_show_path(user), title: user.login) }, ', ')
+              = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }, ', ')
 
     .pt-4
       = link_to(group_new_path) do

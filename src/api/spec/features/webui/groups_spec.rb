@@ -12,7 +12,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
 
   def group_in_datatable(page, group)
     expect(page).to have_link(group.title, href: group_show_path(group))
-    group.users.each { |user| expect(page).to have_link(user.login, href: user_show_path(user)) }
+    group.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
   scenario 'visit groups index page' do
@@ -34,7 +34,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     find('#group-members-tab').click
 
     expect(page).to have_link('Add Member')
-    group_1.users.each { |user| expect(page).to have_link(user.login, href: user_show_path(user)) }
+    group_1.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
   scenario 'create a group' do

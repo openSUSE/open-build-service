@@ -5,7 +5,7 @@ RSpec.feature 'User Profile', type: :feature, js: true do
 
   before do
     login user
-    visit user_show_path(user)
+    visit user_path(user)
   end
 
   scenario 'public beta program' do

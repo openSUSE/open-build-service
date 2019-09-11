@@ -46,9 +46,9 @@ module Webui::UserHelper
       end
 
       if opts[:no_icon]
-        link_to(printed_name, user_show_path(user))
+        link_to(printed_name, user_path(user))
       else
-        user_image_tag(user) + ' ' + link_to(printed_name, user_show_path(user))
+        user_image_tag(user) + ' ' + link_to(printed_name, user_path(user))
       end
     end
   end

@@ -394,8 +394,6 @@ OBSApi::Application.routes.draw do
 
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
-      get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
-
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
@@ -407,7 +405,7 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, only: [:index, :new, :create], controller: 'webui/users'
+    resources :users, only: [:index, :new, :create, :show], controller: 'webui/users', param: :user
 
     get 'signup', to: 'webui/users#new', as: :signup
 
@@ -416,7 +414,7 @@ OBSApi::Application.routes.draw do
     # nobody access it anymore
     get 'user/signup', to: redirect('/signup')
     get 'user/register_user', to: redirect('/signup')
-
+    get 'user/show/:user', to: redirect('/users/%{user}')
     resources :announcements, only: :show, controller: 'webui/announcements'
 
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'

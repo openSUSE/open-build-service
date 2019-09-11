@@ -5,7 +5,7 @@ RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do
 
   context 'without contribution graph option' do
     it 'shows the contribution graph' do
-      visit user_show_path(user: user.login)
+      visit user_path(user: user.login)
       expect(page).to have_css('#contributors-table')
     end
   end
@@ -16,7 +16,7 @@ RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do
     end
 
     it 'does not show the contribution table' do
-      visit user_show_path(user: user.login)
+      visit user_path(user: user.login)
       expect(page).not_to have_css('#contributors-table')
     end
   end
@@ -27,13 +27,13 @@ RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do
     end
 
     it 'shows the contribution graph' do
-      visit user_show_path(user: user.login)
+      visit user_path(user: user.login)
       expect(page).to have_css('#contributors-table')
     end
 
     context 'no contributions' do
       it 'shows 0' do
-        visit user_show_path(user: user.login)
+        visit user_path(user: user.login)
 
         expect(page).to have_text('0 contributions')
       end
@@ -45,7 +45,7 @@ RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do
       let!(:review) { create(:review, bs_request: request, reviewer: user, by_user: user, state: :accepted) }
 
       it 'shows 3' do
-        visit user_show_path(user: user.login)
+        visit user_path(user: user.login)
         expect(page).to have_text('3 contributions')
       end
     end

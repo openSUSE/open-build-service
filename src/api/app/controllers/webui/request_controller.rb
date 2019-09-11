@@ -71,7 +71,7 @@ class Webui::RequestController < Webui::WebuiController
     review_params, request = modify_review_set_request
     if request.nil?
       flash[:error] = 'Unable to load request'
-      redirect_back(fallback_location: user_show_path(User.session!))
+      redirect_back(fallback_location: user_path(User.session!))
       return
     elsif !new_state.in?(['accepted', 'declined'])
       flash[:error] = 'Unknown state to set'
@@ -159,7 +159,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list_small
-    redirect_to(user_show_path(User.possibly_nobody)) && return unless request.xhr? # non ajax request
+    redirect_to(user_path(User.possibly_nobody)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
     switch_to_webui2
     render partial: 'requests_small', locals: { requests: requests }

@@ -75,7 +75,7 @@ RSpec.describe EventMailer, vcr: true do
       end
 
       it 'renders links absolute' do
-        expected_html = "<p>Hey <a href='https://build.example.com/user/show/#{receiver.login}'>@#{receiver.login}</a> "
+        expected_html = "<p>Hey <a href='https://build.example.com/users/#{receiver.login}'>@#{receiver.login}</a> "
         expected_html += "how are things? Look at <a href='https://build.example.com/project/show/apache'>bug</a> please."
         expect(mail.html_part.to_s).to include(expected_html)
       end
@@ -108,8 +108,8 @@ RSpec.describe EventMailer, vcr: true do
         let(:vip) { create(:confirmed_user) }
         let!(:comment) { create(:comment_project, body: "I ❤️ @#{vip.login}!") }
 
-        it { expect(mail.text_part.body.encoded).to include("I ❤️ [@#{vip.login}](https://build.example.com/user/show/") }
-        it { expect(mail.html_part.to_s).to include("I =E2=9D=A4=EF=B8=8F <a href=3D'https://build.example.com/user/sh=\now/#{vip.login}'>@#{vip.login}</a>") }
+        it { expect(mail.text_part.body.encoded).to include("I ❤️ [@#{vip.login}](https://build.example.com/users/") }
+        it { expect(mail.html_part.to_s).to include("I =E2=9D=A4=EF=B8=8F <a href=3D'https://build.example.com/users/") }
       end
     end
   end

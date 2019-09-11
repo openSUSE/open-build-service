@@ -10,7 +10,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
 
   describe 'as an anonymous user' do
     before do
-      visit user_show_path(user)
+      visit user_path(user)
     end
 
     scenario 'view home page of another user' do

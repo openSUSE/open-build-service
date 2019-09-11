@@ -4,7 +4,7 @@
       %strong.text-uppercase
         = User.session!
       %ul
-        %li= link_to('Your Profile', user_show_path(User.session!))
+        %li= link_to('Your Profile', user_path(User.session!))
         - if User.session!.home_project
           %li= link_to('Home Project', project_show_path(User.session!.home_project))
         - else
