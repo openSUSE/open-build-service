@@ -198,7 +198,7 @@ sub runservice {
   return if $servicemark && !BSSrcrep::addmeta_serialize_servicerun($rev->{'project'}, $rev->{'package'}, $servicemark);
 
   # get last servicerun result into oldfiles hash
-  my $oldfiles = {};
+  my $oldfiles;
   my $oldfilesrev;
   if ($servicemark) {
     my $revno = $rev->{'rev'};
@@ -220,12 +220,12 @@ sub runservice {
 	undef $oldfilesrev;
         next if $@ =~ /service in progress/;
       }
-      $oldfiles = {} if !$oldfiles || $oldfiles->{'_service_error'};
-      # strip all non-service results;
-      delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
       last;
     }
   }
+  $oldfiles = {} if !$oldfiles || $oldfiles->{'_service_error'};
+  # strip all non-service results;
+  delete $oldfiles->{$_} for grep {!/^_service:/} keys %$oldfiles;
 
   my $lockfile;		# old style service run lock
   if (!$servicemark) {
