@@ -2728,7 +2728,9 @@ sub createchannel {
         # current product builders should provide cpeid already
         # add them for old tools, but only for -release packages for speed reasons
         my $rpm_file = $bin->{'_content'};
-        $rpm_file =~ s/obs:\//$srcdir\/repos/;
+        my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
+        $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|emulator)/;
+        $rpm_file =~ s/obs:\//$buildsrcdir\/repos/;
         if (-e $rpm_file) {
           my $cpeid = cpeid_from_rpm($rpm_file);
           $bin->{'cpeid'} = $cpeid if $cpeid;
