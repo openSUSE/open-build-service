@@ -245,14 +245,17 @@ class Webui::WebuiController < ActionController::Base
   private
 
   def send_login_information_rabbitmq(msg)
-    case msg
-    when :success
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
-    when :disabled
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
-    when :unauthenticated
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
+    message = case msg
+              when :success
+                'login,access_point=webui value=1'
+              when :disabled
+                'login,access_point=webui,failure=disabled value=1'
+              when :logout
+                'logout,access_point=webui value=1'
+              when :unauthenticated
+                'login,access_point=webui,failure=unauthenticated value=1'
     end
+    RabbitmqBus.send_to_bus('metrics', message)
   end
 
   def authenticator
