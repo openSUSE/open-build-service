@@ -1,5 +1,5 @@
 :ruby
-  content_for(:content_for_head, javascript_include_tag('webui2/cm2/index-diff'))
+  content_for(:content_for_head, javascript_include_tag('webui/cm2/index-diff'))
   content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
   content_for(:meta_description, @bs_request.description)
   content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))

@@ -11,6 +11,6 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require codemirror
-//= require webui2/cm2/toolbars
-//= require codemirror/modes/diff.js
-//= require webui2/cm2/use-codemirror
+//= require webui/cm2/toolbars
+//= require codemirror/modes/xml.js
+//= require webui/cm2/use-codemirror

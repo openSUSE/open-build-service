@@ -8,4 +8,4 @@ Rails.application.config.assets.version = '1.0'
 
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
-Rails.application.config.assets.precompile += ['webui/application.css', 'webui2/application.js', 'webui/obs_factory/application.css', 'webui2/cm2/*.js']
+Rails.application.config.assets.precompile += ['webui/application.css', 'webui/obs_factory/application.css', 'webui/application.js', 'webui/cm2/*.js']
