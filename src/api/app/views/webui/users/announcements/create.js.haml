@@ -1,5 +1,5 @@
 - if flash[:error]
-  flashContent = '#{escape_javascript(render(layout: false, partial: 'layouts/webui2/flash', object: flash))}';
+  flashContent = '#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}';
   $('#flash').html(flashContent);
 - else
   // At announcement's show view only the button disappears

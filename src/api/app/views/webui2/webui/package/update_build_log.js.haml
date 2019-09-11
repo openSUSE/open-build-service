@@ -1,5 +1,5 @@
 - if @errors
-  $('#flash').html("#{escape_javascript(render(partial: 'layouts/webui2/flash', locals: { flash: { error: @errors } }))}");
+  $('#flash').html("#{escape_javascript(render(partial: 'layouts/webui/flash', locals: { flash: { error: @errors } }))}");
   $("html, body").scrollTop(0);
   liveLog.finish("#{@status}");
 - else
