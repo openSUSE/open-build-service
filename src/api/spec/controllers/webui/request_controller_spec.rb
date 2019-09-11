@@ -236,8 +236,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       let(:params_hash) do
         {
           comment: 'yeah',
-          request_number: request_with_review.number,
-          by_user: reviewer
+          review_id: request_with_review.reviews.first
         }
       end
       let(:expected_state) { new_state == 'Approve' ? :accepted : :declined }
@@ -266,8 +265,7 @@ RSpec.describe Webui::RequestController, vcr: true do
     context 'with invalid parameters' do
       it 'without request' do
         post :modify_review, params: { comment: 'yeah',
-                                       request_number: 1899,
-                                       by_user: reviewer,
+                                       review_id: 1899,
                                        new_state: 'Approve' }
         expect(flash[:error]).to eq('Unable to load request')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
@@ -276,19 +274,18 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       it 'without state' do
         post :modify_review, params: { comment: 'yeah',
-                                       request_number: request_with_review.number,
-                                       by_user: reviewer }
+                                       review_id: request_with_review.reviews.first }
         expect(flash[:error]).to eq('Unknown state to set')
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
 
       it 'without permissions' do
+        login(submitter)
         post :modify_review, params: { comment: 'yeah',
-                                       request_number: request_with_review.number,
-                                       by_user: submitter,
+                                       review_id: request_with_review.reviews.first,
                                        new_state: 'Approve' }
-        expect(flash[:error]).to eq("Not permitted to change review state: review state change is not permitted for #{reviewer.login}")
+        expect(flash[:error]).to eq("Not permitted to change review state: review state change is not permitted for #{submitter.login}")
         expect(request_with_review.reload.reviews.last.state).to eq(:new)
         expect(request_with_review.reload.state).to eq(:review)
       end
@@ -296,8 +293,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       it 'with invalid transition' do
         request_with_review.update_attributes(state: 'declined')
         post :modify_review, params: { comment: 'yeah',
-                                       request_number: request_with_review.number,
-                                       by_user: reviewer,
+                                       review_id: request_with_review.reviews.first,
                                        new_state: 'Approve' }
         expect(flash[:error]).to eq('Not permitted to change review state: The request is neither in state review nor new')
         expect(request_with_review.reload.state).to eq(:declined)
