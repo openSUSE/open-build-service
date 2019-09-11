@@ -186,13 +186,7 @@ OBSApi::Application.routes.draw do
       post 'project/create_image_repository' => :create_image_repository
 
       # Flags
-      post 'flag/change/:project(/:package)' => :change_flag, constraints: cons, as: 'change_repository_flag'
-      # TODO: bento_only
-      put 'flag/:project(/:package)' => :toggle_flag, constraints: cons, as: 'toggle_repository_flag'
-      # TODO: bento_only
-      post 'flag/:project(/:package)' => :create_flag, constraints: cons, as: 'create_repository_flag'
-      # TODO: bento_only
-      delete 'flag/:project(/:package)/:flag' => :remove_flag, constraints: cons, as: 'remove_repository_flag'
+      post 'flag/:project(/:package)' => :change_flag, constraints: cons, as: 'change_repository_flag'
     end
 
     controller 'webui/kiwi/images' do

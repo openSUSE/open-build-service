@@ -1,5 +1,6 @@
 module GetFlags
   # TODO: used by bento. Remove when dropping old UI.
+  # The unit tests need to be adapted since they depend on this
   # Returns a hash of arrays, sorted by repository.
   # The arrays contain Flag objects of type, sorted by architecture.
   # Like:
