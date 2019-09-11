@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_MaintainedProjects', type: :feature, js: true, vcr: true do
+RSpec.feature 'MaintainedProjects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user) }
   let(:openSUSE_project) { create(:project, name: 'openSUSE') }
   let(:openSUSE_project_update) { create(:project, name: 'openSUSE_Update') }

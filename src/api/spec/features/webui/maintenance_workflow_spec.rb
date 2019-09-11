@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_MaintenanceWorkflow', type: :feature, js: true, vcr: true do
+RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:maintenance_coord_user) { create(:confirmed_user, :with_home, login: 'maintenance_coord') }
