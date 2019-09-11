@@ -9,6 +9,5 @@ class Webui::Users::AnnouncementsController < Webui::WebuiController
     else
       flash.now[:error] = "Couldn't find Announcement"
     end
-    switch_to_webui2
   end
 end
