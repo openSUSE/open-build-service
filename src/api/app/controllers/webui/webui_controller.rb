@@ -4,7 +4,7 @@
 require_dependency 'authenticator'
 
 class Webui::WebuiController < ActionController::Base
-  layout :choose_layout
+  layout 'webui/webui'
 
   helper_method :valid_xml_id
 
@@ -310,25 +310,17 @@ class Webui::WebuiController < ActionController::Base
     render partial: 'dialog', content_type: 'application/javascript'
   end
 
+  # TODO: disable bootstrap flip in production after migrating all the controllers
   def switch_to_webui2?
-    if Rails.env.test?
-      # In test environment we want to enable the
-      # bootstrap theme independent from the user
-      # The feature switch depends on the user (e.g. Admin or Staff)
-      ENV['BOOTSTRAP'].present?
-    else
-      Flipper.enabled?(:bootstrap, User.possibly_nobody)
-    end
+    true
   end
 
-  def choose_layout
-    @switch_to_webui2 ? 'webui2/webui' : 'webui/webui'
-  end
-
+  # TODO: remove and replace where used after migrating all the controllers
   def ui_namespace
     switch_to_webui2? ? 'webui2' : 'webui'
   end
 
+  # TODO: remove after migrating all the controller
   def switch_to_webui2
     if switch_to_webui2?
       @switch_to_webui2 = true
