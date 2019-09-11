@@ -3,11 +3,9 @@ module Webui
     module Ec2
       class ConfigurationsController < WebuiController
         before_action :require_login
-        before_action :set_breadcrumb
 
         def show
           switch_to_webui2
-          @crumb_list << 'EC2'
           @ec2_configuration = User.session!.ec2_configuration || User.session!.create_ec2_configuration
           @aws_account_id = CONFIG['aws_account_id']
         end
@@ -24,13 +22,6 @@ module Webui
         end
 
         private
-
-        def set_breadcrumb
-          @crumb_list = [
-            WebuiController.helpers.link_to('Cloud Upload', cloud_upload_index_path),
-            WebuiController.helpers.link_to('Configuration', cloud_configuration_index_path)
-          ]
-        end
 
         def permitted_params
           params.require(:ec2_configuration).permit(:id, :arn)
