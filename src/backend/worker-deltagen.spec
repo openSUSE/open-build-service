@@ -14,7 +14,7 @@ mkdir -p "$odir"
 
 # check if makedeltarpm supports the '-m' option
 mopt=
-if test -n "@mopt@" ; them
+if test -n "@mopt@" ; then
 case `makedeltarpm -m @mopt@ /dev/null /dev/null /dev/null 2>&1` in
   *invalid\ option*) ;;
   *) mopt="-m @mopt@" ;;
