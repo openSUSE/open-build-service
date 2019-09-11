@@ -315,11 +315,6 @@ class Webui::WebuiController < ActionController::Base
     true
   end
 
-  # TODO: remove and replace where used after migrating all the controllers
-  def ui_namespace
-    switch_to_webui2? ? 'webui2' : 'webui'
-  end
-
   # TODO: remove after migrating all the controller
   def switch_to_webui2
     if switch_to_webui2?

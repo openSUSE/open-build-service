@@ -24,7 +24,7 @@ module Webui
                    400
                  end
         switch_to_webui2
-        render layout: false, status: status, partial: "layouts/#{ui_namespace}/flash", object: flash
+        render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
     end
   end
