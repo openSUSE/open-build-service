@@ -1,6 +1,6 @@
 class Webui::UsersController < Webui::WebuiController
-  before_action :require_login, only: [:index]
-  before_action :require_admin, only: [:index]
+  before_action :require_login, only: [:index, :destroy]
+  before_action :require_admin, only: [:index, :destroy]
   before_action :get_displayed_user, only: [:show]
 
   def index
@@ -59,6 +59,16 @@ class Webui::UsersController < Webui::WebuiController
     @pagetitle = params[:pagetitle] || 'Sign up'
     @submit_btn_text = params[:submit_btn_text] || 'Sign up'
     switch_to_webui2
+  end
+
+  def destroy
+    user = User.find_by(login: params[:user])
+    if user.delete
+      flash[:success] = "Marked user '#{user}' as deleted."
+    else
+      flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
+    end
+    redirect_to(users_path)
   end
 
   private

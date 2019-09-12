@@ -377,7 +377,6 @@ OBSApi::Application.routes.draw do
       get 'user/password_dialog' => :password_dialog
 
       patch 'user' => :update, as: 'user_update'
-      delete 'user' => :delete, as: 'user_delete'
 
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
       get 'user/tokens' => :tokens
@@ -395,7 +394,8 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, only: [:index, :new, :create, :show], controller: 'webui/users', param: :user
+    resources :users, only: [:index, :new, :create, :show, :destroy], controller: 'webui/users',
+                      param: :user
 
     get 'signup', to: 'webui/users#new', as: :signup
 

@@ -62,16 +62,6 @@ class Webui::UserController < Webui::WebuiController
     redirect_back(fallback_location: user_path(other_user))
   end
 
-  def delete
-    other_user = User.find_by(login: user_params[:login])
-    if other_user.delete
-      flash[:success] = "Marked user '#{other_user}' as deleted."
-    else
-      flash[:error] = "Marking user '#{other_user}' as deleted failed: #{other_user.errors.full_messages.to_sentence}"
-    end
-    redirect_to(users_path)
-  end
-
   def save_dialog
     render_dialog
   end

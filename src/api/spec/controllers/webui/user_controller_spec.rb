@@ -245,40 +245,6 @@ RSpec.describe Webui::UserController do
     end
   end
 
-  describe 'DELETE #delete' do
-    context 'called by an admin user' do
-      before do
-        login(admin_user)
-      end
-
-      it "changes the state to 'deleted'" do
-        delete :delete, params: { user: { login: user.login } }
-        expect(user.reload.state).to eq('deleted')
-      end
-
-      it 'handles validation errors' do
-        user.update_attributes(email: 'invalid')
-        user.save!(validate: false)
-        delete :delete, params: { user: { login: user.login } }
-        expect(user.reload.state).to eq('confirmed')
-        expect(flash[:error]).to eq("Marking user '#{user.login}' as deleted failed: Email must be a valid email address")
-      end
-    end
-
-    context 'called by a user that is not admin' do
-      let(:non_admin_user) { create(:confirmed_user) }
-
-      before do
-        login(non_admin_user)
-      end
-
-      it "does not changes the state to 'deleted'" do
-        delete :delete, params: { user: { login: user.login } }
-        expect(user.reload.state).to eq('confirmed')
-      end
-    end
-  end
-
   describe 'GET #save_dialog' do
     skip
   end
