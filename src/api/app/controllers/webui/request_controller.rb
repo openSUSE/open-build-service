@@ -11,11 +11,6 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :check_ajax, only: :sourcediff
 
-  def add_reviewer_dialog
-    @request_number = params[:number]
-    render_dialog('requestAddReviewAutocomplete')
-  end
-
   def add_reviewer
     begin
       opts = {}

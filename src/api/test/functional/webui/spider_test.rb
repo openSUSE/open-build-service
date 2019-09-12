@@ -56,7 +56,6 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/source/}
-    return if url.end_with?('/request/add_reviewer_dialog?number=10')
 
     warn "Found #{message} on #{url}, crawling path"
     indent = ' '
