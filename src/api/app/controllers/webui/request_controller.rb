@@ -149,12 +149,6 @@ class Webui::RequestController < Webui::WebuiController
     render partial: 'requests_small', locals: { requests: requests }
   end
 
-  def delete_request_dialog
-    @project = params[:project]
-    @package = params[:package] if params[:package]
-    render_dialog
-  end
-
   def delete_request
     request = nil
     begin
