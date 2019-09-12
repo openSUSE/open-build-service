@@ -235,10 +235,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request.number)
   end
 
-  def set_incident_dialog
-    render_dialog
-  end
-
   def set_incident
     request = BsRequest.find_by_number(params[:number])
     if request.nil?
