@@ -361,9 +361,9 @@ mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
 # Link the assets without hash to make them accessible for third party tools like the pattern library
-pushd $RPM_BUILD_ROOT/srv/www/obs/api/public/assets/webui2/
+pushd $RPM_BUILD_ROOT/srv/www/obs/api/public/assets/webui/
 ln -sf application-*.js application.js
-ln -sf webui2-*.css webui2.css
+ln -sf application-*.css application.css
 popd
 
 %check
