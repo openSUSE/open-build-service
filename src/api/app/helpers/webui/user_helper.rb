@@ -8,7 +8,7 @@ module Webui::UserHelper
         mail_to(user.email) do
           content_tag(:i, nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
         end,
-        link_to(user_delete_path(user: { login: user.login }), method: :delete, data: { confirm: 'Are you sure?' }) do
+        link_to(user_path(user.login), method: :delete, data: { confirm: 'Are you sure?' }) do
           content_tag(:i, nil, class: 'fas fa-times-circle text-danger pr-1', title: 'Delete User')
         end
       ]
