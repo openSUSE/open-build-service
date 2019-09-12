@@ -169,12 +169,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request.number)
   end
 
-  def add_role_request_dialog
-    @project = params[:project]
-    @package = params[:package] if params[:package]
-    render_dialog
-  end
-
   def add_role_request
     request = nil
     begin
