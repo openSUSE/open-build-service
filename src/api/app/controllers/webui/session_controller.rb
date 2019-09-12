@@ -1,6 +1,10 @@
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 
+  before_action :session_creator, only: [:create]
+  before_action :authenticate, only: [:create]
+  before_action :check_user_active, only: [:create]
+
   skip_before_action :check_anonymous, only: [:create]
 
   def new
@@ -8,39 +12,36 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def create
-    user = User.find_with_credentials(params[:username], params[:password])
-
-    unless user
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
-      redirect_to(new_session_path, error: 'Authentication failed')
-      return
-    end
-
-    unless user.is_active?
-      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
-      redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
-      return
-    end
-
-    User.session = user
-    session[:login] = user.login
-    Rails.logger.debug "Authenticated as user '#{user.login}'"
-    RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
-
+    User.session = @session_creator.user
+    session[:login] = @session_creator.user.login
+    send_login_information_rabbitmq(:success)
     redirect_on_login
   end
 
   def destroy
-    Rails.logger.info "Logging out: #{session[:login]}"
-
     reset_session
-    RabbitmqBus.send_to_bus('metrics', 'logout,access_point=webui value=1')
+    send_login_information_rabbitmq(:logout)
     User.session = nil
-
     redirect_on_logout
   end
 
   private
+
+  def session_creator
+    @session_creator = SessionControllerService::SessionCreator.new(params.slice(:username, :password))
+  end
+
+  def check_user_active
+    return true if @session_creator.user.is_active?
+    send_login_information_rabbitmq(:disabled)
+    redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
+  end
+
+  def authenticate
+    return true if @session_creator.valid? && @session_creator.exist?
+    send_login_information_rabbitmq(:unauthenticated)
+    redirect_to(new_session_path, error: 'Authentication failed')
+  end
 
   def redirect_on_login
     if referer_was_login?
