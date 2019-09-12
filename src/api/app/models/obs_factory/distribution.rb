@@ -202,6 +202,7 @@ module ObsFactory
           when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new(staging_manager: 'factory-staging')
           when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new(staging_manager: 'factory-staging')
           when /^SUSE:.*CASP\d*$/ then DistributionStrategyFactory.new(staging_manager: 'caasp-staging-managers')
+          when /^SUSE:.*Cloud\d*$/ then DistributionStrategyFactory.new(staging_manager: 'cloud-staging-managers')
           when /^SUSE:SLE-.*:GA/ then DistributionStrategyFactory.new(staging_manager: 'sle-staging-managers')
           else raise UnknownDistribution
       end
