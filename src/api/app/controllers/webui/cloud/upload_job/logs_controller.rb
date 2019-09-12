@@ -3,7 +3,7 @@ module Webui
     module UploadJob
       class LogsController < WebuiController
         before_action :require_login
-        before_action :validate_configuration_presence, :set_breadcrump, :set_log
+        before_action :validate_configuration_presence, :set_log
 
         def show
           authorize @upload_job, :show?
@@ -18,10 +18,6 @@ module Webui
           return if @upload_job.present?
           flash[:error] = "No log file found for #{params[:upload_id]} found."
           redirect_to cloud_upload_index_path
-        end
-
-        def set_breadcrump
-          @crumb_list = ['Cloud Upload', 'Log']
         end
 
         def validate_configuration_presence
