@@ -7,8 +7,6 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :require_request, only: [:changerequest, :show]
 
-  before_action :set_project, only: [:change_devel_request_dialog]
-
   before_action :set_superseded_request, only: :show
 
   before_action :check_ajax, only: :sourcediff
@@ -21,18 +19,14 @@ class Webui::RequestController < Webui::WebuiController
   def add_reviewer
     begin
       opts = {}
-      # bento_only
-      # user, group, project, package are bento only
-      # and should be removed as soon the Bootstrap
-      # migration is finished
       case params[:review_type]
-      when 'review-user', 'user'
+      when 'review-user'
         opts[:by_user] = params[:review_user]
-      when 'review-group', 'group'
+      when 'review-group'
         opts[:by_group] = params[:review_group]
-      when 'review-project', 'project'
+      when 'review-project'
         opts[:by_project] = params[:review_project]
-      when 'review-package', 'package'
+      when 'review-package'
         opts[:by_project] = params[:review_project]
         opts[:by_package] = params[:review_package]
       end
@@ -49,12 +43,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def modify_review_set_request
-    review_params = params.slice(:comment, :by_user, :by_group, :by_project, :by_package, :review_id)
-    unless review_params[:review_id]
-      # TODO: bento_only
-      # bootstrap passes only review_id - the others can go once bento is dropped
-      return review_params, BsRequest.find_by_number(params[:request_number])
-    end
+    review_params = params.slice(:comment, :review_id)
     review = Review.find_by(id: review_params[:review_id])
     unless review
       flash[:error] = 'Unable to load review'
@@ -211,11 +200,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
-  # TODO: bento_only
-  def set_bugowner_request_dialog
-    render_dialog
-  end
-
   def set_bugowner_request
     required_parameters :project
     request = nil
@@ -229,17 +213,6 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
     redirect_to controller: :request, action: :show, number: request.number
-  end
-
-  # TODO: bento_only
-  def change_devel_request_dialog
-    @package = Package.find_by_project_and_name(params[:project], params[:package])
-    if @package.develpackage
-      @current_devel_package = @package.develpackage.name
-      @current_devel_project = @package.develpackage.project.name
-    end
-
-    render_dialog
   end
 
   def change_devel_request
