@@ -5,8 +5,8 @@
         .modal-header
           %h5.modal-title Add Repository to #{project}
         .modal-body.repository-autocomplete
-          = render partial: 'webui/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
-                                                            data: { source: autocomplete_projects_path } }
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'target_project', label: '<strong>Project:</strong>'.html_safe,
+                                                                   data: { source: autocomplete_projects_path } }
 
           .form-group
             = label_tag :repositories do
@@ -28,4 +28,4 @@
                 = label_tag :architecture, architecture.name, class: 'custom-control-label', for: "architecture_#{architecture.name}"
 
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons'
+          = render partial: 'webui/shared/dialog_action_buttons'
