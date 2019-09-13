@@ -69,10 +69,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     </issue-tracker>
     EOF
     login_adrian
-    put '/issue_trackers/test', params: issue_tracker_xml
+    raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response 403
     login_king
-    put '/issue_trackers/test', params: issue_tracker_xml
+    raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response :success
     get '/issue_trackers/test'
     assert_response :success

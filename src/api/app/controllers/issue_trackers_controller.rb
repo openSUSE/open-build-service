@@ -37,22 +37,17 @@ class IssueTrackersController < ApplicationController
   # POST /issue_trackers.json
   # POST /issue_trackers.xml
   def create
-    begin
-      @issue_tracker = IssueTracker.new(params)
-    rescue
-      # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
-      xml = Nokogiri::XML(request.raw_post, &:strict).root
-      @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
-                                           kind: xml.xpath('kind[1]/text()').to_s,
-                                           description: xml.xpath('description[1]/text()').to_s,
-                                           regex: xml.xpath('regex[1]/text()').to_s,
-                                           label: xml.xpath('label[1]/text()').to_s,
-                                           url: xml.xpath('url[1]/text()').to_s,
-                                           enable_fetch: xml.xpath('enable-fetch[1]/text()').to_s,
-                                           issues_updated: Time.now,
-                                           show_url: xml.xpath('show-url[1]/text()').to_s)
-    end
-
+    # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
+    xml = Nokogiri::XML(request.raw_post, &:strict).root
+    @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
+                                         kind: xml.xpath('kind[1]/text()').to_s,
+                                         description: xml.xpath('description[1]/text()').to_s,
+                                         regex: xml.xpath('regex[1]/text()').to_s,
+                                         label: xml.xpath('label[1]/text()').to_s,
+                                         url: xml.xpath('url[1]/text()').to_s,
+                                         enable_fetch: xml.xpath('enable-fetch[1]/text()').to_s,
+                                         issues_updated: Time.now,
+                                         show_url: xml.xpath('show-url[1]/text()').to_s)
     respond_to do |format|
       if @issue_tracker
         format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
@@ -68,37 +63,28 @@ class IssueTrackersController < ApplicationController
   # PUT /issue_trackers/bnc.json
   # PUT /issue_trackers/bnc.xml
   def update
-    @issue_tracker = IssueTracker.find_by_name(params[:id])
-    unless @issue_tracker
-      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
-    end
-
     respond_to do |format|
-      begin
-        ret = @issue_tracker.update_attributes(request.request_parameters)
-      rescue ActiveRecord::UnknownAttributeError, ActiveModel::MassAssignmentSecurity::Error
-        # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
-        xml = Nokogiri::XML(request.raw_post, &:strict).root
-        attribs = {}
-        attribs[:name] = xml.xpath('name[1]/text()').to_s unless xml.xpath('name[1]/text()').empty?
-        attribs[:kind] = xml.xpath('kind[1]/text()').to_s unless xml.xpath('kind[1]/text()').empty?
-        attribs[:description] = xml.xpath('description[1]/text()').to_s unless xml.xpath('description[1]/text()').empty?
-        attribs[:user] = xml.xpath('user[1]/text()').to_s unless xml.xpath('user[1]/text()').empty?
-        attribs[:password] = xml.xpath('password[1]/text()').to_s unless xml.xpath('password[1]/text()').empty?
-        attribs[:regex] = xml.xpath('regex[1]/text()').to_s unless xml.xpath('regex[1]/text()').empty?
-        attribs[:url] = xml.xpath('url[1]/text()').to_s unless xml.xpath('url[1]/text()').empty?
-        attribs[:label] = xml.xpath('label[1]/text()').to_s unless xml.xpath('label[1]/text()').empty?
-        attribs[:enable_fetch] = xml.xpath('enable-fetch[1]/text()').to_s unless xml.xpath('enable-fetch[1]/text()').empty?
-        attribs[:show_url] = xml.xpath('show-url[1]/text()').to_s unless xml.xpath('show-url[1]/text()').empty?
-        ret = @issue_tracker.update_attributes(attribs)
-      end
-      if ret
-        format.xml  { head :ok }
-        format.json { head :ok }
+      xml = Nokogiri::XML(request.raw_post, &:strict).root
+      attribs = {}
+      attribs[:name] = xml.xpath('name[1]/text()').to_s unless xml.xpath('name[1]/text()').empty?
+      attribs[:kind] = xml.xpath('kind[1]/text()').to_s unless xml.xpath('kind[1]/text()').empty?
+      attribs[:description] = xml.xpath('description[1]/text()').to_s unless xml.xpath('description[1]/text()').empty?
+      attribs[:user] = xml.xpath('user[1]/text()').to_s unless xml.xpath('user[1]/text()').empty?
+      attribs[:password] = xml.xpath('password[1]/text()').to_s unless xml.xpath('password[1]/text()').empty?
+      attribs[:regex] = xml.xpath('regex[1]/text()').to_s unless xml.xpath('regex[1]/text()').empty?
+      attribs[:url] = xml.xpath('url[1]/text()').to_s unless xml.xpath('url[1]/text()').empty?
+      attribs[:label] = xml.xpath('label[1]/text()').to_s unless xml.xpath('label[1]/text()').empty?
+      attribs[:enable_fetch] = xml.xpath('enable-fetch[1]/text()').to_s unless xml.xpath('enable-fetch[1]/text()').empty?
+      attribs[:show_url] = xml.xpath('show-url[1]/text()').to_s unless xml.xpath('show-url[1]/text()').empty?
+
+      issue_tracker = IssueTracker.find_by_name(params[:id])
+      if issue_tracker
+        issue_tracker.update_attributes(attribs)
       else
-        format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
-        format.json { render json: @issue_tracker.errors, status: :unprocessable_entity }
+        IssueTracker.create(attribs)
       end
+      format.xml { head :ok }
+      format.json { head :ok }
     end
   end
 
