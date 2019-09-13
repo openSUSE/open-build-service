@@ -8,8 +8,8 @@
     = form_for(@patchinfo, url: update_patchinfo_path(project: @project, package: @package), method: :put, html: { id: 'patchinfo' }) do |form|
       = form.hidden_field(:name)
       .form-group.col-md-8.col-lg-4
-        = render partial: 'webui/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
-                                                          data: { source: autocomplete_users_path } }
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'patchinfo[packager]', label: 'Packager', value: @patchinfo.packager,
+                                                                 data: { source: autocomplete_users_path } }
       .form-group.col-md-6
         = form.label(:summary) do
           Summary

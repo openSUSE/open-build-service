@@ -10,11 +10,11 @@
             = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'custom-select')
 
           .hideable.review-user
-            = render partial: 'webui/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,
-                                                              data: { source: autocomplete_users_path } }
+            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,
+                                                                     data: { source: autocomplete_users_path } }
           .hideable.review-group.d-none
-            = render partial: 'webui/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
-                                                              data: { source: autocomplete_groups_path } }
+            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
+                                                                     data: { source: autocomplete_groups_path } }
           .form-group
             For:
             - projects_and_packages.each do |project_and_package|
@@ -38,7 +38,7 @@
             ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)
 
         .modal-footer
-          = render partial: 'webui2/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }
 
 - content_for :ready_function do
   requestAddReviewAutocomplete();

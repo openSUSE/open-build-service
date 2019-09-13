@@ -43,6 +43,6 @@
               %p.lead
                 No source changes.
       .col-lg-4
-        = render partial: 'webui2/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_counter }
+        = render partial: 'webui/shared/buildresult_box', locals: { project: action[:sprj], package: action[:spkg], index: action_counter }
         - if sourcediff['issues'].present?
           = render partial: 'issues_table', locals: { issues: sourcediff['issues'] }
