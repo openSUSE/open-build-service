@@ -14,7 +14,7 @@ RSpec.describe Webui::Users::SubscriptionsController do
     it { is_expected.to use_before_action(:require_login) }
   end
 
-  describe 'PUT #index' do
+  describe 'PUT #update' do
     include_context 'a user and subscriptions with defaults'
 
     let(:params) { { subscriptions: subscription_params } }
