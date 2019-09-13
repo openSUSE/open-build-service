@@ -109,6 +109,10 @@ class HistoryElement::RequestReviewAdded < HistoryElement::Request
   def user_action
     'added review'
   end
+
+  def review
+    Review.find_by(id: description_extension)
+  end
 end
 
 class HistoryElement::RequestAllReviewsApproved < HistoryElement::Request

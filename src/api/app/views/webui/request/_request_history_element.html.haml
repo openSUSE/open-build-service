@@ -8,6 +8,9 @@
         = link_to(element.user_action, request_show_path(element.description_extension))
       - else
         = element.user_action
+      - if element.review
+        for
+        = render partial: 'webui/request/reviewer', locals: { review: element.review }
       = link_to("#status-history-#{element.id}", title: l(element.created_at.utc), name: "status-history-#{element.id}") do
         #{time_ago_in_words(element.created_at)} ago
 
