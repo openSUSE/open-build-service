@@ -415,7 +415,7 @@ GEM
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
     sysexits (1.2.0)
-    temple (0.8.1)
+    temple (0.8.2)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
     test-unit (3.3.3)
