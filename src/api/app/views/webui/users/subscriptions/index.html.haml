@@ -1,35 +1,41 @@
-- @layouttype = 'custom'
-- @pagetitle = "Notifications"
-- @crumb_list = [@pagetitle]
-.grid_16.alpha.omega.box.box-shadow
-  %h2= @pagetitle
+- @pagetitle = 'Notifications'
 
-  = form_tag(user_notifications_path, method: :put, id: 'notification_form') do
-    - unless @groups_users.empty?
-      %h3 Groups
-      %p.description You will receive emails from the checked groups
-      .box
-        .row
-          %ul
-            - @groups_users.each do |group_user|
-              %li
-                = check_box_tag group_user.group, '1', group_user.email
-                = label_tag group_user.group.title
-
-    %h3 Events
-    %p.description Choose from which events you want to get an email
+.card
+  .card-header.d-flex.justify-content-between
+    %h5 Notifications
+  - unless @groups_users.empty?
+    .card-body
+      %h4.card-title Groups
+      .card-text#notifications-groups
+        %p You will receive emails from the checked groups
+        - @groups_users.each do |group_user|
+          .custom-control.custom-checkbox.custom-control-inline
+            = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}",
+              data: { url: user_notifications_path, method: :put, remote: true }
+            = label_tag group_user.group.title, nil, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
+            %i.fas.fa-spinner.invisible
+  .card-body
+    %h4.card-title Events
+    %p Choose from which events you want to get an email
     #subscriptions-form
-      = render partial: 'webui/subscriptions/subscriptions_form'
-    %p
-      = submit_tag 'Update'
-      = link_to('Reset to default', user_notifications_path(default_form: true), remote: true)
-.grid_16.alpha.omega.box.box-shadow
-  %h2 RSS Feed
-  = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
-    %p
+      = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: user_notifications_path, subscriptions_form: @subscriptions_form }
+
+.card.mt-3
+  .card-body
+    %h4.card-title RSS Feed
+    = form_tag(user_rss_token_path, id: 'generate_rss_token_form', method: :post) do
+      %p
       - if @user.rss_token
         To access your RSS feeds, use the following url:
-        = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank')
+        = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'),
+        user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank', rel: 'noopener')
       - else
         No feed url exists for your notifications.
-    %p= submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}"
+      .card-body
+        = submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}", class: 'btn btn-primary'
+
+- content_for :ready_function do
+  :plain
+    $('#notifications-groups, #subscriptions-form').on('ajax:before ajax:complete', '.custom-control-input', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
+    });
