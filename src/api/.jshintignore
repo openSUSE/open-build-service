@@ -1,6 +1,6 @@
 app/assets/javascripts/webui/application/bento
 app/assets/javascripts/webui/application/cm2
-app/assets/javascripts/webui2/cm2
-app/assets/javascripts/webui2/*.min.js
-app/assets/javascripts/webui2/monitor.js
+app/assets/javascripts/webui/cm2
+app/assets/javascripts/webui/*.min.js
+app/assets/javascripts/webui/monitor.js
 app/assets/javascripts/webui/obs_factory

@@ -1,8 +1,6 @@
 module Webui
   module Staging
     class ExcludedRequestsController < WebuiController
-      layout 'webui2/webui'
-
       before_action :require_login, except: [:index]
       # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)
       before_action :set_webui2_views

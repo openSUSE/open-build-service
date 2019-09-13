@@ -21,8 +21,8 @@
       %meta{ property: 'errbit:key', content: CONFIG['errbit_javascript_api_key'] }
       %meta{ property: 'errbit:host', content: CONFIG['errbit_javascript_host'] }
 
-    = stylesheet_link_tag 'webui2/webui2'
-    = javascript_include_tag 'webui2/application'
+    = stylesheet_link_tag 'webui/application'
+    = javascript_include_tag 'webui/application'
 
     = yield :content_for_head
     - if content_for?(:head_style)
@@ -41,23 +41,23 @@
   %body.d-flex.flex-column
     = render 'peek/bar'
     #navigation
-      = render partial: 'layouts/webui2/navigation'
+      = render partial: 'layouts/webui/navigation'
     .w-100.m-2
     .container
       .row
         .col
-          = render partial: 'layouts/webui2/breadcrumbs'
+          = render partial: 'layouts/webui/breadcrumbs'
         .col-auto.ml-auto#personal-navigation
-          = render partial: 'layouts/webui2/personal_navigation'
+          = render partial: 'layouts/webui/personal_navigation'
 
     .container.sticky-top.flash-and-announcement.text-word-break-all
       - unless @hide_announcement_notification
-        #announcement= render partial: 'layouts/webui2/announcement', locals: { pending_announcement: @pending_announcement }
-      #flash= render partial: 'layouts/webui2/flash', object: flash
+        #announcement= render partial: 'layouts/webui/announcement', locals: { pending_announcement: @pending_announcement }
+      #flash= render partial: 'layouts/webui/flash', object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
 
     .container.flex-grow#content
       = yield
     .container-fluid.py-4.mt-4.bg-dark#footer
       .container
-        = render partial: 'layouts/webui2/footer'
+        = render partial: 'layouts/webui/footer'

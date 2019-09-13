@@ -8,10 +8,10 @@
  * You're free to add application-wide styles to this file and they'll appear at the top of the
  * compiled file, but it's generally better to create a new file per style scope.
  *
- *= require codemirror
- *= require peek
 */
 
+@import 'codemirror';
+@import 'peek';
 @import 'bootstrap_variables/breakpoints';
 @import 'bootstrap_variables/colors';
 @import 'bootstrap_variables/spacers';

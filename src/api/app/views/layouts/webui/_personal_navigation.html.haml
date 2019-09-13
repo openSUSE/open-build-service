@@ -1,56 +1,17 @@
-.grid_6.omega{ style: 'text-align: right' }
+%ul.nav.nav-pills.justify-content-end
   - if User.session
-    = link_to(home_path, id: 'link-to-user-home') do
-      = User.session!.login
-    |
-    - tasks = User.session!.tasks
-    = link_to(user_tasks_path) do
-      - if tasks > 0
-        %span{ title: 'where an action is requested from you' }
-          = pluralize(tasks, 'Task')
-      - else
-        Tasks
-    |
-    - if User.session!.home_project
-      = link_to 'Home Project', project_show_path(User.session!.home_project)
-    - else
-      = link_to 'Create Home', new_project_path(name: User.session!.home_project_name)
-    |
-    \#{link_to 'Logout', session_path, method: :delete, id: 'logout-link'}
+    = render partial: 'layouts/webui/logged_in_user_navigation'
   - elsif CONFIG['kerberos_mode']
     = link_to 'Log In', new_session_path
+  - elsif CONFIG['proxy_auth_mode'] == :on
+    = render partial: 'layouts/webui/login_form', locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
+                                                             form_url: CONFIG['proxy_auth_login_page'],
+                                                             options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
+                                                             proxy: true,
+                                                             can_signup: CONFIG['proxy_auth_register_page'].present? }
   - else
-    - if CONFIG['proxy_auth_mode'] == :on
-      - unless CONFIG['proxy_auth_register_page'].blank?
-        = link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22"
-        |
-      = link_to 'Log In', new_session_path, id: 'login-trigger'
-      #login-form
-        = form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do
-          %p
-            = hidden_field_tag(:context, 'default')
-            = hidden_field_tag(:proxypath, 'reserve')
-            = hidden_field_tag(:message, 'Please log in')
-            = hidden_field_tag(:url, request.fullpath)
-            = label_tag(:username, 'Username')
-            = text_field_tag(:username, '')
-          %p
-            = label_tag(:password, 'Password')
-            = password_field_tag(:password, '')
-          %p= submit_tag('Log In', onclick: 'fillEmptyFields();')
-          %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
-    - else
-      - if can_register
-        = link_to 'Sign Up', new_user_path
-        |
-      = link_to 'Log In', new_session_path, id: 'login-trigger'
-      #login-form
-        = form_tag(session_path, method: :post) do
-          %p
-            = label_tag(:username, 'Username')
-            = text_field_tag(:username, '')
-          %p
-            = label_tag(:password, 'Password')
-            = password_field_tag(:password, '')
-          %p= submit_tag('Log In')
-          %p.slim-footer= link_to('Cancel', '#', id: 'close-login')
+    = render partial: 'layouts/webui/login_form', locals: { signup_url: signup_path,
+                                                             form_url: session_path,
+                                                             options: { method: :post },
+                                                             proxy: false,
+                                                             can_signup: can_register }

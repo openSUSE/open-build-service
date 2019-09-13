@@ -1,6 +1,4 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
-  layout 'webui2/webui'
-
   before_action :require_login, except: [:show]
   before_action :set_webui2_views
   before_action :set_project, only: [:new, :create]

@@ -11,6 +11,6 @@
 // GO AFTER THE REQUIRES BELOW.
 //
 //= require codemirror
-//= require webui2/cm2/toolbars
-//= require webui2/cm2/mode/prjconf
-//= require webui2/cm2/use-codemirror
+//= require webui/cm2/toolbars
+//= require webui/cm2/mode/prjconf
+//= require webui/cm2/use-codemirror
