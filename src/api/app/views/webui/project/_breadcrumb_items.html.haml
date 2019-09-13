@@ -1,0 +1,34 @@
+= render partial: 'webui/main/breadcrumb_items'
+- if current_page?(projects_path) || current_page?(project_list_path) || current_page?(project_list_public_path)
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Projects
+- else
+  %li.breadcrumb-item
+    = link_to 'Projects', projects_path
+  - if current_page?(project_list_all_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      List of All Projects
+  - elsif current_page?(new_project_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      New
+  - else
+    %li.breadcrumb-item
+      = link_to @project, project_show_path(@project)
+    - if current_page?(project_show_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Overview
+    - elsif current_page?(project_monitor_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Monitor
+    - elsif current_page?(project_requests_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Requests
+    - elsif current_page?(project_users_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Users
+    - elsif current_page?(project_config_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Configuration
+    - elsif current_page?(project_status_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Status
