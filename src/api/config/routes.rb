@@ -371,10 +371,8 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/user' do
       post 'user/save' => :save, constraints: cons
-      get 'user/save_dialog' => :save_dialog
 
       post 'user/change_password' => :change_password
-      get 'user/password_dialog' => :password_dialog
 
       patch 'user' => :update, as: 'user_update'
 
