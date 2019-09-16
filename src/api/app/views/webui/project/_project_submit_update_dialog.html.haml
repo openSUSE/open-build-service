@@ -1,0 +1,24 @@
+.modal.fade#project-submit-update-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'project-submit-update-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#project-submit-update-modal-label Submit as Update
+      .modal-body
+        %p This will submit your project as a Maintenance Incident Request.
+
+        = form_tag(create_request_project_maintenance_incidents_path(project)) do
+          = hidden_field_tag(:project, project.name)
+
+          .form-group
+            = label_tag(:sourceproject, 'Project Submitted as Update:')
+            = text_field_tag(:sourceproject, project.name, disabled: true, class: 'form-control')
+          .form-group
+            = label_tag(:releasetarget, 'Release Targets:')
+            - release_targets.each do |release_target|
+              = text_field_tag(:releasetarget, release_target, disabled: true, class: 'form-control')
+          .form-group
+            = label_tag(:description, 'Description:')
+            = text_area_tag(:description, '', rows: 3, class: 'form-control')
+
+          .modal-footer
+            = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }

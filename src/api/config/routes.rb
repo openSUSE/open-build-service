@@ -246,17 +246,10 @@ OBSApi::Application.routes.draw do
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
-      get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons, as: 'project_new_package_branch'
-      get 'project/incident_request_dialog' => :incident_request_dialog
-      get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
-      get 'project/linking_projects/:project' => :linking_projects, constraints: cons, as: :linking_projects
-      get 'project/add_person/:project' => :add_person, constraints: cons
-      get 'project/add_group/:project' => :add_group, constraints: cons
       get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
-      get 'project/delete_dialog' => :delete_dialog
       get 'project/new' => :new, as: 'new_project'
       post 'project/create' => :create, constraints: cons, as: 'projects_create'
       post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
@@ -265,11 +258,9 @@ OBSApi::Application.routes.draw do
       get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
       post 'project/save_path_element' => :save_path_element
-      get 'project/remove_target_request_dialog' => :remove_target_request_dialog
       post 'project/remove_target_request' => :remove_target_request, as: 'project_remove_target_request'
       post 'project/remove_path_from_target' => :remove_path_from_target, as: 'remove_repository_path'
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
-      get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
       post 'project/move_path/:project' => :move_path, as: 'move_repository_path'
       post 'project/save_person/:project' => :save_person, constraints: cons, as: 'project_save_person'
       post 'project/save_group/:project' => :save_group, constraints: cons, as: 'project_save_group'
@@ -286,16 +277,10 @@ OBSApi::Application.routes.draw do
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
-      get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/:project' => :status, constraints: cons, as: 'project_status'
-      get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons, as: :project_maintained_projects
-      get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
-      post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
-      post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
       get 'project/list_incidents/:project' => :list_incidents, constraints: cons
-      get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
     end
 
@@ -328,11 +313,7 @@ OBSApi::Application.routes.draw do
         get :index, as: :projects, on: :collection
       end
 
-      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons do
-        member do
-          get 'key_dialog'
-        end
-      end
+      resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons

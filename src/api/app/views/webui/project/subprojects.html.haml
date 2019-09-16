@@ -1,59 +1,27 @@
-- @pagetitle = "Subprojects of #{@project}"
-- @metarobots = 'noindex'
-- project_bread_crumb 'Subprojects'
+:ruby
+  @pagetitle = "Subprojects of #{@project}"
 
-= render partial: "tabs"
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    .row
+      .col-md-12
+        - if @project.ancestors.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Parent Project', project: @project }
+    .row{ class: ('mt-3' if @project.ancestors.exists?) }
+      .col-md-12
+        - if @project.subprojects.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Subproject', project: @project }
+        - else
+          %p
+            %i This project has no subprojects
+        - if User.possibly_nobody.can_modify?(@project)
+          = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add New Subproject
+    .row.mt-3
+      .col-md-12
+        - if @project.siblingprojects.exists?
+          = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project }
 
-- if @parentprojects.present?
-  %h3 Parent projects of #{@project}
-  %table.compact.fit.stripe.no-footer#parentprojects-table
-    %thead
-      %tr
-        %th Parent project
-        %th Title
-    %tbody
-      - @parentprojects.each do |project|
-        %tr
-          %td.project_name= link_to(word_break(project.name), {action: 'show', project: project.name})
-          %td.project_title= word_break(project.title)
-
-%h3= @pagetitle
-- if @subprojects.present?
-  %table.compact.fit.stripe.no-footer#subprojects-table
-    %thead
-      %tr
-        %th Subproject
-        %th Title
-    %tbody
-      - @subprojects.each do |project|
-        %tr
-          %td.project_name= link_to(word_break(remove_parent_name(project.name, @project.name), 50), {action: 'show', project: project.name})
-          %td.project_title= word_break(project.title)
-- else
-  %p
-    %i This project has no subprojects
-
-- if @siblings.present?
-  %h3 Sibling projects of #{@project}
-  %table.compact.fit.stripe.no-footer#siblingprojects-table
-    %thead
-      %tr
-        %th Sibling project
-        %th Title
-    %tbody
-      - @siblings.each do |project|
-        %tr
-          %td.project_name= link_to(word_break(remove_parent_name(project.name, @parent_name), 50), {action: 'show', project: project.name})
-          %td.project_title= word_break(project.title)
-
-- if User.possibly_nobody.can_modify?(@project)
-  %p
-    = link_to(sprite_tag('brick_add', title: 'Add New Subproject') + ' Add New Subproject', '#', id: 'create_subproject_link')
-    .hidden#create-subproject
-      = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
-
-- if @subprojects.present? || @parentprojects.present?
-  - content_for :ready_function do
-    setupSubprojectsTables();
-- content_for :ready_function do
-  $("#create_subproject_link").click(function() { $('#create-subproject').show(); $('#create_subproject_link').hide() });
+= render partial: 'new_project_modal', locals: { project: @project, configuration: @configuration }

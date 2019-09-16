@@ -3,10 +3,6 @@ module Webui
     class PublicKeyController < WebuiController
       before_action :set_project
 
-      def key_dialog
-        render_dialog
-      end
-
       def show
         if @project.key_info.present?
           send_data(

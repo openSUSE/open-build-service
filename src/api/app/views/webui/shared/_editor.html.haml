@@ -48,7 +48,7 @@
             Save
 
 - unless style[:read_only]
-  = render partial: 'shared/editor_modal', locals: { uid: uid }
+  = render partial: 'webui/shared/editor_modal', locals: { uid: uid }
 
 - content_for :ready_function do
   use_codemirror(#{uid}, #{style[:read_only]}, '#{mode}', #{style[:big_editor]});

@@ -1,19 +1,45 @@
-- @pagetitle = "Pulse of #{@project}"
-- project_bread_crumb 'Pulse'
+- @pagetitle = "Pulse for #{@project}"
 
+.card
+  = render(partial: 'tabs', locals: { project: @project })
 
-= render partial: 'webui/project/tabs'
-%h3 Pulse of #{@project}
-- @pulse.includes(:bs_request).each do |log_entry|
-  %p
-    &bull;
-    = log_entry.event_type.camelcase.prepend('Event::').constantize.description
-    - if log_entry.package_name
-      (#{link_to(log_entry.package_name, package_show_path(@project.name, log_entry.package_name))})
-    - if log_entry.user_name
-      by #{link_to(log_entry.user_name, user_path(log_entry.user_name))}
-    - if log_entry.bs_request
-      via request #{link_to("##{log_entry.bs_request.number}", request_show_path(log_entry.bs_request.number))}
-    = fuzzy_time(log_entry.datetime)
+  .card-body
+    .row.mb-3
+      .col-sm-12.col-md-8
+        %h3#range-header
+          = pulse_period(@range)
+      .col
+        .dropdown.float-right
+          %button.btn.btn-secondary.dropdown-toggle#period-dropdown{ 'aria-expanded': 'false',
+                                                                     'aria-haspopup': 'true',
+                                                                     'data-toggle': 'dropdown',
+                                                                     type: 'button' }
+            Period: One
+            %span#range-text
+              = @range.capitalize
+          .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
+            %h6.dropdown-header
+              Period to display:
+            = link_to(project_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
+              One Week
+            = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
+              One Month
+    .row
+      .col.spinner
+        .row
+          .col.text-center
+            %i.fas.fa-spinner.fa-spin.fa-3x
+      .col.d-none#pulse
 
-= paginate @pulse
+:javascript
+  $.ajax({
+    url: "#{project_pulse_path(@project, range: @range)}",
+    type: "get",
+    dataType: 'script'
+  });
+
+  $(".dropdown-item").click(function() {
+    $('#pulse, .col.spinner').toggleClass('d-none');
+    // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
+    $('#period-dropdown').dropdown('toggle')
+  });

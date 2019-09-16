@@ -13,49 +13,54 @@
       %p
         %i No build result available
   - else
-    %table.repostatus
-      - buildresults.each do |repository, builds|
-        - builds.sort_by(&:architecture).each_with_index do |build, index|
-          %tr
-            - if index.zero?
-              %td.repo{ rowspan: builds.length }
-                = link_to(word_break(repository, 12),
-                  { action: :state,
-                    project: project.name,
-                    repository: repository,
-                    controller: :repositories },
-                  { title: "Repository #{repository}" })
+    - buildresults.each do |repository, build_results|
+      - repository_name = repository.tr('.', '_')
+      - expanded = collapsed_repositories['project'] ? collapsed_repositories['project'].exclude?(repository_name) : true
+      .d-flex.flex-column
+        .d-flex.flex-row.py-1.bg-light.pl-3
+          = link_to(word_break(repository, 12),
+            project_repository_state_path(project: project.name, repository: repository),
+            title: "Repository #{repository}")
+          = link_to('#', aria: { controls: "collapse-project-#{repository_name}", expanded: expanded }, class: 'ml-1',
+                    data: { toggle: 'collapse' }, href: ".collapse-project-#{repository_name}", role: 'button') do
+            %i.fas.fa-chevron-left.expander{ title: 'Show build results for this repository' }
+            %i.fas.fa-chevron-down.collapser{ title: 'Hide build results for this repository' }
 
-            %td.arch{ title: "#{repository} summary" }
-              = repo_status_icon(build.state, build.details)
-              = link_to(build.architecture, { action: :monitor,
-                                              "#{valid_xml_id('repo_' + repository)}": 1,
-                                              "arch_#{build.architecture}": 1,
-                                              project: project.name,
-                                              succeeded: 1,
-                                              failed: 1,
-                                              unresolvable: 1,
-                                              broken: 1,
-                                              blocked: 1,
-                                              dispatching: 1,
-                                              scheduled: 1,
-                                              building: 1,
-                                              finished: 1,
-                                              signing: 1,
-                                              locked: 1,
-                                              deleting: 1,
-                                              defaults: 0 }, rel: 'nofollow', class: 'nowrap')
+        .collapse{ class: "collapse-project-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
+          - build_results.sort_by(&:architecture).each do |build_result|
+            .row.py-1
+              .col-4.col-sm-3.offset-1.offset-sm-2.text-nowrap{ title: "#{repository} summary" }
+                = repository_status_icon(status: build_result.state, details: build_result.details)
+                %span.ml-1
+                  = link_to(build_result.architecture, { action: :monitor,
+                                                  "#{valid_xml_id('repo_' + repository)}": 1,
+                                                  "arch_#{build_result.architecture}": 1,
+                                                  project: project.name,
+                                                  succeeded: 1,
+                                                  failed: 1,
+                                                  unresolvable: 1,
+                                                  broken: 1,
+                                                  blocked: 1,
+                                                  dispatching: 1,
+                                                  scheduled: 1,
+                                                  building: 1,
+                                                  finished: 1,
+                                                  signing: 1,
+                                                  locked: 1,
+                                                  deleting: 1,
+                                                  defaults: 0 }, rel: 'nofollow', class: 'nowrap')
 
-            %td.nowrap{ style: "width: 1%" }
-              - build.summary.each do |status_count|
-                %span{ class: "status_#{status_count.code.to_s.gsub(/[- ]/, '_')}" }
-                  = link_to("#{status_count.code}: #{status_count.count}",
-                    { action: :monitor,
-                      "#{valid_xml_id('repo_' + repository)}": 1,
-                      "arch_#{build.architecture}": 1,
-                      project: params[:project],
-                      "#{status_count.code}": 1,
-                      defaults: 0 }, rel: 'nofollow', class: 'nowrap')
+              .col-6.col-sm-5.text-nowrap
+                .d-flex.flex-column
+                  - build_result.summary.each do |status_count|
+                    %div
+                      %i.fa.fa-question-circle.text-info{ data: { content: Buildresult.status_description(status_count.code),
+                        placement: 'top', toggle: 'popover' } }
+                      = link_to("#{status_count.code}: #{status_count.count}",
+                        { action: :monitor,
+                          "#{valid_xml_id('repo_' + repository)}": 1,
+                          "arch_#{build_result.architecture}": 1,
+                          project: params[:project],
+                          "#{status_count.code}": 1,
+                          defaults: 0 }, rel: 'nofollow', class: "nowrap build-state-#{status_count.code}")
 
-                  = sprite_tag('help', title: Buildresult.status_description(status_count.code))
-                %br
