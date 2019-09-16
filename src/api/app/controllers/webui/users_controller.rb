@@ -1,7 +1,7 @@
 class Webui::UsersController < Webui::WebuiController
-  before_action :require_login, only: [:index, :destroy]
-  before_action :require_admin, only: [:index, :destroy]
-  before_action :get_displayed_user, only: [:show]
+  before_action :require_login, only: [:index, :edit, :destroy]
+  before_action :require_admin, only: [:index, :edit, :destroy]
+  before_action :get_displayed_user, only: [:show, :edit]
 
   def index
     respond_to do |format|
@@ -31,6 +31,12 @@ class Webui::UsersController < Webui::WebuiController
     @activity_hash = User::Contributions.new(@displayed_user, @first_day).activity_hash
   end
 
+  def new
+    @pagetitle = params[:pagetitle] || 'Sign up'
+    @submit_btn_text = params[:submit_btn_text] || 'Sign up'
+    switch_to_webui2
+  end
+
   def create
     begin
       UnregisteredUser.register(opts)
@@ -55,9 +61,7 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
-  def new
-    @pagetitle = params[:pagetitle] || 'Sign up'
-    @submit_btn_text = params[:submit_btn_text] || 'Sign up'
+  def edit
     switch_to_webui2
   end
 

@@ -9,3 +9,10 @@
   - when 'show'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Home of #{@displayed_user}
+  - when 'edit'
+    %li.breadcrumb-item
+      = link_to('Configuration', configuration_path)
+    %li.breadcrumb-item
+      = link_to('Manage Users', users_path)
+    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+      = @displayed_user

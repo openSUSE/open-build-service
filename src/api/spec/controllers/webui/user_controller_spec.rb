@@ -10,15 +10,6 @@ RSpec.describe Webui::UserController do
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_admin) }
 
-  describe 'GET #user_edit' do
-    before do
-      login admin_user
-      get :edit, params: { user: user }
-    end
-
-    it { is_expected.to render_template('webui/user/edit') }
-  end
-
   describe 'GET #home' do
     skip
   end

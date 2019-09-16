@@ -1,7 +1,7 @@
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:edit, :list_my]
-  before_action :require_login, only: [:edit, :save, :update, :delete]
-  before_action :require_admin, only: [:edit, :update, :delete]
+  before_action :check_display_user, only: [:list_my]
+  before_action :require_login, only: [:save, :update]
+  before_action :require_admin, only: [:update]
 
   def home
     if params[:user].present?
@@ -40,10 +40,6 @@ class Webui::UserController < Webui::WebuiController
     end
 
     redirect_back(fallback_location: user_path(@displayed_user))
-  end
-
-  def edit
-    switch_to_webui2
   end
 
   def update

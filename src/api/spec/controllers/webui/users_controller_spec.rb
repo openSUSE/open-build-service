@@ -27,6 +27,15 @@ RSpec.describe Webui::UsersController do
     end
   end
 
+  describe 'GET #edit' do
+    before do
+      login admin_user
+      get :edit, params: { user: user }
+    end
+
+    it { expect(response).to have_http_status(:ok) }
+  end
+
   describe 'GET #show' do
     shared_examples 'a non existent account' do
       before do
