@@ -62,14 +62,6 @@ class Webui::UserController < Webui::WebuiController
     redirect_back(fallback_location: user_path(other_user))
   end
 
-  def save_dialog
-    render_dialog
-  end
-
-  def password_dialog
-    render_dialog
-  end
-
   def change_password
     user = User.session!
 

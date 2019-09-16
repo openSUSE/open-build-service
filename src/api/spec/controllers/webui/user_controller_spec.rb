@@ -245,14 +245,6 @@ RSpec.describe Webui::UserController do
     end
   end
 
-  describe 'GET #save_dialog' do
-    skip
-  end
-
-  describe 'GET #password_dialog' do
-    skip
-  end
-
   describe 'POST #change_password' do
     before do
       login non_admin_user
