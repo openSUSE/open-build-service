@@ -8,13 +8,13 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
 
   before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                     :submit_request_dialog, :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
+                                     :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                         :submit_request_dialog, :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
+                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
                                          :binary_download]
@@ -223,28 +223,6 @@ class Webui::PackageController < Webui::WebuiController
     switch_to_webui2
   end
 
-  # TODO: bento_only but still used by rdiff
-  def submit_request_dialog
-    if params[:revision]
-      @revision = params[:revision]
-    else
-      @revision = @package.rev
-    end
-    @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
-    @tprj = ''
-    lt = @package.backend_package.links_to
-    if lt
-      @tprj = lt.project.name # fill in from link
-      @tpkg = lt.name
-    end
-    @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
-    @tpkg = params[:targetpackage] if params[:targetpackage] # allow to override by parameter
-
-    @description = @package.commit_message(@tprj, @tpkg)
-
-    render_dialog
-  end
-
   # FIXME: This should be in Webui::RequestController
   def submit_request
     target_project_name = params[:targetproject].try(:strip)
@@ -367,7 +345,7 @@ class Webui::PackageController < Webui::WebuiController
     @filenames = filenames['filenames']
 
     # FIXME: moved from the old view, needs refactoring
-    @submit_url_opts = { action: 'submit_request_dialog', project: @project, package: @package, revision: @rev }
+    @submit_url_opts = {}
     if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') && !@opackage.find_attribute('OBS', 'RejectRequests')
       @submit_message = "Submit to #{@oproject.name}/#{@opackage.name}"
       @submit_url_opts[:target_project] = @oproject.name
