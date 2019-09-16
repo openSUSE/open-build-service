@@ -7,13 +7,13 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
 
-  before_action :set_project, only: [:show, :index, :users, :linking_packages, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :submit_request_dialog, :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
-  before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                          :submit_request_dialog, :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
@@ -25,7 +25,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_architecture, only: [:binary, :binary_download]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :linking_packages, :linking_packages, :dependency, :branch_diff_info, :binary, :binaries,
+  before_action :require_login, except: [:show, :index, :dependency, :branch_diff_info, :binary, :binaries,
                                          :users, :requests, :statistics, :commit, :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
 
@@ -89,12 +89,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def main_object
     @package # used by mixins
-  end
-
-  # FIXME: should be replaced by the partial
-  def linking_packages
-    switch_to_webui2
-    render_dialog
   end
 
   # rubocop:disable Lint/NonLocalExitFromIterator
