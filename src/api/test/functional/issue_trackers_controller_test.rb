@@ -50,8 +50,6 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'url', content: 'http://example.com'
     assert_xml_tag tag: 'show-url', content: 'http://example.com/@@@'
     assert_no_xml_tag tag: 'password'
-    get '/issue_trackers/test.json'
-    assert_response :success
 
     # FIXME: check backend data
 

@@ -3,24 +3,19 @@ class IssueTrackersController < ApplicationController
 
   validate_action index: { method: :get, response: :issue_trackers }
   validate_action show: { method: :get, response: :issue_tracker }
-  validate_action create: { method: :post, request: :issue_tracker, response: :issue_tracker }
+  validate_action create: { method: :post, request: :issue_tracker, response: :status }
   validate_action update: { method: :put, request: :issue_tracker }
 
   # GET /issue_trackers
-  # GET /issue_trackers.json
-  # GET /issue_trackers.xml
   def index
     @issue_trackers = IssueTracker.all
 
     respond_to do |format|
       format.xml  { render xml: @issue_trackers.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
-      format.json { render json: @issue_trackers.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
     end
   end
 
-  # GET /issue_trackers/bnc
-  # GET /issue_trackers/bnc.json
-  # GET /issue_trackers/bnc.xml
+  # GET /issue_trackers/<id>
   def show
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
@@ -29,15 +24,11 @@ class IssueTrackersController < ApplicationController
 
     respond_to do |format|
       format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
-      format.json { render json: @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS) }
     end
   end
 
   # POST /issue_trackers
-  # POST /issue_trackers.json
-  # POST /issue_trackers.xml
   def create
-    # User didn't really upload www-form-urlencoded data but raw XML, try to parse that
     xml = Nokogiri::XML(request.raw_post, &:strict).root
     @issue_tracker = IssueTracker.create(name: xml.xpath('name[1]/text()').to_s,
                                          kind: xml.xpath('kind[1]/text()').to_s,
@@ -50,18 +41,14 @@ class IssueTrackersController < ApplicationController
                                          show_url: xml.xpath('show-url[1]/text()').to_s)
     respond_to do |format|
       if @issue_tracker
-        format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
-        format.json { render json: @issue_tracker.to_json(IssueTracker::DEFAULT_RENDER_PARAMS), status: :created, location: @issue_tracker }
+        format.xml  { render_ok }
       else
         format.xml  { render xml: @issue_tracker.errors, status: :unprocessable_entity }
-        format.json { render json: @issue_tracker.errors, status: :unprocessable_entity }
       end
     end
   end
 
   # PUT /issue_trackers/bnc
-  # PUT /issue_trackers/bnc.json
-  # PUT /issue_trackers/bnc.xml
   def update
     respond_to do |format|
       xml = Nokogiri::XML(request.raw_post, &:strict).root
@@ -83,14 +70,11 @@ class IssueTrackersController < ApplicationController
       else
         IssueTracker.create(attribs)
       end
-      format.xml { head :ok }
-      format.json { head :ok }
+      format.xml { render_ok }
     end
   end
 
   # DELETE /issue_trackers/bnc
-  # DELETE /issue_trackers/bnc.xml
-  # DELETE /issue_trackers/bnc.json
   def destroy
     @issue_tracker = IssueTracker.find_by_name(params[:id])
     unless @issue_tracker
@@ -98,9 +82,6 @@ class IssueTrackersController < ApplicationController
     end
     @issue_tracker.destroy
 
-    respond_to do |format|
-      format.xml  { head :ok }
-      format.json { head :ok }
-    end
+    render_ok
   end
 end
