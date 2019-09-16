@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Torment of Others</title>
-          <description>Quia beatae adipisci et et rem ut.</description>
+          <title>If Not Now, When?</title>
+          <description>Ex quam quo atque.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,63 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Torment of Others</title>
-          <description>Quia beatae adipisci et et rem ut.</description>
+          <title>If Not Now, When?</title>
+          <description>Ex quam quo atque.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>The Torment of Others</title>
-          <description>Quia beatae adipisci et et rem ut.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '168'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>The Torment of Others</title>
-          <description>Quia beatae adipisci et et rem ut.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Labore quam ex quis veniam soluta molestiae. Non dolore distinctio quia
-        aut. Omnis possimus nihil nobis reprehenderit nisi magni distinctio. Architecto
-        eligendi enim.
+      string: Sunt autem aspernatur. Sint illo alias. Est exercitationem aliquid.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -150,23 +109,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="19" vrev="19">
-          <srcmd5>fe44bc39a6eb343af9c259ead08a77ec</srcmd5>
+        <revision rev="81" vrev="81">
+          <srcmd5>4229a86ec910f86196aee563454c41e5</srcmd5>
           <version>unknown</version>
-          <time>1513789414</time>
+          <time>1568650380</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Et cumque nobis pariatur corrupti autem et. Ut totam odit non repellendus
-        perspiciatis. Numquam facere inventore. Sint perferendis quas sint minima.
+      string: Aliquid non inventore. Deleniti quam occaecati. Rerum velit odit.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="20" vrev="20">
-          <srcmd5>6ca5c9eab57a68abcb03453f43c40657</srcmd5>
+        <revision rev="82" vrev="82">
+          <srcmd5>1dd2fd6eb7fe329e4778c6e28a42a131</srcmd5>
           <version>unknown</version>
-          <time>1513789414</time>
+          <time>1568650380</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:34 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -225,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '304'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="20" vrev="20" srcmd5="6ca5c9eab57a68abcb03453f43c40657">
-          <entry name="_config" md5="894cee97f94bff8a4444f07e37a2d186" size="166" mtime="1513789414" />
-          <entry name="somefile.txt" md5="44925878ce8b06a103f47b27887930e5" size="148" mtime="1513789414" />
+        <directory name="package_with_file" rev="82" vrev="82" srcmd5="1dd2fd6eb7fe329e4778c6e28a42a131">
+          <entry name="_config" md5="6b0e5804e61fb57044f66523872a98d1" size="67" mtime="1568650380"/>
+          <entry name="somefile.txt" md5="8db03e1e56717667ea0ffc3105f37573" size="65" mtime="1568650380"/>
         </directory>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom&tarlimit=10000
@@ -267,5 +225,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
+recorded_with: VCR 5.0.0

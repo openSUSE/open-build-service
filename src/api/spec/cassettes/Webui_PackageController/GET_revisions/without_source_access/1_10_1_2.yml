@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Thu, 02 Aug 2018 15:19:34 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
+          <title>The Moving Toyshop</title>
+          <description>Sint cupiditate atque placeat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
+          <title>The Moving Toyshop</title>
+          <description>Sint cupiditate atque placeat.</description>
         </package>
     http_version: 
-  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '165'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/somefile.txt
@@ -151,13 +112,13 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1533223175</time>
+          <time>1568650327</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Thu, 02 Aug 2018 15:19:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:07 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
@@ -165,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
+          <title>The Moving Toyshop</title>
+          <description>Sint cupiditate atque placeat.</description>
           <sourceaccess>
             <disable/>
           </sourceaccess>
@@ -190,17 +151,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '219'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Mollitia iure hic est.</description>
+          <title>The Moving Toyshop</title>
+          <description>Sint cupiditate atque placeat.</description>
           <sourceaccess>
-            <disable />
+            <disable/>
           </sourceaccess>
         </package>
     http_version: 
-  recorded_at: Thu, 02 Aug 2018 15:19:36 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:12:07 GMT
+recorded_with: VCR 5.0.0

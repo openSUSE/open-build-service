@@ -30,26 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:03 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_55
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Gone with the Wind</title>
-          <description>Est dolor suscipit eligendi.</description>
+          <title>No Highway</title>
+          <description>Aut odio illo nesciunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,53 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '139'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Gone with the Wind</title>
-          <description>Est dolor suscipit eligendi.</description>
+          <title>No Highway</title>
+          <description>Aut odio illo nesciunt.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:03 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Gone with the Wind</title>
-          <description>Est dolor suscipit eligendi.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '152'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Gone with the Wind</title>
-          <description>Est dolor suscipit eligendi.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:03 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:12:37 GMT
+recorded_with: VCR 5.0.0

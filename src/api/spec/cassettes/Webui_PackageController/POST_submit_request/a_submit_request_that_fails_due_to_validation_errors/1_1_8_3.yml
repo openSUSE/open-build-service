@@ -30,67 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_1">
-          <title/>
-          <description/>
-          <person userid="user_1" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '135'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_1">
-          <title></title>
-          <description></description>
-          <person userid="user_1" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_1
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Ut iste cumque et quia qui eos.</description>
+          <title>Sleep the Brave</title>
+          <description>Omnis cum debitis sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,63 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '150'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Ut iste cumque et quia qui eos.</description>
+          <title>Sleep the Brave</title>
+          <description>Omnis cum debitis sit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Ut iste cumque et quia qui eos.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '158'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Ut iste cumque et quia qui eos.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Esse magnam suscipit est voluptatem. Excepturi sunt incidunt vero atque.
-        Voluptates officiis odit omnis. Dolore sunt recusandae enim dicta molestiae.
-        Rerum debitis id quae eligendi ex est molestias.
+      string: Aut ut consectetur. Voluptatem ut ipsa. Velit similique voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -191,23 +109,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="13" vrev="13">
-          <srcmd5>a4d81a7d3ce2a99c6dcfcecfd22f3654</srcmd5>
+        <revision rev="85" vrev="85">
+          <srcmd5>94bae39d2015e5ca98aab4d8ba8b570b</srcmd5>
           <version>unknown</version>
-          <time>1493736950</time>
+          <time>1568650381</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Sed quasi quia sapiente dignissimos pariatur adipisci. A est ut explicabo
-        voluptatibus harum saepe. Fuga et quo esse.
+      string: Et vitae rerum. Non quia voluptatem. Ea et voluptas.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -231,24 +148,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="14" vrev="14">
-          <srcmd5>bd1757ef1f72c62ff0df72e5b05837dc</srcmd5>
+        <revision rev="86" vrev="86">
+          <srcmd5>e22ce8bb3f5852ea6004dd148a6e83eb</srcmd5>
           <version>unknown</version>
-          <time>1493736950</time>
+          <time>1568650381</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_7/_meta
+    uri: http://backend:5352/source/project_22/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_7">
-          <title>Number the Stars</title>
+        <project name="project_22">
+          <title>I Sing the Body Electric</title>
           <description/>
         </project>
     headers:
@@ -270,50 +187,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '111'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_7">
-          <title>Number the Stars</title>
+        <project name="project_22">
+          <title>I Sing the Body Electric</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_7/_config
-    body:
-      encoding: UTF-8
-      string: Molestias atque quo non velit. Magni ut similique vero. Voluptatem libero
-        laborum consequatur animi neque distinctio nisi. Ut quia fuga tenetur aliquid.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:50 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -339,14 +222,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '304'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="14" vrev="14" srcmd5="bd1757ef1f72c62ff0df72e5b05837dc">
-          <entry name="_config" md5="acd6dd27ae5f33507edb8f9e9ae04c4b" size="198" mtime="1493736950" />
-          <entry name="somefile.txt" md5="beb96f820d9f1326c04f98dcc95b7c02" size="117" mtime="1493736950" />
+        <directory name="package_with_file" rev="86" vrev="86" srcmd5="e22ce8bb3f5852ea6004dd148a6e83eb">
+          <entry name="_config" md5="08e5e249549cf78b123bebe7bca17afc" size="67" mtime="1568650381"/>
+          <entry name="somefile.txt" md5="767905bc188b1481cd16a90150ca2ae7" size="52" mtime="1568650381"/>
         </directory>
     http_version: 
-  recorded_at: Tue, 02 May 2017 14:55:51 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:13:01 GMT
+recorded_with: VCR 5.0.0

@@ -30,26 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-1" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Aut reprehenderit dolorem non quis tenetur illo odio officia.</description>
+          <title>The Way Through the Woods</title>
+          <description>Non minima amet cupiditate.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,62 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '197'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-1" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Aut reprehenderit dolorem non quis tenetur illo odio officia.</description>
+          <title>The Way Through the Woods</title>
+          <description>Non minima amet cupiditate.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="diff-truncation-test-1" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Aut reprehenderit dolorem non quis tenetur illo odio officia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '197'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="diff-truncation-test-1" project="home:tom">
-          <title>A Summer Bird-Cage</title>
-          <description>Aut reprehenderit dolorem non quis tenetur illo odio officia.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_config
     body:
       encoding: UTF-8
-      string: Ex aliquam excepturi et ipsam quis. Temporibus cum quia. In sit quisquam
-        maiores. Nihil repudiandae laboriosam. Natus totam ut pariatur.
+      string: Neque eveniet debitis. Quia laborum cupiditate. Iusto quo consequuntur.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -145,20 +105,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="25" vrev="25">
-          <srcmd5>dac1f09f3ffbde8e099d652374a97d58</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>cddfdc13b83fa48679c69d67c9c5e8c1</srcmd5>
           <version>unknown</version>
-          <time>1513788108</time>
+          <time>1568650300</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1/somefile.txt
@@ -11184,20 +11144,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
-          <srcmd5>dac1f09f3ffbde8e099d652374a97d58</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>ea9971f40138782a954a0270a8741bae</srcmd5>
           <version>unknown</version>
-          <time>1513788108</time>
+          <time>1568650300</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1
@@ -11223,16 +11183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '315'
+      - '310'
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-1" rev="26" vrev="26" srcmd5="dac1f09f3ffbde8e099d652374a97d58">
-          <entry name="_config" md5="7d767205df66c532ce211a62d9be6574" size="136" mtime="1513788108" />
-          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1513787854" />
+        <directory name="diff-truncation-test-1" rev="2" vrev="2" srcmd5="ea9971f40138782a954a0270a8741bae">
+          <entry name="_config" md5="dc88bb1a4b25f260a9ce1230ddde55ab" size="71" mtime="1568650300"/>
+          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1568650300"/>
         </directory>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1
@@ -11258,16 +11218,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '315'
+      - '310'
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-1" rev="26" vrev="26" srcmd5="dac1f09f3ffbde8e099d652374a97d58">
-          <entry name="_config" md5="7d767205df66c532ce211a62d9be6574" size="136" mtime="1513788108" />
-          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1513787854" />
+        <directory name="diff-truncation-test-1" rev="2" vrev="2" srcmd5="ea9971f40138782a954a0270a8741bae">
+          <entry name="_config" md5="dc88bb1a4b25f260a9ce1230ddde55ab" size="71" mtime="1568650300"/>
+          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1568650300"/>
         </directory>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1?cmd=diff&expand=1&filelimit=0&rev=2&tarlimit=0&view=xml&withissues=1
@@ -11295,16 +11255,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '33511'
+      - '33508'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="eb82e08f4a850ae60c6000f06869ae8f">
-          <old project="home:tom" package="diff-truncation-test-1" rev="1" srcmd5="978c54b87008e371c10196cd2eca341a" />
-          <new project="home:tom" package="diff-truncation-test-1" rev="2" srcmd5="a78ebb9259b91c43d7de6e0ed79e779d" />
+        <sourcediff key="eca5ac4e41359e802f9ed747a1920a0d">
+          <old project="home:tom" package="diff-truncation-test-1" rev="1" srcmd5="cddfdc13b83fa48679c69d67c9c5e8c1"/>
+          <new project="home:tom" package="diff-truncation-test-1" rev="2" srcmd5="ea9971f40138782a954a0270a8741bae"/>
           <files>
             <file state="added">
-              <new name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" />
+              <new name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000"/>
               <diff lines="11001">@@ -0,0 +1,11000 @@
         +a
         +a
@@ -22313,5 +22273,5 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 16:41:48 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
+recorded_with: VCR 5.0.0

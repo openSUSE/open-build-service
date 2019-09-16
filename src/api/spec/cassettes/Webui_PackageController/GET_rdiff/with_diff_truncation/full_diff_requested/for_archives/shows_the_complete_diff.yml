@@ -30,26 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Id nesciunt illo perspiciatis.</description>
+          <title>Many Waters</title>
+          <description>Et odit quos sit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Id nesciunt illo perspiciatis.</description>
+          <title>Many Waters</title>
+          <description>Et odit quos sit.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="diff-truncation-test-2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Id nesciunt illo perspiciatis.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '174'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="diff-truncation-test-2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Id nesciunt illo perspiciatis.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -151,16 +112,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
+        <revision rev="1" vrev="1">
           <srcmd5>a9789ffd295bf47f77113616443547ac</srcmd5>
           <version>unknown</version>
-          <time>1533065847</time>
+          <time>1568650300</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:40 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -193,16 +154,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
+        <revision rev="2" vrev="2">
           <srcmd5>f83eab96d07ccb93931e4136c117e1df</srcmd5>
           <version>unknown</version>
-          <time>1533065847</time>
+          <time>1568650301</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -228,15 +189,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '227'
+      - '226'
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="6" vrev="6" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1533065158" />
+        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1568650300"/>
         </directory>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -262,18 +223,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '227'
+      - '226'
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="6" vrev="6" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1533065158" />
+        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1568650300"/>
         </directory>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&filelimit=0&rev=6&tarlimit=0&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&filelimit=0&rev=2&tarlimit=0&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -298,17 +259,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '666'
+      - '662'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="6fbb31e137615c3678f4cbae11331036">
-          <old project="home:tom" package="diff-truncation-test-2" rev="5" srcmd5="a9789ffd295bf47f77113616443547ac" />
-          <new project="home:tom" package="diff-truncation-test-2" rev="6" srcmd5="f83eab96d07ccb93931e4136c117e1df" />
+        <sourcediff key="f1db5705b8c5ec018dd8fe6ea0e43382">
+          <old project="home:tom" package="diff-truncation-test-2" rev="1" srcmd5="a9789ffd295bf47f77113616443547ac"/>
+          <new project="home:tom" package="diff-truncation-test-2" rev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
           <files>
             <file state="changed">
-              <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12" />
-              <new name="bigfile_archive.tar.gz/bigfile.txt" md5="1703dc249d5200214dec878c59b76fb8" size="12" />
+              <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12"/>
+              <new name="bigfile_archive.tar.gz/bigfile.txt" md5="1703dc249d5200214dec878c59b76fb8" size="12"/>
               <diff lines="13">@@ -1,6 +1,6 @@
         -a
         -a
@@ -329,5 +290,5 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Tue, 31 Jul 2018 19:37:27 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+recorded_with: VCR 5.0.0

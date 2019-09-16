@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 02 May 2017 11:22:25 GMT
+  recorded_at: Mon, 16 Sep 2019 16:11:55 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Ea consequatur corrupti autem unde dicta.</description>
+          <title>That Good Night</title>
+          <description>Saepe rerum ex est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,91 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Ea consequatur corrupti autem unde dicta.</description>
+          <title>That Good Night</title>
+          <description>Saepe rerum ex est.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 02 May 2017 11:22:25 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Ea consequatur corrupti autem unde dicta.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '170'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>The Stars' Tennis Balls</title>
-          <description>Ea consequatur corrupti autem unde dicta.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 11:22:25 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/.test?user=tom
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Content-Length:
-      - '0'
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 400
-      message: filename '.test' is illegal
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '79'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="400">
-          <summary>filename '.test' is illegal</summary>
-        </status>
-    http_version: 
-  recorded_at: Tue, 02 May 2017 11:22:25 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:11:56 GMT
+recorded_with: VCR 5.0.0
