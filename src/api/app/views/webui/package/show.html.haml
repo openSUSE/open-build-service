@@ -1,0 +1,95 @@
+:ruby
+  @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
+  devel_package = @package.develpackage
+
+  content_for(:meta_title, @package.title.presence || @package.name)
+  content_for(:meta_description, @package.description)
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    .row
+      .col-md-8
+        %h3#package-title
+          = @package.title.presence || @package.name
+        - if @package.url.present?
+          = link_to(@package.url, @package.url, class: 'mb-3 d-block')
+        #description-text
+          - if @package.description.blank?
+            %i No description set
+          - else
+            = render partial: 'webui/webui/collapsible_text', locals: { text: @package.description }
+      .col-md-4
+        = render partial: 'side_links', locals: { devel_package: devel_package,
+                                                  failures: @failures,
+                                                  linkinfo: @linkinfo,
+                                                  revision: @revision,
+                                                  project: @project,
+                                                  package: @package }
+      = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowners_mail,
+                                                    configuration: @configuration,
+                                                    revision: @revision,
+                                                    current_rev: @current_rev,
+                                                    spec_count: @spec_count,
+                                                    cleanup_source: @cleanup_source,
+                                                    services: @services,
+                                                    project: @project,
+                                                    package: @package,
+                                                    is_working: @forced_unexpand.blank? }
+.overview
+  .build-results
+    = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
+  .list
+    .card
+      %h5.card-header
+        Source Files
+        - if @linkinfo && @revision_parameter.nil?
+          %small
+            - if @expand && @expand.to_s == '1' || @forced_unexpand.present?
+              = link_to('(show unmerged sources)', package_show_path(project: @project.name, package: @package.name,
+                                                                     rev: @revision_parameter, expand: '0'))
+            - else
+              = link_to('(show merged sources derived from linked package)', package_show_path(project: @project.name, package: @package.name,
+                                                                                               rev: @revision_parameter, expand: '1'))
+      - if @forced_unexpand.present?
+        .card-body
+          %p
+            %i
+              Sources could not be expanded:
+              = @forced_unexpand
+          %p
+            = link_to('Show unmerged sources', package_show_path(project: @project.name, package: @package.name,
+                                                                rev: @revision_parameter, expand: '0'))
+      - else
+        = render partial: 'files_view', locals: { project: @project,
+                                                  package: @package,
+                                                  files: @files,
+                                                  expand: @expand,
+                                                  is_current_rev: @is_current_rev,
+                                                  current_rev: @current_rev,
+                                                  revision: @revision,
+                                                  srcmd5: @srcmd5,
+                                                  spider_bot: @spider_bot }
+  .comments
+    .card
+      %h5.card-header.text-word-break-all
+        Comments for
+        = @package.name
+        %span.badge.badge-primary{ id: "comment-counter-package-#{@package.id}" }
+          = @comments.length
+      .card-body#comments
+        = render partial: 'webui/comment/show', locals: { commentable: @package,
+          comment_counter_id: "#comment-counter-package-#{@package.id}" }
+
+- if User.session
+  - if @current_rev
+    = render partial: 'branch_dialog', locals: { project: @project, package: @package, revision: @revision }
+    = render partial: 'submit_request_dialog', locals: { project: @project, package: @package, revision: @revision }
+  - if User.possibly_nobody.can_modify?(@package)
+    = render partial: 'edit_dialog', locals: { project: @project, package: @package }
+    = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
+  - else
+    = render partial: 'webui/request/add_role_request_dialog', locals: { project: @project, package: @package }
+    = render partial: 'webui/request/delete_request_dialog', locals: { project: @project, package: @package }
+  - if @package.develpackage
+    = render partial: 'webui/request/change_devel_request_dialog', locals: { project: @project, package: @package }
