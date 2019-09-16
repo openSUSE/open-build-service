@@ -33,6 +33,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next unless link.port == baseuri.port
       link = link.to_s
       next if link =~ %r{/mini-profiler-resources}
+      # we do not really serve binary packages in the test environment
+      next if link =~ %r{/package/binary/}
       # that link is just a top ref
       next if link.end_with?('/package/rdiff')
       # admin can see even the hidden
@@ -56,7 +58,6 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def raiseit(message, url)
     # known issues
     return if url =~ %r{/source/}
-    return if url.end_with?('/request/add_reviewer_dialog?number=10')
 
     warn "Found #{message} on #{url}, crawling path"
     indent = ' '

@@ -11,11 +11,6 @@ class Webui::RequestController < Webui::WebuiController
 
   before_action :check_ajax, only: :sourcediff
 
-  def add_reviewer_dialog
-    @request_number = params[:number]
-    render_dialog('requestAddReviewAutocomplete')
-  end
-
   def add_reviewer
     begin
       opts = {}
@@ -154,12 +149,6 @@ class Webui::RequestController < Webui::WebuiController
     render partial: 'requests_small', locals: { requests: requests }
   end
 
-  def delete_request_dialog
-    @project = params[:project]
-    @package = params[:package] if params[:package]
-    render_dialog
-  end
-
   def delete_request
     request = nil
     begin
@@ -178,12 +167,6 @@ class Webui::RequestController < Webui::WebuiController
       return
     end
     redirect_to request_show_path(number: request.number)
-  end
-
-  def add_role_request_dialog
-    @project = params[:project]
-    @package = params[:package] if params[:package]
-    render_dialog
   end
 
   def add_role_request
@@ -233,10 +216,6 @@ class Webui::RequestController < Webui::WebuiController
       return
     end
     redirect_to request_show_path(number: request.number)
-  end
-
-  def set_incident_dialog
-    render_dialog
   end
 
   def set_incident
