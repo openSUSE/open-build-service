@@ -7,7 +7,7 @@
       .col-md-8
         = patchinfo_header(@patchinfo, @pkg_names)
         #description-text
-          = render partial: 'webui/webui/collapsible_text', locals: { text: @patchinfo.description }
+          = render partial: 'webui/shared/collapsible_text', locals: { text: @patchinfo.description }
       .col-md-4
         = render partial: 'side_elements', locals: { patchinfo: @patchinfo, packager: @packager }
 

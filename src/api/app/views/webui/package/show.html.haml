@@ -18,7 +18,7 @@
           - if @package.description.blank?
             %i No description set
           - else
-            = render partial: 'webui/webui/collapsible_text', locals: { text: @package.description }
+            = render partial: 'webui/shared/collapsible_text', locals: { text: @package.description }
       .col-md-4
         = render partial: 'side_links', locals: { devel_package: devel_package,
                                                   failures: @failures,
