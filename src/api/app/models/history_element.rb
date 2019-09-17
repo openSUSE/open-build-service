@@ -101,6 +101,10 @@ class HistoryElement::RequestSuperseded < HistoryElement::Request
 end
 
 class HistoryElement::RequestReviewAdded < HistoryElement::Request
+  belongs_to :review,
+             class_name: '::Review',
+             foreign_key: :description_extension
+
   # self.description_extension is review id
   def description
     'Request got a new review request'
@@ -108,10 +112,6 @@ class HistoryElement::RequestReviewAdded < HistoryElement::Request
 
   def user_action
     'added review'
-  end
-
-  def review
-    Review.find_by(id: description_extension)
   end
 end
 
