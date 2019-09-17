@@ -34,8 +34,7 @@ Style/MultilineWhenThen:
 
 # We disabled this cop because HAML doesn't work well with ActiveSupport::SafeBuffer and the to_s method of it is always returning the same object class
 Style/UnneededInterpolation:
-  Exclude:
-    - 'app/views/webui2/**/*'
+  Enabled: false
 
 ##################### Metrics ##################################
 
