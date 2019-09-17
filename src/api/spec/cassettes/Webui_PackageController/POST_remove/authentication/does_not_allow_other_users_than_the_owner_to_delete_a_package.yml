@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:56 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/_meta
+    uri: http://backend:5352/source/project_4/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Bury My Heart at Wounded Knee</title>
+        <project name="project_4">
+          <title>A Time of Gifts</title>
           <description/>
         </project>
     headers:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '116'
+      - '101'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Bury My Heart at Wounded Knee</title>
+        <project name="project_4">
+          <title>A Time of Gifts</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/forbidden_package/_meta?user=tom
+    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title/>
-          <description/>
+        <package name="forbidden_package" project="project_4">
+          <title>Where Angels Fear to Tread</title>
+          <description>Quia ea eaque possimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,53 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '115'
+      - '163'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_16">
-          <title></title>
-          <description></description>
+        <package name="forbidden_package" project="project_4">
+          <title>Where Angels Fear to Tread</title>
+          <description>Quia ea eaque possimus.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_16/forbidden_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="forbidden_package" project="project_16">
-          <title/>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '115'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="forbidden_package" project="project_16">
-          <title></title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 05 Oct 2016 09:32:57 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
+recorded_with: VCR 5.0.0

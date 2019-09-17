@@ -1,16 +1,225 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '198'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="leap_42.2">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo++bar/_meta?user=user_44
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>As I Lay Dying</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>As I Lay Dying</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo++bar/_meta?user=user_44
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>As I Lay Dying</title>
+          <description/>
+          <repository name="leap_45.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo++bar">
+          <title>As I Lay Dying</title>
+          <description></description>
+          <repository name="leap_45.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo++bar/some_package/_meta?user=user_45
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Saepe sequi eveniet dolorem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="some_package" project="foo++bar">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Saepe sequi eveniet dolorem.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:34 GMT
+- request:
     method: get
     uri: http://backend:5352/build/foo++bar/leap_45.1/i586/some_package/_log?view=entry
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -18,344 +227,23 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'foo++bar' does not exist
+      message: package 'some_package' has no logfile
     headers:
       Content-Type:
       - text/xml
+      Content-Length:
+      - '152'
       Cache-Control:
       - no-cache
       Connection:
       - close
-      Content-Length:
-      - '144'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'foo++bar' does not exist</summary>
-          <details>404 project 'foo++bar' does not exist</details>
+          <summary>package 'some_package' has no logfile</summary>
+          <details>404 package 'some_package' has no logfile</details>
         </status>
-    http_version:
-  recorded_at: Tue, 25 Apr 2017 15:22:28 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/foo++bar/leap_45.1/i586/some_package/_log?end=65536&nostream=1&start=0
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'foo++bar' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'foo++bar' does not exist</summary>
-          <details>404 project 'foo++bar' does not exist</details>
-        </status>
-    http_version:
-  recorded_at: Tue, 25 Apr 2017 15:22:28 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '129'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer" />
-        </project>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-          <repository name="leap_42.2">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '199'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer" />
-          <repository name="leap_42.2">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo++bar/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo++bar">
-          <title>The Yellow Meads of Asphodel</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '113'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo++bar">
-          <title>The Yellow Meads of Asphodel</title>
-          <description></description>
-        </project>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo++bar/_config
-    body:
-      encoding: UTF-8
-      string: Ad maiores voluptatem nobis nihil vel ea. Et delectus sequi vitae. Commodi
-        velit et. Occaecati recusandae voluptatum cumque voluptas.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo++bar/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo++bar">
-          <title>The Yellow Meads of Asphodel</title>
-          <description/>
-          <repository name="leap_45.1">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '183'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="foo++bar">
-          <title>The Yellow Meads of Asphodel</title>
-          <description></description>
-          <repository name="leap_45.1">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo++bar/some_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="foo++bar">
-          <title>Look to Windward</title>
-          <description>Maiores exercitationem nostrum itaque.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '162'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="foo++bar">
-          <title>Look to Windward</title>
-          <description>Maiores exercitationem nostrum itaque.</description>
-        </package>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/foo++bar/some_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="foo++bar">
-          <title>Look to Windward</title>
-          <description>Maiores exercitationem nostrum itaque.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '162'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="some_package" project="foo++bar">
-          <title>Look to Windward</title>
-          <description>Maiores exercitationem nostrum itaque.</description>
-        </package>
-    http_version:
-  recorded_at: Wed, 14 Mar 2018 09:57:52 GMT
-recorded_with: VCR 4.0.0
+    http_version: 
+  recorded_at: Mon, 16 Sep 2019 16:12:34 GMT
+recorded_with: VCR 5.0.0

@@ -30,26 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 20 Aug 2018 11:39:00 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_66
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Commodi velit accusamus voluptatem.</description>
+          <title>Lilies of the Field</title>
+          <description>Modi deleniti rerum ratione.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,58 +70,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '170'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Commodi velit accusamus voluptatem.</description>
+          <title>Lilies of the Field</title>
+          <description>Modi deleniti rerum ratione.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 20 Aug 2018 11:39:00 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:45 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Commodi velit accusamus voluptatem.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '170'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>Bury My Heart at Wounded Knee</title>
-          <description>Commodi velit accusamus voluptatem.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 20 Aug 2018 11:39:00 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
@@ -152,20 +113,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '201'
+      - '200'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
           <repository name="source_repo">
             <arch>i586</arch>
           </repository>
         </project>
     http_version: 
-  recorded_at: Mon, 20 Aug 2018 11:39:00 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:46 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/source_repo/i586/my_package/rpmlint.log
@@ -200,5 +161,5 @@ http_interactions:
           <details>404 rpmlint.log: No such file or directory</details>
         </status>
     http_version: 
-  recorded_at: Mon, 20 Aug 2018 11:39:01 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:12:46 GMT
+recorded_with: VCR 5.0.0

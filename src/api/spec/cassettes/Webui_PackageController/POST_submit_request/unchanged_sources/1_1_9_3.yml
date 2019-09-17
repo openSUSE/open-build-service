@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Laudantium ex necessitatibus rerum non.</description>
+          <title>No Country for Old Men</title>
+          <description>Voluptates aut nam est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,63 +70,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Laudantium ex necessitatibus rerum non.</description>
+          <title>No Country for Old Men</title>
+          <description>Voluptates aut nam est.</description>
         </package>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Laudantium ex necessitatibus rerum non.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '173'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Laudantium ex necessitatibus rerum non.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Doloribus nesciunt assumenda quod quasi et aut. Suscipit quisquam ut
-        ut sit labore inventore asperiores. Ipsam omnis possimus eum excepturi cupiditate.
-        Ducimus cum veniam velit aut ab id. Cum esse corrupti et ut officiis qui.
+      string: Omnis delectus eligendi. Voluptatibus pariatur quo. Perferendis iste
+        nobis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -150,23 +110,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="21" vrev="21">
-          <srcmd5>6df6bd32cd173523b66c9c193f3b7392</srcmd5>
+        <revision rev="79" vrev="79">
+          <srcmd5>ae94f63f5aad4c8f1c51c4d859a08615</srcmd5>
           <version>unknown</version>
-          <time>1513789415</time>
+          <time>1568650380</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Et cumque nobis pariatur corrupti autem et. Ut totam odit non repellendus
-        perspiciatis. Numquam facere inventore. Sint perferendis quas sint minima.
+      string: Temporibus omnis et. Similique et eligendi. Nihil ut eum.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -190,16 +149,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="22" vrev="22">
-          <srcmd5>6df6bd32cd173523b66c9c193f3b7392</srcmd5>
+        <revision rev="80" vrev="80">
+          <srcmd5>cd2b5f28f8406cac4bcd139822227a3b</srcmd5>
           <version>unknown</version>
-          <time>1513789415</time>
+          <time>1568650380</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -225,16 +184,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '308'
+      - '304'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="22" vrev="22" srcmd5="6df6bd32cd173523b66c9c193f3b7392">
-          <entry name="_config" md5="50d0d3677130c6ea8aedddebb264517e" size="225" mtime="1513789415" />
-          <entry name="somefile.txt" md5="44925878ce8b06a103f47b27887930e5" size="148" mtime="1513789414" />
+        <directory name="package_with_file" rev="80" vrev="80" srcmd5="cd2b5f28f8406cac4bcd139822227a3b">
+          <entry name="_config" md5="2fff48b97a3bef8ae0dbdfe26934806f" size="75" mtime="1568650380"/>
+          <entry name="somefile.txt" md5="b0ab78d3d69b6c2be051d2a787f36224" size="57" mtime="1568650380"/>
         </directory>
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom&tarlimit=10000
@@ -267,5 +226,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 20 Dec 2017 17:03:35 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+recorded_with: VCR 5.0.0

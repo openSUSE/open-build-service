@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:11 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Dicta dolore possimus at libero ad quae ea.</description>
+          <title>The Parliament of Man</title>
+          <description>Maxime deserunt et sequi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '181'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_broken_service" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Dicta dolore possimus at libero ad quae ea.</description>
+          <title>The Parliament of Man</title>
+          <description>Maxime deserunt et sequi.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_broken_service" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Dicta dolore possimus at libero ad quae ea.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '181'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_broken_service" project="home:tom">
-          <title>In Death Ground</title>
-          <description>Dicta dolore possimus at libero ad quae ea.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
@@ -148,50 +109,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
-          <srcmd5>503bd2ede1b20d902db830d97921b08d</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>e765a70259fca9e772a8709552bbff0c</srcmd5>
           <version>unknown</version>
-          <time>1493376933</time>
+          <time>1568650392</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service?nofilename=1&view=info&withchangesmd5=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '226'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourceinfo package="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
-        </sourceinfo>
-    http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_broken_service
@@ -217,106 +144,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '409'
+      - '383'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <serviceinfo code="failed" xsrcmd5="e9a6118b85b2ca1ec453866b86f4877b">
-            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="e765a70259fca9e772a8709552bbff0c">
+          <serviceinfo code="failed" xsrcmd5="29a4ba0db131b2be87b07ce4c5d3cfdd">
+            <error>service error:  400 remote error: unknown element 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493376872" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1568650392"/>
         </directory>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:tom/package_with_broken_service?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '335'
-    body:
-      encoding: UTF-8
-      string: |
-        <sourcediff key="32acabc9c8818e72cc4e88f15ac0035f">
-          <old project="home:tom" package="package_with_broken_service" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="package_with_broken_service" rev="2" srcmd5="503bd2ede1b20d902db830d97921b08d" />
-          <files />
-          <issues>
-          </issues>
-        </sourcediff>
-    http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=1&rev=1
     body:
       encoding: US-ASCII
       string: ''
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '409'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <serviceinfo code="failed" xsrcmd5="e9a6118b85b2ca1ec453866b86f4877b">
-            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
-          </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493376872" />
-        </directory>
-    http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=1&rev=2
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
       Accept:
       - "*/*"
       User-Agent:
@@ -324,8 +172,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: service error   400 remote error  document element must be 'services',
-        was 'service'
+      message: service error   400 remote error  unknown element 'service'
     headers:
       Content-Type:
       - text/xml
@@ -334,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '136'
+      - '111'
     body:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>service error:  400 remote error: document element must be 'services', was 'service'</summary>
+          <summary>service error:  400 remote error: unknown element 'service'</summary>
         </status>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_broken_service
@@ -368,29 +215,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '409'
+      - '383'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <serviceinfo code="failed" xsrcmd5="e9a6118b85b2ca1ec453866b86f4877b">
-            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="e765a70259fca9e772a8709552bbff0c">
+          <serviceinfo code="failed" xsrcmd5="29a4ba0db131b2be87b07ce4c5d3cfdd">
+            <error>service error:  400 remote error: unknown element 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493376872" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1568650392"/>
         </directory>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=0&rev=2
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=0&rev=1
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -407,18 +252,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '409'
+      - '383'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <serviceinfo code="failed" xsrcmd5="e9a6118b85b2ca1ec453866b86f4877b">
-            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="e765a70259fca9e772a8709552bbff0c">
+          <serviceinfo code="failed" xsrcmd5="29a4ba0db131b2be87b07ce4c5d3cfdd">
+            <error>service error:  400 remote error: unknown element 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493376872" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1568650392"/>
         </directory>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_broken_service
@@ -426,10 +271,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -446,21 +289,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '409'
+      - '383'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_broken_service" rev="2" vrev="2" srcmd5="503bd2ede1b20d902db830d97921b08d">
-          <serviceinfo code="failed" xsrcmd5="e9a6118b85b2ca1ec453866b86f4877b">
-            <error>service error:  400 remote error: document element must be 'services', was 'service'</error>
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="e765a70259fca9e772a8709552bbff0c">
+          <serviceinfo code="failed" xsrcmd5="29a4ba0db131b2be87b07ce4c5d3cfdd">
+            <error>service error:  400 remote error: unknown element 'service'</error>
           </serviceinfo>
-          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1493376872" />
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1568650392"/>
         </directory>
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=e9a6118b85b2ca1ec453866b86f4877b
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=29a4ba0db131b2be87b07ce4c5d3cfdd
     body:
       encoding: US-ASCII
       string: ''
@@ -479,7 +322,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '92'
+      - '67'
       Cache-Control:
       - no-cache
       Connection:
@@ -488,75 +331,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         service daemon error:
-         400 remote error: document element must be 'services', was 'service'
+         400 remote error: unknown element 'service'
     http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Content-Length:
-      - '25'
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-    body:
-      encoding: UTF-8
-      string: "<service>broken</service>"
-    http_version: 
-  recorded_at: Fri, 28 Apr 2017 10:55:33 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:tom/package_with_broken_service?view=info
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom' does not exist</summary>
-          <details>404 project 'home:tom' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Tue, 16 Jan 2018 14:58:15 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 16 Sep 2019 16:13:12 GMT
+recorded_with: VCR 5.0.0

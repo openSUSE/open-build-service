@@ -16,7 +16,7 @@
     = render partial: 'webui/package/side_links/show_patchinfo', locals: { package: package, project: project }
 
   - if package.linking_packages.present?
-    = render partial: 'webui/package/side_links/show_derived_packages', locals: { package: package, project: project }
+    = render partial: 'webui/package/side_links/show_derived_packages', locals: { package: package }
 
   - if linkinfo
     = render partial: 'webui/package/side_links/show_linkinfo', locals: { package: package, project: project,

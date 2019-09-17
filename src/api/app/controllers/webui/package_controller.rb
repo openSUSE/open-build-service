@@ -7,27 +7,17 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
 
-  before_action :set_project, only: [:show, :index, :users, :linking_packages, :dependency, :binary, :binaries,
-                                     :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                     :branch_diff_info,
-                                     :add_person, :add_group, :rdiff, :save_new,
-                                     :save, :delete_dialog,
-                                     :remove, :add_file, :save_file, :remove_file, :save_person,
-                                     :save_group, :remove_role, :view_file,
-                                     :abort_build, :trigger_rebuild, :trigger_services,
-                                     :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                     :save_meta, :attributes, :edit, :files, :binary_download]
+  before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+                                     :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
+                                     :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
+                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
+                                     :binary_download]
 
-  before_action :require_package, only: [:show, :linking_packages, :dependency, :binary, :binaries,
-                                         :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                         :branch_diff_info,
-                                         :add_person, :add_group, :rdiff,
-                                         :save, :save_meta, :delete_dialog,
-                                         :remove, :add_file, :save_file, :remove_file, :save_person,
-                                         :save_group, :remove_role, :view_file,
-                                         :abort_build, :trigger_rebuild, :trigger_services,
-                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                         :attributes, :edit, :files, :users, :binary_download]
+  before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
+                                         :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
+                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
+                                         :binary_download]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -35,12 +25,9 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_architecture, only: [:binary, :binary_download]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :linking_packages, :linking_packages, :dependency,
-                                         :branch_diff_info,
-                                         :binary, :binaries, :users, :requests, :statistics, :commit,
-                                         :revisions, :rdiff, :view_file, :live_build_log,
-                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result,
-                                         :rpmlint_log, :meta, :attributes, :files]
+  before_action :require_login, except: [:show, :index, :dependency, :branch_diff_info, :binary, :binaries,
+                                         :users, :requests, :statistics, :commit, :revisions, :rdiff, :view_file, :live_build_log,
+                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
@@ -102,11 +89,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def main_object
     @package # used by mixins
-  end
-
-  def linking_packages
-    switch_to_webui2
-    render_dialog
   end
 
   # rubocop:disable Lint/NonLocalExitFromIterator
@@ -241,28 +223,6 @@ class Webui::PackageController < Webui::WebuiController
     switch_to_webui2
   end
 
-  # TODO: bento_only
-  def submit_request_dialog
-    if params[:revision]
-      @revision = params[:revision]
-    else
-      @revision = @package.rev
-    end
-    @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
-    @tprj = ''
-    lt = @package.backend_package.links_to
-    if lt
-      @tprj = lt.project.name # fill in from link
-      @tpkg = lt.name
-    end
-    @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
-    @tpkg = params[:targetpackage] if params[:targetpackage] # allow to override by parameter
-
-    @description = @package.commit_message(@tprj, @tpkg)
-
-    render_dialog
-  end
-
   # FIXME: This should be in Webui::RequestController
   def submit_request
     target_project_name = params[:targetproject].try(:strip)
@@ -355,102 +315,6 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to(action: 'show', project: project_name, package: package_name)
   end
 
-  def set_linkinfo
-    return unless @package.is_link?
-
-    linked_package = @package.backend_package.links_to
-    return set_remote_linkinfo unless linked_package
-
-    @linkinfo = { package: linked_package, error: @package.backend_package.error }
-    @linkinfo[:diff] = true if linked_package.backend_package.verifymd5 != @package.backend_package.verifymd5
-  end
-
-  def set_remote_linkinfo
-    linkinfo = @package.linkinfo
-
-    return unless linkinfo && linkinfo['package'] && linkinfo['project']
-    return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
-
-    @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
-  end
-
-  def set_file_details
-    @forced_unexpand ||= ''
-
-    # check source access
-    @files = []
-    return false unless @package.check_source_access?
-
-    set_linkinfo
-
-    begin
-      @current_rev = @package.rev
-      @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
-
-      @files = package_files(@srcmd5 || @revision, @expand)
-    rescue Backend::Error => e
-      # TODO: crudest hack ever!
-      if e.summary == 'service in progress' && @expand == 1
-        @expand = 0
-        @service_running = true
-        # silently in this case
-        return set_file_details
-      end
-      if @expand == 1
-        @forced_unexpand = e.details || e.summary
-        @expand = 0
-        return set_file_details
-      end
-      return false
-    end
-
-    true
-  end
-  private :set_file_details
-
-  def add_person; end
-
-  def add_group; end
-
-  def find_last_req
-    if @oproject && @opackage
-      last_req = BsRequestAction.where(target_project: @oproject,
-                                       target_package: @opackage,
-                                       source_project: @package.project,
-                                       source_package: @package.name).order(:bs_request_id).last
-      return unless last_req
-      last_req = last_req.bs_request
-      if last_req.state != :declined
-        return # ignore all !declined
-      end
-      return {
-        id: last_req.number,
-        decliner: last_req.commenter,
-        when: last_req.updated_at,
-        comment: last_req.comment
-      }
-    end
-    return
-  end
-
-  def get_diff(project, package, options = {})
-    options[:view] = :xml
-    options[:withissues] = 1
-    begin
-      @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
-    rescue Backend::Error => e
-      flash[:error] = 'Problem getting expanded diff: ' + e.summary
-      begin
-        @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
-      rescue Backend::Error => e
-        flash[:error] = 'Error getting diff: ' + e.summary
-        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
-        return false
-      end
-    end
-    true
-  end
-
   def rdiff
     @last_rev = @package.dir_hash['rev']
     @linkinfo = @package.linkinfo
@@ -480,8 +344,8 @@ class Webui::PackageController < Webui::WebuiController
     @not_full_diff = @files.any? { |file| file[1]['diff'].try(:[], 'shown') }
     @filenames = filenames['filenames']
 
-    # TODO: moved from the old view, needs refactoring
-    @submit_url_opts = { action: 'submit_request_dialog', project: @project, package: @package, revision: @rev }
+    # FIXME: moved from the old view, needs refactoring
+    @submit_url_opts = {}
     if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') && !@opackage.find_attribute('OBS', 'RejectRequests')
       @submit_message = "Submit to #{@oproject.name}/#{@opackage.name}"
       @submit_url_opts[:target_project] = @oproject.name
@@ -513,29 +377,6 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def check_package_name_for_new
-    @package_name = params[:name]
-    @package_title = params[:title]
-    @package_description = params[:description]
-
-    unless Package.valid_name?(@package_name)
-      flash[:error] = "Invalid package name: '#{@package_name}'"
-      redirect_to controller: :project, action: :new_package, project: @project
-      return false
-    end
-    if Package.exists_by_project_and_name(@project.name, @package_name)
-      flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
-      redirect_to controller: :project, action: :new_package, project: @project
-      return false
-    end
-    unless User.possibly_nobody.can_create_package_in?(@project)
-      flash[:error] = "You can't create packages in #{@project.name}"
-      redirect_to controller: :project, action: :new_package, project: @project
-      return false
-    end
-    true
-  end
-
   def branch_diff_info
     linked_package = @package.backend_package.links_to
     target_project = target_package = description = ''
@@ -552,8 +393,6 @@ class Webui::PackageController < Webui::WebuiController
       'cleanupSource': @project.branch? # We should remove the package if this request is a branch
     }
   end
-
-  private :check_package_name_for_new
 
   def branch
     params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
@@ -642,10 +481,6 @@ class Webui::PackageController < Webui::WebuiController
     end
     switch_to_webui2
     redirect_to action: :show, project: params[:project], package: params[:package]
-  end
-
-  def delete_dialog
-    render_dialog
   end
 
   def remove
@@ -795,32 +630,6 @@ class Webui::PackageController < Webui::WebuiController
     switch_to_webui2
     prefix = switch_to_webui2? ? 'webui2/' : ''
     render(template: "#{prefix}webui/package/simple_file_view") && return if @spider_bot
-  end
-
-  def fetch_from_params(*arr)
-    opts = {}
-    arr.each do |k|
-      opts[k] = params[k] if params[k].present?
-    end
-    opts
-  end
-
-  def set_job_status
-    @percent = nil
-
-    begin
-      jobstatus = get_job_status(@project, @package, @repo, @arch)
-      if jobstatus.present?
-        js = Xmlhash.parse(jobstatus)
-        @workerid = js.get('workerid')
-        @buildtime = Time.now.to_i - js.get('starttime').to_i
-        ld = js.get('lastduration')
-        @percent = (@buildtime * 100) / ld.to_i if ld.present?
-      end
-    rescue
-      @workerid = nil
-      @buildtime = nil
-    end
   end
 
   def live_build_log
@@ -1045,8 +854,6 @@ class Webui::PackageController < Webui::WebuiController
     render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
   end
 
-  def edit; end
-
   def binary_download
     package_name = params[:package]
     architecture = Architecture.find_by_name(params[:arch]).name
@@ -1172,5 +979,145 @@ class Webui::PackageController < Webui::WebuiController
 
   def handle_parameters_for_rpmlint_log
     params.require([:project, :package, :repository, :architecture])
+  end
+
+  def set_file_details
+    @forced_unexpand ||= ''
+
+    # check source access
+    @files = []
+    return false unless @package.check_source_access?
+
+    set_linkinfo
+
+    begin
+      @current_rev = @package.rev
+      @revision = @current_rev if !@revision && !@srcmd5 # on very first page load only
+
+      @files = package_files(@srcmd5 || @revision, @expand)
+    rescue Backend::Error => e
+      # TODO: crudest hack ever!
+      if e.summary == 'service in progress' && @expand == 1
+        @expand = 0
+        @service_running = true
+        # silently in this case
+        return set_file_details
+      end
+      if @expand == 1
+        @forced_unexpand = e.details || e.summary
+        @expand = 0
+        return set_file_details
+      end
+      return false
+    end
+
+    true
+  end
+
+  def set_linkinfo
+    return unless @package.is_link?
+
+    linked_package = @package.backend_package.links_to
+    return set_remote_linkinfo unless linked_package
+
+    @linkinfo = { package: linked_package, error: @package.backend_package.error }
+    @linkinfo[:diff] = true if linked_package.backend_package.verifymd5 != @package.backend_package.verifymd5
+  end
+
+  def set_remote_linkinfo
+    linkinfo = @package.linkinfo
+
+    return unless linkinfo && linkinfo['package'] && linkinfo['project']
+    return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
+
+    @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
+  end
+
+  def check_package_name_for_new
+    @package_name = params[:name]
+    @package_title = params[:title]
+    @package_description = params[:description]
+
+    unless Package.valid_name?(@package_name)
+      flash[:error] = "Invalid package name: '#{@package_name}'"
+      redirect_to controller: :project, action: :new_package, project: @project
+      return false
+    end
+    if Package.exists_by_project_and_name(@project.name, @package_name)
+      flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
+      redirect_to controller: :project, action: :new_package, project: @project
+      return false
+    end
+    unless User.possibly_nobody.can_create_package_in?(@project)
+      flash[:error] = "You can't create packages in #{@project.name}"
+      redirect_to controller: :project, action: :new_package, project: @project
+      return false
+    end
+    true
+  end
+
+  def find_last_req
+    if @oproject && @opackage
+      last_req = BsRequestAction.where(target_project: @oproject,
+                                       target_package: @opackage,
+                                       source_project: @package.project,
+                                       source_package: @package.name).order(:bs_request_id).last
+      return unless last_req
+      last_req = last_req.bs_request
+      if last_req.state != :declined
+        return # ignore all !declined
+      end
+      return {
+        id: last_req.number,
+        decliner: last_req.commenter,
+        when: last_req.updated_at,
+        comment: last_req.comment
+      }
+    end
+    return
+  end
+
+  def get_diff(project, package, options = {})
+    options[:view] = :xml
+    options[:withissues] = 1
+    begin
+      @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
+    rescue Backend::Error => e
+      flash[:error] = 'Problem getting expanded diff: ' + e.summary
+      begin
+        @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 0))
+      rescue Backend::Error => e
+        flash[:error] = 'Error getting diff: ' + e.summary
+        redirect_back(fallback_location: package_show_path(project: @project, package: @package))
+        return false
+      end
+    end
+    true
+  end
+
+  def fetch_from_params(*arr)
+    opts = {}
+    arr.each do |k|
+      opts[k] = params[k] if params[k].present?
+    end
+    opts
+  end
+
+  def set_job_status
+    @percent = nil
+
+    begin
+      jobstatus = get_job_status(@project, @package, @repo, @arch)
+      if jobstatus.present?
+        js = Xmlhash.parse(jobstatus)
+        @workerid = js.get('workerid')
+        @buildtime = Time.now.to_i - js.get('starttime').to_i
+        ld = js.get('lastduration')
+        @percent = (@buildtime * 100) / ld.to_i if ld.present?
+      end
+    rescue
+      @workerid = nil
+      @buildtime = nil
+    end
   end
 end

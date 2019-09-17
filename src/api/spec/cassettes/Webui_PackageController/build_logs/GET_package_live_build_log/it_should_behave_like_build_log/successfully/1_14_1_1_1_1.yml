@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -74,29 +74,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
           <repository name="leap_42.2">
             <arch>i586</arch>
           </repository>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:38 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_59
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Catskill Eagle</title>
-          <description>Quia cumque iure expedita.</description>
+          <title>Françoise Sagan</title>
+          <description>Voluptas cumque ut quis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -117,55 +117,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '146'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>A Catskill Eagle</title>
-          <description>Quia cumque iure expedita.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+Vm9sdXB0YXMgY3VtcXVlIHV0IHF1aXMuPC9kZXNjcmlwdGlvbj4KPC9wYWNrYWdlPgo=
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>A Catskill Eagle</title>
-          <description>Quia cumque iure expedita.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '148'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>A Catskill Eagle</title>
-          <description>Quia cumque iure expedita.</description>
-        </package>
-    http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:38 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/leap_42.2/i586/_builddepinfo?package=my_package&view=revpkgnames
@@ -191,12 +149,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '17'
+      - '16'
     body:
       encoding: UTF-8
-      string: "<builddepinfo />\n"
+      string: "<builddepinfo/>\n"
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:38 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:tom/leap_42.2/i586/my_package/_jobstatus
@@ -204,10 +162,8 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -224,10 +180,10 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '14'
+      - '13'
     body:
       encoding: UTF-8
-      string: "<jobstatus />\n"
+      string: "<jobstatus/>\n"
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:46:07 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:12:38 GMT
+recorded_with: VCR 5.0.0

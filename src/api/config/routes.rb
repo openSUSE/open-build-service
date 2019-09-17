@@ -111,8 +111,6 @@ OBSApi::Application.routes.draw do
         get 'package/statistics/:project/:package/:repository/:arch' => :statistics, as: 'package_statistics', constraints: cons
         get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
         post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
-        get 'package/add_person/:project/:package' => :add_person, constraints: cons, as: 'package_add_person'
-        get 'package/add_group/:project/:package' => :add_group, constraints: cons, as: 'package_add_group'
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/save_new/:project' => :save_new, constraints: cons, as: 'save_new_package'
         post 'package/branch' => :branch, constraints: cons
@@ -127,10 +125,7 @@ OBSApi::Application.routes.draw do
         get 'package/view_file/:project/:package/(:filename)' => :view_file, constraints: cons, as: 'package_view_file'
         get 'package/live_build_log/:project/:package/:repository/:arch' => :live_build_log, constraints: cons, as: 'package_live_build_log'
         defaults format: 'js' do
-          get 'package/linking_packages/:project/:package' => :linking_packages, constraints: cons, as: 'linking_packages'
           get 'package/update_build_log/:project/:package/:repository/:arch' => :update_build_log, constraints: cons, as: 'package_update_build_log'
-          get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons, as: 'package_submit_request_dialog'
-          get 'package/delete_dialog/:project/:package' => :delete_dialog, constraints: cons, as: 'package_delete_dialog'
           post 'package/trigger_rebuild/:project/:package' => :trigger_rebuild, constraints: cons, as: 'package_trigger_rebuild'
           get 'package/abort_build/:project/:package' => :abort_build, constraints: cons, as: 'package_abort_build'
           post 'package/trigger_services/:project/:package' => :trigger_services, constraints: cons, as: 'package_trigger_services'
@@ -144,7 +139,6 @@ OBSApi::Application.routes.draw do
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
         # For backward compatibility
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
-        get 'package/edit/:project/:package' => :edit, constraints: cons, as: :package_edit
         # For backward compatibility
         get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
         get 'package/import_spec/:project/:package' => :import_spec, constraints: cons

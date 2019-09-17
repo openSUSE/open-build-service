@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:29 GMT
+  recorded_at: Mon, 16 Sep 2019 16:12:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -74,18 +74,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '199'
+      - '198'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
           <repository name="leap_42.2">
             <arch>i586</arch>
           </repository>
         </project>
     http_version: 
-  recorded_at: Wed, 26 Apr 2017 07:30:29 GMT
-recorded_with: VCR 3.0.3
+  recorded_at: Mon, 16 Sep 2019 16:12:33 GMT
+recorded_with: VCR 5.0.0
