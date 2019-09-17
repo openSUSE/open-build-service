@@ -883,10 +883,6 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def users_path
-    url_for(action: :users, project: @project.name)
-  end
-
   def add_path(action)
     url_for(action: action, project: @project.name, role: params[:role], userid: params[:userid])
   end

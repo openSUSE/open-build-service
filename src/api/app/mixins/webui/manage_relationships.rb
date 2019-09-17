@@ -1,5 +1,5 @@
 module Webui::ManageRelationships
-  def redirect_after_save(what)
+  def redirect_after_save
     if switch_to_webui2
       redirect_to(users_path)
     elsif what == :person
@@ -17,7 +17,7 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::AddRole::SaveError => e
       flash[:error] = e.to_s
-      return redirect_after_save(what)
+      return redirect_after_save
     end
     respond_to do |format|
       format.js { render json: {}, status: :ok }
@@ -27,6 +27,10 @@ module Webui::ManageRelationships
         redirect_to users_path
       end
     end
+  end
+
+  def users_path
+    url_for(action: :users, project: @project, package: @package)
   end
 
   def save_person
