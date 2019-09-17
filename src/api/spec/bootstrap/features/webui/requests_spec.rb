@@ -135,6 +135,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1 (review)')
+        expect(page).to have_text(format('added review for %<name>s', name: reviewer.login))
         expect(Review.all.count).to eq(1)
         logout
 
@@ -161,6 +162,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         fill_in 'review_group', with: review_group.title
         click_button('Accept')
         expect(page).to have_text("Open review for #{review_group.title}")
+        expect(page).to have_text(format('added review for %<group>s', group: review_group.title))
       end
     end
 
@@ -173,6 +175,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         fill_in 'review_project', with: submitter.home_project
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project}")
+        expect(page).to have_text(format('added review for %<project>s', project: submitter.home_project))
       end
     end
 
@@ -187,6 +190,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         fill_in 'review_package', with: package.name
         click_button('Accept')
         expect(page).to have_text("Open review for #{submitter.home_project} / #{package.name}")
+        expect(page).to have_text(format('added review for %<project>s / %<package>s', project: submitter.home_project, package: package.name))
       end
     end
 
