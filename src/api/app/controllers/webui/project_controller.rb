@@ -883,10 +883,6 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def add_path(action)
-    url_for(action: action, project: @project.name, role: params[:role], userid: params[:userid])
-  end
-
   def set_project_by_name
     @project = Project.get_by_name(params['project'])
   rescue Project::UnknownObjectError

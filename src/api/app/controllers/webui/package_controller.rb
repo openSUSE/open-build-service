@@ -1097,10 +1097,6 @@ class Webui::PackageController < Webui::WebuiController
     files
   end
 
-  def add_path(action)
-    url_for(action: action, project: @project, role: params[:role], userid: params[:userid], package: @package)
-  end
-
   # Basically backend stores date in /source (package sources) and /build (package
   # build related). Logically build logs are stored in /build. Though build logs also
   # contain information related to source packages.
