@@ -14,8 +14,8 @@ function toggleProjectsDatatable() {
   $("#projects-datatable").DataTable().draw();
 }
 
-function initializeProjectDatatable() { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+function initializeProjectDatatable() {
+  initializeRemoteDatatable(
     "#projects-datatable",
     {
       "ajax": {

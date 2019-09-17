@@ -12,12 +12,12 @@ var DEFAULT_DT_PARAMS = {
   stateDuration: 0 // forever
 };
 
-function initializeDataTable(cssSelector, params){ // jshint ignore:line
+function initializeDataTable(cssSelector, params){
   var newParams = $.extend({}, DEFAULT_DT_PARAMS, params);
   $(cssSelector).DataTable(newParams);
 }
 
-function initializeRemoteDatatable(cssSelector, params) { // jshint ignore:line
+function initializeRemoteDatatable(cssSelector, params) {
   var defaultRemoteParams = {
     processing: true,
     serverSide: true,

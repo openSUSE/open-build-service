@@ -1,4 +1,4 @@
-function resizeTextarea(textarea) { // jshint ignore:line
+function resizeTextarea(textarea) {
   var textLines = textarea.value.split('\n');
   var neededRows = 1;
   for (var x = 0; x < textLines.length; x++) {

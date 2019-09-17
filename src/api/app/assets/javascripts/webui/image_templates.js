@@ -1,4 +1,4 @@
-function setupImageTemplates() { // jshint ignore:line
+function setupImageTemplates() {
   $(".image_template").on("click", function(){
     $('.image-template-box').removeClass('active');
     $(this).parents('.image-template-box').addClass('active');

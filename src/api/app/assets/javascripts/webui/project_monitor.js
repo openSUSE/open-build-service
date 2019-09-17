@@ -40,7 +40,7 @@ function initializeMonitorDataTable() {
   var tableInfo = data.tableinfo;
   var projectName = data.project;
 
-  initializeDataTable('#project-monitor-table', { // jshint ignore:line
+  initializeDataTable('#project-monitor-table', {
     scrollX: true,
     fixedColumns: true,
     pageLength: 50,
@@ -78,7 +78,7 @@ function initializeMonitorDataTable() {
   });
 }
 
-function setupProjectMonitor() { // jshint ignore:line
+function setupProjectMonitor() {
   initializeMonitorDataTable();
 
   $('#table-spinner').addClass('d-none');
@@ -89,10 +89,10 @@ function setupProjectMonitor() { // jshint ignore:line
   });
 
   $('#project-monitor-table').on('draw.dt', function () {
-    initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+    initializePopovers('[data-toggle="popover"]');
   });
 
-  initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+  initializePopovers('[data-toggle="popover"]');
 
   $('.monitor-no-filter-link').on('click', { checked: false }, setAllLinks);
 

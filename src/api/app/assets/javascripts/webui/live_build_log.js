@@ -83,7 +83,7 @@ $.extend(LiveLog.prototype, {
     }
   },
 
-  finish: function(status) { // jshint ignore:line
+  finish: function(status) {
     this.finished = true;
     this.stop();
     var statusDetails = this.buildStatusDetails(status);
@@ -95,28 +95,28 @@ $.extend(LiveLog.prototype, {
     this.startButton.addClass('d-none');
   },
 
-  stopAjaxRequest: function() { // jshint ignore:line
+  stopAjaxRequest: function() {
     if (this.ajaxRequest !== 0)
       this.ajaxRequest.abort();
     this.ajaxRequest = 0;
   },
 
-  showAbort: function() { // jshint ignore:line
+  showAbort: function() {
     $(".link_abort_build").removeClass('d-none');
     $(".link_trigger_rebuild").addClass('d-none');
   },
 
-  hideAbort: function() { // jshint ignore:line
+  hideAbort: function() {
     $(".link_abort_build").addClass('d-none');
     $(".link_trigger_rebuild").removeClass('d-none');
   },
 
-  indicatorStatus: function(status) { // jshint ignore:line
+  indicatorStatus: function(status) {
     this.logInfo.children().hide();
     this.logInfo.children('.' + status).show();
   },
 
-  faviconStatus: function(source) { // jshint ignore:line
+  faviconStatus: function(source) {
     if (typeof source !== 'undefined')
       $("link[rel='shortcut icon']").attr("href", source);
   },

@@ -5,8 +5,7 @@ var toTwoChars = function(number, leadingChar) {
   return (leadingChar + number).slice(-2);
 };
 
-// The jshint ignore:line is needed to ignore the offense: `'addChangesEntryTemplate' is defined but never used.` This is used in the view directly
-function addChangesEntryTemplate() { // jshint ignore:line
+function addChangesEntryTemplate() {
   var date = new Date(),
       weekDay = DAYS[date.getUTCDay()],
       month = MONTHS[date.getUTCMonth()],

@@ -1,4 +1,4 @@
-function setSpinnersForDeletion() { // jshint ignore:line
+function setSpinnersForDeletion() {
   $("#staging-workflow-delete").on('ajax:beforeSend', function(){
     $(this).find('.delete-spinner').removeClass('d-none');
   });

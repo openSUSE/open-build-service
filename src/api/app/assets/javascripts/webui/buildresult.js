@@ -1,4 +1,4 @@
-function updateRpmlintResult(index) { // jshint ignore:line
+function updateRpmlintResult(index) {
   $('#rpm'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: '/package/rpmlint_result',
@@ -15,7 +15,7 @@ function updateRpmlintResult(index) { // jshint ignore:line
   });
 }
 
-function updateBuildResult(index) { // jshint ignore:line
+function updateBuildResult(index) {
   var elements = {};
   $('.result div.collapse:not(.show)').map(function(_index, domElement) {
     var main = $(domElement).data('main') ? $(domElement).data('main') : 'project';
@@ -24,7 +24,7 @@ function updateBuildResult(index) { // jshint ignore:line
   });
 
   var ajaxDataShow = $('#buildresult' + index + '-box').data();
-  ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
+  ajaxDataShow.show_all = $('#show_all_'+index).is(':checked');
   ajaxDataShow.collapsedRepositories = elements;
   $('#build'+index+'-reload').addClass('fa-spin');
   $.ajax({
@@ -38,12 +38,12 @@ function updateBuildResult(index) { // jshint ignore:line
     },
     complete: function() {
       $('#build' + index + '-reload').removeClass('fa-spin');
-      initializePopovers('[data-toggle="popover"]'); // jshint ignore:line
+      initializePopovers('[data-toggle="popover"]');
     }
   });
 }
 
-function updateArchDisplay(index) { // jshint ignore:line
+function updateArchDisplay(index) {
   $('.rpmlint_arch_select_' + index).hide();
   $('#rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value')).show();
   updateRpmlintDisplay(index);

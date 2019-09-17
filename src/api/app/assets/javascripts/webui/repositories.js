@@ -1,4 +1,4 @@
-function setSpinnersForFlags() { // jshint ignore:line
+function setSpinnersForFlags() {
   $(document).on('click', '.popover_flag_action', function() {
     var flag = $(this).data('flag-id');
     var icon = $('div[id="' + flag + '"] a');
@@ -8,7 +8,7 @@ function setSpinnersForFlags() { // jshint ignore:line
   });
 }
 
-function setRepoCheckbox() { // jshint ignore:line
+function setRepoCheckbox() {
   $('.repocheckbox').click(function() {
     var id = $(this).attr('id');
     var $form;
@@ -47,7 +47,7 @@ function prepareFlagPopover() {
 }
 
 function initializeFlagPopovers(cssSelector) {
-  initializePopovers(cssSelector, { trigger: 'click', html: true, content: prepareFlagPopover }); // jshint ignore:line
+  initializePopovers(cssSelector, { trigger: 'click', html: true, content: prepareFlagPopover });
 }
 
 function replaceFlagTable(data, flagType) {
@@ -55,7 +55,7 @@ function replaceFlagTable(data, flagType) {
   initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
 }
 
-function setupFlagPopup() { // jshint ignore:line
+function setupFlagPopup() {
   ['build', 'useforbuild', 'debuginfo', 'publish'].forEach(function(flagType) {
     initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
   });

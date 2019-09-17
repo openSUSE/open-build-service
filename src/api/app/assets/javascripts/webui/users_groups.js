@@ -1,5 +1,5 @@
-function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:line
-  initializeRemoteDatatable( // jshint ignore:line
+function initializeUserConfigurationDatatable(ldapEnabled) {
+  initializeRemoteDatatable(
     '#user-table',
     {
       pageLength: 50,
@@ -13,7 +13,7 @@ function initializeUserConfigurationDatatable(ldapEnabled) { // jshint ignore:li
   );
 }
 
-function changeUserRole(obj) { // jshint ignore:line
+function changeUserRole(obj) {
   var type = obj.data("type");
   var role = obj.data("role");
   var spinner = obj.siblings('.fa-spinner');
@@ -44,7 +44,7 @@ function changeUserRole(obj) { // jshint ignore:line
   });
 }
 
-function setDataTableForUsersAndGroups() { // jshint ignore:line
+function setDataTableForUsersAndGroups() {
   $('#user-table').dataTable({
     responsive: true,
     info: false,
@@ -59,7 +59,7 @@ function setDataTableForUsersAndGroups() { // jshint ignore:line
   });
 }
 
-function initializeGroupTokenfield() { // jshint ignore:line
+function initializeGroupTokenfield() {
   var $tokenfield = $('#group-members.tag-input');
 
   $tokenfield.tagsInput({

@@ -11,7 +11,7 @@ function updateSupersedeAndDevelPackageDisplay() {
       url: $('#targetproject').data('requests-url'),
       data: {
         project: $('#targetproject')[0].value,
-        source_project: $('#project')[0].value, // jshint ignore:line
+        source_project: $('#project')[0].value,
         package: $('#package')[0].value,
         types: 'submit',
         states: ['new', 'review', 'declined']
@@ -44,7 +44,7 @@ function updateSupersedeAndDevelPackageDisplay() {
   }
 }
 
-function setupRequestDialog() { // jshint ignore:line
+function setupRequestDialog() {
   $('#devel-project-name').click(function () {
     $('#targetproject').attr('value', $('#devel-project-name').html());
   });
@@ -79,7 +79,7 @@ function prefillSubmitRequestForm() {
   });
 }
 
-function requestAddReviewAutocomplete() { // jshint ignore:line
+function requestAddReviewAutocomplete() {
   $('.modal').on('shown.bs.modal', function() {
     $('.hideable input:not(:visible)').attr('disabled', true);
   });
