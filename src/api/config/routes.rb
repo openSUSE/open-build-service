@@ -357,8 +357,6 @@ OBSApi::Application.routes.draw do
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
       get 'user/tokens' => :tokens
 
-      get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
-
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
@@ -370,7 +368,7 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, only: [:index, :new, :create, :show, :destroy], controller: 'webui/users',
+    resources :users, only: [:index, :new, :create, :show, :edit, :destroy], controller: 'webui/users',
                       param: :user
 
     get 'signup', to: 'webui/users#new', as: :signup

@@ -7,7 +7,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
 
   scenario 'view user' do
     login(admin)
-    visit user_edit_path(user: user.login)
+    visit edit_user_path(user: user.login)
 
     expect(page).to have_field('Name:', with: 'John Doe')
     expect(page).to have_field('Email:', with: 'john@suse.de')
@@ -21,7 +21,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
 
   scenario 'make user admin' do
     login(admin)
-    visit user_edit_path(user: user.login)
+    visit edit_user_path(user: user.login)
 
     check('Admin', allow_label_click: true)
     click_button('Update')
@@ -30,7 +30,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
 
   scenario 'remove admin rights from user' do
     login(admin)
-    visit user_edit_path(user: admin.login)
+    visit edit_user_path(user: admin.login)
     uncheck('Admin', allow_label_click: true)
     click_button('Update')
     expect(admin.is_admin?).to be(false)

@@ -2,7 +2,7 @@ module Webui::UserHelper
   def user_actions(user)
     safe_join(
       [
-        link_to(user_edit_path(user.login)) do
+        link_to(edit_user_path(user.login)) do
           content_tag(:i, nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
         end,
         mail_to(user.email) do

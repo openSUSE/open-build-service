@@ -16,7 +16,7 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
     expect(find_all('td', text: 'confirmed').count).to eq(5)
     # The actions column
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
-      expect(page).to have_css("a[href='#{user_edit_path(user)}']")
+      expect(page).to have_css("a[href='#{edit_user_path(user)}']")
       expect(page).to have_css("a[href='mailto:#{user.email}']")
       expect(page).to have_css("a[href='#{user_path(user.login)}']")
     end
