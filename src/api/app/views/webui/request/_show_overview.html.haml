@@ -3,6 +3,6 @@
 
 #description-text
   - if bs_request.description.present?
-    = render partial: 'webui/webui/collapsible_text', locals: { text: bs_request.description }
+    = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
   - else
     %i No description set
