@@ -3,7 +3,9 @@
 
 - if @not_full_diff
   - path_variables = { project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true }
-  - path_variables.merge!({ oproject: @oproject, opackage: @opackage }) if @opackage
+  - if @opackage
+    - path_variables[:oproject] = @oproject
+    - path_variables[:opackage] = @opackage
 
   = render partial: 'webui/shared/truncated_diff_hint', locals: { path: package_rdiff_path(path_variables) }
 
