@@ -7,7 +7,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
 
   scenario 'view user' do
     login(admin)
-    visit edit_user_path(user: user.login)
+    visit edit_user_path(login: user.login)
 
     expect(page).to have_field('Name:', with: 'John Doe')
     expect(page).to have_field('Email:', with: 'john@suse.de')
