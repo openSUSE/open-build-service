@@ -7,7 +7,7 @@
     %h3
       State of Repository #{@repository} for #{@project}
     %p
-      = render partial: 'shared/download_repository_link',
+      = render partial: 'webui/shared/download_repository_link',
       locals: { project: @project, repository: @repository, download_url: @configuration['download_url'] }
     %h4 Build Dependency Cycles
     - @repository.architectures.each do |arch|
