@@ -7,19 +7,19 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::AddRole::SaveError => e
       flash[:error] = e.to_s
-      return redirect_to(users_path)
+      return redirect_to(custom_users_path)
     end
     respond_to do |format|
       format.js { render json: {}, status: :ok }
       format.html do
         success_str = what == :person ? "user #{params[:userid]}" : "group #{params[:groupid]}"
         flash[:success] = "Added #{success_str} with role #{params[:role]}"
-        redirect_to users_path
+        redirect_to custom_users_path
       end
     end
   end
 
-  def users_path
+  def custom_users_path
     url_for(action: :users, project: @project, package: @package)
   end
 
@@ -55,7 +55,7 @@ module Webui::ManageRelationships
         else
           flash[:success] = "Removed group '#{params[:groupid]}'"
         end
-        redirect_to users_path
+        redirect_to custom_users_path
       end
     end
   end
