@@ -194,7 +194,7 @@ class Webui::RepositoriesController < Webui::WebuiController
     locals[:flags] = Flag::SpecifiedFlags.new(@main_object, flag_type)
     locals[:table_id] = 'flag_table_' + flag_type
 
-    render partial: 'shared/repositories_flag_table', locals: locals
+    render partial: 'webui/shared/repositories_flag_table', locals: locals
   end
 
   private

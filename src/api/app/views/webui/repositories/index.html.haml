@@ -11,7 +11,7 @@
         %p
           You can configure individual flags for this package here. The repositories are inherited from the project
           = link_to @project, controller: :repositories, action: :index, project: @project
-        = render partial: 'shared/repositories',
+        = render partial: 'webui/shared/repositories',
                  locals: { project: @project, package: @package, flags: @flags,
                            architectures: @architectures, user_can_modify: @user_can_modify }
       - else
@@ -62,6 +62,6 @@
     .card-body
       %p
         You can configure individual flags for this project here.
-      = render partial: 'shared/repositories',
+      = render partial: 'webui/shared/repositories',
                locals: { project: @project, package: @package, flags: @flags,
                          architectures: @architectures, user_can_modify: @user_can_modify }
