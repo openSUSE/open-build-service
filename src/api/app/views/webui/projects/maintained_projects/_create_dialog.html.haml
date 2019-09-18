@@ -3,7 +3,7 @@
     .modal-content
       = form_tag nil, method: :create do
         .modal-header
-          %h5.modal-title#new-maintenance-project-modal
+          %h5.modal-title#new-maintenance-project-modal-label
             Add maintained project to #{project_name}
         .modal-body
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'maintained_project', label: 'Project to be maintained:',
