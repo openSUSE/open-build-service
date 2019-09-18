@@ -3,9 +3,6 @@ require_relative '../../test_helper'
 require 'benchmark'
 require 'nokogiri'
 
-# TODO: Remove this when switch_to_webui2 is removed
-ENV['BOOTSTRAP'] = '1'
-
 class Webui::SpiderTest < Webui::IntegrationTest
   def ignore_link?(link)
     return true if link =~ %r{/mini-profiler-resources}
