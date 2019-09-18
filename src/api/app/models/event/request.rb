@@ -43,7 +43,7 @@ module Event
     end
 
     def payload_with_diff
-      return payload if source_from_remote? || payload_without_target_project?
+      return payload if source_from_remote? || payload_without_source_project? || payload_without_target_project?
 
       ret = payload
       payload['actions'].each do |a|
@@ -140,6 +140,10 @@ module Event
 
     def payload_without_target_project?
       payload['actions'].any? { |action| !Project.exists_by_name(action['targetproject']) }
+    end
+
+    def payload_without_source_project?
+      payload['actions'].any? { |action| !Project.exists_by_name(action['sourceproject']) }
     end
   end
 end
