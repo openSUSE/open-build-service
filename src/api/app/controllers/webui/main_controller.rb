@@ -25,8 +25,6 @@ class Webui::MainController < Webui::WebuiController
         users: User.count
       }
     end
-
-    switch_to_webui2
   end
 
   private

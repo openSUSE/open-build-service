@@ -302,25 +302,6 @@ class Webui::WebuiController < ActionController::Base
     User.possibly_nobody
   end
 
-  # TODO: disable bootstrap flip in production after migrating all the controllers
-  def switch_to_webui2?
-    true
-  end
-
-  # TODO: remove after migrating all the controller
-  def switch_to_webui2
-    if switch_to_webui2?
-      @switch_to_webui2 = true
-
-      set_webui2_views
-
-      prefixed_action_name = "webui2_#{action_name}"
-      send(prefixed_action_name) if action_methods.include?(prefixed_action_name)
-      return true
-    end
-    @switch_to_webui2 = false
-  end
-
   def set_pending_announcement
     return if Announcement.last.in?(User.possibly_nobody.announcements)
     @pending_announcement = Announcement.last

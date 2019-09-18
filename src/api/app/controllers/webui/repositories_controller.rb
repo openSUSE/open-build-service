@@ -11,8 +11,6 @@ class Webui::RepositoriesController < Webui::WebuiController
   # GET package/repositories/:project/:package
   # GET project/repositories/:project
   def index
-    switch_to_webui2
-
     @available_architectures = Architecture.available
     @repositories = @project.repositories.preload({ path_elements: { link: :project } }, :architectures)
     @repositories = @repositories.includes(:download_repositories)
@@ -36,8 +34,6 @@ class Webui::RepositoriesController < Webui::WebuiController
       @distributions[dis['vendor']] ||= []
       @distributions[dis['vendor']] << dis
     end
-
-    switch_to_webui2
 
     return unless @distributions.empty?
     redirect_to(action: 'new', project: @project) && return unless User.admin_session?
@@ -73,8 +69,6 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
-
-    switch_to_webui2
   end
 
   # POST project/update_target/:project
@@ -116,14 +110,10 @@ class Webui::RepositoriesController < Webui::WebuiController
         format.js
       end
     end
-
-    switch_to_webui2
   end
 
   # GET project/repository_state/:project/:repository
-  def state
-    switch_to_webui2
-  end
+  def state; end
 
   # POST /project/create_dod_repository
   def create_dod_repository

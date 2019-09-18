@@ -6,9 +6,7 @@ module Webui
         before_action :set_azure_configuration
 
         # GET /cloud/azure/configuration
-        def show
-          switch_to_webui2
-        end
+        def show; end
 
         # PATCH/PUT /cloud/azure/configuration
         def update

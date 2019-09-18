@@ -9,6 +9,6 @@
     - if User.possibly_nobody.can_modify? @package
       = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml',
         save: { url: package_save_meta_path, method: :post,
-        data: { project: @project.name, package: @package.name, submit: 'meta', use_webui2: true } } }
+        data: { project: @project.name, package: @package.name, submit: 'meta' } } }
     - else
       = render partial: 'webui/shared/editor', locals: { text: @meta, mode: 'xml', style: { read_only: true } }

@@ -6,7 +6,6 @@ module Webui
       before_action :set_pulse, if: -> { request.xhr? }
 
       def show
-        switch_to_webui2
         @pulse = @project.project_log_entries.page(params[:page])
       end
 

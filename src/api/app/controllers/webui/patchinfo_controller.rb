@@ -29,21 +29,15 @@ class Webui::PatchinfoController < Webui::WebuiController
     # TODO: check that @tracker has sense if it's coming from create (new_patchinfo) action
     @tracker = ::Configuration.default_tracker
     @patchinfo.binaries.each { |bin| @binarylist.delete(bin) }
-
-    switch_to_webui2
   end
 
   def show
     @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @patchinfo.packager).first
-
-    switch_to_webui2
   end
 
   def update
-    switch_to_webui2
-
     authorize @package, :update?
     @patchinfo = Patchinfo.new(patchinfo_params)
     if @patchinfo.valid?

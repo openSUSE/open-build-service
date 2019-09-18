@@ -1,9 +1,7 @@
 module Webui
   module Cloud
     class ConfigurationsController < WebuiController
-      def index
-        switch_to_webui2
-      end
+      def index; end
     end
   end
 end

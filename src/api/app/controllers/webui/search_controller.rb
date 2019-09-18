@@ -4,14 +4,10 @@ class Webui::SearchController < Webui::WebuiController
   before_action :set_parameters, except: :issue
 
   def index
-    switch_to_webui2
-
     search
   end
 
   def owner
-    switch_to_webui2
-
     Backend::Test.start if Rails.env.test?
 
     # If the search is too short, return
@@ -26,7 +22,6 @@ class Webui::SearchController < Webui::WebuiController
   end
 
   def issue
-    switch_to_webui2
     return unless params[:issue] && params[:issue_tracker]
 
     search_issue

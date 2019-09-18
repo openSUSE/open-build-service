@@ -1,13 +1,9 @@
 class Webui::InterconnectsController < Webui::WebuiController
   before_action :require_admin
 
-  def new
-    switch_to_webui2
-  end
+  def new; end
 
   def create
-    switch_to_webui2
-
     @project = RemoteProject.new(project_params)
 
     respond_to do |format|
