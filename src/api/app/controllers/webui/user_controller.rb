@@ -1,6 +1,6 @@
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:list_my]
-  before_action :require_login, only: [:save, :update]
+  before_action :require_login, only: [:update]
 
   def home
     if params[:user].present?
@@ -10,7 +10,7 @@ class Webui::UserController < Webui::WebuiController
     end
   end
 
-  def save
+  def update
     @displayed_user = User.find_by_login!(params[:user][:login])
 
     unless User.admin_session?
@@ -74,11 +74,5 @@ class Webui::UserController < Webui::WebuiController
 
   def tokens
     render json: User.autocomplete_token(params[:q])
-  end
-
-  private
-
-  def user_params
-    params.require(:user).permit(:login, :state, :ignore_auth_services, :make_admin)
   end
 end

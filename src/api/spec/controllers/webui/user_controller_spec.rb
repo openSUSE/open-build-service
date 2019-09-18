@@ -13,13 +13,13 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe 'POST #save' do
+  describe 'POST #update' do
     context 'when user is updating its own profile' do
       context 'with valid data' do
         before do
           login user
-          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked',
-                                        ignore_auth_services: true } }
+          post :update, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es', state: 'locked',
+                                          ignore_auth_services: true } }
           user.reload
         end
 
@@ -34,7 +34,7 @@ RSpec.describe Webui::UserController do
       context 'with invalid data' do
         before do
           login user
-          post :save, params: { user: { login: user.login, realname: 'another real name', email: 'invalid' } }
+          post :update, params: { user: { login: user.login, realname: 'another real name', email: 'invalid' } }
           user.reload
         end
 
@@ -49,7 +49,7 @@ RSpec.describe Webui::UserController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        post :save, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' } }
+        post :update, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' } }
         non_admin_user.reload
       end
 
@@ -69,7 +69,7 @@ RSpec.describe Webui::UserController do
         user.roles << local_roles
 
         login admin_user
-        post :save, params: {
+        post :update, params: {
           user: {
             login: user.login,
             realname: 'another real name',
@@ -106,7 +106,7 @@ RSpec.describe Webui::UserController do
 
         login admin_user
         # Rails form helper sends an empty string in an array if no checkbox was marked
-        post :save, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [''] } }
+        post :update, params: { user: { login: user.login, email: 'new_valid@email.es', role_ids: [''] } }
         user.reload
       end
 
@@ -122,7 +122,7 @@ RSpec.describe Webui::UserController do
         user.roles << old_global_role
 
         login admin_user
-        post :save, params: { user: { login: user.login, email: 'new_valid@email.es' } }
+        post :update, params: { user: { login: user.login, email: 'new_valid@email.es' } }
         user.reload
       end
 
@@ -139,7 +139,7 @@ RSpec.describe Webui::UserController do
       let!(:old_realname) { user.realname }
       let!(:old_email) { user.email }
       let(:http_request) do
-        post :save, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' } }
+        post :update, params: { user: { login: user.login, realname: 'another real name', email: 'new_valid@email.es' } }
       end
 
       before do

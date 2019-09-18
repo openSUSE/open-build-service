@@ -342,11 +342,9 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-      post 'user/save' => :save, constraints: cons
+      post 'user/update' => :update, constraints: cons
 
       post 'user/change_password' => :change_password
-
-      # patch 'user' => :update, as: 'user_update'
 
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
       get 'user/tokens' => :tokens
