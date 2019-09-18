@@ -343,8 +343,6 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  def edit_comment_form; end
-
   # FIXME: This should authorize create on this attribute
   def edit_comment
     @package = @project.find_package(params[:package])

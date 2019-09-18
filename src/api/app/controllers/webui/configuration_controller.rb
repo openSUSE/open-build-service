@@ -2,8 +2,6 @@ class Webui::ConfigurationController < Webui::WebuiController
   before_action :require_admin
   before_action :set_configuration, only: [:update]
 
-  def index; end
-
   def update
     respond_to do |format|
       if @configuration.update(configuration_params)

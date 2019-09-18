@@ -1,8 +1,6 @@
 class Webui::InterconnectsController < Webui::WebuiController
   before_action :require_admin
 
-  def new; end
-
   def create
     @project = RemoteProject.new(project_params)
 

@@ -6,8 +6,6 @@ class Webui::MonitorController < Webui::WebuiController
 
   DEFAULT_SEARCH_RANGE = 24
 
-  def old; end
-
   def index
     if request.post? && !params[:project].nil? && Project.valid_name?(params[:project])
       redirect_to project: params[:project]

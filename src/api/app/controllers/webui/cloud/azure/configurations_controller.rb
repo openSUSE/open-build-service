@@ -5,9 +5,6 @@ module Webui
         before_action :require_login
         before_action :set_azure_configuration
 
-        # GET /cloud/azure/configuration
-        def show; end
-
         # PATCH/PUT /cloud/azure/configuration
         def update
           if @azure_configuration.update(permitted_params)
