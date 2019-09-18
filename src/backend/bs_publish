@@ -658,7 +658,11 @@ sub createrepo_rpmmd {
     if (-e "$extrep/repodata/app-icons.tar") {
       print "    adding app-icons.tar to repodata\n";
       qsystem($modifyrepo_bin, "$extrep/repodata/app-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
-      unlink("$extrep/repodata/app-icons.tar");
+      qsystem("mv $extrep/repodata/app-icons.tar $extrep/repodata/appdata-icons.tar") && die("    copy appdata-icons failed: $?\n");
+
+      print "    adding appdata-icons.tar to repodata\n";
+      qsystem($modifyrepo_bin, "$extrep/repodata/appdata-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/appdata-icons.tar");
     }
   }
 
