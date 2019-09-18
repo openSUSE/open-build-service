@@ -342,8 +342,6 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-      post 'user/update' => :update, constraints: cons
-
       post 'user/change_password' => :change_password
 
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
