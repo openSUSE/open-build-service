@@ -346,7 +346,7 @@ OBSApi::Application.routes.draw do
 
       post 'user/change_password' => :change_password
 
-      patch 'user' => :update, as: 'user_update'
+      # patch 'user' => :update, as: 'user_update'
 
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
       get 'user/tokens' => :tokens

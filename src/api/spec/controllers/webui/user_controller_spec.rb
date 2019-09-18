@@ -8,7 +8,6 @@ RSpec.describe Webui::UserController do
   let!(:non_admin_user_request) { create(:set_bugowner_request, priority: 'critical', creator: non_admin_user) }
 
   it { is_expected.to use_before_action(:require_login) }
-  it { is_expected.to use_before_action(:require_admin) }
 
   describe 'GET #home' do
     skip
@@ -183,55 +182,6 @@ RSpec.describe Webui::UserController do
 
         it { expect(user.realname).to eq('another real name') }
         it { expect(user.email).to eq('new_valid@email.es') }
-      end
-    end
-  end
-
-  describe 'PATCH #update' do
-    let(:deleted_user) { create(:user, state: 'deleted') }
-
-    context 'called by an admin user' do
-      before do
-        login(admin_user)
-      end
-
-      it 'updates the state of a user' do
-        patch :update, params: { user: { login: user.login, state: 'locked' } }
-        expect(user.reload.state).to eq('locked')
-      end
-
-      it 'marks users to be ignored from LDAP authentication' do
-        patch :update, params: { user: { login: user.login, ignore_auth_services: true } }
-        expect(user.reload.ignore_auth_services).to be(true)
-      end
-
-      it 'updates deleted users' do
-        patch :update, params: { user: { login: deleted_user.login, state: 'confirmed' } }
-        expect(user.reload.state).to eq('confirmed')
-      end
-
-      it 'handles validation errors' do
-        patch :update, params: { user: { login: user.login, state: 'foo' } }
-        expect(user.reload.state).to eq('confirmed')
-        expect(flash[:error]).to eq("Updating user '#{user.login}' failed: State is not included in the list")
-      end
-
-      it 'applies the Admin role properly' do
-        patch :update, params: { user: { login: user.login, make_admin: true } }
-        expect(user.roles.find_by(title: 'Admin')).not_to be_nil
-      end
-    end
-
-    context 'called by a user that is not admin' do
-      let(:non_admin_user) { create(:confirmed_user) }
-
-      before do
-        login(non_admin_user)
-      end
-
-      it 'does not update a user' do
-        patch :update, params: { user: { login: user.login, state: 'locked' } }
-        expect(user.reload.state).to eq('confirmed')
       end
     end
   end

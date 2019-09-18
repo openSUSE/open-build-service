@@ -1,7 +1,6 @@
 class Webui::UserController < Webui::WebuiController
   before_action :check_display_user, only: [:list_my]
   before_action :require_login, only: [:save, :update]
-  before_action :require_admin, only: [:update]
 
   def home
     if params[:user].present?
@@ -40,22 +39,6 @@ class Webui::UserController < Webui::WebuiController
     end
 
     redirect_back(fallback_location: user_path(@displayed_user))
-  end
-
-  def update
-    other_user = User.find_by(login: user_params[:login])
-    unless other_user
-      redirect_to(users_path, error: "Couldn't find user '#{user_params[:login]}'.")
-      return
-    end
-    other_user.update(user_params.slice(:state, :ignore_auth_services))
-    other_user.add_globalrole(Role.where(title: 'Admin')) if user_params[:make_admin]
-    if other_user.save
-      flash[:success] = "Updated user '#{other_user}'."
-    else
-      flash[:error] = "Updating user '#{other_user}' failed: #{other_user.errors.full_messages.to_sentence}"
-    end
-    redirect_back(fallback_location: user_path(other_user))
   end
 
   def change_password
