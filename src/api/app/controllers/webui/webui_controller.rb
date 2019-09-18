@@ -21,7 +21,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :set_influxdb_additional_tags
   before_action :require_configuration
   before_action :set_pending_announcement
-  before_action :check_ajax, only: :render_dialog
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -301,13 +300,6 @@ class Webui::WebuiController < ActionController::Base
 
   def pundit_user
     User.possibly_nobody
-  end
-
-  # dialog_init is a function name called before dialog is shown
-  def render_dialog(dialog_init = nil, locals = {})
-    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: action_name, locals: locals))
-    @dialog_init = dialog_init
-    render partial: 'dialog', content_type: 'application/javascript'
   end
 
   # TODO: disable bootstrap flip in production after migrating all the controllers
