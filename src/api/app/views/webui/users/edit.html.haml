@@ -4,7 +4,7 @@
   .card-body
     %h3= @pagetitle
     .col-md-6.pl-0
-      = form_for(@displayed_user, url: user_update_path, method: 'post') do |form|
+      = form_for(@displayed_user) do |form|
         = form.hidden_field(:login)
         .form-group
           = form.label(:realname, 'Name:')

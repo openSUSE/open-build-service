@@ -1,5 +1,5 @@
 class Webui::UsersController < Webui::WebuiController
-  before_action :require_login, only: [:index, :edit, :destroy]
+  before_action :require_login, only: [:index, :edit, :destroy, :update]
   before_action :require_admin, only: [:index, :edit, :destroy]
   before_action :get_displayed_user, only: [:show, :edit]
 
@@ -66,13 +66,44 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def destroy
-    user = User.find_by(login: params[:user])
+    user = User.find_by(login: params[:login])
     if user.delete
       flash[:success] = "Marked user '#{user}' as deleted."
     else
       flash[:error] = "Marking user '#{user}' as deleted failed: #{user.errors.full_messages.to_sentence}"
     end
     redirect_to(users_path)
+  end
+
+  def update
+    @displayed_user = User.find_by_login!(params[:user][:login])
+
+    unless User.admin_session?
+      if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
+        flash[:error] = "Can't edit #{@displayed_user.login}"
+        redirect_back(fallback_location: root_path)
+        return
+      end
+    end
+
+    if @configuration.accounts_editable?(@displayed_user)
+      @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
+      @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
+    end
+
+    if User.admin_session?
+      @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
+      @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
+    end
+
+    begin
+      @displayed_user.save!
+      flash[:success] = "User data for user '#{@displayed_user.login}' successfully updated."
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = "Couldn't update user: #{e.message}."
+    end
+
+    redirect_back(fallback_location: user_path(@displayed_user))
   end
 
   private
@@ -91,11 +122,11 @@ class Webui::UsersController < Webui::WebuiController
   # rubocop:disable Naming/AccessorMethodName
   def get_displayed_user
     begin
-      @displayed_user = User.find_by_login!(params[:user])
+      @displayed_user = User.find_by_login!(params[:login])
     rescue NotFoundError
       # admins can see deleted users
-      @displayed_user = User.find_by_login(params[:user]) if User.admin_session?
-      redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
+      @displayed_user = User.find_by_login(params[:login]) if User.admin_session?
+      redirect_back(fallback_location: root_path, error: "User not found #{params[:login]}") unless @displayed_user
     end
     @is_displayed_user = (User.session == @displayed_user)
   end

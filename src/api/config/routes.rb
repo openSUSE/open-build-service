@@ -360,8 +360,7 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, only: [:index, :new, :create, :show, :edit, :destroy], controller: 'webui/users',
-                      param: :user
+    resources :users, controller: 'webui/users', param: :login, constraints: cons
 
     get 'signup', to: 'webui/users#new', as: :signup
 
