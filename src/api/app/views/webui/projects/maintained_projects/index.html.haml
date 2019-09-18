@@ -1,13 +1,14 @@
 :ruby
   @pagetitle = "Projects Maintained by #{@project}"
   update_policy = policy(@project).update?
+  data_source = projects_project_maintained_projects_path(@project, :json)
 
 .card
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
     %h3 Maintained Projects
     .table-responsive
-      %table.table.table-sm.table-striped.table-bordered#maintained-projects-datatable.w-100{ data: { source:  "#{url_for(controller: 'webui/projects/maintained_projects', action: :index, project_name: @project, format: :json)}"} }
+      %table.table.table-sm.table-striped.table-bordered.w-100#maintained-projects-datatable{ 'data-source': data_source }
         %thead
           %tr
             %th Name
