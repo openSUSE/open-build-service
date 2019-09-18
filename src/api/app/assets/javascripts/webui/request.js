@@ -54,8 +54,6 @@ function setupRequestDialog() { // jshint ignore:line
   });
 
   prefillSubmitRequestForm();
-
-  updateSupersedeAndDevelPackageDisplay();
 }
 
 /*
@@ -75,6 +73,7 @@ function prefillSubmitRequestForm() {
         $('#targetproject').attr('value', e.targetProject);
         $('#description').val(e.description);
         $('#sourceupdate').attr('checked', e.cleanupSource);
+        updateSupersedeAndDevelPackageDisplay();
       }
     });
   });
