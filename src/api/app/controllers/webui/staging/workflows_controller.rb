@@ -1,6 +1,5 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
   before_action :require_login, except: [:show]
-  before_action :set_webui2_views
   before_action :set_project, only: [:new, :create]
   before_action :set_staging_workflow, except: [:new, :create]
   after_action :verify_authorized, except: [:show, :new]

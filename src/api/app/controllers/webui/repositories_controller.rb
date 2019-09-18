@@ -174,7 +174,6 @@ class Webui::RepositoriesController < Webui::WebuiController
   # POST flag/:project(/:package)
   def change_flag
     required_parameters :flag, :command
-    set_webui2_views
     authorize @main_object, :update?
 
     flag_type = params[:flag]

@@ -341,9 +341,4 @@ class Webui::WebuiController < ActionController::Base
 
     InfluxDB::Rails.current.tags = InfluxDB::Rails.current.tags.merge(tags)
   end
-
-  # NOTE: remove when bootstrap migration is done (related to switch_to_webui2)
-  def set_webui2_views
-    prepend_view_path('app/views/webui2')
-  end
 end

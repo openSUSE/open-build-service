@@ -4,7 +4,6 @@ module Webui
       before_action :require_login
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
-      before_action :set_webui2_views
 
       def create
         authorize @staging_workflow
