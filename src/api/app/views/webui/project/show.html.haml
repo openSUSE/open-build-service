@@ -49,18 +49,18 @@
               Packages
               %span.badge.badge-primary
                 = @packages.length
-          - if @ipackages.present?
+          - if @inherited_packages.present?
             %li.nav-item
               %a.nav-link#inherited-packages-tab{ href: '#inherited-packages', role: 'tab', data: { toggle: 'tab' },
               aria: { controls: 'inherited-packages', selected: 'false' } }
                 Inherited Packages
                 %span.badge.badge-primary
-                  = @ipackages.length
+                  = @inherited_packages.length
       .tab-content#packages-tabs-content
         .tab-pane.fade.show.active#packages{ role: 'tabpanel', aria: { labelledby: 'packages-tab' } }
           = render partial: 'project_packages', locals: { project: @project, packages: @packages }
         .tab-pane.fade#inherited-packages{ role: 'tabpanel', aria: { labelledby: 'inherited-packages-tab' } }
-          = render partial: 'project_inherited_packages', locals: { project: @project, inherited_packages: @ipackages }
+          = render partial: 'project_inherited_packages', locals: { project: @project, inherited_packages: @inherited_packages }
   .comments
     .card
       %h5.card-header.text-word-break-all
