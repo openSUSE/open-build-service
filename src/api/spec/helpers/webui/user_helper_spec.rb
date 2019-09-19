@@ -21,23 +21,4 @@ RSpec.describe Webui::UserHelper do
       expect(requester_str(creator.login, nil, 'ana-team')).to include('group', 'ana-team')
     end
   end
-
-  describe '#user_image_tag' do
-    let(:user) { create(:user, realname: 'Digger', email: 'gordo@example.com') }
-    context 'with gravatar configuration disabled' do
-      before do
-        allow(Configuration).to receive(:gravatar).and_return(false)
-      end
-
-      it 'returns default face' do
-        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="/images/default_face.png" />')
-      end
-    end
-
-    context 'with gravatar configuration enabled' do
-      it 'returns gravatar url' do
-        expect(user_image_tag(user)).to eq('<img width="20" height="20" alt="Digger" src="https://www.gravatar.com/avatar/66ada5090a2f94d4cfec83801081f3a2?s=20&amp;d=robohash" />')
-      end
-    end
-  end
 end
