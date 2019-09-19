@@ -29,7 +29,6 @@
     - if @results.present?
       = render partial: 'results_owner', locals: { results: @results }
 
-      -# FIXME: This is also broken in Bento: https://github.com/openSUSE/open-build-service/issues/7616
       - if User.session
         %ul.nav
           %li.nav-item
