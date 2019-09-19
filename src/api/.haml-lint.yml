@@ -35,7 +35,13 @@ linters:
 
 exclude:
 - 'vendor/bundle/**/*'
-# Everything below is the old interface. We only lint the new Bootstrap interface
+# The old staging workflow is still using Bento, so we don't lint it
+- 'app/views/layouts/webui/obs_factory/**/*'
+- 'app/views/webui/obs_factory/**/*'
+- 'app/views/webui/theme/bento/**/*'
+# Kaminari views were created by its generator, they don't pass lint tests
+- 'app/views/webui/kaminari/**/*'
+# Everything below is the API, we don't lint it (it's mostly XML anyway)
 - 'app/views/about/**/*'
 - 'app/views/attribute/**/*'
 - 'app/views/attribute_namespace/**/*'
@@ -45,7 +51,6 @@ exclude:
 - 'app/views/exception_notifier/**/*'
 - 'app/views/group/**/*'
 - 'app/views/ichain_notifier/**/*'
-- 'app/views/layouts/webui/**/*'
 - 'app/views/message/**/*'
 - 'app/views/models/**/*'
 - 'app/views/person/**/*'
@@ -58,6 +63,3 @@ exclude:
 - 'app/views/source_project/**/*'
 - 'app/views/statistics/**/*'
 - 'app/views/status/**/*'
-- 'app/views/webui/**/*'
-# Kaminari views were created by its generator, they don't pass lint tests
-- 'app/views/webui2/webui/kaminari/**/*'
