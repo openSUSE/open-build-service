@@ -193,7 +193,7 @@ RSpec.describe Webui::UsersController do
     context "when user is trying to update another user's profile" do
       before do
         login user
-        post :update, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' }, login: user.login }
+        post :update, params: { user: { login: non_admin_user.login, realname: 'another real name', email: 'new_valid@email.es' }, login: non_admin_user.login }
         non_admin_user.reload
       end
 
@@ -239,6 +239,23 @@ RSpec.describe Webui::UsersController do
       it 'does not remove non global roles' do
         expect(user.roles).to include(*local_roles)
       end
+    end
+
+    context 'admin activate a deleted user back' do
+      before  do
+        login admin_user
+        post :update, params: {
+          login: deleted_user.login,
+          user: {
+            login: deleted_user.login,
+            state: 'confirmed'
+          }
+        }
+        deleted_user.reload
+      end
+
+      it { expect(controller).to set_flash[:success] }
+      it { expect(deleted_user.state).to eq('confirmed') }
     end
 
     context 'when roles parameter is empty' do

@@ -1,7 +1,7 @@
 class Webui::UsersController < Webui::WebuiController
   before_action :require_login, only: [:index, :edit, :destroy, :update]
   before_action :require_admin, only: [:index, :edit, :destroy]
-  before_action :get_displayed_user, only: [:show, :edit]
+  before_action :get_displayed_user, only: [:show, :edit, :update]
 
   def index
     respond_to do |format|
@@ -71,8 +71,6 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def update
-    @displayed_user = User.find_by_login!(params[:user][:login])
-
     unless User.admin_session?
       if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
         flash[:error] = "Can't edit #{@displayed_user.login}"
