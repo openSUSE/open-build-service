@@ -3,7 +3,7 @@
 - else
   - user = User.find_by_login(commit['user'])
   - if user
-    = user_image_tag(user)
+    = image_tag_for(user, size: 20)
     = link_to(user_path(user)) do
       = user.realname.present? ? "#{user.realname} (#{user})" : user
   - else
