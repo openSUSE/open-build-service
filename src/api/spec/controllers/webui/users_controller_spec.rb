@@ -203,6 +203,17 @@ RSpec.describe Webui::UsersController do
       it { is_expected.to redirect_to(root_url) }
     end
 
+    context 'when user is trying to do some privilege escalation to another user' do
+      before do
+        login user
+        post :update, params: { user: { login: non_admin_user.login, realname: 'hacked', email: 'hacked@example.org' }, login: user.login }
+        non_admin_user.reload
+      end
+
+      it { expect(non_admin_user.realname).not_to eq('hacked') }
+      it { expect(non_admin_user.email).not_to eq('hacked@example.org') }
+    end
+
     context "when admin is updating another user's profile" do
       let(:old_global_role)  { create(:role, global: true, title: 'old_global_role') }
       let(:new_global_roles) { create_list(:role, 2, global: true) }
