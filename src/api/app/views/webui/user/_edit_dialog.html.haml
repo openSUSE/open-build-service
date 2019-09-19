@@ -3,7 +3,7 @@
     .modal-content
       .modal-header
         %h5.modal-title#branch-modal-label Edit your account
-      = form_for(user, url: user_save_path, method: 'post') do |f|
+      = form_for(user, url: user_path, method: :patch) do |f|
         .modal-body
           = f.hidden_field(:login, id: 'user')
           .form-group

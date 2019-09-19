@@ -342,11 +342,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-      post 'user/save' => :save, constraints: cons
-
       post 'user/change_password' => :change_password
-
-      patch 'user' => :update, as: 'user_update'
 
       get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
       get 'user/tokens' => :tokens
@@ -362,8 +358,7 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, only: [:index, :new, :create, :show, :edit, :destroy], controller: 'webui/users',
-                      param: :user
+    resources :users, controller: 'webui/users', param: :login, constraints: cons
 
     get 'signup', to: 'webui/users#new', as: :signup
 
