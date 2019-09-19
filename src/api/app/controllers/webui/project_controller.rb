@@ -12,7 +12,7 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
                                      :new_package,
                                      :show, :buildresult,
-                                     :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
+                                     :destroy, :remove_path_from_target, :rebuild_time,
                                      :requests, :save, :monitor, :toggle_watch,
                                      :edit_comment, :status,
                                      :unlock, :save_person, :save_group, :remove_role,
@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_project_by_id, only: [:update]
 
-  before_action :load_project_info, only: [:show, :packages_simple, :rebuild_time]
+  before_action :load_project_info, only: [:show, :rebuild_time]
 
   before_action :load_releasetargets, only: :show
 
@@ -28,7 +28,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
                                             :autocomplete_repositories, :users, :subprojects, :new, :show,
-                                            :packages_simple, :buildresult, :requests, :monitor, :status, :new_release_request,
+                                            :buildresult, :requests, :monitor, :status, :new_release_request,
                                             :remove_target_request, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
@@ -134,8 +134,6 @@ class Webui::ProjectController < Webui::WebuiController
     @comments = @project.comments
     @comment = Comment.new
   end
-
-  def packages_simple; end
 
   def buildresult
     render partial: 'buildstatus', locals: { project: @project,
