@@ -1,14 +1,4 @@
 module Webui::ManageRelationships
-  def redirect_after_save(what)
-    if switch_to_webui2
-      redirect_to(users_path)
-    elsif what == :person
-      redirect_to(add_path(:add_person))
-    else
-      redirect_to(add_path(:add_group))
-    end
-  end
-
   def save_person_or_group(what)
     authorize main_object, :update?
     begin
@@ -17,16 +7,20 @@ module Webui::ManageRelationships
     rescue NotFoundError,
            Relationship::AddRole::SaveError => e
       flash[:error] = e.to_s
-      return redirect_after_save(what)
+      return redirect_to(custom_users_path)
     end
     respond_to do |format|
       format.js { render json: {}, status: :ok }
       format.html do
         success_str = what == :person ? "user #{params[:userid]}" : "group #{params[:groupid]}"
         flash[:success] = "Added #{success_str} with role #{params[:role]}"
-        redirect_to users_path
+        redirect_to custom_users_path
       end
     end
+  end
+
+  def custom_users_path
+    url_for(action: :users, project: @project, package: @package)
   end
 
   def save_person
@@ -61,7 +55,7 @@ module Webui::ManageRelationships
         else
           flash[:success] = "Removed group '#{params[:groupid]}'"
         end
-        redirect_to users_path
+        redirect_to custom_users_path
       end
     end
   end
