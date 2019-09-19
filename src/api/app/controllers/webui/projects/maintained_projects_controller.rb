@@ -28,7 +28,7 @@ module Webui
                           { error: "Failed to disable Maintenance for #{maintenance_project.project}: #{@project.errors.full_messages.to_sentence}" }
                         end
 
-        redirect_to(projects_project_maintained_projects_path(project_name: @project.name), flash_message)
+        redirect_to(project_maintained_projects_path(project_name: @project.name), flash_message)
       end
 
       def create
@@ -42,7 +42,7 @@ module Webui
                           { error: "Failed to enable Maintenance for #{@maintained_project}: #{@project.errors.full_messages.to_sentence}" }
                         end
 
-        redirect_to(projects_project_maintained_projects_path(project_name: @project.name), flash_message)
+        redirect_to(project_maintained_projects_path(project_name: @project.name), flash_message)
       end
 
       private

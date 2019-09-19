@@ -14,7 +14,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
       end
 
       scenario 'maintenance projects are not shown' do
-        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        visit project_maintained_projects_path(project_name: maintenance_project.name)
         expect(page).to have_text('Maintained Projects')
         expect(page).not_to have_selector('#new-maintenance-project-modal')
         expect(page).not_to have_selector('#delete-maintained-project-modal')
@@ -24,7 +24,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
     context 'with admin login' do
       scenario 'initial state' do
         login admin_user
-        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_text('Maintained Projects')
         expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
@@ -33,7 +33,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
 
       scenario 'click on add new project' do
         login admin_user
-        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
         click_link('Add Project to Maintain')
@@ -44,7 +44,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
 
       scenario 'click on delete project' do
         login admin_user
-        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
 
@@ -56,7 +56,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
 
       scenario 'delete project' do
         login admin_user
-        visit projects_project_maintained_projects_path(project_name: maintenance_project.name)
+        visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         click_link('Delete Project')
 
