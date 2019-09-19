@@ -18,6 +18,12 @@ module HistoryElement
 end
 
 class HistoryElement::Request < ::HistoryElement::Base
+  belongs_to :review,
+             -> { where(history_elements: { type: 'HistoryElement::RequestReviewAdded' })
+                    .joins('JOIN history_elements ON history_elements.description_extension = reviews.id') },
+             class_name: '::Review',
+             foreign_key: :description_extension
+
   self.description = 'Request was updated'
   self.abstract_class = true
 
@@ -101,10 +107,6 @@ class HistoryElement::RequestSuperseded < HistoryElement::Request
 end
 
 class HistoryElement::RequestReviewAdded < HistoryElement::Request
-  belongs_to :review,
-             class_name: '::Review',
-             foreign_key: :description_extension
-
   # self.description_extension is review id
   def description
     'Request got a new review request'

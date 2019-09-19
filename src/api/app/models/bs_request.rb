@@ -92,7 +92,7 @@ class BsRequest < ApplicationRecord
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :delete_all
-  has_many :request_history_elements, -> { order(:created_at).includes(:review) },
+  has_many :request_history_elements, -> { order(:created_at) },
            class_name: 'HistoryElement::Request',
            foreign_key: :op_object_id
   has_many :review_history_elements, through: :reviews, source: :history_elements
