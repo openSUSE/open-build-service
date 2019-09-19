@@ -4,7 +4,7 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::ProjectHelper
   include Webui::ManageRelationships
 
-  before_action :lockout_spiders, only: [:requests, :rebuild_time, :buildresults]
+  before_action :lockout_spiders, only: [:requests, :buildresults]
 
   before_action :require_login, only: [:create, :toggle_watch, :destroy, :new,
                                        :new_release_request, :new_package, :edit_comment]
@@ -12,7 +12,7 @@ class Webui::ProjectController < Webui::WebuiController
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
                                      :new_package,
                                      :show, :buildresult,
-                                     :destroy, :remove_path_from_target, :rebuild_time,
+                                     :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :toggle_watch,
                                      :edit_comment, :status,
                                      :unlock, :save_person, :save_group, :remove_role,
@@ -20,7 +20,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :set_project_by_id, only: [:update]
 
-  before_action :load_project_info, only: [:show, :rebuild_time]
+  before_action :load_project_info, only: [:show]
 
   before_action :load_releasetargets, only: :show
 
