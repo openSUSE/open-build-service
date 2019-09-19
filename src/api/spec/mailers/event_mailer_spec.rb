@@ -41,8 +41,8 @@ RSpec.describe EventMailer, vcr: true do
           source_package.project.destroy
         end
 
-        it 'does not get delivered' do
-          expect(ActionMailer::Base.deliveries).not_to include(mail)
+        it 'the email also gets delivered' do
+          expect(ActionMailer::Base.deliveries).to include(mail)
         end
       end
 
