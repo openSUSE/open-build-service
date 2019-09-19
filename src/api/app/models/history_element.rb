@@ -19,13 +19,17 @@ end
 
 class HistoryElement::Request < ::HistoryElement::Base
   belongs_to :review,
-             -> { where(history_elements: { type: 'HistoryElement::RequestReviewAdded' })
-                    .joins('JOIN history_elements ON history_elements.description_extension = reviews.id') },
              class_name: '::Review',
-             foreign_key: :description_extension
+             foreign_key: :description_extension,
+             scope: :restrict_to_review_added
 
   self.description = 'Request was updated'
   self.abstract_class = true
+
+  def self.restrict_to_review_added
+    where(history_elements: { type: 'HistoryElement::RequestReviewAdded' })
+      .joins('JOIN history_elements ON history_elements.description_extension = reviews.id')
+  end
 
   def request
     BsRequest.find(op_object_id)
