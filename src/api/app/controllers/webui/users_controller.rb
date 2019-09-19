@@ -1,7 +1,7 @@
 class Webui::UsersController < Webui::WebuiController
   before_action :require_login, only: [:index, :edit, :destroy, :update]
   before_action :require_admin, only: [:index, :edit, :destroy]
-  before_action :get_displayed_user, only: [:show, :edit, :update]
+  before_action :check_displayed_user, only: [:show, :edit, :update]
 
   def index
     respond_to do |format|
@@ -36,7 +36,7 @@ class Webui::UsersController < Webui::WebuiController
 
   def create
     begin
-      UnregisteredUser.register(opts)
+      UnregisteredUser.register(create_params)
     rescue APIError => e
       flash[:error] = e.message
       redirect_back(fallback_location: root_path)
@@ -48,7 +48,7 @@ class Webui::UsersController < Webui::WebuiController
     if User.admin_session?
       redirect_to users_path
     else
-      session[:login] = opts[:login]
+      session[:login] = create_params[:login]
       User.session = User.find_by!(login: session[:login])
       if User.session!.home_project
         redirect_to project_show_path(User.session!.home_project)
@@ -57,8 +57,6 @@ class Webui::UsersController < Webui::WebuiController
       end
     end
   end
-
-  def edit; end
 
   def destroy
     user = User.find_by(login: params[:login])
@@ -69,6 +67,8 @@ class Webui::UsersController < Webui::WebuiController
     end
     redirect_to(users_path)
   end
+
+  def edit; end
 
   def update
     unless User.admin_session?
@@ -101,7 +101,7 @@ class Webui::UsersController < Webui::WebuiController
 
   private
 
-  def opts
+  def create_params
     {
       realname: params[:realname], login: params[:login], state: params[:state],
       password: params[:password], password_confirmation: params[:password_confirmation],
@@ -109,11 +109,7 @@ class Webui::UsersController < Webui::WebuiController
     }
   end
 
-  # TODO
-  # Remove the method WebuiController#check_displayed_user
-  # as soon as we migrate all CRUD methods from UserController to here
-  # rubocop:disable Naming/AccessorMethodName
-  def get_displayed_user
+  def check_displayed_user
     begin
       @displayed_user = User.find_by_login!(params[:login])
     rescue NotFoundError
@@ -123,5 +119,4 @@ class Webui::UsersController < Webui::WebuiController
     end
     @is_displayed_user = (User.session == @displayed_user)
   end
-  # rubocop:enable Naming/AccessorMethodName
 end

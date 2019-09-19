@@ -1,6 +1,4 @@
 class Webui::UserController < Webui::WebuiController
-  before_action :check_display_user, only: [:list_my]
-
   def home
     if params[:user].present?
       redirect_to user_path(params[:user])
