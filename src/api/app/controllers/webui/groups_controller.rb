@@ -6,20 +6,12 @@ class Webui::GroupsController < Webui::WebuiController
   def index
     authorize Group, :index?
     @groups = Group.all.includes(:users)
-
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
   end
 
-  def show
-    switch_to_webui2
-  end
+  def show; end
 
   def new
     authorize Group, :create?
-
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
   end
 
   def create

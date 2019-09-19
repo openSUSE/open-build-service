@@ -5,7 +5,6 @@ module Webui
         before_action :require_login
 
         def show
-          switch_to_webui2
           @ec2_configuration = User.session!.ec2_configuration || User.session!.create_ec2_configuration
           @aws_account_id = CONFIG['aws_account_id']
         end

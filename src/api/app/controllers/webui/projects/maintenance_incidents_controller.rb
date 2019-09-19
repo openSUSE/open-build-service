@@ -16,7 +16,6 @@ module Webui
             render json: MaintenanceIncidentDatatable.new(params, view_context: view_context, project: @project)
           end
         end
-        switch_to_webui2
       end
 
       def create

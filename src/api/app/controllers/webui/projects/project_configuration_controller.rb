@@ -8,7 +8,6 @@ module Webui
         result = ::ProjectConfigurationService::ProjectConfigurationPresenter.new(@project, params).call
         @content = result.config if result.valid?
 
-        switch_to_webui2
         return if @content
         raise ActiveRecord::RecordNotFound, 'Not Found'
       end
@@ -23,7 +22,6 @@ module Webui
                    flash.now[:error] = result.errors
                    400
                  end
-        switch_to_webui2
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
     end

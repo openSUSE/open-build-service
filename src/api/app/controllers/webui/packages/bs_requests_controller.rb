@@ -12,7 +12,6 @@ module Webui
         respond_to do |format|
           format.json { render 'webui/shared/bs_requests/index' }
         end
-        switch_to_webui2
       end
     end
   end

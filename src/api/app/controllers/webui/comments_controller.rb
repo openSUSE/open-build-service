@@ -3,8 +3,6 @@ class Webui::CommentsController < Webui::WebuiController
   before_action :find_commentable, only: :create
 
   def create
-    switch_to_webui2
-
     comment = @commented.comments.new(permitted_params)
     User.session!.comments << comment
     @commentable = comment.commentable
@@ -24,8 +22,6 @@ class Webui::CommentsController < Webui::WebuiController
   end
 
   def destroy
-    switch_to_webui2
-
     comment = Comment.find(params[:id])
     authorize comment, :destroy?
     @commentable = comment.commentable

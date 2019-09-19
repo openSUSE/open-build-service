@@ -10,8 +10,6 @@ class Webui::AttributeController < Webui::WebuiController
 
   def index
     @attributes = @container.attribs.includes(:issues, :values, attrib_type: [:attrib_namespace]).sort_by(&:fullname)
-
-    switch_to_webui2
   end
 
   def new
@@ -24,8 +22,6 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute, :create?
 
     @attribute_types = AttribType.includes(:attrib_namespace).all.sort_by(&:fullname)
-
-    switch_to_webui2
   end
 
   def edit
@@ -45,8 +41,6 @@ class Webui::AttributeController < Webui::WebuiController
     end
 
     @allowed_values = @attribute.attrib_type.allowed_values.map(&:value)
-
-    switch_to_webui2
   end
 
   def create

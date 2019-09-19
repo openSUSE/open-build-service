@@ -8,8 +8,6 @@ class Webui::UsersController < Webui::WebuiController
       format.html
       format.json { render json: UserConfigurationDatatable.new(params, view_context: view_context) }
     end
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
   end
 
   def show
@@ -20,7 +18,7 @@ class Webui::UsersController < Webui::WebuiController
     @role_titles = @displayed_user.roles.global.pluck(:title)
     @account_edit_link = CONFIG['proxy_auth_account_page']
 
-    return unless switch_to_webui2 && (CONFIG['contribution_graph'] != :off)
+    return if CONFIG['contribution_graph'] == :off
 
     @last_day = Time.zone.today
 
@@ -34,7 +32,6 @@ class Webui::UsersController < Webui::WebuiController
   def new
     @pagetitle = params[:pagetitle] || 'Sign up'
     @submit_btn_text = params[:submit_btn_text] || 'Sign up'
-    switch_to_webui2
   end
 
   def create
@@ -61,9 +58,7 @@ class Webui::UsersController < Webui::WebuiController
     end
   end
 
-  def edit
-    switch_to_webui2
-  end
+  def edit; end
 
   def destroy
     user = User.find_by(login: params[:login])

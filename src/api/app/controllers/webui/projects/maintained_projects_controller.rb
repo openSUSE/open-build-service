@@ -13,7 +13,6 @@ module Webui
                                                                 project: @project, current_user: User.possibly_nobody)
           end
         end
-        switch_to_webui2
       end
 
       def destroy

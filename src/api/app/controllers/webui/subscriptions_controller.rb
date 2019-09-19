@@ -3,9 +3,6 @@ class Webui::SubscriptionsController < Webui::WebuiController
 
   def index
     @subscriptions_form = subscriptions_form
-
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
   end
 
   def update

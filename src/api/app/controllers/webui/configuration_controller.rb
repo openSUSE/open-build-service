@@ -2,11 +2,6 @@ class Webui::ConfigurationController < Webui::WebuiController
   before_action :require_admin
   before_action :set_configuration, only: [:update]
 
-  def index
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
-  end
-
   def update
     respond_to do |format|
       if @configuration.update(configuration_params)

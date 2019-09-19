@@ -2,7 +2,6 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   before_action :require_login
 
   def index
-    switch_to_webui2
     @user = User.session!
     @groups_users = @user.groups_users
 

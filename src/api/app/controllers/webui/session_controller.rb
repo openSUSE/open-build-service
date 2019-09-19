@@ -7,9 +7,7 @@ class Webui::SessionController < Webui::WebuiController
 
   skip_before_action :check_anonymous, only: [:create]
 
-  def new
-    switch_to_webui2
-  end
+  def new; end
 
   def create
     User.session = @session_creator.user

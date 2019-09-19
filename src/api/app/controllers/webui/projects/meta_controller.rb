@@ -7,7 +7,6 @@ module Webui
 
       def show
         @meta = @project.render_xml
-        switch_to_webui2
       end
 
       def update
@@ -21,7 +20,6 @@ module Webui
                    flash.now[:error] = updater.errors
                    400
                  end
-        switch_to_webui2
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
 

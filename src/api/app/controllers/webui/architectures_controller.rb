@@ -4,9 +4,6 @@ class Webui::ArchitecturesController < Webui::WebuiController
 
   def index
     @architectures = Architecture.order(:name)
-
-    # TODO: Remove the statement after migration is finished
-    switch_to_webui2
   end
 
   def update

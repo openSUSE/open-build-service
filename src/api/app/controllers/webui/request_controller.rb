@@ -93,7 +93,6 @@ class Webui::RequestController < Webui::WebuiController
     @comments = @bs_request.comments
     @comment = Comment.new
 
-    switch_to_webui2
     @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
@@ -145,7 +144,6 @@ class Webui::RequestController < Webui::WebuiController
   def list_small
     redirect_to(user_path(User.possibly_nobody)) && return unless request.xhr? # non ajax request
     requests = BsRequest.list(params)
-    switch_to_webui2
     render partial: 'requests_small', locals: { requests: requests }
   end
 

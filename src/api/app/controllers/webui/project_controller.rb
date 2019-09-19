@@ -32,8 +32,6 @@ class Webui::ProjectController < Webui::WebuiController
                                             :remove_target_request, :toggle_watch, :edit_comment, :edit_comment_form]
 
   def index
-    switch_to_webui2
-
     respond_to do |format|
       format.html do
         render :index,
@@ -69,13 +67,9 @@ class Webui::ProjectController < Webui::WebuiController
     @users = @project.users
     @groups = @project.groups
     @roles = Role.local_roles
-
-    switch_to_webui2
   end
 
   def subprojects
-    switch_to_webui2
-
     respond_to do |format|
       format.html
       format.json do
@@ -89,14 +83,10 @@ class Webui::ProjectController < Webui::WebuiController
     @project.name = params[:name] if params[:name]
 
     @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
-
-    switch_to_webui2
   end
 
   def new_package
     authorize @project, :update?
-
-    switch_to_webui2
   end
 
   def new_release_request
@@ -143,14 +133,11 @@ class Webui::ProjectController < Webui::WebuiController
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
-
-    switch_to_webui2
   end
 
   def packages_simple; end
 
   def buildresult
-    switch_to_webui2
     render partial: 'buildstatus', locals: { project: @project,
                                              buildresults: @project.buildresults,
                                              collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
@@ -176,7 +163,6 @@ class Webui::ProjectController < Webui::WebuiController
     @requests = @project.open_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
-    switch_to_webui2
   end
 
   def create
@@ -309,7 +295,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def monitor
-    switch_to_webui2
     unless (buildresult = monitor_buildresult)
       @buildresult_unavailable = true
       return
@@ -356,18 +341,12 @@ class Webui::ProjectController < Webui::WebuiController
       format.html { redirect_to({ action: :status, project: @project }, success: 'Cleared comments for packages.') }
       format.js { render 'clear_failed_comment' }
     end
-    switch_to_webui2
-  end
-
-  def edit_comment_form
-    switch_to_webui2
   end
 
   # FIXME: This should authorize create on this attribute
   def edit_comment
     @package = @project.find_package(params[:package])
 
-    switch_to_webui2
     at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     unless User.session!.can_create_attribute_in?(@package, at)
       @comment = params[:last_comment]
@@ -416,8 +395,6 @@ class Webui::ProjectController < Webui::WebuiController
       end
       format.html
     end
-
-    switch_to_webui2
   end
 
   def unlock

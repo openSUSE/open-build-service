@@ -40,8 +40,6 @@ class Webui::PackageController < Webui::WebuiController
   after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
   def index
-    switch_to_webui2
-
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
   end
 
@@ -83,8 +81,6 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
     @services = @files.any? { |file| file[:name] == '_service' }
-
-    switch_to_webui2
   end
 
   def main_object
@@ -93,7 +89,6 @@ class Webui::PackageController < Webui::WebuiController
 
   # rubocop:disable Lint/NonLocalExitFromIterator
   def dependency
-    switch_to_webui2
     dependant_project = Project.find_by_name(params[:dependant_project]) || Project.find_remote_project(params[:dependant_project]).try(:first)
     unless dependant_project
       flash[:error] = "Project '#{params[:dependant_project]}' is invalid."
@@ -132,7 +127,6 @@ class Webui::PackageController < Webui::WebuiController
   # rubocop:enable Lint/NonLocalExitFromIterator
 
   def statistics
-    switch_to_webui2
     @repository = params[:repository]
     @package_name = params[:package]
 
@@ -160,8 +154,6 @@ class Webui::PackageController < Webui::WebuiController
     logger.debug "accepting #{request.accepts.join(',')} format:#{request.format}"
     # little trick to give users eager to download binaries a single click
     redirect_to(@download_url) && return if request.format != Mime[:html] && @download_url
-
-    switch_to_webui2
   end
 
   def binaries
@@ -188,7 +180,6 @@ class Webui::PackageController < Webui::WebuiController
       end
       @buildresults << build_results_set
     end
-    switch_to_webui2
   rescue Backend::Error => e
     flash[:error] = e.message
     redirect_back(fallback_location: { controller: :package, action: :show, project: @project, package: @package })
@@ -198,15 +189,11 @@ class Webui::PackageController < Webui::WebuiController
     @users = [@project.users, @package.users].flatten.uniq
     @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
-
-    switch_to_webui2
   end
 
   def requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
-
-    switch_to_webui2
   end
 
   def revisions
@@ -219,8 +206,6 @@ class Webui::PackageController < Webui::WebuiController
     revision = (params[:rev] || @package.rev).to_i
     per_page = params['show_all'] ? revision : 20
     @revisions = Kaminari.paginate_array((1..revision).to_a.reverse).page(params[:page]).per(per_page)
-
-    switch_to_webui2
   end
 
   # FIXME: This should be in Webui::RequestController
@@ -354,8 +339,6 @@ class Webui::PackageController < Webui::WebuiController
       @submit_message = "Revert #{@project.name}/#{@package.name} to revision #{@rev}"
       @submit_url_opts[:target_project] = @project.name
     end
-
-    switch_to_webui2
   end
 
   def save_new
@@ -479,7 +462,6 @@ class Webui::PackageController < Webui::WebuiController
     else
       flash[:error] = "Failed to save package '#{@package.name}': #{@package.errors.full_messages.to_sentence}"
     end
-    switch_to_webui2
     redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
@@ -513,7 +495,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def add_file
     set_file_details
-    switch_to_webui2
   end
 
   def save_file
@@ -574,7 +555,6 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
 
-    switch_to_webui2
     status ||= 200
     render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
   end
@@ -627,9 +607,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    switch_to_webui2
-    prefix = switch_to_webui2? ? 'webui2/' : ''
-    render(template: "#{prefix}webui/package/simple_file_view") && return if @spider_bot
+    render(template: 'webui/package/simple_file_view') && return if @spider_bot
   end
 
   def live_build_log
@@ -653,8 +631,6 @@ class Webui::PackageController < Webui::WebuiController
     @finished = Buildresult.final_status?(status)
 
     set_job_status
-
-    switch_to_webui2
   end
 
   def update_build_log
@@ -713,8 +689,6 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     logger.debug 'finished ' + @finished.to_s
-
-    switch_to_webui2
   end
 
   def abort_build
@@ -764,13 +738,11 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      switch_to_webui2
       render partial: 'buildstatus', locals: { buildresults: @buildresults,
                                                index: @index,
                                                project: @project,
                                                collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
-      switch_to_webui2
       render partial: 'no_repositories', locals: { project: @project }
     end
   end
@@ -795,7 +767,6 @@ class Webui::PackageController < Webui::WebuiController
       [repo_name, valid_xml_id(elide(repo_name, 30))]
     end
 
-    switch_to_webui2
     if @repo_list.empty?
       render partial: 'no_repositories', locals: { project: @project }
     else
@@ -808,7 +779,6 @@ class Webui::PackageController < Webui::WebuiController
     begin
       @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
       @log.encode!(xml: :text)
-      switch_to_webui2
       render partial: 'rpmlint_log'
     rescue Backend::NotFoundError
       render plain: 'No rpmlint log'
@@ -817,7 +787,6 @@ class Webui::PackageController < Webui::WebuiController
 
   def meta
     @meta = @package.render_xml
-    switch_to_webui2
   end
 
   def save_meta
@@ -850,7 +819,6 @@ class Webui::PackageController < Webui::WebuiController
       flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
       status = 400
     end
-    switch_to_webui2
     render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
   end
 

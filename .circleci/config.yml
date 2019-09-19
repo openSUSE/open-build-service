@@ -105,9 +105,6 @@ jobs:
             cd src/api
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
 
-            # TODO: Remove this when switch_to_webui2 is removed
-            export BOOTSTRAP=1
-
             # single out db specs
             circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/db/' > spec.list
             circleci tests split --total $CIRCLE_NODE_TOTAL --split-by=timings < spec.list > $pickfile

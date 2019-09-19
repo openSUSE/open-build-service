@@ -8,14 +8,12 @@ module Webui
       before_action :set_upload_job, only: :destroy
 
       def index
-        switch_to_webui2
         @upload_jobs = ::Cloud::Backend::UploadJob.all(User.session!)
       end
 
       def new
         @user_ec2_configured = User.session!.ec2_configuration.present?
         @user_azure_configured = User.session!.azure_configuration.present?
-        switch_to_webui2
       end
 
       def create

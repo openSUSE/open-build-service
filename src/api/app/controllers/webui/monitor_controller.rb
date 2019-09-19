@@ -6,10 +6,6 @@ class Webui::MonitorController < Webui::WebuiController
 
   DEFAULT_SEARCH_RANGE = 24
 
-  def old
-    switch_to_webui2
-  end
-
   def index
     if request.post? && !params[:project].nil? && Project.valid_name?(params[:project])
       redirect_to project: params[:project]
@@ -38,7 +34,6 @@ class Webui::MonitorController < Webui::WebuiController
       @workers_sorted = workers.sort_by { |a| a[0] } if workers
       @available_arch_list = Architecture.available.order(:name).pluck(:name)
     end
-    switch_to_webui2
   end
 
   def update_building

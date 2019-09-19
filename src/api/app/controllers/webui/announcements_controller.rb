@@ -4,6 +4,5 @@ class Webui::AnnouncementsController < Webui::WebuiController
     @announcement = Announcement.find_by(id: params[:id])
 
     redirect_back(fallback_location: root_path, error: "Couldn't find announcement") unless @announcement
-    switch_to_webui2
   end
 end
