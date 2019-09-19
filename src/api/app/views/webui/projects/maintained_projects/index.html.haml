@@ -1,7 +1,7 @@
 :ruby
   @pagetitle = "Projects Maintained by #{@project}"
   update_policy = policy(@project).update?
-  data_source = projects_project_maintained_projects_path(@project, :json)
+  data_source = project_maintained_projects_path(@project, :json)
 
 .card
   = render partial: 'webui/project/tabs', locals: { project: @project }

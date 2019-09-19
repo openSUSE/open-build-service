@@ -300,13 +300,7 @@ OBSApi::Application.routes.draw do
 
     resources :projects, only: [], param: :name do
       resources :maintained_projects, controller: 'webui/projects/maintained_projects',
-                                      param: :maintained_project, only: [:destroy, :create], constraints: cons do
-        # TODO
-        # the index route points already to the ProjectController#maintained_projects
-        # It's bento only and as soon bento is gone, we can add index to the resource and delete it
-        get :index, as: :projects, on: :collection
-      end
-
+                                      param: :maintained_project, only: [:index, :destroy, :create], constraints: cons
       resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
