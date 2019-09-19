@@ -351,7 +351,9 @@ OBSApi::Application.routes.draw do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
 
-    resources :users, controller: 'webui/users', param: :login, constraints: cons
+    resources :users, controller: 'webui/users', param: :login, constraints: cons do
+      resources :requests, only: [:index], controller: 'webui/users/bs_requests'
+    end
 
     get 'signup', to: 'webui/users#new', as: :signup
 
@@ -369,13 +371,6 @@ OBSApi::Application.routes.draw do
     put 'user/notifications' => :update, constraints: cons, controller: 'webui/users/subscriptions'
 
     get 'user/tasks' => :index, constraints: cons, controller: 'webui/users/tasks', as: 'user_tasks'
-
-    # Hardcoding this routes is necessary because we rely on the :user parameter
-    # in check_display_user before filter. Overwriting of the parameter is not
-    # possible for nested resources atm.
-    controller 'webui/users/bs_requests' do
-      get 'users/(:user)/requests' => :index, as: 'user_requests'
-    end
 
     controller 'webui/groups/bs_requests' do
       get 'groups/(:title)/requests' => :index, constraints: { title: /[^\/]*/ }, as: 'group_requests'

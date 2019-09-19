@@ -5,6 +5,6 @@ RSpec.describe '/users/:user/requests routes', type: :routing do
 
   it do
     expect(get("/users/#{user}/requests"))
-      .to route_to('webui/users/bs_requests#index', user: user)
+      .to route_to('webui/users/bs_requests#index', user_login: user)
   end
 end

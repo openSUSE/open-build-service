@@ -4,7 +4,7 @@ RSpec.describe Webui::Users::BsRequestsController do
   describe 'GET #index' do
     include_context 'a set of bs requests'
 
-    let(:base_params) { { user: user, format: :json } }
+    let(:base_params) { { user_login: user, format: :json } }
     let(:context_params) { {} }
     let(:params) { base_params.merge(context_params) }
 

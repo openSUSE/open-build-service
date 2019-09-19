@@ -2,7 +2,7 @@ module Webui
   module Users
     class BsRequestsController < WebuiController
       include Webui::Mixins::BsRequestsControllerMixin
-      before_action :check_display_user
+      before_action :check_displayed_user
       before_action :set_user
 
       REQUEST_METHODS = {
