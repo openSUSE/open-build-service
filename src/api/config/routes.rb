@@ -336,10 +336,6 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/user' do
       post 'user/change_password' => :change_password
-
-      # get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
-      # get 'user/tokens' => :tokens
-
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
@@ -364,11 +360,13 @@ OBSApi::Application.routes.draw do
     # TODO
     # keep those routes reachable, but remove them later as
     # nobody access it anymore
-    get 'user/signup', to: redirect('/signup')
-    get 'user/register_user', to: redirect('/signup')
-    get 'user/show/:user', to: redirect('/users/%{user}')
-    get 'user/autocomplete', to: redirect('/users/autocomplete')
-    get 'user/tokens', to: redirect('/users/tokens')
+    namespace :user do
+      get '/signup', to: redirect('/signup')
+      get '/register_user', to: redirect('/signup')
+      get '/show/:user', to: redirect('/users/%{user}')
+      get '/autocomplete', to: redirect('/users/autocomplete')
+      get '/tokens', to: redirect('/users/tokens')
+    end
 
     resources :announcements, only: :show, controller: 'webui/announcements'
 
