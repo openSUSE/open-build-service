@@ -55,7 +55,7 @@
 	var line = position.line + this.cm.getOption('firstLineNumber');
 	if(document.getElementById('ln_'+this.cm.id) != null) document.getElementById('ln_'+this.cm.id).innerHTML = line;
 	if(document.getElementById('ch_'+this.cm.id) != null) document.getElementById('ch_'+this.cm.id).innerHTML = position.ch;
-	if(document.getElementById('match_'+this.cm.id).value == 'on') {
+	if(document.getElementById('match_'+this.cm.id) != null && document.getElementById('match_'+this.cm.id).value == 'on') {
 	    this.cm.matchHighlight("CodeMirror-matchhighlight");
 	}
     }
