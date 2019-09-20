@@ -198,14 +198,15 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  def check_display_user
-    if params['user'].present?
+  def check_displayed_user
+    param_login = params[:login] || params[:user_login]
+    if param_login.present?
       begin
-        @displayed_user = User.find_by_login!(params['user'])
+        @displayed_user = User.find_by_login!(param_login)
       rescue NotFoundError
         # admins can see deleted users
-        @displayed_user = User.find_by_login(params['user']) if User.admin_session?
-        redirect_back(fallback_location: root_path, error: "User not found #{params['user']}") unless @displayed_user
+        @displayed_user = User.find_by_login(param_login) if User.admin_session?
+        redirect_back(fallback_location: root_path, error: "User not found #{param_login}") unless @displayed_user
       end
     else
       @displayed_user = User.possibly_nobody
