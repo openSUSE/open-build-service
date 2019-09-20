@@ -99,6 +99,14 @@ class Webui::UsersController < Webui::WebuiController
     redirect_back(fallback_location: user_path(@displayed_user))
   end
 
+  def autocomplete
+    render json: User.autocomplete_login(params[:term])
+  end
+
+  def tokens
+    render json: User.autocomplete_token(params[:q])
+  end
+
   private
 
   def create_params

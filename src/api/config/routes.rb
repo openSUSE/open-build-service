@@ -337,8 +337,8 @@ OBSApi::Application.routes.draw do
     controller 'webui/user' do
       post 'user/change_password' => :change_password
 
-      get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
-      get 'user/tokens' => :tokens
+      # get 'user/autocomplete' => :autocomplete, as: 'autocomplete_users'
+      # get 'user/tokens' => :tokens
 
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
@@ -353,6 +353,10 @@ OBSApi::Application.routes.draw do
 
     resources :users, controller: 'webui/users', param: :login, constraints: cons do
       resources :requests, only: [:index], controller: 'webui/users/bs_requests'
+      collection do
+        get 'autocomplete'
+        get 'tokens'
+      end
     end
 
     get 'signup', to: 'webui/users#new', as: :signup
@@ -363,6 +367,9 @@ OBSApi::Application.routes.draw do
     get 'user/signup', to: redirect('/signup')
     get 'user/register_user', to: redirect('/signup')
     get 'user/show/:user', to: redirect('/users/%{user}')
+    get 'user/autocomplete', to: redirect('/users/autocomplete')
+    get 'user/tokens', to: redirect('/users/tokens')
+
     resources :announcements, only: :show, controller: 'webui/announcements'
 
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
