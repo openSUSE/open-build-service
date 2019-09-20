@@ -87,7 +87,7 @@ class Webui::RequestController < Webui::WebuiController
     @is_target_maintainer = @bs_request.is_target_maintainer?(User.session)
     @can_handle_request = @bs_request.state.in?([:new, :review, :declined]) && (@is_target_maintainer || @is_author)
 
-    @history = @bs_request.history_elements.includes(:user)
+    @history = @bs_request.history_elements.includes(:user, :review)
 
     # retrieve a list of all package maintainers that are assigned to at least one target package
     @package_maintainers = target_package_maintainers
