@@ -358,4 +358,22 @@ RSpec.describe Webui::UsersController do
       end
     end
   end
+
+  describe 'GET #autocomplete' do
+    let!(:user) { create(:user, login: 'foobar') }
+
+    it 'returns user login' do
+      get :autocomplete, params: { term: 'foo', format: :json }
+      expect(JSON.parse(response.body)).to match_array(['foobar'])
+    end
+  end
+
+  describe 'GET #tokens' do
+    let!(:user) { create(:user, login: 'foobaz') }
+
+    it 'returns user token as array of hash' do
+      get :tokens, params: { q: 'foo', format: :json }
+      expect(JSON.parse(response.body)).to match_array(['name' => 'foobaz'])
+    end
+  end
 end
