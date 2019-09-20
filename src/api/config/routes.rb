@@ -335,7 +335,6 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-      post 'user/change_password' => :change_password
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
@@ -352,6 +351,9 @@ OBSApi::Application.routes.draw do
       collection do
         get 'autocomplete'
         get 'tokens'
+      end
+      member do
+        post 'change_password'
       end
     end
 

@@ -376,4 +376,45 @@ RSpec.describe Webui::UsersController do
       expect(JSON.parse(response.body)).to match_array(['name' => 'foobaz'])
     end
   end
+
+  describe 'POST #change_password' do
+    context 'LDAP mode on' do
+      before do
+        login non_admin_user
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :on))
+        post :change_password, params: { login: non_admin_user }
+      end
+
+      it 'shows an error message when in LDAP mode' do
+        expect(controller).to set_flash[:error]
+      end
+    end
+
+    context 'authenticated' do
+      before do
+        login non_admin_user
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
+        post :change_password, params: { login: non_admin_user, password: 'buildservice',
+                                         new_password: 'opensuse', repeat_password: 'opensuse' }
+      end
+
+      it 'changes the password' do
+        expect(controller).to set_flash[:success]
+        expect(flash[:success]).to eq('Your password has been changed successfully.')
+      end
+    end
+
+    context 'unauthenticated' do
+      before do
+        stub_const('CONFIG', CONFIG.merge('ldap_mode' => :off))
+        post :change_password, params: { login: non_admin_user, password: 'buildservice',
+                                         new_password: 'opensuse', repeat_password: 'opensuse' }
+      end
+
+      it 'shows an error message' do
+        expect(controller).to set_flash[:error]
+        expect(flash[:error]).to eq('Please login to access the requested page.')
+      end
+    end
+  end
 end
