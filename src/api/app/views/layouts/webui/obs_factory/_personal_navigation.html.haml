@@ -1,6 +1,6 @@
 .grid_6.omega{ style: 'text-align: right' }
   - if User.session
-    = link_to(home_path, id: 'link-to-user-home') do
+    = link_to(user_path(User.session), id: 'link-to-user-home') do
       = User.session!.login
     |
     - tasks = User.session!.tasks

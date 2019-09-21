@@ -81,6 +81,14 @@ class Webui::WebuiController < ActionController::Base
     CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
   end
 
+  def home
+    if params[:login].present?
+      redirect_to user_path(params[:login])
+    else
+      redirect_to user_path(User.possibly_nobody)
+    end
+  end
+
   protected
 
   # We execute both strategies here. The default rails strategy (resetting the session)
