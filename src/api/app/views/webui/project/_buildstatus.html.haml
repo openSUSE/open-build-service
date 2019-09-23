@@ -15,7 +15,7 @@
   - else
     - buildresults.each do |repository, build_results|
       - repository_name = repository.tr('.', '_')
-      - expanded = collapsed_repositories['project'] ? collapsed_repositories['project'].exclude?(repository_name) : true
+      - expanded = repository_expanded?(collapsed_repositories, repository_name)
       .d-flex.flex-column
         .d-flex.flex-row.py-1.bg-light.pl-3
           = link_to(word_break(repository, 12),
