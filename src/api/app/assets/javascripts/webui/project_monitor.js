@@ -78,6 +78,7 @@ function initializeMonitorDataTable() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function setupProjectMonitor() {
   initializeMonitorDataTable();
 

@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('.requests-datatable').each(function(index){
+  $('.requests-datatable').each(function(){
     // 1. Create DataTable
     var dataTableId = $(this).attr('id');
     var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');

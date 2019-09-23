@@ -44,6 +44,7 @@ function updateSupersedeAndDevelPackageDisplay() {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function setupRequestDialog() {
   $('#devel-project-name').click(function () {
     $('#targetproject').attr('value', $('#devel-project-name').html());
@@ -79,6 +80,7 @@ function prefillSubmitRequestForm() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function requestAddReviewAutocomplete() {
   $('.modal').on('shown.bs.modal', function() {
     $('.hideable input:not(:visible)').attr('disabled', true);

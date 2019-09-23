@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function setSpinnersForFlags() {
   $(document).on('click', '.popover_flag_action', function() {
     var flag = $(this).data('flag-id');
@@ -8,6 +9,7 @@ function setSpinnersForFlags() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function setRepoCheckbox() {
   $('.repocheckbox').click(function() {
     var id = $(this).attr('id');
@@ -55,6 +57,7 @@ function replaceFlagTable(data, flagType) {
   initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');
 }
 
+// eslint-disable-next-line no-unused-vars
 function setupFlagPopup() {
   ['build', 'useforbuild', 'debuginfo', 'publish'].forEach(function(flagType) {
     initializeFlagPopovers('#flag_table_' + flagType + ' .flag-popup');

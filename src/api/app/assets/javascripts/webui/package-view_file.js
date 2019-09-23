@@ -5,6 +5,7 @@ var toTwoChars = function(number, leadingChar) {
   return (leadingChar + number).slice(-2);
 };
 
+// eslint-disable-next-line no-unused-vars
 function addChangesEntryTemplate() {
   var date = new Date(),
       weekDay = DAYS[date.getUTCDay()],

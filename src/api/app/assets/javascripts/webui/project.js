@@ -14,6 +14,7 @@ function toggleProjectsDatatable() {
   $("#projects-datatable").DataTable().draw();
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeProjectDatatable() {
   initializeRemoteDatatable(
     "#projects-datatable",

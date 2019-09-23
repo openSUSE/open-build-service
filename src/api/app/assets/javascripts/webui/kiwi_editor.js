@@ -321,6 +321,7 @@ function kiwiRepositoriesSetupAutocomplete(fields) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeTabs() {
   $("#kiwi-details-trigger").click(function() {
     $("#kiwi-image-details-section").removeClass('d-none');
@@ -352,6 +353,7 @@ function cocoonAfterInsert(addedFields) {
   $(addedFields).find('.modal').modal('show');
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeKiwi(isOutdatedUrl) {
   // Save image
   $('#kiwi-image-update-form-save').click(function() { saveImage(isOutdatedUrl); });

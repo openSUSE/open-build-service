@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function initializePlots() {
   /* plot an empty set */
   plotValues({ 'building': [],
@@ -132,6 +133,7 @@ function processProgressBar(id, item)
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 function updateProgressBar()
 {
   $("#workers-updating").fadeIn(1200);

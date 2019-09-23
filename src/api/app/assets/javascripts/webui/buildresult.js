@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function updateRpmlintResult(index) {
   $('#rpm'+index+'-reload').addClass('fa-spin');
   $.ajax({
@@ -15,6 +16,7 @@ function updateRpmlintResult(index) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function updateBuildResult(index) {
   var elements = {};
   $('.result div.collapse:not(.show)').map(function(_index, domElement) {
@@ -43,6 +45,7 @@ function updateBuildResult(index) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function updateArchDisplay(index) {
   $('.rpmlint_arch_select_' + index).hide();
   $('#rpmlint_arch_select_' + index + '_' + $('#rpmlint_repo_select_' + index + ' option:selected').attr('value')).show();

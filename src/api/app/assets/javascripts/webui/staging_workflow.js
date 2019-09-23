@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function setSpinnersForDeletion() {
   $("#staging-workflow-delete").on('ajax:beforeSend', function(){
     $(this).find('.delete-spinner').removeClass('d-none');

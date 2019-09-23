@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function setupImageTemplates() {
   $(".image_template").on("click", function(){
     $('.image-template-box').removeClass('active');

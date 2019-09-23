@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 function initializeUserConfigurationDatatable(ldapEnabled) {
   initializeRemoteDatatable(
     '#user-table',
@@ -13,6 +14,7 @@ function initializeUserConfigurationDatatable(ldapEnabled) {
   );
 }
 
+// eslint-disable-next-line no-unused-vars
 function changeUserRole(obj) {
   var type = obj.data("type");
   var role = obj.data("role");
@@ -44,6 +46,7 @@ function changeUserRole(obj) {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function setDataTableForUsersAndGroups() {
   $('#user-table').dataTable({
     responsive: true,
@@ -59,6 +62,7 @@ function setDataTableForUsersAndGroups() {
   });
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeGroupTokenfield() {
   var $tokenfield = $('#group-members.tag-input');
 

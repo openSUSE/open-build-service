@@ -12,11 +12,13 @@ var DEFAULT_DT_PARAMS = {
   stateDuration: 0 // forever
 };
 
+// eslint-disable-next-line no-unused-vars
 function initializeDataTable(cssSelector, params){
   var newParams = $.extend({}, DEFAULT_DT_PARAMS, params);
   $(cssSelector).DataTable(newParams);
 }
 
+// eslint-disable-next-line no-unused-vars
 function initializeRemoteDatatable(cssSelector, params) {
   var defaultRemoteParams = {
     processing: true,
