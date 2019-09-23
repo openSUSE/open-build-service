@@ -1,3 +1,5 @@
+/* global initializeDataTable initializePopovers */
+
 function setAllLinks(event) {
   $(this).closest('.dropdown-menu').find('input').prop('checked', event.data.checked);
 }

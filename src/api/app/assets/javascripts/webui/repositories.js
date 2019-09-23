@@ -1,3 +1,5 @@
+/* global initializePopovers */
+
 // eslint-disable-next-line no-unused-vars
 function setSpinnersForFlags() {
   $(document).on('click', '.popover_flag_action', function() {

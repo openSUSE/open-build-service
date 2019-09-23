@@ -1,3 +1,5 @@
+/* global initializeRemoteDatatable */
+
 function toggleProjectsDatatable() {
   var all = $("#projects-datatable").data("all");
   var $toggleText = $("#toggle-text");

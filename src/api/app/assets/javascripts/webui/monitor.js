@@ -14,9 +14,9 @@ function initializePlots() {
   setInterval("updatePlots();", 80000);
 
   $("#architecture_display, #time_display").change(function() {
-    $selector = $(this);
+    var $selector = $(this);
     $selector.find("option:selected").each(function() {
-      option = ($selector.attr('id') == "architecture_display") ? 'archToShow' : 'timeToShow'
+      var option = ($selector.attr('id') == "architecture_display") ? 'archToShow' : 'timeToShow'
       $('#graphs').data(option, $(this).attr("value"));
     });
     updatePlots();

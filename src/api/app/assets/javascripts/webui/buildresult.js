@@ -1,3 +1,5 @@
+/* global initializePopovers */
+
 // eslint-disable-next-line no-unused-vars
 function updateRpmlintResult(index) {
   $('#rpm'+index+'-reload').addClass('fa-spin');
