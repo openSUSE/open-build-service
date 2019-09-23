@@ -28,4 +28,9 @@ module Webui::BuildresultHelper
       end
     end
   end
+
+  def repository_expanded?(collapsed_repositories, repository_name, key = 'project')
+    return collapsed_repositories[key].exclude?(repository_name) if collapsed_repositories[key]
+    true
+  end
 end

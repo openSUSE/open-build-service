@@ -15,7 +15,7 @@
         :ruby
           repository_name = result.repository.tr('.', '_')
           package_name = package.tr('.:', '_')
-          expanded = collapsed_repositories[package_name] ? collapsed_repositories[package_name].exclude?(repository_name) : true
+          expanded = repository_expanded?(collapsed_repositories, repository_name, package_name)
         - if result.repository != previous_repo
           .row.no-gutters.py-1.bg-light
             .col.pl-1.pl-sm-2{ title: result.repository.to_s }
