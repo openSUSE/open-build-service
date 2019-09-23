@@ -25,7 +25,7 @@ module Webui::Projects::StatusHelper
           sortkey = "7-changes#{package['name']}"
           icon = 'changes'
         elsif problem.match?(/^error-/)
-          outs << link_to(c[6..-1], package_show_path(project: package['develproject'], package: package['develpackage']))
+          outs << link_to(problem[6..-1], package_show_path(project: package['develproject'], package: package['develpackage']))
           sortkey = "1-problem-#{package['name']}"
           icon = 'error'
         elsif problem == 'currently_declined'
@@ -34,7 +34,7 @@ module Webui::Projects::StatusHelper
           sortkey = "2-declines-#{package['name']}"
           icon = 'error'
         else
-          outs << link_to(c, package_show_path(project: package['develproject'], package: package['develpackage']))
+          outs << link_to(problem, package_show_path(project: package['develproject'], package: package['develpackage']))
           sortkey = "1-changes-#{package['name']}"
           icon = 'error'
         end
