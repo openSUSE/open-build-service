@@ -29,7 +29,7 @@ function editRepositoryDialog() {
   var sourcePath = fields.find("[id$='source_path']");
 
   dialog.modal('show');
-  var matchedObsSourcePath = sourcePath.val().match(/^obs:\/\/([^\/]+)\/([^\/]+)$/);
+  var matchedObsSourcePath = sourcePath.val().match(/^obs:\/\/([^/]+)\/([^/]+)$/);
   if (matchedObsSourcePath) {
     var projectField = fields.find('[name=target_project]');
     var repoField = fields.find('[name=target_repo]');
