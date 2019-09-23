@@ -69,7 +69,13 @@ jobs:
           key: v4-lint
       - run:
           name: Install ESLint
-          command: sudo npm ci
+          # TODO: The zypper commands should go upstream
+          command: |
+            sudo zypper clean --all
+            sudo zypper addrepo https://download.opensuse.org/repositories/devel:/languages:/nodejs/SLE_12_SP4/devel:languages:nodejs.repo
+            sudo zypper --gpg-auto-import-keys refresh
+            sudo zypper install --no-confirm nodejs12
+            sudo npm ci
       - run:
           name: Run linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test

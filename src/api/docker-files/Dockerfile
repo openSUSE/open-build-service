@@ -7,7 +7,10 @@ FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/open
 ARG CONTAINER_USERID
 
 # Install ESLint to lint JavaScript
-RUN npm install --save-dev eslint
+# FIXME: Those files aren't available
+ADD package.json /obs/src/api/package.json
+ADD package-lock.json /obs/src/api/package-lock.json
+RUN npm ci
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
