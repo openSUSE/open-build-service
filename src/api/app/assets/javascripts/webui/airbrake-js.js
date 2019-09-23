@@ -1,6 +1,6 @@
 //= require airbrake-js-client
 
-/* global console, airbrakeJs */
+/* global airbrakeJs */
 var errbitId = $("meta[property='errbit:key']").attr('content');
 var errbitHost = $("meta[property='errbit:host']").attr('content');
 
