@@ -29,7 +29,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
   describe 'as a logged-in user' do
     before do
       login user
-      visit home_path
+      visit user_path(user)
     end
 
     scenario 'view home page' do

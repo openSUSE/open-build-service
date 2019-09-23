@@ -1,5 +1,5 @@
 %li.nav-item
-  = link_to(home_path, id: 'link-to-user-home', class: 'nav-link') do
+  = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link') do
     = User.session!.login
 %li.nav-item
   - tasks = User.session!.tasks

@@ -334,14 +334,6 @@ OBSApi::Application.routes.draw do
       get 'search/issue' => :issue
     end
 
-    controller 'webui/user' do
-      # Only here to make old /home url's work
-      get 'home/' => :home, as: 'home'
-      get 'home/my_work' => :home
-      get 'home/list_my' => :home
-      get 'home/home_project' => :home_project
-    end
-
     controller 'webui/users/announcements' do
       post 'users/announcements/:id' => :create, as: 'user_announcements'
     end
@@ -357,11 +349,13 @@ OBSApi::Application.routes.draw do
       end
     end
 
+    get 'home', to: 'webui/webui#home', as: :home
     get 'signup', to: 'webui/users#new', as: :signup
 
     # TODO
     # keep those routes reachable, but remove them later as
     # nobody access it anymore
+    # Legacy routes start
     namespace :user do
       get '/signup', to: redirect('/signup')
       get '/register_user', to: redirect('/signup')
@@ -369,6 +363,7 @@ OBSApi::Application.routes.draw do
       get '/autocomplete', to: redirect('/users/autocomplete')
       get '/tokens', to: redirect('/users/tokens')
     end
+    # Legacy routes end
 
     resources :announcements, only: :show, controller: 'webui/announcements'
 

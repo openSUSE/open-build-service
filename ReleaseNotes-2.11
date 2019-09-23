@@ -51,3 +51,9 @@ Intentional changes:
     * Kiwi Image Editor
     * Cloud upload for EC2
     * Cloud upload for Azure
+ 
+ * Removed the following routes:
+
+    - /home/my_work
+    - /home/home_project
+    - /home/list_my
