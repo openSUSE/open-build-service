@@ -21,7 +21,6 @@ class Flag < ApplicationRecord
 
   validates :flag, uniqueness: { scope: [:project_id, :package_id, :architecture_id, :repo] }
 
-
   def to_xml(builder)
     raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?
     options = {}
