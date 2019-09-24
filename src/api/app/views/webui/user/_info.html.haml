@@ -50,7 +50,7 @@
           = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'd-block') do
             %i.fas.fa-key
             Change your password
-        = link_to(user_notifications_path, class: 'd-block') do
+        = link_to(my_notifications_path, class: 'd-block') do
           %i.fas.fa-bell
           Change your notifications
         - if user.rss_token

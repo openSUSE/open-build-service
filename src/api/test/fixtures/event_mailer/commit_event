@@ -18,5 +18,5 @@ Check out the package for editing:
    osc checkout BaseDistro pack1
 
 -- 
-Configure notifications at http://localhost/user/notifications
+Configure notifications at http://localhost/my/notifications
 Open Build Service (http://localhost/)

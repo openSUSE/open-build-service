@@ -8,5 +8,5 @@
             = link_to('Read more...', announcement_path(pending_announcement), class: 'alert-link')
           .col-md-2
             - if User.session
-              = form_tag(user_announcements_path(pending_announcement), remote: true, class: 'text-right') do
+              = form_tag(my_announcements_path(pending_announcement), remote: true, class: 'text-right') do
                 = submit_tag 'Got it', class: 'btn btn-sm btn-secondary'

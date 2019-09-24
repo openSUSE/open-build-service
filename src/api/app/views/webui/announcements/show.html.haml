@@ -5,5 +5,5 @@
     %h2= @announcement.title
     %p= render_as_markdown(@announcement.content)
     - if User.session && @announcement == @pending_announcement
-      = form_tag(user_announcements_path(@announcement), remote: true) do
+      = form_tag(my_announcements_path(@announcement), remote: true) do
         = submit_tag 'Got it', class: 'btn btn-primary'

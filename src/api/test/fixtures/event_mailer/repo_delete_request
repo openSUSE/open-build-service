@@ -37,5 +37,5 @@ To REVOKE the request:
    osc request revoke REQUESTID --message="retracted because ..., sorry / thx / see better version ..."
 
 -- 
-Configure notifications at http://localhost/user/notifications
+Configure notifications at http://localhost/my/notifications
 Open Build Service (http://localhost/)

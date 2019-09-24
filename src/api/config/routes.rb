@@ -334,10 +334,6 @@ OBSApi::Application.routes.draw do
       get 'search/issue' => :issue
     end
 
-    controller 'webui/users/announcements' do
-      post 'users/announcements/:id' => :create, as: 'user_announcements'
-    end
-
     resources :users, controller: 'webui/users', param: :login, constraints: cons do
       resources :requests, only: [:index], controller: 'webui/users/bs_requests'
       collection do
@@ -347,6 +343,15 @@ OBSApi::Application.routes.draw do
       member do
         post 'change_password'
       end
+    end
+
+    scope :my do
+      resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
+      get 'notifications' => :index,  controller: 'webui/users/subscriptions', as: :my_notifications
+      put 'notifications' => :update, controller: 'webui/users/subscriptions'
+      post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
+      # To accept announcements as user
+      post 'announcements/:id' => :create, controller: 'webui/users/announcements', as: :my_announcements
     end
 
     get 'home', to: 'webui/webui#home', as: :home
@@ -369,17 +374,8 @@ OBSApi::Application.routes.draw do
 
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
 
-    get 'user/notifications' => :index, constraints: cons, controller: 'webui/users/subscriptions'
-    put 'user/notifications' => :update, constraints: cons, controller: 'webui/users/subscriptions'
-
-    get 'user/tasks' => :index, constraints: cons, controller: 'webui/users/tasks', as: 'user_tasks'
-
     controller 'webui/groups/bs_requests' do
       get 'groups/(:title)/requests' => :index, constraints: { title: /[^\/]*/ }, as: 'group_requests'
-    end
-
-    controller 'webui/users/rss_tokens' do
-      post 'users/rss_tokens' => :create, as: 'user_rss_token'
     end
 
     controller 'webui/groups' do
