@@ -568,6 +568,7 @@ sub createrepo_rpmmd {
   qsystem('rm', '-rf', "$extrep/repodata/repoview") if -d "$extrep/repodata/repoview";
   qsystem('rm', '-rf', "$extrep/repodata/.olddata") if -d "$extrep/repodata/.olddata";
   qsystem('rm', '-f', "$extrep/repodata/patterns*");
+  qsystem('rm', '-rf', "$extrep/.repodata") if -d "$extrep/.repodata";
 
   # run createrepo
   unlink("$extrep/.chksums");
@@ -759,6 +760,7 @@ sub deleterepo_rpmmd {
   my ($extrep, $projid) = @_;
 
   qsystem('rm', '-rf', "$extrep/repodata") if -d "$extrep/repodata";
+  qsystem('rm', '-rf', "$extrep/.repodata") if -d "$extrep/.repodata";
   unlink("$extrep/$projid.repo");
 }
 
