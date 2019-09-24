@@ -42,6 +42,7 @@ Style/UnneededInterpolation:
 Metrics/BlockLength:
   Exclude:
     - 'config/routes.rb'
+    - 'config/routes/*'
     - 'spec/**/*'
     - '**/*.rake'
 
