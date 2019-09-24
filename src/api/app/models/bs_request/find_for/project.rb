@@ -11,7 +11,7 @@ class BsRequest
           @relation = @relation.references(:reviews)
           review_states.each do |review_state|
             @relation = @relation.includes(:reviews)
-            if project_name.blank?
+            if package_name.blank?
               inner_or << "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})"
             else
               inner_or <<
