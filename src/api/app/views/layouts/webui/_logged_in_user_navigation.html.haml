@@ -3,7 +3,7 @@
     = User.session!.login
 %li.nav-item
   - tasks = User.session!.tasks
-  = link_to(user_tasks_path, class: 'nav-link') do
+  = link_to(my_tasks_path, class: 'nav-link') do
     - if tasks.positive?
       %span{ title: 'where an action is requested from you' }
         = pluralize(tasks, 'Task')

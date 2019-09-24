@@ -35,7 +35,7 @@ Thor wrote in request 4:
 Another Body
 
 -- 
-Configure notifications at http://localhost/user/notifications
+Configure notifications at http://localhost/my/notifications
 Open Build Service (http://localhost/)
 
 Content-Type: text/html;
@@ -50,6 +50,6 @@ Content-Transfer-Encoding: 7bit
 </div>
 <br/>
 -- <br/>
-Configure notifications at <a href="http://localhost/user/notifications">http://localhost/user/notifications</a><br/>
+Configure notifications at <a href="http://localhost/my/notifications">http://localhost/my/notifications</a><br/>
 Open Build Service (<a href="http://localhost/">http://localhost/</a>)<br/>
 

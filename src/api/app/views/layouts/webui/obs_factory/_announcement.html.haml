@@ -6,5 +6,5 @@
           = @pending_announcement.title
           = link_to('Read more', announcement_path(@pending_announcement))
       - if User.session
-        = form_tag(user_announcements_path(@pending_announcement), remote: true, class: 'announcement-actions') do
+        = form_tag(my_announcements_path(@pending_announcement), remote: true, class: 'announcement-actions') do
           = submit_tag 'Got it'

@@ -13,7 +13,7 @@ module Webui
           flash[:success] = 'Successfully generated your RSS feed url'
           User.session!.create_rss_token
         end
-        redirect_back(fallback_location: user_notifications_path)
+        redirect_back(fallback_location: my_notifications_path)
       end
     end
   end

@@ -4,7 +4,7 @@
       = User.session!.login
     |
     - tasks = User.session!.tasks
-    = link_to(user_tasks_path) do
+    = link_to(my_tasks_path) do
       - if tasks > 0
         %span{ title: 'where an action is requested from you' }
           = pluralize(tasks, 'Task')

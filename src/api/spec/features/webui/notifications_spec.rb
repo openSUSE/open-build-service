@@ -35,7 +35,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
     it_behaves_like 'updatable' do
       let(:title) { 'Choose from which events you want to get an email' }
       let(:user) { create(:confirmed_user, login: 'eisendieter') }
-      let(:path) { user_notifications_path }
+      let(:path) { my_notifications_path }
     end
   end
 end
