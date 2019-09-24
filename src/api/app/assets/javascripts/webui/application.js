@@ -55,3 +55,4 @@
 //= require webui/notification.js
 //= require webui/sidebar-menu.js
 //= require webui/user_profile.js
+//= require webui/add_file.js
