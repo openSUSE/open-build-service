@@ -12,6 +12,12 @@
               %i.fas.fa-plus-circle.text-success
               Create Staging Project
             = render partial: 'create_staging_project', locals: { staging_workflow: @staging_workflow }
+          %li.list-inline-item
+            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#staging-managers-group-modal' }) do
+              %i.fas.fa-users.text-warning
+              Change Managers
+            = render partial: 'staging_managers_group', locals: { staging_workflow: @staging_workflow }
+
         .row
           = render(partial: 'staging_project', collection: @staging_projects,
                                                locals: { staging_workflow: @staging_workflow })
