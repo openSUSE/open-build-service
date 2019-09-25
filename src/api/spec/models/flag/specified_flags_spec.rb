@@ -16,8 +16,8 @@ RSpec.describe Flag::SpecifiedFlags do
     end
 
     it 'has default status on effective flag' do
-      expect(subject.effective_flag(nil, nil).status).to eq(Flag.default_status(flag_type))
-      expect(subject.effective_flag(repository_name, architecture_name).status).to eq(Flag.default_status(flag_type))
+      expect(subject.effective_flag(nil, nil).status).to eq(FlagHelper.default_for(flag_type))
+      expect(subject.effective_flag(repository_name, architecture_name).status).to eq(FlagHelper.default_for(flag_type))
     end
   end
 
@@ -30,8 +30,8 @@ RSpec.describe Flag::SpecifiedFlags do
     end
 
     it 'has default status on effective flag' do
-      expect(subject.effective_flag(nil, nil).status).to eq(Flag.default_status(flag_type))
-      expect(subject.effective_flag(repository_name, architecture_name).status).to eq(Flag.default_status(flag_type))
+      expect(subject.effective_flag(nil, nil).status).to eq(FlagHelper.default_for(flag_type))
+      expect(subject.effective_flag(repository_name, architecture_name).status).to eq(FlagHelper.default_for(flag_type))
     end
   end
 
@@ -92,7 +92,7 @@ RSpec.describe Flag::SpecifiedFlags do
       end
 
       it 'default flag is enabled' do
-        expect(subject.default_flag(nil, nil).status).to eq(Flag.default_status(flag_type))
+        expect(subject.default_flag(nil, nil).status).to eq(FlagHelper.default_for(flag_type))
       end
     end
   end
