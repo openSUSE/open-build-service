@@ -33,7 +33,7 @@
       %li.nav-item
         = tab_link('Pulse', project_pulse_path(project))
       - active = controller_path.starts_with?('webui/staging')
-      - if !project.staging_project? || active
+      - if (!project.staging_project? && policy(Staging::Workflow.new(project: project)).create?) || active
         %li.nav-item
           = tab_link('Staging', new_staging_workflow_path(project: project), active)
     %li.nav-item.dropdown
