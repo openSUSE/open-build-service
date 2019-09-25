@@ -5,19 +5,16 @@
     .card.mb-3
       = render(partial: 'webui/project/tabs', locals: { project: @project })
       .card-body
-        %h3= @pagetitle
-        %ul.list-inline.mb-0
+        %h3
+          = @pagetitle
           - if policy(@staging_workflow).update?
-            %li.list-inline-item
-              = link_to(edit_staging_workflow_path(@staging_workflow), class: 'nav-link') do
-                %i.fas.fa-edit.text-info
-                Manage Projects
+            = link_to(edit_staging_workflow_path(@staging_workflow), title: 'Edit Staging') do
+              %i.fas.fa-edit.fa-xs.text-info
           - if policy(@staging_workflow).destroy?
-            %li.list-inline-item
-              = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do
-                %i.fas.fa-times-circle.text-danger
-                Delete Staging
-              = render(partial: 'delete', locals: { project: @project })
+            = link_to('#', title: 'Delete Staging', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do
+              %i.fas.fa-times-circle.fa-xs.text-danger
+        - if policy(@staging_workflow).destroy? # This is outside of the h3 to prevent the font in the modal to be oversized
+          = render(partial: 'delete', locals: { project: @project })
 
         = render(partial: 'staging_projects_table',
                  locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects,
