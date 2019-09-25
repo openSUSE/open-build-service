@@ -26,7 +26,7 @@ RSpec.describe Staging::StagingProjectsController do
         get :index, params: { staging_workflow_project: project_without_staging.name, format: :xml }
       end
 
-      it { expect(response).to have_http_status(:bad_request) }
+      it { expect(response).to have_http_status(:not_found) }
     end
   end
 
