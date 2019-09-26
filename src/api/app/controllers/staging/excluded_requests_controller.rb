@@ -18,7 +18,7 @@ class Staging::ExcludedRequestsController < ApplicationController
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Excluding requests for #{@staging_workflow} failed: #{result.errors.join(' ')}"
+        message: "Excluding requests for #{@staging_workflow.project} failed: #{result.errors.join(' ')}"
       )
     end
   end
