@@ -242,7 +242,9 @@ sub dod_rpmmd {
   fetch("${url}$primaryfile->{'location'}", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
   uncompress($file, $primaryfile->{'location'});
-  return ($newcookie, $url);
+  my $moduleinfo;
+  $moduleinfo = {} if grep {$_->{'type'} eq 'modules'} @files;
+  return ($newcookie, $url, $moduleinfo);
 }
 
 # same parser as in build package:
@@ -370,9 +372,10 @@ sub cmppkg {
 }
 
 sub addpkg {
-  my ($cache, $p, $archfilter) = @_; 
+  my ($cache, $p, $archfilter, $moduleinfo) = @_; 
 
   return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
+  return if $moduleinfo && $p->{'release'} && $p->{'release'} =~ /\.module_/;
   return if $archfilter && !$archfilter->{$p->{'arch'}};
   if ($BSConfig::dodupblacklist) {
     return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
@@ -384,7 +387,7 @@ sub addpkg {
 }
 
 sub parsemetadata {
-  my ($doddata, $file, $baseurl) = @_;
+  my ($doddata, $file, $baseurl, $moduleinfo) = @_;
   my $cache = {};
   my $archfilter;
   if ($doddata->{'archfilter'}) {
@@ -393,7 +396,7 @@ sub parsemetadata {
       $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
     }
   }
-  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $moduleinfo) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
   $baseurl =~ s/\/$//;
   $cache->{'/url'} = $baseurl;
   BSUtil::store("$file.parsed", $file, $cache);
@@ -433,10 +436,10 @@ sub update_dod {
   my $newfile = "$repodir/doddata.new.$$";
   unlink($newfile);
   my $now = time();
-  my ($newcookie, $baseurl) = $handler{$repotype}->($doddata, $cookie, $newfile);
+  my ($newcookie, $baseurl, $moduleinfo) = $handler{$repotype}->($doddata, $cookie, $newfile);
   if ($newcookie) {
     if (!$unparsed) {
-      eval { parsemetadata($doddata, $newfile, $baseurl) };
+      eval { parsemetadata($doddata, $newfile, $baseurl, $moduleinfo) };
       if ($@) {
 	unlink($newfile);
 	die($@);
