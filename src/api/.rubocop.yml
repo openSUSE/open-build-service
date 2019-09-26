@@ -62,6 +62,7 @@ Rails/Exit:
 RSpec/FilePath:
   Exclude:
     - 'spec/models/obs_factory/distribution_strategy_opensuse_leap15_spec.rb'
+    - 'spec/controllers/webui/package_controller/binaries.spec'
 
 # We sometimes have a lot of expectations when testing complete workflows
 RSpec/MultipleExpectations:

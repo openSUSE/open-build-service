@@ -40,16 +40,63 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:11 GMT
+  recorded_at: Thu, 26 Sep 2019 19:03:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_18
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+          <repository name="my_repository">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '202'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+          <repository name="my_repository">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Thu, 26 Sep 2019 19:03:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Dying of the Light</title>
-          <description>Odit est aliquid dolore.</description>
+          <title>Oh! To be in England</title>
+          <description>Est necessitatibus et ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,31 +117,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Dying of the Light</title>
-          <description>Odit est aliquid dolore.</description>
+          <title>Oh! To be in England</title>
+          <description>Est necessitatibus et ut.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:11 GMT
+  recorded_at: Thu, 26 Sep 2019 19:03:05 GMT
 - request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    method: post
+    uri: http://backend:5352/build/home:tom?cmd=wipe&package=my_package&repository=my_repository
     body:
       encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-          <repository name="source_repo">
-            <arch>i586</arch>
-          </repository>
-        </project>
+      string: ''
     headers:
+      Content-Type:
+      - application/octet-stream
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -113,71 +154,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '200'
+      - '21'
     body:
       encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer"/>
-          <repository name="source_repo">
-            <arch>i586</arch>
-          </repository>
-        </project>
+      string: '<status code="ok" />
+
+'
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:11 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title/>
-          <description/>
-          <person userid="tom" role="maintainer"/>
-          <repository name="source_repo_2">
-            <arch>i586</arch>
-          </repository>
-          <repository name="source_repo">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '274'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:tom">
-          <title></title>
-          <description></description>
-          <person userid="tom" role="maintainer"/>
-          <repository name="source_repo_2">
-            <arch>i586</arch>
-          </repository>
-          <repository name="source_repo">
-            <arch>i586</arch>
-          </repository>
-        </project>
-    http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:11 GMT
+  recorded_at: Thu, 26 Sep 2019 19:03:06 GMT
 recorded_with: VCR 5.0.0
