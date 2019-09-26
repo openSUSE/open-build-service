@@ -1,3 +1,5 @@
+require_relative 'routes_helper'
+
 OBSApi::Application.routes.draw do
   cons = RoutesContrains::CONS
 
