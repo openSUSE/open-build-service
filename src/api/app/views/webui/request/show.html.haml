@@ -4,7 +4,7 @@
   content_for(:meta_description, @bs_request.description)
   content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
 
-- if @not_full_diff
+- if @not_full_diff && User.session
   = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
 
 = render partial: 'superseded_by_message', locals: { superseded_by: @bs_request.superseded_by,
