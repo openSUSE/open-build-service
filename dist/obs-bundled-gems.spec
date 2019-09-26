@@ -142,9 +142,6 @@ find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read f
   chmod a-x $file
 done
 
-# Remove rpaths from files
-chrpath --delete %{buildroot}%_libdir/obs-api/ruby/*/gems/sassc-*-x86_64-linux/lib/sassc/libsass.so
-
 %files
 %_libdir/obs-api
 
