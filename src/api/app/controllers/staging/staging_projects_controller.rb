@@ -10,7 +10,11 @@ class Staging::StagingProjectsController < ApplicationController
       @staging_workflow = @main_project.staging
       @staging_projects = @staging_workflow.staging_projects
     else
-      render_error status: 400, errcode: 'project_has_no_staging_workflow'
+      render_error(
+        status: 404,
+        errorcode: 'project_has_no_staging_workflow',
+        message: "No staging workflow for project '#{@main_project}'"
+      )
     end
   end
 
