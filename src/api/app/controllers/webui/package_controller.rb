@@ -318,8 +318,8 @@ class Webui::PackageController < Webui::WebuiController
       options[k] = params[k] if params[k].present?
     end
     options[:rev] = @rev if @rev
-    options[:filelimit] = 0 if params[:full_diff]
-    options[:tarlimit] = 0 if params[:full_diff]
+    options[:filelimit] = 0 if params[:full_diff] && User.session
+    options[:tarlimit] = 0 if params[:full_diff] && User.session
     return unless get_diff(@project.name, @package.name, options)
 
     # we only look at [0] because this is a generic function for multi diffs - but we're sure we get one

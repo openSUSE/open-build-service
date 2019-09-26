@@ -1,7 +1,7 @@
 - content_for(:content_for_head, javascript_include_tag('webui/cm2/index-diff'))
 - @pagetitle = "Changes of Revision #{@rev}"
 
-- if @not_full_diff
+- if @not_full_diff && User.session
   - path_variables = { project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true }
   - if @opackage
     - path_variables[:oproject] = @oproject
