@@ -178,6 +178,11 @@ sub check {
       }
 
       for my $apackid (@apackids) {
+	if ($apackid eq '_repository') {
+	  return ('broken', 'aggregating from a remote _repository is not implemented yet') if $remoteprojs->{$aprojid};
+	  push @blocked, "$aprp/$apackid";	# see prpfinished check above
+	  next;
+	}
 	my $code = $ps->{$apackid} || 'unknown';
 	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
 	  next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
@@ -218,6 +223,7 @@ sub check {
     for my $arepoid (@arepoids) {
       for my $apackid (@apackids) {
         next if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq $packid;
+	return ('broken', 'cannot aggregate from our own repository') if $aprojid eq $projid && $arepoid eq $repoid && $apackid eq '_repository';
 	my $m = '';
         my $havecontainer;
 	if ($remoteprojs->{$aprojid}) {
@@ -231,6 +237,7 @@ sub check {
 	  }
 	} else {
 	  my $d = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
+	  $d = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
 	  my @d = grep {$_ eq 'updateinfo.xml' || /\.(?:$binsufsre)$/} ls($d);
 	  for my $filename (sort @d) {
 	    next unless $filename eq 'updateinfo.xml' || $filename =~ /\.(?:$binsufsre)$/ || $filename =~ /\.obsbinlnk$/;
@@ -344,6 +351,7 @@ sub build {
 	  $nosource = 1 if -e "$jobdatadir/upload:.nosourceaccess";
 	} else {
 	  my $dir = "$reporoot/$aprojid/$arepoid/$myarch/$apackid";
+	  $dir = "$reporoot/$aprojid/$arepoid/$myarch/:full" if $apackid eq '_repository';
 	  @d = map {"$dir/$_"} sort(ls($dir));
 	  $nosource = 1 if -e "$dir/.nosourceaccess";
 	}

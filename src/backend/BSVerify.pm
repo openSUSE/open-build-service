@@ -352,6 +352,7 @@ sub verify_aggregatelist {
       die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
     }
     for my $p (@{$a->{'package'} || []}) {
+      next if ($p || '') eq '_repository';
       verify_packid($p);
     }
     for my $b (@{$a->{'binary'} || []}) {
