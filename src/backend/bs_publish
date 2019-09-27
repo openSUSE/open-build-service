@@ -585,12 +585,15 @@ sub createrepo_rpmmd {
       $ENV{'CREATEREPO_CHECKSUMS'} = "$extrep/.chksums";
     }
   }
+  my $repoinfo = $data->{'repoinfo'};
   # create generic rpm-md meta data
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, map { ('--repo', $_ ) } @repotags;
   push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
+  push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_incident';
+  push @createrepoargs, '--content', 'update' if ($repoinfo->{'projectkind'} || '') eq 'maintenance_release';
   my @legacyargs;
   if ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
@@ -601,7 +604,6 @@ sub createrepo_rpmmd {
   if ($options{'zchunk'}) {
     # we currently do not support user generated zchunk dictionaries for
     # security reasons.
-    my $repoinfo = $data->{'repoinfo'};
     for my $sprp (@{$repoinfo->{'prpsearchpath'} || []}) {
       my $zchunk_dict_dir = "$BSConfig::bsdir/zchunk/$sprp->{'project'}";
       next unless -d $zchunk_dict_dir;
