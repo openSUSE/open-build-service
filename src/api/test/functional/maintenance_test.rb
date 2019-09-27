@@ -1620,6 +1620,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     IO.popen("cat #{ENV['OBS_BACKEND_TEMP']}/data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
       hashed = Xmlhash.parse(io.read)
     end
+    # check repository markers
+    assert_equal hashed['tags']['content'], 'update'
+    assert_equal hashed['tags']['repo'].first, 'obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo'
     found = nil
     hashed['data'].each do |d|
       found = true if d['type'] == 'updateinfo'
