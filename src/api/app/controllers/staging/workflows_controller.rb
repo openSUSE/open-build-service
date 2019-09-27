@@ -25,6 +25,7 @@ class Staging::WorkflowsController < ApplicationController
     authorize @staging_workflow
 
     @staging_workflow.destroy!
+    render_ok
   end
 
   def update
