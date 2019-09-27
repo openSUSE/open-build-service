@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:24 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Moving Finger</title>
-          <description>Veritatis provident quibusdam optio.</description>
+          <title>O Jerusalem!</title>
+          <description>Ut autem aut accusamus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '141'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Moving Finger</title>
-          <description>Veritatis provident quibusdam optio.</description>
+          <title>O Jerusalem!</title>
+          <description>Ut autem aut accusamus.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:24 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:12 GMT
 recorded_with: VCR 5.0.0

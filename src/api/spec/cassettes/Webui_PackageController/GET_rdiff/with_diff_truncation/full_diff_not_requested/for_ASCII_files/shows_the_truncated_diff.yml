@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_meta?user=user_11
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_meta?user=user_53
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-1" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Nemo eum expedita culpa.</description>
+          <title>From Here to Eternity</title>
+          <description>Et illo sed est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,22 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-1" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Nemo eum expedita culpa.</description>
+          <title>From Here to Eternity</title>
+          <description>Et illo sed est.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1/_config
     body:
       encoding: UTF-8
-      string: Et rerum repellat. Reprehenderit illum odit. Quo fuga id.
+      string: In incidunt quis. Dolores aut omnis. Reprehenderit placeat sunt.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,15 +110,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="7" vrev="7">
-          <srcmd5>de2b6a3afe63200539d46b1382afd1bd</srcmd5>
+          <srcmd5>267a4532b96f94aeee526ef398ef4a94</srcmd5>
           <version>unknown</version>
-          <time>1568650301</time>
+          <time>1569593838</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1/somefile.txt
@@ -11149,15 +11149,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="8" vrev="8">
-          <srcmd5>de2b6a3afe63200539d46b1382afd1bd</srcmd5>
+          <srcmd5>267a4532b96f94aeee526ef398ef4a94</srcmd5>
           <version>unknown</version>
-          <time>1568650301</time>
+          <time>1569593838</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1
@@ -11187,12 +11187,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-1" rev="8" vrev="8" srcmd5="de2b6a3afe63200539d46b1382afd1bd">
-          <entry name="_config" md5="43ccd3e26ab2fc5fc8783d975f610e17" size="57" mtime="1568650301"/>
-          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1568650300"/>
+        <directory name="diff-truncation-test-1" rev="8" vrev="8" srcmd5="267a4532b96f94aeee526ef398ef4a94">
+          <entry name="_config" md5="b3404c0684001bc3a9c00cdddd8c03b1" size="64" mtime="1569593838"/>
+          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1569593836"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1
@@ -11222,12 +11222,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-1" rev="8" vrev="8" srcmd5="de2b6a3afe63200539d46b1382afd1bd">
-          <entry name="_config" md5="43ccd3e26ab2fc5fc8783d975f610e17" size="57" mtime="1568650301"/>
-          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1568650300"/>
+        <directory name="diff-truncation-test-1" rev="8" vrev="8" srcmd5="267a4532b96f94aeee526ef398ef4a94">
+          <entry name="_config" md5="b3404c0684001bc3a9c00cdddd8c03b1" size="64" mtime="1569593838"/>
+          <entry name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000" mtime="1569593836"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/diff-truncation-test-1?cmd=diff&expand=1&rev=2&view=xml&withissues=1
@@ -11259,9 +11259,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="e55454795638f8b94f0df6b774f6b41e">
-          <old project="home:tom" package="diff-truncation-test-1" rev="1" srcmd5="cddfdc13b83fa48679c69d67c9c5e8c1"/>
-          <new project="home:tom" package="diff-truncation-test-1" rev="2" srcmd5="ea9971f40138782a954a0270a8741bae"/>
+        <sourcediff key="facad58e887cbea9e144b5a3e36cd8a6">
+          <old project="home:tom" package="diff-truncation-test-1" rev="1" srcmd5="02fd3f2edebc5db1a9e110759c405f23"/>
+          <new project="home:tom" package="diff-truncation-test-1" rev="2" srcmd5="87c8721caaefa96959cba4d0906f9cc4"/>
           <files>
             <file state="added">
               <new name="somefile.txt" md5="3ba28480d8b6af8ddebf044417388dde" size="22000"/>
@@ -11472,5 +11472,5 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:41 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:18 GMT
 recorded_with: VCR 5.0.0

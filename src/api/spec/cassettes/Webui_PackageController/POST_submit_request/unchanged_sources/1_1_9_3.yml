@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>No Country for Old Men</title>
-          <description>Voluptates aut nam est.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Tempore voluptatem fuga vel.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,23 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>No Country for Old Men</title>
-          <description>Voluptates aut nam est.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Tempore voluptatem fuga vel.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Omnis delectus eligendi. Voluptatibus pariatur quo. Perferendis iste
-        nobis.
+      string: Tempore animi enim. Sapiente rerum minima. Facere ea minima.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,22 +109,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="79" vrev="79">
-          <srcmd5>ae94f63f5aad4c8f1c51c4d859a08615</srcmd5>
+        <revision rev="33" vrev="33">
+          <srcmd5>ba00f01e57cf975707251de7b927d319</srcmd5>
           <version>unknown</version>
-          <time>1568650380</time>
+          <time>1569593796</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Temporibus omnis et. Similique et eligendi. Nihil ut eum.
+      string: Dolorem adipisci rerum. Tempora iusto animi. Illum eum beatae.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,16 +148,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="80" vrev="80">
-          <srcmd5>cd2b5f28f8406cac4bcd139822227a3b</srcmd5>
+        <revision rev="34" vrev="34">
+          <srcmd5>7be3e125c61fbf95255c8414ff735d88</srcmd5>
           <version>unknown</version>
-          <time>1568650380</time>
+          <time>1569593796</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -188,12 +187,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="80" vrev="80" srcmd5="cd2b5f28f8406cac4bcd139822227a3b">
-          <entry name="_config" md5="2fff48b97a3bef8ae0dbdfe26934806f" size="75" mtime="1568650380"/>
-          <entry name="somefile.txt" md5="b0ab78d3d69b6c2be051d2a787f36224" size="57" mtime="1568650380"/>
+        <directory name="package_with_file" rev="34" vrev="34" srcmd5="7be3e125c61fbf95255c8414ff735d88">
+          <entry name="_config" md5="304c638069348b7a0c486d8c9e1eb354" size="60" mtime="1569593796"/>
+          <entry name="somefile.txt" md5="57f5f636e6ef244c1b946bc55de961e7" size="62" mtime="1569593796"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom&tarlimit=10000
@@ -226,5 +225,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:00 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:36 GMT
 recorded_with: VCR 5.0.0

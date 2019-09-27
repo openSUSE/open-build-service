@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Blanditiis ut laborum cupiditate.</description>
+          <title>Françoise Sagan</title>
+          <description>Consequuntur quia consequatur voluptas.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,22 +70,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '168'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_file" project="home:tom">
-          <title>The Wings of the Dove</title>
-          <description>Blanditiis ut laborum cupiditate.</description>
-        </package>
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0icGFja2FnZV93aXRoX2ZpbGUiIHByb2plY3Q9ImhvbWU6dG9tIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPkNvbnNlcXV1bnR1ciBxdWlhIGNvbnNlcXVhdHVyIHZvbHVwdGFzLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Quia aut eos. Necessitatibus nemo dolore. Dolores ipsa expedita.
+      string: Rerum aspernatur earum. Pariatur sed sit. Eius molestiae asperiores.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -109,23 +106,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="39" vrev="39">
-          <srcmd5>ca63e50d084b616a53de0b0aed20e798</srcmd5>
+        <revision rev="23" vrev="23">
+          <srcmd5>a178567f6dfff7ad9e76aa919c0ca0b8</srcmd5>
           <version>unknown</version>
-          <time>1568650371</time>
+          <time>1569593793</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Accusantium nam eum. Perspiciatis nostrum exercitationem. Illum iure
-        nam.
+      string: Voluptas voluptatem facere. Assumenda veniam quis. Magni quos iusto.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -149,24 +145,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="40" vrev="40">
-          <srcmd5>b148d36f21044c3c59d759668253fc25</srcmd5>
+        <revision rev="24" vrev="24">
+          <srcmd5>4772fe08c73b3b1841845b981e29d2d3</srcmd5>
           <version>unknown</version>
-          <time>1568650371</time>
+          <time>1569593793</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_8/_meta?user=tom
+    uri: http://backend:5352/source/project_16/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_8">
-          <title>Behold the Man</title>
+        <project name="project_16">
+          <title>Tiger! Tiger!</title>
           <description/>
         </project>
     headers:
@@ -192,12 +188,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="project_8">
-          <title>Behold the Man</title>
+        <project name="project_16">
+          <title>Tiger! Tiger!</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -227,10 +223,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="40" vrev="40" srcmd5="b148d36f21044c3c59d759668253fc25">
-          <entry name="_config" md5="d1a7a178832045860f990742477803f2" size="64" mtime="1568650371"/>
-          <entry name="somefile.txt" md5="25cb4854885e6d1ca544ce5af3579b5d" size="73" mtime="1568650371"/>
+        <directory name="package_with_file" rev="24" vrev="24" srcmd5="4772fe08c73b3b1841845b981e29d2d3">
+          <entry name="_config" md5="8bf5fd33b86af7bfece876814b7332e1" size="68" mtime="1569593793"/>
+          <entry name="somefile.txt" md5="dca8b59d78eb5cba3a146049f6c8e68d" size="68" mtime="1569593793"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:51 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:33 GMT
 recorded_with: VCR 5.0.0

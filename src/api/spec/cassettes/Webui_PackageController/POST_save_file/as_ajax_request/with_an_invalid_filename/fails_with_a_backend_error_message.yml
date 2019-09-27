@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:55 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:16 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>That Good Night</title>
-          <description>Saepe rerum ex est.</description>
+          <title>A Farewell to Arms</title>
+          <description>A harum non consequatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '140'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>That Good Night</title>
-          <description>Saepe rerum ex est.</description>
+          <title>A Farewell to Arms</title>
+          <description>A harum non consequatur.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:11:56 GMT
+  recorded_at: Fri, 27 Sep 2019 14:17:16 GMT
 recorded_with: VCR 5.0.0
