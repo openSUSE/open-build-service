@@ -1,7 +1,7 @@
 module Webui
   module Staging
     class ProjectsController < WebuiController
-      before_action :require_login
+      before_action :require_login, except: :show
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
 
