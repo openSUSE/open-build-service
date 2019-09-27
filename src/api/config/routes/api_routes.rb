@@ -277,9 +277,10 @@ OBSApi::Application.routes.draw do
       post 'copy/:staging_project_copy_name' => :copy
       post :accept
 
-      get 'staged_requests' => 'staged_requests#index'
+      get 'staged_requests' => 'staged_requests#index', constraints: cons
       resource :staged_requests, only: [:create, :destroy]
     end
+    delete 'staged_requests' => :destroy, constraints: cons, controller: 'staged_requests'
 
     resources :excluded_requests, only: [:index], constraints: cons
     resource :excluded_requests, only: [:create, :destroy], constraints: cons
