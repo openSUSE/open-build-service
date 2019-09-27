@@ -2862,7 +2862,11 @@ sub set_publish_retry {
   my ($req, $due) = @_;
   $publish_retry{$req->{'event'}} = $due;
   my $ev = $req->{'ev'};
-  writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'}) if $req->{'forked'};
+  if ($req->{'forked'}) {
+    writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'});
+  } else {
+    BSUtil::ping("$myeventdir/.ping");	# see BSStdRunnder::setdue
+  }
 }
 
 sub notify_state {
