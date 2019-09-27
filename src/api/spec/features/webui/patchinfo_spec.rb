@@ -35,7 +35,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       fill_in 'patchinfo[summary]', with: 'A' * 15
       fill_in 'patchinfo[description]', with: 'A' * 55
       click_button 'Save'
-      expect(page).to have_current_path(patchinfo_show_path(project: project, package: 'patchinfo'))
+      expect(page).to have_current_path(patchinfo_path(project: project, package: 'patchinfo'))
       expect(page).to have_text('Successfully edited patchinfo')
     end
   end
@@ -52,7 +52,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     end
 
     scenario 'delete' do
-      visit patchinfo_show_path(project: project, package: 'patchinfo')
+      visit patchinfo_path(project: project, package: 'patchinfo')
       expect(page).to have_link('Delete patchinfo')
       click_link('Delete patchinfo')
       within('#delete-patchinfo-modal') do

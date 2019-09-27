@@ -1,6 +1,6 @@
 - if has_patchinfo
   %li.list-inline-item
-    = link_to(patchinfo_show_path(project, 'patchinfo'), class: 'nav-link') do
+    = link_to(patchinfo_path(project, 'patchinfo'), class: 'nav-link') do
       %span.fa-stack.half-font-size.text-secondary
         %i.far.fa-file.fa-stack-2x
         %i.fas.fa-search.fa-stack-1x

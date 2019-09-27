@@ -48,7 +48,7 @@ module Webui::MaintenanceIncidentHelper
 
   def category_cell(incident, patchinfo)
     if patchinfo.present?
-      link_to(patchinfo[:category], patchinfo_show_path(project: incident.name, package: 'patchinfo'),
+      link_to(patchinfo[:category], patchinfo_path(project: incident.name, package: 'patchinfo'),
               class: "patchinfo-category-#{patchinfo[:category]}")
     else
       link_to(patchinfo_path(project: incident.name, package: 'patchinfo'), method: :post, class: 'text-danger') do
