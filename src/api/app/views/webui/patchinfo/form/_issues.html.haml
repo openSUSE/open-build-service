@@ -7,7 +7,7 @@
                 target: '_blank', rel: 'noopener') do
         List of supported trackers.
   = text_field_tag(:issue_ids, '', class: 'form-control w-auto d-inline-block')
-  = link_to(patchinfo_new_tracker_url, id: 'add-issues', title: 'Add Issues', remote: true, data: { dataType: 'json', project: project.name }) do
+  = link_to(new_tracker_patchinfo_url, id: 'add-issues', title: 'Add Issues', remote: true, data: { dataType: 'json', project: project.name }) do
     %i.fas.fa-plus-circle.text-primary
     %i.fas.fa-spinner.fa-spin.d-none
     Add issues
