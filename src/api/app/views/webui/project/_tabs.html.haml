@@ -33,9 +33,17 @@
       %li.nav-item
         = tab_link('Pulse', project_pulse_path(project))
       - active = controller_path.starts_with?('webui/staging')
-      - if (!project.staging_project? && policy(Staging::Workflow.new(project: project)).create?) || active
+      - if project.staging_project?
+        %li.nav-item
+          = tab_link('Staging', staging_workflow_path(project.staging_workflow), active)
+      - elsif policy(project.staging || Staging::Workflow.new(project: project)).create?
         %li.nav-item
           = tab_link('Staging', new_staging_workflow_path(project: project), active)
+      - elsif project.staging.persisted?
+        -# If Staging::Workflow.new(...) is executed above, project.staging will be a new object.
+           It will be persisted if the project is really a staging workflow project.
+        %li.nav-item
+          = tab_link('Staging', staging_workflow_path(project.staging), active)
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-right
