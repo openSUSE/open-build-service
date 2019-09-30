@@ -115,10 +115,9 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    resource :patchinfo, except: [:show, :update], controller: 'webui/patchinfo' do
+    resource :patchinfo, except: [:show], controller: 'webui/patchinfo' do
       get 'new_tracker' => :new_tracker
       post 'update_issues/:project/:package' => :update_issues, as: :update_issues
-      put ':project/:package' => :update, constraints: cons, as: :update
       get 'show/:project/:package' => :show, as: :show, constraints: cons
     end
 
