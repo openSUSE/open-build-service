@@ -194,7 +194,7 @@ module StagingProject
       add_building_repositories(result) if building
     end
 
-    @broken_packages.reject! { |package| package['state'] == 'unresolvable' } if @building_repositories.present?
+    @broken_packages.reject! { |package| package[:state] == 'unresolvable' } if @building_repositories.present?
   end
 
   def add_broken_packages(result, building)
