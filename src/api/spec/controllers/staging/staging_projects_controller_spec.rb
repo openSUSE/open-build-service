@@ -33,7 +33,7 @@ RSpec.describe Staging::StagingProjectsController do
   describe 'GET #show' do
     context 'not existing project' do
       before do
-        get :show, params: { staging_workflow_project: staging_workflow.project.name, name: 'does-not-exist', format: :xml }
+        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -80,11 +80,13 @@ RSpec.describe Staging::StagingProjectsController do
       before do
         stub_request(:get, broken_packages_path).and_return(body: broken_packages_backend)
         # staging select
+        login(user)
         bs_request_to_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request_missing_review.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
-        get :show, params: { staging_workflow_project: staging_workflow.project.name, name: staging_project.name, format: :xml }
+        logout
+        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }

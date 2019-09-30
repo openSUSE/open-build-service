@@ -19,7 +19,7 @@ class Staging::StagingProjectsController < ApplicationController
   end
 
   def show
-    @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:name])
+    @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:staging_project_name])
   end
 
   def create

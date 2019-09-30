@@ -15,7 +15,10 @@ module RoutesContrains
     service: %r{\w[^\/]*},
     title: %r{[^\/]*},
     user: %r{[^\/]*},
-    repository_publish_build_id: %r{[^\/]*}
+    repository_publish_build_id: %r{[^\/]*},
+    workflow_project: %r{[^\/]*},
+    staging_project_name: %r{[^\/]*},
+    staging_project_copy_name: %r{[^\/]*}
   }.freeze
 end
 
