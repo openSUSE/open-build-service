@@ -71,7 +71,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     if @package.check_weak_dependencies? && @package.destroy
       redirect_to(project_show_path(@project), success: 'Patchinfo was successfully removed.')
     else
-      redirect_to(patchinfo_show_path(package: @package, project: @project),
+      redirect_to(show_patchinfo_path(package: @package, project: @project),
                   notice: "Patchinfo can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
   end
