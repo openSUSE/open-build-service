@@ -97,7 +97,7 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.14)
-    codecov (0.1.14)
+    codecov (0.1.15)
       json
       simplecov
       url
