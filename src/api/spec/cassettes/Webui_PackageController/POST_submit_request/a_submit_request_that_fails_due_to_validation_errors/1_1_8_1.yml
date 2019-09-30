@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Cumque molestiae et id.</description>
+          <title>The Way of All Flesh</title>
+          <description>Quasi officiis repellendus vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,22 +70,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Blithe Spirit</title>
-          <description>Cumque molestiae et id.</description>
+          <title>The Way of All Flesh</title>
+          <description>Quasi officiis repellendus vitae.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Ducimus quia consequatur. Aut ut dolor. Et recusandae aut.
+      string: Tempore autem quisquam. Exercitationem placeat corrupti. Harum minima
+        voluptatem.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -105,26 +106,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="89" vrev="89">
-          <srcmd5>1e30757971fa08b010d12ca3c1a927a8</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>5cc5265a460af1fb6dce2e440b87c632</srcmd5>
           <version>unknown</version>
-          <time>1568650382</time>
+          <time>1569593788</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Aut fugit numquam. Cumque similique illum. Eius placeat repudiandae.
+      string: Et quo fugiat. Dolor saepe aut. Nam qui non.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -144,28 +145,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="90" vrev="90">
-          <srcmd5>2940c6388cd9f70770b2c8e467c49584</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>471eaa806097d2fc5d033bb328e33464</srcmd5>
           <version>unknown</version>
-          <time>1568650382</time>
+          <time>1569593788</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_24/_meta?user=tom
+    uri: http://backend:5352/source/project_7/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_24">
-          <title>Things Fall Apart</title>
+        <project name="project_7">
+          <title>Clouds of Witness</title>
           <description/>
         </project>
     headers:
@@ -187,16 +188,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_24">
-          <title>Things Fall Apart</title>
+        <project name="project_7">
+          <title>Clouds of Witness</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -222,14 +223,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '304'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="90" vrev="90" srcmd5="2940c6388cd9f70770b2c8e467c49584">
-          <entry name="_config" md5="cbd05f55633ce281e5147ec5926f9297" size="58" mtime="1568650382"/>
-          <entry name="somefile.txt" md5="b56536a341f97cceb2c6cbfeefaae1a1" size="68" mtime="1568650382"/>
+        <directory name="package_with_file" rev="6" vrev="6" srcmd5="471eaa806097d2fc5d033bb328e33464">
+          <entry name="_config" md5="a89e142da2e1d9c3ed4b5e93cea1b204" size="81" mtime="1569593788"/>
+          <entry name="somefile.txt" md5="e738124e13c2de31428b56f2caf33db0" size="44" mtime="1569593788"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:02 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:28 GMT
 recorded_with: VCR 5.0.0

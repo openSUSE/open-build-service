@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:05 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In a Glass Darkly</title>
-          <description>Fugiat suscipit molestiae itaque.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Magni quam expedita doloribus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In a Glass Darkly</title>
-          <description>Fugiat suscipit molestiae itaque.</description>
+          <title>I Will Fear No Evil</title>
+          <description>Magni quam expedita doloribus.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:05 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_link
@@ -112,13 +112,13 @@ http_interactions:
         <revision rev="2" vrev="2">
           <srcmd5>6e3cb940a6f3f5b473a68d4ef83b7dce</srcmd5>
           <version>unknown</version>
-          <time>1568650385</time>
+          <time>1569593801</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:05 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_29/_meta?user=tom
@@ -126,7 +126,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_29">
-          <title>Look to Windward</title>
+          <title>Vanity Fair</title>
           <description/>
         </project>
     headers:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '103'
+      - '98'
     body:
       encoding: UTF-8
       string: |
         <project name="project_29">
-          <title>Look to Windward</title>
+          <title>Vanity Fair</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:05 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -191,5 +191,5 @@ http_interactions:
           <summary>_link is bad: projid '/Invalid' is illegal</summary>
         </status>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:13:05 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
 recorded_with: VCR 5.0.0

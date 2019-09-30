@@ -1,0 +1,337 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>Fame Is the Spur</title>
+          <description>Laudantium voluptatibus natus sint.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_broken_service" project="home:tom">
+          <title>Fame Is the Spur</title>
+          <description>Laudantium voluptatibus natus sint.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_service
+    body:
+      encoding: UTF-8
+      string: "<service>broken</service>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>f33d41af03c9d5673c3ecd873a3264fb</srcmd5>
+          <version>unknown</version>
+          <time>1569593770</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '383'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="f33d41af03c9d5673c3ecd873a3264fb">
+          <serviceinfo code="failed" xsrcmd5="dfc1d764667a9f12b6a14d50abff4c98">
+            <error>service error:  400 remote error: unknown element 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1569593770"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: service error   400 remote error  unknown element 'service'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>service error:  400 remote error: unknown element 'service'</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '383'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="f33d41af03c9d5673c3ecd873a3264fb">
+          <serviceinfo code="failed" xsrcmd5="dfc1d764667a9f12b6a14d50abff4c98">
+            <error>service error:  400 remote error: unknown element 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1569593770"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service?expand=0&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '383'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="f33d41af03c9d5673c3ecd873a3264fb">
+          <serviceinfo code="failed" xsrcmd5="dfc1d764667a9f12b6a14d50abff4c98">
+            <error>service error:  400 remote error: unknown element 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1569593770"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '383'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_broken_service" rev="1" vrev="1" srcmd5="f33d41af03c9d5673c3ecd873a3264fb">
+          <serviceinfo code="failed" xsrcmd5="dfc1d764667a9f12b6a14d50abff4c98">
+            <error>service error:  400 remote error: unknown element 'service'</error>
+          </serviceinfo>
+          <entry name="_service" md5="27a21c968dc9fadcab4da63af004add0" size="25" mtime="1569593770"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_broken_service/_serviceerror?rev=dfc1d764667a9f12b6a14d50abff4c98
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '67'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        service daemon error:
+         400 remote error: unknown element 'service'
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:16:10 GMT
+recorded_with: VCR 5.0.0

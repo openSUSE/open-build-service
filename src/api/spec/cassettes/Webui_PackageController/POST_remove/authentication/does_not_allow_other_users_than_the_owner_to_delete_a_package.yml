@@ -40,15 +40,15 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=tom
+    uri: http://backend:5352/source/project_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>A Time of Gifts</title>
+        <project name="project_1">
+          <title>Down to a Sunless Sea</title>
           <description/>
         </project>
     headers:
@@ -70,25 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '101'
+      - '107'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>A Time of Gifts</title>
+        <project name="project_1">
+          <title>Down to a Sunless Sea</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:19 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=tom
+    uri: http://backend:5352/source/project_1/forbidden_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_4">
-          <title>Where Angels Fear to Tread</title>
-          <description>Quia ea eaque possimus.</description>
+        <package name="forbidden_package" project="project_1">
+          <title>A Glass of Blessings</title>
+          <description>Consequuntur facilis nesciunt omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +109,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_4">
-          <title>Where Angels Fear to Tread</title>
-          <description>Quia ea eaque possimus.</description>
+        <package name="forbidden_package" project="project_1">
+          <title>A Glass of Blessings</title>
+          <description>Consequuntur facilis nesciunt omnis.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:18 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:19 GMT
 recorded_with: VCR 5.0.0

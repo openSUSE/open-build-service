@@ -1,0 +1,303 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_55
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>Tender Is the Night</title>
+          <description>Iusto autem quos et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>Tender Is the Night</title>
+          <description>Iusto autem quos et.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Quia incidunt sed. Voluptas odit non. Ut facilis debitis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="79" vrev="79">
+          <srcmd5>55922cb4a92905e14ace49a857024d5d</srcmd5>
+          <version>unknown</version>
+          <time>1569593839</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Sint dolor quo. Ut quia error. Ea eos nulla.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="80" vrev="80">
+          <srcmd5>b160e338d94b2c6bec773deb25b9768e</srcmd5>
+          <version>unknown</version>
+          <time>1569593839</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="80" vrev="80" srcmd5="b160e338d94b2c6bec773deb25b9768e">
+          <entry name="_config" md5="40dd2346b33c9bfb520f62ea822febdc" size="57" mtime="1569593839"/>
+          <entry name="somefile.txt" md5="227e3fea8ccd626ce53b252fe83897e7" size="44" mtime="1569593839"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="80" vrev="80" srcmd5="b160e338d94b2c6bec773deb25b9768e">
+          <entry name="_config" md5="40dd2346b33c9bfb520f62ea822febdc" size="57" mtime="1569593839"/>
+          <entry name="somefile.txt" md5="227e3fea8ccd626ce53b252fe83897e7" size="44" mtime="1569593839"/>
+        </directory>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 400
+      message: revision is empty
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '69'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="400">
+          <summary>revision is empty</summary>
+        </status>
+    http_version: 
+  recorded_at: Fri, 27 Sep 2019 14:17:19 GMT
+recorded_with: VCR 5.0.0

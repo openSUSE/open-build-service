@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Eius tempora eveniet qui.</description>
+          <title>Arms and the Man</title>
+          <description>Ut nisi consectetur et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,22 +70,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '152'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>An Acceptable Time</title>
-          <description>Eius tempora eveniet qui.</description>
+          <title>Arms and the Man</title>
+          <description>Ut nisi consectetur et.</description>
         </package>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Laborum iure dolores. Repudiandae voluptatem vero. Modi pariatur et.
+      string: Optio facere dicta. In voluptatum voluptatem. Et id quia.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -109,22 +109,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="67" vrev="67">
-          <srcmd5>847cf935b1e59533fa869180bc8ed8e8</srcmd5>
+        <revision rev="29" vrev="29">
+          <srcmd5>6e1eac736346e623129945be465c1d6d</srcmd5>
           <version>unknown</version>
-          <time>1568650377</time>
+          <time>1569593795</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Quas iusto aut. Sit non est. Maiores ipsum minus.
+      string: Ex qui quo. Eos dolorem culpa. Et quis id.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -148,24 +148,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="68" vrev="68">
-          <srcmd5>c54cfc2a42f011367079816efab311d9</srcmd5>
+        <revision rev="30" vrev="30">
+          <srcmd5>87ae76666d9e42035f91f6b529bc6c51</srcmd5>
           <version>unknown</version>
-          <time>1568650377</time>
+          <time>1569593795</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_16/_meta?user=tom
+    uri: http://backend:5352/source/project_19/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Paths of Glory</title>
+        <project name="project_19">
+          <title>The Wives of Bath</title>
           <description/>
         </project>
     headers:
@@ -187,16 +187,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '101'
+      - '104'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_16">
-          <title>Paths of Glory</title>
+        <project name="project_19">
+          <title>The Wives of Bath</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file?expand=1
@@ -226,10 +226,10 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="68" vrev="68" srcmd5="c54cfc2a42f011367079816efab311d9">
-          <entry name="_config" md5="fa26c9fc32416cda757c149e7b941d99" size="68" mtime="1568650377"/>
-          <entry name="somefile.txt" md5="4bb6174563603366be3d7b7289c1dbce" size="49" mtime="1568650377"/>
+        <directory name="package_with_file" rev="30" vrev="30" srcmd5="87ae76666d9e42035f91f6b529bc6c51">
+          <entry name="_config" md5="c1de155a7af3b942806405b1a59b89cf" size="57" mtime="1569593795"/>
+          <entry name="somefile.txt" md5="4bc8551ea730c0585f3e3dae1f13d60d" size="42" mtime="1569593795"/>
         </directory>
     http_version: 
-  recorded_at: Mon, 16 Sep 2019 16:12:57 GMT
+  recorded_at: Fri, 27 Sep 2019 14:16:35 GMT
 recorded_with: VCR 5.0.0
