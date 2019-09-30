@@ -119,7 +119,7 @@ OBSApi::Application.routes.draw do
       get 'new_tracker' => :new_tracker
       post 'update_issues/:project/:package' => :update_issues, as: :update_issues
       put ':project/:package' => :update, constraints: cons, as: :update
-      get 'show/:project/:package' => :show, as: :show, constraints: cons, defaults: { format: 'html' }
+      get 'show/:project/:package' => :show, as: :show, constraints: cons
     end
 
     controller 'webui/repositories' do
