@@ -4,7 +4,7 @@ RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:another_user) { create(:confirmed_user, login: 'another_user') }
   let(:project) { user.home_project }
-  let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
+  let!(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
 
   let(:source_package) { create(:package) }
   let(:target_package) { create(:package, name: 'target_package', project: project) }
@@ -52,8 +52,25 @@ RSpec.describe Webui::Staging::ExcludedRequestsController, type: :controller do
       subject { post :create, params: { staging_workflow_id: staging_workflow, staging_request_exclusion: { number: bs_request, description: description } } }
 
       before do
-        staging_workflow
         login(another_user)
+      end
+
+      it { expect { subject }.not_to(change { staging_workflow.request_exclusions.count }) }
+
+      context 'response' do
+        before { subject }
+
+        it { expect(response).to redirect_to(root_path) }
+        it { expect(flash[:error]).not_to be_nil }
+      end
+    end
+
+    context 'fails: request belongs to a staging project' do
+      subject { post :create, params: { staging_workflow_id: staging_workflow, staging_request_exclusion: { number: bs_request, description: description } } }
+
+      before do
+        bs_request.staging_project = staging_workflow.staging_projects.first
+        bs_request.save
       end
 
       it { expect { subject }.not_to(change { staging_workflow.request_exclusions.count }) }

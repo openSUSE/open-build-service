@@ -3,15 +3,7 @@ class Staging::RequestExcluder
   attr_accessor :requests_xml_hash, :staging_workflow
 
   def create
-    requests_to_be_excluded.map do |request|
-      bs_request = staging_workflow.unassigned_requests.find_by_number(request[:number])
-      request_excluded = Staging::RequestExclusion.new(bs_request: bs_request,
-                                                       number: bs_request.try(:number),
-                                                       description: request[:description],
-                                                       staging_workflow: staging_workflow)
-
-      errors << "Request #{request_excluded.bs_request_id}: #{request_excluded.errors.full_messages.to_sentence}." unless request_excluded.save
-    end
+    requests_to_be_excluded.map { |request| exclude_request(request) }
 
     self
   end
@@ -34,11 +26,36 @@ class Staging::RequestExcluder
 
   private
 
+  def exclude_request(request)
+    bs_request = staging_workflow.target_of_bs_requests.find_by(number: request[:number])
+    return unless valid_request?(bs_request, request[:number])
+
+    request_excluded = Staging::RequestExclusion.new(bs_request: bs_request,
+                                                     number: bs_request.try(:number),
+                                                     description: request[:description],
+                                                     staging_workflow: staging_workflow)
+
+    return if request_excluded.save
+
+    errors << "Request #{request_excluded.bs_request_id}: #{request_excluded.errors.full_messages.to_sentence}."
+  end
+
   def requests_to_be_excluded
     [requests_xml_hash[:request]].flatten
   end
 
   def request_numbers
     [requests_xml_hash[:number]].flatten.map(&:to_i)
+  end
+
+  def valid_request?(bs_request, request_number)
+    return true if bs_request && bs_request.staging_project.nil?
+
+    errors << if bs_request
+                "Request #{request_number} could not be excluded because is staged in: #{bs_request.staging_project}"
+              else
+                "Request #{request_number} doesn't exist or it doesn't belong to this project"
+              end
+    return false
   end
 end

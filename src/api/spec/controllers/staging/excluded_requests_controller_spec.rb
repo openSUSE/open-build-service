@@ -99,6 +99,17 @@ RSpec.describe Staging::ExcludedRequestsController do
 
       it { expect(response).to have_http_status(400) }
     end
+
+    context 'fails: request belongs to a staging project, invalid request exclusion' do
+      before do
+        bs_request.staging_project = staging_workflow.staging_projects.first
+        bs_request.save
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
+                      body: "<excluded_requests><request number='43_543'/></excluded_requests>"
+      end
+
+      it { expect(response).to have_http_status(400) }
+    end
   end
 
   describe 'DELETE #destroy' do

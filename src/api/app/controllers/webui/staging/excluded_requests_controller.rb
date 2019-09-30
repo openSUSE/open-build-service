@@ -28,6 +28,11 @@ module Webui
           redirect_back(fallback_location: root_path, error: "Request #{params[:number]} doesn't exist or it doesn't belong to this project")
           return
         end
+        if request.staging_project
+          redirect_back(fallback_location: root_path,
+                        error: "Request #{params[:number]} could not be excluded because is staged in: #{request.staging_project}")
+          return
+        end
 
         request_exclusion = @staging_workflow.request_exclusions.build(bs_request: request, description: staging_request_exclusion[:description])
 
