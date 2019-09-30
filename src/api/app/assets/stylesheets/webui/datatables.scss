@@ -33,3 +33,9 @@ table.dataTable.table-sm {
 .table-hover tbody tr:hover {
   background-color: $gray-300;
 }
+
+table.dataTable {
+  .quality-category.badge {
+    margin-left: 0.5em;
+  }
+}

@@ -1539,6 +1539,15 @@ class Project < ApplicationRecord
     name.include?(':branches:') # Rather ugly decision finding...
   end
 
+  def quality
+     AttribValue
+       .joins(attrib: { attrib_type: :attrib_namespace })
+       .where(attribs: { project: self },
+              attrib_types: { name: 'QualityCategory' },
+              attrib_namespaces: { name: 'OBS' })
+       .map(&:value)
+  end
+
   private
 
   def discard_cache
