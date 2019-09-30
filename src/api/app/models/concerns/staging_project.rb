@@ -77,10 +77,6 @@ module StagingProject
     @requests_to_review ||= BsRequest.with_open_reviews_for(by_project: name)
   end
 
-  def disabled_repositories
-    repositories.select { |repository| disabled_for?('build', repository.name, nil) }
-  end
-
   def building_repositories
     set_buildinfo unless @building_repositories
     @building_repositories
@@ -175,7 +171,7 @@ module StagingProject
 
   def build_or_check_state
     # build_state
-    return :building if building_repositories.present? || disabled_repositories.present?
+    return :building if building_repositories.present?
     return :failed if broken_packages.present?
     # check_state
     return :testing if missing_checks.present? || checks.pending.exists?
