@@ -244,6 +244,9 @@ OBSApi::Application.routes.draw do
     controller 'webui/projects/maintenance_incidents' do
       get 'project/maintenance_incidents/:project', to: redirect('/projects/%{project}/maintenance_incidents')
     end
+    controller 'webui/projects/project_configuration' do
+      get 'project/prjconf/:project', to: redirect('/projects/%{project}/prjconf')
+    end
     # \For backward compatibility
 
     resources :projects, only: [], param: :name do
