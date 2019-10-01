@@ -4,6 +4,12 @@
       = element.event_type.humanize
       - case element.event_type
       - when 'unstaged_request', 'staged_request'
-        = render(partial: 'unstaged_staged_request_history', locals: { history: element })
+        = link_to("##{element.bs_request.number}", request_show_path(element.bs_request.number))
+        for package
+        %b= element.package_name
+        submitted by
+        %b= element.user_name
       - when 'staging_project_created'
-        = render(partial: 'staging_project_created_history', locals: { history: element })
+        %b #{time_ago_in_words(Time.at(element.datetime.to_i))} ago
+        by
+        %b= element.user_name
