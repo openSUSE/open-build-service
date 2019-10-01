@@ -59,7 +59,11 @@ class Staging::StageRequests
 
   def add_request_not_found_errors
     not_found_requests.each do |request_number|
-      errors << "Request '#{request_number}' does not exist or target_project is not '#{request_target_project}'"
+      errors << if BsRequest.exists?(number: request_number)
+                  "Request #{request_number} not found in Staging for project #{request_target_project}"
+                else
+                  "Request #{request_number} doesn't exist"
+                end
     end
   end
 
