@@ -33,7 +33,7 @@ class ProjectDatatable < Datatable
     records.map do |record|
       {
         name: link_to(record.name, project_show_path(record)) +
-          safe_join(record.quality.map { |q| category_badge(q) }),
+          safe_join(record.categories.map { |q| category_badge(q) }),
         title: record.title
       }
     end

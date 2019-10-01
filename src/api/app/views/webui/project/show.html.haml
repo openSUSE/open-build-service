@@ -11,9 +11,9 @@
       .col-md-8
         %h3#project-title
           = @project.title.presence || @project
-        - if @project.quality.any?
-          - @project.quality.each do |attribute|
-            = category_badge(attribute)
+        - if @project.categories.any?
+          - @project.categories.each do |category|
+            = category_badge(category)
         - if @project.url.present?
           = link_to(@project.url, @project.url, class: 'mb-3 d-block')
         #description-text

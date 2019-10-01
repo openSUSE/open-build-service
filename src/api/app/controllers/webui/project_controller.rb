@@ -35,8 +35,7 @@ class Webui::ProjectController < Webui::WebuiController
     respond_to do |format|
       format.html do
         render :index,
-               locals: { important_projects:
-                         active_very_important_projects.pluck(:name, :title) }
+               locals: { important_projects: Project::Categorized.vips_with_categories }
       end
       format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
     end
@@ -408,14 +407,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def show_all?
     (params[:all].to_s == 'true')
-  end
-
-  def active_very_important_projects
-    Project.find_by_attribute_type(very_important_project_attribute)
-  end
-
-  def very_important_project_attribute
-    AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
   end
 
   def project_for_datatable
