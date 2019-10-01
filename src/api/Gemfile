@@ -191,7 +191,7 @@ group :assets do
   # for minifying JavaScript
   gem 'uglifier', '>= 1.2.2'
   # sassc 2.2.0 is throwing exception
-  gem 'sassc', '~> 2.2.1'
+  gem 'sassc', '~> 2.1.0'
   # to use sass in the asset pipeline
   gem 'sassc-rails'
   # assets for jQuery DataTables
