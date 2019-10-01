@@ -1997,6 +1997,7 @@ XmlResult: status_ok
 
 DELETE /staging/<staging_workflow_project>/staging_projects/<staging_project>/staged_requests
   Remove one or multiple bs_requests to the staged requests of a staging project.
+XmlBody: remove_staged_requests
 XmlResult: status_ok
 
 == Internal only routes
