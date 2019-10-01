@@ -1058,12 +1058,13 @@ sub createrepo_staticlinks {
   for my $arch ('.', ls($extrep)) {
     next unless -d "$extrep/$arch";
     for (ls("$extrep/$arch")) {
-      unlink "$extrep/$arch/$_" if -l "$extrep/$arch/$_" && ! -e "$extrep/$arch/$_";
+      if (-l "$extrep/$arch/$_") {
+        unlink "$extrep/$arch/$_" unless -e "$extrep/$arch/$_";
+        next;
+      }
       my $link;
       if (/^(.*)-Build(?:\d\d\d\d|\d+\.\d+)(-Media\d?(\.license)?)$/s) {
         $link = "$1$2"; # no support for versioned links
-      } else {
-        next unless -f "$extrep/$arch/$_";
       }
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
@@ -1089,7 +1090,7 @@ sub createrepo_staticlinks {
       next unless $link;
       unlink("$extrep/$arch/.$link"); # drop left over
       symlink($_, "$extrep/$arch/.$link");
-      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
+      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomic update
     }
   }
 }
