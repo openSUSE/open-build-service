@@ -383,7 +383,7 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.8.0)
       nokogumbo (~> 2.0)
-    sassc (2.1.0)
+    sassc (2.2.1)
       ffi (~> 1.9)
     sassc-rails (2.1.2)
       railties (>= 4.0.0)
@@ -542,7 +542,7 @@ DEPENDENCIES
   rubocop-rspec
   ruby-ldap
   sanitize
-  sassc (~> 2.1.0)
+  sassc (~> 2.2.1)
   sassc-rails
   selenium-webdriver
   shoulda-matchers (~> 4.0)
