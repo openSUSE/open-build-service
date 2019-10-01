@@ -266,7 +266,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
       end
 
       it { expect(flash[:notice]).to eq("Patchinfo can't be removed: ") }
-      it { expect(response).to redirect_to(patchinfo_show_path(package: patchinfo_package, project: user.home_project)) }
+      it { expect(response).to redirect_to(show_patchinfo_path(package: patchinfo_package, project: user.home_project)) }
     end
   end
 
