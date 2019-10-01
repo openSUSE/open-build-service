@@ -10,7 +10,7 @@
     %h3= @pagetitle
     - if User.possibly_nobody.can_modify?(@project)
       = render partial: 'webui/shared/editor', locals: { text: @content, mode: 'prjconf',
-        save: { url: save_project_config_path, method: :post,
-        data: { project: @project.name, submit: 'config' } } }
+        save: { url: project_config_path, method: :put,
+        data: { project_name: @project.name, submit: 'config' } } }
     - else
       = render partial: 'webui/shared/editor', locals: { text: @content, mode: 'prjconf', style: { read_only: true } }

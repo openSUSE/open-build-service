@@ -17,7 +17,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         }
       end
 
-      it { expect { get :show, params: { project: apache_project } }.not_to raise_error }
+      it { expect { get :show, params: { project_name: apache_project.name } }.not_to raise_error }
     end
 
     context 'Can not load project config' do
@@ -27,7 +27,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         }
       end
 
-      it { expect { get :show, params: { project: apache_project } }.to raise_error(ActiveRecord::RecordNotFound) }
+      it { expect { get :show, params: { project_name: apache_project.name } }.to raise_error(ActiveRecord::RecordNotFound) }
     end
   end
 
@@ -41,7 +41,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         allow(::ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
           -> { OpenStruct.new(saved?: true) }
         }
-        post :update, params: { project: user.home_project.name, config: 'save config' }
+        post :update, params: { project_name: user.home_project.name, config: 'save config' }
       end
 
       it { expect(flash[:success]).to eq('Config successfully saved!') }
@@ -53,7 +53,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
         allow(::ProjectConfigurationService::ProjectConfigurationUpdater).to receive(:new) {
           -> { OpenStruct.new(saved?: false, errors: 'yay') }
         }
-        post :update, params: { project: user.home_project.name, config: '' }
+        post :update, params: { project_name: user.home_project.name, config: '' }
       end
 
       it { expect(flash[:error]).not_to be_nil }
@@ -62,7 +62,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
 
     context 'cannot save with an unauthorized user' do
       before do
-        post :update, params: { project: another_project.name, config: 'save config' }
+        post :update, params: { project_name: another_project.name, config: 'save config' }
       end
 
       it { expect(flash[:error]).to eq('Sorry, you are not authorized to update this Project.') }
@@ -71,7 +71,7 @@ RSpec.describe Webui::Projects::ProjectConfigurationController, vcr: true do
     end
 
     context 'with a non existing project' do
-      let(:post_update) { post :update, params: { project: 'non:existing:project', config: 'save config' } }
+      let(:post_update) { post :update, params: { project_name: 'non:existing:project', config: 'save config' } }
 
       it 'raise a RecordNotFound Exception' do
         expect { post_update }.to raise_error ActiveRecord::RecordNotFound
