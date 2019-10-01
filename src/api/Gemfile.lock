@@ -416,7 +416,7 @@ GEM
     temple (0.8.2)
     term-ansicolor (1.7.1)
       tins (~> 1.0)
-    test-unit (3.3.3)
+    test-unit (3.3.4)
       power_assert
     thinking-sphinx (4.4.1)
       activerecord (>= 3.1.0)
