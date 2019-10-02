@@ -30,7 +30,8 @@ class PackageDatatable < Datatable
     records.map do |record|
       {
         name: name_with_link(record),
-        changed: time_ago_in_words(Time.at(record.updated_at.to_i))
+        changed: format('%{duration} ago',
+                        duration: time_ago_in_words(Time.at(record.updated_at.to_i)))
       }
     end
   end
