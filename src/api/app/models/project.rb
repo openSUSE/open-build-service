@@ -1553,6 +1553,12 @@ class Project < ApplicationRecord
       .map(&:value)
   end
 
+  def self.very_important_projects_with_categories
+    very_important_projects_with_attributes.map do |p|
+      [p.name, p.title, p.categories]
+    end
+  end
+
   private
 
   def discard_cache
