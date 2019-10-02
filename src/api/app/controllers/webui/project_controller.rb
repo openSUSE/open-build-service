@@ -35,7 +35,7 @@ class Webui::ProjectController < Webui::WebuiController
     respond_to do |format|
       format.html do
         render :index,
-               locals: { important_projects: Project::Categorized.vips_with_categories }
+               locals: { important_projects: Project::Categorized.very_important_projects_with_categories }
       end
       format.json { render json: ProjectDatatable.new(params, view_context: view_context, show_all: show_all?) }
     end

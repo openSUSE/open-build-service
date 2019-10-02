@@ -1,6 +1,6 @@
 class Project::Categorized
-  def self.vips_with_categories
-    Project.vips_with_attributes.map do |p|
+  def self.very_important_projects_with_categories
+    Project.very_important_projects_with_attributes.map do |p|
       [p.name, p.title, p.categories]
     end
   end
