@@ -11,6 +11,6 @@ module Webui::Projects::AttributesHelper
                  else
                    'badge-dark'
                  end
-    content_tag(:span, category, class: ['quality-category', 'badge', badge_type].join(' '))
+    content_tag(:span, category, class: "quality-category badge #{badge_type}")
   end
 end
