@@ -49,12 +49,14 @@ class Staging::RequestExcluder
   end
 
   def valid_request?(bs_request, request_number)
-    return true if bs_request && bs_request.staging_project.nil?
+    return true if bs_request.present? && bs_request.staging_project.nil?
 
-    errors << if bs_request
+    errors << if bs_request.present?
                 "Request #{request_number} could not be excluded because is staged in: #{bs_request.staging_project}"
+              elsif BsRequest.exists?(number: request_number)
+                "Request #{request_number} not found in Staging for project #{staging_workflow.project}"
               else
-                "Request #{request_number} doesn't exist or it doesn't belong to this project"
+                "Request #{request_number} doesn't exist"
               end
     return false
   end
