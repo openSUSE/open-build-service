@@ -22,8 +22,10 @@ class Staging::StageRequests
     staging_project.staged_requests.delete(requests)
     not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
 
-    result = staging_project.packages.where(name: package_names).destroy_all
-    not_deleted_packages = package_names - result.pluck(:name)
+    staging_project_packages = staging_project.packages.where(name: package_names)
+    staging_project_packages_names = staging_project_packages.pluck(:name)
+    deleted_packages = staging_project_packages.destroy_all
+    not_deleted_packages = staging_project_packages_names - deleted_packages.pluck(:name)
 
     requests.each do |request|
       ProjectLogEntry.create!(
