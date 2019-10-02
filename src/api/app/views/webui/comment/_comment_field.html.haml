@@ -1,5 +1,5 @@
 = form_for(comment, action: 'create', method: :post, remote: true, html: { class: 'new-comment-form' }) do |f|
-  = hidden_field_tag :commentable_type, commentable.class
+  = hidden_field_tag :commentable_type, commentable.class.name
   = hidden_field_tag :commentable_id, commentable.id
   = f.hidden_field :parent_id, value: comment.parent_id
   ~ f.text_area :body, rows: '4', placeholder: 'Add a new comment (markdown markup supported)', required: true,
