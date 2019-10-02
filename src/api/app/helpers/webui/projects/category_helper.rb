@@ -1,4 +1,4 @@
-module Webui::Projects::AttributesHelper
+module Webui::Projects::CategoryHelper
   def category_badge(category)
     return unless category
     badge_type = case category
