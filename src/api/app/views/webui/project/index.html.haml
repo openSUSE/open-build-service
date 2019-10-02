@@ -14,7 +14,7 @@
             - important_projects.each do |name, title, categories|
               %tr
                 %td
-                  = link_to(name, action: :show, project: name)
+                  = link_to(name, project_show_path(project: name))
                   - categories.each do |category|
                     = category_badge(category)
                 %td
