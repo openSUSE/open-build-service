@@ -34,9 +34,11 @@ RSpec.describe Issue do
     it 'issue name should be valid' do
       expect(issue).to be_valid
     end
+
     it 'V1 style should be valid name' do
       expect(issue_v1).to be_valid
     end
+
     it 'CVE-XXXX-YYYY should be an invalid name' do
       expect { issue_cve.save! }.to raise_error(ActiveRecord::RecordInvalid, /does not match defined regex/)
     end

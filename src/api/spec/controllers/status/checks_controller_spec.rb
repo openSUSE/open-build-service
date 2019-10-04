@@ -59,6 +59,7 @@ RSpec.describe Status::ChecksController, type: :controller do
             expect(status_report.checks.where(name: 'ci/example: example test', short_description: 'The test failed on Example CI',
                                               state: 'pending', url: 'http://checks.example.com/12345')).to exist
           end
+
           it { is_expected.to have_http_status(:success) }
           it { expect(Event::StatusCheck.count).to eq(1) }
         end
@@ -158,6 +159,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         it 'creates a new status report' do
           expect(bs_request.status_reports).to exist
         end
+
         it { is_expected.to have_http_status(:success) }
       end
 
@@ -171,6 +173,7 @@ RSpec.describe Status::ChecksController, type: :controller do
         it 'creates a new status report' do
           expect(repository.status_reports.where(uuid: '1234')).to exist
         end
+
         it { is_expected.to have_http_status(:success) }
       end
     end

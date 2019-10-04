@@ -90,6 +90,7 @@ RSpec.describe Staging::StagingProjectsController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       it 'returns the staging_project name xml' do
         assert_select 'staging_project' do
           assert_select 'staged_requests', 1 do
@@ -191,6 +192,7 @@ RSpec.describe Staging::StagingProjectsController do
       end
 
       it { is_expected.to have_http_status(:success) }
+
       it "starts the 'accept' job for the staging projects" do
         subject
         expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)

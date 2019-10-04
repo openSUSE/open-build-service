@@ -38,6 +38,7 @@ RSpec.describe Webui::Cloud::Azure::UploadJobsController, type: :controller, vcr
       end
 
       it { expect(response).to be_success }
+
       it {
         expect(assigns(:upload_job)).
           to have_attributes(project: 'AzureImages', package: 'MyAzureImage', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz')

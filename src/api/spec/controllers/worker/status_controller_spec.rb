@@ -19,6 +19,7 @@ RSpec.describe Worker::StatusController, vcr: true do
     subject! { get :index, params: { format: :xml } }
 
     it { is_expected.to have_http_status(:success) }
+
     it 'finds 2 workers' do
       assert_select 'workerstatus[clients=2]'
     end

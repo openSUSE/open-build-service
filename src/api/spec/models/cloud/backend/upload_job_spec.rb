@@ -85,6 +85,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
       end
 
       it { expect(subject.valid?).to be_falsy }
+
       it 'has the correct error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to eq('no cloud upload server configured')
@@ -99,6 +100,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
       subject { Cloud::Backend::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
+
       it 'has the correct error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to eq('boom')

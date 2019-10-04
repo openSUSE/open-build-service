@@ -37,6 +37,7 @@ RSpec.describe Staging::ExcludedRequestsController do
     end
 
     it { expect(response).to have_http_status(:success) }
+
     it 'returns the excluded_requests xml' do
       assert_select 'excluded_requests', 1 do
         assert_select 'request', 2 do

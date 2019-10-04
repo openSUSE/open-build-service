@@ -57,6 +57,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
                                                                  package: package_with_kiwi_file,
                                                                  filename: "#{package_with_kiwi_file.name}.kiwi"))
         end
+
         it { expect(flash[:error]).not_to be_nil }
       end
 
@@ -347,6 +348,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
 
     it { expect(subject.content_type).to eq('application/json') }
     it { expect(subject).to have_http_status(:success) }
+
     it do
       expect(JSON.parse(subject.body)).to eq([{ 'id' => 'apache', 'label' => 'apache', 'value' => 'apache' },
                                               { 'id' => 'apache2', 'label' => 'apache2', 'value' => 'apache2' },

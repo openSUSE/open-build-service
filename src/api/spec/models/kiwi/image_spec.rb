@@ -162,6 +162,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
         it { expect(subject.use_project_repositories?).to be_truthy }
 
         it { expect(subject.repositories.length).to eq(1) }
+
         it 'parses the repository elements of the xml into a KiwiImage model' do
           expect(subject.repositories[0]).to have_attributes(
             source_path: 'http://download.opensuse.org/update/13.2/',
@@ -199,6 +200,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       it { expect(subject.valid?).to be_truthy }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
+
       it 'parses only the description with type = "system"' do
         expect(subject.description).to have_attributes(
           description_type: 'system',
@@ -351,6 +353,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
   describe '.write_to_backend' do
     context 'without a package' do
       it { expect(kiwi_image.write_to_backend).to be(false) }
+
       it 'will not call save! method' do
         expect(kiwi_image).not_to receive(:save!)
         kiwi_image.write_to_backend
@@ -482,10 +485,12 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     subject { Kiwi::Image }
 
     it { expect(subject.find_binaries_by_name('', 'project', [], use_project_repositories: true)).to eq(binaries_available_sample) }
+
     it do
       expect(subject.find_binaries_by_name('ap', 'project', [], use_project_repositories: true)).to eq('apache' => ['i586', 'x86_64'],
                                                                                                        'apache2' => ['x86_64'], 'appArmor' => ['i586', 'x86_64'])
     end
+
     it { expect(subject.find_binaries_by_name('app', 'project', [], use_project_repositories: true)).to eq('appArmor' => ['i586', 'x86_64']) }
     it { expect(subject.find_binaries_by_name('b', 'project', [], use_project_repositories: true)).to eq('bcrypt' => ['x86_64']) }
     it { expect(subject.find_binaries_by_name('c', 'project', [], use_project_repositories: true)).to be_empty }

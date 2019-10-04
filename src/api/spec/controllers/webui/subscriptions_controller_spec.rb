@@ -27,6 +27,7 @@ RSpec.describe Webui::SubscriptionsController do
 
     it { expect(response).to redirect_to(action: :index) }
     it { is_expected.to use_before_action(:require_admin) }
+
     it_behaves_like 'a subscriptions form for default'
   end
 end

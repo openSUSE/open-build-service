@@ -67,6 +67,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
       it 'returns an xml response with all cloud upload jobs listed' do
         expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
       end
+
       it { expect(response).to be_success }
     end
   end
@@ -94,6 +95,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
       it 'returns an xml response with all cloud upload jobs listed' do
         expect(Xmlhash.parse(response.body)).to eq(Xmlhash.parse(xml_response_list))
       end
+
       it { expect(response).to be_success }
     end
   end

@@ -91,6 +91,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:success]).to match(" Superseding failed: Couldn't find request with id '42'") }
+
       it_should_behave_like 'a response of a successful submit request'
     end
 
@@ -143,6 +144,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions is invalid, ' \
                                     'Bs request actions Sourceupdate is not included in the list')
       end
+
       it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
       it { expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).not_to exist }
     end
@@ -219,6 +221,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     it 'sends the xml representation of a package' do
       expect(assigns(:meta)).to eq(source_package.render_xml)
     end
+
     it { expect(response).to render_template('package/meta') }
     it { expect(response).to have_http_status(:success) }
   end
@@ -270,6 +273,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:success]).to eq('Successfully branched package') }
+
       it 'redirects to the branched package' do
         expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
                                                           package: 'new_package_name'))
@@ -294,10 +298,12 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:success]).to eq('Successfully branched package') }
+
       it 'redirects to the branched package' do
         expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
                                                           package: source_package.name))
       end
+
       it { expect(branched_package.linkinfo['rev']).to eq(set_revision) }
     end
   end
@@ -333,6 +339,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       it { expect(response).to have_http_status(:found) }
       it { expect(flash[:success]).to eq('Package was successfully removed.') }
+
       it 'deletes the package' do
         expect(user.home_project.packages).to be_empty
       end
@@ -410,6 +417,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
+
         it 'creates the file' do
           expect { source_package.source_file('学习总结') }.not_to raise_error
           expect(URI.encode(source_package.source_file('学习总结'))).to eq(URI.encode(file_to_upload))
@@ -429,6 +437,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         it { expect(response).to have_http_status(expected_success_status) }
         it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
+
         # Uploading a remote file creates a service instead of downloading it directly!
         it 'creates a valid service file' do
           expect { source_package.source_file('_service') }.not_to raise_error
@@ -813,6 +822,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect(flash[:error]).to match(/Error while saving the Meta file: package validation error.*FATAL:/)
         expect(flash[:error]).to match(/Opening and ending tag mismatch: package line 1 and paaaaackage\./)
       end
+
       it { expect(response).to have_http_status(:bad_request) }
     end
 
@@ -1199,6 +1209,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         expect(flash[:error]).to match('Error while triggering abort build for home:tom/my_package')
         expect(flash[:error]).to match('no repository defined')
       end
+
       it {
         expect(response).to redirect_to(package_live_build_log_path(project: source_project,
                                                                     package: source_package,

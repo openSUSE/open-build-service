@@ -15,6 +15,7 @@ RSpec.describe Project, vcr: true do
       expect(subject).to validate_inclusion_of(:kind).
         in_array(['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'])
     }
+
     it { is_expected.to validate_length_of(:name).is_at_most(200) }
     it { is_expected.to validate_length_of(:title).is_at_most(250) }
     it { is_expected.to validate_presence_of(:name) }
@@ -181,6 +182,7 @@ RSpec.describe Project, vcr: true do
 
         it { expect(new_repository.name).to eq('openSUSE_42.2') }
         it { expect(new_repository.architectures.first.name).to eq('x86_64') }
+
         it 'with correct path link' do
           expect(path_element.name).to eq('openSUSE_42.2')
           expect(path_element.remote_project_name).to eq(project.name)
@@ -238,6 +240,7 @@ RSpec.describe Project, vcr: true do
 
       it { expect(new_repository.name).to eq('images') }
       it { expect(new_repository.architectures.first.name).to eq('x86_64') }
+
       it 'with correct path links' do
         expect(new_repository.path_elements.count).to eq(2)
         expect(path_elements.name).to eq('standard')
@@ -350,9 +353,11 @@ RSpec.describe Project, vcr: true do
       it 'does include reviews' do
         expect(subject[:reviews]).to eq([review.number])
       end
+
       it 'does include targets' do
         expect(subject[:targets]).to eq([incident, other_target, target].pluck(:number))
       end
+
       it 'does include incidents' do
         expect(subject[:incidents]).to eq([incident.number])
       end

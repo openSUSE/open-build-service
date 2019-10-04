@@ -56,6 +56,7 @@ RSpec.describe LocalBuildStatistic::ForPackage do
 
       it { expect(results.disk).to have_attributes(size: '491', unit: 'M', io_requests: '4900', io_sectors: '826498') }
       it { expect(results.memory).to have_attributes(size: '106', unit: 'M') }
+
       it 'related with times (total, install, preinstall, main)' do
         expect(results.times).to have_attributes(total: '107', total_unit: 's',
                                                  preinstall: '18', preinstall_unit: 's',

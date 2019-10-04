@@ -413,6 +413,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
+
       it_should_behave_like 'a valid project saved'
     end
 
@@ -422,6 +423,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
+
       it_should_behave_like 'a valid project saved'
     end
 
@@ -433,6 +435,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
         it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
+
         it_should_behave_like 'a valid project saved'
       end
 
@@ -485,6 +488,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         expect(flash[:success]).to eq("Created <a href='http://test.host/request/show/#{BsRequest.last.number}'>repository delete " \
                                       "request #{BsRequest.last.number}</a>")
       end
+
       it { is_expected.to redirect_to(controller: :request, action: :show, number: BsRequest.last.number) }
     end
   end
@@ -584,6 +588,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         end
 
         it { is_expected.to redirect_to(action: :show, project: user.home_project) }
+
         it do
           expect(flash[:error]).to eq("Project can't be unlocked: Unlock of maintenance incident #{user.home_project.name} is not possible," \
                                             " because there is a running release request: #{bs_request.id}")
@@ -902,14 +907,17 @@ RSpec.describe Webui::ProjectController, vcr: true do
           it { expect(assigns(:packagenames)).to eq(['c++', 'redis']) }
           it { expect(assigns(:statushash)).to eq(statushash) }
           it { expect(assigns(:repoarray)).to eq([['openSUSE_42.2', ['s390x']], ['openSUSE_Tumbleweed', ['i586', 'x86_64']]]) }
+
           it {
             expect(assigns(:repostatushash)).to eq('openSUSE_Tumbleweed' => { 'i586' => 'published', 'x86_64' => 'building' },
                                                    'openSUSE_42.2' => { 's390x' => 'outdated_published' })
           }
+
           it {
             expect(assigns(:repostatusdetailshash)).to eq('openSUSE_Tumbleweed' => { 'x86_64' => 'This repo is broken' },
                                                           'openSUSE_42.2' => {})
           }
+
           it { expect(response).to have_http_status(:ok) }
         end
 

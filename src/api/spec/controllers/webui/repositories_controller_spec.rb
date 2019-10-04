@@ -167,6 +167,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
           'Name is too short (minimum is 1 character) and ' \
           "Name must not start with '_' or contain any of these characters ':/'")
       }
+
       it { is_expected.to redirect_to(root_url) }
       it { expect(assigns(:project).repositories.count).to eq(0) }
     end

@@ -544,15 +544,19 @@ RSpec.describe User do
     it 'allows creating home projects' do
       expect(user.can_create_project?(user.home_project_name)).to be(true)
     end
+
     it 'allows creating projects below home' do
       expect(user.can_create_project?(user.branch_project_name('foo'))).to be(true)
     end
+
     it 'allows admins' do
       expect(admin_user.can_create_project?('foo')).to be(true)
     end
+
     it 'considers global StaticPermission' do
       expect(maintainer.can_create_project?('foo')).to be(true)
     end
+
     it 'considers parent projects' do
       create(:project, name: 'foo', maintainer: user)
       expect(user.can_create_project?('foo:bar')).to be(true)
