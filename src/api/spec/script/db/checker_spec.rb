@@ -37,6 +37,7 @@ RSpec.describe DB::Checker do
   describe '#contraints_to_check' do
     it { expect(checker.contraints_to_check).to be_a(Array) }
     it { expect(checker.contraints_to_check).not_to be_empty }
+
     it 'constraints are well defined' do
       checker.contraints_to_check.each do |constraint|
         expect(constraint).to be_a(Array)

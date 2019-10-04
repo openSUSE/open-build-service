@@ -7,7 +7,7 @@ RSpec.describe Backend::ConnectionHelper do
     extended_class
   end
 
-  context '#calculate_endpoint' do
+  describe '#calculate_endpoint' do
     subject { backend_api_fake_class }
 
     context 'with a single string' do

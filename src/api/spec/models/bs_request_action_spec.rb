@@ -149,6 +149,7 @@ RSpec.describe BsRequestAction do
       it 'is false' do
         expect(action_without_target).not_to be_is_target_maintainer(user)
       end
+
       it 'works on nil' do
         expect(action_without_target).not_to be_is_target_maintainer(nil)
       end
@@ -164,9 +165,11 @@ RSpec.describe BsRequestAction do
       it 'is true for user' do
         expect(bs_request_action).to be_is_target_maintainer(user)
       end
+
       it 'works on nil' do
         expect(bs_request_action).not_to be_is_target_maintainer(nil)
       end
+
       it 'is false for another user' do
         expect(bs_request_action).not_to be_is_target_maintainer(another_user)
       end

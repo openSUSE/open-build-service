@@ -50,6 +50,7 @@ RSpec.describe Webui::PackageController do
         expect(flash[:error]).to match('Error while triggering wipe binaries for home:tom/my_package')
         expect(flash[:error]).to match('no repository defined')
       end
+
       it 'redirects to package binaries' do
         expect(response).to redirect_to(package_binaries_path(project: home_tom, package: toms_package,
                                                               repository: 'non_existant_repository'))
@@ -93,6 +94,7 @@ RSpec.describe Webui::PackageController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       it 'shows an error message' do
         subject
         expect(flash[:error]).to eq('There has been an internal error. Please try again.')

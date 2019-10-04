@@ -191,6 +191,7 @@ RSpec.describe ObsFactory::StagingProject do
       subject { staging_project_a }
 
       it { expect(subject.broken_packages.count).to eq(1) }
+
       it {
         expect(subject.broken_packages).to eq(
           [{ 'package' => 'firebird', 'project' => 'openSUSE:Factory:Staging:A', 'state' => 'failed',

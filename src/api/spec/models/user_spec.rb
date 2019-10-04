@@ -513,7 +513,7 @@ RSpec.describe User do
     let!(:deleted_user) { create(:deleted_user) }
     let!(:locked_user) { create(:locked_user) }
 
-    context '#autocomplete_login' do
+    describe '#autocomplete_login' do
       it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
       it { expect(User.autocomplete_login('bar')).to match_array([]) }
       it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
@@ -521,7 +521,7 @@ RSpec.describe User do
       it { expect(User.autocomplete_login(locked_user.login)).to match_array([]) }
     end
 
-    context '#autocomplete_token' do
+    describe '#autocomplete_token' do
       subject { User.autocomplete_token('foo') }
 
       it { expect(subject).to match_array([name: 'foobar']) }
@@ -544,15 +544,19 @@ RSpec.describe User do
     it 'allows creating home projects' do
       expect(user.can_create_project?(user.home_project_name)).to be(true)
     end
+
     it 'allows creating projects below home' do
       expect(user.can_create_project?(user.branch_project_name('foo'))).to be(true)
     end
+
     it 'allows admins' do
       expect(admin_user.can_create_project?('foo')).to be(true)
     end
+
     it 'considers global StaticPermission' do
       expect(maintainer.can_create_project?('foo')).to be(true)
     end
+
     it 'considers parent projects' do
       create(:project, name: 'foo', maintainer: user)
       expect(user.can_create_project?('foo:bar')).to be(true)

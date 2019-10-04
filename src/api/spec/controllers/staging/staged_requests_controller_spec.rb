@@ -30,6 +30,7 @@ RSpec.describe Staging::StagedRequestsController do
     end
 
     it { expect(response).to have_http_status(:success) }
+
     it 'returns the staged_requests xml' do
       assert_select 'staged_requests' do
         assert_select 'request', 1
@@ -80,6 +81,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
 
       it { expect(response).to have_http_status(424) }
+
       it 'responds with an error' do
         assert_select 'status', code: 'staging_project_not_in_acceptable_state'
       end
@@ -162,6 +164,7 @@ RSpec.describe Staging::StagedRequestsController do
       end
 
       it { expect(response).to have_http_status(424) }
+
       it 'responds with an error' do
         assert_select 'status', code: 'staging_project_not_in_acceptable_state'
       end

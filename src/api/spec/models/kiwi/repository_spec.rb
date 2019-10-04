@@ -115,10 +115,12 @@ RSpec.describe Kiwi::Repository, type: :model do
       expect(subject).to validate_inclusion_of(:repo_type).in_array(Kiwi::Repository::REPO_TYPES).on(:save)
                                                           .with_message(/is not included in the list/)
     end
+
     it do
       expect(subject).to validate_numericality_of(:priority).is_greater_than_or_equal_to(0).is_less_than(100)
                                                             .with_message(/must be between 0 and 99/)
     end
+
     it { is_expected.to validate_numericality_of(:order).is_greater_than_or_equal_to(1) }
     it { is_expected.to allow_value(nil).for(:imageinclude) }
     it { is_expected.to allow_value(nil).for(:prefer_license) }

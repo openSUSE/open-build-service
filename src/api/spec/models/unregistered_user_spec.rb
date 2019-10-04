@@ -21,7 +21,7 @@ RSpec.describe UnregisteredUser do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
-  context '#register' do
+  describe '#register' do
     let(:user_attributes) do
       {
         realname: 'Tux Penguin',

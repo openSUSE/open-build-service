@@ -92,6 +92,7 @@ RSpec.describe SourceAttributeController, vcr: true do
       end
 
       it { expect(response).not_to be_success }
+
       it 'gives the right status code' do
         resp = Xmlhash.parse(response.body)
         expect(resp.elements('code')).to include('unknown_attribute_type')
@@ -125,6 +126,7 @@ RSpec.describe SourceAttributeController, vcr: true do
 
       it { expect(response).not_to be_success }
       it { expect(project.attribs).not_to be_empty }
+
       it 'gives the right status code' do
         resp = Xmlhash.parse(response.body)
         expect(resp.elements('code')).to include('change_attribute_no_permission')

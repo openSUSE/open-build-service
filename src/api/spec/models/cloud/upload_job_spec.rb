@@ -38,6 +38,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
       expect(subject).to validate_inclusion_of(:arch).in_array(['x86_64']).
         with_message(/is not a valid cloud architecture/)
     end
+
     it { is_expected.to validate_inclusion_of(:target).in_array(['ec2']) }
     it { is_expected.to validate_presence_of :user }
     it { is_expected.to allow_value('foo.raw.xz').for(:filename) }
@@ -83,6 +84,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
       subject { Cloud::UploadJob.create(params) }
 
       it { expect(subject.valid?).to be_falsy }
+
       it 'has the correct error message' do
         subject.valid?
         expect(subject.errors.full_messages.to_sentence).to match(/already been taken/)

@@ -14,6 +14,7 @@ RSpec.describe StatusMessagesController do
     subject! { get :show, params: { id: status_message.id }, format: :xml }
 
     it { is_expected.to have_http_status(:success) }
+
     it 'returns the requested status message' do
       assert_select 'status_messages[count=1]' do
         assert_select 'message', status_message.message
@@ -27,6 +28,7 @@ RSpec.describe StatusMessagesController do
     subject! { get :index, format: :xml }
 
     it { is_expected.to have_http_status(:success) }
+
     it 'returns all status messages' do
       assert_select 'status_messages[count=3]' do
         status_messages.each do |status_message|
@@ -49,6 +51,7 @@ RSpec.describe StatusMessagesController do
       subject! { post :create, body: request_xml, format: :xml }
 
       it { is_expected.to have_http_status(:forbidden) }
+
       it "responds with a 'permission_denied' status" do
         assert_select 'status[code=permission_denied]' do
           assert_select 'summary', 'message(s) cannot be created, you have not sufficient permissions'
@@ -66,11 +69,13 @@ RSpec.describe StatusMessagesController do
       subject! { post :create, body: request_xml, format: :xml }
 
       it { is_expected.to have_http_status(:success) }
+
       it 'responds with the created message' do
         assert_select 'status_messages' do
           assert_select 'message', 'New message was sent!'
         end
       end
+
       it { expect(StatusMessage.last.message).to eq('New message was sent!') }
     end
   end
@@ -81,6 +86,7 @@ RSpec.describe StatusMessagesController do
 
       it { is_expected.to have_http_status(:forbidden) }
       it { expect(status_message.deleted_at).to be_nil }
+
       it "responds with a 'permission_denied' status" do
         assert_select 'status[code=permission_denied]' do
           assert_select 'summary', 'message cannot be deleted, you have not sufficient permissions'

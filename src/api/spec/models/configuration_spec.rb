@@ -72,9 +72,11 @@ RSpec.describe Configuration do
         it 'returns false if no user is given' do
           expect(config.passwords_changable?).to eq(false)
         end
+
         it 'returns false if user is configured to use the LDAP auth service' do
           expect(config.passwords_changable?(user)).to eq(false)
         end
+
         it 'returns true if user is configured to use local authentication' do
           user.update(ignore_auth_services: true)
           expect(config.passwords_changable?(user)).to eq(true)

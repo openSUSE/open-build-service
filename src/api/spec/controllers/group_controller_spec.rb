@@ -19,6 +19,7 @@ RSpec.describe GroupController do
       end
 
       it { is_expected.to have_http_status(:success) }
+
       it 'returns with the xml representation of that group' do
         assert_select 'group' do
           assert_select 'title', group.title
@@ -47,6 +48,7 @@ RSpec.describe GroupController do
     end
 
     it { is_expected.to have_http_status(:success) }
+
     it 'returns with the group xml representation' do
       assert_select "directory[count=#{groups.count}]" do
         groups.each do |group|
@@ -109,6 +111,7 @@ RSpec.describe GroupController do
       end
 
       it { is_expected.to have_http_status(:success) }
+
       it 'updates the group' do
         group.reload
         expect(group.groups_users.pluck(:user_id)).to contain_exactly(new_member.id, new_maintainer.id)

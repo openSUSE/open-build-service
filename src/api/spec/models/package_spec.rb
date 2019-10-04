@@ -22,7 +22,7 @@ RSpec.describe Package, vcr: true do
     login(user)
   end
 
-  context '#save_file' do
+  describe '#save_file' do
     it 'calls #addKiwiImport if filename ends with kiwi.txz' do
       expect_any_instance_of(Service).to receive(:addKiwiImport).once
       package.save_file(filename: 'foo.kiwi.txz')
@@ -34,7 +34,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context '#delete_file' do
+  describe '#delete_file' do
     let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package_with_file.name}" }
 
     context 'with delete permission' do
@@ -92,7 +92,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context '#maintainers' do
+  describe '#maintainers' do
     it 'returns an array with user objects to all maintainers for a package' do
       # first of all, we add a user who is not a maintainer but a bugowner
       # he/she should not be recognized by package.maintainers
@@ -144,7 +144,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context '#file_exists?' do
+  describe '#file_exists?' do
     context 'with more than one file' do
       it 'returns true if the file exist' do
         expect(package_with_file.file_exists?('somefile.txt')).to eq(true)
@@ -168,7 +168,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context '#has_icon?' do
+  describe '#has_icon?' do
     it 'returns true if the icon exist' do
       if CONFIG['global_write_through']
         Backend::Connection.put("/source/#{CGI.escape(package_with_file.project.name)}/#{CGI.escape(package_with_file.name)}/_icon",
@@ -305,21 +305,22 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  context '#buildresult' do
+  describe '#buildresult' do
     it 'returns an object with class LocalBuildResult::ForPackage' do
       expect(package.buildresult(home_project).class).to eq(LocalBuildResult::ForPackage)
     end
   end
 
-  context '#source_path' do
+  describe '#source_path' do
     it { expect(package_with_file.source_path).to eq('/source/home:tom/package_with_files') }
     it { expect(package_with_file.source_path('icon')).to eq('/source/home:tom/package_with_files/icon') }
     it { expect(package_with_file.source_path('icon', format: :html)).to eq('/source/home:tom/package_with_files/icon?format=html') }
   end
 
-  context '#public_source_path' do
+  describe '#public_source_path' do
     it { expect(package_with_file.public_source_path).to eq('/public/source/home:tom/package_with_files') }
     it { expect(package_with_file.public_source_path('icon')).to eq('/public/source/home:tom/package_with_files/icon') }
+
     it 'adds the format parameter to the url that was given to the method' do
       expect(package_with_file.public_source_path('icon', format: :html)).to eq('/public/source/home:tom/package_with_files/icon?format=html')
     end

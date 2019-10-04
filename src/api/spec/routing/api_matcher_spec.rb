@@ -27,30 +27,37 @@ RSpec.describe 'APIMatcher' do
                     filename: 'filename',
                     format: format)
     }
+
     it {
       expect(get("/public/source/project/_meta?format=#{format}")).
         to route_to(controller: 'public', action: 'project_meta', project: 'project', format: format)
     }
+
     it {
       expect(get("/public/source/project?format=#{format}")).
         to route_to(controller: 'public', action: 'project_index', project: 'project', format: format)
     }
+
     it {
       expect(get("/public/source/project/_config?format=#{format}")).
         to route_to(controller: 'public', action: 'project_file', project: 'project', format: format)
     }
+
     it {
       expect(get("/public/source/project/package?format=#{format}")).
         to route_to(controller: 'public', action: 'package_index', project: 'project', package: 'package', format: format)
     }
+
     it {
       expect(get("/public/source/project/package/_meta?format=#{format}")).
         to route_to(controller: 'public', action: 'package_meta', project: 'project', package: 'package', format: format)
     }
+
     it {
       expect(get("/public/source/project/package/file?format=#{format}")).
         to route_to(controller: 'public', action: 'source_file', project: 'project', package: 'package', filename: 'file', format: format)
     }
+
     it {
       expect(get("/public/binary_packages/project/package?format=#{format}")).
         to route_to(controller: 'public', action: 'binary_packages', project: 'project', package: 'package', format: format)

@@ -284,6 +284,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
           expect(JSON.parse(response.body)).to eq('error' => '',
                                                   'issues' => [['bgo', '132412', 'https://bugzilla.gnome.org/show_bug.cgi?id=132412', '']])
         end
+
         it { expect(response).to have_http_status(:success) }
       end
 
@@ -294,6 +295,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
           expect(JSON.parse(response.body)).to eq('error' => '',
                                                   'issues' => [['cve', 'CVE-2010-31337', 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-31337', '']])
         end
+
         it { expect(response).to have_http_status(:success) }
       end
     end
@@ -314,6 +316,7 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
                                                 error_message,
                                                 'issues' => [])
       }
+
       it { expect(response).to have_http_status(:success) }
     end
   end

@@ -148,6 +148,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
       it 'returns array of A and B' do
         expect(subject.size).to eq(2)
       end
+
       it { expect(subject[0]).to include('selected_requests' => [JSON.parse(declined_bs_request.to_json)]) }
     end
   end
@@ -166,6 +167,7 @@ RSpec.describe Webui::ObsFactory::StagingProjectsController, type: :controller, 
         subject { get :show, params: { project: factory, project_name: 'A' }, format: :json }
 
         it { is_expected.to have_http_status(:success) }
+
         it 'responds with a json representation of the staging project' do
           response = JSON.parse(subject.body)
           expect(response).to include(

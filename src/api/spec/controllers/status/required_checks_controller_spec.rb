@@ -73,6 +73,7 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
           checkable.required_checks.count
         }.by(example_count)
       end
+
       it { is_expected.to have_http_status(:success) }
     end
 
@@ -197,6 +198,7 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
           checkable.required_checks.count
         }.by(-1)
       end
+
       it { is_expected.to have_http_status(:success) }
     end
 

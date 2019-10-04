@@ -18,12 +18,15 @@ RSpec.describe Webui::Staging::ProjectsController do
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
+
       it 'create a new staging project' do
         subject.reload
         expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects'])
       end
+
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
+
       it 'assigns the managers group' do
         expect(Project.find_by_name('home:tom:My:Projects').groups).to contain_exactly(subject.managers_group)
       end
@@ -42,6 +45,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
+
       it 'assigns the managers group' do
         expect(Project.find_by_name(existent_project.name).groups).to contain_exactly(subject.managers_group)
       end
@@ -109,6 +113,7 @@ RSpec.describe Webui::Staging::ProjectsController do
         subject.reload
         expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:B'])
       end
+
       it { expect(assigns[:staging_workflow]).to eq(project.staging) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
     end

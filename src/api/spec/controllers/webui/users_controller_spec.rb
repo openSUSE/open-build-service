@@ -243,10 +243,12 @@ RSpec.describe Webui::UsersController do
       it { expect(user.state).to eq('locked') }
       it { expect(user.ignore_auth_services).to be(true) }
       it { is_expected.to redirect_to user_path(user) }
+
       it "updates the user's roles" do
         expect(user.roles).not_to include(old_global_role)
         expect(user.roles).to include(*new_global_roles)
       end
+
       it 'does not remove non global roles' do
         expect(user.roles).to include(*local_roles)
       end

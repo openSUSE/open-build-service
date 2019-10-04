@@ -41,6 +41,7 @@ RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: t
       end
 
       it { expect(flash[:error]).not_to be_empty }
+
       it 'should redirect to package_binaries_path' do
         expect(response).to redirect_to(package_binaries_path(package: package,
                                                               project: source_project, repository: repo_for_source_project.name))
@@ -58,6 +59,7 @@ RSpec.describe Webui::Packages::BuildReasonController, type: :controller, vcr: t
       end
 
       it { expect(flash[:notice]).not_to be_blank }
+
       it 'should redirect to package_binaries_path' do
         expect(response).to redirect_to(package_binaries_path(package: package,
                                                               project: source_project, repository: repo_for_source_project.name))

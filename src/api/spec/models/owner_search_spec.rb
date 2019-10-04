@@ -46,7 +46,7 @@ RSpec.describe OwnerSearch do
       end
     end
 
-    context '#missing' do
+    describe '#missing' do
       it 'returns nothing for default filter' do
         subject = OwnerSearch::Missing.new.find
         expect(subject).to be_empty

@@ -188,11 +188,13 @@ RSpec.describe Webui::Staging::WorkflowsController do
       subject { staging_workflow.reload }
 
       it { expect(subject.managers_group).to eq(other_managers_group) }
+
       it 'assigns the new group and unassigns the old one' do
         subject.staging_projects.each do |staging_project|
           expect(staging_project.groups).to contain_exactly(other_managers_group)
         end
       end
+
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
     end
@@ -207,11 +209,13 @@ RSpec.describe Webui::Staging::WorkflowsController do
       subject { staging_workflow.reload }
 
       it { expect(subject.managers_group).to eq(managers_group) }
+
       it 'don\'t assigns the new group and unassigns the old one' do
         subject.staging_projects.each do |staging_project|
           expect(staging_project.groups).to contain_exactly(managers_group)
         end
       end
+
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:error]).not_to be_nil }
     end

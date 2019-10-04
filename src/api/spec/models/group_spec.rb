@@ -10,7 +10,7 @@ RSpec.describe Group do
     it { is_expected.to validate_length_of(:title).is_at_most(100).with_message('must have less than 100 characters') }
   end
 
-  context '#replace_members' do
+  describe '#replace_members' do
     context 'with valid user input' do
       it 'adds one user successfully' do
         group.replace_members([user.login])
