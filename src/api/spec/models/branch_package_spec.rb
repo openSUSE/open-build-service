@@ -8,7 +8,7 @@ RSpec.describe BranchPackage, vcr: true do
   let!(:project) { create(:project, name: 'BaseDistro') }
   let!(:package) { create(:package, name: 'test_package', project: project) }
 
-  context '#branch' do
+  describe '#branch' do
     let(:branch_package) { BranchPackage.new(project: project.name, package: package.name) }
     let!(:update_project) { create(:project, name: 'BaseDistro:Update') }
     let(:update_project_attrib) { create(:update_project_attrib, project: project, update_project: update_project) }

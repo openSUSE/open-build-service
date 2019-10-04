@@ -513,7 +513,7 @@ RSpec.describe User do
     let!(:deleted_user) { create(:deleted_user) }
     let!(:locked_user) { create(:locked_user) }
 
-    context '#autocomplete_login' do
+    describe '#autocomplete_login' do
       it { expect(User.autocomplete_login('foo')).to match_array(['foobar']) }
       it { expect(User.autocomplete_login('bar')).to match_array([]) }
       it { expect(User.autocomplete_login(nil)).to match_array(['foobar', 'fobaz']) }
@@ -521,7 +521,7 @@ RSpec.describe User do
       it { expect(User.autocomplete_login(locked_user.login)).to match_array([]) }
     end
 
-    context '#autocomplete_token' do
+    describe '#autocomplete_token' do
       subject { User.autocomplete_token('foo') }
 
       it { expect(subject).to match_array([name: 'foobar']) }
