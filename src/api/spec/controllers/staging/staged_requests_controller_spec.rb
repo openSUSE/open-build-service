@@ -101,9 +101,11 @@ RSpec.describe Staging::StagedRequestsController do
 
   describe 'DELETE #destroy', vcr: true do
     let!(:package) { create(:package, name: target_package, project: staging_project) }
+    let(:review_by_project) { create(:review, by_project: staging_project) }
 
     before do
       bs_request.staging_project = staging_project
+      bs_request.reviews << review_by_project
       bs_request.save
     end
 
