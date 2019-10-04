@@ -16,7 +16,7 @@ module APIInstrumentation
       def log_process_action(payload)
         messages = super
         backend_runtime = payload[:backend_runtime]
-        messages << format('Backend: %.1fms', backend_runtime.to_f) if backend_runtime
+        messages << format('Backend: %<runtime>.1fms', runtime: backend_runtime.to_f) if backend_runtime
         messages
       end
     end
@@ -26,7 +26,7 @@ end
 module TimestampFormatter
   def call(severity, timestamp, progname, msg)
     Thread.current[:timestamp_formatter_timestamp] ||= Time.now
-    tdiff = format('%02.2f', Time.now - Thread.current[:timestamp_formatter_timestamp])
+    tdiff = format('%<timestamp>02.2f', timestamp: Time.now - Thread.current[:timestamp_formatter_timestamp])
     super(severity, timestamp, progname, "[#{Process.pid}:#{tdiff}] #{msg}")
   end
 end
