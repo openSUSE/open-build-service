@@ -117,6 +117,35 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(assigns[:staging_workflow]).to eq(project.staging) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
     end
+
+    context 'with a staged requests' do
+      let(:staging_project) { staging_workflow.staging_projects.first }
+      let(:group) { staging_workflow.managers_group }
+      let(:source_project) { create(:project, name: 'source_project') }
+      let(:target_package) { create(:package, name: 'target_package', project: project) }
+      let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+      let(:other_user) { create(:confirmed_user, :with_home, login: 'Iggy') }
+      let(:bs_request) do
+        create(:bs_request_with_submit_action,
+               state: :review,
+               creator: other_user,
+               target_package: target_package,
+               source_package: source_package,
+               description: 'BsRequest 1',
+               review_by_group: group)
+      end
+
+      before do
+        bs_request.staging_project = staging_project
+        bs_request.save
+        delete :destroy, params: { staging_workflow_id: staging_workflow.id, project_name: staging_project.name }
+      end
+
+      subject { staging_workflow }
+
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(flash[:error]).to include('could not be deleted because it has staged requests.') }
+    end
   end
 
   describe 'POST #copy' do
