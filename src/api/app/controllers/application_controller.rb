@@ -465,6 +465,5 @@ class ApplicationController < ActionController::Base
       anonymous: !User.session,
       interface: :api
     }
-    InfluxDB::Rails.current.values = { request: request.request_id }
   end
 end
