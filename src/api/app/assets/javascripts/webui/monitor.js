@@ -57,7 +57,7 @@ function eventsPlot(data) {
       },
       legend: { noColumns: 3, position: "ne", container: "#legend-events" },
       xaxis: { mode: 'time' },
-      yaxis: { min: 0, max: data.events_max, position: "left", labelWidth: 25 }
+      yaxis: { min: 0, max: data.events_max, position: "left" }
     });
 }
 
@@ -73,7 +73,7 @@ function buildingPlot(data) {
         lines: { show: true, steps: false, fill: true }
       },
       xaxis: { mode: 'time' },
-      yaxis: { min: 0, position: "left", labelWidth: 25 },
+      yaxis: { min: 0, position: "left" },
       legend: { noColumns: 3, position: "ne", container: "#legend-building" }
     });
 }
@@ -87,7 +87,7 @@ function jobPlot(data) {
         lines: { show: true, steps: false, fill: true },
       },
       xaxis: { mode: 'time' },
-      yaxis: { max: data.jobs_max, position: "left", labelWidth: 25 },
+      yaxis: { max: data.jobs_max, position: "left" },
       legend: { noColumns: 3, position: "ne", container: "#legend-jobs" }
     });
 }
