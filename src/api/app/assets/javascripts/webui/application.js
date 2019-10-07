@@ -24,6 +24,7 @@
 //= require webui/plotbusyworkers.js
 //= require webui/datatables.js
 //= require webui/flash.js
+//= require webui/login-form.js
 //= require webui/tabs.js
 //= require webui/requests_table.js
 //= require webui/attributes.js
