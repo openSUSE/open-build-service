@@ -176,11 +176,6 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    controller 'webui/projects/project_configuration' do
-      get 'project/prjconf/:project' => :show, constraints: cons, as: :project_config
-      post 'project/save_prjconf/:project' => :update, constraints: cons, as: :save_project_config
-    end
-
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
       get 'project/list_public' => :index, as: 'project_list_public'
@@ -249,6 +244,9 @@ OBSApi::Application.routes.draw do
     controller 'webui/projects/maintenance_incidents' do
       get 'project/maintenance_incidents/:project', to: redirect('/projects/%{project}/maintenance_incidents')
     end
+    controller 'webui/projects/project_configuration' do
+      get 'project/prjconf/:project', to: redirect('/projects/%{project}/prjconf')
+    end
     # \For backward compatibility
 
     resources :projects, only: [], param: :name do
@@ -258,6 +256,7 @@ OBSApi::Application.routes.draw do
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
       resource :meta, controller: 'webui/projects/meta', only: [:show, :update], constraints: cons
+      resource :prjconf, controller: 'webui/projects/project_configuration', only: [:show, :update], as: :config, constraints: cons
       resource :rebuild_time, controller: 'webui/projects/rebuild_times', only: [:show], constraints: cons do
         get 'rebuild_time_png'
       end
