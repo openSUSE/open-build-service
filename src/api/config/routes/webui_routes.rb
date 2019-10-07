@@ -222,7 +222,6 @@ OBSApi::Application.routes.draw do
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       get 'project/status/:project' => :status, constraints: cons, as: 'project_status'
-      get 'project/list_incidents/:project' => :list_incidents, constraints: cons
       post 'project/unlock' => :unlock
     end
 
