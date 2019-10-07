@@ -1,7 +1,7 @@
 - if can_signup
   %li.nav-item
     = link_to('Sign Up', signup_url, class: 'nav-link')
-%li.nav-item.dropdown
+%li.nav-item.dropdown#login-form-dropdown
   = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', 'data-toggle': 'dropdown') do
     Log In
   .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
