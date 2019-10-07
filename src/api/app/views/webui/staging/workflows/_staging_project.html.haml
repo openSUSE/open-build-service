@@ -1,3 +1,6 @@
+- staged_requests_size = staging_project.staged_requests.size
+- can_delete_staging_project = staged_requests_size.zero?
+
 .col-12.col-md-6.col-lg-4
   .card.mb-3
     .card-header.bg-light.p-2
@@ -8,13 +11,17 @@
           %span.mr-1
             = link_to(staging_workflow_staging_project_preview_copy_path(staging_workflow, staging_project), title: 'Copy Staging Project') do
               %i.fas.fa-clone.text-secondary
-            = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
-              %i.fas.fa-times-circle.text-danger
+            - if can_delete_staging_project
+              = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
+                %i.fas.fa-times-circle.text-danger
+            - else
+              %i.fas.fa-times-circle.text-muted{ title: 'This project can not be deleted because it has staged requests' }
     .card-body.p-2.text-muted
       %small.d-block
         state:
         %strong= staging_project.overall_state
       %small.d-block
         requests:
-        %strong= staging_project.staged_requests.size
-      = render partial: 'delete_staging_project_modal', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
+        %strong= staged_requests_size
+      - if can_delete_staging_project
+        = render partial: 'delete_staging_project_modal', locals: { staging_workflow: staging_workflow, staging_project: staging_project }

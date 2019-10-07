@@ -50,7 +50,13 @@ module Webui
 
         unless staging_project
           redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow))
-          flash[:error] = "Staging Project with name = \"#{params[:project_name]}\" doesn't exist for this StagingWorkflow"
+          flash[:error] = "Staging Project \"#{params[:project_name]}\" doesn't exist for this Staging"
+          return
+        end
+
+        if staging_project.staged_requests.present?
+          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow))
+          flash[:error] = "Staging Project \"#{params[:project_name]}\" could not be deleted because it has staged requests."
           return
         end
 
