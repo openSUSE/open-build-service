@@ -197,7 +197,7 @@ module StagingProject
     result.elements('status') do |status|
       code = status.get('code')
 
-      if code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
+      if @broken_packages.none? { |p| p[:package] == status['package'] } && broken_code?(code, building)
         @broken_packages << { package: status['package'],
                               project: name,
                               state: code,
@@ -206,6 +206,10 @@ module StagingProject
                               arch: result['arch'] }
       end
     end
+  end
+
+  def broken_code?(code, building)
+    code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
   end
 
   def add_building_repositories(result)
