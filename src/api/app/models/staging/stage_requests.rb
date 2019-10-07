@@ -12,6 +12,9 @@ class Staging::StageRequests
         # TODO: implement delete requests
       end
     end
+
+    result.each { |request| add_review_for_staged_request(request) }
+
     self
   end
 
@@ -26,6 +29,8 @@ class Staging::StageRequests
     not_deleted_packages = package_names - result.pluck(:name)
 
     requests.each do |request|
+      add_review_for_unstaged_request(request)
+
       ProjectLogEntry.create!(
         project: staging_project,
         user_name: user_login,
@@ -105,5 +110,15 @@ class Staging::StageRequests
   rescue APIError, Backend::Error => e
     errors << "Request '#{request.number}' branching failed: '#{e.message}'"
     Airbrake.notify(e, bs_request: request.number)
+  end
+
+  def add_review_for_staged_request(request)
+    request.addreview(by_project: staging_project.name, comment: "Being evaluated by staging project \"#{staging_project}\"")
+    request.change_review_state('accepted', by_group: staging_workflow.managers_group.title, comment: "Picked \"#{staging_project}\"")
+  end
+
+  def add_review_for_unstaged_request(request)
+    request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
+    request.change_review_state('accepted', by_project: staging_project.name, comment: "Moved back to project \"#{staging_workflow.project}\"")
   end
 end
