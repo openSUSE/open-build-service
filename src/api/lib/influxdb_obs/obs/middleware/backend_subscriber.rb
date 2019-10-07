@@ -12,7 +12,7 @@ module InfluxDB
         def call(_name, _started, finished, _unique_id, data)
           return unless enabled?
 
-          InfluxDB::Rails.client.write_point(series_name,
+          InfluxDB::Rails.client.write_point('rails',
                                              tags: tags(data),
                                              values: values(data[:runtime]),
                                              timestamp: timestamp(finished))
@@ -25,7 +25,7 @@ module InfluxDB
         attr_reader :series_name, :logger
 
         def timestamp(time)
-          InfluxDB.convert_timestamp(time, InfluxDB::Rails.configuration.time_precision)
+          InfluxDB.convert_timestamp(time, InfluxDB::Rails.configuration.client.time_precision)
         end
 
         def enabled?
@@ -41,6 +41,7 @@ module InfluxDB
 
         def tags(data)
           result = {
+            hook: 'obs_backend',
             http_method: data[:http_method],
             http_status_code: data[:http_status_code],
             host: data[:host],
