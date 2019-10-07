@@ -434,7 +434,7 @@ GEM
     uglifier (4.2.0)
       execjs (>= 0.3.0, < 3)
     unicode-display_width (1.6.0)
-    uniform_notifier (1.12.1)
+    uniform_notifier (1.13.0)
     url (0.3.2)
     vcr (5.0.0)
     voight_kampff (1.1.3)
