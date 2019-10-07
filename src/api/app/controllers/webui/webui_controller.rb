@@ -338,8 +338,6 @@ class Webui::WebuiController < ActionController::Base
     InfluxDB::Rails.current.tags = {
       interface: :webui
     }
-
-    InfluxDB::Rails.current.values = { request: request.request_id }
   end
 
   def set_influxdb_additional_tags

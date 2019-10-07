@@ -78,7 +78,7 @@ gem 'addressable'
 # for XML builder
 gem 'builder'
 # to write the rails metrics directly into InfluxDB.
-gem 'experimental-influxdb-rails', '>=1.0.0.beta5'
+gem 'influxdb-rails', '1.0.0.beta4'
 # for client side time ago
 gem 'rails-timeago', '~> 2.0'
 # for copying objects with their relations
