@@ -3,7 +3,7 @@
   parsed_result = {}
 
 .card
-  = render partial: 'tabs', locals: { project: @project }
+  = render partial: 'webui/project/tabs', locals: { project: @project }
 
   .card-body
     %h3
@@ -76,7 +76,7 @@
                     = summary
                     %br
                 %td{ data: { package_name: package['name'] } }
-                  = render partial: 'status_comment', locals: { package_name: package['name'], editable: package['firstfail'].present?,
+                  = render partial: 'webui/project/status_comment', locals: { package_name: package['name'], editable: package['firstfail'].present?,
                                                                 comment: package['failedcomment'], project: @project }
 
         - content_for :ready_function do
@@ -91,4 +91,4 @@
 
 - if User.possibly_nobody.can_modify?(@project) && parsed_result[:comments_to_clear].present?
   = link_to("Clear all comments of not failing packages (#{parsed_result[:comments_to_clear].join(',')})",
-    action: :clear_failed_comment, project: @project.name, package: parsed_result[:comments_to_clear])
+    clear_failed_comment_path(@project.name), package: parsed_result[:comments_to_clear])
