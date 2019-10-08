@@ -23,14 +23,27 @@ function use_codemirror(id, read_only, mode, big_editor) {
     mode: mode,
     theme: "bootstrap"
   };
+
   if (read_only) {
     codeMirrorOptions['readOnly'] = true;
   }
   else {
     codeMirrorOptions['addToolBars'] = 0;
-    if (mode.length)
+    if (mode.length) {
       codeMirrorOptions['mode'] = mode;
-    codeMirrorOptions['extraKeys'] = {"Tab": "defaultTab", "Shift-Tab": "indentLess"};
+    }
+    codeMirrorOptions['extraKeys'] = {
+        // Insert spaces instead of a tab
+        "Tab": function(cm) {
+            var spaces = '';
+            var indentUnit = cm.getOption('indentUnit');
+            for (var i = 0; i < indentUnit; i++) {
+                spaces += ' ';
+            }
+            cm.replaceSelection(spaces);
+        },
+        "Shift-Tab": "indentLess"
+    };
   }
 
   var textarea = $('#editor_' + id);
