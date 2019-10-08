@@ -638,15 +638,16 @@ RSpec.describe Project, vcr: true do
     end
 
     context 'when there are quality categories attributes set for the project' do
-      let!(:category_attrib_type) do
+      let(:category_attrib_type) do
         AttribType.create!(name: 'QualityCategory',
                            attrib_namespace: attrib_namespace)
       end
-      let!(:attrib) do
+      let(:attrib) do
         Attrib.create!(attrib_type: category_attrib_type,
                        project: project)
       end
-      let!(:attrib_value) do
+
+      before do
         AttribValue.create!(attrib: attrib, value: 'Test')
         AttribValue.create!(attrib: attrib, value: 'Private')
       end
