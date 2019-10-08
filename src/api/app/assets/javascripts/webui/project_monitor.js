@@ -13,7 +13,7 @@ function statusCell(meta, statusHash, tableInfo, projectName, packageName) {
 
   var klass = 'build-state-' + code;
   var output = '<a ';
-  if (['succeeded', 'failed', 'building'].includes(code)) {
+  if (['succeeded', 'failed', 'building', 'finished', 'signing'].includes(code)) {
     var url = '/package/live_build_log/' + projectName + '/' + packageName + '/' + repository + '/' + architecture;
     output += 'href="' + url + '"';
   } else {
