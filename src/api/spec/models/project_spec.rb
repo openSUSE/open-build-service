@@ -633,4 +633,96 @@ RSpec.describe Project, vcr: true do
       expect(new_xml).to include('title' => 'Mine', 'description' => {}, 'name' => project.name)
     end
   end
+
+  describe '#categories' do
+    let(:project) { create(:project) }
+    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
+
+    subject do
+      project.categories
+    end
+
+    context 'when there are quality categories attributes set for the project' do
+      let(:category_attrib_type) do
+        AttribType.create!(name: 'QualityCategory',
+                           attrib_namespace: attrib_namespace)
+      end
+      let(:attrib) do
+        Attrib.create!(attrib_type: category_attrib_type,
+                       project: project)
+      end
+
+      before do
+        AttribValue.create!(attrib: attrib, value: 'Test')
+        AttribValue.create!(attrib: attrib, value: 'Private')
+      end
+
+      it 'returns the categories values' do
+        expect(subject).to eql ['Test', 'Private']
+      end
+    end
+
+    context 'when there are no quality categories attributes set for the project' do
+      it 'returns no values' do
+        expect(subject).to be_empty
+      end
+    end
+  end
+
+  describe '#very_important_projects_with_categories' do
+    let(:project) { create(:project) }
+    let(:attrib_namespace) { AttribNamespace.create!(name: 'OBS') }
+
+    subject do
+      Project.very_important_projects_with_categories
+    end
+
+    context 'when there are Very Important Projects' do
+      context 'with quality categories' do
+        let(:vip_attrib_type) do
+          AttribType.create!(name: 'VeryImportantProject',
+                             attrib_namespace: attrib_namespace)
+        end
+        let!(:category_attrib_type) do
+          AttribType.create!(name: 'QualityCategory',
+                             attrib_namespace: attrib_namespace)
+        end
+        let!(:attrib) do
+          Attrib.create!(attrib_type: vip_attrib_type,
+                         project: project)
+          Attrib.create!(attrib_type: category_attrib_type,
+                         project: project)
+        end
+        let!(:attrib_value) do
+          AttribValue.create!(attrib: attrib,
+                              value: 'Test')
+        end
+
+        it "returns the project's name, title and categories" do
+          expect(subject).to eql [[project.name, project.title, ['Test']]]
+        end
+      end
+
+      context 'with no quality categories' do
+        let(:vip_attrib_type) do
+          AttribType.create!(name: 'VeryImportantProject',
+                             attrib_namespace: attrib_namespace)
+        end
+        let!(:attrib) do
+          Attrib.create!(attrib_type: vip_attrib_type,
+                         project: project)
+        end
+
+        it "returns the project's name, title but no categories" do
+          expect(subject).to eql [[project.name, project.title, []]]
+        end
+      end
+    end
+
+    context 'when there are no Very Important Projects' do
+      it 'returns an empty collection' do
+        expect(subject).to eql []
+      end
+    end
+  end
 end

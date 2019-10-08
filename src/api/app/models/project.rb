@@ -106,6 +106,11 @@ class Project < ApplicationRecord
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+  scope :very_important_projects_with_attributes, lambda {
+    joins(attribs: { attrib_type: :attrib_namespace })
+      .where(attrib_namespaces: { name: 'OBS' },
+             attrib_types: { name: 'VeryImportantProject' })
+  }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
@@ -1537,6 +1542,21 @@ class Project < ApplicationRecord
   # dialog in the UI. Please do not rely on this!
   def branch?
     name.include?(':branches:') # Rather ugly decision finding...
+  end
+
+  def categories
+    AttribValue
+      .joins(attrib: { attrib_type: :attrib_namespace })
+      .where(attribs: { project: self },
+             attrib_types: { name: 'QualityCategory' },
+             attrib_namespaces: { name: 'OBS' })
+      .map(&:value)
+  end
+
+  def self.very_important_projects_with_categories
+    very_important_projects_with_attributes.map do |p|
+      [p.name, p.title, p.categories]
+    end
   end
 
   private

@@ -11,12 +11,14 @@
               %th Name
               %th Title
           %tbody
-            - important_projects.each do |project|
+            - important_projects.each do |name, title, categories|
               %tr
                 %td
-                  = link_to(project.first, action: :show, project: project.first)
+                  = link_to(name, project_show_path(project: name))
+                  - categories.each do |category|
+                    = category_badge(category)
                 %td
-                  #{project.second}
+                  #{title}
   .card-body
     %h3= @pagetitle
     %ul.list-inline
