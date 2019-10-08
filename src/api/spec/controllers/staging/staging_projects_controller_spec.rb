@@ -106,7 +106,7 @@ RSpec.describe Staging::StagingProjectsController do
             assert_select 'entry', 1
           end
           assert_select 'broken_packages', 1 do
-            assert_select 'entry', 2
+            assert_select 'entry', 1
           end
           assert_select 'history', 1
         end
