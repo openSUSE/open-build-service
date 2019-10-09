@@ -658,7 +658,7 @@ RSpec.describe Project, vcr: true do
       end
 
       it 'returns the categories values' do
-        expect(subject).to eql ['Test', 'Private']
+        expect(subject).to eql(['Test', 'Private'])
       end
     end
 
@@ -699,7 +699,7 @@ RSpec.describe Project, vcr: true do
         end
 
         it "returns the project's name, title and categories" do
-          expect(subject).to eql [[project.name, project.title, ['Test']]]
+          expect(subject).to eql([[project.name, project.title, ['Test']]])
         end
       end
 
@@ -714,14 +714,14 @@ RSpec.describe Project, vcr: true do
         end
 
         it "returns the project's name, title but no categories" do
-          expect(subject).to eql [[project.name, project.title, []]]
+          expect(subject).to eql([[project.name, project.title, []]])
         end
       end
     end
 
     context 'when there are no Very Important Projects' do
       it 'returns an empty collection' do
-        expect(subject).to eql []
+        expect(subject).to eql([])
       end
     end
   end
