@@ -23,8 +23,7 @@ module Webui
 
         if staging_project.valid? && staging_project.store
           flash[:success] = "Staging project with name = \"#{staging_project}\" was successfully created"
-          staging_project.create_project_log_entry(User.session!)
-
+          CreateProjectLogEntryJob.perform_later(project_log_entry_payload(staging_project), staging_project.created_at.to_s, staging_project.class.name)
           return
         end
 
@@ -87,6 +86,11 @@ module Webui
       end
 
       private
+
+      def project_log_entry_payload(staging_project)
+        # TODO: model ProjectLogEntry should be able to work with symbols
+        { 'project' => staging_project, 'user_name' => User.session!, 'event_type' => 'staging_project_created' }
+      end
 
       def set_staging_workflow
         @staging_workflow = ::Staging::Workflow.find(params[:staging_workflow_id])
