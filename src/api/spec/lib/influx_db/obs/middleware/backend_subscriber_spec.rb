@@ -2,7 +2,7 @@ require 'rails_helper'
 require Rails.root.join('lib', 'influxdb_obs', 'obs', 'middleware', 'backend_subscriber').to_s
 
 RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
-  let(:series_name) { 'rails.backend' }
+  let(:series_name) { 'rails' }
   subject { described_class.new(series_name) }
 
   describe '#call' do
@@ -10,6 +10,7 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
     let(:finish_time)  { Time.at(1_517_567_370) }
     let(:data) do
       {
+        hook: 'obs_backend',
         http_status_code: 200,
         http_method: 'GET',
         host: 'backend',
@@ -26,12 +27,13 @@ RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
         tags: {
           http_status_code: 200,
           http_method: 'GET',
+          hook: 'obs_backend',
           host: 'backend',
           controller_location: 'UsersController#index',
           backend_location: 'Cloud#upload',
           additional_tag: true
         },
-        timestamp: 1_517_567_370_000
+        timestamp: 1_517_567_370
       }
     end
 
