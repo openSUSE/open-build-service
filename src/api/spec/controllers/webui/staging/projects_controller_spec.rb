@@ -10,6 +10,14 @@ RSpec.describe Webui::Staging::ProjectsController do
   end
 
   describe 'POST #create' do
+    before do
+      ActiveJob::Base.queue_adapter = :test
+    end
+
+    after do
+      ActiveJob::Base.queue_adapter = :inline
+    end
+
     context 'a staging_project' do
       before do
         post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:My:Projects' }
@@ -26,6 +34,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
+      it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
 
       it 'assigns the managers group' do
         expect(Project.find_by_name('home:tom:My:Projects').groups).to contain_exactly(subject.managers_group)
@@ -45,6 +54,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
+      it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
 
       it 'assigns the managers group' do
         expect(Project.find_by_name(existent_project.name).groups).to contain_exactly(subject.managers_group)
@@ -62,6 +72,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:error]).not_to be_nil }
+      it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
 
     context 'when the user does not have permissions to create that project' do
@@ -71,6 +82,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it { expect(Project.where(name: 'Apache')).not_to exist }
       it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Project.') }
+      it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
 
     context 'when it fails to save' do
@@ -85,6 +97,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       it { expect(Project.count).to eq(3) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:error]).not_to be_nil }
+      it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
   end
 
