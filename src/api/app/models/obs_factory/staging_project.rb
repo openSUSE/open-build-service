@@ -53,6 +53,16 @@ module ObsFactory
       /#{ADI_NAME_PREFIX}/.match?(name)
     end
 
+    # @return [Boolean] true if the project is tracked in the new API
+    def workflow_present?
+      project.staging_workflow.present?
+    end
+
+    # @return [Integer] id of the staging work flow (or nil)
+    def staging_workflow
+      project.staging_workflow_id
+    end
+
     # Part of the name shared by all the staging projects belonging to the same
     # distribution
     #
@@ -128,6 +138,7 @@ module ObsFactory
     #
     # @return [Array] Array of Request objects
     def untracked_requests
+      return [] if workflow_present?
       @untracked_requests ||= open_requests.reject { |req| req.number.in?(requests_in_meta) }
     end
 
@@ -197,7 +208,7 @@ module ObsFactory
        'building_repositories', 'broken_packages',
        'untracked_requests', 'missing_reviews',
        'selected_requests', 'overall_state',
-       'checks', 'missing_checks']
+       'checks', 'missing_checks', 'staging_workflow']
     end
 
     # Required by ActiveModel::Serializers

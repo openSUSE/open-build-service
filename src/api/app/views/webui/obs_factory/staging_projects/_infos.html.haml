@@ -2,7 +2,7 @@
   %h2.box-header Infos
 
   %p Empty Projects:
-  - empties = @staging_projects.select { |p| p.overall_state == :empty && p.name =~ /Staging:[A-Z]?$/ }
+  - empties = @staging_projects.select { |p| p.overall_state == :empty && p.name =~ /Staging:[A-Z]?$/ && !p.workflow_present? }
   - empties = empties.map { |p| link_to(p.letter, project_show_path(p.name)) }
 
   %p
