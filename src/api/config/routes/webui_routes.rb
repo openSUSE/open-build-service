@@ -221,8 +221,6 @@ OBSApi::Application.routes.draw do
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons, as: :clear_failed_comment
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
-      get 'project/status/:project' => :status, constraints: cons, as: 'project_status'
-      get 'project/list_incidents/:project' => :list_incidents, constraints: cons
       post 'project/unlock' => :unlock
     end
 
@@ -252,6 +250,7 @@ OBSApi::Application.routes.draw do
     resources :projects, only: [], param: :name do
       resources :maintained_projects, controller: 'webui/projects/maintained_projects',
                                       param: :maintained_project, only: [:index, :destroy, :create], constraints: cons
+      resource :status, controller: 'webui/projects/status', only: [:show], constraints: cons
       resource :public_key, controller: 'webui/projects/public_key', only: [:show], constraints: cons
       resource :ssl_certificate, controller: 'webui/projects/ssl_certificate', only: [:show], constraints: cons
       resource :pulse, controller: 'webui/projects/pulse', only: [:show], constraints: cons
