@@ -1,0 +1,4 @@
+<backlog>
+  <request id="7" type="submit" creator="tux" state="new" package="aaa_base"/>
+  <request id="13" type="submit" creator="bob" state="review" package="ruby"/>
+</backlog>
