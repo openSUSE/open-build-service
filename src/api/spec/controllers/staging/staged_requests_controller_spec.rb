@@ -155,6 +155,20 @@ RSpec.describe Staging::StagedRequestsController do
         it { expect(staging_project.packages).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
       end
+
+      context 'with revoked request' do
+        before do
+          login user
+          bs_request.state = :revoked
+          bs_request.save
+          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+                           body: "<requests><number>#{bs_request.number}</number></requests>"
+        end
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(staging_project.packages).to be_empty }
+        it { expect(staging_project.staged_requests).to be_empty }
+      end
     end
 
     context 'with valid staging_project but staging project is being merged' do
