@@ -80,7 +80,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                       body: "<excluded_requests><request number='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(404) }
     end
 
     context 'fails: no description, invalid request exclusion' do
