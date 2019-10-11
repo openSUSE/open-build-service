@@ -29,7 +29,7 @@ class Staging::StagedRequests
     not_deleted_packages = package_names - result.pluck(:name)
 
     requests.each do |request|
-      add_review_for_unstaged_request(request)
+      add_review_for_unstaged_request(request) if request.state.in?([:new, :review])
 
       ProjectLogEntry.create!(
         project: staging_project,
