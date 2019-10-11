@@ -12,7 +12,7 @@ class Staging::StagedRequestsController < ApplicationController
   def create
     authorize @staging_project, :update?
 
-    result = ::Staging::StageRequests.new(
+    result = ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
@@ -33,7 +33,7 @@ class Staging::StagedRequestsController < ApplicationController
   def destroy
     authorize @staging_project, :update?
 
-    result = ::Staging::StageRequests.new(
+    result = ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
