@@ -1961,9 +1961,18 @@ POST /staging/<staging_workflow_project>/staging_projects
 XmlBody: create_staging_projects
 XmlResult: status_ok
 
+
+=== Backlog
+
+<staging_workflow_project>: The name of the staging workflow project, e.g. home:user1
+
+GET /staging/<staging_workflow_project>/backlog
+  Get the list of requests that are not added into any staging project or excluded.
+XmlResult: backlog
+
 === Excluded Requests
 
-<project>: The name of the main project of a Staging, e.g. openSUSE_Tumbleweed
+<project>: The name of the main project of a Staging, e.g. openSUSE:Factory
 <request>: The number of the request, e.g. 12345
 <description>: A string of text (url encoded)
 
