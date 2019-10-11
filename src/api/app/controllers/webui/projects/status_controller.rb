@@ -22,7 +22,7 @@ module Webui
         @filter_for_user = params[:filter_for_user]
 
         @develprojects = {}
-        ps = calc_status(params[:project])
+        ps = calc_status(params[:project_name])
 
         @packages = ps[:packages]
         @develprojects = ps[:projects].sort_by(&:downcase)
