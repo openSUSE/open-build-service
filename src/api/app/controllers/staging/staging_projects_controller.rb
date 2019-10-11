@@ -1,25 +1,25 @@
-class Staging::StagingProjectsController < ApplicationController
+class Staging::StagingProjectsController < Staging::StagingController
   before_action :require_login, except: [:index, :show]
-  before_action :set_main_project
+  before_action :set_project
   before_action :set_staging_workflow, only: :create
 
   validate_action create: { method: :post, request: :staging_project }
 
   def index
-    if @main_project.staging
-      @staging_workflow = @main_project.staging
+    if @project.staging
+      @staging_workflow = @project.staging
       @staging_projects = @staging_workflow.staging_projects
     else
       render_error(
         status: 404,
         errorcode: 'project_has_no_staging_workflow',
-        message: "No staging workflow for project '#{@main_project}'"
+        message: "No staging workflow for project '#{@project}'"
       )
     end
   end
 
   def show
-    @staging_project = @main_project.staging.staging_projects.find_by!(name: params[:staging_project_name])
+    @staging_project = @project.staging.staging_projects.find_by!(name: params[:staging_project_name])
   end
 
   def create
@@ -32,13 +32,13 @@ class Staging::StagingProjectsController < ApplicationController
       render_error(
         status: 400,
         errorcode: 'invalid_request',
-        message: "Staging Projects for #{@main_project} failed: #{result.errors.join(' ')}"
+        message: "Staging Projects for #{@project} failed: #{result.errors.join(' ')}"
       )
     end
   end
 
   def copy
-    authorize @main_project.staging
+    authorize @project.staging
 
     StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session!.id)
     render_ok
@@ -58,15 +58,5 @@ class Staging::StagingProjectsController < ApplicationController
     end
     StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.session!.login)
     render_ok
-  end
-
-  private
-
-  def set_main_project
-    @main_project = Project.find_by!(name: params[:staging_workflow_project])
-  end
-
-  def set_staging_workflow
-    @staging_workflow = @main_project.staging
   end
 end

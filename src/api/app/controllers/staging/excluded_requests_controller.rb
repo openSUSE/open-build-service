@@ -1,4 +1,4 @@
-class Staging::ExcludedRequestsController < ApplicationController
+class Staging::ExcludedRequestsController < Staging::StagingController
   before_action :require_login, except: [:index]
   before_action :set_project
   before_action :set_staging_workflow, :set_requests_xml_hash
@@ -43,16 +43,5 @@ class Staging::ExcludedRequestsController < ApplicationController
 
   def set_requests_xml_hash
     @requests_xml_hash = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
-  end
-
-  def set_project
-    @project = Project.get_by_name(params[:staging_workflow_project])
-  end
-
-  def set_staging_workflow
-    @staging_workflow = @project.staging
-    return if @staging_workflow
-
-    raise InvalidParameterError, "Project #{params[:staging_workflow_project]} doesn't have an asociated Staging Workflow"
   end
 end
