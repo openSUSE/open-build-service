@@ -52,7 +52,7 @@ RSpec.describe Staging::BacklogController do
         get :index, params: { staging_workflow_project: other_project, format: :xml }
       end
 
-      it { expect(response).to have_http_status(:bad_request) }
+      it { expect(response).to have_http_status(:not_found) }
 
       it 'responds_with_an_error' do
         assert_select 'status' do
