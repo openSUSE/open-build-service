@@ -52,13 +52,13 @@ module StagingProject
   end
 
   def classified_requests
-    requests = (requests_to_review | staged_requests.includes(:reviews)).map do |request|
+    requests = (requests_to_review | staged_requests.includes(:reviews, :bs_request_actions)).map do |request|
       {
         number: request.number,
         state: request.state,
         package: request.first_target_package,
         request_type: request.bs_request_actions.first.type,
-        missing_reviews: missing_reviews.select { |review| review[:request] == request.number }
+        missing_reviews: missing_reviews_for_classified_requests(request, request.reviews)
       }
     end
 
@@ -86,8 +86,16 @@ module StagingProject
     @broken_packages
   end
 
+  def missing_reviews_for_classified_requests(request, reviews)
+    @missing_reviews = []
+    reviews.each do |review|
+      next if review.state == :accepted || review.by_project == name
+      extract_missing_reviews(request, review)
+    end
+    @missing_reviews
+  end
+
   def missing_reviews
-    return @missing_reviews if @missing_reviews
 
     @missing_reviews = []
 
