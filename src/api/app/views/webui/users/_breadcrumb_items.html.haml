@@ -1,17 +1,18 @@
-= render partial: 'webui/main/breadcrumb_items'
 - case action_name
   - when 'index'
+    = render partial: 'webui/configuration/breadcrumb_items'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Manage Users
   - when 'new'
+    = render partial: (User.session ? 'webui/configuration/breadcrumb_items' : 'webui/main/breadcrumb_items')
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Sign Up
+      = @pagetitle.capitalize
   - when 'show'
+    = render partial: 'webui/main/breadcrumb_items'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Home of #{@displayed_user}
   - when 'edit'
-    %li.breadcrumb-item
-      = link_to('Configuration', configuration_path)
+    = render partial: 'webui/configuration/breadcrumb_items'
     %li.breadcrumb-item
       = link_to('Manage Users', users_path)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
