@@ -94,19 +94,19 @@ RSpec.describe Staging::StagingProjectsController do
       it 'returns the staging_project name xml' do
         assert_select 'staging_project' do
           assert_select 'staged_requests', 1 do
-            assert_select 'entry', 3
+            assert_select 'request', 3
           end
           assert_select 'untracked_requests', 1 do
-            assert_select 'entry', 1
+            assert_select 'request', 1
           end
           assert_select 'requests_to_review', 1 do
-            assert_select 'entry', 2
+            assert_select 'request', 2
           end
           assert_select 'missing_reviews', 1 do
-            assert_select 'entry', 1
+            assert_select 'review', 1
           end
           assert_select 'broken_packages', 1 do
-            assert_select 'entry', 1
+            assert_select 'package', 1
           end
           assert_select 'history', 1
         end
