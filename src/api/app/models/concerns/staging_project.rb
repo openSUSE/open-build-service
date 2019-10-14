@@ -99,7 +99,7 @@ module StagingProject
 
     @missing_reviews = []
 
-    Review.includes(:bs_request).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
+    Review.includes(bs_request: [:bs_request_actions]).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
       # We skip reviews for the staging project since these reviews are used
       # by the openSUSE release tools _after_ the overall_state switched to
       # 'accepted'.
