@@ -58,8 +58,7 @@ module StagingProject
         state: request.state,
         package: request.first_target_package,
         request_type: request.bs_request_actions.first.type,
-        missing_reviews: missing_reviews.select { |review| review[:request] == request.number },
-        tracked: requests_to_review.include?(request)
+        missing_reviews: missing_reviews.select { |review| review[:request] == request.number }
       }
     end
 
