@@ -726,6 +726,9 @@ fi
 # formerly obs-source_service
 %{_unitdir}/obsservice.service
 %config(noreplace) /etc/logrotate.d/obs-source_service
+%if 0%{?suse_version} >= 1550
+%dir /etc/cron.d
+%endif
 %config(noreplace) /etc/cron.d/cleanup_scm_cache
 /usr/sbin/rcobsservice
 /usr/lib/obs/server/bs_service
