@@ -44,12 +44,6 @@ module OBSApi
     # like if you have constraints or database-specific column types
     # config.active_record.schema_format = :sql
 
-    # Enable the asset pipeline
-    config.assets.enabled = true
-
-    # Version of your assets, change this if you want to expire all your assets
-    config.assets.version = '1.0'
-
     # Skip frameworks you're not going to use
     # config.frameworks -= [ :action_web_service, :active_resource ]
 
@@ -87,13 +81,6 @@ module OBSApi
 
     config.action_controller.perform_caching = true
 
-    config.assets.js_compressor = :uglifier
-
-    config.assets.precompile += ['webui/application/cm2/index.js',
-                                 'webui/application/cm2/index-diff.js',
-                                 'webui/application/cm2/index-xml.js',
-                                 'webui/application/cm2/index-prjconf.js']
-
     config.action_controller.action_on_unpermitted_parameters = :raise
 
     config.action_dispatch.rescue_responses['Backend::Error'] = 500
@@ -112,12 +99,6 @@ module OBSApi
       g.factory_bot(false)
       g.test_framework :rspec
       g.orm :active_record, primary_key_type: :integer
-    end
-
-    unless Rails.env.test?
-      config.after_initialize do
-        # See Rails::Configuration for more options
-      end
     end
   end
 end
