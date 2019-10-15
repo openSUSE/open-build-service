@@ -61,7 +61,6 @@ module StagingProject
         missing_reviews: missing_reviews_for_classified_requests(request, request.reviews)
       }
     end
-
     requests.sort_by { |request| request[:package] }
   end
 
@@ -87,26 +86,31 @@ module StagingProject
   end
 
   def missing_reviews_for_classified_requests(request, reviews)
-    @missing_reviews = []
+    @missing_reviews_of_st_project ||= []
+    current_missing_reviews = []
+
     reviews.each do |review|
       next if review.state == :accepted || review.by_project == name
-      extract_missing_reviews(request, review)
+      result = extract_missing_reviews(request, review)
+      current_missing_reviews << result
+      @missing_reviews_of_st_project << result
     end
-    @missing_reviews
+    current_missing_reviews
   end
 
   def missing_reviews
+    return @missing_reviews_of_st_project if @missing_reviews_of_st_project
 
-    @missing_reviews = []
+    @missing_reviews_of_st_project = []
 
     Review.includes(bs_request: [:bs_request_actions]).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
       # We skip reviews for the staging project since these reviews are used
       # by the openSUSE release tools _after_ the overall_state switched to
       # 'accepted'.
       next if review.by_project == name
-      extract_missing_reviews(review.bs_request, review)
+      @missing_reviews_of_st_project << extract_missing_reviews(review.bs_request, review)
     end
-    @missing_reviews
+    @missing_reviews_of_st_project
   end
 
   def overall_state
@@ -251,14 +255,17 @@ module StagingProject
     # Instead, we could have something like
     # who = review.by_group || review.by_user || review.by_project || review.by_package
 
+    extracted_missing_reviews = {}
     [:by_group, :by_user, :by_package, :by_project].each do |review_by|
       who = review.send(review_by)
       next unless who
 
-      @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who, review_type: review_by.to_s }
+      extracted_missing_reviews.merge!(id: review.id, request: request.number, state: review.state.to_s,
+                                       package: request.first_target_package, by: who, review_type: review_by.to_s)
       # No need to duplicate reviews
       break
     end
+    extracted_missing_reviews
   end
 end
 # rubocop:enable Metrics/ModuleLength
