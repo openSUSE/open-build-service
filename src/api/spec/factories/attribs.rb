@@ -7,7 +7,7 @@ FactoryBot.define do
       package { nil }
     end
 
-    after(:create) do |attrib, evaluator|
+    before(:create) do |attrib, evaluator|
       if evaluator.package
         attrib.package = evaluator.package
         attrib.project = nil
