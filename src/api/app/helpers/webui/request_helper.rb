@@ -112,7 +112,7 @@ module Webui::RequestHelper
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
   end
 
-  # rubocop:disable Style/FormatStringToken, Style/FormatString
+  # rubocop:disable Style/FormatString
   def request_action_header(action, creator)
     source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
 
@@ -154,7 +154,7 @@ module Webui::RequestHelper
       }
     end.html_safe
   end
-  # rubocop:enable Style/FormatStringToken, Style/FormatString
+  # rubocop:enable Style/FormatString
 
   def list_maintainers(maintainers)
     maintainers.pluck(:login).map do |maintainer|
