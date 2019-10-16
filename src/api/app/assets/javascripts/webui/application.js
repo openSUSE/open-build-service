@@ -43,7 +43,6 @@
 //= require webui/job_history.js
 // FIXME remove jquery-ui file when we upgrade jquery-ui gem
 //= require webui/jquery-ui.min.js
-//= require webui/cm2/use-codemirror.js
 //= require webui/package-view_file.js
 //= require webui/staging_workflow.js
 //= require webui/project.js
