@@ -99,6 +99,7 @@ class BsRequest < ApplicationRecord
 
   belongs_to :staging_project, class_name: 'Project', foreign_key: 'staging_project_id'
   has_one :request_exclusion, class_name: 'Staging::RequestExclusion', foreign_key: 'bs_request_id', dependent: :destroy
+  has_many :not_accepted_reviews, -> { where.not(state: :accepted) }, class_name: 'Review'
 
   validates :state, inclusion: { in: VALID_REQUEST_STATES }
   validates :creator, presence: true

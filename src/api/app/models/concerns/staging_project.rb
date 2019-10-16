@@ -52,13 +52,13 @@ module StagingProject
   end
 
   def classified_requests
-    requests = (requests_to_review | staged_requests.includes(:reviews, :bs_request_actions)).map do |request|
+    requests = (requests_to_review | staged_requests.includes(:not_accepted_reviews, :bs_request_actions)).map do |request|
       {
         number: request.number,
         state: request.state,
         package: request.first_target_package,
         request_type: request.bs_request_actions.first.type,
-        missing_reviews: missing_reviews_for_classified_requests(request, request.reviews)
+        missing_reviews: missing_reviews_for_classified_requests(request, request.not_accepted_reviews)
       }
     end
     requests.sort_by { |request| request[:package] }
@@ -90,7 +90,7 @@ module StagingProject
     current_missing_reviews = []
 
     reviews.each do |review|
-      next if review.state == :accepted || review.by_project == name
+      next if review.by_project == name
       result = extract_missing_reviews(request, review)
       current_missing_reviews << result
       @missing_reviews_of_st_project << result
@@ -102,12 +102,11 @@ module StagingProject
     return @missing_reviews_of_st_project if @missing_reviews_of_st_project
 
     @missing_reviews_of_st_project = []
-
-    Review.includes(bs_request: [:bs_request_actions]).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
-      # We skip reviews for the staging project since these reviews are used
-      # by the openSUSE release tools _after_ the overall_state switched to
-      # 'accepted'.
-      next if review.by_project == name
+    base_query = Review.includes(bs_request: [:bs_request_actions]).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted)
+    # We skip reviews for the staging project since these reviews are used
+    # by the openSUSE release tools _after_ the overall_state switched to
+    # 'accepted'.
+    base_query.where.not(by_project: name).or(base_query.where(by_project: nil)).find_each do |review|
       @missing_reviews_of_st_project << extract_missing_reviews(review.bs_request, review)
     end
     @missing_reviews_of_st_project
