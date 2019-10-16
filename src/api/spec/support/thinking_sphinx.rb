@@ -1,23 +1,25 @@
 module SphinxHelpers
-  def reindex_for_search
-    ThinkingSphinx::Test.index
-    # Wait for Sphinx to finish loading in the new index files.
-    sleep(0.25) until index_finished?
+  def thinking_sphinx_test_init
+    ThinkingSphinx::Test.init
+    ThinkingSphinx::Test.start index: false
+    ThinkingSphinx::Configuration.instance.settings['real_time_callbacks'] = true
   end
 
-  def index_finished?
-    Dir[Rails.root.join(ThinkingSphinx::Test.config.indices_location, '*.{new,tmp}*')].empty?
+  def thinking_sphinx_test_stop
+    ThinkingSphinx::Test.stop
+    ThinkingSphinx::Test.clear
+    ThinkingSphinx::Configuration.instance.settings['real_time_callbacks'] = false
   end
 end
 
 RSpec.configure do |config|
-  config.include SphinxHelpers, type: :feature
+  config.include SphinxHelpers, :thinking_sphinx
 
-  config.before(:suite) do
-    # Ensure sphinx directories exist for the test environment
-    ThinkingSphinx::Test.init
-    # Configure and start Sphinx, and automatically
-    # stop Sphinx at the end of the test suite.
-    ThinkingSphinx::Test.start_with_autostop
+  config.before(:context, :thinking_sphinx) do
+    thinking_sphinx_test_init
+  end
+
+  config.after(:context, :thinking_sphinx) do
+    thinking_sphinx_test_stop
   end
 end
