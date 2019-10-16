@@ -1,14 +1,14 @@
-ThinkingSphinx::Index.define :package, with: :active_record do
+ThinkingSphinx::Index.define :package, with: :real_time do
   indexes name
   indexes title
   indexes description
 
-  has :project_id, as: :project_id
-  has attribs.attrib_type_id, as: :attrib_type_ids
-  has package_issues.issue_id, as: :issue_ids
-  has '(SELECT count(*) FROM backend_packages WHERE links_to_id = packages.id)', as: :linked_count, type: :integer
-  has activity_index
-  has 'EXISTS (SELECT * FROM backend_packages WHERE package_id = packages.id)', as: :links_to_other, type: :boolean
-  has 'EXISTS (SELECT * FROM packages p WHERE p.develpackage_id = packages.id)', as: :is_devel, type: :boolean
-  has updated_at
+  has :project_id, as: :project_id, type: :integer
+  has attribs_attrib_type_ids, as: :attrib_type_ids, type: :integer, multi: true
+  has package_issues_ids, as: :issue_ids, type: :integer, multi: true
+  has linked_count, as: :linked_count, type: :integer
+  has activity_index, type: :float
+  has linked_packages?, as: :links_to_other, type: :boolean
+  has devel_packages?, as: :is_devel, type: :boolean
+  has updated_at, type: :timestamp
 end

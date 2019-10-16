@@ -13,6 +13,8 @@ class Package < ApplicationRecord
   include Package::Errors
   include HasRatings
   include HasAttributes
+  include PopulateSphinx
+  include PackageSphinx
 
   BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
                        '.chk', '.der', '.dll', '.exe', '.fw', '.gem', '.gif', '.gz',
@@ -67,6 +69,7 @@ class Package < ApplicationRecord
   before_destroy :remove_devel_packages
 
   after_save :write_to_backend
+  after_save :populate_sphinx, if: -> { name_previously_changed? || title_previously_changed? || description_previously_changed? }
   before_update :update_activity
   after_rollback :reset_cache
 
@@ -1518,4 +1521,3 @@ end
 #  fk_rails_...     (kiwi_image_id => kiwi_images.id)
 #  packages_ibfk_3  (develpackage_id => packages.id)
 #  packages_ibfk_4  (project_id => projects.id)
-#
