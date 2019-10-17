@@ -1,4 +1,4 @@
-// This is a manifest file that'll be compiled into codemirror, which will include all the files
+// This is a manifest file that'll be compiled into codemirror-prjconf.js, which will include all the files
 // listed below.
 //
 // Any JavaScript/Coffee file within this directory, lib/assets/javascripts, vendor/assets/javascripts,
@@ -12,5 +12,5 @@
 //
 //= require codemirror
 //= require webui/cm2/toolbars
-//= require codemirror/modes/diff.js
+//= require webui/cm2/mode/prjconf
 //= require webui/cm2/use-codemirror

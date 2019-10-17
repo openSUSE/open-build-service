@@ -10,13 +10,13 @@
  *
  *= require mousetrap
  *= require peek
- *= require webui/icons.css.scss
- *= require webui/obs_factory/bento.css.scss
- *= require webui/obs_factory/style.css.scss
- *= require webui/obs_factory/our-own-jquery-ui.css.scss
- *= require webui/obs_factory/flash
- *= require webui/obs_factory/utils
- *= require webui/obs_factory/announcements.scss
+ *= require webui/icons.css
+ *= require webui/obs_factory/bento.css
+ *= require webui/obs_factory/style.css
+ *= require webui/obs_factory/our-own-jquery-ui.css
+ *= require webui/obs_factory/flash.css
+ *= require webui/obs_factory/utils.css
+ *= require webui/obs_factory/announcements.css
 */
 
 /* Staging projects dashboard table */

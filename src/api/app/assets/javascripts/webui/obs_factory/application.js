@@ -19,7 +19,7 @@
 //= require mousetrap
 //= require peek
 //
-//= require webui/obs_factory/keybindings.js.coffee
+//= require webui/obs_factory/keybindings.js
 //= require webui/obs_factory/bento/script.js
 //= require webui/obs_factory/bento/global-navigation.js
 //= require webui/obs_factory/bento/l10n/global-navigation-data-en_US.js
