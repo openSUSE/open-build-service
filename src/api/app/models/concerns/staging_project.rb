@@ -87,15 +87,14 @@ module StagingProject
 
   def missing_reviews_for_classified_requests(request, reviews)
     @missing_reviews_of_st_project ||= []
-    current_missing_reviews = []
 
-    reviews.each do |review|
+    reviews.each_with_object([]) do |review, collected|
       next if review.by_project == name
-      result = extract_missing_reviews(request, review)
-      current_missing_reviews << result
-      @missing_reviews_of_st_project << result
+      extracted = extract_missing_reviews(request, review)
+      collected << extracted
+      @missing_reviews_of_st_project << extracted
+      collected
     end
-    current_missing_reviews
   end
 
   def missing_reviews
@@ -254,17 +253,15 @@ module StagingProject
     # Instead, we could have something like
     # who = review.by_group || review.by_user || review.by_project || review.by_package
 
-    extracted_missing_reviews = {}
-    [:by_group, :by_user, :by_package, :by_project].each do |review_by|
+    [:by_group, :by_user, :by_package, :by_project].each_with_object({}) do |review_by, extracted|
       who = review.send(review_by)
       next unless who
 
-      extracted_missing_reviews.merge!(id: review.id, request: request.number, state: review.state.to_s,
-                                       package: request.first_target_package, by: who, review_type: review_by.to_s)
+      extracted.merge!(id: review.id, request: request.number, state: review.state.to_s,
+                       package: request.first_target_package, by: who, review_type: review_by.to_s)
       # No need to duplicate reviews
-      break
+      break extracted
     end
-    extracted_missing_reviews
   end
 end
 # rubocop:enable Metrics/ModuleLength
