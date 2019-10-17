@@ -24,6 +24,10 @@ class Staging::WorkflowsController < Staging::StagingController
   def destroy
     authorize @staging_workflow
 
+    if params[:with_staging_projects].present?
+      @staging_workflow.staging_projects.destroy_all
+    end
+
     @staging_workflow.destroy!
     render_ok
   end
