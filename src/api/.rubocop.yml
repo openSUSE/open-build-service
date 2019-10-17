@@ -36,6 +36,11 @@ Style/MultilineWhenThen:
 Style/UnneededInterpolation:
   Enabled: false
 
+# For routes, we use the EnforcedStyle 'template' while for other files, we should use the EnforcedStyle 'annotated'.
+# We could use this cop, but it's going to litter the code with a bunch of RuboCop comments without adding much value.
+Style/FormatStringToken:
+  Enabled: false
+
 ##################### Metrics ##################################
 
 # Disabled due Rspec.describe and routes.draw can't be split

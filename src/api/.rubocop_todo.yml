@@ -864,14 +864,6 @@ Style/For:
     - 'test/unit/debug_flag_test.rb'
     - 'test/unit/publish_flag_test.rb'
 
-# Offense count: 2
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: annotated, template, unannotated
-Style/FormatStringToken:
-  Exclude:
-    - 'app/helpers/webui/project_helper.rb'
-    - 'lib/backend/connection_helper.rb'
-
 # Offense count: 1272
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
