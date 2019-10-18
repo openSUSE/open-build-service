@@ -46,7 +46,7 @@ sub initctx {
     # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
     Net::SSLeay::CTX_use_certificate_chain_file($sslctx, $certfile) || die("certificate $certfile failed\n");
   }
-  if (defined &Net::SSLeay::CTX_set_tmp_ecdh) {
+  if (defined(&Net::SSLeay::CTX_set_tmp_ecdh) && Net::SSLeay::SSLeay() < 0x10100000) {
     my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');
     my $ecdh  = Net::SSLeay::EC_KEY_new_by_curve_name($curve);
     Net::SSLeay::CTX_set_tmp_ecdh($sslctx, $ecdh);
