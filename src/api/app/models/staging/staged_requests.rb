@@ -8,7 +8,6 @@ class Staging::StagedRequests
       bs_request_action = request.bs_request_actions.first
       if bs_request_action.is_submit?
         link_package(bs_request_action)
-        # branch_package(bs_request_action)
       elsif bs_request_action.is_delete?
         # TODO: implement delete requests
       end
@@ -91,23 +90,17 @@ class Staging::StagedRequests
     source_package = Package.get_by_project_and_name!(bs_request_action.source_project,
                                                       bs_request_action.source_package)
 
-    # we need the revision and md5 and make it sticky in the _link
-    # packages in staging a locked in a specific version
     query_options = { expand: 1 }
     query_options[:rev] = bs_request_action.source_rev if bs_request_action.source_rev
 
     backend_package_information = source_package.dir_hash(query_options)
 
-    # get the version revision from the source package
     source_vrev = backend_package_information['vrev']
 
-    # expanded md5
     package_rev = backend_package_information['srcmd5']
 
-    # find or create the package in the staging project
     link_package = Package.find_or_create_by!(project: staging_project, name: bs_request_action.target_package)
 
-    # add or overwrite "_link", linking to the source project baserev
     Backend::Api::Sources::Package.write_link(staging_project.name,
                                               link_package.name,
                                               User.session!,
@@ -123,34 +116,6 @@ class Staging::StagedRequests
     )
     staging_project.staged_requests << request
     result << request
-  end
-
-  def branch_package(bs_request_action)
-    request = bs_request_action.bs_request
-    BranchPackage.new(
-      target_project: staging_project.name,
-      target_package: bs_request_action.target_package,
-      project: bs_request_action.source_project,
-      package: bs_request_action.source_package,
-      extend_package_names: false
-    ).branch
-    ProjectLogEntry.create!(
-      project: staging_project,
-      user_name: user_login,
-      bs_request: request,
-      event_type: :staged_request,
-      datetime: Time.now,
-      package_name: bs_request_action.target_package
-    )
-    staging_project.staged_requests << request
-    result << request
-  rescue BranchPackage::DoubleBranchPackageError
-    # we leave the package there and do not report as success
-    # because packages might differ
-    errors << "Request '#{request.number}' already branched into '#{staging_project.name}'"
-  rescue APIError, Backend::Error => e
-    errors << "Request '#{request.number}' branching failed: '#{e.message}'"
-    Airbrake.notify(e, bs_request: request.number)
   end
 
   def add_review_for_staged_request(request)
