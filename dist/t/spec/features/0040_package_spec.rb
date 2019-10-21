@@ -43,6 +43,7 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Branch Existing Package')
+    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations to avoid race conditions
     within('#new-package-branch-modal') do
       fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
       fill_in 'linked_package', with: 'build'

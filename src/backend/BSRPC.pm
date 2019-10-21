@@ -398,7 +398,7 @@ sub rpc {
     }
     if (!$param->{'ignorestatus'}) {
       close $sock;
-      die("$1 remote error: $2\n") if $status =~ /^(\d+) +(.*?)$/;
+      die("$1 remote error: $2 ($uri)\n") if $status =~ /^(\d+) +(.*?)$/;
       die("remote error: $status\n");
     }
   }
