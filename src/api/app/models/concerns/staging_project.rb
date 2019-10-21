@@ -52,17 +52,15 @@ module StagingProject
   end
 
   def classified_requests
-    requests = (requests_to_review | staged_requests.includes(:reviews)).map do |request|
+    requests = (requests_to_review | staged_requests.includes(:not_accepted_reviews, :bs_request_actions)).map do |request|
       {
         number: request.number,
         state: request.state,
         package: request.first_target_package,
         request_type: request.bs_request_actions.first.type,
-        missing_reviews: missing_reviews.select { |review| review[:request] == request.number },
-        tracked: requests_to_review.include?(request)
+        missing_reviews: missing_reviews_for_classified_requests(request, request.not_accepted_reviews)
       }
     end
-
     requests.sort_by { |request| request[:package] }
   end
 
@@ -87,19 +85,30 @@ module StagingProject
     @broken_packages
   end
 
-  def missing_reviews
-    return @missing_reviews if @missing_reviews
+  def missing_reviews_for_classified_requests(request, reviews)
+    @missing_reviews_of_st_project ||= []
 
-    @missing_reviews = []
-
-    Review.includes(:bs_request).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted).find_each do |review|
-      # We skip reviews for the staging project since these reviews are used
-      # by the openSUSE release tools _after_ the overall_state switched to
-      # 'accepted'.
+    reviews.each_with_object([]) do |review, collected|
       next if review.by_project == name
-      extract_missing_reviews(review.bs_request, review)
+      extracted = extract_missing_reviews(request, review)
+      collected << extracted
+      @missing_reviews_of_st_project << extracted
+      collected
     end
-    @missing_reviews
+  end
+
+  def missing_reviews
+    return @missing_reviews_of_st_project if @missing_reviews_of_st_project
+
+    @missing_reviews_of_st_project = []
+    base_query = Review.includes(bs_request: [:bs_request_actions]).where(bs_request_id: staged_requests.select(:id)).where.not(state: :accepted)
+    # We skip reviews for the staging project since these reviews are used
+    # by the openSUSE release tools _after_ the overall_state switched to
+    # 'accepted'.
+    base_query.where.not(by_project: name).or(base_query.where(by_project: nil)).find_each do |review|
+      @missing_reviews_of_st_project << extract_missing_reviews(review.bs_request, review)
+    end
+    @missing_reviews_of_st_project
   end
 
   def overall_state
@@ -244,13 +253,14 @@ module StagingProject
     # Instead, we could have something like
     # who = review.by_group || review.by_user || review.by_project || review.by_package
 
-    [:by_group, :by_user, :by_package, :by_project].each do |review_by|
+    [:by_group, :by_user, :by_package, :by_project].each_with_object({}) do |review_by, extracted|
       who = review.send(review_by)
       next unless who
 
-      @missing_reviews << { id: review.id, request: request.number, state: review.state.to_s, package: request.first_target_package, by: who, review_type: review_by.to_s }
+      extracted.merge!(id: review.id, request: request.number, state: review.state.to_s,
+                       package: request.first_target_package, by: who, review_type: review_by.to_s)
       # No need to duplicate reviews
-      break
+      break extracted
     end
   end
 end

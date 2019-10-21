@@ -75,12 +75,13 @@ module Webui::Staging::WorkflowHelper
   end
 
   def requests(staging_project, users_hash, groups_hash)
-    number_of_requests = staging_project.classified_requests.size
+    classified_requests = staging_project.classified_requests
+    number_of_requests = classified_requests.size
 
     return 'None' if number_of_requests == 0
 
     requests_visible_by_default = 10
-    requests_links = staging_project.classified_requests.map do |request|
+    requests_links = classified_requests.map do |request|
       create_request_links(request, users_hash, groups_hash)
     end
 
