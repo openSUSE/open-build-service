@@ -19,17 +19,12 @@ class Staging::StagedRequests
   end
 
   def destroy
-    requests = staging_project.staged_requests.where(number: request_numbers)
-    package_names = requests.joins(:bs_request_actions).pluck('bs_request_actions.target_package')
-
-    staging_project.staged_requests.delete(requests)
-    not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
-
-    result = staging_project.packages.where(name: package_names).destroy_all
-    not_deleted_packages = package_names - result.pluck(:name)
-
+    requests = staging_workflow.target_of_bs_requests.where(number: request_numbers).joins(:bs_request_actions)
     requests.each do |request|
-      add_review_for_unstaged_request(request) if request.state.in?([:new, :review])
+      staging_project = request.staging_project
+      next unless unstageable?(request, staging_project)
+
+      remove_packages(request, staging_project)
 
       ProjectLogEntry.create!(
         project: staging_project,
@@ -39,12 +34,14 @@ class Staging::StagedRequests
         datetime: Time.now,
         package_name: request.first_target_package
       )
+
+      add_review_for_unstaged_request(request, staging_project) if request.state.in?([:new, :review])
+      staging_project.staged_requests.delete(request)
     end
 
-    return self if not_unassigned_requests.empty? && not_deleted_packages.empty?
+    missing_packages
+    missing_requests(requests)
 
-    errors << "Requests with number #{not_unassigned_requests.to_sentence} not found. " unless not_unassigned_requests.empty?
-    errors << "Could not delete packages #{not_deleted_packages.to_sentence}." unless not_deleted_packages.empty?
     self
   end
 
@@ -60,6 +57,10 @@ class Staging::StagedRequests
 
   def result
     @result ||= []
+  end
+
+  def not_removed_packages
+    @not_removed_packages ||= {}
   end
 
   def add_request_not_found_errors
@@ -123,8 +124,50 @@ class Staging::StagedRequests
     request.change_review_state('accepted', by_group: staging_workflow.managers_group.title, comment: "Picked \"#{staging_project}\"")
   end
 
-  def add_review_for_unstaged_request(request)
+  def add_review_for_unstaged_request(request, staging_project)
     request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
     request.change_review_state('accepted', by_project: staging_project.name, comment: "Moved back to project \"#{staging_workflow.project}\"")
+  end
+
+  def remove_packages(request, staging_project)
+    package_names = request.bs_request_actions.pluck(:target_package)
+    staging_project_packages = staging_project.packages.where(name: package_names)
+    staging_project_packages.each do |package|
+      next if package.destroy
+
+      not_removed_packages[staging_project.name] ||= []
+      not_removed_packages[staging_project.name] << package
+    end
+  end
+
+  def unstageable?(request, staging_project)
+    return true if staging_project && staging_project.overall_state != :accepting
+    errors << if staging_project.nil?
+                "Request '#{request.number}' is not staged"
+              else
+                "Can't change staged requests '#{request.number}': Project '#{staging_project}' is being accepted."
+              end
+    return false
+  end
+
+  def missing_packages
+    return if not_removed_packages.empty?
+
+    message = not_removed_packages.map do |staging_project, packages|
+      reasons = packages.map { |package| "'#{package}' \"#{package.errors.full_messages.to_sentence}\"" }
+      "from #{staging_project}: #{reasons.to_sentence}"
+    end
+    errors << "The next packages couldn't be removed #{message.to_sentence}"
+  end
+
+  def missing_requests(requests)
+    not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
+    return if not_unassigned_requests.empty?
+
+    requests_found = BsRequest.where(number: not_unassigned_requests).pluck(:number).map(&:to_s)
+    requests_not_found = not_unassigned_requests - requests_found
+
+    errors << "Requests with number: #{requests_found.to_sentence} don't belong to Staging: #{staging_workflow.project}" if requests_found.present?
+    errors << "Requests with number: #{requests_not_found.to_sentence} don't exist" if requests_not_found.present?
   end
 end

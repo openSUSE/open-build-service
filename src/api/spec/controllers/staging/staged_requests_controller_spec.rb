@@ -114,28 +114,18 @@ RSpec.describe Staging::StagedRequestsController do
     context 'invalid user' do
       before do
         login other_user
-        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                          body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
       it { expect(response).to have_http_status(:forbidden) }
     end
 
-    context 'with invalid staging project' do
-      before do
-        login user
-        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
-      end
-
-      it { expect(response).to have_http_status(:not_found) }
-    end
-
     context 'valid staging project and valid user' do
       context 'with valid request number' do
         before do
           login user
-          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                            body: "<requests><number>#{bs_request.number}</number></requests>"
         end
 
@@ -147,7 +137,7 @@ RSpec.describe Staging::StagedRequestsController do
       context 'with valid and invalid request number' do
         before do
           login user
-          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
                            body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
         end
 
@@ -175,15 +165,13 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
         login user
-        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                         body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
+        delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
+                         body: "<requests><number>#{bs_request.number}</number></requests>"
       end
 
-      it { expect(response).to have_http_status(424) }
-
-      it 'responds with an error' do
-        assert_select 'status', code: 'staging_project_not_in_acceptable_state'
-      end
+      it { expect(response).to have_http_status(:bad_request) }
+      it { expect(staging_project.packages).not_to be_empty }
+      it { expect(staging_project.staged_requests).not_to be_empty }
     end
   end
 end
