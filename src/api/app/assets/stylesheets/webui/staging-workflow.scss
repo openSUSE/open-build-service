@@ -94,6 +94,8 @@ ul .table-list-group-item {
       a.request {
         @extend .text-white;
         padding: 0 0.125rem 0.25rem;
+        display: flex;
+        align-items: center;
 
         &:hover {
           text-decoration: none;
@@ -103,6 +105,9 @@ ul .table-list-group-item {
           border-radius: 50%;
           height: 20px;
           width: 20px;
+        }
+
+        img, i {
           margin-left: 5px;
         }
       }
