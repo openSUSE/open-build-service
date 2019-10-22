@@ -1,17 +1,7 @@
 class BranchPackage
-  class InvalidArgument < APIError; end
-  class InvalidFilelistError < APIError; end
-  class DoubleBranchPackageError < APIError
-    attr_reader :project, :package
-
-    def initialize(project, package)
-      super(message)
-      @project = project
-      @package = package
-    end
-  end
-
   attr_accessor :params
+
+  include BranchPackage::Errors
 
   # generic branch function for package based, project wide or request based branch
   def initialize(params)
@@ -539,23 +529,7 @@ class BranchPackage
   end
 
   def report_dryrun
-    @packages.sort! { |x, y| x[:target_package] <=> y[:target_package] }
-    builder = Builder::XmlMarkup.new(indent: 2)
-    builder.collection do
-      @packages.each do |p|
-        if p[:package].is_a?(Package)
-          builder.package(project: p[:link_target_project].name, package: p[:package].name) do
-            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(project: @target_project, package: p[:target_package])
-          end
-        else
-          builder.package(project: p[:link_target_project], package: p[:package]) do
-            builder.devel(project: p[:copy_from_devel].project.name, package: p[:copy_from_devel].name) if p[:copy_from_devel]
-            builder.target(project: @target_project, package: p[:target_package])
-          end
-        end
-      end
-    end
+    BranchPackage::DryRun::Report.new(@packages, @target_project).to_xml
   end
 
   def set_target_project
