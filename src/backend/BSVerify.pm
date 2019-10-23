@@ -89,6 +89,16 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
+sub verify_packid_repositorybuild {
+  my ($packid) = $_[0];
+  if ($packid =~ /\A_repository:([^:]+)\z/s) {
+    my $p2 = $1;
+    die("packid '$packid' is illegal\n") unless $p2 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+    return;
+  }
+  verify_packid_repository($packid);
+}
+
 sub verify_service {
   my $p = $_[0];
   verify_filename($p->{'name'}) if defined($p->{'name'});
@@ -543,6 +553,7 @@ our $verifiers = {
   'arch' => \&verify_arch,
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
+  'package_repositorybuild' => \&verify_packid_repositorybuild,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
   'srcmd5' => \&verify_srcmd5,
