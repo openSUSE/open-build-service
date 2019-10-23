@@ -1,13 +1,6 @@
-
 #
 # Open Build Service 2.6
 #
-
-WARNING:
-WARNING: This is a development release, not for production usage!
-WARNING:
-
-
 
 
 Please read the README.SETUP file for initial installation
@@ -19,8 +12,8 @@ There is also an install medium with installs OBS on hard disc now.
 
 dist/README.UPDATERS file has informations for updaters.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
 happen automatically.
 
 
@@ -39,7 +32,7 @@ Features
  * Groups can have maintainers now, who can modify the member list
 
  * Requests can have a priority now. Request search is sorting by the priority
-   first and by the age of the request second. 
+   first and by the age of the request second.
 
  * The request history system got a big overhaul
    - reviews have a history too now
@@ -55,11 +48,11 @@ Changes on purpose:
 Incompatible changes:
 =====================
 
- * You get also an update of sphinx searchd. The on-disk db files became 
+ * You get also an update of sphinx searchd. The on-disk db files became
    incompatible, so please remove all files in following directory to
    enforce a re-index to avoid problems:
 
-      /srv/www/obs/api/db/sphinx/production/ 
+      /srv/www/obs/api/db/sphinx/production/
 
  * maintenance tag handling via _channel files got replaced with an option
    to re-define the updateinfo scheme template.
@@ -72,7 +65,7 @@ Incompatible changes:
         (we do support updates from 2.5 only anyway)
     - Also old clients will not show history anymore by default. Use osc 0.148
       for full new support of request histories
-      
+
 
 Notes for systems using systemd:
 ================================
@@ -95,4 +88,3 @@ To avoid these problems you need switch directory to avoid the systemd mapper:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
-
