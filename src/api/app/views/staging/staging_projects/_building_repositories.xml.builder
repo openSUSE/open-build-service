@@ -1,6 +1,6 @@
-xml.building_repositories(count: count) do |building_repository|
+builder.building_repositories(count: count) do |building_repository|
   building_repositories.each do |repo|
-    # missing , tobuild: repo[''], final: repo['']
-    building_repository.entry(name: repo['repository'], arch: repo['arch'], code: repo['code'], state: repo['state'])
+    building_repository.repo(name: repo['repository'], arch: repo['arch'], code: repo['code'], state: repo['state'],
+                             to_build: repo[:tobuild], final: repo[:final])
   end
 end
