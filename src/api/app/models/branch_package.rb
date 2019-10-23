@@ -533,22 +533,10 @@ class BranchPackage
   end
 
   def set_target_project
-    if params[:target_project]
-      @target_project = params[:target_project]
-      @auto_cleanup = ::Configuration.cleanup_after_days if params[:autocleanup] == 'true'
-    else
-      if params[:request]
-        @target_project = User.session!.branch_project_name("REQUEST_#{params[:request]}")
-      elsif params[:project]
-        @target_project = nil # to be set later after first source location lookup
-      else
-        @target_project = User.session!.branch_project_name(@attribute.tr(':', '_'))
-        @target_project += ":#{params[:package]}" if params[:package]
-      end
-      @auto_cleanup = ::Configuration.cleanup_after_days
-    end
-    return unless @target_project && !Project.valid_name?(@target_project)
-    raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
+    target_project_set = BranchPackage::SetTargetProject.new(params)
+    raise InvalidProjectNameError, 'invalid project name' unless target_project_set.valid?
+    @target_project = target_project_set.target_project
+    @auto_cleanup = target_project_set.auto_cleanup
   end
 
   def set_update_project_attribute
