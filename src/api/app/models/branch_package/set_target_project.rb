@@ -9,7 +9,7 @@ class BranchPackage::SetTargetProject
   end
 
   def valid?
-    @target_project && Project.valid_name?(@target_project)
+    @target_project.blank? || Project.valid_name?(@target_project)
   end
 
   def target_project
