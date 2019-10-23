@@ -1,12 +1,16 @@
 require 'rails_helper'
 
-# CONFIG['global_write_through'] = true
-
 RSpec.describe BranchPackage, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:home_project) { user.home_project }
   let!(:project) { create(:project, name: 'BaseDistro') }
   let!(:package) { create(:package, name: 'test_package', project: project) }
+
+  describe 'new' do
+    context 'with wrong arguments' do
+      it {  expect { BranchPackage.new(add_repositories_block: 'foo') }.to raise_error(BranchPackage::Errors::InvalidArgument) }
+    end
+  end
 
   describe '#branch' do
     let(:branch_package) { BranchPackage.new(project: project.name, package: package.name) }
@@ -15,6 +19,15 @@ RSpec.describe BranchPackage, vcr: true do
     let(:leap_project) { create(:project, name: 'openSUSE_Leap') }
     let(:apache) { create(:package, name: 'apache2', project: leap_project) }
     let(:branch_apache_package) { BranchPackage.new(project: leap_project.name, package: apache.name) }
+    let(:dryrun_xml) do
+      <<~XML
+        <collection>
+          <package project=\"BaseDistro:Update\" package=\"test_package\">
+            <target project=\"home:tom:branches:BaseDistro:Update\" package=\"test_package\"/>
+          </package>
+        </collection>
+      XML
+    end
 
     before(:each) do
       login(user)
@@ -23,6 +36,16 @@ RSpec.describe BranchPackage, vcr: true do
 
     after(:each) do
       Project.where('name LIKE ?', "#{user.home_project}:branches:%").destroy_all
+    end
+
+    context 'dryrun' do
+      let(:branch_package) { BranchPackage.new(project: project.name, package: package.name, dryrun: true) }
+
+      it { expect { branch_package.branch }.not_to(change(Package, :count)) }
+
+      it { expect(branch_package.branch).to include(:content_type, :text) }
+
+      it { expect(branch_package.branch).to include(content_type: 'text/xml', text: dryrun_xml) }
     end
 
     context 'package with UpdateProject attribute' do
