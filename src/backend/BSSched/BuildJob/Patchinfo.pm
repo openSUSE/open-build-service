@@ -557,7 +557,7 @@ sub build {
   $broken ||= 'no binaries found' unless @upackages;
 
   my $update = {};
-  $update->{'status'} = 'stable';
+  $update->{'status'} = $patchinfo->{'retracted'} ? 'retracted' : 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
   # quick hack, to be replaced with something sane
   if ($BSConfig::updateinfo_fromoverwrite) {

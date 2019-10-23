@@ -40,7 +40,7 @@ class Patchinfo
   attr_reader :document
   attr_writer :data
   attr_accessor :summary, :description, :packager, :category, :rating, :name,
-                :binaries, :version, :message, :relogin_needed,
+                :binaries, :version, :message, :retracted, :relogin_needed,
                 :reboot_needed, :zypp_restart_needed, :block, :block_reason, :issues,
                 :issueid, :issuetracker, :issueurl, :issuesum
 
@@ -294,6 +294,7 @@ class Patchinfo
     self.message = patchinfo_xml.value('message')
     self.relogin_needed = !patchinfo_xml.value('relogin_needed').nil?
     self.reboot_needed = !patchinfo_xml.value('reboot_needed').nil?
+    self.retracted = !patchinfo_xml.value('retracted').nil?
     self.zypp_restart_needed = !patchinfo_xml.value('zypp_restart_needed').nil?
     if patchinfo_xml.value('stopped')
       self.block = true
@@ -343,6 +344,7 @@ class Patchinfo
       node.message message.gsub("\r\n", "\n") if message.present?
       node.reboot_needed if reboot_needed == '1'
       node.relogin_needed if relogin_needed == '1'
+      node.retracted if retracted == '1'
       node.zypp_restart_needed if zypp_restart_needed == '1'
       node.stopped block_reason if block == '1'
     end
