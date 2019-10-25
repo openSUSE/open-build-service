@@ -129,6 +129,8 @@ PreReq:         git-core
 Requires:       patch
 Requires:       createrepo_c
 Recommends:     cron logrotate
+# zsync for appimage signing
+Recommends:     zsync
 
 Obsoletes:      obs-devel
 Provides:       obs-devel
