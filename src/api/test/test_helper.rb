@@ -36,7 +36,6 @@ require 'minitest/unit'
 require 'webmock/minitest'
 
 require_relative 'node_matcher'
-require_relative '../lib/obsapi/test_sphinx'
 
 require 'test/unit/assertions'
 require 'mocha/setup'

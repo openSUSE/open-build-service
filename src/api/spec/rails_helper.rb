@@ -80,3 +80,6 @@ require 'support/migration'
 
 # support rabbitmq
 require 'support/rabbitmq'
+
+# support thinking_sphinx
+require 'support/thinking_sphinx'

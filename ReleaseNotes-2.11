@@ -29,6 +29,8 @@ Features
 Generic:
  * You can track javascript errors that occur in the users browser with errbit, enable
    it in the API configuration file options.yml.
+ * Search was improved: New and updated projects/packages are indexed directly instead
+   of once every hour.
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
@@ -51,7 +53,7 @@ Intentional changes:
     * Kiwi Image Editor
     * Cloud upload for EC2
     * Cloud upload for Azure
- 
+
  * Removed the following routes:
 
     - /home/my_work

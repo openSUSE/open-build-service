@@ -17,7 +17,7 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     # For feature test we use truncation instead of transactions because the
     # test suite and the capybara driver do not use the same server thread.
-    if example.metadata[:type] == :feature || example.metadata[:type] == :migration
+    if example.metadata[:type] == :feature || example.metadata[:type] == :migration || example.metadata[:thinking_sphinx] == true
       # Omit truncating what we have set up in db/seeds.rb except users and roles_user
       DatabaseCleaner.strategy = :truncation, { except: STATIC_TABLES }
     else

@@ -4,7 +4,7 @@ require 'fileutils'
 require 'yaml'
 
 namespace :dev do
-  task :prepare do |_t, args|
+  task :prepare do
     puts 'Setting up the database configuration...'
     copy_example_file('config/database.yml')
     database_yml = YAML.load_file('config/database.yml') || {}
@@ -16,10 +16,8 @@ namespace :dev do
 
     puts 'Setting up the application configuration...'
     copy_example_file('config/options.yml')
-    if args.old_test_suite
-      puts 'Old test suite. Copying thinking sphinx example...'
-      copy_example_file('config/thinking_sphinx.yml')
-    end
+    puts 'Copying thinking sphinx example...'
+    copy_example_file('config/thinking_sphinx.yml')
 
     puts 'Setting up the cloud uploader'
     copy_example_file('../../dist/aws_credentials')

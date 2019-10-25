@@ -19,6 +19,14 @@ class Attrib < ApplicationRecord
   accepts_nested_attributes_for :issues, allow_destroy: true
 
   #### Callbacks macros: before_save, after_save, etc.
+  after_save ThinkingSphinx::RealTime.callback_for(
+    :package, [:package]
+  ), if: -> { package_id_previously_changed? }
+
+  after_save ThinkingSphinx::RealTime.callback_for(
+    :project, [:project]
+  ), if: -> { project_id_previously_changed? }
+
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros

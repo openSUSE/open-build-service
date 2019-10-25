@@ -1,18 +1,14 @@
-ThinkingSphinx::Index.define :project, with: :active_record do
+ThinkingSphinx::Index.define :project, with: :real_time do
   indexes name
   indexes title
   indexes description
 
-  has :id, as: :project_id
-  has attribs.attrib_type_id, as: :attrib_type_ids
-  has packages.package_issues.issue_id, as: :issue_ids
-  has '(SELECT count(*) FROM linked_projects WHERE linked_db_project_id = projects.id)', as: :linked_count, type: :integer
-  has '(SELECT max(activity_index) FROM packages WHERE '\
-        'project_id = projects.id '\
-        'AND NOT EXISTS (SELECT * FROM packages p WHERE p.project_id = projects.id AND p.updated_at > packages.updated_at))',
-      as: :activity_index, type: :float
-  has 'EXISTS (SELECT * FROM linked_projects WHERE db_project_id = projects.id)', as: :links_to_other, type: :boolean
-  has 'EXISTS (SELECT * FROM packages INNER JOIN packages p ON p.id = packages.develpackage_id WHERE p.project_id = projects.id)',
-      as: :is_devel, type: :boolean
-  has '(SELECT max(updated_at) FROM packages WHERE project_id = projects.id)', as: :updated_at, type: :timestamp
+  has :id, as: :project_id, type: :integer
+  has attribs_attrib_type_ids, as: :attrib_type_ids, type: :integer, multi: true
+  has packages_package_issues_ids, as: :issue_ids, type: :integer, multi: true
+  has linked_count, as: :linked_count, type: :integer
+  has activity_index, as: :activity_index, type: :float
+  has linked_projects?, as: :links_to_other, type: :boolean
+  has devel_packages?, as: :is_devel, type: :boolean
+  has last_package_updated_at, as: :updated_at, type: :timestamp
 end

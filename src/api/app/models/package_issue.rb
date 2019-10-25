@@ -7,6 +7,14 @@ class PackageIssue < ApplicationRecord
     joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id').where('package_kinds.kind = "patchinfo"')
   }
 
+  after_save ThinkingSphinx::RealTime.callback_for(
+    :package, [:package]
+  )
+
+  after_save ThinkingSphinx::RealTime.callback_for(
+    :project, [:package, :project]
+  )
+
   def self.sync_relations(package, issues)
     retries = 10
     begin
