@@ -338,7 +338,18 @@ sub rsasign {
 }
 
 sub signappx {
-  my ($signfile, $jobdir, $cert, @signargs) = @_;
+  my ($signfile, $jobdir, $projid, $signkey, $cert, @signargs) = @_;
+
+  if ((!$signkey || length($signkey) < 2) && $BSConfig::sign_type) {
+    # special signkey, ask for cert again with signtype appx
+    my $param = {
+      'uri' => "$BSConfig::srcserver/getsslcert",
+      'timeout' => 60,
+    };
+    $cert = BSRPC::rpc($param, undef, "project=$projid", "signtype=appx");
+    die("returned cert is empty") unless $cert && length($cert) >= 16;
+    splice(@signargs, $BSConfig::sign_project ? 2 : 0, 0, '--signtype', 'appx') if $BSConfig::sign_type;
+  }
   my $ocfile = "$jobdir/othercerts.der";
   my @othercerts;
   push @othercerts, '--othercerts', $ocfile if -f $ocfile && -s _ < 100000;
@@ -378,6 +389,56 @@ sub updateredisjobstatus {
   my ($arch, $job, $info, $details) = @_;
   return unless $BSConfig::redisserver;
   BSRedisnotify::updatejobstatus("$info->{'project'}/$info->{'repository'}/$info->{'arch'}", $job, $details) if $info;
+}
+
+sub getsignkey {
+  my ($projid, $needpubkey, $needcert) = @_;
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getsignkey",
+    'timeout' => 60,
+  };
+  my @args;
+  push @args, "project=$projid";
+  push @args, "withpubkey=1" if $needpubkey;
+  push @args, "autoextend=1" if $needpubkey;
+  push @args, "withalgo=1";
+  my $signkey = BSRPC::rpc($param, undef, @args);
+  my $algo;
+  $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+  my $pubkey;
+  if ($signkey) {
+    ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
+    undef $pubkey unless $pubkey && length($pubkey) > 2;       # not a valid pubkey
+    if ($needpubkey && !$pubkey) {
+      if ($BSConfig::sign_project && $BSConfig::sign) {
+	my @signargs;
+	push @signargs, '--project', $projid;
+	local *S;
+	open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+	$pubkey = ''; 
+	1 while sysread(S, $pubkey, 4096, length($pubkey));
+	if (!close(S)) {
+	  print "sign -p failed: $?\n";
+	  $pubkey = undef;
+	}
+      }
+    }
+    die("returned pubkey is empty\n") if $needpubkey && length($pubkey || '') <= 2 && length($signkey) > 2;
+  }
+  my $cert;
+  if ($needcert) {
+    # this is kind of racy. should do it with one call.
+    my $param = {
+      'uri' => "$BSConfig::srcserver/getsslcert",
+      'timeout' => 60,
+    };
+    my @args;
+    push @args, "project=$projid";
+    push @args, "autoextend=1";
+    $cert = BSRPC::rpc($param, undef, @args);
+    die("returned cert is empty") unless $cert && length($cert) >= 16;
+  }
+  return ($algo, $signkey, $pubkey, $cert);
 }
 
 sub signjob {
@@ -425,55 +486,16 @@ sub signjob {
   if (@signfiles) {
     my $needcert = grep {/\.appx$/} @signfiles;
     $needpubkey ||= grep {/\.iso$/} @signfiles;
+    my ($algo, $signkey, $pubkey, $cert) = getsignkey($projid, $needpubkey, $needcert);
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    my $param = {
-      'uri' => "$BSConfig::srcserver/getsignkey",
-      'timeout' => 60,
-    };
-    my @args;
-    push @args, "project=$projid";
-    push @args, "withpubkey=1" if $needpubkey;
-    push @args, "autoextend=1" if $needpubkey;
-    push @args, "withalgo=1";
-    my $signkey = BSRPC::rpc($param, undef, @args);
-    my $algo;
-    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
-    my $pubkey;
     if ($signkey) {
-      ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
-      undef $pubkey unless $pubkey && length($pubkey) > 2;       # not a valid pubkey
-      if ($needpubkey && !$pubkey) {
-	if ($BSConfig::sign_project && $BSConfig::sign) {
-	  local *S;
-	  open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
-	  $pubkey = ''; 
-	  1 while sysread(S, $pubkey, 4096, length($pubkey));
-	  if (!close(S)) {
-	    print "sign -p failed: $?\n";
-	    $pubkey = undef;
-	  }
-	}
-      }
-      die("returned pubkey is empty\n") if $needpubkey && length($pubkey || '') <= 2 && length($signkey) > 2;
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
-      push @signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
     }
-    my $cert;
-    if ($needcert) {
-      # this is kind of racy. should do it with one call.
-      my $param = {
-        'uri' => "$BSConfig::srcserver/getsslcert",
-        'timeout' => 60,
-      };
-      my @args;
-      push @args, "project=$projid";
-      push @args, "autoextend=1";
-      $cert = BSRPC::rpc($param, undef, @args);
-      die("returned cert is empty") unless $cert && length($cert) >= 16;
-    }
+    push @signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
+
     unlink("$jobdir/.checksums");
 
     my $followupfile;
@@ -493,7 +515,7 @@ sub signjob {
     eval {
       for my $signfile (@signfiles) {
 	if ($signfile =~ /\.appx$/) {
-	  signappx("$jobdir/$signfile", $jobdir, $cert, @signargs);
+	  signappx("$jobdir/$signfile", $jobdir, $projid, $signkey, $cert, @signargs);
 	  next;
         }
 	if ($signfile =~ /\.iso$/) {
