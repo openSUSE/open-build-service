@@ -285,7 +285,7 @@ class Package < ApplicationRecord
     end.compact
   end
 
-  def commit_message(target_project, target_package)
+  def commit_message_from_changes_file(target_project, target_package)
     result = ''
     changes_files.each do |changes_file|
       source_changes = PackageFile.new(package_name: name, project_name: project.name, name: changes_file).content

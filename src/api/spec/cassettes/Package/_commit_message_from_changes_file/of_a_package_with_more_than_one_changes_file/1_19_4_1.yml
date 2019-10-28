@@ -30,17 +30,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:46 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
@@ -48,7 +48,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="home:foo:Apache">
-          <title>All Passion Spent</title>
+          <title>Pale Kings and Princes</title>
           <description/>
         </project>
     headers:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '114'
     body:
       encoding: UTF-8
       string: |
         <project name="home:foo:Apache">
-          <title>All Passion Spent</title>
+          <title>Pale Kings and Princes</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:46 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
@@ -87,8 +87,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Endless Night</title>
-          <description>Eum tenetur blanditiis sint.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Blanditiis molestiae architecto quia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,55 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Endless Night</title>
-          <description>Eum tenetur blanditiis sint.</description>
+          <title>The Skull Beneath the Skin</title>
+          <description>Blanditiis molestiae architecto quia.</description>
         </package>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Endless Night</title>
-          <description>Eum tenetur blanditiis sint.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_with_changes_file" project="home:foo:Apache">
-          <title>Endless Night</title>
-          <description>Eum tenetur blanditiis sint.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
@@ -193,20 +154,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="31" vrev="31">
-          <srcmd5>3e1112aa978292ae8affb2d70ab564e5</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>9c27361fde427cceae53644e1a00c374</srcmd5>
           <version>unknown</version>
-          <time>1542088247</time>
+          <time>1582666985</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
@@ -232,20 +193,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="32" vrev="32">
+        <revision rev="7" vrev="7">
           <srcmd5>3e1112aa978292ae8affb2d70ab564e5</srcmd5>
           <version>unknown</version>
-          <time>1542088247</time>
+          <time>1582666985</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
@@ -271,16 +232,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '342'
+      - '338'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_changes_file" rev="32" vrev="32" srcmd5="3e1112aa978292ae8affb2d70ab564e5">
-          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1542055489" />
-          <entry name="package_with_changes_file.changes" md5="87b40d4b8cb98f7693786492ecda1339" size="280" mtime="1542051882" />
+        <directory name="package_with_changes_file" rev="7" vrev="7" srcmd5="3e1112aa978292ae8affb2d70ab564e5">
+          <entry name="lorem.changes" md5="143070716e28ed45a29514befe95043d" size="19" mtime="1582666985"/>
+          <entry name="package_with_changes_file.changes" md5="87b40d4b8cb98f7693786492ecda1339" size="280" mtime="1582666982"/>
         </directory>
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/lorem.changes
@@ -310,8 +271,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: Lorem ipsum dolorem
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
@@ -351,6 +312,6 @@ http_interactions:
 
         - Temporary hack
 
-    http_version: 
-  recorded_at: Tue, 13 Nov 2018 05:50:47 GMT
-recorded_with: VCR 4.0.0
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:05 GMT
+recorded_with: VCR 5.1.0
