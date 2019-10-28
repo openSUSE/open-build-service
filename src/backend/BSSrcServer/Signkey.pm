@@ -73,12 +73,13 @@ sub extendkey {
 }
 
 sub pubkey2sslcert {
-  my ($projid, $pubkeyfile, $signkeyfile) = @_;
+  my ($projid, $pubkeyfile, $signkeyfile, $signtype) = @_;
   die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
   die("project does not have a key\n") unless -s $pubkeyfile;
   die("project does not have a signkey\n") unless -s $signkeyfile;
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
   push @signargs, '-P', $signkeyfile;
   my $cert = '';
   eval {
@@ -92,11 +93,12 @@ sub pubkey2sslcert {
 }
 
 sub getdefaultcert {
-  my ($projid) = @_;
+  my ($projid, $signtype) = @_;
   return undef unless $BSConfig::sign;
   my $cert = '';
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
+  push @signargs, '--signtype', $signtype if $BSConfig::sign_type && $signtype;
   local *F;
   open(F, '-|', $BSConfig::sign, @signargs, '-C') || die("$BSConfig::sign: $!\n");
   1 while sysread(F, $cert, 4096, length($cert));

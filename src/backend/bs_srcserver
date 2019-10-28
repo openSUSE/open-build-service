@@ -5238,14 +5238,14 @@ sub getsignkey {
 }
 
 sub projid2sslcert {
-  my ($skprojid, $sk, $projid, $nocreate) = @_;
+  my ($skprojid, $sk, $projid, $nocreate, $signtype) = @_;
   my $rev = BSRevision::getrev_meta($skprojid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
     return undef if $nocreate;
     if (!$sk || length($sk) <= 2) {
       # length(signkey) <= 2 means special handling: do not commit it
-      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
+      return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
     }
     my $cert = BSSrcServer::Signkey::pubkey2sslcert($skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey");
     mkdir_p($uploaddir);
@@ -5259,14 +5259,15 @@ sub projid2sslcert {
 sub getsslcert {
   my ($cgi, $projid) = @_;
   my ($skprojid, $sk) = findsignkey($projid);
+  my $signtype = $cgi->{'signtype'};
   if ($sk) {
     my $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
-    my $cert = projid2sslcert($skprojid, $sk, $projid);
+    my $cert = projid2sslcert($skprojid, $sk, $projid, 0, $signtype);
     return ($cert, 'Content-Type: text/plain');
   }
   if ($BSConfig::sign_project && $BSConfig::sign) {
-    my $cert = BSSrcServer::Signkey::getdefaultcert($projid);
+    my $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
     return ($cert, 'Content-Type: text/plain') if $cert;
   }
   return ('', 'Content-Type: text/plain');
@@ -5276,6 +5277,7 @@ sub getkeyinfo {
   my ($cgi, $projid) = @_;
 
   my ($skprojid, $sk) = findsignkey($projid);
+  my $signtype = $cgi->{'signtype'};
   my ($pk, $cert);
   if ($sk) {
     $pk = readstr("$projectsdir/$skprojid.pkg/_pubkey", 1);
@@ -5283,13 +5285,13 @@ sub getkeyinfo {
     $pk = autoextend_check($skprojid, $pk) if $cgi->{'autoextend'};
   }
   if ($cgi->{'withsslcert'} && $skprojid && $pk) {
-    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'});
+    $cert = projid2sslcert($skprojid, $sk, $projid, $cgi->{'donotcreatecert'}, $signtype);
   }
   if ($cgi->{'withsslcert'} && !$skprojid && $BSConfig::sign_project && $BSConfig::sign) {
     if ($cgi->{'donotcreatecert'}) {
-      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid) };
+      eval { $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype) };
     } else {
-      $cert = BSSrcServer::Signkey::getdefaultcert($projid);
+      $cert = BSSrcServer::Signkey::getdefaultcert($projid, $signtype);
     }
   }
   if (!$pk && $BSConfig::sign_project && $BSConfig::sign) {
@@ -6582,7 +6584,7 @@ my $dispatches = [
   'DELETE:/source/$project/_config user:? comment:?' => \&delprojectconfig,
 
   '/source/$project/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
-  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool?' => \&getkeyinfo,
+  '/source/$project/_keyinfo withsslcert:bool? autoextend:bool? donotcreatecert:bool? signtype:?' => \&getkeyinfo,
 
   'POST:/source/$project/$package cmd=diff rev? orev:rev? oproject:project? opackage:package? expand:bool? linkrev? olinkrev:? unified:bool? missingok:bool? meta:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool? nocache:bool? nodiff:bool?' => \&sourcediff,
   'POST:/source/$project/$package cmd=linkdiff rev? linkrev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&linkdiff,
@@ -6637,7 +6639,7 @@ my $dispatches = [
   # worker calls
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
   '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig,
-  '/getsslcert $project autoextend:bool? workerid?' => \&getsslcert,
+  '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaryversions,
 
