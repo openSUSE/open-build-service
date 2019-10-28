@@ -500,32 +500,7 @@ class BranchPackage
 
   def lookup_incident_pkg(p)
     return unless p[:package].is_a?(Package)
-    @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-    @maintenance_projects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
-    incident_pkg = nil
-    p[:link_target_project].maintenance_projects.each do |mp|
-      # no defined devel area or no package inside, but we branch from a release are: check in open incidents
-
-      # only approved maintenance projects
-      next unless @maintenance_projects.include?(mp.maintenance_project)
-
-      answer = Backend::Api::Search.incident_packages(p[:link_target_project].name, p[:package].name, mp.maintenance_project.name)
-      data = REXML::Document.new(answer)
-      data.elements.each('collection/package') do |e|
-        ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
-        if ipkg.nil?
-          logger.error 'read permission or data inconsistency, backend delivered package ' \
-                       "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
-        elsif ipkg.project.is_maintenance_incident? && ipkg.project.is_unreleased? # is incident ?
-          # is a newer incident ?
-          if incident_pkg.nil? || ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
-            incident_pkg = ipkg
-          end
-        end
-      end
-    end
-    # newest incident pkg or nil
-    incident_pkg
+    BranchPackage::LookupIncidentPackage.new(p).last_incident
   end
 
   def report_dryrun
