@@ -535,6 +535,9 @@ sub verify_multibuild {
   }
 }
 
+sub verify_module {
+}
+
 our $verifiers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,
@@ -558,6 +561,7 @@ our $verifiers = {
   'workerid' => \&verify_workerid,
   'regrepo' => \&verify_regrepo,
   'regtag' => \&verify_regtag,
+  'module' => \&verify_module,
 };
 
 1;
