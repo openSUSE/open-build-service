@@ -11,5 +11,9 @@ SimpleCov.start 'rails' do
   add_filter '/lib/templates/'
   add_filter '/lib/memory_debugger.rb'
   add_filter '/lib/memory_dumper.rb'
+
+  # filter spec directory not in sync with test/test_helper
+  add_filter 'spec'
+  add_filter 'test'
   merge_timeout 3600
 end
