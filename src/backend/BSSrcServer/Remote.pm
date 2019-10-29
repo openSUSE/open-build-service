@@ -593,7 +593,7 @@ sub remote_getrev_getfiles {
 }
 
 sub getremotebinarylist {
-  my ($proj, $projid, $repoid, $arch, $binaries) = @_;
+  my ($proj, $projid, $repoid, $arch, $binaries, $modules) = @_;
 
   my $jev = $BSServerEvents::gev;
   my $binarylist;
@@ -615,7 +615,10 @@ sub getremotebinarylist {
       last if @missing && $binchunkl > 1900;
       push @missing, $_;
     }
-    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @missing);
+    my @args = ('view=names');
+    push @args, map {"module=$_"} @{$modules || []};
+    push @args, map {"binary=$_"} @missing;
+    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, @args);
     return undef if $BSStdServer::isajax && !$binarylistcpio;
     for my $b (@{$binarylistcpio->{'binary'} || []}) {
       my $bin = $b->{'filename'};
@@ -636,7 +639,7 @@ sub getremotebinarylist {
 }
 
 sub getremotebinaryversions {
-  my ($proj, $projid, $repoid, $arch, $binaries) = @_;
+  my ($proj, $projid, $repoid, $arch, $binaries, $modules) = @_;
 
   my $jev = $BSServerEvents::gev;
   my $binaryversions;
@@ -658,7 +661,10 @@ sub getremotebinaryversions {
       'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/_repository",
       'proxy' => $proj->{'remoteproxy'},
     };
-    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @missing);
+    my @args = ('view=binaryversions', 'nometa=1');
+    push @args, map {"module=$_"} @{$modules || []};
+    push @args, map {"binary=$_"} @missing;
+    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return undef if $BSStdServer::isajax && !$bvl;
     for (@{$bvl->{'binary'} || []}) {
       my $bin = $_->{'name'};
@@ -678,31 +684,7 @@ sub getremotebinaryversions {
   return $binaryversions;
 }
 
-
-sub getremotebinaries_cache {
-  my ($projid, $repoid, $arch, $binaries, $binarylist) = @_;
-
-  my @fetch;
-  my @reply;
-  local *LOCK;
-  mkdir_p($remotecache);
-  BSUtil::lockopen(\*LOCK, '>>', "$remotecache/lock");
-  for my $bin (@$binaries) {
-    my $b = $binarylist->{$bin};
-    if (!$b || !$b->{'size'} || !$b->{'mtime'}) {
-      push @reply, {'name' => $bin, 'error' => 'not available'};
-      next;
-    }
-    my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
-    substr($cachemd5, 2, 0, '/');
-    my @s = stat("$remotecache/$cachemd5");
-    if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
-      push @fetch, $bin;
-    } else {
-      utime time(), $s[9], "$remotecache/$cachemd5";
-      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
-    }
-  }
+sub clean_random_cache_slot {
   my $slot = sprintf("%02x", (int(rand(256))));
   print "cleaning slot $slot\n";
   if (-d "$remotecache/$slot") {
@@ -716,15 +698,53 @@ sub getremotebinaries_cache {
     }
     print "removed $num unused files\n" if $num;
   }
+}
+
+sub getremotebinaries_cache {
+  my ($cacheprefix, $binaries, $binarylist) = @_;
+
+  my @fetch;
+  my @reply;
+  local *LOCK;
+  mkdir_p($remotecache);
+  BSUtil::lockopen(\*LOCK, '>>', "$remotecache/lock");
+  for my $bin (@$binaries) {
+    my $b = $binarylist->{$bin};
+    if (!$b || !$b->{'size'} || !$b->{'mtime'}) {
+      push @reply, {'name' => $bin, 'error' => 'not available'};
+      next;
+    }
+    my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
+    substr($cachemd5, 2, 0, '/');
+    my @s = stat("$remotecache/$cachemd5");
+    if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
+      push @fetch, $bin;
+    } else {
+      utime time(), $s[9], "$remotecache/$cachemd5";
+      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+    }
+  }
+  clean_random_cache_slot();
   close(LOCK);
   return (\@reply, @fetch);
 }
 
+sub getremotebinaries_putincache {
+  my ($cacheprefix, $bin, $tmpname) = @_;
+  my $cachemd5 = Digest::MD5::md5_hex("$cacheprefix/$bin");
+  substr($cachemd5, 2, 0, '/');
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  rename($tmpname, "$remotecache/$cachemd5");
+  return "$remotecache/$cachemd5";
+}
+
 sub getremotebinaries {
-  my ($proj, $projid, $repoid, $arch, $binaries, $binarylist) = @_;
+  my ($proj, $projid, $repoid, $arch, $binaries, $binarylist, $modules) = @_;
 
   # check the cache
-  my ($reply, @fetch) = getremotebinaries_cache($projid, $repoid, $arch, $binaries, $binarylist);
+  my $cacheprefix = "$projid/$repoid/$arch";
+  $cacheprefix .= '/'.join('/', sort(@$modules)) if @{$modules || []};
+  my ($reply, @fetch) = getremotebinaries_cache($cacheprefix, $binaries, $binarylist);
   return $reply unless @fetch;
 
   my $jev = $BSServerEvents::gev;
@@ -747,7 +767,10 @@ sub getremotebinaries {
   };
   # work around api bug: only get 50 packages at a time
   @fetch = splice(@fetch, 0, 50) if @fetch > 50;
-  my $cpio = BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
+  my @args = ('view=cpio');
+  push @args, map {"module=$_"} @{$modules || []};
+  push @args, map {"binary=$_"} @fetch;
+  my $cpio = BSWatcher::rpc($param, undef, @args);
   return undef if $BSStdServer::isajax && !$cpio;
   for my $f (@{$cpio || []}) {
     my $bin = $f->{'name'};
@@ -763,11 +786,8 @@ sub getremotebinaries {
     }
     $binarylist->{$bin}->{'size'} = $f->{'size'};
     $binarylist->{$bin}->{'mtime'} = $f->{'mtime'};
-    my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
-    substr($cachemd5, 2, 0, '/');
-    mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-    rename("$remotecache/$f->{'name'}", "$remotecache/$cachemd5");
-    push @$reply, {'name' => $fetch{$bin}->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+    my $filename = getremotebinaries_putincache($cacheprefix, $bin, "$remotecache/$f->{'name'}");
+    push @$reply, {'name' => $fetch{$bin}->{'filename'}, 'filename' => $filename};
     delete $fetch{$bin};
   }
   BSWatcher::serialize_end($serial);
