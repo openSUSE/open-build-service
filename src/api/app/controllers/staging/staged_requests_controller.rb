@@ -15,22 +15,21 @@ class Staging::StagedRequestsController < Staging::StagingController
   def create
     authorize @staging_project, :update?
 
-    result = ::Staging::StagedRequests.new(
+    if params[:remove_exclusion]
+      ::Staging::RequestExcluder
+        .new(requests_xml_hash: { number: @request_numbers },
+             staging_workflow: @staging_workflow)
+        .destroy!
+    end
+
+    ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
       staging_workflow: @staging_workflow,
       staging_project: @staging_project,
       user_login: User.session!.login
-    ).create
+    ).create!
 
-    if result.valid?
-      render_ok
-    else
-      render_error(
-        status: 400,
-        errorcode: 'invalid_request',
-        message: "Assigning requests to #{@staging_project} failed: #{result.errors.to_sentence}."
-      )
-    end
+    render_ok
   end
 
   def destroy

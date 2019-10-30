@@ -3,6 +3,7 @@ class Staging::StagedRequests
   attr_accessor :request_numbers, :staging_project, :staging_workflow, :user_login
 
   def create
+    add_requests_excluded_errors
     add_request_not_found_errors
     requests.each do |request|
       bs_request_action = request.bs_request_actions.first
@@ -16,6 +17,13 @@ class Staging::StagedRequests
     result.each { |request| add_review_for_staged_request(request) }
 
     self
+  end
+
+  def create!
+    create
+
+    return if valid?
+    raise Staging::ExcludedRequestNotFound, errors.to_sentence
   end
 
   def destroy
@@ -65,8 +73,14 @@ class Staging::StagedRequests
     @not_removed_packages ||= {}
   end
 
+  def add_requests_excluded_errors
+    excluded_request_numbers.map do |request_number|
+      errors << "Request #{request_number} currently excluded from project #{request_target_project}. Use --remove-exclusion if you want to force this action."
+    end
+  end
+
   def add_request_not_found_errors
-    not_found_requests.each do |request_number|
+    not_found_request_numbers.each do |request_number|
       errors << if BsRequest.exists?(number: request_number)
                   "Request #{request_number} not found in Staging for project #{request_target_project}"
                 else
@@ -79,8 +93,12 @@ class Staging::StagedRequests
     staging_workflow.project
   end
 
-  def not_found_requests
+  def not_found_request_numbers
     request_numbers - requests.pluck(:number).map(&:to_s)
+  end
+
+  def excluded_request_numbers
+    staging_workflow.request_exclusions.where(number: @request_numbers).pluck(:number).map(&:to_s)
   end
 
   def requests

@@ -9,11 +9,30 @@ class Staging::RequestExcluder
   end
 
   def destroy
-    request_exclusions = staging_workflow.request_exclusions.where(number: request_numbers).destroy_all
-    not_found_requests = request_numbers - request_exclusions.try(:pluck, :number)
+    exclusions_removed = exclusions.destroy_all
+    non_excluded_requests = request_numbers - exclusions_removed.try(:pluck, :number)
 
-    errors << "Requests with number #{not_found_requests.to_sentence} couldn't be unexcluded." if not_found_requests.present?
+    errors << "Requests with number #{non_excluded_requests.to_sentence} are not excluded." if non_excluded_requests.present?
     self
+  end
+
+  # Checks if all requests to be excluded have exclusions. If not, raises an
+  # error saying which requests are not excluded.
+  def check!
+    non_excluded_requests = request_numbers - exclusions.try(:pluck, :number)
+
+    errors << "Requests with number #{non_excluded_requests.to_sentence} are not excluded" if non_excluded_requests.any?
+    return self if valid?
+
+    raise Staging::ExcludedRequestNotFound, errors.to_sentence
+  end
+
+  def destroy!
+    check!
+    destroy
+    return if valid?
+
+    raise Staging::ExcludedRequestNotFound, errors.to_sentence
   end
 
   def errors
@@ -25,6 +44,11 @@ class Staging::RequestExcluder
   end
 
   private
+
+  def exclusions
+    @exclusions ||= staging_workflow.request_exclusions
+                                    .where(number: request_numbers)
+  end
 
   def exclude_request(request)
     bs_request = staging_workflow.target_of_bs_requests.find_by(number: request[:number])
