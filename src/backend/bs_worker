@@ -1101,7 +1101,7 @@ sub getsslcert {
     $cert = BSRPC::rpc({
       'uri' => "$server/getsslcert",
       'timeout' => $gettimeout,
-    }, undef, "project=$buildinfo->{'project'}", "autoextend=1");
+    }, undef, @args);
   };
   die("could not retrieve ssl certificate: $@\n") if $@;
   writestr("$dir/_projectcert.crt", undef, $cert) if $cert;
