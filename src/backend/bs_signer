@@ -340,7 +340,7 @@ sub rsasign {
 sub signappx {
   my ($signfile, $jobdir, $projid, $signkey, $cert, @signargs) = @_;
 
-  if ((!$signkey || length($signkey) < 2) && $BSConfig::sign_type) {
+  if ((!$signkey || length($signkey) <= 2) && $BSConfig::sign_type) {
     # special signkey, ask for cert again with signtype appx
     my $param = {
       'uri' => "$BSConfig::srcserver/getsslcert",
