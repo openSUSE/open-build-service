@@ -274,6 +274,7 @@ OBSApi::Application.routes.draw do
     resources :backlog, only: [:index]
     resources :staging_projects, only: [:index, :create], param: :name, constraints: cons do
       get '' => :show
+      get 'detail' => :detail
       post 'copy/:staging_project_copy_name' => :copy
       post :accept
 

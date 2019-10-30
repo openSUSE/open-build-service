@@ -1,5 +1,5 @@
 class Staging::StagingProjectsController < Staging::StagingController
-  before_action :require_login, except: [:index, :show]
+  before_action :require_login, except: [:index, :show, :detail]
   before_action :set_project
   before_action :set_staging_workflow, only: :create
 
@@ -19,6 +19,10 @@ class Staging::StagingProjectsController < Staging::StagingController
   end
 
   def show
+    @staging_project = @project.staging.staging_projects.find_by!(name: params[:staging_project_name])
+  end
+
+  def detail
     @staging_project = @project.staging.staging_projects.find_by!(name: params[:staging_project_name])
   end
 

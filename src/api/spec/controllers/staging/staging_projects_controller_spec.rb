@@ -108,8 +108,22 @@ RSpec.describe Staging::StagingProjectsController do
           assert_select 'broken_packages', 1 do
             assert_select 'package', 1
           end
-          assert_select 'history', 1
+          assert_select 'history', 0
         end
+      end
+    end
+  end
+
+  describe 'GET #detail', vcr: true do
+    before do
+      get :detail, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
+    end
+
+    it { expect(response).to have_http_status(:success) }
+
+    it 'returns staging project history xml' do
+      assert_select 'staging_project' do
+        assert_select 'history', 1
       end
     end
   end
