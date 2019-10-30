@@ -500,6 +500,7 @@ class BranchPackage
 
   def lookup_incident_pkg(p)
     return unless p[:package].is_a?(Package)
+    return if p[:link_target_project].maintenance_projects.empty?
     BranchPackage::LookupIncidentPackage.new(p).package
   end
 
