@@ -161,6 +161,7 @@ class BranchPackage
     p[:target_package] = params[:target_package] if params[:target_package]
     # extend parameter given
     p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
+    p
   end
 
   def create_branch_packages(tprj)
@@ -306,7 +307,7 @@ class BranchPackage
   def determine_details_about_package_to_branch(p)
     return unless p[:link_target_project].is_a?(Project) # only for local source projects
 
-    check_for_update_project(p) unless params[:ignoredevel]
+    p = check_for_update_project(p) unless params[:ignoredevel]
 
     if params[:newinstance]
       p[:link_target_project] = Project.get_by_name(params[:project])
