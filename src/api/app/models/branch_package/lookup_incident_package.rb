@@ -12,10 +12,9 @@ class BranchPackage::LookupIncidentPackage
       possible_packages(mp.maintenance_project)
     end.flatten
     pkg = nil
-    # choose the last one based on the project id in the name openSUSE:Maintenance:1234
-    # can we use the MaintenanceIncident#incident_id ?
+    # choose the last one based on the incident number (incremental sequence)
     possible_packages.each do |possible_package|
-      pkg = possible_package if pkg.nil? || possible_package.project.name.gsub(/.*:/, '').to_i > pkg.project.name.gsub(/.*:/, '').to_i
+      pkg = possible_package if pkg.nil? || possible_package.project.incident_id > pkg.project.incident_id
     end
     pkg
   end
