@@ -1948,6 +1948,10 @@ GET /staging/<staging_workflow_project>/staging_projects/<staging_project>
   Get the overall state of a staging project
 XmlResult: staging_project
 
+GET /staging/<staging_workflow_project>/staging_projects/<staging_project>/detail
+  Get the overall state of a staging project including history
+XmlResult: staging_project_detail
+
 POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/copy/<staging_project_copy_name>
   Copy a staging project
 XmlResult: status_ok
