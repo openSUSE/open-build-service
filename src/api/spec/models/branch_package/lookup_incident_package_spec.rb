@@ -78,5 +78,13 @@ RSpec.describe BranchPackage::LookupIncidentPackage, vcr: false do
     subject { lookup_incident_package.package }
 
     it { expect(subject).to eq(package_1) }
+
+    context 'possible packages are nil' do
+      before do
+        allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return([[package_1], [nil]])
+      end
+
+      it { expect(subject).to eq(package_1) }
+    end
   end
 end
