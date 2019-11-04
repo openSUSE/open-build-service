@@ -1940,12 +1940,24 @@ DELETE /staging/<staging_workflow_project>/workflow
   Delete a staging workflow associated to a given project.
 XmlResult: status_ok
 
-GET /staging/<staging_workflow_project>/staging_projects
-  Get the overall state of all staging projects belonging to a staging workflow project
+GET /staging/<staging_workflow_project>/staging_projects?requests=1&status=1&history=1
+  Get the overall state of all staging projects belonging to a staging workflow project.
+  Extra information can be requested by adding any combination of these parameters in the URL: requests, status and history.
+
+  - If requests is present, the output includes the staged requests.
+  - If status is present, the output includes the overall state and the status xml (broken packages, missing reviews, checks, etc.)
+  - If history is present, the output includes the history of the staging project.
+
 XmlResult: staging_projects
 
-GET /staging/<staging_workflow_project>/staging_projects/<staging_project>
-  Get the overall state of a staging project
+GET /staging/<staging_workflow_project>/staging_projects/<staging_project>?requests=1&status=1&history=1
+  Get the overall state of a staging project.
+  Extra information can be requested by adding any combination of these parameters in the URL: requests, status and history.
+
+  - If requests is present, the output includes the staged requests.
+  - If status is present, the output includes the overall state and the status xml (broken packages, missing reviews, checks, etc.)
+  - If history is present, the output includes the history of the staging project.
+
 XmlResult: staging_project
 
 POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/copy/<staging_project_copy_name>
