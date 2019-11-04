@@ -33,7 +33,7 @@ Style/MultilineWhenThen:
     - 'db/migrate/20140908125426_convert_request_history.rb'
 
 # We disabled this cop because HAML doesn't work well with ActiveSupport::SafeBuffer and the to_s method of it is always returning the same object class
-Style/UnneededInterpolation:
+Style/RedundantInterpolation:
   Enabled: false
 
 # For routes, we use the EnforcedStyle 'template' while for other files, we should use the EnforcedStyle 'annotated'.
