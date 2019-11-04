@@ -48,6 +48,11 @@ class Webui::CommentsController < Webui::WebuiController
 
   def find_commentable
     commentable = [Project, Package, BsRequest].find { |klass| klass.name == params[:commentable_type] }
-    @commented = commentable.find(params[:commentable_id])
+
+    if commentable.nil?
+      redirect_to(root_path, error: 'Failed to create comment')
+    else
+      @commented = commentable.find(params[:commentable_id])
+    end
   end
 end

@@ -12,6 +12,18 @@ RSpec.describe Webui::CommentsController, type: :controller do
     let(:package) { create(:package, project: project) }
     let(:bs_request) { create(:set_bugowner_request) }
 
+    context 'with invalid commentable_type' do
+      let(:comment_params) do
+        { comment: { body: 'This is AWESOME!' }, commentable_type: 'FOOBAR', commentable_id: 31_337 }
+      end
+
+      subject { post :create, params: comment_params }
+
+      it { expect(subject.request.flash[:success]).to be_nil }
+      it { expect(subject.request.flash[:error]).not_to(be_nil) }
+      it { expect(subject).to redirect_to(root_path) }
+    end
+
     context 'with a valid comment' do
       RSpec.shared_examples 'saving a comment' do
         before do
@@ -48,15 +60,6 @@ RSpec.describe Webui::CommentsController, type: :controller do
 
       it { expect(flash[:error]).to eq("Failed to create comment: Body can't be blank.") }
       it { expect(package.comments.count).to eq(0) }
-    end
-
-    context 'saving a comment of a non-commentable class' do
-      let(:distribution) { create(:distribution) }
-
-      it 'should not created' do
-        params = { comment: { body: 'Wonderful Package' }, commentable_type: distribution.class, commentable_id: distribution.id }
-        expect { post :create, params: params }.to raise_error(NoMethodError)
-      end
     end
 
     context "does not allow to overwrite the comment's user" do
