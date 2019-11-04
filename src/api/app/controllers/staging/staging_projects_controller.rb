@@ -2,6 +2,7 @@ class Staging::StagingProjectsController < Staging::StagingController
   before_action :require_login, except: [:index, :show]
   before_action :set_project
   before_action :set_staging_workflow, only: :create
+  before_action :set_options, only: [:index, :show]
 
   validate_action create: { method: :post, request: :staging_project }
 
@@ -58,5 +59,14 @@ class Staging::StagingProjectsController < Staging::StagingController
     end
     StagingProjectAcceptJob.perform_later(project_id: staging_project.id, user_login: User.session!.login)
     render_ok
+  end
+
+  private
+
+  def set_options
+    @options = {}
+    [:requests, :history, :status].each do |option|
+      @options[option] = params[option].present?
+    end
   end
 end
