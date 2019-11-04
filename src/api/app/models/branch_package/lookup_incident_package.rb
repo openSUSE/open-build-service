@@ -13,7 +13,7 @@ class BranchPackage::LookupIncidentPackage
     end.flatten
     pkg = nil
     # choose the last one based on the incident number (incremental sequence)
-    possible_packages.each do |possible_package|
+    possible_packages.reject(&:nil?).each do |possible_package|
       pkg = possible_package if pkg.nil? || possible_package.project.incident_id > pkg.project.incident_id
     end
     pkg
