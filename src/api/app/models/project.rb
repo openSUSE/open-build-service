@@ -766,11 +766,7 @@ class Project < ApplicationRecord
   end
 
   def expand_all_repositories
-    all_repositories = repositories.to_a
-    repositories.each do |repository|
-      all_repositories.concat(repository.expand_all_repositories)
-    end
-    all_repositories.uniq
+    repositories.collect(&:expand_all_repositories).flatten.uniq
   end
 
   def expand_linking_to
@@ -799,15 +795,7 @@ class Project < ApplicationRecord
   end
 
   def expand_maintained_projects
-    projects = []
-
-    maintained_projects.each do |mp|
-      mp.project.expand_all_projects(allow_remote_projects: false).each do |p|
-        projects << p
-      end
-    end
-
-    projects
+    maintained_projects.collect { |mp| mp.project.expand_all_projects(allow_remote_projects: false) }.flatten
   end
 
   # return array of [:name, :project_id] tuples
