@@ -799,15 +799,7 @@ class Project < ApplicationRecord
   end
 
   def expand_maintained_projects
-    projects = []
-
-    maintained_projects.each do |mp|
-      mp.project.expand_all_projects(allow_remote_projects: false).each do |p|
-        projects << p
-      end
-    end
-
-    projects
+    maintained_projects.collect { |mp| mp.project.expand_all_projects(allow_remote_projects: false) }.flatten
   end
 
   # return array of [:name, :project_id] tuples
