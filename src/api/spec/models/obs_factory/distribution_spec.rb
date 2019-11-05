@@ -13,7 +13,7 @@ RSpec.describe ObsFactory::Distribution do
 
     it { expect(distribution.strategy).to                    be_kind_of(ObsFactory::DistributionStrategyFactory) }
     it { expect(strategy_for('openSUSE:Factory:PowerPC')).to be_kind_of(ObsFactory::DistributionStrategyFactoryPPC) }
-    it { expect(strategy_for('openSUSE:Leap:15.1')).to be_kind_of(ObsFactory::DistributionStrategyOpenSUSELeap15) }
+    it { expect(strategy_for('openSUSE:Leap:15.2')).to be_kind_of(ObsFactory::DistributionStrategyOpenSUSELeap15) }
     it { expect(strategy_for('SUSE:SLE-12-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategyFactory) }
     it { expect(strategy_for('SUSE:SLE-15:GA')).to           be_kind_of(ObsFactory::DistributionStrategyFactory) }
     it { expect(strategy_for('SUSE:SLE-15-SP1:GA')).to       be_kind_of(ObsFactory::DistributionStrategyFactory) }
@@ -22,6 +22,7 @@ RSpec.describe ObsFactory::Distribution do
 
     it { expect { strategy_for('openSUSE:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
     it { expect { strategy_for('openSUSE:Leap:42.3') }.to raise_error(ObsFactory::UnknownDistribution) }
+    it { expect { strategy_for('openSUSE:Leap:15.1') }.to raise_error(ObsFactory::UnknownDistribution) }
 
     def manager_for(name)
       strategy_for(name).staging_manager
