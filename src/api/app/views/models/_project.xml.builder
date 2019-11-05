@@ -20,6 +20,11 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
+  adbs = my_model.allowbuilddeps.sort { |a, b| b.name <=> a.name }
+  adbs.each do |adb|
+    xml.allowbuilddep(name: adb.name)
+  end
+
   repos = my_model.repositories.preload(:download_repositories, :release_targets, path_elements: :link).not_remote.order(name: :desc)
   FlagHelper.render(my_model, xml)
 

@@ -10,7 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_12_14_111900) do
+ActiveRecord::Schema.define(version: 2022_01_17_135700) do
+
+  create_table "allowbuilddeps", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+    t.integer "db_project_id", null: false
+    t.string "name", null: false, collation: "utf8_general_ci"
+    t.index ["db_project_id", "name"], name: "index_allowbuilddeps_on_db_project_id_and_name"
+  end
 
   create_table "architectures", id: :integer, charset: "utf8mb4", collation: "utf8mb4_unicode_ci", options: "ENGINE=InnoDB ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"

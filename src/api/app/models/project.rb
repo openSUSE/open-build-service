@@ -48,6 +48,8 @@ class Project < ApplicationRecord
   has_many :issues, through: :packages
   has_many :attribs, dependent: :destroy
 
+  has_many :allowbuilddeps, dependent: :destroy, foreign_key: :db_project_id
+
   has_many :repositories, dependent: :destroy, foreign_key: :db_project_id
   has_many :release_targets, through: :repositories
   has_many :target_repositories, through: :release_targets
