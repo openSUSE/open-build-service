@@ -42,6 +42,21 @@ sub checkaccess {
   return $access;
 }
 
+sub checkbuilddepok {
+  my ($gctx, $projid, $aprojid) = @_;
+
+  my $adata = $gctx->{projpacks}->{$aprojid} || {};
+  my $allow = $adata->{allowbuilddep} || [];
+
+  foreach my $a (grep { ref($_) eq 'HASH' } @$allow) {
+    if ($a->{name} eq $projid) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 # check if every user from oprojid may access projid
 sub checkroles {
   my ($gctx, $type, $projid, $packid, $oprojid, $opackid) = @_;
@@ -101,6 +116,10 @@ sub checkprpaccess {
   # ok if aprp is not protected
   return 1 if checkaccess($gctx, 'access', $aprojid, undef, $arepoid);
   my ($projid, $repoid) = split('/', $prp, 2);
+
+  # ok if prp has access to aprp (via allowbuilddep in project meta):
+  return 1 if checkbuilddepok($gctx, $projid, $aprojid);
+
   # not ok if prp is unprotected
   return 0 if checkaccess($gctx, 'access', $projid, undef, $repoid);
   # both prp and aprp are proteced.
