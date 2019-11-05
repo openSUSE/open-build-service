@@ -30,11 +30,11 @@ module ObsFactory
     end
 
     def test_dvd_prefix
-      '000product:openSUSE-dvd5-dvd'
+      '000product:Leap-dvd5-dvd'
     end
 
     def totest_version_package
-      '000product:openSUSE-cd-mini-x86_64'
+      '000product:Leap-cd-mini-x86_64'
     end
 
     # Version of the published distribution

@@ -200,6 +200,7 @@ module ObsFactory
       s = case project.name
           when 'openSUSE:Factory' then DistributionStrategyFactory.new(staging_manager: 'factory-staging')
           when 'openSUSE:Factory:PowerPC' then DistributionStrategyFactoryPPC.new(staging_manager: 'factory-staging')
+          when /^openSUSE:Leap:15\.[01]/ then raise UnknownDistribution
           when /^openSUSE:Leap:15\.*/ then DistributionStrategyOpenSUSELeap15.new(staging_manager: 'factory-staging')
           when /^SUSE:.*CASP\d*$/ then DistributionStrategyFactory.new(staging_manager: 'caasp-staging-managers')
           when /^SUSE:.*Cloud\d*$/ then DistributionStrategyFactory.new(staging_manager: 'cloud-staging-managers')
