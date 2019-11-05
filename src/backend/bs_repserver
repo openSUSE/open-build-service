@@ -134,22 +134,20 @@ sub fetchdodbinary {
   die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
   my $suf = $1;
   my $pkgname = $pool->pkg2name($p);
+  if (defined(&BSSolv::pool::pkg2inmodule) && $pool->pkg2inmodule($p)) {
+    $pkgname .= '-' . $pool->pkg2evr($p) . '.' . $pool->pkg2arch($p);
+  }
+  $pkgname .= ".$suf";
   BSVerify::verify_filename($pkgname);
   BSVerify::verify_simple($pkgname);
-  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname.$suf";
-  if (defined(&BSSolv::pool::pkg2inmodule) && $pool->pkg2inmodule($p)) {
-    # use nevra for module packages
-    my $evr = $pool->pkg2evr($p);
-    my $arch = $pool->pkg2arch($p);
-    $localname = "$reporoot/$reponame/$arch/:full/$pkgname-$evr.$arch.$suf";
-  }
+  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname";
   return $localname if -e $localname;
   # we really need to download, handoff to ajax if not already done
   BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
-  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname.$suf";
+  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname";
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;

@@ -994,7 +994,7 @@ sub addrepo_scan {
   return undef unless $r;
   # write solv file (unless alien arch)
   if ($dirty && $arch eq $gctx->{'arch'}) {
-    @bins = BSSched::DoD::clean_obsolete_dodpackages($r, $dir, @bins) if $doddata;
+    @bins = BSSched::DoD::clean_obsolete_dodpackages($pool, $r, $dir, @bins) if $doddata;
     writesolv("$dir.solv.new", "$dir.solv", $r);
   }
   $repocache->setcache($prp, $arch) if $repocache;
