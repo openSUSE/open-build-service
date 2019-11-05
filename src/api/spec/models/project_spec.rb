@@ -735,4 +735,13 @@ RSpec.describe Project, vcr: true do
     it { expect(subject).not_to be_empty }
     it { expect(subject).to include(link_target_project) }
   end
+
+  describe '#expand_all_repositories' do
+    let!(:project) { create(:project_with_repository, name: 'super_project') }
+
+    subject { project.expand_all_repositories }
+
+    it { expect(subject).not_to be_empty }
+    it { expect(subject).to include(project.repositories.first) }
+  end
 end
