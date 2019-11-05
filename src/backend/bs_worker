@@ -1276,7 +1276,7 @@ sub trygetbinariesproxy_preinstallimage {
 }
 
 sub getbinaries_cache {
-  my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $bvl) = @_;
+  my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $modules, $bvl) = @_;
 
   importbuild() unless defined &Build::queryhdrmd5;
   if (! -d $dir) {
@@ -1303,6 +1303,7 @@ sub getbinaries_cache {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "nometa" if $nometa;
+    push @args, map {"module=$_"} @{$modules || []};
     push @args, "binaries=".join(',', @$bins);
     eval {
       $bvl = BSRPC::rpc({
@@ -1392,6 +1393,7 @@ sub getbinaries_cache {
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
+    push @args, map {"module=$_"} @{$modules || []};
     my $res;
     $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
     eval {
@@ -1499,12 +1501,13 @@ sub getbinaries_kiwiproduct {
   mkdir_p($dir);
 
   # fetch packages needed for product building
+  my $modules = $buildinfo->{'module'};
   for my $repo (@{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []}) {
     last if !@kdeps;
     my $repoarch = $buildinfo->{'arch'};
     $repoarch = $BSConfig::localarch if $repoarch eq 'local' && $BSConfig::localarch;
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps);
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $repoarch, 1, \@kdeps, $modules);
     @kdeps = grep {!$got->{$_}} @kdeps;
   }
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
@@ -2318,6 +2321,7 @@ sub getbinaries {
   my $packid = $buildinfo->{'package'};
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
+  my $modules = $buildinfo->{'module'};
 
   if ($kiwimode && $buildinfo->{'syspath'}) {
     # two path mode: fetch environment
@@ -2325,7 +2329,7 @@ sub getbinaries {
     for my $repo (@{$buildinfo->{'syspath'} || []}) {
       last if !@todo;
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, 1, \@todo);
+      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, 1, \@todo, $modules);
       @todo = grep {!$got->{$_}} @todo;
     }
     die("getbinaries: missing packages: @todo\n") if @todo;
@@ -2384,7 +2388,7 @@ sub getbinaries {
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo_repo, $bvls{"$repoprp/$buildinfo->{'arch'}"});
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo_repo, $modules, $bvls{"$repoprp/$buildinfo->{'arch'}"});
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
@@ -2962,7 +2966,7 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
-    for ('versrel', 'bcnt', 'release') {
+    for ('versrel', 'bcnt', 'release', 'module') {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }

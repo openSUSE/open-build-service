@@ -4065,7 +4065,7 @@ sub getbinarylist {
   my $view = $cgi->{'view'};
   my $nosource = $cgi->{'nosource'};
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::args($cgi, 'view', 'nosource', 'withmd5', 'binary');
+  my @args = BSRPC::args($cgi, 'view', 'nosource', 'withmd5', 'binary', 'module');
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     # do not check arch in interconnect mode
     my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
@@ -4084,6 +4084,7 @@ sub getbinarylist {
 	push @args, "repository=$repoid";
 	push @args, "arch=$arch";
 	push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
+	push @args, map {"module=$_"} @{$cgi->{'module'} || []};
 	BSHandoff::handoff('/getbinaries', undef, @args);
       }
       BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
@@ -4118,6 +4119,7 @@ sub getbinarylist {
       push @args, "arch=$arch";
       push @args, 'nometa=1' if $cgi->{'nometa'};
       push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
+      push @args, map {"module=$_"} @{$cgi->{'module'} || []};
       BSHandoff::handoff('/getbinaryversions', undef, @args);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
@@ -4167,6 +4169,7 @@ sub getbinary {
     push @args, "arch=$arch";
     push @args, "binaries=$filename";
     push @args, "raw=1";
+    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     BSHandoff::handoff('/getbinaries', undef, @args);
   }
   if ($view eq 'publishedpath') {
@@ -5357,13 +5360,14 @@ sub worker_getbinaries {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
+    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     BSHandoff::handoff('/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
-  my $binarylist = BSSrcServer::Remote::getremotebinarylist($proj, $projid, $repoid, $arch, \@binaries);
+  my $binarylist = BSSrcServer::Remote::getremotebinarylist($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'});
   return undef unless $binarylist;
-  my $reply = BSSrcServer::Remote::getremotebinaries($proj, $projid, $repoid, $arch, \@binaries, $binarylist);
+  my $reply = BSSrcServer::Remote::getremotebinaries($proj, $projid, $repoid, $arch, \@binaries, $binarylist, $cgi->{'module'});
   return undef unless $reply;
   if ($cgi->{'raw'}) {
     die("can only transport one binary in raw mode\n") unless @$reply == 1;
@@ -5387,11 +5391,12 @@ sub worker_getbinaryversions {
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, "nometa=1" if $cgi->{'nometa'};
+    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     BSHandoff::handoff('/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my $proj = findremote($projid);
-  my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries);
+  my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries, $cgi->{'module'});
   return undef unless $binaryversions;
   my $bvl = {};
   $bvl->{'binary'} = [ map {$binaryversions->{$_}} @binaries];
@@ -6697,7 +6702,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:? multibuild:bool?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool?' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
@@ -6705,7 +6710,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
-  '/build/$project/$repository/$arch/$package_repository/$filename view:?' => \&getbinary,
+  '/build/$project/$repository/$arch/$package_repository/$filename view:? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
 
@@ -6753,9 +6758,9 @@ my $dispatches_ajax = [
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool?' => \&getbinarylist,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool?' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
+  '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module*' => \&getbinarylist,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? module*' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
