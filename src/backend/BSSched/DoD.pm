@@ -100,10 +100,28 @@ sub put_doddata_in_cache {
 =cut
 
 sub clean_obsolete_dodpackages {
-  my ($cache, $dir, @bins) = @_;
+  my ($pool, $cache, $dir, @bins) = @_;
 
   return @bins unless defined &BSSolv::repo::pkgpaths;
   my %paths = $cache->pkgpaths();
+  if (defined(&BSSolv::repo::mayhavemodules) && $cache->mayhavemodules()) {
+    # find all modules 
+    my @modules;
+    my @nbins = @bins;
+    while (@nbins) {
+      my (undef, $id) = splice(@nbins, 0, 2);
+      push @modules, $pool->pkg2modules($id);
+    }
+    print "clean_obsolete_dodpackages: @modules\n";
+    if (@modules) {
+      my @oldpoolmodules = $pool->getmodules();
+      for my $module (sort(BSUtil::unify(@modules))) {
+	$pool->setmodules([ $module ]);
+        %paths = (%paths, $cache->pkgpaths());
+      }
+      $pool->setmodules(\@oldpoolmodules);
+    }
+  }
   my @nbins;
   my $nbinsdirty;
   while (@bins) {
