@@ -2012,7 +2012,9 @@ GET /staging/<staging_workflow_project>/staging_projects/<staging_project>/stage
 XmlResult: staged_requests
 
 POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/staged_requests
-  Add one or multiple bs_requests to the staged requests of a staging project.
+  Add one or multiple bs_requests to the staged requests of a staging project
+  remove_exclusion: removes the request from exclusion request before staging it.
+
 XmlBody: remove_staged_requests
 XmlResult: status_ok
 
@@ -2023,6 +2025,5 @@ XmlResult: status_ok
 
 == Internal only routes
 
-/public shall not be used in any tools, it is for OBS remote support only and may
-change or disappear at any time. The route is only working when anonymous mode is enabled.
+   /public shall not be used in any tools, it is for OBS remote support only and may change or disappear at any time. The route is only working when anonymous mode is enabled.
 
