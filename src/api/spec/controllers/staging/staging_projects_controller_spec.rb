@@ -86,29 +86,134 @@ RSpec.describe Staging::StagingProjectsController do
         untracked_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         bs_request.change_review_state(:accepted, by_group: staging_workflow.managers_group.title)
         logout
-        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
       end
 
-      it { expect(response).to have_http_status(:success) }
+      context 'without requesting extra information' do
+        before do
+          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
+        end
 
-      it 'returns the staging_project name xml' do
-        assert_select 'staging_project' do
-          assert_select 'staged_requests', 1 do
-            assert_select 'request', 3
+        it { expect(response).to have_http_status(:success) }
+
+        it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
+
+        it 'returns the staging_project default xml' do
+          assert_select 'staging_project' do
+            assert_select 'staged_requests', 0
+            assert_select 'untracked_requests', 0
+            assert_select 'requests_to_review', 0
+            assert_select 'missing_reviews', 0
+            assert_select 'broken_packages', 0
+            assert_select 'history', 0
           end
-          assert_select 'untracked_requests', 1 do
-            assert_select 'request', 1
+        end
+      end
+
+      context 'with staged requests' do
+        before do
+          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                               requests: 1, format: :xml }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
+
+        it 'returns the staging_project with staged requests xml' do
+          assert_select 'staging_project' do
+            assert_select 'staged_requests', 1 do
+              assert_select 'request', 3
+            end
+            assert_select 'untracked_requests', 0
+            assert_select 'requests_to_review', 0
+            assert_select 'missing_reviews', 0
+            assert_select 'broken_packages', 0
+            assert_select 'history', 0
           end
-          assert_select 'requests_to_review', 1 do
-            assert_select 'request', 2
+        end
+      end
+
+      context 'with status info' do
+        before do
+          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                               status: 1, format: :xml }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it { expect(response.body).to include("<staging_project name=\"#{staging_project.name}\" state=") }
+
+        it 'returns the staging_project with status xml' do
+          assert_select 'staging_project' do
+            assert_select 'staged_requests', 0
+            assert_select 'untracked_requests', 1 do
+              assert_select 'request', 1
+            end
+            assert_select 'requests_to_review', 1 do
+              assert_select 'request', 2
+            end
+            assert_select 'missing_reviews', 1 do
+              assert_select 'review', 1
+            end
+            assert_select 'broken_packages', 1 do
+              assert_select 'package', 1
+            end
+            assert_select 'history', 0
           end
-          assert_select 'missing_reviews', 1 do
-            assert_select 'review', 1
+        end
+      end
+
+      context 'with history' do
+        before do
+          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                               history: 1, format: :xml }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it { expect(response.body).not_to include("<staging_project name=\"#{staging_project.name}\" state=") }
+
+        it 'returns the staging_project with history xml' do
+          assert_select 'staging_project' do
+            assert_select 'staged_requests', 0
+            assert_select 'untracked_requests', 0
+            assert_select 'requests_to_review', 0
+            assert_select 'missing_reviews', 0
+            assert_select 'broken_packages', 0
+            assert_select 'history', 1
           end
-          assert_select 'broken_packages', 1 do
-            assert_select 'package', 1
+        end
+      end
+
+      context 'with requests, status, history' do
+        before do
+          get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name,
+                               requests: 1, status: 1, history: 1, format: :xml }
+        end
+
+        it { expect(response).to have_http_status(:success) }
+
+        it { expect(response.body).to include("<staging_project name=\"#{staging_project.name}\" state=") }
+
+        it 'returns the staging_project with requests, status and history xml' do
+          assert_select 'staging_project' do
+            assert_select 'staged_requests', 1 do
+              assert_select 'request', 3
+            end
+            assert_select 'untracked_requests', 1 do
+              assert_select 'request', 1
+            end
+            assert_select 'requests_to_review', 1 do
+              assert_select 'request', 2
+            end
+            assert_select 'missing_reviews', 1 do
+              assert_select 'review', 1
+            end
+            assert_select 'broken_packages', 1 do
+              assert_select 'package', 1
+            end
+            assert_select 'history', 1
           end
-          assert_select 'history', 1
         end
       end
     end
