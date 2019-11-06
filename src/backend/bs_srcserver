@@ -4177,8 +4177,7 @@ sub getbinary {
     return published_path($cgi, $projid, $repoid);
   }
   my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, "view=$view" if $view;
+  my @args = BSRPC::args($cgi, 'view', 'module');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/$filename",
     'ignorestatus' => 1,
