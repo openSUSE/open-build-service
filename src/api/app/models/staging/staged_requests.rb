@@ -169,7 +169,7 @@ class Staging::StagedRequests
       reasons = packages.map { |package| "'#{package}' \"#{package.errors.full_messages.to_sentence}\"" }
       "from #{staging_project}: #{reasons.to_sentence}"
     end
-    errors << "The next packages couldn't be removed #{message.to_sentence}"
+    errors << "The following packages couldn't be removed #{message.to_sentence}"
   end
 
   def missing_requests(requests)
