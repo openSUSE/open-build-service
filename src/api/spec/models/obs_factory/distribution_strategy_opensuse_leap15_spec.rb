@@ -2,16 +2,16 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
-  let(:project) { create(:project, name: 'openSUSE:Leap:15.1') }
+  let(:project) { create(:project, name: 'openSUSE:Leap:15.2') }
   let(:distribution) { ObsFactory::Distribution.new(project) }
   let(:strategy) { distribution.strategy }
 
   describe '#openqa_version' do
-    it { expect(strategy.openqa_version).to eq('15.1') }
+    it { expect(strategy.openqa_version).to eq('15.2') }
   end
 
   describe '#opensuse_leap_version' do
-    it { expect(strategy.opensuse_leap_version).to eq('15.1') }
+    it { expect(strategy.opensuse_leap_version).to eq('15.2') }
   end
 
   describe '#openqa_group' do
@@ -19,11 +19,11 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
   end
 
   describe '#repo_url' do
-    it { expect(strategy.repo_url).to eq('http://download.opensuse.org/distribution/leap/15.1/repo/oss/media.1/media') }
+    it { expect(strategy.repo_url).to eq('http://download.opensuse.org/distribution/leap/15.2/repo/oss/media.1/media') }
   end
 
   describe '#url_suffix' do
-    it { expect(strategy.url_suffix).to eq('distribution/leap/15.1/iso') }
+    it { expect(strategy.url_suffix).to eq('distribution/leap/15.2/iso') }
   end
 
   describe '#published_arch' do
@@ -39,7 +39,7 @@ RSpec.describe ObsFactory::DistributionStrategyOpenSUSELeap15 do
   end
 
   describe '#published_version' do
-    let(:file) { "openSUSE - openSUSE-15.1-x86_64-Build317.2-Media\nopenSUSE-15.1-x86_64-Build317.2\n1" }
+    let(:file) { "openSUSE - openSUSE-15.2-x86_64-Build317.2-Media\nopenSUSE-15.2-x86_64-Build317.2\n1" }
 
     before do
       stub_request(:get, strategy.repo_url).and_return(body: file)

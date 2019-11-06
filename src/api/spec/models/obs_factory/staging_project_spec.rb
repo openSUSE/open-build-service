@@ -10,9 +10,9 @@ RSpec.describe ObsFactory::StagingProject do
   let!(:staging_b_dvd) { create(:project, name: 'openSUSE:Factory:Staging:B:DVD') }
   let!(:staging_c) { create(:project, name: 'openSUSE:Factory:Staging:C') }
   let!(:staging_c_dvd) { create(:project, name: 'openSUSE:Factory:Staging:C:DVD') }
-  let(:opensuse_leap) { create(:project, name: 'openSUSE:Leap:15.1') }
-  let!(:opensuse_staging_a) { create(:project, name: 'openSUSE:Leap:15.1:Staging:A') }
-  let!(:opensuse_staging_b) { create(:project, name: 'openSUSE:Leap:15.1:Staging:B') }
+  let(:opensuse_leap) { create(:project, name: 'openSUSE:Leap:15.2') }
+  let!(:opensuse_staging_a) { create(:project, name: 'openSUSE:Leap:15.2:Staging:A') }
+  let!(:opensuse_staging_b) { create(:project, name: 'openSUSE:Leap:15.2:Staging:B') }
   let(:factory_distribution) { ObsFactory::Distribution.find(factory.name) }
   let(:staging_project_a) { ObsFactory::StagingProject.new(project: staging_a, distribution: factory_distribution) }
   let(:staging_project_adi) { ObsFactory::StagingProject.new(project: staging_adi, distribution: factory_distribution) }
@@ -31,7 +31,7 @@ RSpec.describe ObsFactory::StagingProject do
       it { expect(subject.map(&:project)).to eq([staging_a, staging_b, staging_c]) }
     end
 
-    context 'openSUSE:Leap:15.1' do
+    context 'openSUSE:Leap:15.2' do
       let(:opensuse_distribution) { ObsFactory::Distribution.find(opensuse_leap.name) }
       subject { ObsFactory::StagingProject.for(opensuse_distribution) }
 
