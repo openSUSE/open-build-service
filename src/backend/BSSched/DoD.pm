@@ -105,14 +105,13 @@ sub clean_obsolete_dodpackages {
   return @bins unless defined &BSSolv::repo::pkgpaths;
   my %paths = $cache->pkgpaths();
   if (defined(&BSSolv::repo::mayhavemodules) && $cache->mayhavemodules()) {
-    # find all modules 
     my @modules;
-    my @nbins = @bins;
-    while (@nbins) {
-      my (undef, $id) = splice(@nbins, 0, 2);
-      push @modules, $pool->pkg2modules($id);
+    if (defined(&BSSolv::repo::modulesfrombins)) {
+      @modules = $cache->modulesfrombins(@bins);
+    } else {
+      @modules = $cache->getmodules();
     }
-    print "clean_obsolete_dodpackages: @modules\n";
+    print "    clean_obsolete_dodpackages: @modules\n";
     if (@modules) {
       my @oldpoolmodules = $pool->getmodules();
       for my $module (sort(BSUtil::unify(@modules))) {
