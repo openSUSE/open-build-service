@@ -24,7 +24,9 @@ class Staging::StagedRequests
       staging_project = request.staging_project
       next unless unstageable?(request, staging_project)
 
-      remove_packages(request, staging_project)
+      packages_with_errors = remove_packages(staged_packages(staging_project, request))
+
+      not_removed_packages[staging_project.name] = packages_with_errors unless packages_with_errors.empty?
 
       ProjectLogEntry.create!(
         project: staging_project,
@@ -139,17 +141,15 @@ class Staging::StagedRequests
     request.change_review_state('accepted', by_project: staging_project.name, comment: "Moved back to project \"#{staging_workflow.project}\"")
   end
 
-  def remove_packages(request, staging_project)
-    package_names = request.bs_request_actions.pluck(:target_package)
-    staging_project_packages = staging_project.packages.where(name: package_names)
-    staging_project_packages.each do |package|
-      # TODO: would it make sense that it actually happens in the Package#destroy?
-      package.find_project_local_linking_packages.each(&:destroy)
-      next if package.destroy
+  def remove_packages(staging_project_packages)
+    staging_project_packages.collect do |package|
+      (package.find_project_local_linking_packages | [package]).collect { |pkg| pkg unless pkg.destroy }
+    end.flatten.reject(&:nil?)
+  end
 
-      not_removed_packages[staging_project.name] ||= []
-      not_removed_packages[staging_project.name] << package
-    end
+  def staged_packages(staging_project, request)
+    package_names = request.bs_request_actions.pluck(:target_package)
+    staging_project.packages.where(name: package_names)
   end
 
   def unstageable?(request, staging_project)
@@ -191,7 +191,7 @@ class Staging::StagedRequests
   end
 
   def link_xml(opts = {})
-    # "<link package=\"foo\" project=\"bar\" rev=\"XXX\" ccount=\"copy\"/>"
+    # "<link package=\"foo\" project=\"bar\" rev=\"XXX\" cicount=\"copy\"/>"
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
   end
 end
