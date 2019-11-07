@@ -54,6 +54,7 @@ use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
 use BSPGP;
+use BSHTTP;
 use BSRepServer::Containerinfo;
 use BSPublisher::Container;
 use BSPublisher::Util;
@@ -1345,6 +1346,13 @@ sub createpatterns_ymp {
     %nprojpack = map {$_->{'name'} => $_} @{$nprojpack->{'project'} || []};
   }
 
+  # get ymp distversion list from config
+  my @ympdist;
+  for (@{$data->{'config'}->{'publishflags'} || []}) {
+    push @ympdist, BSHTTP::urldecode($1) if /^ympdist:(.*)$/s;
+  }
+  @ympdist = BSUtil::unify(@ympdist) if @ympdist;
+
   for my $pattern (@$patterns) {
     my $ympname = $pattern->{'name'};
     $ympname =~ s/\.xml$//;
@@ -1400,7 +1408,8 @@ sub createpatterns_ymp {
       fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
     }
     $group->{'software'} = { 'item' => \@software };
-    $ymp->{'group'} = [ $group ];
+    push @{$ymp->{'group'}}, { %$group, 'distversion' => $_ } for @ympdist;
+    $ymp->{'group'} ||= [ $group ];
 
     writexml("$extrep/.$ympname", "$extrep/$ympname", $ymp, $BSXML::ymp);
 
@@ -2652,6 +2661,7 @@ sub publish {
     'packtrack' => $packtrack,
     'repotags' => \@repotags,
     'chksumfiles' => \@chksumfiles,
+    'config' => $config,
   };
 
   if ($repotype{'rpm-md'}) {

@@ -5048,7 +5048,7 @@ sub published {
   if (defined($projid) && defined($repoid) && $cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
     # attach projpack data so that the repo server does not need to
     # reconnect us
-    $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1}, [ $projid ], [ $repoid ], undef, 'noarch'))[0];
+    $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1, 'withconfig' => 1}, [ $projid ], [ $repoid ], undef, 'noarch'))[0];
     my $proj = $projpack->{'project'}->[0];
     die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
     my $repo = $proj->{'repository'}->[0];
@@ -5057,11 +5057,12 @@ sub published {
     my @nprojids = grep {$_ ne $projid} map {$_->{'project'}} @{$repo->{'path'} || []};
     @nprojids = BSUtil::unify(@nprojids);
     for my $nprojid (@nprojids) {
-      my $nproj = (getproject({}, $nprojid))[0];
+      my $nproj = (getproject({'withconfig' => 1}, $nprojid))[0];
       push @{$projpack->{'project'}}, {
 	'name' => $nprojid,
 	'title' => $nproj->{'title'} || '',
 	'description' => $nproj->{'description'} || '',
+	'config' => $nproj->{'config'} || '',
       };
     }
   }
