@@ -188,6 +188,7 @@ sub getbinaries {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "nometa" if $nometa;
+    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     push @args, "binaries=".join(',', @missingbvs);
     my $bvl;
     eval {
@@ -300,6 +301,7 @@ sub getbinaries {
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
+    push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     my $res = BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $cachetmpdir,
@@ -406,7 +408,7 @@ sub hello {
 
 my $dispatches = [
   '/' => \&hello,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? server:' => \&getbinaries,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module* workerid? server:' => \&getbinaries,
   '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? workerid? server:' => \&getpreinstallimage,
 ];
 

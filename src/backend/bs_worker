@@ -1920,6 +1920,7 @@ sub getpreinstallimage {
     push @args, "repository=$repo->{'repository'}";
     push @args, "arch=$buildinfo->{'arch'}";
     push @args, "nometa" if $nometa;
+    push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
     push @args, "binaries=".join(',', @bins);
     my $bvl;
     eval {
@@ -2161,6 +2162,7 @@ sub getbinaries_buildenv {
       push @args, "repository=$repo->{'repository'}";
       push @args, "arch=$arch";
       push @args, 'nometa';
+      push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
       push @args, "binaries=".join(',', @needed_names);
       my $bvl;
       eval {
@@ -2233,6 +2235,7 @@ sub getbinaries_buildenv {
       my $projid = $repo->{'project'};
       my $repoid = $repo->{'repository'};
       my $param;
+      my @args;
       unlink("$dir/$bv->{'name'}");
       if ($bv->{'package'}) {
 	$param = {
@@ -2242,6 +2245,7 @@ sub getbinaries_buildenv {
 	  'filename' => "$dir/$bv->{'name'}",
 	};
       } else {
+	push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
 	$param = {
           'uri' => "$server/build/$projid/$repoid/$arch/_repository/$bv->{'name'}",
           'timeout' => $gettimeout,
@@ -2250,7 +2254,7 @@ sub getbinaries_buildenv {
 	};
       }
       eval {
-        BSRPC::rpc($param);
+        BSRPC::rpc($param, undef, @args);
       };
       if ($@) {
 	warn($@);
