@@ -42,6 +42,8 @@ sub addrepo_remote {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   return undef unless $remoteproj;
+  my @modules;
+  @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
   print "fetching remote repository state for $prp\n";
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
@@ -49,13 +51,18 @@ sub addrepo_remote {
     'receiver' => \&BSHTTP::cpio_receiver,
     'proxy' => $proxy,
   };
-  my $cpio = BSRPC::rpc($param, undef, "view=cache");
+  my @args = ("view=cache");
+  push @args, map {"module=$_"} @modules;
+  my $cpio = BSRPC::rpc($param, undef, @args);
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
   if (exists $cpio{'repositorycache'}) {
     my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
     delete $cpio{'repositorycache'};    # free mem
     return undef unless $cache;
     # postprocess entries
+    delete $cache->{'/external/'};
+    delete $cache->{'/url'};
+    delete $cache->{'/modules'};
     for (values %$cache) {
       # free some unused entries to save mem
       delete $_->{'path'};
@@ -63,8 +70,6 @@ sub addrepo_remote {
       # import annotations
       $_->{'annotation'} = import_annotation($_->{'annotationdata'} || $_->{'annotation'}) if $_->{'annotation'};
     }
-    delete $cache->{'/external/'};
-    delete $cache->{'/url'};
     return $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
