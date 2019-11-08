@@ -24,7 +24,9 @@ class Staging::StagedRequests
       staging_project = request.staging_project
       next unless unstageable?(request, staging_project)
 
-      remove_packages(request, staging_project)
+      packages_with_errors = remove_packages(staged_packages(staging_project, request))
+
+      not_removed_packages[staging_project.name] = packages_with_errors unless packages_with_errors.empty?
 
       ProjectLogEntry.create!(
         project: staging_project,
@@ -91,6 +93,10 @@ class Staging::StagedRequests
     source_package = Package.get_by_project_and_name!(bs_request_action.source_project,
                                                       bs_request_action.source_package)
 
+    # it is possible that target_package doesn't exist
+    target_package = Package.get_by_project_and_name(bs_request_action.target_project,
+                                                     bs_request_action.target_package)
+
     query_options = { expand: 1 }
     query_options[:rev] = bs_request_action.source_rev if bs_request_action.source_rev
 
@@ -102,10 +108,16 @@ class Staging::StagedRequests
 
     link_package = Package.find_or_create_by!(project: staging_project, name: bs_request_action.target_package)
 
-    Backend::Api::Sources::Package.write_link(staging_project.name,
-                                              link_package.name,
-                                              User.session!,
-                                              "<link project=\"#{source_package.project.name}\" package=\"#{source_package.name}\" rev=\"#{package_rev}\" vrev=\"#{source_vrev}\"></link>")
+    create_link(staging_project.name, link_package.name, User.session!, project: source_package.project.name,
+                                                                        package: source_package.name, rev: package_rev,
+                                                                        vrev: source_vrev)
+    # for multispec packages, we have to create local links to the main package
+    if target_package.present?
+      target_package.find_project_local_linking_packages.each do |local_linking_package|
+        linked_package = Package.find_or_create_by!(project: staging_project, name: local_linking_package.name)
+        create_link(staging_project.name, linked_package.name, User.session!, package: target_package.name, cicount: 'copy')
+      end
+    end
 
     ProjectLogEntry.create!(
       project: staging_project,
@@ -129,15 +141,15 @@ class Staging::StagedRequests
     request.change_review_state('accepted', by_project: staging_project.name, comment: "Moved back to project \"#{staging_workflow.project}\"")
   end
 
-  def remove_packages(request, staging_project)
-    package_names = request.bs_request_actions.pluck(:target_package)
-    staging_project_packages = staging_project.packages.where(name: package_names)
-    staging_project_packages.each do |package|
-      next if package.destroy
+  def remove_packages(staging_project_packages)
+    staging_project_packages.collect do |package|
+      (package.find_project_local_linking_packages | [package]).collect { |pkg| pkg unless pkg.destroy }
+    end.flatten.reject(&:nil?)
+  end
 
-      not_removed_packages[staging_project.name] ||= []
-      not_removed_packages[staging_project.name] << package
-    end
+  def staged_packages(staging_project, request)
+    package_names = request.bs_request_actions.pluck(:target_package)
+    staging_project.packages.where(name: package_names)
   end
 
   def unstageable?(request, staging_project)
@@ -157,7 +169,7 @@ class Staging::StagedRequests
       reasons = packages.map { |package| "'#{package}' \"#{package.errors.full_messages.to_sentence}\"" }
       "from #{staging_project}: #{reasons.to_sentence}"
     end
-    errors << "The next packages couldn't be removed #{message.to_sentence}"
+    errors << "The following packages couldn't be removed #{message.to_sentence}"
   end
 
   def missing_requests(requests)
@@ -169,5 +181,17 @@ class Staging::StagedRequests
 
     errors << "Requests with number: #{requests_found.to_sentence} don't belong to Staging: #{staging_workflow.project}" if requests_found.present?
     errors << "Requests with number: #{requests_not_found.to_sentence} don't exist" if requests_not_found.present?
+  end
+
+  def create_link(staging_project_name, target_package_name, user, opts = {})
+    Backend::Api::Sources::Package.write_link(staging_project_name,
+                                              target_package_name,
+                                              user,
+                                              link_xml(opts))
+  end
+
+  def link_xml(opts = {})
+    # "<link package=\"foo\" project=\"bar\" rev=\"XXX\" cicount=\"copy\"/>"
+    Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
   end
 end
