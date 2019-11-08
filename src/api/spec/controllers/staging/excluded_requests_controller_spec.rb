@@ -41,6 +41,11 @@ RSpec.describe Staging::ExcludedRequestsController do
     it 'returns the excluded_requests xml' do
       assert_select 'excluded_requests', 1 do
         assert_select 'request', 2 do
+          assert_select "[id='#{bs_request.number}']"
+          assert_select "[id='#{bs_request_2.number}']"
+          assert_select "[package='#{bs_request.first_target_package}']"
+          assert_select "[package='#{bs_request_2.first_target_package}']"
+          assert_select "[description='Request 2']"
           assert_select "[description='Request 1']"
           assert_select "[description='Request 2']"
         end

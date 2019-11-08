@@ -10,7 +10,7 @@ class ExcludedRequestDatatable < Datatable
 
   def view_columns
     @view_columns ||= {
-      request: { source: 'BsRequest.number', cond: :like },
+      request: { source: 'BsRequestAction.target_package', cond: :like },
       description: { source: 'Staging::RequestExclusion.description', cond: :like }
     }
   end
@@ -18,7 +18,7 @@ class ExcludedRequestDatatable < Datatable
   def data
     records.map do |record|
       {
-        request: link_to(record.bs_request.number, request_show_path(record.bs_request.number)),
+        request: link_to(record.bs_request.first_target_package, request_show_path(record.bs_request.number)),
         description: record.description,
         actions: process_policy(record)
       }
@@ -27,7 +27,7 @@ class ExcludedRequestDatatable < Datatable
 
   # rubocop:disable Naming/AccessorMethodName
   def get_raw_records
-    @staging_workflow.request_exclusions.includes(:bs_request)
+    @staging_workflow.request_exclusions.includes(bs_request: :bs_request_actions).references(:bs_request).distinct
   end
   # rubocop:enable Naming/AccessorMethodName
 
