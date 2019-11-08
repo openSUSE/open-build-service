@@ -54,6 +54,7 @@ use BSVerify;
 use BSStdRunner;
 use BSUrlmapper;
 use BSPGP;
+use BSHTTP;
 use BSRepServer::Containerinfo;
 use BSPublisher::Container;
 use BSPublisher::Util;
@@ -81,6 +82,8 @@ my @binsufs = qw{rpm udeb ddeb deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 my $binarchs = join("|", keys(%BSCando::knownarch));
+
+my $trackercacheversion = 2;
 
 my $testmode;
 
@@ -1343,6 +1346,13 @@ sub createpatterns_ymp {
     %nprojpack = map {$_->{'name'} => $_} @{$nprojpack->{'project'} || []};
   }
 
+  # get ymp distversion list from config
+  my @ympdist;
+  for (@{$data->{'config'}->{'publishflags'} || []}) {
+    push @ympdist, BSHTTP::urldecode($1) if /^ympdist:(.*)$/s;
+  }
+  @ympdist = BSUtil::unify(@ympdist) if @ympdist;
+
   for my $pattern (@$patterns) {
     my $ympname = $pattern->{'name'};
     $ympname =~ s/\.xml$//;
@@ -1398,7 +1408,8 @@ sub createpatterns_ymp {
       fillpkgdescription($software[-1], $extrep, $repoinfo, $entry->{'name'});
     }
     $group->{'software'} = { 'item' => \@software };
-    $ymp->{'group'} = [ $group ];
+    push @{$ymp->{'group'}}, { %$group, 'distversion' => $_ } for @ympdist;
+    $ymp->{'group'} ||= [ $group ];
 
     writexml("$extrep/.$ympname", "$extrep/$ympname", $ymp, $BSXML::ymp);
 
@@ -2321,7 +2332,7 @@ sub publish {
   my $packtrackcache;
   if (-s "$reporoot/$prp/:repoinfo") {
     $oldrepoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo");
-    $packtrackcache = $oldrepoinfo->{'trackercache'} if $oldrepoinfo->{'trackercache'} && ($oldrepoinfo->{'trackercacheversion'} || '') eq '1';
+    $packtrackcache = $oldrepoinfo->{'trackercache'} if $oldrepoinfo->{'trackercache'} && ($oldrepoinfo->{'trackercacheversion'} || '') eq $trackercacheversion;
     $publishid = $oldrepoinfo->{'publishid'} + 1 if $oldrepoinfo->{'publishid'};
   }
   $publishid ||= $starttime;
@@ -2383,7 +2394,7 @@ sub publish {
 	next unless @s;
 	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
 	if ($c) {
-	  my @d = qw{arch name epoch version release disturl buildtime provides};
+	  my @d = qw{arch name epoch version release disturl buildtime cpeid};
 	  $res = {};
 	  for (@$c) {
 	    my $dd = shift @d;
@@ -2394,6 +2405,12 @@ sub publish {
             $res = Build::query("$extrep/$bin", 'evra' => 1, 'buildtime' => 1, 'disturl' => 1);
 	  };
 	  next unless $res;
+          # catch provided product cpeid strings
+	  my ($cpeid) = grep {/^product-cpeid\(\)/} @{$res->{'provides'} || []};
+	  if ($cpeid) {
+	    $cpeid =~ s/.* = //;
+	    $res->{'cpeid'} = BSHTTP::urldecode($cpeid);
+	  }
 	}
 	my $pt = { 'project' => $projid, 'repository' => $repoid };
 	$pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
@@ -2404,11 +2421,7 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
-        # catch provided product cpeid strings
-        if (my ($cpeid) = grep {$_ =~ m/^product-cpeid\(\)/} @{$res->{"provides"}}) {
-          $cpeid =~ s/.* = //;
-          $pt->{'cpeid'} = BSHTTP::urldecode($cpeid);
-        }
+	$pt->{'cpeid'} = $res->{'cpeid'} if $res->{'cpeid'};
 	$packtrack->{$bin} = $pt;
 	if ($pt->{'arch'}) {
 	  $reportfile = $bin;
@@ -2648,6 +2661,7 @@ sub publish {
     'packtrack' => $packtrack,
     'repotags' => \@repotags,
     'chksumfiles' => \@chksumfiles,
+    'config' => $config,
   };
 
   if ($repotype{'rpm-md'}) {
@@ -2779,12 +2793,12 @@ publishprog_done:
     my @newcache;
     for my $pt (values %$packtrack) {
       my $id = delete $pt->{'id'};
-      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime} ] if $id;
+      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime cpeid} ] if $id;
     }
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     if (%$repoinfo) {
       $repoinfo->{'trackercache'} = \@newcache;
-      $repoinfo->{'trackercacheversion'} = '1';
+      $repoinfo->{'trackercacheversion'} = $trackercacheversion;
       BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
       @newcache = ();	# free mem
       undef $repoinfo;	# free mem

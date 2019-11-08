@@ -22,6 +22,7 @@ use strict;
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
+use BSHTTP;
 use BSXML;
 use BSUrlmapper;
 use Build;
@@ -48,6 +49,28 @@ sub findympbinary {
   return undef;
 }
 
+sub getconfig {
+  my ($projpacks, $projid, $repoid, $arch, $path) = @_;
+  my $config = "%define _project $projid\n";
+  for my $pa (reverse @$path) {
+    my $proj = $projpacks->{$pa->{'project'}} || {};
+    my $c = $proj->{'config'};
+    next unless defined $c;
+    $config .= "\n### from $pa->{'project'}\n";
+    $config .= "%define _repository $pa->{'repository'}\n";
+    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s2 = '^\s*macros:\s*$.*\Z';
+    $c =~ s/$s1//gmsi;
+    $c =~ s/$s2//gmsi;
+    $config .= $c;
+  }
+  my @c = split("\n", $config);
+  my $c = Build::read_config($arch, \@c);
+  $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
+  $c->{'binarytype'} ||= 'UNDEFINED';
+  return $c;
+}
+
 sub makeymp {
   my ($projid, $repoid, $binary, $projpackin) = @_;
 
@@ -71,7 +94,7 @@ sub makeymp {
     $projpack = $projpackin;
   } else {
     my @args = ("project=$projid", "repository=$repoid");
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'nopackages', @args);
+    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withconfig', 'nopackages', @args);
   }
   my $proj = $projpack->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
@@ -85,9 +108,15 @@ sub makeymp {
   @nprojids = grep {!$nprojpack{$_}} @nprojids;
   if (@nprojids) {
     my @args = map {"project=$_"} @nprojids;
-    my $nprojpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', @args);
+    my $nprojpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'withconfig', @args);
     $nprojpack{$_->{'name'}} ||= $_ for @{$nprojpack->{'project'} || []};
   }
+  my $bconf = getconfig(\%nprojpack, $projid, $repoid, 'noarch', $repo->{'path'} || []);
+  my @ympdist;
+  for (@{$bconf->{'publishflags'} || []}) {
+    push @ympdist, BSHTTP::urldecode($1) if /^ympdist:(.*)$/s;
+  }
+  @ympdist = BSUtil::unify(@ympdist) if @ympdist;
   my $ymp = {};
   $ymp->{'xmlns:os'} = 'http://opensuse.org/Standards/One_Click_Install';
   $ymp->{'xmlns'} = 'http://opensuse.org/Standards/One_Click_Install';
@@ -119,7 +148,10 @@ sub makeymp {
   my $inner_group = {};
   $inner_group->{'repositories'} = {'repository' => \@repos };
   $inner_group->{'software'} = {'item' => [$pkg]};
-  push @group, $inner_group;
+  for my $ympdist (@ympdist) {
+    push @group, { %$inner_group, 'distversion' => $ympdist };
+  }
+  push @group, $inner_group unless @group;
   return $ymp;
 }
 
