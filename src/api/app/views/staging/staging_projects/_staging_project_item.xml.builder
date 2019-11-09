@@ -6,14 +6,8 @@ builder.staging_project(attributes) do
     builder.staged_requests(count: staging_project.staged_requests.count) do
       render(partial: 'staging/shared/requests', locals: { requests: staging_project.staged_requests, builder: builder })
     end
-  end
-
-  if options[:status]
     builder.untracked_requests(count: staging_project.untracked_requests.count) do
       render(partial: 'staging/shared/requests', locals: { requests: staging_project.untracked_requests, builder: builder })
-    end
-    builder.requests_to_review(count: staging_project.requests_to_review.count) do
-      render(partial: 'staging/shared/requests', locals: { requests: staging_project.requests_to_review, builder: builder })
     end
     builder.obsolete_requests(count: staging_project.staged_requests.obsolete.count) do
       render(partial: 'staging/shared/requests', locals: { requests: staging_project.staged_requests.obsolete, builder: builder })
@@ -21,6 +15,9 @@ builder.staging_project(attributes) do
     render(partial: 'missing_reviews', locals: { missing_reviews: staging_project.missing_reviews,
                                                  count: staging_project.missing_reviews.count,
                                                  builder: builder })
+  end
+
+  if options[:status]
     render(partial: 'building_repositories', locals: { building_repositories: staging_project.building_repositories,
                                                        count: staging_project.building_repositories.count,
                                                        builder: builder })
