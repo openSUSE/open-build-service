@@ -156,6 +156,13 @@ our $relsync_pool = {
 #for example "--whole-file" if network faster than disk
 #our $rsync_extra_options = "--whole-file";
 
+# Define your own global Macros
+#my $macro_packager = '<rpm@example.com>';
+#my $macro_vendor = 'Name, Company, City, DE';
+#our $extramacros = {
+#    ".*" => "%packager $macro_packager\n%vendor $macro_vendor\n",
+#};
+
 #No package signing server
 #our $sign = '/usr/bin/sign';
 #Extend sign call with project name as argument "--project $NAME"
