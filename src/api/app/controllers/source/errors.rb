@@ -94,4 +94,8 @@ module Source::Errors
   class NotLocked < APIError; end
 
   class InvalidFlag < APIError; end
+
+  class StagingProjectNotFound < APIError
+    setup 'not_found', 404
+  end
 end
