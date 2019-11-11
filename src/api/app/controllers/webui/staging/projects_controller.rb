@@ -32,6 +32,13 @@ module Webui
 
       def show
         @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
+
+        unless @staging_project
+          redirect_back(fallback_location: staging_workflow_path(@staging_workflow))
+          flash[:error] = "Staging Project \"#{params[:project_name]}\" doesn't exist for this Staging."
+          return
+        end
+
         @staging_project_log_entries = @staging_project.project_log_entries
                                                        .where(event_type: [:staging_project_created, :staged_request, :unstaged_request])
                                                        .includes(:bs_request)

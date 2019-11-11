@@ -101,6 +101,49 @@ RSpec.describe Webui::Staging::ProjectsController do
     end
   end
 
+  describe 'GET #show' do
+    subject { staging_workflow }
+
+    context 'a non-existent staging project' do
+      before do
+        staging_workflow
+        get :show, params: { staging_workflow_id: staging_workflow.id, project_name: 'non-existent' }
+      end
+
+      it { expect(response).to redirect_to(staging_workflow_path(subject)) }
+      it { expect(flash[:error]).to have_text('Staging Project "non-existent" doesn\'t exist for this Staging.') }
+    end
+
+    context 'an existent staging project' do
+      let(:staging_project) { staging_workflow.staging_projects.first }
+
+      before do
+        staging_workflow
+        get :show, params: { staging_workflow_id: staging_workflow.id, project_name: staging_project.name }
+      end
+
+      it 'assigns staging_project' do
+        expect(assigns(:staging_project)).to eq(staging_project)
+      end
+
+      it 'assigns project' do
+        expect(assigns(:project)).to eq(subject.project)
+      end
+
+      it 'assigns staging_project_log_entries' do
+        expect(assigns(:staging_project_log_entries)).not_to be_nil
+      end
+
+      it 'assigns group_hash' do
+        expect(assigns(:groups_hash)).not_to be_nil
+      end
+
+      it 'assigns user_hash' do
+        expect(assigns(:users_hash)).not_to be_nil
+      end
+    end
+  end
+
   describe 'DELETE #destroy' do
     context 'non existent staging project' do
       before do
