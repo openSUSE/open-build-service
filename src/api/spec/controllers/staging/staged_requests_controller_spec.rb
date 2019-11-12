@@ -19,6 +19,7 @@ RSpec.describe Staging::StagedRequestsController do
            target_package: target_package,
            source_package: source_package,
            description: 'BsRequest 1',
+           number: 1,
            review_by_group: group)
   end
 
@@ -98,6 +99,203 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
       it { expect(staging_project.staged_requests).to include(bs_request) }
       it { assert_select 'status[code=ok]' }
+    end
+
+    context 'with an excluded request', vcr: true do
+      subject do
+        login user
+        post :create, params: params, body: body
+      end
+
+      context 'when not providing the remove exclusion parameter' do
+        let(:params) do
+          {
+            staging_workflow_project: staging_workflow.project.name,
+            staging_project_name: staging_project.name,
+            format: :xml
+          }
+        end
+        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+
+        before do
+          create(:request_exclusion,
+                 bs_request: bs_request,
+                 number: bs_request.number,
+                 staging_workflow: staging_workflow)
+          subject
+        end
+
+        it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to match(/invalid_request/) }
+        it { expect(response.body).to match(/Request #{bs_request.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./) } # rubocop:disable Metrics/LineLength
+      end
+
+      context 'when providing the remove exclusion parameter' do
+        let(:params) do
+          {
+            staging_workflow_project: staging_workflow.project.name,
+            staging_project_name: staging_project.name,
+            remove_exclusion: '1',
+            format: :xml
+          }
+        end
+        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+
+        before do
+          create(:request_exclusion,
+                 bs_request: bs_request,
+                 number: bs_request.number,
+                 staging_workflow: staging_workflow)
+          subject
+        end
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
+        it { expect(staging_project.staged_requests).to include(bs_request) }
+        it { assert_select 'status[code=ok]' }
+      end
+    end
+
+    context 'when providing the remove exclusion parameter', vcr: true do
+      subject do
+        login user
+        post :create, params: params, body: body
+      end
+
+      context 'and not having any excluded request' do
+        let(:params) do
+          {
+            staging_workflow_project: staging_workflow.project.name,
+            staging_project_name: staging_project.name,
+            remove_exclusion: '1',
+            format: :xml
+          }
+        end
+        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+
+        before { subject }
+
+        it { expect(response).to have_http_status(:bad_request) }
+        it { expect(response.body).to match(/invalid_request/) }
+        it { expect(response.body).to match(/Requests with number #{bs_request.number} are not excluded/) }
+      end
+    end
+
+    context 'when providing two request', vcr: true do
+      subject do
+        login user
+        post :create, params: params, body: body
+      end
+
+      context 'and none is excluded' do
+        let(:params) do
+          {
+            staging_workflow_project: staging_workflow.project.name,
+            staging_project_name: staging_project.name,
+            format: :xml
+          }
+        end
+        let(:body) { "<requests><number>#{bs_request.number}</number><number>#{another_bs_request.number}</number></requests>" }
+        let(:another_bs_request) do
+          create(:bs_request_with_submit_action,
+                 state: :review,
+                 creator: other_user,
+                 target_package: target_package,
+                 source_package: source_package,
+                 description: 'BsRequest 2',
+                 number: 2,
+                 review_by_group: group)
+        end
+
+        before { subject }
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(staging_project.staged_requests).to include(bs_request) }
+        it { expect(staging_project.staged_requests).to include(another_bs_request) }
+        it { assert_select 'status[code=ok]' }
+      end
+
+      context 'and one is excluded but the other is not' do
+        let(:request_to_exclude) do
+          create(:bs_request_with_submit_action,
+                 state: :review,
+                 creator: other_user,
+                 target_package: target_package,
+                 source_package: source_package,
+                 description: 'Request with exclusion',
+                 number: 2,
+                 review_by_group: group)
+        end
+
+        context 'when not providing the remove exclusion parameter' do
+          let(:params) do
+            {
+              staging_workflow_project: staging_workflow.project.name,
+              staging_project_name: staging_project.name,
+              format: :xml
+            }
+          end
+          let(:body) { "<requests><number>#{bs_request.number}</number><number>#{request_to_exclude.number}</number></requests>" }
+
+          before do
+            create(:request_exclusion,
+                   bs_request: request_to_exclude,
+                   number: request_to_exclude.number,
+                   staging_workflow: staging_workflow)
+            subject
+          end
+
+          it { expect(response).to have_http_status(:bad_request) }
+
+          it 'did not stage all the requests' do
+            expect(staging_project.staged_requests).to include(bs_request)
+          end
+
+          it 'still has an exclusion left' do
+            expect(staging_workflow.excluded_requests).to include(request_to_exclude)
+          end
+
+          it 'returns an error saying which request was not staged' do
+            expect(response.body)
+              .to match(/Request #{request_to_exclude.number} currently excluded from project #{staging_workflow.project.name}. Use --remove-exclusion if you want to force this action./)
+          end
+        end
+
+        context 'when providing the remove exclusion parameter' do
+          let(:params) do
+            {
+              staging_workflow_project: staging_workflow.project.name,
+              staging_project_name: staging_project.name,
+              remove_exclusion: true,
+              format: :xml
+            }
+          end
+          let(:body) { "<requests><number>#{bs_request.number}</number><number>#{request_to_exclude.number}</number></requests>" }
+
+          before do
+            create(:request_exclusion,
+                   bs_request: request_to_exclude,
+                   number: request_to_exclude.number,
+                   staging_workflow: staging_workflow)
+            subject
+          end
+
+          it { expect(response).to have_http_status(:bad_request) }
+
+          it 'did stage all the requests' do
+            expect(staging_project.staged_requests).to be_empty
+          end
+
+          it 'still has an exclusion left' do
+            expect(staging_workflow.excluded_requests).to include(request_to_exclude)
+          end
+
+          it 'returns an error saying which request is not excluded' do
+            expect(response.body)
+              .to match(/Requests with number #{bs_request.number} are not excluded/)
+          end
+        end
+      end
     end
   end
 
