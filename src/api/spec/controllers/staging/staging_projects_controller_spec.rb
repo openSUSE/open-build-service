@@ -31,12 +31,24 @@ RSpec.describe Staging::StagingProjectsController do
   end
 
   describe 'GET #show' do
-    context 'not existing project' do
+    context 'not existing staging workflow' do
       before do
-        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml }
+        get :show, params: { staging_workflow_project: project_without_staging.name, staging_project_name: staging_project.name, format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
+      it { expect(response.body).to include("Staging Workflow for project \"#{project_without_staging.name}\" does not exist.") }
+    end
+
+    context 'not existing staging project' do
+      let(:staging_project_name) { 'non-existent' }
+
+      before do
+        get :show, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response.body).to include("Staging Project \"#{staging_project_name}\" does not exist.") }
     end
 
     context 'valid project' do
@@ -250,14 +262,27 @@ RSpec.describe Staging::StagingProjectsController do
   describe 'POST #accept' do
     render_views
 
-    let(:params) { { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name } }
+    let(:params) { { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project_name } }
 
     before do
       login user
       staging_workflow
     end
 
+    context 'when staging project does not exist' do
+      let(:staging_project_name) { 'non-existent' }
+
+      subject! do
+        post :accept, params: params, format: :xml
+      end
+
+      it { is_expected.to have_http_status(:not_found) }
+      it { expect(response.body).to match('Staging Project "non-existent" does not exist.') }
+    end
+
     context 'when staging project is not ready to be accepted' do
+      let(:staging_project_name) { staging_project.name }
+
       subject! do
         post :accept, params: params, format: :xml
       end
@@ -267,6 +292,7 @@ RSpec.describe Staging::StagingProjectsController do
     end
 
     context 'when project is in state acceptable', vcr: true do
+      let(:staging_project_name) { staging_project.name }
       let(:requester) { create(:confirmed_user, login: 'requester') }
       let(:target_project) { create(:project, name: 'target_project') }
       let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
