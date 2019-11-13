@@ -2708,11 +2708,9 @@ sub cpeid_from_rpm {
   my ($rpm_file) = @_;
 
   my $header = Build::query($rpm_file, "evra" => 1);
-  if (my ($cpeid) = grep {$_ =~ m/^product-cpeid\(\)/} @{$header->{"provides"}}) {
-    $cpeid =~ s/.* = //;
-    # the cpeid is still URL encoded. decoding will happen in publisher
-    return $cpeid;
-  }
+  my ($cpeid) = grep {/^product-cpeid\(\)/} @{$header->{'provides'} || []};
+  $cpeid =~ s/.* = // if $cpeid;
+  return $cpeid ? BSHTTP::urldecode($cpeid) : undef;
 }
 
 # parse all .report files and create a channel file from them
