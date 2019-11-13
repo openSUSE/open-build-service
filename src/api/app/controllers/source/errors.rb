@@ -95,6 +95,10 @@ module Source::Errors
 
   class InvalidFlag < APIError; end
 
+  class StagingWorkflowNotFound < APIError
+    setup 'not_found', 404
+  end
+
   class StagingProjectNotFound < APIError
     setup 'not_found', 404
   end

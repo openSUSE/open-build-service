@@ -31,7 +31,16 @@ RSpec.describe Staging::StagingProjectsController do
   end
 
   describe 'GET #show' do
-    context 'not existing project' do
+    context 'not existing staging workflow' do
+      before do
+        get :show, params: { staging_workflow_project: project_without_staging.name, staging_project_name: staging_project.name, format: :xml }
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response.body).to include("Staging Workflow for project \"#{project_without_staging.name}\" does not exist.") }
+    end
+
+    context 'not existing staging project' do
       let(:staging_project_name) { 'non-existent' }
 
       before do
