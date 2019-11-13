@@ -4334,7 +4334,7 @@ sub getlogfile {
     }
   }
 
-  my @args = BSRPC::args($cgi, 'last', 'nostream', 'start', 'end', 'view');
+  my @args = BSRPC::args($cgi, 'last', 'lastsucceeded', 'nostream', 'start', 'end', 'view');
   if (!$BSStdServer::isajax && !$cgi->{'view'}) {
     BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
   }
@@ -6706,7 +6706,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
@@ -6757,7 +6757,7 @@ my $dispatches_ajax = [
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/_result oldstate:md5? view:resultview* repository* arch* package* code:*' => \&getresult,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module*' => \&getbinarylist,
   '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&worker_getbinaryversions,

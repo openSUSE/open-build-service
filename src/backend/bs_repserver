@@ -1245,7 +1245,7 @@ sub getlogfile {
     $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
   }
 
-  if (!$cgi->{'last'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
+  if (!$cgi->{'last'} && !$cgi->{'lastsucceeded'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
     my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
       BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
@@ -1269,6 +1269,7 @@ sub getlogfile {
   if ($jobstatus && $jobstatus->{'code'} && ($jobstatus->{'code'} eq 'finished' || $jobstatus->{'code'} eq 'signing')) {
     $logfile = "$jobsdir/$arch/$status->{'job'}:dir/logfile";
   }
+  $logfile = "$reporoot/$projid/$repoid/$arch/:logfiles.success/$packid" if $cgi->{'lastsucceeded'};
   my @s = stat($logfile);
   die("404 package '$packid' has no logfile\n") unless @s;
   if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
@@ -4294,7 +4295,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? lastsucceeded:bool? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
@@ -4370,7 +4371,7 @@ my $dispatches = [
 my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
-  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
+  '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool? module*' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
