@@ -915,9 +915,9 @@ class Package < ApplicationRecord
   end
 
   # FIXME: That you can overwrite package_name is rather confusing, but needed because of multibuild :-/
-  def jobhistory(repository_name:, arch_name:, package_name: nil, filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [] })
+  def jobhistory(repository_name:, arch_name:, package_name: name, filter: { limit: 100, start_epoch: nil, end_epoch: nil, code: [] })
     Backend::Api::BuildResults::JobHistory.for_package(project_name: project,
-                                                       package_name: package_name.presence ? package_name : name,
+                                                       package_name: package_name,
                                                        repository_name: repository_name,
                                                        arch_name: arch_name,
                                                        filter: filter)
