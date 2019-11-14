@@ -156,7 +156,7 @@ class Staging::StagedRequests
 
   def add_review_for_unstaged_request(request, staging_project)
     request.addreview(by_group: staging_workflow.managers_group.title, comment: "Being evaluated by group \"#{staging_workflow.managers_group}\"")
-    request.change_review_state('accepted', by_project: staging_project.name, comment: "Moved back to project \"#{staging_workflow.project}\"")
+    request.change_review_state('accepted', by_project: staging_project.name, comment: "Unstaged from project \"#{staging_project}\"")
   end
 
   def remove_packages(staging_project_packages)
