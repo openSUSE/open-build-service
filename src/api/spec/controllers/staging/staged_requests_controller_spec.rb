@@ -297,6 +297,31 @@ RSpec.describe Staging::StagedRequestsController do
         end
       end
     end
+
+    context 'with non-existent target package', vcr: true do
+      let(:bs_request) do
+        create(:bs_request_with_submit_action,
+               state: :review,
+               creator: other_user,
+               target_project: project,
+               target_package: 'new_package',
+               source_package: source_package,
+               description: 'BsRequest 1',
+               number: 1,
+               review_by_group: group)
+      end
+
+      before do
+        login user
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+                      body: "<requests><number>#{bs_request.number}</number></requests>"
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(staging_project.packages.pluck(:name)).to match_array(['new_package']) }
+      it { expect(staging_project.staged_requests).to include(bs_request) }
+      it { assert_select 'status[code=ok]' }
+    end
   end
 
   describe 'DELETE #destroy', vcr: true do
