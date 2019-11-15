@@ -1,6 +1,7 @@
 class Staging::WorkflowsController < Staging::StagingController
   before_action :require_login
   before_action :set_project
+  before_action :check_staging_workflow, only: :create
   before_action :set_staging_workflow, only: [:update, :destroy]
   after_action :verify_authorized
 
@@ -49,6 +50,16 @@ class Staging::WorkflowsController < Staging::StagingController
   end
 
   private
+
+  def check_staging_workflow
+    return unless @project.staging
+
+    render_error(
+      status: 400,
+      errorcode: 'staging_workflow_exists',
+      message: "Project #{@project} already has an associated Staging Workflow with id: #{@project.staging.id}"
+    )
+  end
 
   def xml_hash
     Xmlhash.parse(request.body.read) || {}
