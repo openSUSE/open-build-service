@@ -25,6 +25,7 @@ RUN chown -R frontend /obs/src/api
 USER frontend
 WORKDIR /obs/src/api
 
+ENV BUNDLE_BUILD__SASSC=--disable-march-tune-native
 # Refresh our bundle
 RUN export NOKOGIRI_USE_SYSTEM_LIBRARIES=1; bundle install --jobs=3 --retry=3 || bundle install --jobs=3 --retry=3
 
