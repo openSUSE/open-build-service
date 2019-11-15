@@ -1,5 +1,6 @@
 builder.missing_reviews(count: count) do |missing_review|
-  missing_reviews.each do |bs_request|
-    missing_review.review(id: bs_request[:id], creator: bs_request[:by], state: bs_request[:state], package: bs_request[:package])
+  missing_reviews.each do |review|
+    missing_review.review(request: review[:request], state: review[:state], package: review[:package],
+                          creator: review[:creator], review[:review_type] => review[:by])
   end
 end
