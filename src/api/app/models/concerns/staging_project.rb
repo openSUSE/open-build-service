@@ -257,7 +257,7 @@ module StagingProject
       who = review.send(review_by)
       next unless who
 
-      extracted.merge!(id: review.id, request: request.number, state: review.state.to_s,
+      extracted.merge!(id: review.id, request: request.number, state: review.state.to_s, creator: review.creator,
                        package: request.first_target_package, by: who, review_type: review_by.to_s)
       # No need to duplicate reviews
       break extracted

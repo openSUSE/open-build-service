@@ -47,20 +47,20 @@ RSpec.describe Project, vcr: true do
       let(:other_user) { create(:confirmed_user) }
       let(:other_package) { create(:package) }
       let(:group) { create(:group) }
-      let!(:review_1) { create(:review, by_user:    other_user,            bs_request: submit_request) }
-      let!(:review_2) { create(:review, by_group:   group,                 bs_request: submit_request) }
-      let!(:review_3) { create(:review, by_project: other_package.project, bs_request: submit_request) }
-      let!(:review_4) { create(:review, by_package: other_package,         by_project: other_package.project, bs_request: submit_request) }
+      let!(:review_1) { create(:review, creator: user, by_user: other_user, bs_request: submit_request) }
+      let!(:review_2) { create(:review, creator: user, by_group: group, bs_request: submit_request) }
+      let!(:review_3) { create(:review, creator: user, by_project: other_package.project, bs_request: submit_request) }
+      let!(:review_4) { create(:review, creator: user, by_package: other_package, by_project: other_package.project, bs_request: submit_request) }
 
       subject { staging_project.missing_reviews }
 
       it 'contains all open reviews of staged requests' do
         # rubocop:disable Style/BracesAroundHashParameters
         expect(subject).to contain_exactly(
-          { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_user.login, review_type: 'by_user' },
-          { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, by: group.title, review_type: 'by_group' },
-          { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.project.name, review_type: 'by_project' },
-          { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, by: other_package.name, review_type: 'by_package' }
+          { id: review_1.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_user.login, review_type: 'by_user' },
+          { id: review_2.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: group.title, review_type: 'by_group' },
+          { id: review_3.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_package.project.name, review_type: 'by_project' },
+          { id: review_4.id, request: submit_request.number, state: 'new', package: target_package.name, creator: user.login, by: other_package.name, review_type: 'by_package' }
         )
         # rubocop:enable Style/BracesAroundHashParameters
       end
