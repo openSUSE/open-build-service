@@ -196,23 +196,43 @@ RSpec.describe Staging::StagedRequestsController do
           }
         end
         let(:body) { "<requests><number>#{bs_request.number}</number><number>#{another_bs_request.number}</number></requests>" }
-        let(:another_bs_request) do
-          create(:bs_request_with_submit_action,
-                 state: :review,
-                 creator: other_user,
-                 target_package: target_package,
-                 source_package: source_package,
-                 description: 'BsRequest 2',
-                 number: 2,
-                 review_by_group: group)
-        end
 
         before { subject }
 
-        it { expect(response).to have_http_status(:success) }
-        it { expect(staging_project.staged_requests).to include(bs_request) }
-        it { expect(staging_project.staged_requests).to include(another_bs_request) }
-        it { assert_select 'status[code=ok]' }
+        context 'with the same package' do
+          let(:another_bs_request) do
+            create(:bs_request_with_submit_action,
+                   state: :review,
+                   creator: other_user,
+                   target_package: target_package,
+                   source_package: source_package,
+                   description: 'BsRequest 2',
+                   number: 2,
+                   review_by_group: group)
+          end
+
+          it { expect(response).to have_http_status(:bad_request) }
+          it { expect(response.body).to match(/Can't stage request '#{another_bs_request.number}'/) }
+        end
+
+        context 'with another package' do
+          let(:another_target_package) { create(:package, name: 'another_target_package', project: project) }
+          let(:another_bs_request) do
+            create(:bs_request_with_submit_action,
+                   state: :review,
+                   creator: other_user,
+                   target_package: another_target_package,
+                   source_package: source_package,
+                   description: 'BsRequest 2',
+                   number: 2,
+                   review_by_group: group)
+          end
+
+          it { expect(response).to have_http_status(:success) }
+          it { expect(staging_project.staged_requests).to include(bs_request) }
+          it { expect(staging_project.staged_requests).to include(another_bs_request) }
+          it { assert_select 'status[code=ok]' }
+        end
       end
 
       context 'and one is excluded but the other is not' do
