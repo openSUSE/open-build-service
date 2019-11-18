@@ -46,12 +46,6 @@
       <optional>
         <attribute name="project"/>
       </optional>
-      <optional>
-        <attribute name="created"/>
-      </optional>
-      <optional>
-        <attribute name="updated"/>
-      </optional>
 
       <element ns="" name="title">
         <text/>
