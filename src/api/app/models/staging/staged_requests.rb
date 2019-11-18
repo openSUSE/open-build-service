@@ -9,9 +9,8 @@ class Staging::StagedRequests
       bs_request_action = request.bs_request_actions.first
       if bs_request_action.is_submit?
         link_package(bs_request_action)
-      elsif bs_request_action.is_delete?
-        # TODO: implement delete requests
       end
+      # TODO: implement delete requests
     end
 
     result.each { |request| add_review_for_staged_request(request) }
