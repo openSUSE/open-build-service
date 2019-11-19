@@ -17,7 +17,7 @@ class Staging::StagedRequestsController < Staging::StagingController
 
     if params[:remove_exclusion]
       ::Staging::RequestExcluder
-        .new(requests_xml_hash: { number: @request_numbers },
+        .new(requests_xml_hash: @parsed_xml,
              staging_workflow: @staging_workflow)
         .destroy!
     end
@@ -55,7 +55,7 @@ class Staging::StagedRequestsController < Staging::StagingController
   private
 
   def set_request_numbers
-    @request_numbers = @parsed_xml.elements('number')
+    @request_numbers = [@parsed_xml[:request]].flatten.map { |request| request[:id].to_i }
     return if @request_numbers.present?
 
     render_error(
@@ -67,7 +67,7 @@ class Staging::StagedRequestsController < Staging::StagingController
 
   def set_xml_hash
     request_body = request.body.read
-    @parsed_xml = Xmlhash.parse(request_body) if request_body.present?
+    @parsed_xml = Xmlhash.parse(request_body).with_indifferent_access if request_body.present?
     return if @parsed_xml
 
     error_options = if request_body.present?

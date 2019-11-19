@@ -47,7 +47,7 @@ RSpec.describe Staging::StagedRequestsController do
 
         login other_user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -57,7 +57,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: 'does-not-exist', format: :xml },
-                      body: "<requests><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -67,7 +67,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='-1'/><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:bad_request) }
@@ -79,7 +79,7 @@ RSpec.describe Staging::StagedRequestsController do
         Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(424) }
@@ -93,7 +93,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -106,7 +106,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>#{delete_request.number}</number></requests>"
+                      body: "<requests><request id='#{delete_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -129,7 +129,7 @@ RSpec.describe Staging::StagedRequestsController do
             format: :xml
           }
         end
-        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+        let(:body) { "<requests><request id='#{bs_request.number}'/></requests>" }
 
         before do
           create(:request_exclusion,
@@ -153,7 +153,7 @@ RSpec.describe Staging::StagedRequestsController do
             format: :xml
           }
         end
-        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+        let(:body) { "<requests><request id='#{bs_request.number}'/></requests>" }
 
         before do
           create(:request_exclusion,
@@ -185,7 +185,7 @@ RSpec.describe Staging::StagedRequestsController do
             format: :xml
           }
         end
-        let(:body) { "<requests><number>#{bs_request.number}</number></requests>" }
+        let(:body) { "<requests><request id='#{bs_request.number}'/></requests>" }
 
         before { subject }
 
@@ -209,7 +209,17 @@ RSpec.describe Staging::StagedRequestsController do
             format: :xml
           }
         end
-        let(:body) { "<requests><number>#{bs_request.number}</number><number>#{another_bs_request.number}</number></requests>" }
+        let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{another_bs_request.number}'/></requests>" }
+        let(:another_bs_request) do
+          create(:bs_request_with_submit_action,
+                 state: :review,
+                 creator: other_user,
+                 target_package: target_package,
+                 source_package: source_package,
+                 description: 'BsRequest 2',
+                 number: 2,
+                 review_by_group: group)
+        end
 
         before { subject }
 
@@ -269,7 +279,7 @@ RSpec.describe Staging::StagedRequestsController do
               format: :xml
             }
           end
-          let(:body) { "<requests><number>#{bs_request.number}</number><number>#{request_to_exclude.number}</number></requests>" }
+          let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>" }
 
           before do
             create(:request_exclusion,
@@ -304,7 +314,7 @@ RSpec.describe Staging::StagedRequestsController do
               format: :xml
             }
           end
-          let(:body) { "<requests><number>#{bs_request.number}</number><number>#{request_to_exclude.number}</number></requests>" }
+          let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{request_to_exclude.number}'/></requests>" }
 
           before do
             create(:request_exclusion,
@@ -348,7 +358,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login user
         post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                      body: "<requests><number>#{bs_request.number}</number></requests>"
+                      body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -372,7 +382,7 @@ RSpec.describe Staging::StagedRequestsController do
       before do
         login other_user
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
+                         body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -383,7 +393,7 @@ RSpec.describe Staging::StagedRequestsController do
         before do
           login user
           delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                           body: "<requests><number>#{bs_request.number}</number></requests>"
+                           body: "<requests><request id='#{bs_request.number}'/></requests>"
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -395,7 +405,7 @@ RSpec.describe Staging::StagedRequestsController do
         before do
           login user
           delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                           body: "<requests><number>-1</number><number>#{bs_request.number}</number></requests>"
+                           body: "<requests><request id='-1'/><request id='#{bs_request.number}'/></requests>"
         end
 
         it { expect(response).to have_http_status(:bad_request) }
@@ -409,7 +419,7 @@ RSpec.describe Staging::StagedRequestsController do
           bs_request.state = :revoked
           bs_request.save
           delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
-                           body: "<requests><number>#{bs_request.number}</number></requests>"
+                           body: "<requests><request id='#{bs_request.number}'/></requests>"
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -423,7 +433,7 @@ RSpec.describe Staging::StagedRequestsController do
         Delayed::Job.create(handler: "job_class: StagingProjectAcceptJob, project_id: #{staging_project.id}")
         login user
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
+                         body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(:bad_request) }

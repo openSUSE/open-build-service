@@ -69,7 +69,7 @@ class Staging::RequestExcluder
   end
 
   def request_numbers
-    [requests_xml_hash[:number]].flatten.map(&:to_i)
+    [requests_xml_hash[:request]].flatten.map { |request| request[:id].to_i }
   end
 
   def valid_request?(bs_request, request_number)

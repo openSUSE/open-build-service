@@ -128,7 +128,7 @@ RSpec.describe Staging::ExcludedRequestsController do
 
       subject do
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
+                         body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect { subject }.to(change { staging_workflow.request_exclusions.count }.by(-1)) }
@@ -143,7 +143,7 @@ RSpec.describe Staging::ExcludedRequestsController do
     context 'fails: request not excluded' do
       before do
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
+                         body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(400) }
@@ -154,7 +154,7 @@ RSpec.describe Staging::ExcludedRequestsController do
         request_exclusion
         allow_any_instance_of(ActiveRecord::Relation).to receive(:destroy_all).and_return([])
         delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
-                         body: "<requests><number>#{bs_request.number}</number></requests>"
+                         body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
       it { expect(response).to have_http_status(400) }
