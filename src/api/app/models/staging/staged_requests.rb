@@ -107,6 +107,11 @@ class Staging::StagedRequests
   def link_package(bs_request_action)
     request = bs_request_action.bs_request
 
+    if Package.find_by(project: staging_project, name: bs_request_action.target_package)
+      errors << "Can't stage request '#{request.number}': package '#{bs_request_action.target_package}' already exists in '#{staging_project}'."
+      return
+    end
+
     source_package = Package.get_by_project_and_name!(bs_request_action.source_project,
                                                       bs_request_action.source_package)
 
@@ -119,7 +124,7 @@ class Staging::StagedRequests
 
     package_rev = backend_package_information['srcmd5']
 
-    link_package = Package.find_or_create_by!(project: staging_project, name: bs_request_action.target_package)
+    link_package = Package.create!(project: staging_project, name: bs_request_action.target_package)
 
     create_link(staging_project.name, link_package.name, User.session!, project: source_package.project.name,
                                                                         package: source_package.name, rev: package_rev,
