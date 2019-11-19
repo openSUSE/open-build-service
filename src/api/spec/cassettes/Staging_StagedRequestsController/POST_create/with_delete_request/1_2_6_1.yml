@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:06 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:41 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-38">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-3">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -69,19 +69,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '176'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="77">
-          <srcmd5>51c9efc0e3af150a7050f33167ad159a</srcmd5>
-          <time>1574167866</time>
+        <revision rev="5">
+          <srcmd5>602e8e3284f67812365e97e2880b3ef9</srcmd5>
+          <time>1574269901</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:06 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-38" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-38" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:06 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-38">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-3">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -152,19 +152,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '177'
+      - '176'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="78">
-          <srcmd5>baac9d49963dadc2d63d7bbd70f93a23</srcmd5>
-          <time>1574167867</time>
+        <revision rev="6">
+          <srcmd5>2b5b5658007e8ef89a0cbc4576bcef05</srcmd5>
+          <time>1574269902</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:07 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-38" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-38" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:07 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-38" role="reviewer"/>
+          <group groupid="staging-workflow-managers-3" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,7 +237,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '215'
     body:
       encoding: UTF-8
       string: |
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-38" role="reviewer"/>
+          <group groupid="staging-workflow-managers-3" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:07 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -256,8 +256,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Terrible Swift Sword</title>
-          <description>Enim dolores suscipit ut.</description>
+          <title>Surprised by Joy</title>
+          <description>Animi deleniti repellat tempora.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -278,14 +278,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Terrible Swift Sword</title>
-          <description>Enim dolores suscipit ut.</description>
+          <title>Surprised by Joy</title>
+          <description>Animi deleniti repellat tempora.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 12:51:07 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:42 GMT
 recorded_with: VCR 5.0.0

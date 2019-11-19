@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-2">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-10">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -69,19 +69,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5">
-          <srcmd5>5aa91688e74e53b49343157a65da71e6</srcmd5>
-          <time>1572953888</time>
+        <revision rev="19">
+          <srcmd5>9ed4e26f2293c75e0a491b0646ee9751</srcmd5>
+          <time>1574269908</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-2">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-10">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -152,19 +152,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '176'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6">
-          <srcmd5>6b66a2ec580136385a4db14d7d083dd7</srcmd5>
-          <time>1572953888</time>
+        <revision rev="20">
+          <srcmd5>ccd7d10ca1928252a9b7e3396c02727b</srcmd5>
+          <time>1574269908</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-2" role="maintainer"/>
+          <group groupid="staging-workflow-managers-10" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-2" role="reviewer"/>
+          <group groupid="staging-workflow-managers-10" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,7 +237,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '215'
+      - '216'
     body:
       encoding: UTF-8
       string: |
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-2" role="reviewer"/>
+          <group groupid="staging-workflow-managers-10" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -256,8 +256,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>No Longer at Ease</title>
-          <description>Neque quos provident velit.</description>
+          <title>In a Dry Season</title>
+          <description>Et itaque laudantium aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -278,16 +278,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>No Longer at Ease</title>
-          <description>Neque quos provident velit.</description>
+          <title>In a Dry Season</title>
+          <description>Et itaque laudantium aut.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:08 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -295,7 +295,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Farewell to Arms</title>
+          <title>A Summer Bird-Cage</title>
           <description/>
         </project>
     headers:
@@ -322,11 +322,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Farewell to Arms</title>
+          <title>A Summer Bird-Cage</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -334,8 +334,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Et voluptatum doloribus sunt.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Dolores aperiam quisquam amet.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -356,16 +356,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>A Confederacy of Dunces</title>
-          <description>Et voluptatum doloribus sunt.</description>
+          <title>The Far-Distant Oxus</title>
+          <description>Dolores aperiam quisquam amet.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -398,7 +398,7 @@ http_interactions:
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -437,7 +437,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_link?user=permitted_user
@@ -468,49 +468,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
+        <revision rev="1" vrev="1">
           <srcmd5>d5e16cac42930eeb8421736378202c08</srcmd5>
           <version>unknown</version>
-          <time>1572953889</time>
+          <time>1574269909</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
-- request:
-    method: post
-    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22target_package%22%20and%20linkinfo/@project=%22home:permitted_user%22%20and%20@project=%22home:permitted_user%22)
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '27'
-    body:
-      encoding: UTF-8
-      string: |
-        <collection>
-        </collection>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:38:09 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:49 GMT
 recorded_with: VCR 5.0.0

@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:53 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-17">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-9">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -69,19 +69,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="243">
-          <srcmd5>98f8bcabb4295ca82639e40c9a391462</srcmd5>
-          <time>1573220693</time>
+        <revision rev="17">
+          <srcmd5>b17e86b9be7af0cd74c5ad312f17fb07</srcmd5>
+          <time>1574269907</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-17" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-17" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-17">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-9">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -152,19 +152,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="244">
-          <srcmd5>d58c349c3e414222fa2866fa875627c8</srcmd5>
-          <time>1573220694</time>
+        <revision rev="18">
+          <srcmd5>acf8a6ad4127bb9bb492f8f736cf5d84</srcmd5>
+          <time>1574269907</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-17" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '174'
+      - '173'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-17" role="maintainer"/>
+          <group groupid="staging-workflow-managers-9" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-17" role="reviewer"/>
+          <group groupid="staging-workflow-managers-9" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,7 +237,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '216'
+      - '215'
     body:
       encoding: UTF-8
       string: |
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-17" role="reviewer"/>
+          <group groupid="staging-workflow-managers-9" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -256,8 +256,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Rerum voluptatem itaque quia.</description>
+          <title>The Wings of the Dove</title>
+          <description>Accusamus cum laboriosam deserunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -278,16 +278,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>To Sail Beyond the Sunset</title>
-          <description>Rerum voluptatem itaque quia.</description>
+          <title>The Wings of the Dove</title>
+          <description>Accusamus cum laboriosam deserunt.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:54 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -295,7 +295,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>When the Green Woods Laugh</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description/>
         </project>
     headers:
@@ -317,16 +317,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '117'
+      - '116'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>When the Green Woods Laugh</title>
+          <title>Alone on a Wide, Wide Sea</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:55 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -334,8 +334,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>What's Become of Waring</title>
-          <description>Provident neque distinctio quia.</description>
+          <title>Noli Me Tangere</title>
+          <description>Et quod facilis accusantium.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -356,14 +356,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>What's Become of Waring</title>
-          <description>Provident neque distinctio quia.</description>
+          <title>Noli Me Tangere</title>
+          <description>Et quod facilis accusantium.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:55 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:48 GMT
 recorded_with: VCR 5.0.0
