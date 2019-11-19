@@ -92,8 +92,9 @@ ul .table-list-group-item {
       margin-left: 10px;
 
       a.request {
+        min-height: 1.3rem;
         @extend .text-white;
-        padding: 0 0.125rem 0.25rem;
+        padding: 0 0.125rem 0;
         display: flex;
         align-items: center;
 
@@ -102,6 +103,7 @@ ul .table-list-group-item {
         }
 
         img {
+          @extend .bg-white;
           border-radius: 50%;
           height: 20px;
           width: 20px;
