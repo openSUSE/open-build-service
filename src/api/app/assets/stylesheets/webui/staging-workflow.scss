@@ -88,7 +88,6 @@ ul .table-list-group-item {
     @extend .w-50;
 
     span.badge {
-
       margin-left: 10px;
 
       a.request {
@@ -128,6 +127,12 @@ ul .table-list-group-item {
 
       &.state-untracked {
         @extend .badge-dark;
+      }
+
+      &.delete {
+        a.request {
+          text-decoration: line-through;
+        }
       }
     }
     a, div.collapse, div.collapsing {
