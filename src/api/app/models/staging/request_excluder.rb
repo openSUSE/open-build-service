@@ -51,8 +51,8 @@ class Staging::RequestExcluder
   end
 
   def exclude_request(request)
-    bs_request = staging_workflow.target_of_bs_requests.find_by(number: request[:number])
-    return unless valid_request?(bs_request, request[:number])
+    bs_request = staging_workflow.target_of_bs_requests.find_by(number: request[:id])
+    return unless valid_request?(bs_request, request[:id])
 
     request_excluded = Staging::RequestExclusion.new(bs_request: bs_request,
                                                      number: bs_request.try(:number),
@@ -69,7 +69,7 @@ class Staging::RequestExcluder
   end
 
   def request_numbers
-    [requests_xml_hash[:number]].flatten.map(&:to_i)
+    [requests_xml_hash[:request]].flatten.map { |request| request[:id].to_i }
   end
 
   def valid_request?(bs_request, request_number)

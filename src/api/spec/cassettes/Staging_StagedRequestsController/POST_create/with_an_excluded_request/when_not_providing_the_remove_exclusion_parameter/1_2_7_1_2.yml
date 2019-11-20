@@ -40,14 +40,131 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=user_55
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
+        <package name="target_package" project="home:permitted_user">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Velit aut quia est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user">
+          <title>Let Us Now Praise Famous Men</title>
+          <description>Velit aut quia est.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_56
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Postern of Fate</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Postern of Fate</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_57
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Last Enemy</title>
+          <description>Accusamus perferendis qui dolor.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Last Enemy</title>
+          <description>Accusamus perferendis qui dolor.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_58
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-39">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -69,29 +186,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="245">
-          <srcmd5>ec4a9d81591c54b678f1dc5f60f6ee41</srcmd5>
-          <time>1573220697</time>
-          <user>permitted_user</user>
+        <revision rev="77">
+          <srcmd5>a8853c0d0ea56e19517eac43acbd1dff</srcmd5>
+          <time>1574269947</time>
+          <user>user_58</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=user_58
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-39" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -119,17 +236,17 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-39" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_58
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-18">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-39">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -152,29 +269,29 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '170'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="246">
-          <srcmd5>effd2e93855be6e3e127babc05813ca7</srcmd5>
-          <time>1573220697</time>
-          <user>permitted_user</user>
+        <revision rev="78">
+          <srcmd5>d14c849566ee44c3bcc11f5fac061b22</srcmd5>
+          <time>1574269947</time>
+          <user>user_58</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=user_58
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-39" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -202,13 +319,13 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-18" role="maintainer"/>
+          <group groupid="staging-workflow-managers-39" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
+    uri: http://backend:5352/source/home:permitted_user/_meta?user=user_58
     body:
       encoding: UTF-8
       string: |
@@ -216,7 +333,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-18" role="reviewer"/>
+          <group groupid="staging-workflow-managers-39" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -245,125 +362,8 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-18" role="reviewer"/>
+          <group groupid="staging-workflow-managers-39" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user">
-          <title>Of Human Bondage</title>
-          <description>Quas voluptatem similique aliquid.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '171'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user">
-          <title>Of Human Bondage</title>
-          <description>Quas voluptatem similique aliquid.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta?user=permitted_user
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>Eyeless in Gaza</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '106'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>Eyeless in Gaza</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Iure aspernatur natus sapiente.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '176'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>A Monstrous Regiment of Women</title>
-          <description>Iure aspernatur natus sapiente.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 08 Nov 2019 13:44:58 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:27 GMT
 recorded_with: VCR 5.0.0

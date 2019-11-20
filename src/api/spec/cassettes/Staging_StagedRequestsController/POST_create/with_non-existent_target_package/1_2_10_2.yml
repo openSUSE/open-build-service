@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:50 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-13">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -69,19 +69,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="117">
-          <srcmd5>9dcb5cf420daed4d036a384bfeb64efb</srcmd5>
-          <time>1574170130</time>
+        <revision rev="25">
+          <srcmd5>cf2d3ac1c7d902fce5ab9127ee9499a8</srcmd5>
+          <time>1574269912</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-13" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -112,24 +112,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-13" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:52 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-13">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -152,19 +152,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '178'
+      - '177'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="118">
-          <srcmd5>55c0e52fdb04d9dffcf1ab79dc2ec54c</srcmd5>
-          <time>1574170131</time>
+        <revision rev="26">
+          <srcmd5>021b5a539001836636c78363fde56ae8</srcmd5>
+          <time>1574269913</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-13" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -195,17 +195,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '173'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-13" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+          <group groupid="staging-workflow-managers-13" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -237,7 +237,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '215'
+      - '216'
     body:
       encoding: UTF-8
       string: |
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+          <group groupid="staging-workflow-managers-13" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -256,7 +256,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Scanner Darkly</title>
+          <title>The Daffodil Sky</title>
           <description/>
         </project>
     headers:
@@ -283,11 +283,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>A Scanner Darkly</title>
+          <title>The Daffodil Sky</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -295,8 +295,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>To a God Unknown</title>
-          <description>Nihil dolorem molestiae harum.</description>
+          <title>Postern of Fate</title>
+          <description>Quibusdam expedita qui excepturi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -317,16 +317,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>To a God Unknown</title>
-          <description>Nihil dolorem molestiae harum.</description>
+          <title>Postern of Fate</title>
+          <description>Quibusdam expedita qui excepturi.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -359,7 +359,7 @@ http_interactions:
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/new_package/_meta?user=permitted_user
@@ -398,7 +398,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/new_package/_link?user=permitted_user
@@ -429,14 +429,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
+        <revision rev="2" vrev="2">
           <srcmd5>d5e16cac42930eeb8421736378202c08</srcmd5>
           <version>unknown</version>
-          <time>1574170131</time>
+          <time>1574269913</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Tue, 19 Nov 2019 13:28:51 GMT
+  recorded_at: Wed, 20 Nov 2019 17:11:53 GMT
 recorded_with: VCR 5.0.0

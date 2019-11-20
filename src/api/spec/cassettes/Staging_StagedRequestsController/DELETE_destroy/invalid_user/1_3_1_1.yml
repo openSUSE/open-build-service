@@ -40,16 +40,16 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=user_1
+    uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=user_91
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>The Road Less Traveled</title>
-          <description>Aliquam et quo doloribus.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Aut vero illum qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,312 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>The Road Less Traveled</title>
-          <description>Aliquam et quo doloribus.</description>
+          <title>Nine Coaches Waiting</title>
+          <description>Aut vero illum qui.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_2
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_92
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-48">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="47">
-          <srcmd5>9dcb5cf420daed4d036a384bfeb64efb</srcmd5>
-          <time>1572954417</time>
-          <user>user_2</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=user_2
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user:Staging:A">
-          <title/>
-          <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '173'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user:Staging:A">
-          <title></title>
-          <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
-        </project>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_2
-    body:
-      encoding: UTF-8
-      string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
-          <staging_project name="home:permitted_user:Staging:A"/>
-          <staging_project name="home:permitted_user:Staging:B"/>
-        </workflow>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <revision rev="48">
-          <srcmd5>55c0e52fdb04d9dffcf1ab79dc2ec54c</srcmd5>
-          <time>1572954417</time>
-          <user>user_2</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=user_2
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user:Staging:B">
-          <title/>
-          <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '173'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user:Staging:B">
-          <title></title>
-          <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
-        </project>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user/_meta?user=user_2
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user">
-          <title/>
-          <description/>
-          <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '215'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:permitted_user">
-          <title></title>
-          <description></description>
-          <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
-        </project>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=user_3
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>A Summer Bird-Cage</title>
-          <description>Perspiciatis dolores vitae sed.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '180'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="home:permitted_user:Staging:A">
-          <title>A Summer Bird-Cage</title>
-          <description>Perspiciatis dolores vitae sed.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta?user=user_4
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>East of Eden</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '103'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>East of Eden</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_5
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Qui accusamus enim aliquam.</description>
-        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -399,10 +112,297 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="source_package" project="source_project">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Qui accusamus enim aliquam.</description>
+        <revision rev="95">
+          <srcmd5>8daa94701eb55dad19887a57d3877846</srcmd5>
+          <time>1574269957</time>
+          <user>user_92</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-48" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-48" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-48">
+          <staging_project name="home:permitted_user:Staging:A"/>
+          <staging_project name="home:permitted_user:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="96">
+          <srcmd5>18d7586b1d2e6ab2d977c2a47b38d4cb</srcmd5>
+          <time>1574269958</time>
+          <user>user_92</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-48" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-48" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title/>
+          <description/>
+          <person userid="permitted_user" role="maintainer"/>
+          <group groupid="staging-workflow-managers-48" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '216'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:permitted_user">
+          <title></title>
+          <description></description>
+          <person userid="permitted_user" role="maintainer"/>
+          <group groupid="staging-workflow-managers-48" role="reviewer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=user_93
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>Look Homeward, Angel</title>
+          <description>Deleniti qui cupiditate autem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '181'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:permitted_user:Staging:A">
+          <title>Look Homeward, Angel</title>
+          <description>Deleniti qui cupiditate autem.</description>
         </package>
     http_version: 
-  recorded_at: Tue, 05 Nov 2019 11:46:57 GMT
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_94
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>When the Green Woods Laugh</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>When the Green Woods Laugh</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_95
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>From Here to Eternity</title>
+          <description>Rem et autem tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>From Here to Eternity</title>
+          <description>Rem et autem tempora.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 20 Nov 2019 17:12:38 GMT
 recorded_with: VCR 5.0.0

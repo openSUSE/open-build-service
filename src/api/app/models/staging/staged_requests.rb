@@ -97,11 +97,11 @@ class Staging::StagedRequests
   end
 
   def not_found_request_numbers
-    request_numbers - requests.pluck(:number).map(&:to_s)
+    request_numbers - requests.pluck(:number)
   end
 
   def excluded_request_numbers
-    staging_workflow.request_exclusions.where(number: @request_numbers).pluck(:number).map(&:to_s)
+    staging_workflow.request_exclusions.where(number: @request_numbers).pluck(:number)
   end
 
   def requests
@@ -177,10 +177,10 @@ class Staging::StagedRequests
   end
 
   def missing_requests(requests)
-    not_unassigned_requests = request_numbers - requests.pluck(:number).map(&:to_s)
+    not_unassigned_requests = request_numbers - requests.pluck(:number)
     return if not_unassigned_requests.empty?
 
-    requests_found = BsRequest.where(number: not_unassigned_requests).pluck(:number).map(&:to_s)
+    requests_found = BsRequest.where(number: not_unassigned_requests).pluck(:number)
     requests_not_found = not_unassigned_requests - requests_found
 
     errors << "Requests with number: #{requests_found.to_sentence} don't belong to Staging: #{staging_workflow.project}" if requests_found.present?
