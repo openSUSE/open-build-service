@@ -22,6 +22,7 @@ RSpec.describe Staging::StagedRequestsController do
            number: 1,
            review_by_group: group)
   end
+  let(:delete_request) { create(:delete_bs_request, target_package: target_package) }
 
   describe 'GET #index' do
     before do
@@ -98,6 +99,19 @@ RSpec.describe Staging::StagedRequestsController do
       it { expect(response).to have_http_status(:success) }
       it { expect(staging_project.packages.pluck(:name)).to match_array([target_package.name]) }
       it { expect(staging_project.staged_requests).to include(bs_request) }
+      it { assert_select 'status[code=ok]' }
+    end
+
+    context 'with delete request', vcr: true do
+      before do
+        login user
+        post :create, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml },
+                      body: "<requests><number>#{delete_request.number}</number></requests>"
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(staging_project.packages.pluck(:name)).not_to include(target_package.name) }
+      it { expect(staging_project.staged_requests).to include(delete_request) }
       it { assert_select 'status[code=ok]' }
     end
 

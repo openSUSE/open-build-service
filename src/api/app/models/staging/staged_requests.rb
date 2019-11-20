@@ -11,9 +11,17 @@ class Staging::StagedRequests
         link_package(bs_request_action)
       end
       # TODO: implement delete requests
+      ProjectLogEntry.create!(
+        project: staging_project,
+        user_name: user_login,
+        bs_request: request,
+        event_type: :staged_request,
+        datetime: Time.now,
+        package_name: bs_request_action.target_package
+      )
+      staging_project.staged_requests << request
+      add_review_for_staged_request(request)
     end
-
-    result.each { |request| add_review_for_staged_request(request) }
 
     self
   end
@@ -63,10 +71,6 @@ class Staging::StagedRequests
   end
 
   private
-
-  def result
-    @result ||= []
-  end
 
   def not_removed_packages
     @not_removed_packages ||= {}
@@ -129,17 +133,6 @@ class Staging::StagedRequests
     create_link(staging_project.name, link_package.name, User.session!, project: source_package.project.name,
                                                                         package: source_package.name, rev: package_rev,
                                                                         vrev: source_vrev)
-
-    ProjectLogEntry.create!(
-      project: staging_project,
-      user_name: user_login,
-      bs_request: request,
-      event_type: :staged_request,
-      datetime: Time.now,
-      package_name: bs_request_action.target_package
-    )
-    staging_project.staged_requests << request
-    result << request
   end
 
   def add_review_for_staged_request(request)
