@@ -7,7 +7,7 @@
         = link_to("##{element.bs_request.number}", request_show_path(element.bs_request.number))
         for package
         %b= element.package_name
-        submitted by
+        by
         %b= element.user_name
       - when 'staging_project_created'
         %b #{time_ago_in_words(Time.at(element.datetime.to_i))} ago
