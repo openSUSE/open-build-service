@@ -1965,8 +1965,10 @@ POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/copy
   Copy a staging project
 XmlResult: status_ok
 
-POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/accept
+POST /staging/<staging_workflow_project>/staging_projects/<staging_project>/accept?force=1
   Accept staging project. This accepts all staged requests and sets the project state back to 'empty'.
+  Will return in an error if staging project is not acceptable, unless force is given. You can force
+   accept staging projects with building or failing packages, but not with missing reviews
 XmlResult: status_ok
 
 POST /staging/<staging_workflow_project>/staging_projects

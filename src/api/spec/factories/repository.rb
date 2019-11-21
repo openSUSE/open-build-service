@@ -2,6 +2,7 @@ FactoryBot.define do
   factory :repository do
     project
     sequence(:name) { |n| "repository_#{n}" }
+    required_checks { [] }
 
     transient do
       architectures { [] }

@@ -46,22 +46,24 @@ class Staging::StagingProjectsController < Staging::StagingController
     render_ok
   end
 
-  def accept
-    authorize @staging_project, :update?
+  class StagingProjectNotAcceptable < APIError; end
 
-    if @staging_project.overall_state != :acceptable
-      render_error(
-        status: 400,
-        errorcode: 'invalid_request',
-        message: 'Staging project is not in state acceptable.'
-      )
-      return
-    end
+  def accept
+    authorize @staging_project, :accept?
+    authorize @project, :update?
+
+    # check general state
+    raise StagingProjectNotAcceptable, 'Staging project is not in state acceptable.' unless can_accept?
     StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
     render_ok
   end
 
   private
+
+  def can_accept?
+    return true if @staging_project.overall_state == :acceptable
+    params[:force].present? && @staging_project.force_acceptable?
+  end
 
   def set_options
     @options = {}

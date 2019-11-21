@@ -39,6 +39,16 @@ class ProjectPolicy < ApplicationPolicy
     User.admin_session? || !record.disabled_for?('sourceaccess', nil, nil)
   end
 
+  # staging project
+  def accept?
+    return false unless update?
+    record.staged_requests.each do |request|
+      # we pretend the user asked for force, we only want to check permissions
+      # not if it makes sense
+      request.permission_check_change_state!(newstate: 'accepted', force: true)
+    end
+  end
+
   private
 
   def no_remote_instance_defined_and_has_not_remote_repositories?

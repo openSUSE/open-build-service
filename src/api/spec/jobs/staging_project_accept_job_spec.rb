@@ -18,7 +18,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
 
     let(:requester) { create(:confirmed_user, login: 'requester') }
     let(:target_package_2) { create(:package, name: 'target_package_2', project: target_project) }
-    let!(:staged_request) do
+    let(:staged_request) do
       create(
         :bs_request_with_submit_action,
         state: :new,
@@ -30,7 +30,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
         staging_owner: user
       )
     end
-    let!(:staged_request_with_by_project_review) do
+    let(:staged_request_with_by_project_review) do
       create(
         :bs_request_with_submit_action,
         creator: requester,
@@ -45,6 +45,8 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
 
     before do
       User.session = user
+      staged_request
+      staged_request_with_by_project_review
     end
 
     subject { StagingProjectAcceptJob.perform_now(project_id: staging_project.id, user_login: user.login) }
@@ -65,7 +67,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
       it { expect(staged_request_with_by_project_review.reviews.where.not(state: 'accepted')).not_to exist }
     end
 
-    context 'when the staging project is not in state acceptable' do
+    context 'when the staging project has missing reviews' do
       let!(:user_relationship) { create(:relationship, project: target_project, user: user) }
       let(:target_package_3) { create(:package, name: 'target_package_3', project: target_project) }
       let!(:open_staged_request) do
@@ -81,17 +83,7 @@ RSpec.describe StagingProjectAcceptJob, type: :job, vcr: true do
         )
       end
 
-      before do
-        subject
-        # Ensure we test the current state.
-        staging_project.send(:clear_memoized_data)
-      end
-
-      it { expect(staging_project.overall_state).to eq(:review) }
-      it { expect(staging_project.packages).not_to be_empty }
-      it { expect(staged_request.reload.state).not_to eq(:accepted) }
-      it { expect(staged_request_with_by_project_review.reload.state).not_to eq(:accepted) }
-      it { expect(open_staged_request.reload.state).not_to eq(:accepted) }
+      it { expect { subject }.to raise_error PostRequestNoPermission }
     end
 
     context 'when the user has no permissions for the target' do
