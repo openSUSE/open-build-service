@@ -288,9 +288,10 @@ sub assignjob {
     my $msg = "gave up after $attempt failed build attempts...";
     push @args, "nobadhost=$msg" if checkbadhost(@attempts);
   }
+  my $uri = "http://$worker->{'ip'}:$worker->{'port'}/build";
   eval {
     BSRPC::rpc({
-      'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
+      'uri'     => $uri,
       'timeout' => 10 + int(length($infoxml) / 100000),
       'request' => "PUT",
       'headers' => [ "Content-Type: text/xml" ],
@@ -300,7 +301,7 @@ sub assignjob {
   if ($@) {
     my $err = $@;
     chomp $err;
-    BSUtil::printlog("rpc error: $err");
+    BSUtil::printlog("rpc error: '$err' on accessing '$uri'");
     unlink("$jobsdir/$arch/$job:status");
     close F;
     if ($err =~ /cannot build anything/) {
@@ -786,7 +787,7 @@ sub checkconstraints {
   }
   if (!$info->{'scheduleinfo'} || $info->{'scheduleinfo'} ne $details) {
     $info->{'scheduleinfo'} = $details;
-    print "setting dispatch details to: $details\n";
+    BSUtil::printlog("setting dispatch details to: $details");
     if ($sumworkers) {
       setdispatchdetails($info, $arch, $job, $details);
     } else {
