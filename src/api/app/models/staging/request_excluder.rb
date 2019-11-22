@@ -61,7 +61,7 @@ class Staging::RequestExcluder
 
     return if request_excluded.save
 
-    errors << "Request #{request_excluded.bs_request_id}: #{request_excluded.errors.full_messages.to_sentence}."
+    errors << "Request #{request_excluded.number}: #{request_excluded.errors.full_messages.to_sentence}."
   end
 
   def requests_to_be_excluded
