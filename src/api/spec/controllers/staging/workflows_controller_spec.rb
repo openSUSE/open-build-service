@@ -48,7 +48,7 @@ RSpec.describe Staging::WorkflowsController do
         post :create, params: { staging_workflow_project: project, format: :xml }
       end
 
-      it { expect(response).to have_http_status(:not_found) }
+      it { expect(response).to have_http_status(:bad_request) }
       it { expect(project.staging).to be_nil }
     end
   end
