@@ -417,6 +417,7 @@ my $gctx = {
   'remoteproxy' => $BSConfig::proxy,
   'asyncmode' => $asyncmode,
   'critlogfile' => "$_logdir/scheduler_${_myarch}.crit.log",
+  'obssrcdir' => $INC[0],
 
   # repository state cache
   #  'lastscan'   last time we scanned

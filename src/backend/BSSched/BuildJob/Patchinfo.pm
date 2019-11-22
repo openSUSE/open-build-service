@@ -206,9 +206,6 @@ sub check {
 
   return ('broken', $broken) if $broken;
 
-  my @new_meta;
-  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-
   if ($ptype eq 'local') {
     # only rebuild if patchinfo source changes
     my @meta;
@@ -217,7 +214,8 @@ sub check {
       close F;
       chomp @meta;
     }
-    if (@meta == 1 && $meta[0] eq $new_meta[0]) {
+    my $verifymd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
+    if (@meta == 1 && $meta[0] eq "$verifymd5  $packid") {
       print "      - $packid (patchinfo)\n";
       print "        nothing changed\n";
       return ('done');
@@ -326,25 +324,10 @@ sub check {
 
   return ('broken', 'no binaries found') unless @tocopy;
 
-  for (sort(keys %metas)) {
-    push @new_meta, "$metas{$_}  $_";
-  }
-
-  # compare with stored meta
-  my @meta;
-  if (open(F, '<', "$gdst/:meta/$packid")) {
-    @meta = <F>;
-    close F;
-    chomp @meta;
-  }
-  if (@meta == @new_meta && join("\n", @meta) eq join("\n", @new_meta)) {
-    print "      - $packid (patchinfo)\n";
-    print "        nothing changed\n";
-    return ('done');
-  }
-
-  # now collect...
-  return ('scheduled', [ \@tocopy, \%metas, $ptype]);
+  # compare against old meta and build if it does not match
+  my @new_meta;
+  push @new_meta, "$metas{$_}  $_" for sort keys %metas;
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'patchinfo', \@new_meta, [ \@tocopy, \%metas, $ptype ]);
 }
 
 
@@ -353,6 +336,56 @@ sub check {
  TODO: add description
 
 =cut
+
+sub build_ptf_job {
+  my ($self, $ctx, $packid, $pdata, $job, $metas, $reason) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  my $obssrcdir = $gctx->{'obssrcdir'};
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  # get data for all rpms
+  my @rpms;
+  for my $bin (sort(grep {/^[^\.].*\.rpm$/s} ls($jobdatadir))) {
+    eval {
+      my $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'description' => 1);
+      $d->{'evr'} = "$d->{'version'}-$d->{'release'}";
+      $d->{'evr'} = "$d->{'epoch'}:$d->{'evr'}" if $d->{'epoch'};
+      push @rpms, $d;
+    };
+    if ($@) {
+      my $err = "$bin: $@";
+      chomp $err;
+      return ('broken', $err);
+    }
+  }
+  return ('broken', 'no rpms') unless @rpms;
+  # write a ptf.spec file
+  my $patchinfo = { %{$pdata->{'patchinfo'}} };		# copy so we can modify
+  return ('broken', 'no incident number') unless $patchinfo->{'incident'};
+  $patchinfo->{'version'} ||= 1;
+  $patchinfo->{'description'} =~ s/\n+$/\n/s if $patchinfo->{'description'};
+  my @ptfspec = split("\n", readstr("$obssrcdir/obs-ptf.spec"));
+  for my $ptfline (splice @ptfspec) {
+    $ptfline =~ s/\@patchinfo-(.*?)\@/$patchinfo->{$1}/ge;
+    if ($ptfline =~ /\@rpm-.*?\@/) {
+      for my $rpm (@rpms) {
+        my $l = $ptfline;
+	$l =~ s/\@rpm-(.*?)\@/$rpm->{$1}/ge;
+	push @ptfspec, $l;
+      }
+    } else {
+      push @ptfspec, $ptfline;
+    }
+  }
+  writestr("$jobdatadir/ptf.spec", undef, join("\n", @ptfspec)."\n");
+  my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
+  push @new_meta, "$metas->{$_}  $_" for sort keys %$metas;
+  writestr("$jobdatadir/meta", undef, join("\n", @new_meta)."\n");
+  my $pdata_job = { 'srcmd5' => $pdata->{'srcmd5'}, 'buildtype' => 'patchinfo' };
+  my $info_job = { 'file' => '_ptf' };
+  return BSSched::BuildJob::create($ctx, $packid, $pdata_job, $info_job, [], [], $reason, 0);
+}
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
@@ -365,6 +398,7 @@ sub build {
   my @tocopy = @{$data->[0]};
   my $ckmetas = $data->[1];
   my $ptype = $data->[2];
+  my $reason = $data->[3];
   my $reporoot = $gctx->{'reporoot'};
 
   print "      - $packid (patchinfo)\n";
@@ -555,6 +589,11 @@ sub build {
   }
 
   $broken ||= 'no binaries found' unless @upackages;
+
+  if (($patchinfo->{'category'} || '') eq 'ptf') {
+    # create a ptf build job
+    return build_ptf_job($self, $ctx, $packid, $pdata, $job, \%metas, $reason);
+  }
 
   my $update = {};
   $update->{'status'} = $patchinfo->{'retracted'} ? 'retracted' : 'stable';
