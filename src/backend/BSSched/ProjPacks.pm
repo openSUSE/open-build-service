@@ -1032,10 +1032,10 @@ sub setup_projects {
 
       # check if all packages are locked
       my $alllocked;
-      if ($proj->{'locked'} && BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
+      if ($proj->{'lock'} && BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
 	$alllocked = 1;
-	for my $pack (grep {$_->{'locked'}} values(%{$proj->{'package'} || {}})) {
-	  $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'locked'}, 1, $myarch);
+	for my $pack (grep {$_->{'lock'}} values(%{$proj->{'package'} || {}})) {
+	  $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
 	}
       }
       if ($alllocked) {
