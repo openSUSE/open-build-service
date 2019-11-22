@@ -1064,6 +1064,7 @@ eval {
     ($state, $details) = $ctx->checkpkgs();
 
     my $isfinished = $state eq 'finished' ? 1 : 0;
+    my $bconf = $ctx->{'conf'};
 
     # notify remote build services of repository changes or block state changes
     # we alse send it if we finish a prp to give linked aggregates a chance to work
@@ -1071,7 +1072,7 @@ eval {
     sendrepochangeevent($gctx, $prp);
 
     # free memory
-    Build::forgetdeps($ctx->{'conf'});
+    Build::forgetdeps($bconf);
 
     $ctx->printstats();
 
@@ -1081,7 +1082,7 @@ eval {
     }
 
     # we always publish kiwi...
-    if ($isfinished || $ctx->{'prptype'} eq 'kiwi') {
+    if ($isfinished || (!$bconf->{'publishflags:noearlykiwipublish'} && $ctx->{'prptype'} eq 'kiwi')) {
       my ($pubstate, $pubdetails) = $ctx->publish();
       ($state, $details) = ($pubstate, $pubdetails) if $pubstate && $pubstate ne 'done';
     }
