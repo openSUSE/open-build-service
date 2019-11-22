@@ -100,8 +100,6 @@ GEM
       json
       simplecov
       url
-    codemirror-rails (5.16.0)
-      railties (>= 3.0, < 6.0)
     coderay (1.1.2)
     coffee-rails (5.0.0)
       coffee-script (>= 2.2.0)
@@ -475,7 +473,6 @@ DEPENDENCIES
   clockwork (>= 0.7)
   cocoon
   codecov
-  codemirror-rails
   coderay
   coffee-rails
   colorize
