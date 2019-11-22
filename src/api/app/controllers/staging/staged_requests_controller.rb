@@ -65,19 +65,6 @@ class Staging::StagedRequestsController < Staging::StagingController
     )
   end
 
-  def set_xml_hash
-    request_body = request.body.read
-    @parsed_xml = Xmlhash.parse(request_body).with_indifferent_access if request_body.present?
-    return if @parsed_xml
-
-    error_options = if request_body.present?
-                      { status: 400, errorcode: 'invalid_xml_format', message: 'XML format is not valid' }
-                    else
-                      { status: 400, errorcode: 'invalid_request', message: 'Empty body' }
-                    end
-    render_error(error_options)
-  end
-
   def set_staging_project
     @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_name])
     return if @staging_project

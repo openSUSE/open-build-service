@@ -1,7 +1,8 @@
 class Staging::ExcludedRequestsController < Staging::StagingController
-  before_action :require_login, except: [:index]
+  before_action :require_login, except: :index
   before_action :set_project
-  before_action :set_staging_workflow, :set_requests_xml_hash
+  before_action :set_staging_workflow
+  before_action :set_xml_hash, except: :index
 
   def index
     @request_exclusions = @staging_workflow.request_exclusions
@@ -10,7 +11,7 @@ class Staging::ExcludedRequestsController < Staging::StagingController
   def create
     authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    result = ::Staging::RequestExcluder.new(requests_xml_hash: @requests_xml_hash, staging_workflow: @staging_workflow).create
+    result = ::Staging::RequestExcluder.new(requests_xml_hash: @parsed_xml, staging_workflow: @staging_workflow).create
 
     if result.valid?
       render_ok
@@ -26,7 +27,7 @@ class Staging::ExcludedRequestsController < Staging::StagingController
   def destroy
     authorize @staging_workflow, policy_class: Staging::RequestExclusionPolicy
 
-    result = ::Staging::RequestExcluder.new(requests_xml_hash: @requests_xml_hash, staging_workflow: @staging_workflow).destroy
+    result = ::Staging::RequestExcluder.new(requests_xml_hash: @parsed_xml, staging_workflow: @staging_workflow).destroy
 
     if result.valid?
       render_ok
@@ -37,11 +38,5 @@ class Staging::ExcludedRequestsController < Staging::StagingController
         message: "Error while unexcluding requests: #{result.errors.join(' ')}"
       )
     end
-  end
-
-  private
-
-  def set_requests_xml_hash
-    @requests_xml_hash = (Xmlhash.parse(request.body.read) || {}).with_indifferent_access
   end
 end
