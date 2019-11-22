@@ -1,5 +1,5 @@
 class Staging::StagingProjectsController < Staging::StagingController
-  include Source::Errors
+  include Staging::Errors
 
   before_action :require_login, except: [:index, :show]
   before_action :set_project
@@ -45,8 +45,6 @@ class Staging::StagingProjectsController < Staging::StagingController
     StagingProjectCopyJob.perform_later(params[:staging_workflow_project], params[:staging_project_name], params[:staging_project_copy_name], User.session!.id)
     render_ok
   end
-
-  class StagingProjectNotAcceptable < APIError; end
 
   def accept
     authorize @staging_project, :accept?
