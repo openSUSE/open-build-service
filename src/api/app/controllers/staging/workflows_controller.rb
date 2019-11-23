@@ -3,13 +3,14 @@ class Staging::WorkflowsController < Staging::StagingController
   before_action :set_project
   before_action :check_staging_workflow, only: :create
   before_action :set_staging_workflow, only: [:update, :destroy]
+  before_action :set_xml_hash, only: [:create, :update]
   after_action :verify_authorized
 
   def create
     staging_workflow = @project.build_staging
     authorize staging_workflow
 
-    staging_workflow.managers_group = Group.find_by!(title: xml_hash['managers'])
+    staging_workflow.managers_group = Group.find_by!(title: @parsed_xml[:managers])
 
     if staging_workflow.save
       render_ok
@@ -36,7 +37,7 @@ class Staging::WorkflowsController < Staging::StagingController
   def update
     authorize @staging_workflow
 
-    @staging_workflow.managers_group = Group.find_by!(title: xml_hash['managers'])
+    @staging_workflow.managers_group = Group.find_by!(title: @parsed_xml[:managers])
 
     if @staging_workflow.save
       render_ok
@@ -59,9 +60,5 @@ class Staging::WorkflowsController < Staging::StagingController
       errorcode: 'staging_workflow_exists',
       message: "Project #{@project} already has an associated Staging Workflow with id: #{@project.staging.id}"
     )
-  end
-
-  def xml_hash
-    Xmlhash.parse(request.body.read) || {}
   end
 end
