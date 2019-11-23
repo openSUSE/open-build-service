@@ -640,8 +640,8 @@ RSpec.describe BsRequest, vcr: true do
         'state' => 'new',
         'request_type' => 'submit',
         'priority' => 'moderate',
-        'created_at' => submit_request.created_at,
-        'updated_at' => submit_request.updated_at,
+        'created_at' => submit_request.created_at.as_json,
+        'updated_at' => submit_request.updated_at.as_json,
         'superseded_by' => delete_request.id,
         'superseded_by_id' => delete_request.id
       )
