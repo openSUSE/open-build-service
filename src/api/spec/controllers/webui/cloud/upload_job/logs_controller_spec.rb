@@ -34,7 +34,7 @@ RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: 
           get :show, params: { upload_id: upload_job.job_id }
         end
 
-        it { expect(response).to be_success }
+        it { expect(response).to have_http_status(:success) }
         it { expect(response.body).to eq(log) }
       end
 

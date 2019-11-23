@@ -18,7 +18,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
                              package: 'foo', format: :xml }
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'package do not exist' do
@@ -29,7 +29,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
                              package: 'bar', format: :xml }
       end
 
-      it { expect(response).not_to be_success }
+      it { expect(response).not_to have_http_status(:success) }
     end
   end
 
@@ -54,7 +54,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
                      body: meta, format: :xml
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'bad XML' do

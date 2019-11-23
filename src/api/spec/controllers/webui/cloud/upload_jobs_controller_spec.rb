@@ -61,7 +61,7 @@ RSpec.describe Webui::Cloud::UploadJobsController, type: :controller, vcr: true 
 
       it { expect(assigns(:upload_jobs).length).to eq(1) }
       it { expect(assigns(:upload_jobs).first.id).to eq('6') }
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
     end
   end
 
