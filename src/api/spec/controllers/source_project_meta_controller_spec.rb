@@ -14,7 +14,7 @@ RSpec.describe SourceProjectMetaController, vcr: true do
       get :show, params: { project: project }
     end
 
-    it { expect(response).to be_success }
+    it { expect(response).to have_http_status(:success) }
     it { expect(Xmlhash.parse(response.body)['name']).to eq(project.name) }
   end
 
@@ -33,7 +33,7 @@ RSpec.describe SourceProjectMetaController, vcr: true do
       put :update, params: { project: project }, body: meta, format: :xml
     end
 
-    it { expect(response).to be_success }
+    it { expect(response).to have_http_status(:success) }
     it { expect(project.meta.content).to eq(meta) }
   end
 end

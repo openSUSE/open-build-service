@@ -14,7 +14,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
         get :show, params: { project: project }
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'when the project doesnt exist' do
@@ -44,7 +44,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
         put :update, params: { project: project, comment: 'Updated by test' }
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
       it { expect(project.config.content).to include('Updated', 'by', 'test') }
     end
 
@@ -56,7 +56,7 @@ RSpec.describe SourceProjectConfigController, vcr: true do
         put :update, params: { project: project, comment: 'add preinstall' }, body: config
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
       it { expect(project.config.content).to include('Preinstall') }
     end
   end

@@ -68,7 +68,7 @@ RSpec.describe SourceAttributeController, vcr: true do
                      body: xml_attrib
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'update invalid attribute' do
@@ -91,7 +91,7 @@ RSpec.describe SourceAttributeController, vcr: true do
                      body: wrong_xml_attrib
       end
 
-      it { expect(response).not_to be_success }
+      it { expect(response).not_to have_http_status(:success) }
 
       it 'gives the right status code' do
         resp = Xmlhash.parse(response.body)
@@ -110,7 +110,7 @@ RSpec.describe SourceAttributeController, vcr: true do
                                   format: :xml }
       end
 
-      it { expect(response).to be_success }
+      it { expect(response).to have_http_status(:success) }
       it { expect(project.reload.attribs).to be_empty }
     end
 
@@ -124,7 +124,7 @@ RSpec.describe SourceAttributeController, vcr: true do
                                   format: :xml }
       end
 
-      it { expect(response).not_to be_success }
+      it { expect(response).not_to have_http_status(:success) }
       it { expect(project.attribs).not_to be_empty }
 
       it 'gives the right status code' do

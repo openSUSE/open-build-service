@@ -23,7 +23,7 @@ RSpec.describe Services::WebhooksController, type: :controller, vcr: true do
           post :create, body: body, params: { id: service_token.id, project: project.name, package: package.name, format: :xml }
         end
 
-        it { expect(response).to be_success }
+        it { expect(response).to have_http_status(:success) }
       end
 
       context 'when token is invalid' do

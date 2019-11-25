@@ -18,7 +18,7 @@ RSpec.describe Webui::Groups::UsersController do
       it 'adds the user to the group' do
         expect(response).to redirect_to(group_show_path(title: group.title))
         expect(flash[:success]).to eq("Added user '#{user}' to group '#{group}'")
-        expect(group.users.where(groups_users: { user: user })).to exist
+        expect(group.users.where(groups_users: { user_id: user })).to exist
       end
     end
 
@@ -28,7 +28,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it { expect(flash[:error]).to eq("User 'unknown_user' not found") }
-      it { expect(group.users.where(groups_users: { user: user })).not_to exist }
+      it { expect(group.users.where(groups_users: { user_id: user })).not_to exist }
     end
 
     context 'when the group does not exist' do
@@ -78,7 +78,7 @@ RSpec.describe Webui::Groups::UsersController do
       it 'removes the user from the group' do
         expect(response).to have_http_status(:success)
         expect(flash[:success]).to eq("Removed user from group '#{group}'")
-        expect(group.users.where(groups_users: { user: user })).not_to exist
+        expect(group.users.where(groups_users: { user_id: user })).not_to exist
       end
     end
 
@@ -89,7 +89,7 @@ RSpec.describe Webui::Groups::UsersController do
 
       it { expect(response).to have_http_status(:not_found) }
       it { expect(flash[:error]).to eq("User 'unknown_user' not found in group '#{group}'") }
-      it { expect(group.users.where(groups_users: { user: user })).not_to exist }
+      it { expect(group.users.where(groups_users: { user_id: user })).not_to exist }
     end
 
     context 'when the group does not exist' do
@@ -154,7 +154,7 @@ RSpec.describe Webui::Groups::UsersController do
 
       it { expect(response).to have_http_status(:not_found) }
       it { expect(flash[:error]).to eq("User 'unknown_user' not found in group '#{group}'") }
-      it { expect(group.users.where(groups_users: { user: user })).not_to exist }
+      it { expect(group.users.where(groups_users: { user_id: user })).not_to exist }
     end
 
     context 'when the group does not exist' do
