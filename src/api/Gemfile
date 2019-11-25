@@ -194,8 +194,6 @@ group :assets do
   gem 'sassc-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
-  # assets for the text editor
-  gem 'codemirror-rails'
   # assets for jQuery tokeninput
   gem 'rails_tokeninput', '>= 1.6.1.rc1'
   # to create our sprite images/stylesheets
