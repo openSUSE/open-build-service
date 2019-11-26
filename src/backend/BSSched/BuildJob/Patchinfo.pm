@@ -362,7 +362,10 @@ sub build_ptf_job {
   return ('broken', 'no rpms') unless @rpms;
   # write a ptf.spec file
   my $patchinfo = { %{$pdata->{'patchinfo'}} };		# copy so we can modify
-  return ('broken', 'no incident number') unless $patchinfo->{'incident'};
+  if (!$patchinfo->{'incident'}) {
+    return ('broken', 'no incident number') unless $ctx->{'project'} =~ /:(\d+)$/;
+    $patchinfo->{'incident'} = $1;
+  }
   $patchinfo->{'version'} ||= 1;
   $patchinfo->{'description'} =~ s/\n+$/\n/s if $patchinfo->{'description'};
   my @ptfspec = split("\n", readstr("$obssrcdir/obs-ptf.spec"));

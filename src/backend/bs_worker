@@ -2992,6 +2992,7 @@ sub dobuild {
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
     $buildinfo->{'file'} = 'ptf.spec';
+    @meta = split("\n", readstr("$srcdir/meta"));
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
     getsslcert($buildinfo, $srcdir);
