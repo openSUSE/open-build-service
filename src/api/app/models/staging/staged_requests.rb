@@ -116,13 +116,10 @@ class Staging::StagedRequests
       return
     end
 
-    source_package = Package.get_by_project_and_name!(bs_request_action.source_project,
-                                                      bs_request_action.source_package)
-
-    query_options = { expand: 1 }
+    query_options = { expand: 1, project: bs_request_action.source_project, package: bs_request_action.source_package }
     query_options[:rev] = bs_request_action.source_rev if bs_request_action.source_rev
 
-    backend_package_information = source_package.dir_hash(query_options)
+    backend_package_information = Directory.hashed(query_options)
 
     source_vrev = backend_package_information['vrev']
 
@@ -130,8 +127,8 @@ class Staging::StagedRequests
 
     link_package = Package.create!(project: staging_project, name: bs_request_action.target_package)
 
-    create_link(staging_project.name, link_package.name, User.session!, project: source_package.project.name,
-                                                                        package: source_package.name, rev: package_rev,
+    create_link(staging_project.name, link_package.name, User.session!, project: bs_request_action.source_project,
+                                                                        package: bs_request_action.source_package, rev: package_rev,
                                                                         vrev: source_vrev)
   end
 
