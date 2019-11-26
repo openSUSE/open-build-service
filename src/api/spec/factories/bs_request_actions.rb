@@ -10,19 +10,19 @@ FactoryBot.define do
       role { Role.find_by_title('bugowner') }
       person_name { create(:user).login }
     end
-    factory :bs_request_action_submit, class: BsRequestActionSubmit do
+    factory :bs_request_action_submit, class: 'BsRequestActionSubmit' do
       type { 'submit' }
     end
-    factory :bs_request_action_delete, class: BsRequestActionDelete do
+    factory :bs_request_action_delete, class: 'BsRequestActionDelete' do
       type { 'delete' }
     end
-    factory :bs_request_action_maintenance_incident, class: BsRequestActionMaintenanceIncident do
+    factory :bs_request_action_maintenance_incident, class: 'BsRequestActionMaintenanceIncident' do
       type { 'maintenance_incident' }
     end
-    factory :bs_request_action_maintenance_release, class: BsRequestActionMaintenanceRelease do
+    factory :bs_request_action_maintenance_release, class: 'BsRequestActionMaintenanceRelease' do
       type { 'maintenance_release' }
     end
-    factory :bs_request_action_set_bugowner, class: BsRequestActionSetBugowner do
+    factory :bs_request_action_set_bugowner, class: 'BsRequestActionSetBugowner' do
       type { :set_bugowner }
       person_name { create(:user).login }
     end

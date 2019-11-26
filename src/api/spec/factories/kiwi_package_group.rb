@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :kiwi_package_group, class: Kiwi::PackageGroup do
+  factory :kiwi_package_group, class: 'Kiwi::PackageGroup' do
     association :image, factory: :kiwi_image
 
     kiwi_type { Kiwi::PackageGroup.kiwi_types.keys[Faker::Number.between(from: 0, to: Kiwi::PackageGroup.kiwi_types.keys.length - 1)] }
