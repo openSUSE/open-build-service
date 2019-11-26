@@ -9,7 +9,6 @@ class StagingProjectAcceptJob < ApplicationJob
 
   def accept(staging_project)
     staging_project.send(:clear_memoized_data)
-    return unless staging_project.overall_state.in?([:accepting, :acceptable])
     accepted_packages = []
     staging_project.staged_requests.each do |staged_request|
       if staged_request.reviews.where(by_project: staging_project.name).exists?

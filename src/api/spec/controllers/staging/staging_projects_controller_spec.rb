@@ -280,7 +280,7 @@ RSpec.describe Staging::StagingProjectsController do
       it { expect(response.body).to match('Staging Project "non-existent" does not exist.') }
     end
 
-    context 'when staging project is not ready to be accepted' do
+    context 'when staging project is empty' do
       let(:staging_project_name) { staging_project.name }
 
       subject! do
@@ -289,43 +289,77 @@ RSpec.describe Staging::StagingProjectsController do
 
       it { is_expected.to have_http_status(:bad_request) }
       it { expect(response.body).to match('Staging project is not in state acceptable.') }
+
+      context 'with force parameter' do
+        subject! do
+          post :accept, params: params.merge(force: true), format: :xml
+        end
+
+        it 'still fails' do
+          expect(subject).to have_http_status(:bad_request)
+        end
+      end
     end
 
-    context 'when project is in state acceptable', vcr: true do
+    context 'when project has a request', vcr: true do
+      let(:staging_owner) { create(:confirmed_user, login: 'staging-hero') }
       let(:staging_project_name) { staging_project.name }
       let(:requester) { create(:confirmed_user, login: 'requester') }
       let(:target_project) { create(:project, name: 'target_project') }
       let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
       let(:target_package) { create(:package, name: 'target_package', project: target_project) }
       let(:source_package) { create(:package, name: 'source_package', project: source_project) }
-      let!(:user_relationship) { create(:relationship, project: target_project, user: user) }
+      let!(:target_relationship) { create(:relationship, project: target_project, user: user) }
+      let!(:staging_relationship) { create(:relationship, project: staging_project, user: staging_owner) }
       let!(:staged_request_1) do
         create(
           :bs_request_with_submit_action,
-          state: :new,
+          review_by_project: staging_project,
           creator: requester,
           description: 'Fixes issue #42',
           target_package: target_package,
           source_package: source_package,
           staging_project: staging_project,
-          staging_owner: user
+          staging_owner: staging_owner
         )
       end
 
       before do
         allow(StagingProjectAcceptJob).to receive(:perform_later)
-        User.session = user
       end
 
       subject do
         post :accept, params: params, format: :xml
       end
 
-      it { is_expected.to have_http_status(:success) }
+      context 'with nothing missing' do
+        it { is_expected.to have_http_status(:success) }
 
-      it "starts the 'accept' job for the staging projects" do
-        subject
-        expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)
+        it "starts the 'accept' job for the staging projects" do
+          subject
+          expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)
+        end
+
+        context 'as staging owner' do
+          before do
+            login staging_owner
+          end
+
+          it "can't accept" do
+            expect(subject).to have_http_status(403)
+          end
+        end
+      end
+
+      context 'with missing check' do
+        let!(:repo) { create(:repository, project: staging_project, name: 'standard', architectures: ['local'], required_checks: ['theone']) }
+
+        it { is_expected.to have_http_status(:bad_request) }
+
+        it 'returns correct error' do
+          subject
+          expect(response.body).to match('Staging project is not in state acceptable.')
+        end
       end
     end
   end

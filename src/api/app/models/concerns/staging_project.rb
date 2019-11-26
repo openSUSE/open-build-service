@@ -147,6 +147,13 @@ module StagingProject
     project_log_entry.save!
   end
 
+  def force_acceptable?
+    return false if overall_state.in?([:empty, :unacceptable, :accepting])
+    # won't force accept missing reviews, but we can skip
+    # building, testing and failing projects
+    missing_reviews.empty?
+  end
+
   private
 
   def clear_memoized_data

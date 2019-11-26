@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/foo_project/_meta?user=_nobody_
+    uri: http://backend:5352/source/foo_project/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Mermaids Singing</title>
+          <title>Recalled to Life</title>
           <description/>
         </project>
     headers:
@@ -29,14 +29,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '108'
+      - '104'
     body:
       encoding: UTF-8
       string: |
         <project name="foo_project">
-          <title>The Mermaids Singing</title>
+          <title>Recalled to Life</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Thu, 22 Nov 2018 15:08:09 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Fri, 22 Nov 2019 09:54:16 GMT
+recorded_with: VCR 5.0.0

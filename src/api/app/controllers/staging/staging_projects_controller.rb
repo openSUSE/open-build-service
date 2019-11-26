@@ -1,5 +1,5 @@
 class Staging::StagingProjectsController < Staging::StagingController
-  include Source::Errors
+  include Staging::Errors
 
   before_action :require_login, except: [:index, :show]
   before_action :set_project
@@ -47,21 +47,21 @@ class Staging::StagingProjectsController < Staging::StagingController
   end
 
   def accept
-    authorize @staging_project, :update?
+    authorize @staging_project, :accept?
+    authorize @project, :update?
 
-    if @staging_project.overall_state != :acceptable
-      render_error(
-        status: 400,
-        errorcode: 'invalid_request',
-        message: 'Staging project is not in state acceptable.'
-      )
-      return
-    end
+    # check general state
+    raise StagingProjectNotAcceptable, 'Staging project is not in state acceptable.' unless can_accept?
     StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
     render_ok
   end
 
   private
+
+  def can_accept?
+    return true if @staging_project.overall_state == :acceptable
+    params[:force].present? && @staging_project.force_acceptable?
+  end
 
   def set_options
     @options = {}
