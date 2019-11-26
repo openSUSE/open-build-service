@@ -9,6 +9,7 @@ class Issue < ApplicationRecord
   belongs_to :owner, class_name: 'User'
 
   validate :name_validation, on: :create
+  validates :name, uniqueness: { scope: :issue_tracker_id }
 
   scope :stateless, -> { where(state: nil) }
 
