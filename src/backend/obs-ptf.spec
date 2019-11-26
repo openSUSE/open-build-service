@@ -4,9 +4,10 @@ Release:        0
 Summary:	@patchinfo-summary@
 License:        SUSE-Redistributable-Content
 Group:          System/Packages
+BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Provides:       ptf() = @patchinfo-incident@-@patchinfo-version@
-Requires:       (@rpm-name@ = @rpm-evr@ if @rpm-name@)
+Requires:       (@filtered-rpm-name@ = @filtered-rpm-evr@ if @filtered-rpm-name@)
 
 %description
 @patchinfo-description@
