@@ -1,5 +1,5 @@
 FactoryBot.define do
-  factory :kiwi_package, class: Kiwi::Package do
+  factory :kiwi_package, class: 'Kiwi::Package' do
     transient do
       image { create(:kiwi_image) }
     end
