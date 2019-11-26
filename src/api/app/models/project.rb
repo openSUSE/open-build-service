@@ -537,8 +537,8 @@ class Project < ApplicationRecord
   def check_weak_dependencies?
     begin
       check_weak_dependencies!
-    rescue DeleteError
-      false
+    rescue DeleteError, Package::Errors::DeleteError
+      return false
     end
     # Get all my repositories and linking_repositories and check if I can modify the
     # associated projects

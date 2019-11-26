@@ -23,7 +23,7 @@ Such requests get not created for projects with open requests or if you remove t
 
   def autoclean_project(prj)
     # project may be locked?
-    return if prj.nil? || prj.is_locked?
+    return if prj.nil? || prj.is_locked? || !prj.check_weak_dependencies?
 
     # open requests do block the cleanup
     open_requests_count = BsRequest.in_states([:new, :review, :declined]).
