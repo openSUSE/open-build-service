@@ -13,7 +13,7 @@ class Staging::StagedRequestsController < Staging::StagingController
   end
 
   def create
-    authorize @staging_project, :update?
+    authorize @staging_workflow, policy_class: Staging::StagedRequestPolicy
 
     if params[:remove_exclusion]
       ::Staging::RequestExcluder
@@ -33,7 +33,7 @@ class Staging::StagedRequestsController < Staging::StagingController
   end
 
   def destroy
-    authorize @staging_workflow, :update?
+    authorize @staging_workflow, policy_class: Staging::StagedRequestPolicy
 
     result = ::Staging::StagedRequests.new(
       request_numbers: @request_numbers,
