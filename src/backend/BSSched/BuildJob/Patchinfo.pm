@@ -351,6 +351,7 @@ sub build_ptf_job {
       my $d = Build::query("$jobdatadir/$bin", 'evra' => 1, 'description' => 1);
       $d->{'evr'} = "$d->{'version'}-$d->{'release'}";
       $d->{'evr'} = "$d->{'epoch'}:$d->{'evr'}" if $d->{'epoch'};
+      $d->{'filename'} = $bin;
       push @rpms, $d;
     };
     if ($@) {
@@ -360,6 +361,16 @@ sub build_ptf_job {
     }
   }
   return ('broken', 'no rpms') unless @rpms;
+  my @filtered_rpms = grep {$_->{'arch'} ne 'src' && $_->{'arch'} ne 'nosrc'} @rpms;
+
+  # check that there's no evr conflict over a name
+  my %rpmnames;
+  for my $d (@filtered_rpms) {
+    my $od = $rpmnames{$d->{'name'}};
+    return ('broken', "evr conflict: $od->{'filename'} $d->{'filename'}") if $od && $d->{'evr'} ne $od->{'evr'};
+    $rpmnames{$d->{'name'}} = $d;
+  }
+
   # write a ptf.spec file
   my $patchinfo = { %{$pdata->{'patchinfo'}} };		# copy so we can modify
   if (!$patchinfo->{'incident'}) {
@@ -367,16 +378,18 @@ sub build_ptf_job {
     $patchinfo->{'incident'} = $1;
   }
   $patchinfo->{'version'} ||= 1;
-  $patchinfo->{'description'} =~ s/\n+$/\n/s if $patchinfo->{'description'};
+  $patchinfo->{'description'} =~ s/\n+$//s if $patchinfo->{'description'};
   my @ptfspec = split("\n", readstr("$obssrcdir/obs-ptf.spec"));
   for my $ptfline (splice @ptfspec) {
     $ptfline =~ s/\@patchinfo-(.*?)\@/$patchinfo->{$1}/ge;
-    if ($ptfline =~ /\@rpm-.*?\@/) {
-      for my $rpm (@rpms) {
+    if ($ptfline =~ /\@(filtered-)?rpm-.*?\@/) {
+      my %l;
+      for my $rpm ($1 ? @filtered_rpms : @rpms) {
         my $l = $ptfline;
-	$l =~ s/\@rpm-(.*?)\@/$rpm->{$1}/ge;
-	push @ptfspec, $l;
+	$l =~ s/\@(?:filtered-)?rpm-(.*?)\@/$rpm->{$1}/ge;
+	$l{$l} = 1;
       }
+      push @ptfspec, sort keys %l;
     } else {
       push @ptfspec, $ptfline;
     }
@@ -403,16 +416,15 @@ sub build {
   my $ptype = $data->[2];
   my $reason = $data->[3];
   my $reporoot = $gctx->{'reporoot'};
-
-  print "      - $packid (patchinfo)\n";
-  print "        rebuilding\n";
+  my $patchinfo = $pdata->{'patchinfo'};
+  my $category = $patchinfo->{'category'} || '';
   my $now = time();
   my $prp = "$projid/$repoid";
   my $job = BSSched::BuildJob::jobname($prp, $packid);
+  $job .= "-$pdata->{'srcmd5'}" if $category eq 'ptf';
   my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', $job) if -s "$myjobsdir/$job";
 
-  my $patchinfo = $pdata->{'patchinfo'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
@@ -593,10 +605,8 @@ sub build {
 
   $broken ||= 'no binaries found' unless @upackages;
 
-  if (($patchinfo->{'category'} || '') eq 'ptf') {
-    # create a ptf build job
-    return build_ptf_job($self, $ctx, $packid, $pdata, $job, \%metas, $reason);
-  }
+  # create a build job if this is a ptf
+  return build_ptf_job($self, $ctx, $packid, $pdata, $job, \%metas, $reason) if $category eq 'ptf';
 
   my $update = {};
   $update->{'status'} = $patchinfo->{'retracted'} ? 'retracted' : 'stable';
