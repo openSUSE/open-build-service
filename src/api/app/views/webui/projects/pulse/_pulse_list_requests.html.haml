@@ -7,11 +7,15 @@
       = link_to(request_show_path(request.number), title: request.description) do
         = request.number
       - if request.request_history_elements.any?
-        = request.request_history_elements.last.description.gsub('Request', '')
+        - history_element = request.request_history_elements.last
+        = history_element.description.gsub('Request', '')
+        by
+        = link_to(user_path(history_element.user)) do
+          = history_element.user
       - else
         was created
-      by
-      = link_to(user_path(request.creator)) do
-        = request.creator
+        by
+        = link_to(user_path(request.creator)) do
+          = request.creator
       = fuzzy_time(request.updated_at)
 
