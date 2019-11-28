@@ -145,3 +145,55 @@ li.missing-check {
   margin-left: 1.25rem;
   list-style: disc;
 }
+
+.overall-state {
+    float: left;
+    min-height: 8em;
+}
+
+.overall-state.staging-project {
+    border-radius: 8px;
+    margin: 5px;
+    padding: 4px;
+    text-align: center;
+    min-width: 6em;
+}
+
+.staging-project.state-building {
+    background-color: #cca66a;
+}
+
+.staging-project.state-review {
+    background-color: #6a98cc;
+}
+
+.staging-project.state-testing {
+    background-color: #6ab4cc;
+}
+
+.staging-project.state-unacceptable {
+    background-color: #333;
+    color: white;
+}
+
+.staging-project.state-failed {
+    background-color: #ff4e46;
+}
+
+.staging-project.state-acceptable {
+    background-color: #75c195;
+}
+
+.staging-project.state-empty {
+    background-color: blanchedalmond;
+}
+
+.staging-project .letter {
+    font-size: 150%;
+    margin: 5px;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 26px;
+    box-shadow: 0px -2px 2px #999;
+}
+

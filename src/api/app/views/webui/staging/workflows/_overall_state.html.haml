@@ -1,8 +1,9 @@
-%span.badge{ class: "state-#{staging_project.overall_state}" }
-  %span.badge.badge-light
+%div{ class: "overall-state staging-project state-#{staging_project.overall_state}" }
+  .letter
     = link_to(staging_project.staging_nick, staging_workflow_staging_project_path(staging_workflow, staging_project.name))
-  %span
-    %br
-    = staging_project.overall_state
-    %br
+  .state
+    - state = staging_project.overall_state
+    - state = 'broken' if state == :unacceptable
+    = state
+  .staging-progress
     = progress(staging_project)
