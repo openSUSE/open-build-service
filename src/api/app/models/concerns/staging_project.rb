@@ -12,6 +12,8 @@ module StagingProject
     before_update :add_managers_group, if: proc { |project| project.staging_workflow_id_changed? && project.staging_workflow_id_was.nil? }
 
     scope :staging_projects, -> { where.not(staging_workflow: nil) }
+
+    attr_writer :staging_nick, :staging_category
   end
 
   def copy(new_project_name)
@@ -154,7 +156,31 @@ module StagingProject
     missing_reviews.empty?
   end
 
+  def staging_category
+    categorize
+    @staging_category
+  end
+
+  def staging_nick
+    categorize
+    @staging_nick
+  end
+
+  def categorize
+    return if @stacking_nick
+    return if staging_workflow.project_categories.any? { |category| matches_category?(category) }
+    self.staging_nick = name
+  end
+
   private
+
+  def matches_category?(category)
+    nick = category.nick(name)
+    return unless nick
+    self.staging_nick = nick
+    self.staging_category = category
+    true
+  end
 
   def clear_memoized_data
     @broken_packages = []
