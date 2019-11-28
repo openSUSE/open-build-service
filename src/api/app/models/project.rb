@@ -413,6 +413,12 @@ class Project < ApplicationRecord
       {}
     end
 
+    def validate_bugowner_xml_attribute(request_data)
+      bugowner_amount = request_data.elements('person').select { |person| person['role'] == 'bugowner' }.count
+      return { error: 'More than one bugowner found. A project can only have one bugowner assigned.' } if bugowner_amount > 1
+      return {}
+    end
+
     def check_repositories(repositories)
       linking_repositories = []
       linking_target_repositories = []

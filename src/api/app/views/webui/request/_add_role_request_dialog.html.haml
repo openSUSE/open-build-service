@@ -16,8 +16,13 @@
             Do you want to request a role addition to #{link}?
           = hidden_field_tag(:package, package) if defined?(package)
           .form-group
-            = label_tag(:role, 'Add role:')
-            = select_tag(:role, options_for_select([['Maintainer', 'maintainer'], ['Bugowner', 'bugowner']]), class: 'form-control')
+            = label_tag(:role, 'Add role:', class: 'd-block')
+            .custom-control.custom-radio.custom-control-inline
+              = radio_button_tag :role, 'maintainer', true, class: 'custom-control-input'
+              = label_tag(:role_maintainer, 'Maintainer', class: 'custom-control-label')
+            .custom-control.custom-radio.custom-control-inline
+              = radio_button_tag :role, 'bugowner', nil, class: 'custom-control-input'
+              = label_tag(:role_bugowner, 'Bugowner', class: 'custom-control-label')
           .form-group
             = label_tag(:user, 'For user:')
             = text_field_tag(:user, User.session!.login, class: 'form-control')

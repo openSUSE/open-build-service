@@ -65,7 +65,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit project_show_path(project: target_project)
         click_link('Request Role Addition')
-        find(:id, 'role').select('Bugowner')
+        find('label[for="role_bugowner"]').click
         fill_in 'description', with: 'I can fix bugs too.'
 
         expect { click_button('Create') }.to change(BsRequest, :count).by(1)
@@ -100,7 +100,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit package_show_path(project: target_project, package: target_package)
         click_link 'Request role addition'
         within('#add-role-modal') do
-          find(:id, 'role').select('Maintainer')
+          find('label[for="role_maintainer"]').click
           fill_in 'description', with: 'I can produce bugs too.'
           expect { click_button('Create') }.to change(BsRequest, :count).by(1)
         end

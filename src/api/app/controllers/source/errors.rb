@@ -94,4 +94,6 @@ module Source::Errors
   class NotLocked < APIError; end
 
   class InvalidFlag < APIError; end
+
+  class BugownerExists < APIError; end
 end

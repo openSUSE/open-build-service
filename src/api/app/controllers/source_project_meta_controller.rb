@@ -103,6 +103,9 @@ class SourceProjectMetaController < SourceController
 
     result = Project.validate_repository_xml_attribute(request_data, project_name)
     raise RepositoryAccessFailure, result[:error] if result[:error]
+
+    result = Project.validate_bugowner_xml_attribute(request_data)
+    raise BugownerExists, result[:error] if result[:error]
   end
 
   private

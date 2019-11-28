@@ -20,6 +20,10 @@ module HasRelationships
     relationships.groups.includes(:group).map(&:group).uniq
   end
 
+  def bugowner?
+    relationships.where(role: Role.hashed['bugowner']).present?
+  end
+
   def bugowner_emails
     ret = []
     relationships.where(role: Role.hashed['bugowner']).joins(:user).each do |bugowner|

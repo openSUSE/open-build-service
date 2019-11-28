@@ -19,6 +19,7 @@ module MetaControllerService
         @errors << "Maintained project not found: '#{e.message}'"
       end
       @errors << Project.validate_repository_xml_attribute(@request_data, @project.name)[:error]
+      @errors << Project.validate_bugowner_xml_attribute(@request_data)[:error]
       @errors.compact!
     end
 

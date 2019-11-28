@@ -170,8 +170,9 @@ class Webui::RequestController < Webui::WebuiController
   def add_role_request
     request = nil
     begin
+      request_type = params['role'] == 'bugowner' ? :set_bugowner : :add_role
       request = BsRequest.create!(
-        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
+        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(request_type))]
       )
     rescue APIError => e
       flash[:error] = e.message
