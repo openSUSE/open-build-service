@@ -18,7 +18,7 @@ AllCops:
 
 #################### Layout ###########################
 
-Layout/AlignHash:
+Layout/HashAlignment:
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
   EnforcedLastArgumentHashStyle: ignore_implicit

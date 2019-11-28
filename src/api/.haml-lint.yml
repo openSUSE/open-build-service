@@ -17,13 +17,13 @@ linters:
       - Lint/BlockAlignment
       - Lint/EndAlignment
       - Lint/Void
-      - Layout/AlignParameters
+      - Layout/ParameterAlignment
       - Layout/ElseAlignment
       - Layout/EndOfLine
       - Layout/IndentationWidth
-      - Layout/TrailingBlankLines
+      - Layout/TrailingEmptyLines
       - Layout/TrailingWhitespace
-      - Layout/AlignHash
+      - Layout/HashAlignment
       - Metrics/BlockLength
       - Metrics/BlockNesting
       - Metrics/LineLength
