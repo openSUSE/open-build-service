@@ -608,7 +608,7 @@ GET /source/<project>/<package>/_history
 
   Get package commit history
 
-XmlResult: revisionlist
+XmlResult: revisionlist history.rng
 
 
 
