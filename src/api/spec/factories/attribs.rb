@@ -48,6 +48,12 @@ FactoryBot.define do
       values { [build(:attrib_value, value: Faker::Lorem.sentence)] }
     end
 
+    factory :auto_cleanup_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup') }
+
+      values { [build(:attrib_value, value: 14)] }
+    end
+
     factory :attrib_with_default_value do
       attrib_type { create(:attrib_type_with_default_value) }
     end
