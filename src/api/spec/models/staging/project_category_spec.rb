@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Staging::ProjectCategory, type: :model do
   let(:project) { create(:project_with_package, name: 'MyProject') }
   let(:staging_workflow) { create(:staging_workflow, project: project) }
-  let(:staging_project_category) { staging_workflow.project_categories.create(title: 'Letter', name_pattern: '.*:Staging:(?<nick>\w)') }
+  let(:staging_project_category) { create(:staging_project_category, staging_workflow: staging_workflow, name_pattern: '.*:Staging:(?<nick>\w)') }
 
   describe '#title' do
     it { is_expected.to validate_presence_of(:title) }
