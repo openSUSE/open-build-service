@@ -29,6 +29,7 @@ class Staging::Workflow < ApplicationRecord
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
   has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
   has_many :excluded_requests, through: :request_exclusions, source: :bs_request
+  has_many :project_categories, class_name: 'Staging::ProjectCategory', foreign_key: 'staging_workflow_id', dependent: :destroy
 
   validates :managers_group, presence: true
 
