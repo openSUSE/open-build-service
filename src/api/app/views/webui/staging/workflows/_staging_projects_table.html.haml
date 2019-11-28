@@ -1,4 +1,4 @@
-%table.table.table-bordered.table-hover.table-sm.dt-responsive.w-100#staging-projects-datatable
+%table.table.table-bordered.table-hover.table-sm.dt-responsive.w-100.staging-projects-datatable
   %thead
     %tr.text-center
       %th Staging Project
@@ -14,15 +14,3 @@
                                                                             users_hash: users_hash, groups_hash: groups_hash }
         %td
           = render partial: 'problems', locals: { staging_project: staging_project }
-
-- content_for :ready_function do
-  :plain
-    $('#staging-projects-datatable').DataTable({
-      responsive: true,
-      paging: false,
-      ordering: false,
-      searching: false,
-      info: false,
-      stateSave: true,
-      stateDuration: #{2.days}
-    });
