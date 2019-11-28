@@ -22,7 +22,7 @@
 
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'
-    = render partial: 'infos', locals: { staging_workflow: @staging_workflow, empty_projects: @empty_projects,
+    = render partial: 'infos', locals: { staging_workflow: @staging_workflow,
                                          unassigned_requests: @unassigned_requests, more_unassigned_requests: @more_unassigned_requests,
                                          ready_requests: @ready_requests, more_ready_requests: @more_ready_requests,
                                          excluded_requests: @excluded_requests, more_excluded_requests: @more_excluded_requests,
