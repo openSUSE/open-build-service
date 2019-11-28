@@ -1132,9 +1132,9 @@ sub createrepo_vagrant {
     if (!$withversion) {
       # split off profile
       my $profile = '';
-      $profile = $1 if $xbox =~ s/(-[^0-9-][^-]*)$//;
+      $profile = $1 if $xbox =~ s/((?:-[^0-9-][^-]*)+)$//;
       # split off version
-      next unless $xbox =~ s/-([^-]*)$//;
+      next unless $xbox =~ s/-([0-9][^-]*)$//;
       my $version = $1;
       $profile = '' if $profile eq "-$provider";
       # add to boxes (last one wins)
