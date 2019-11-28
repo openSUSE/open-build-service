@@ -34,6 +34,7 @@ BuildRequires:  gcc
 BuildRequires:  gcc-c++
 BuildRequires:  glibc-devel
 BuildRequires:  libtool
+BuildRequires:  libffi-devel
 BuildRequires:  libxml2-devel
 BuildRequires:  libxslt-devel
 BuildRequires:  make
@@ -100,6 +101,7 @@ cp %{S:0} %{S:1} .
 mkdir -p vendor/cache
 cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
 export GEM_HOME=~/.gems
+bundle config build.ffi --enable-system-libffi
 bundle config build.mysql2 --with-cflags='%{optflags} -Wno-return-type'
 bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
