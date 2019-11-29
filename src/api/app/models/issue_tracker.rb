@@ -24,10 +24,6 @@ class IssueTracker < ApplicationRecord
     self.issues_updated ||= Time.now
   end
 
-  def cve?
-    kind == 'cve'
-  end
-
   def valid_issue_name?(name)
     Issue.valid_name?(self, name)
   end

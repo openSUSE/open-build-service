@@ -19,14 +19,6 @@ class IssueTracker::IssueTrackerHelper
     !@issue_id.nil?
   end
 
-  def cve?
-    @tracker == 'cve'
-  end
-
-  def not_cve?
-    !cve?
-  end
-
   def to_a
     [@tracker, @issue_id, url, summary]
   end
