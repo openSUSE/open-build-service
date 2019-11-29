@@ -17,7 +17,8 @@
           = render(partial: 'delete', locals: { project: @project })
 
         - @categories.each do |category, projects|
-          %h5= category.title
+          - if category
+            %h5= category.title
           = render(partial: 'staging_projects_table',
                    locals: { staging_workflow: @staging_workflow, staging_projects: projects,
                              users_hash: @users_hash, groups_hash: @groups_hash })
