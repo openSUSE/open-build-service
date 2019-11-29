@@ -56,7 +56,7 @@ module Kiwi
           prefer_license = repository.attribute('prefer-license')&.value
           attributes['prefer_license'] = prefer_license == 'true' unless prefer_license.nil?
 
-          Repository.new(attributes)
+          Kiwi::Repository.new(attributes)
         end
       end
 
