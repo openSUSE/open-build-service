@@ -46,6 +46,9 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       @categories[project.staging_category] ||= []
       @categories[project.staging_category].append(project)
     end
+    @categories.each do |category, _projects|
+      sort_projects!(@categories[category])
+    end
     @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
     @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
     @ready_requests = @staging_workflow.ready_requests.first(5)
@@ -105,5 +108,33 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     redirect_back(fallback_location: root_path)
     flash[:error] = "Staging with id = #{params[:id]} doesn't exist"
     return
+  end
+
+  # returns a number presenting how high it should be in the list of staging prjs
+  # the lower the number, the earlier it is in the list - acceptable A first
+  def sort_key(project)
+    m = case project.overall_state
+        when :acceptable
+          0
+        when :review
+          10_000 - helpers.review_progress(project) * 10
+        when :testing
+          20_000 - helpers.testing_progress(project) * 10
+        when :building
+          30_000 - helpers.build_progress(project) * 10
+        when :failed
+          40_000
+        when :unacceptable
+          50_000
+        when :empty
+          60_000
+        else
+          Rails.logger.error "untracked #{project.overall_state}"
+        end
+    [m, project.staging_nick]
+  end
+
+  def sort_projects!(projects)
+    projects.sort_by! { |x| sort_key(x) }
   end
 end
