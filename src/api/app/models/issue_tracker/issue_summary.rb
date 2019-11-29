@@ -10,15 +10,15 @@ class IssueTracker::IssueSummary
     @issue_tracker && bug.match?(/^#{@issue_tracker.regex}$/)
   end
 
-  def bug
-    @issue_id.starts_with?('CVE-') ? @issue_id : @issue_tracker.name + '#' + @issue_id
-  end
-
   def issue_summary
     belongs_bug_to_tracker? ? fetch_issue_summary.gsub(/\\|'/, '') : nil
   end
 
   private
+
+  def bug
+    @issue_id.starts_with?('CVE-') ? @issue_id : @issue_tracker.name + '#' + @issue_id
+  end
 
   def fetch_issue_summary
     issue = find_or_create_by_name_and_tracker
