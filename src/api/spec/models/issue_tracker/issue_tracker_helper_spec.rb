@@ -11,10 +11,6 @@ RSpec.describe IssueTracker::IssueTrackerHelper do
     describe '#tracker' do
       it { expect(issue.tracker).to eq('cve') }
     end
-
-    describe '#bug' do
-      it { expect(issue.bug).to eq('CVE-2010-31337') }
-    end
   end
 
   context 'other tracker' do
@@ -26,10 +22,6 @@ RSpec.describe IssueTracker::IssueTrackerHelper do
 
     describe '#tracker' do
       it { expect(issue.tracker).to eq('bnc') }
-    end
-
-    describe '#bug' do
-      it { expect(issue.bug).to eq('bnc#31337') }
     end
   end
 end
