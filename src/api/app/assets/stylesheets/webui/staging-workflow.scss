@@ -1,3 +1,7 @@
+$request-ready-color: $success;
+$request-review-color: $secondary;
+$request-obsolete-color: $dark;
+
 .legend {
   ul {
     @extend .ml-2;
@@ -9,6 +13,16 @@
         height: 1rem;
         @extend .border;
         @extend .border-dark;
+      }
+
+      .request-ready {
+        background-color: $request-ready-color;
+      }
+      .request-review {
+        background-color: $request-review-color;
+      }
+      .request-obsolete {
+        background-color: $request-obsolete-color;
       }
     }
   }
@@ -115,14 +129,17 @@ ul .table-list-group-item {
 
       &.state-ready {
         @extend .badge-success;
+        background-color: $request-ready-color;
       }
 
       &.state-review {
         @extend .badge-warning;
+        background-color: $request-review-color;
       }
 
       &.state-obsolete {
         @extend .badge-info;
+        background-color: $request-obsolete-color;
       }
 
       &.state-untracked {
