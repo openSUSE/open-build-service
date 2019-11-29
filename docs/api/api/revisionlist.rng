@@ -30,21 +30,28 @@
 
           <attribute name="vrev">
             <a:documentation>
-              !FIXME!
+              The vrev is maintained by the server and ensures a strictly monotone
+              increasing number for a given version. It consists of the version parsed
+              from the the build description and the checkin counter. The checkin counter
+              gets reset to zero if the new version did not exist yet. Together with the
+              build counter this forms the version-release of the resulting binary.
             </a:documentation>
             <data type="nonNegativeInteger"/>
           </attribute>
 
           <element ns="" name="srcmd5">
             <a:documentation>
-              MD5 hash of this revision
+              MD5 hash of this revision as identifier. Note that this is the sum over the
+              unexpanded sources (in case a link exists).
             </a:documentation>
             <text/>
           </element>
 
           <element ns="" name="version">
             <a:documentation>
-              Version (e.g. 1.5.0) of the package at this revision
+              Version (e.g. 1.5.0) of the package at this revision parsed from the source.
+              It may not be set if the package is linking to another package
+              instance. In that case the version will be "unknown".
             </a:documentation>
             <text/>
           </element>
@@ -57,7 +64,7 @@
             <data type="nonNegativeInteger"/>
           </element>
 
-          <element ns="" name="ùser">
+          <element ns="" name="user">
             <a:documentation>
               User ID of the user that committed this revision.
             </a:documentation>
