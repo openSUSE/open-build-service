@@ -15,6 +15,7 @@ RSpec.describe StatusProjectController do
       end
 
       it { expect(response).to have_http_status(:success) }
+
       subject { Xmlhash.parse(response.body)['package'] }
 
       it { is_expected.to include('project' => project.name, 'name' => package.name, 'version' => '', 'release' => '', 'changesmd5' => '', 'maxmtime' => '') }

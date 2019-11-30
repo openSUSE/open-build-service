@@ -8,7 +8,7 @@ RSpec.describe Service, vcr: true do
   let(:service) { package.services }
   let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package.name}" }
 
-  context '#addKiwiImport', backend: true do
+  describe '#addKiwiImport', backend: true do
     before do
       login(user)
       service.addKiwiImport
