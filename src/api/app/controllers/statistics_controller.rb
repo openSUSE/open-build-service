@@ -5,7 +5,7 @@ class StatisticsController < ApplicationController
 
   before_action :get_limit, only: [
     :highest_rated, :most_active_packages, :most_active_projects, :latest_added, :latest_updated,
-    :latest_built, :download_counter
+    :download_counter
   ]
 
   def index

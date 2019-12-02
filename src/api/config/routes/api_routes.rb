@@ -148,7 +148,6 @@ OBSApi::Application.routes.draw do
       get 'statistics/latest_added' => :latest_added
       get 'statistics/latest_updated' => :latest_updated
       get 'statistics/global_counters' => :global_counters
-      get 'statistics/latest_built' => :latest_built
 
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
       get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,
