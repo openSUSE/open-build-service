@@ -3,7 +3,7 @@
   project_class = staging_project.name.tr(':.', '_')
   item_project_class = 'hidden-item-' + project_class
   checks_problems = staging_project.checks.failed
-  build_problems = staging_project.problems
+  build_problems = merge_broken_packages(staging_project.broken_packages)
   total_problems = checks_problems.length + build_problems.length
 
 - if total_problems == 0

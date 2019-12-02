@@ -115,10 +115,6 @@ module StagingProject
     @overall_state ||= state
   end
 
-  def problems
-    @problems ||= cache_problems
-  end
-
   def assign_managers_group(managers)
     role = Role.find_by_title!('maintainer')
     return if relationships.find_by(group: managers, role: role)
@@ -164,16 +160,6 @@ module StagingProject
     @overall_state = nil
   end
 
-  def cache_problems
-    problems = {}
-    broken_packages.each do |package|
-      problems[package[:package]] ||= {}
-      problems[package[:package]][package[:state]] ||= []
-      problems[package[:package]][package[:state]] << { repository: package[:repository], arch: package[:arch] }
-    end
-    problems.sort
-  end
-
   def state
     # FIXME: We should use a better way to check if we are in :accepting state. Could be a state machine or storing the state locally.
     return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
@@ -202,30 +188,25 @@ module StagingProject
 
     buildresult.elements('result') do |result|
       building = ['published', 'unpublished'].exclude?(result['state']) || result['dirty'] == 'true'
-      add_broken_packages(result, building)
+      add_broken_packages(result)
       add_building_repositories(result) if building
     end
 
     @broken_packages.reject! { |package| package[:state] == 'unresolvable' } if @building_repositories.present?
   end
 
-  def add_broken_packages(result, building)
+  def add_broken_packages(result)
     result.elements('status') do |status|
       code = status.get('code')
 
-      if @broken_packages.none? { |p| p[:package] == status['package'] } && broken_code?(code, building)
-        @broken_packages << { package: status['package'],
-                              project: name,
-                              state: code,
-                              details: status['details'],
-                              repository: result['repository'],
-                              arch: result['arch'] }
-      end
+      next unless code.in?(['broken', 'failed', 'unresolvable'])
+      @broken_packages << { package: status['package'],
+                            project: name,
+                            state: code,
+                            details: status['details'],
+                            repository: result['repository'],
+                            arch: result['arch'] }
     end
-  end
-
-  def broken_code?(code, building)
-    code.in?(['broken', 'failed']) || (code == 'unresolvable' && !building)
   end
 
   def add_building_repositories(result)

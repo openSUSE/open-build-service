@@ -168,7 +168,7 @@ RSpec.describe Staging::StagingProjectsController do
             assert_select 'obsolete_requests', 0
             assert_select 'missing_reviews', 0
             assert_select 'broken_packages', 1 do
-              assert_select 'package', 1
+              assert_select 'package', 2
             end
             assert_select 'checks', 1
             assert_select 'history', 0
@@ -221,7 +221,7 @@ RSpec.describe Staging::StagingProjectsController do
               assert_select 'review', 1
             end
             assert_select 'broken_packages', 1 do
-              assert_select 'package', 1
+              assert_select 'package', 2
             end
             assert_select 'history', 1
           end

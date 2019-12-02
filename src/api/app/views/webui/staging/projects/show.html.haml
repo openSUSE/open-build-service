@@ -28,8 +28,8 @@
               = render partial: 'status_items',
                        locals: { staging_project: @staging_project, items: @staging_project.building_repositories, type: 'building_repositories' }
             %tr
-              = render partial: 'status_items',
-                       locals: { staging_project: @staging_project, items: @staging_project.broken_packages, type: 'broken_packages' }
+              = render partial: 'broken_packages',
+                       locals: { staging_project: @staging_project }
             %tr
               = render partial: 'checks',
                        locals: { checks: @staging_project.checks, missing_checks: @staging_project.missing_checks }
