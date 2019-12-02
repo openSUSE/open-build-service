@@ -11,7 +11,7 @@
     %i.fas.fa-check-circle.text-success
 - else
   :ruby
-    rendered_checks_problems = [max_shown, checks_problems.length].min
+    rendered_checks_problems = [max_shown - 1, checks_problems.length].min
     rendered_build_problems = max_shown - rendered_checks_problems
   %ul.list-group.list-group-flush
     - checks_problems[0..(rendered_checks_problems - 1)].each do |check|
