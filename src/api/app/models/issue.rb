@@ -49,10 +49,6 @@ class Issue < ApplicationRecord
     end
   end
 
-  def self.valid_name?(tracker, name)
-    tracker.show_label_for(name).match?(tracker.regex)
-  end
-
   def fetch_issues
     IssueTrackerFetchIssuesJob.perform_later(issue_tracker.id)
   end

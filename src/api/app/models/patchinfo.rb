@@ -89,7 +89,8 @@ class Patchinfo
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
       raise TrackerNotFound, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
-      raise Issue::InvalidName, "The issue name is not supported: #{i['id']}" unless Issue.valid_name?(tracker, i['id'])
+      issue = Issue.new(name: i['id'], issue_tracker: tracker)
+      raise Issue::InvalidName, issue.errors.full_messages.to_sentence unless issue.valid?
     end
     # are releasetargets specified ? validate that this project is actually defining them.
     data.elements('releasetarget') { |r| check_releasetarget!(r) }
