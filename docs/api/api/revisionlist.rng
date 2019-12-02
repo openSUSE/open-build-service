@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://www.example.com/annotation">
+
+  <start>
+    <ref name="revisionlist-element"/>
+  </start>
+
+  <define name="revisionlist-element">
+    <element ns="" name="revisionlist">
+      <a:documentation>
+        This element contains the sorted list of commits in the revision child
+        elements.
+      </a:documentation>
+
+      <zeroOrMore>
+        <element ns="" name="revision">
+          <a:documentation>
+            This element corresponds to a specific revision/commit of this package.
+          </a:documentation>
+
+          <attribute name="rev">
+            <a:documentation>
+              Revision number of this commit.
+            </a:documentation>
+            <data type="nonNegativeInteger"/>
+          </attribute>
+
+          <attribute name="vrev">
+            <a:documentation>
+              The vrev is maintained by the server and ensures a strictly monotone
+              increasing number for a given version. It consists of the version parsed
+              from the the build description and the checkin counter. The checkin counter
+              gets reset to zero if the new version did not exist yet. Together with the
+              build counter this forms the version-release of the resulting binary.
+            </a:documentation>
+            <data type="nonNegativeInteger"/>
+          </attribute>
+
+          <element ns="" name="srcmd5">
+            <a:documentation>
+              MD5 hash of this revision as identifier. Note that this is the sum over the
+              unexpanded sources (in case a link exists).
+            </a:documentation>
+            <text/>
+          </element>
+
+          <element ns="" name="version">
+            <a:documentation>
+              Version (e.g. 1.5.0) of the package at this revision parsed from the source.
+              It may not be set if the package is linking to another package
+              instance. In that case the version will be "unknown".
+            </a:documentation>
+            <text/>
+          </element>
+
+          <element ns="" name="time">
+            <a:documentation>
+              Unix timestamp (=seconds since January 1st, 1970 UTC) at which
+              this revision was committed.
+            </a:documentation>
+            <data type="nonNegativeInteger"/>
+          </element>
+
+          <element ns="" name="user">
+            <a:documentation>
+              User ID of the user that committed this revision.
+            </a:documentation>
+            <text/>
+          </element>
+
+          <optional>
+            <element ns="" name="comment">
+              <a:documentation>
+                If a comment was added to this revision, then it is displayed here.
+              </a:documentation>
+              <text/>
+            </element>
+          </optional>
+
+          <optional>
+            <element ns="" name="requestid">
+              <a:documentation>
+                If this revision was created by accepting a request, then the
+                request's ID is available in this element.
+              </a:documentation>
+              <data type="nonNegativeInteger"/>
+            </element>
+          </optional>
+
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>
