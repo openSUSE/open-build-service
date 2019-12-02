@@ -51,7 +51,7 @@ FactoryBot.define do
     factory :auto_cleanup_attrib do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup') }
 
-      values { [build(:attrib_value, value: 14)] }
+      values { [build(:attrib_value, value: (Time.now - 14.days).to_s)] }
     end
 
     factory :attrib_with_default_value do
