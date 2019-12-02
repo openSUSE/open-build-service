@@ -45,7 +45,7 @@ blub
                  </description>
                  <summary>Security update for someone</summary>
                </patchinfo>"
-    assert_raise IssueTracker::InvalidIssueName do
+    assert_raise Issue::InvalidName do
       Patchinfo.new.verify_data(Project.first, content)
     end
   end

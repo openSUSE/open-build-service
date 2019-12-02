@@ -1,9 +1,7 @@
 require 'api_error'
 
 class Issue < ApplicationRecord
-  class NotFoundError < APIError
-    setup 'issue_not_found', 404, 'Issue not found'
-  end
+  include Issue::Errors
 
   has_many :package_issues, foreign_key: 'issue_id', dependent: :delete_all
 
