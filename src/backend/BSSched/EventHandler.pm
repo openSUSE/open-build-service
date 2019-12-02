@@ -69,6 +69,7 @@ our %event_handlers = (
   'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
   'resumeproject'   => \&BSSched::EventHandler::event_resumeproject,
   'memstats'        => \&BSSched::EventHandler::event_memstats,
+  'dumppmat'        => \&BSSched::EventHandler::event_dumppmat,
   'dispatchdetails' => \&BSSched::EventHandler::event_dispatchdetails,
   'force_publish'   => \&BSSched::EventHandler::event_force_publish,
 );
@@ -625,6 +626,10 @@ sub event_uploadbuildimport_delay {
 
 sub event_memstats {
   my ($ectx, $ev) = @_;
+  eval {
+    require Devel::Mallinfo;
+    print Devel::Mallinfo::malloc_info_string(0);
+  };
   my $gctx = $ectx->{'gctx'};
   my %gctx = %$gctx;
   %$gctx = ();
@@ -654,6 +659,18 @@ sub event_memstats {
   };
   warn($@) if $@;
   %$gctx = %gctx;
+}
+
+sub event_dumppmat {
+  my ($ectx, $ev) = @_;
+  my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
+  my $rundir = $gctx->{'rundir'};
+  eval {
+    require Devel::MAT::Dumper;
+    Devel::MAT::Dumper::dump("$rundir/bs_sched.$myarch.pmat");
+  };
+  warn($@) if $@;
 }
 
 sub event_dispatchdetails {

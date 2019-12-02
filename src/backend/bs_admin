@@ -215,6 +215,7 @@ Debug Options
    Show delta store statistics
 
  --dump-memstats <architecture> [what]
+ --dump-pmat <architecture>
 
 Backend Configuration
 =====================
@@ -536,6 +537,11 @@ sub dump_memstats {
   write_event( undef, undef, $arch, 'memstats', undef, $job );
 }
 
+sub dump_pmat {
+  my ($arch) = @_;
+  write_event( undef, undef, $arch, 'dumppmat' );
+}
+
 sub shutdown_scheduler {
   my ($arch) = @_;
   write_event( '', undef, $arch, 'exitcomplete' );
@@ -712,6 +718,10 @@ while (@ARGV) {
     my $arch = shift @ARGV;
     my $job = shift @ARGV if @ARGV;
     dump_memstats($arch, $job);
+  } elsif ($arg eq "--dump-pmat") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    dump_pmat($arch);
   } elsif ($arg eq "--dump-project-from-state") {
     die("ERROR: need project as argument!\n") if @ARGV < 1;
     my $project = shift @ARGV;
