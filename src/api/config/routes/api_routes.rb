@@ -40,9 +40,6 @@ OBSApi::Application.routes.draw do
     get 'service/:service' => 'service#index_service', constraints: cons
 
     ### /source
-
-    get 'source/:project/:package/_tags' => 'tag#package_tags', constraints: cons
-    get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
     get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
 
     resources :about, only: :index
@@ -74,47 +71,9 @@ OBSApi::Application.routes.draw do
     post 'trigger/webhook' => 'services/webhooks#create'
 
     ### /issue_trackers
-    get 'issue_trackers/issues_in' => 'issue_trackers#issues_in'
     resources :issue_trackers, only: [:index, :show, :create, :update, :destroy] do
       resources :issues, only: [:show] # Nested route
     end
-
-    ### /tag
-
-    # routes for tagging support
-    #
-    # get 'tag/_all' => 'tag',
-    #  action: 'list_xml'
-    # Get/put tags by object
-    ### moved to source section
-
-    # Get objects by tag.
-    controller :tag do
-      get 'tag/:tag/_projects' => :get_projects_by_tag
-      get 'tag/:tag/_packages' => :get_packages_by_tag
-      get 'tag/:tag/_all' => :get_objects_by_tag
-
-      get 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
-      get 'tag/get_tagged_packages_by_user' => :get_tagged_packages_by_user
-      get 'tag/get_tags_by_user' => :get_tags_by_user
-      get 'tag/tags_by_user_and_object' => :tags_by_user_and_object
-      get 'tag/get_tags_by_user_and_project' => :get_tags_by_user_and_project
-      get 'tag/get_tags_by_user_and_package' => :get_tags_by_user_and_package
-      get 'tag/most_popular_tags' => :most_popular_tags
-      get 'tag/most_recent_tags' => :most_recent_tags
-      get 'tag/get_taglist' => :get_taglist
-      get 'tag/project_tags' => :project_tags
-      get 'tag/package_tags' => :package_tags
-    end
-
-    ### /user
-
-    # Get objects tagged by user. (objects with tags)
-    get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
-    get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
-
-    # Get tags for a certain object by user.
-    match 'user/:user/tags/:project(/:package)' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
     ### /statistics
     # Routes for statistics
@@ -148,7 +107,6 @@ OBSApi::Application.routes.draw do
       get 'statistics/latest_added' => :latest_added
       get 'statistics/latest_updated' => :latest_updated
       get 'statistics/global_counters' => :global_counters
-      get 'statistics/latest_built' => :latest_built
 
       get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
       get 'statistics/maintenance_statistics/:project' => 'statistics/maintenance_statistics#index', constraints: cons,

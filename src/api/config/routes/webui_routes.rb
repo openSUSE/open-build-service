@@ -4,10 +4,6 @@ OBSApi::Application.routes.draw do
   constraints(WebuiMatcher) do
     root 'webui/main#index'
 
-    controller 'webui/main' do
-      get 'main/systemstatus' => :systemstatus
-    end
-
     resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
@@ -99,7 +95,6 @@ OBSApi::Application.routes.draw do
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
         # For backward compatibility
         get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
-        get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
         # For backward compatibility
         get 'package/files/:project/:package' => :show, constraints: cons
       end
@@ -197,18 +192,13 @@ OBSApi::Application.routes.draw do
       post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
       patch 'project/update' => :update, constraints: cons
       delete 'project/destroy' => :destroy
-      get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
-      post 'project/save_path_element' => :save_path_element
       post 'project/remove_target_request' => :remove_target_request, as: 'project_remove_target_request'
       post 'project/remove_path_from_target' => :remove_path_from_target, as: 'remove_repository_path'
-      post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       post 'project/move_path/:project' => :move_path, as: 'move_repository_path'
       post 'project/save_person/:project' => :save_person, constraints: cons, as: 'project_save_person'
       post 'project/save_group/:project' => :save_group, constraints: cons, as: 'project_save_group'
       post 'project/remove_role/:project' => :remove_role, constraints: cons, as: 'project_remove_role'
-      post 'project/remove_person/:project' => :remove_person, constraints: cons
-      post 'project/remove_group/:project' => :remove_group, constraints: cons
       get 'project/monitor/:project' => :monitor, constraints: cons, as: 'project_monitor'
       # For backward compatibility
       get 'project/monitor', to: redirect { |_path_parameters, request|
