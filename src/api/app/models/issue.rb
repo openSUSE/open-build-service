@@ -1,9 +1,7 @@
 require 'api_error'
 
 class Issue < ApplicationRecord
-  class NotFoundError < APIError
-    setup 'issue_not_found', 404, 'Issue not found'
-  end
+  include Issue::Errors
 
   has_many :package_issues, foreign_key: 'issue_id', dependent: :delete_all
 
@@ -49,10 +47,6 @@ class Issue < ApplicationRecord
     else
       'UNKNOWN'
     end
-  end
-
-  def self.valid_name?(tracker, name)
-    tracker.show_label_for(name).match?(tracker.regex)
   end
 
   def fetch_issues

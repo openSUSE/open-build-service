@@ -6,7 +6,6 @@ class IssueTracker < ApplicationRecord
   class NotFoundError < APIError
     setup 'issue_tracker_not_found', 404, 'Issue Tracker not found'
   end
-  class InvalidIssueName < APIError; end
 
   validates :name, :regex, :url, :kind, presence: true
   validates :name, :regex, uniqueness: true
@@ -22,14 +21,6 @@ class IssueTracker < ApplicationRecord
 
   before_validation(on: :create) do
     self.issues_updated ||= Time.now
-  end
-
-  def cve?
-    kind == 'cve'
-  end
-
-  def valid_issue_name?(name)
-    Issue.valid_name?(self, name)
   end
 
   # Checks if the given issue belongs to this issue tracker
