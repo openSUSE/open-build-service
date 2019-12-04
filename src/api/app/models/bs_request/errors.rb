@@ -16,4 +16,41 @@ module BsRequest::Errors
   class SaveError < APIError
     setup 'request_save_error'
   end
+  class AddReviewNotPermitted < APIError
+    setup 403
+  end
+
+  class NotExistingTarget < APIError
+    setup 404
+  end
+
+  class SourceChanged < APIError
+  end
+
+  class ReleaseTargetNoPermission < APIError
+    setup 403
+  end
+
+  class ProjectLocked < APIError
+    setup 403, 'The target project is locked'
+  end
+
+  class TargetNotMaintenance < APIError
+    setup 404
+  end
+
+  class SourceMissing < APIError
+    setup 'unknown_package', 404
+  end
+
+  class SetPriorityNoPermission < APIError
+    setup 403
+  end
+
+  class ReviewChangeStateNoPermission < APIError
+    setup 403
+  end
+
+  class ReviewNotSpecified < APIError
+  end
 end
