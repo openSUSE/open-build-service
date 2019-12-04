@@ -389,6 +389,26 @@ RSpec.describe Staging::StagingProjectsController do
       it { expect { subject }.to change(Project, :count).by(1) }
     end
 
+    context 'succeeds as staging manager' do
+      let(:staging_manager) { create(:confirmed_user, create_home_project: true) }
+      let!(:group_user) { create(:groups_user, group: staging_workflow.managers_group, user: staging_manager) }
+
+      let(:body) do
+        <<~XML
+               <workflow>
+          <staging_project>#{staging_manager.home_project}:Staging:C</staging_project>
+               </workflow>
+        XML
+      end
+
+      before do
+        login(staging_manager)
+      end
+
+      it { expect(subject).to have_http_status(:success) }
+      it { expect { subject }.to change(Project, :count).by(1) }
+    end
+
     context 'fails: project already assigned to a staging workflow' do
       let(:body) do
         <<~XML

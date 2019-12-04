@@ -25,7 +25,7 @@ class Staging::StagingProjectsController < Staging::StagingController
   def show; end
 
   def create
-    authorize @staging_workflow
+    authorize @staging_workflow, policy_class: Staging::StagedRequestPolicy
     result = ::Staging::StagingProjectCreator.new(request.body.read, @staging_workflow, User.session!).call
 
     if result.valid?
