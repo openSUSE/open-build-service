@@ -853,6 +853,7 @@ class SourceController < ApplicationController
     pkg = prj.packages.new(name: params[:package])
     pkg.update_from_xml(Xmlhash.parse(Backend::Api::Sources::Package.meta(params[:project], params[:package])))
     pkg.store
+    pkg.sources_changed
   end
 
   # FIXME: obsolete this for 3.0
