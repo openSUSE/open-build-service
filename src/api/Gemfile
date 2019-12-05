@@ -2,7 +2,9 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '>= 6.0.2.rc1'
+git 'https://github.com/rails/rails.git', branch: '6-0-2' do
+  gem 'rails', '>= 6.0.2.rc1'
+end
 
 # as our database
 gem 'mysql2'
