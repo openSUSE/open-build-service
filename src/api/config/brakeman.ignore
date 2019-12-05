@@ -1,0 +1,454 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "07f8d71eb8b9abab529bf25541bf548b743abf3972b69850d6cb0cdeab75fa7c",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/user_group_mixin.rb",
+      "line": 20,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Review.where(:state => review_states).where(((\"by_#{obj.class.name.downcase} = ? OR by_project IN (?)\" + \" OR by_group IN (#{usergroups_query(obj)})\") + \" OR ((by_project, by_package) IN (#{packages_query(obj)}))\"), obj.to_s, projects(obj))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BsRequest",
+        "method": "reviews"
+      },
+      "user_input": "packages_query(obj)",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "23288c7e9dea90dd0d6a14268bf929de5b7651f16e9c2233776751400dda5d11",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/user_group_mixin.rb",
+      "line": 10,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "BsRequestAction.where((\"target_project IN (?)\" + \" OR ((target_project, target_package) IN (#{packages_query(obj)}))\"), projects(obj))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BsRequest",
+        "method": "bs_request_actions"
+      },
+      "user_input": "packages_query(obj)",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "2ec75b98116c235535e552474fd8a190cf5ae0d16c4423806e6fdc1637134bd4",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/backend/test/tasks.rb",
+      "line": 26,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_publish --testmode\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Backend::Test",
+        "method": "run_publisher"
+      },
+      "user_input": "backend_config",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "33a57f9dae56a739f7a378b2d7ca87b6e9a4583947b98becdabd63f18195f01e",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/backend/test/tasks.rb",
+      "line": 17,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_dispatch --testmode\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Backend::Test",
+        "method": "run_dispatcher"
+      },
+      "user_input": "backend_config",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "3a13c1174d40d256e08937a3f5bea087a0720fedc925a6fb064593d2f49ec6e0",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/backend/test/tasks.rb",
+      "line": 35,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_deltastore --testmode\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Backend::Test",
+        "method": "run_deltastore"
+      },
+      "user_input": "backend_config",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "456accbd7b3ccc2c17f0948050fcba6ca084acc619325a5574f5a312cb133a51",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/backend/test/tasks.rb",
+      "line": 8,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_sched --testmode #{arch}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Backend::Test",
+        "method": "run_scheduler"
+      },
+      "user_input": "backend_config",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "45840f44547aeced1506343b80e3fe0ad1b6262ae3799e5086907ff71bddb03c",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/statistics_controller.rb",
+      "line": 110,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Package.select(\"packages.*, #{Package.activity_algorithm}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "StatisticsController",
+        "method": "most_active_packages"
+      },
+      "user_input": "Package.activity_algorithm",
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "588a1c2be9d31a5892690b9ee7cc487e6588f3885196e97c409756ff66ee3397",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/user.rb",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "@relation.where(\"bs_requests.id IN (#{union_query})\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "User",
+        "method": "all"
+      },
+      "user_input": "union_query",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "5febcb31e79ef34338abe9ff12ec885dbd47c082143cfc919465c6cc7894eb5d",
+      "check_name": "SendFile",
+      "message": "Parameter value used in file name",
+      "file": "app/controllers/webui/apidocs_controller.rb",
+      "line": 16,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(File.expand_path(File.join(CONFIG[\"schema_location\"], File.basename(params[:filename]))), :type => \"text/xml\", :disposition => \"inline\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Webui::ApidocsController",
+        "method": "file"
+      },
+      "user_input": "params[:filename]",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 4,
+      "fingerprint": "62f93283e161bc75b900aad23f7f63f20ba56c3ecb3d38c24dbb900607e3bc26",
+      "check_name": "LinkToHref",
+      "message": "Potentially unsafe model attribute in `link_to` href",
+      "file": "app/views/webui/staging/projects/_checks.html.haml",
+      "line": 15,
+      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
+      "code": "link_to((Unresolved Model).new.url, :class => (\"check-#{(Unresolved Model).new.state}\"), :title => (\"#{(Unresolved Model).new.short_description} (#{(Unresolved Model).new.updated_at})\"))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::Staging::ProjectsController",
+          "method": "show",
+          "line": 51,
+          "file": "app/controllers/webui/staging/projects_controller.rb",
+          "rendered": {
+            "name": "webui/staging/projects/show",
+            "file": "app/views/webui/staging/projects/show.html.haml"
+          }
+        },
+        {
+          "type": "template",
+          "name": "webui/staging/projects/show",
+          "line": 34,
+          "file": "app/views/webui/staging/projects/show.html.haml",
+          "rendered": {
+            "name": "webui/staging/projects/_checks",
+            "file": "app/views/webui/staging/projects/_checks.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/staging/projects/_checks"
+      },
+      "user_input": "(Unresolved Model).new.url",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "876768ac9e5e85c297017c9e37d731a1b8e2c917524dc456b9b7db035d56964c",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/statistics_controller.rb",
+      "line": 88,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "Package.select(\"packages.*, #{Package.activity_algorithm}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "StatisticsController",
+        "method": "most_active_projects"
+      },
+      "user_input": "Package.activity_algorithm",
+      "confidence": "High",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "94746cf90cb4bf2270637c214b44324775f12e71b6d07fabb1939f3a3641cd65",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/controllers/source_controller.rb",
+      "line": 459,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "@project.lock(params[:comment])",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SourceController",
+        "method": "project_command_lock"
+      },
+      "user_input": "params[:comment]",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "a08a4620a93aa9822be13afa5a3f9ce0461acebcea44a44e85017dff318529d8",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/backend/test/tasks.rb",
+      "line": 45,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_admin #{args}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Backend::Test",
+        "method": "run_admin"
+      },
+      "user_input": "backend_config",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "ad49cd1c1746b547be303b03640568525232c39d97d6e256a9f5d6edfc7350e0",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/group.rb",
+      "line": 9,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "@relation.where(\"bs_requests.id IN (#{union_query})\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Group",
+        "method": "all"
+      },
+      "user_input": "union_query",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "b1d6007ada268c2f7129e8f9cd72bfcb3b3f69614a2671320c6f3411b86cd284",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/group.rb",
+      "line": 16,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "ActiveRecord::Base.connection.execute(\"SELECT COUNT(bs_request_id) FROM (#{union_query}) x\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Group",
+        "method": "all_count"
+      },
+      "user_input": "union_query",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "b2b1c44165230236680fceba298e55108195874434979699d2f6056d7807b6fb",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/webui/main/index.html.haml",
+      "line": 10,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "::Configuration.first[\"description\"]",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "Webui::MainController",
+          "method": "index",
+          "line": 21,
+          "file": "app/controllers/webui/main_controller.rb",
+          "rendered": {
+            "name": "webui/main/index",
+            "file": "app/views/webui/main/index.html.haml"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "webui/main/index"
+      },
+      "user_input": "::Configuration.first",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "b777f1d9050528232c024f7061eb43b17d797aaf59492ba4a1bdba5ad6416bc8",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/bs_request/find_for/project.rb",
+      "line": 25,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "@relation.references(:reviews).includes(:reviews).where(\"#{\"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})\"} or #{\"(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})\"}\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Project",
+        "method": "all"
+      },
+      "user_input": "quote(review_state)",
+      "confidence": "Weak",
+      "note": ""
+    },
+    {
+      "warning_type": "Denial of Service",
+      "warning_code": 76,
+      "fingerprint": "d4354d028744f2783c9b0cf9338d428c7abf6e94d022c9b281dacf613760fb21",
+      "check_name": "RegexDoS",
+      "message": "Model attribute used in regular expression",
+      "file": "app/models/binary_release.rb",
+      "line": 93,
+      "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
+      "code": "/^#{Package.striping_multibuild_suffix(binary[\"package\"])}:/",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "BinaryRelease",
+        "method": "BinaryRelease.update_binary_releases_via_json"
+      },
+      "user_input": "Package.striping_multibuild_suffix(binary[\"package\"])",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "d4c9f090e8151a6c740c333ce710b4a1d029f5ec139d489f11243609b3f1392b",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/memory_debugger.rb",
+      "line": 40,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "`ps -orss= -p#{$PROCESS_ID}`",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "MemoryDebugger",
+        "method": "call"
+      },
+      "user_input": "$PROCESS_ID",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "d4c9f090e8151a6c740c333ce710b4a1d029f5ec139d489f11243609b3f1392b",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "lib/memory_debugger.rb",
+      "line": 48,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "`ps -orss= -p#{$PROCESS_ID}`",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "MemoryDebugger",
+        "method": "call"
+      },
+      "user_input": "$PROCESS_ID",
+      "confidence": "Medium",
+      "note": ""
+    },
+    {
+      "warning_type": "Remote Code Execution",
+      "warning_code": 110,
+      "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
+      "check_name": "CookieSerialization",
+      "message": "Use of unsafe cookie serialization strategy `:marshal` might lead to remote code execution",
+      "file": "config/initializers/cookies_serializer.rb",
+      "line": 5,
+      "link": "https://brakemanscanner.org/docs/warning_types/unsafe_deserialization",
+      "code": "Rails.application.config.action_dispatch.cookies_serializer = :marshal",
+      "render_path": null,
+      "location": null,
+      "user_input": null,
+      "confidence": "Medium",
+      "note": ""
+    }
+  ],
+  "updated": "2020-02-20 10:42:42 +0000",
+  "brakeman_version": "4.8.0"
+}
