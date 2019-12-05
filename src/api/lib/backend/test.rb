@@ -9,7 +9,7 @@ module Backend
       return if @backend
       return if ENV['BACKEND_STARTED']
       print 'Starting test backend...'
-      @backend = IO.popen("#{Rails.root}/script/start_test_backend")
+      @backend = IO.popen("bundle exec ruby #{Rails.root}/script/start_test_backend")
       Rails.logger.debug "Test backend started with pid: #{@backend.pid}"
       loop do
         line = @backend.gets

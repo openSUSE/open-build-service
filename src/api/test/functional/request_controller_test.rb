@@ -787,6 +787,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   def test_create_request_approve_and_review
     login_Iggy
 
+    # https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
+
     req = <<~XML_REQUEST
       <request>
         <action type="submit">
@@ -845,6 +849,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_request_with_approver
+    # https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
+
     req_template = <<~XML_REQUEST
       <request>
         <action type="submit">
