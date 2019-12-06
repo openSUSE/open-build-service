@@ -124,18 +124,6 @@ class AttribTest < ActiveSupport::TestCase
     assert_equal 'One', attrib.values.first.value
   end
 
-  test 'should have no issues' do
-    attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribIssues')
-    attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
-
-    bnc = IssueTracker.find_by_name('bnc')
-    attrib.issues << Issue.new(name: '12345', issue_tracker: bnc)
-    assert_not attrib.valid?
-    assert_equal ["can't have issues"], attrib.errors.messages[:issues]
-    attrib_type.issue_list = true
-    assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
-  end
-
   test 'find_by_container_and_fullname' do
     project = Project.find_by(name: 'BaseDistro2.0')
     attrib = Attrib.find_by_container_and_fullname(project, 'OBS:UpdateProject')

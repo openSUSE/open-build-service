@@ -42,5 +42,16 @@ RSpec.describe Issue do
     it 'CVE-XXXX-YYYY should be an invalid name' do
       expect { issue_cve.save! }.to raise_error(ActiveRecord::RecordInvalid, /does not match defined regex/)
     end
+
+    context 'with duplicated issues' do
+      let(:duplicated_issue) { build(:issue, name: '1234', issue_tracker: issue_tracker) }
+
+      it { expect(duplicated_issue).to be_invalid }
+
+      it 'has a proper error' do
+        duplicated_issue.save
+        expect(duplicated_issue.errors.full_messages).to match_array(['Name has already been taken'])
+      end
+    end
   end
 end
