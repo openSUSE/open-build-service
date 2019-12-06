@@ -6637,8 +6637,8 @@ my $dispatches = [
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
   '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig,
   '/getsslcert $project autoextend:bool? workerid?' => \&getsslcert,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid?' => \&worker_getbinaryversions,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaryversions,
 
   # publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,
