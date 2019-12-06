@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe IssueTracker::CVEParser, vcr: true do
+RSpec.describe IssueTracker::CVEParser do
   let(:issue_tracker) { create(:issue_tracker) }
   let(:cve_parser) { IssueTracker::CVEParser.new }
 

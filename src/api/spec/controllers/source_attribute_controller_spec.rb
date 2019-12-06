@@ -1,8 +1,6 @@
 require 'rails_helper'
 
-# CONFIG['global_write_through'] = true
-
-RSpec.describe SourceAttributeController, vcr: true do
+RSpec.describe SourceAttributeController do
   render_views
 
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }

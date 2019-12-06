@@ -154,7 +154,7 @@ FactoryBot.define do
         create(:maintenance_project_attrib, project: project)
         if evaluator.target_project
           create(:maintained_project, project: evaluator.target_project, maintenance_project: project)
-          CONFIG['global_write_through'] ? project.store : project.save!
+          project.store
         end
         if evaluator.create_patchinfo
           old_user = User.session
@@ -182,7 +182,7 @@ FactoryBot.define do
           create(:build_flag, status: 'disable', project: evaluator.target_project)
           create(:publish_flag, status: 'disable', project: evaluator.target_project)
           update_project.projects_linking_to << evaluator.target_project
-          CONFIG['global_write_through'] ? update_project.store : update_project.save!
+          update_project.store
           new_repository = create(:repository, project: update_project, architectures: ['i586'])
           create(:path_element, repository: new_repository, link: evaluator.target_project.repositories.first)
         end

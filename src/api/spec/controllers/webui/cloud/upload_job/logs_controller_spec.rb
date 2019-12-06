@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller, vcr: true do
+RSpec.describe Webui::Cloud::UploadJob::LogsController, type: :controller do
   let!(:user) { create(:confirmed_user, login: 'adrian') }
   let(:project) { create(:project, name: 'Apache') }
   let!(:package) { create(:package, name: 'apache2', project: project) }

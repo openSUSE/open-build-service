@@ -81,6 +81,14 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       inst-source-utils
 Requires:       nodejs
 Requires:       obs-api-deps = %{version}
+Requires:       obs-signd
+Requires:       perl-BSSolv >= 0.28
+Requires:       perl-XML-Structured
+Requires:       perl(File::Sync) >= 0.10
+Requires:       perl(JSON::XS)
+Requires:       perl(Net::SSLeay)
+Requires:       perl(Socket::MsgHdr)
+Requires:       perl(XML::Simple)
 
 %description -n obs-api-testsuite-deps
 To simplify splitting the test suite packages off the main package,

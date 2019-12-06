@@ -35,7 +35,6 @@ ExclusiveArch:  nothere
 ExclusiveArch:  x86_64
 %endif
 
-
 %description
 Running the RSpec test suite of the OBS frontend independently
 of packaging the application
@@ -50,6 +49,10 @@ rm -rf build
 ln -sf /usr/lib/build build
 popd
 
+# start the backend - as in development
+rm -f src/backend/.started
+bash -x contrib/start_development_backend -d . -h localhost -r /tmp/obs &
+
 pushd src/api
 # configure to the bundled gems
 bundle --local --path %_libdir/obs-api/
@@ -59,6 +62,8 @@ bundle --local --path %_libdir/obs-api/
 export RAILS_ENV=test
 bin/rake db:create db:setup
 bin/rails assets:precompile
+
+while ! test -e ../backend/.started; do sleep 1; done
 
 bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
 

@@ -1,9 +1,6 @@
 require 'rails_helper'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe UpdateReleasedBinariesJob, vcr: true do
+RSpec.describe UpdateReleasedBinariesJob do
   describe '#perform' do
     let!(:project) { create(:project, name: 'apache') }
     let!(:repository) { create(:repository, name: 'mod_ssl', project: project, architectures: ['i586']) }

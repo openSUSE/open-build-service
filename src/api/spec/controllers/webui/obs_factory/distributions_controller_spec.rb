@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller, vcr: true do
+RSpec.describe Webui::ObsFactory::DistributionsController, type: :controller do
   render_views
 
   let(:factory) { create(:project, name: 'openSUSE:Factory') }

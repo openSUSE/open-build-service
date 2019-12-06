@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
+RSpec.describe BsRequestAction::Differ::QueryBuilder do
   let!(:user) { create(:confirmed_user, login: 'moi') }
   let!(:source_project) { create(:project, name: 'source_package', maintainer: user) }
   let!(:source_package) { create(:package, name: 'the_package', project: source_project) }

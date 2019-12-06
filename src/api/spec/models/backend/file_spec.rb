@@ -1,9 +1,6 @@
 require 'rails_helper'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe Backend::File, vcr: true do
+RSpec.describe Backend::File, vcr: true, backend: true do
   let(:user) { create(:user, :with_home, login: 'user') }
   let(:package_with_file) { create(:package_with_file, name: 'package_with_files', project: user.home_project) }
   let(:fake_file) do

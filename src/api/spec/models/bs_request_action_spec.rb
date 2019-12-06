@@ -7,7 +7,7 @@ RSpec.describe BsRequestAction do
     allow(User).to receive(:session!).and_return(user)
   end
 
-  context 'encoding of sourcediffs', vcr: true do
+  context 'encoding of sourcediffs', vcr: true, backend: true do
     let(:file_content) { "-{\xA2:\xFA*\xA3q\u0010\xC2X\\\x9D" }
     let(:utf8_encoded_file_content) { file_content.encode('UTF-8', 'binary', invalid: :replace, undef: :replace) }
     let(:project) { user.home_project }

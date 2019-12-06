@@ -143,35 +143,12 @@ In that case, please use a simple sequence.
 Attention: Faker generates random but **NOT** unique data!
 
 ### Backend responses
+The backend used in tests doesn't rollback as the database does on tests. So every project and package you generate in one test
+is possibly still there in another. Keep that in mind - especially if testing revisions. It's recommended to use a special package
+name for those and delete the package at the end of your test - so you can rerun your test while developing.
 
-We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.
-VCR records the HTTP interactions with the backend and replays them during future test runs for fast, deterministic, accurate tests.
-Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr) will have recorded a new cassette (a simple yml file) in `spec/cassettes`.
-
-#### VCR cassette matching
-VCR matches cassettes to responses you request from the backend by comparing the `request.uri`.
-That means you should avoid random parts, like project/package names, in the URL requested.
-Otherwise the cassette will not match and VCR tries record a new cassette each time which will fail because the backend is not running anymore.
-
-```
-  let(:apache_project) { create(:project, name: 'Apache') }
-```
-
-#### Enable VCR for model and controller tests
-To make loading tests faster, we only include VCR in feature tests by default.
-However, sometimes you also get and want to verify a backend response in a model or controller test.
-Make sure you enable VCR in the test metadata like this:
-
-```
-  RSpec.describe Package, vcr: true do
-    ...
-  end
-```
-
-#### Remove all cassettes and run the test again before you commit
-Before you finally commit your test, you should remove the generated cassettes and run your test again.
-This ensures that only by the test needed responses are included in the cassette and nothing more.
-You can also review the cassette manually (but **NEVER** edit them manually)!
+For more complex backend responses, prefer to use webmock's stub_request (or allow() on model functions). This is especially
+recommended if you need to test binary results in feature tests that shouldn't spend time compiling packages.
 
 ### Shared examples
 To DRY our tests we use in rare situations [shared examples](https://www.relishapp.com/rspec/rspec-core/docs/example-groups/shared-examples).

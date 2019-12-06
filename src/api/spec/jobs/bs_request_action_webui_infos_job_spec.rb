@@ -1,10 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
-# WARNING: If you change #file_exists or #has_file test make sure
-# you uncomment the next line and start a test backend.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
+RSpec.describe BsRequestActionWebuiInfosJob, type: :job do
   include ActiveJob::TestHelper
   let(:source_project) { create(:project, name: 'source_project') }
   let(:source_package) { create(:package_with_file, name: 'source_package', project: source_project, file_content: 'b') }
@@ -19,26 +16,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
 
   describe '#perform' do
     context 'for a target package' do
-      let(:diff_result) do
-        <<-DIFF
-          ++++++ somefile.txt
-          --- somefile.txt
-          +++ somefile.txt
-          @@ -1,1 +1,1 @@
-          -a
-          \\ No newline at end of file
-          +b
-          \\ No newline at end of file
-        DIFF
-      end
-
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
-      it 'creates the diff' do
-        # gsub because of rubocop Lint/Syntax error when using <<~
-        # we need to upgrade to use ruby 2.5 parser first
-        expect(subject).to include(diff_result.gsub('          ', ''))
-      end
+      it { is_expected.to include('++++++ somefile.txt') }
     end
 
     context 'with non existing target project' do

@@ -17,11 +17,13 @@ OPTIND=1
 #preset GIT_HOME
 GIT_HOME="/obs"
 
+INST_ROOT="/srv/obs"
+
 #preset HOST
 export DEVHOST="backend"
 
 #get options and check if there is a space in the dir arguments
-while getopts "l:d:h:?" opt; do
+while getopts "l:d:h:r:?" opt; do
   case "$opt" in
   l)
     REDIR_LOG=$OPTARG
@@ -44,6 +46,9 @@ while getopts "l:d:h:?" opt; do
       exit
     fi
     ;;
+  r)
+   INST_ROOT=$OPTARG
+   ;;
   \?)
     _print_syntax
     exit 0
@@ -79,55 +84,64 @@ if [ ! -d "$GIT_HOME" ]; then
   exit 1
 fi
 
+cd $GIT_HOME/src/backend
+
 #create BSConfig.pm and change hostname to localhost
-if [ ! -f $GIT_HOME/src/backend/BSConfig.pm ]; then
-  cp $GIT_HOME/src/backend/BSConfig.pm.template $GIT_HOME/src/backend/BSConfig.pm
+if [ ! -f BSConfig.pm ]; then
+  cp BSConfig.pm.template BSConfig.pm
 fi
 
-perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/my \$hostname.*/my \$hostname=\"$ENV{'DEVHOST'}\";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/\$ipaccess/\$removed_by_start_development_backend /' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' $GIT_HOME/src/backend/BSConfig.pm
-perl -pi -e 's/.*our \$sign .*/our \$sign="\/usr\/bin\/sign";/' $GIT_HOME/src/backend/BSConfig.pm
+perl -pi -e "s,our \\\$bsdir.*,our \\\$bsdir = '$INST_ROOT';," BSConfig.pm
+perl -pi -e 's/our \$bsserviceuser.*/our \$bsserviceuser="obsrun";/' BSConfig.pm
+perl -pi -e 's/^my \$hostname.*/my \$hostname=\"$ENV{'DEVHOST'}\";/' BSConfig.pm
+perl -pi -e 's/^our \$ipaccess/our \$removed_by_start_development_backend /' BSConfig.pm
+perl -pi -e 's/.*our \$gpg_standard_key.*/our \$gpg_standard_key="\/etc\/ourkeyfile.asc";/' BSConfig.pm
+perl -pi -e 's/^our \$sign .*/our \$sign="\/usr\/bin\/sign";/' BSConfig.pm
+perl -pi -e 's/(^our \$bsuser)/#\1/' BSConfig.pm
+perl -pi -e 's/(^our \$bsgroup)/#\1/' BSConfig.pm
+perl -pi -e 's/(^our \$bsserviceuser)/#\1/' BSConfig.pm
+perl -pi -e 's/(^our \$bsservicegroup)/#\1/' BSConfig.pm
+
+diff -u BSConfig.pm.template BSConfig.pm
 
 #start backend services (the minimum needed) with two arch(i586/x86_64) schedulers and one worker
 echo "Starting bs_srcserver"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_srcserver ${APPEND_ARR[0]} &"
+COMMAND_STRING="./bs_srcserver ${APPEND_ARR[0]} &"
 eval $COMMAND_STRING
 sleep 4
 echo "Starting bs_repserver"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_repserver ${APPEND_ARR[1]} &"
+COMMAND_STRING="./bs_repserver ${APPEND_ARR[1]} &"
 eval $COMMAND_STRING
 sleep 2
 echo "Starting bs_sched i586"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_sched i586 ${APPEND_ARR[2]} &"
+COMMAND_STRING="./bs_sched i586 ${APPEND_ARR[2]} &"
 eval $COMMAND_STRING
 echo "Starting bs_sched x86_64"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_sched x86_64 ${APPEND_ARR[3]} &"
+COMMAND_STRING="./bs_sched x86_64 ${APPEND_ARR[3]} &"
 eval $COMMAND_STRING
 echo "Starting bs_dispatch"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_dispatch ${APPEND_ARR[4]} &"
+COMMAND_STRING="./bs_dispatch ${APPEND_ARR[4]} &"
 eval $COMMAND_STRING
 echo "Starting bs_publish"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_publish ${APPEND_ARR[5]} &"
+COMMAND_STRING="./bs_publish ${APPEND_ARR[5]} &"
 eval $COMMAND_STRING
 echo "Starting bs_service"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_service ${APPEND_ARR[6]} &"
+COMMAND_STRING="./bs_service ${APPEND_ARR[6]} &"
 eval $COMMAND_STRING
 echo "Starting bs_signer"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_signer ${APPEND_ARR[7]} &"
+COMMAND_STRING="./bs_signer ${APPEND_ARR[7]} &"
 eval $COMMAND_STRING
 echo "Starting signd"
 COMMAND_STRING="/usr/sbin/signd ${APPEND_ARR[8]} &"
 eval $COMMAND_STRING
 echo "Starting bs_servicedispatch"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_servicedispatch ${APPEND_ARR[9]} &"
+COMMAND_STRING="./bs_servicedispatch ${APPEND_ARR[9]} &"
 eval $COMMAND_STRING
 echo "Starting bs_clouduploadserver"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_clouduploadserver ${APPEND_ARR[10]} &"
+COMMAND_STRING="./bs_clouduploadserver ${APPEND_ARR[10]} &"
 eval $COMMAND_STRING
 echo "Starting bs_clouduploadworker"
-COMMAND_STRING="$GIT_HOME/src/backend/bs_clouduploadworker ${APPEND_ARR[11]} &"
+COMMAND_STRING="./bs_clouduploadworker ${APPEND_ARR[11]} &"
 eval $COMMAND_STRING
 
 #Cleanup function to terminate all backend services
@@ -158,5 +172,7 @@ if [ -n "$REDIR_LOG" ]; then
   echo "Each service has it's own logfile"
 fi
 echo "If you want to terminate the backend, just hit Ctrl-C"
+
+touch .started
 
 wait

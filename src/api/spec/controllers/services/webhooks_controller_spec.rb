@@ -1,7 +1,7 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe Services::WebhooksController, type: :controller, vcr: true do
+RSpec.describe Services::WebhooksController, type: :controller do
   describe '#create' do
     let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:service_token) { create(:service_token, user: user) }

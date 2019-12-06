@@ -22,9 +22,7 @@ FactoryBot.define do
 
       after(:create) do |package, evaluator|
         evaluator.revision_count.times do |i|
-          if CONFIG['global_write_through']
-            Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s)
-          end
+          Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s)
         end
       end
     end
@@ -36,14 +34,10 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
-          Backend::Connection.put(
-            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
-          )
-        end
+        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+        Backend::Connection.put(
+          "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.file_name}", evaluator.file_content
+        )
       end
     end
 
@@ -54,44 +48,32 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.target_file_name}",
-                                  File.open(evaluator.file_name).read)
-        end
+        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/#{evaluator.target_file_name}",
+                                File.open(evaluator.file_name).read)
       end
     end
 
     factory :package_with_binary_diff do
       after(:create) do |package|
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.open('spec/support/files/bigfile_archive.tar.gz').read)
+        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
+                                File.open('spec/support/files/bigfile_archive.tar.gz').read)
 
-          # this is required to generate a diff - the backend treats binary files a bit different and only shows a diff if the
-          # file has been changed.
-          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
-                                  File.open('spec/support/files/bigfile_archive_2.tar.gz').read)
-        end
+        # this is required to generate a diff - the backend treats binary files a bit different and only shows a diff if the
+        # file has been changed.
+        Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/bigfile_archive.tar.gz",
+                                File.open('spec/support/files/bigfile_archive_2.tar.gz').read)
       end
     end
 
     factory :package_with_service do
       after(:create) do |package|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
-        end
+        Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
       end
     end
 
     factory :package_with_broken_service do
       after(:create) do |package|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
-        end
+        Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
       end
     end
 
@@ -102,12 +84,8 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
-          Backend::Connection.put(URI.escape(full_path), evaluator.changes_file_content)
-        end
+        full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.changes_file_name}"
+        Backend::Connection.put(URI.escape(full_path), evaluator.changes_file_content)
       end
     end
 
@@ -131,12 +109,8 @@ FactoryBot.define do
       end
 
       after(:create) do |package, evaluator|
-        # NOTE: Enable global write through when writing new VCR cassetes.
-        # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.kiwi_file_name}"
-          Backend::Connection.put(URI.escape(full_path), evaluator.kiwi_file_content)
-        end
+        full_path = "/source/#{package.project.name}/#{package.name}/#{evaluator.kiwi_file_name}"
+        Backend::Connection.put(URI.escape(full_path), evaluator.kiwi_file_content)
       end
     end
 

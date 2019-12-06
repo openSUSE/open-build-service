@@ -1,8 +1,7 @@
 require 'rails_helper'
 require 'rantly/rspec_extensions'
-# WARNING: If you need to make a Backend call uncomment the following line
-# CONFIG['global_write_through'] = true
-RSpec.describe Project, vcr: true do
+
+RSpec.describe Project do
   let!(:project) { create(:project, name: 'openSUSE_41') }
   let(:remote_project) { create(:remote_project, name: 'openSUSE.org') }
   let(:package) { create(:package, project: project) }
@@ -414,7 +413,7 @@ RSpec.describe Project, vcr: true do
     end
   end
 
-  describe '.restore' do
+  describe '.restore', backend: true do
     let(:admin_user) { create(:admin_user, login: 'Admin') }
     let(:deleted_project) do
       create(:project_with_packages,
@@ -427,7 +426,7 @@ RSpec.describe Project, vcr: true do
 
     # make sure it's gone even if some previous test failed
     def reset_project_in_backend
-      Backend::Api::Sources::Project.delete 'project_used_for_restoration' if CONFIG['global_write_through']
+      Backend::Api::Sources::Project.delete 'project_used_for_restoration'
     rescue Backend::NotFoundError
     end
 
@@ -477,7 +476,7 @@ RSpec.describe Project, vcr: true do
         expect(subject.packages.size).to eq(2)
       end
 
-      context 'verifies the meta of restored packages' do
+      context 'verifies the meta of restored packages', backend: true do
         it { expect(subject.packages.find_by(name: package1.name).render_xml).to eq(package1_meta_before_deletion) }
         it { expect(subject.packages.find_by(name: package2.name).render_xml).to eq(package2_meta_before_deletion) }
       end
@@ -485,7 +484,7 @@ RSpec.describe Project, vcr: true do
   end
 
   describe '#destroy' do
-    context 'avoid regressions of the issue #3665' do
+    context 'avoid regressions of the issue #3665', backend: true do
       let(:admin_user) { create(:admin_user, login: 'Admin') }
       let(:images_repository) { create(:repository, name: 'images', project: project) }
       let(:apache_repository) { create(:repository, name: 'Apache', project: project) }

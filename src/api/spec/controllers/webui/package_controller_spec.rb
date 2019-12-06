@@ -1,6 +1,6 @@
 require 'webmock/rspec'
 require 'rails_helper'
-RSpec.describe Webui::PackageController, vcr: true do
+RSpec.describe Webui::PackageController do
   let(:admin) { create(:admin_user, login: 'admin') }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
@@ -261,13 +261,18 @@ RSpec.describe Webui::PackageController, vcr: true do
       expect(response).to redirect_to(root_path)
     end
 
-    it "shows an error if current revision parameter is provided, but there wasn't any revision before" do
-      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
-      expect(flash[:error]).to eq('Package has no source revision yet')
-      expect(response).to redirect_to(root_path)
+    context 'without revision' do
+      let(:source_package) { create(:package, name: 'revless_package', project: source_project) }
+
+      it 'shows an error if current revision parameter is provided' do
+        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
+        expect(flash[:error]).to eq('Package has no source revision yet')
+        expect(response).to redirect_to(root_path)
+      end
     end
 
     context 'with target package name' do
+      let(:source_package) { create(:package, name: 'package_to_branch', project: source_project) }
       before do
         post :branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
       end

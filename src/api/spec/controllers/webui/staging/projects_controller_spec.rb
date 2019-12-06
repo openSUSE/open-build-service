@@ -51,7 +51,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
-      it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
+      it { expect(subject.reload.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).to have_been_enqueued }

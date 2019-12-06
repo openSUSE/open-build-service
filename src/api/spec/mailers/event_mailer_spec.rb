@@ -1,10 +1,6 @@
 require 'rails_helper'
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the actions
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
 
-RSpec.describe EventMailer, vcr: true do
+RSpec.describe EventMailer do
   # Needed for X-OBS-URL
   before do
     allow_any_instance_of(Configuration).to receive(:obs_url).and_return('https://build.example.com')

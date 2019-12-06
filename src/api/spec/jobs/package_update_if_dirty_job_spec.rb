@@ -1,11 +1,6 @@
 require 'rails_helper'
 
-# WARNING: If you change tests make sure you uncomment this line
-# and start a test backend. Some of the actions
-# require real backend answers for projects/packages.
-# CONFIG['global_write_through'] = true
-
-RSpec.describe PackageUpdateIfDirtyJob, type: :job, vcr: true do
+RSpec.describe PackageUpdateIfDirtyJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
