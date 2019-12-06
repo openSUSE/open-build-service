@@ -744,4 +744,26 @@ RSpec.describe Project, vcr: true do
     it { expect(subject).not_to be_empty }
     it { expect(subject).to include(project.repositories.first) }
   end
+
+  describe '#project_state' do
+    let(:project) { create(:project) }
+    let(:fake_build_results) do
+      <<-HEREDOC
+      <resultlist state="768243617133224cac12a6c866b41d70">
+        <result project="security:tools" repository="openSUSE_Leap_42.3" arch="x86_64" code="published" state="published">
+          <status package="capstone" code="succeeded"/>
+          <status package="docker-bench-security" code="succeeded"/>
+          <status package="garmr" code="succeeded"/>
+          <status package="hydra" code="succeeded"/>
+          <status package="owasp-zap" code="succeeded"/>
+        </result>
+      </resultlist>
+      HEREDOC
+    end
+    before do
+      allow(Backend::Api::BuildResults::Status).to receive(:version_releases).and_return(fake_build_results)
+    end
+
+    it { expect(project.project_state).not_to be_nil }
+  end
 end

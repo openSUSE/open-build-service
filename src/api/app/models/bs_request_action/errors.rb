@@ -3,7 +3,9 @@ module BsRequestAction::Errors
 
   # a diff error can have many reasons, but most likely something within us
   class DiffError < APIError; setup 404; end
-  class RemoteSource < APIError; end
+  class RemoteSource < APIError
+    setup 'remote_source', 400, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
+  end
   class RemoteTarget < APIError; end
   class InvalidReleaseTarget < APIError; end
   class LackingMaintainership < APIError
@@ -22,7 +24,9 @@ module BsRequestAction::Errors
   class UnknownTargetProject < APIError; end
   class UnknownTargetPackage < APIError; end
   class WrongLinkedPackageSource < APIError; end
-  class MissingPatchinfo < APIError; end
+  class MissingPatchinfo < APIError
+    setup 'missing_patchinfo', 400, 'maintenance release request without patchinfo would release no binaries'
+  end
   class VersionReleaseDiffers < APIError; end
   class LackingReleaseMaintainership < APIError; setup 'lacking_maintainership', 403; end
   class RepositoryWithoutReleaseTarget < APIError; setup 'repository_without_releasetarget'; end

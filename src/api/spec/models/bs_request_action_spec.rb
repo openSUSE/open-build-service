@@ -243,4 +243,57 @@ RSpec.describe BsRequestAction do
       it { expect { bs_request_action.check_maintenance_release(source_pkg, repository, architecture) }.to raise_error(BsRequestAction::Errors::BuildNotFinished) }
     end
   end
+
+  describe 'create_expand_package' do
+    before do
+      allow(User).to receive(:session!).and_return(user)
+    end
+
+    let(:binary_list) do
+      <<-XML
+        <binarylist>
+          <binary filename="_buildenv" size="16724" mtime="1559026680" />
+        </binarylist>
+      XML
+    end
+
+    let(:build_history) do
+      <<-XML
+        <buildhistory>
+          <entry rev="1" srcmd5="ef521827053c2e3b3cc735662c5d5bb0" versrel="2.10-1" bcnt="1" time="1559026681" duration="59" />
+        </buildhistory>
+      XML
+    end
+
+    let(:source_prj) { create(:project, name: 'super_source_pkg') }
+    let(:source_pkg) { create(:package, project: source_prj, name: 'super_source_pkg') }
+    let(:target_prj) { create(:project, name: 'super_target_prj') }
+    let(:target_pkg) { create(:package, project: target_prj, name: 'super_target_prj') }
+    let(:action_attributes) do
+      {
+        type: 'submit',
+        source_package: source_pkg,
+        source_project: source_prj,
+        target_project: target_prj,
+        target_package: target_pkg
+      }
+    end
+
+    let(:repository) { create(:repository, name: 'super_repo', architectures: ['x86_64'], project: source_prj) }
+    let(:architecture) { Architecture.find_by!(name: 'x86_64') }
+    let!(:bs_request) { create(:bs_request, action_attributes.merge(creator: user)) }
+    let(:bs_request_action) { bs_request.bs_request_actions.first }
+
+    context 'Raise RemoteSource' do
+      it { expect { bs_request_action.create_expand_package(['foo']) }.to raise_error(BsRequestAction::RemoteSource) }
+    end
+
+    context 'Everything should work', vcr: true do
+      it { expect { bs_request_action.create_expand_package([source_pkg]) }.not_to raise_error }
+    end
+
+    context 'Should return an array', vcr: true do
+      it { expect(bs_request_action.create_expand_package([source_pkg])).to be_an(Array) }
+    end
+  end
 end

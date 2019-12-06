@@ -400,6 +400,7 @@ class BsRequestAction < ApplicationRecord
     Package.source_path(self.source_project, self.source_package)
   end
 
+  # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def create_expand_package(packages, opts = {})
@@ -415,9 +416,8 @@ class BsRequestAction < ApplicationRecord
     new_targets = []
 
     packages.each do |pkg|
-      unless pkg.is_a?(Package)
-        raise RemoteSource, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
-      end
+      raise RemoteSource unless pkg.is_a?(Package)
+
       # find target via linkinfo or submit to all.
       # FIXME: this is currently handling local project links for packages with multiple spec files.
       #        This can be removed when we handle this as shadow packages in the backend.
@@ -469,11 +469,9 @@ class BsRequestAction < ApplicationRecord
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
         # check for build state and binaries
-        state = REXML::Document.new(Backend::Api::BuildResults::Status.version_releases(pkg.project.name))
-        results = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
-        unless results
-          raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories"
-        end
+        results = pkg.project.build_results
+        raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories" unless results
+
         versrel = {}
         results.each do |result|
           repo = result.attributes['repository']
@@ -482,21 +480,21 @@ class BsRequestAction < ApplicationRecord
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
                                     'needs recalculation by the schedulers'
           end
-          if result.attributes['state'].in?(['finished', 'publishing'])
+          if result.attributes['state'].value.in?(['finished', 'publishing'])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" \
                                     'did not finish the publish yet'
           end
-          unless result.attributes['state'].in?(['published', 'unpublished'])
+          unless result.attributes['state'].value.in?(['published', 'unpublished'])
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
                                     'did not finish the build yet'
           end
 
           # all versrel are the same
           versrel[repo] ||= {}
-          result.get_elements('status').each do |status|
+          result.search('status').each do |status|
             package = status.attributes['package']
-            vrel = status.attributes['versrel']
-            next unless vrel
+            next unless status.attributes['versrel']
+            vrel = status.attributes['versrel'].value
             if versrel[repo][package] && versrel[repo][package] != vrel
               raise VersionReleaseDiffers, "#{package} has a different version release in same repository"
             end
@@ -510,9 +508,11 @@ class BsRequestAction < ApplicationRecord
           next unless firstarch
 
           # skip excluded patchinfos
-          status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-          next if status && (s = status.get_elements("status[@package='#{pkg.name}']").first) && s.attributes['code'] == 'excluded'
-          raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
+          status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
+
+          next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
+
+          raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
 
           check_maintenance_release(pkg, repo, firstarch)
 
@@ -601,9 +601,7 @@ class BsRequestAction < ApplicationRecord
         newactions << new_action
       end
     end
-    if is_maintenance_release? && !found_patchinfo && !opts[:ignore_build_state]
-      raise MissingPatchinfo, 'maintenance release request without patchinfo would release no binaries'
-    end
+    raise MissingPatchinfo if is_maintenance_release? && !found_patchinfo && !opts[:ignore_build_state]
 
     # new packages (eg patchinfos) go to all target projects by default in maintenance requests
     new_targets.uniq!
@@ -642,6 +640,7 @@ class BsRequestAction < ApplicationRecord
 
     newactions
   end
+  # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 

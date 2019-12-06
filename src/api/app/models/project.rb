@@ -1550,6 +1550,14 @@ class Project < ApplicationRecord
     end
   end
 
+  def build_results
+    project_state.search("/resultlist/result[@project='#{name}']")
+  end
+
+  def project_state
+    Nokogiri::XML(Backend::Api::BuildResults::Status.version_releases(name))
+  end
+
   private
 
   def discard_cache
