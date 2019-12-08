@@ -2,30 +2,27 @@
   max_shown = 5
   project_class = staging_project.name.tr(':.', '_')
   item_project_class = 'hidden-item-' + project_class
-  checks_problems = staging_project.checks.failed
   build_problems = merge_broken_packages(staging_project.broken_packages)
-  total_problems = checks_problems.length + build_problems.length
+  checks, build_problems, remaining_checks, remaining_build_problems =
+    pick_max_problems(staging_project.checks.failed.to_a, build_problems, max_shown)
 
-- if total_problems == 0
+- if checks.empty? && build_problems.empty?
   .text-center
     %i.fas.fa-check-circle.text-success
 - else
-  :ruby
-    rendered_checks_problems = [max_shown - 1, checks_problems.length].min
-    rendered_build_problems = max_shown - rendered_checks_problems
   %ul.list-group.list-group-flush
-    - checks_problems[0..(rendered_checks_problems - 1)].each do |check|
+    - checks.each do |check|
       = render partial: 'status_problems', locals: { check: check }
-    - build_problems[0..(rendered_build_problems - 1)].each do |name, states|
+    - build_problems.each do |name, states|
       = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
-    - if total_problems > max_shown
-      - number = total_problems - max_shown
+    - remain_count = remaining_checks.length + remaining_build_problems.length
+    - if remain_count > 0
       %span.collapse{ 'id': item_project_class }
-        - checks_problems[rendered_checks_problems..-1].each do |check|
+        - remaining_checks.each do |check|
           = render partial: 'status_problems', locals: { check: check }
-        - build_problems[rendered_build_problems..-1].each do |name, states|
+        - remaining_build_problems.each do |name, states|
           = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
       %li.list-group-item.table-list-group-item
         %a{ 'data-toggle': 'collapse', href: "##{item_project_class}", 'aria-expanded': 'false' }
-          %span.expander See #{number} more
-          %span.collapser See #{number} less
+          %span.expander See #{remain_count} more
+          %span.collapser See #{remain_count} less
