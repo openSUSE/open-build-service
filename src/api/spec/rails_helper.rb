@@ -63,11 +63,10 @@ require 'support/backend'
 # support shoulda matcher
 require 'support/shoulda_matchers'
 
-# helper methods for authentication in controllers tests
+# helper methods for authentication
 require 'support/controllers/controllers_authentication'
-
-# helper methods for authentication in models tests
 require 'support/models/models_authentication'
+require 'support/requests/requests_authentification'
 
 # support Delayed Jobs
 require 'support/delayed_job'
