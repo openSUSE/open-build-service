@@ -256,6 +256,7 @@ class ApplicationController < ActionController::Base
       when 'edit?' then 'edit'
       when 'destroy?' then 'delete'
       when 'branch?' then 'branch'
+      when 'accept?' then 'accept'
       else exception.try(:query)
       end
 
