@@ -20,6 +20,19 @@ function addIssuesAjaxBefore() {
 
     issues = $.unique(issues.replace(/ /g, '').split(','));
 
+    var currentIssues = $('[name="patchinfo[issueid][]"]').map(function(_, element) {
+      var issueId = element.id;
+      if (issueId.startsWith('issueid_cve')) {
+        return issueId.replace('issueid_cve_', '');
+      } else {
+        return issueId.replace('issueid_', '').replace('_', '#');
+      }
+    }).toArray();
+
+    issues = issues.filter(function(issue) {
+      return currentIssues.indexOf(issue) === -1;
+    });
+
     element.data('params', { issues: issues, project: element.data('project') });
   });
 }
