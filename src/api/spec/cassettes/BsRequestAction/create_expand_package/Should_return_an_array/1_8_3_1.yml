@@ -1,0 +1,299 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:request_user/_meta?user=request_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title/>
+          <description/>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:request_user">
+          <title></title>
+          <description></description>
+          <person userid="request_user" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_source_pkg/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_source_pkg">
+          <title>Blue Remembered Earth</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '114'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_source_pkg">
+          <title>Blue Remembered Earth</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_source_pkg/super_source_pkg/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="super_source_pkg" project="super_source_pkg">
+          <title>Tiger! Tiger!</title>
+          <description>Similique explicabo inventore voluptatem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="super_source_pkg" project="super_source_pkg">
+          <title>Tiger! Tiger!</title>
+          <description>Similique explicabo inventore voluptatem.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_target_prj/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_target_prj">
+          <title>Surprised by Joy</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="super_target_prj">
+          <title>Surprised by Joy</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:17 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/super_target_prj/super_target_prj/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="super_target_prj" project="super_target_prj">
+          <title>Time To Murder And Create</title>
+          <description>Nulla quas adipisci voluptas.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="super_target_prj" project="super_target_prj">
+          <title>Time To Murder And Create</title>
+          <description>Nulla quas adipisci voluptas.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:17 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/super_source_pkg/super_source_pkg
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '91'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="super_source_pkg" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:18 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/super_source_pkg/super_source_pkg
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '91'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="super_source_pkg" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:18 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/super_source_pkg/super_source_pkg?cmd=diff&expand=1&filelimit=10000&opackage=super_target_prj&oproject=super_target_prj&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '0'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Fri, 06 Dec 2019 14:04:18 GMT
+recorded_with: VCR 5.0.0
