@@ -400,7 +400,6 @@ class BsRequestAction < ApplicationRecord
     Package.source_path(self.source_project, self.source_package)
   end
 
-  # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/CyclomaticComplexity
   # rubocop:disable Metrics/PerceivedComplexity
   def create_expand_package(packages, opts = {})
@@ -443,21 +442,21 @@ class BsRequestAction < ApplicationRecord
         end
       end
 
-      if target_package
-        # manual specified
-        tpkg = target_package
-      elsif pkg.releasename && is_maintenance_release?
-        # incidents created since OBS 2.8 should have this information already.
-        tpkg = pkg.releasename
-      elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
-        # fallback, how can we get rid of it?
-        data = Directory.hashed(project: tprj.name, package: ltpkg)
-        e = data['linkinfo']
-        tpkg = e['package'] if e
-      else
-        # we need to get rid of it again ...
-        tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
-      end
+      tpkg = if target_package
+               # manual specified
+               target_package
+             elsif pkg.releasename && is_maintenance_release?
+               # incidents created since OBS 2.8 should have this information already.
+               pkg.releasename
+             elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
+               # fallback, how can we get rid of it?
+               data = Directory.hashed(project: tprj.name, package: ltpkg)
+               e = data['linkinfo']
+               e['package'] if e
+             else
+               # we need to get rid of it again ...
+               tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
+             end
 
       # maintenance incident actions need a releasetarget
       releaseproject = get_releaseproject(pkg, tprj)
@@ -480,14 +479,8 @@ class BsRequestAction < ApplicationRecord
             raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
                                     'needs recalculation by the schedulers'
           end
-          if result.attributes['state'].value.in?(['finished', 'publishing'])
-            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" \
-                                    'did not finish the publish yet'
-          end
-          unless result.attributes['state'].value.in?(['published', 'unpublished'])
-            raise BuildNotFinished, "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " \
-                                    'did not finish the build yet'
-          end
+
+          check_repository_published!(result.attributes['state'].value, pkg, repo, arch)
 
           # all versrel are the same
           versrel[repo] ||= {}
@@ -583,7 +576,7 @@ class BsRequestAction < ApplicationRecord
           new_action.destroy
           new_action = sumbit_action
         else # non-channel package
-          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: 'maintenance').empty?
+          next unless maintenance_trigger?(pkg.project.repositories, tprj.repositories)
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource, 'According to the source link of package ' \
                                             "#{pkg.project.name}/#{pkg.name} it would go to project" \
@@ -623,10 +616,8 @@ class BsRequestAction < ApplicationRecord
           next unless found
         end
 
-        # rubocop:disable Metrics/LineLength
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_release? && ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: 'maintenance').empty?
-        # rubocop:enable Metrics/LineLength
+        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(p).repositories)
 
         new_action = dup
         new_action.source_package = pkg.name
@@ -640,7 +631,6 @@ class BsRequestAction < ApplicationRecord
 
     newactions
   end
-  # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/CyclomaticComplexity
   # rubocop:enable Metrics/PerceivedComplexity
 
@@ -810,6 +800,22 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def check_repository_published!(state, pkg, repo, arch)
+    raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(['finished', 'publishing'])
+
+    raise BuildNotFinished, check_repository_published_error_message('build', pkg.project.name, repo, arch) unless state.in?(['published', 'unpublished'])
+  end
+
+  def check_repository_published_error_message(state, prj, repo, arch)
+    "The repository '#{prj}' / '#{repo}' / #{arch} did not finish the #{state} yet"
+  end
+
+  def maintenance_trigger?(repos, target_repos)
+    ReleaseTarget.where(repository: repos,
+                        target_repository: target_repos,
+                        trigger: 'maintenance').exists?
+  end
 
   def check_action_permission_source!
     return unless source_project
