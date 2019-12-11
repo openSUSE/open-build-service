@@ -48,8 +48,6 @@ Bugfixes:
 Intentional changes:
 ====================
 
-  * Added a new delayjob worker systemd-service for Thinking Sphinx indexing ("obs-delayedjob-queue-sphinx-indexing.service")
-
   Features enabled by default:
     * Image Template
     * Kiwi Image Editor
