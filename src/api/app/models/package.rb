@@ -5,6 +5,7 @@ require_dependency 'has_relationships'
 require_dependency 'opensuse/validator'
 require_dependency 'authenticator'
 
+# rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
   include FlagHelper
   include Flag::Validations
@@ -1380,7 +1381,13 @@ class Package < ApplicationRecord
 
   #### WARNING: these operations run in build object, not this package object
   def rebuild(params)
-    backend_build_command(:rebuild, params[:project], params.slice(:package, :arch, :repository))
+    begin
+      Backend::Api::Sources::Package.rebuild(params[:project], params[:package], params)
+    rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
+      errors.add(:base, e.message)
+      return false
+    end
+    true
   end
 
   def wipe_binaries(params)
@@ -1489,6 +1496,7 @@ class Package < ApplicationRecord
     Rails.cache.read(['history', self, rev]) || Rails.cache.read(['history_md5', self, rev])
   end
 end
+# rubocop: enable Metrics/ClassLength
 
 # == Schema Information
 #
