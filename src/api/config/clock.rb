@@ -31,12 +31,6 @@ module Clockwork
     StatusHistoryRescalerJob.perform_later
   end
 
-  # TODO: Delete once real-time indexing is fully tested in production
-  # # Ensure that sphinx's searchd is running and reindex
-  # every(1.hour, 'reindex sphinx') do
-  #   FullTextIndexJob.perform_later
-  # end
-
   every(1.hour, 'refresh issues') do
     IssueTracker.update_all_issues
   end
