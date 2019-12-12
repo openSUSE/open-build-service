@@ -12,4 +12,14 @@ module Webui::Staging::ProjectHelper
     return 'fa-eye text-info' if check.pending?
     'fa-exclamation-circle text-danger'
   end
+
+  def merge_broken_packages(packages)
+    problems = {}
+    packages.each do |package|
+      problems[package[:package]] ||= {}
+      problems[package[:package]][package[:state]] ||= []
+      problems[package[:package]][package[:state]] << { repository: package[:repository], arch: package[:arch] }
+    end
+    problems.sort
+  end
 end

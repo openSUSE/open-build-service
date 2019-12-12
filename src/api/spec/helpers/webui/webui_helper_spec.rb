@@ -248,4 +248,37 @@ RSpec.describe Webui::WebuiHelper do
       it { expect(toggle_sliced_text(big_text)).to match(/(.+)#{sliced_text}(.+)\[\+\](.+)#{big_text}(.+)\[\-\](.+)/) }
     end
   end
+
+  describe '#pick_max_problems' do
+    let(:max_shown) { 5 }
+    subject { pick_max_problems(checks, builds, max_shown) }
+
+    context 'with no failed checks' do
+      let(:checks) { [] }
+
+      context 'with no fails' do
+        let(:builds) { [] }
+        it { is_expected.to eq([[], [], [], []]) }
+      end
+
+      context 'with 7 fails' do
+        let(:builds) { [1, 2, 3, 4, 5, 6, 7] }
+        it { is_expected.to eq([[], [1, 2, 3, 4, 5], [], [6, 7]]) }
+      end
+    end
+
+    context 'with 7 checks' do
+      let(:checks) { [1, 2, 3, 4, 5, 6, 7] }
+
+      context 'with no fails' do
+        let(:builds) { [] }
+        it { is_expected.to eq([[1, 2, 3, 4, 5], [], [6, 7], []]) }
+      end
+
+      context 'with 7 fails' do
+        let(:builds) { [1, 2, 3, 4, 5, 6, 7] }
+        it { is_expected.to eq([[1, 2, 3, 4], [1], [5, 6, 7], [2, 3, 4, 5, 6, 7]]) }
+      end
+    end
+  end
 end
