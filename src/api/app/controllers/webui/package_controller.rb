@@ -706,7 +706,9 @@ class Webui::PackageController < Webui::WebuiController
   def trigger_rebuild
     authorize @package, :update?
 
-    if @package.rebuild(params)
+    allowed_params = [:project, :package, :repository, :arch]
+
+    if @package.rebuild(params.slice(*allowed_params).permit!.to_h)
       flash[:success] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
       redirect_to package_show_path(project: @project, package: @package)
     else
