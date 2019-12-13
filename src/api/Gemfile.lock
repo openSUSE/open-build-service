@@ -57,7 +57,7 @@ GEM
       airbrake-ruby (~> 4.6)
     airbrake-ruby (4.6.0)
       rbtree3 (~> 0.5)
-    ajax-datatables-rails (1.0.0)
+    ajax-datatables-rails (1.1.0)
       railties (>= 4.2)
     amq-protocol (2.3.0)
     ansi (1.5.0)
