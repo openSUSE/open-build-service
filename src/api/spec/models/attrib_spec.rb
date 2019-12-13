@@ -150,7 +150,6 @@ RSpec.describe Attrib, type: :model do
 
       subject { build(:attrib, project: project, attrib_type: attrib_type, issues: [issue]) }
 
-      it { expect(subject).to be_invalid }
       it { expect(subject.errors.full_messages).to match_array(["Issues can't have issues"]) }
     end
 
