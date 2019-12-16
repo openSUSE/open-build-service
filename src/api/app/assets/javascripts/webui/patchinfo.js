@@ -14,10 +14,6 @@ function addIssuesAjaxBefore() {
       return false;
     }
 
-    var element = $(this);
-    element.children('i.fas.fa-plus-circle').addClass('d-none');
-    element.children('i.fas.fa-spin').removeClass('d-none');
-
     issues = $.unique(issues.replace(/ /g, '').split(','));
 
     var currentIssues = $('[name="patchinfo[issueid][]"]').map(function(_, element) {
@@ -33,6 +29,14 @@ function addIssuesAjaxBefore() {
       return currentIssues.indexOf(issue) === -1;
     });
 
+    if (issues.length === 0) {
+      $('#issue_ids').val('');
+      return false;
+    }
+
+    var element = $(this);
+    element.children('i.fas.fa-plus-circle').addClass('d-none');
+    element.children('i.fas.fa-spin').removeClass('d-none');
     element.data('params', { issues: issues, project: element.data('project') });
   });
 }
