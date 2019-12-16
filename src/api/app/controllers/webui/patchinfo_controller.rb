@@ -89,6 +89,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     error = ''
     invalid_format = ''
     # params[:issues] = list of new issues to add
+    params[:issues] ||= []
     params[:issues].each do |new_issue|
       issue = IssueTracker::IssueTrackerHelper.new(new_issue)
       if issue.valid?
