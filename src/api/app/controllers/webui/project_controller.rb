@@ -380,9 +380,9 @@ class Webui::ProjectController < Webui::WebuiController
     when 'sibling project'
       @project.siblingprojects
     when 'subproject'
-      @project.subprojects.order(:name)
+      @project.subprojects
     when 'parent project'
-      @project.ancestors.order(:name)
+      @project.ancestors
     end
   end
 
