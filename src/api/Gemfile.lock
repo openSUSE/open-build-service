@@ -239,7 +239,7 @@ GEM
       builder
       minitest (>= 5.0)
       ruby-progressbar
-    mocha (1.10.2)
+    mocha (1.11.1)
     momentjs-rails (2.20.1)
       railties (>= 3.1)
     mousetrap-rails (1.4.6)
