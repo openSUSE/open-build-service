@@ -1,6 +1,6 @@
 class InitialDatabase < ActiveRecord::Migration[4.2]
   # rubocop:disable Metrics/AbcSize
-  # rubocop:disable MethodLength
+  # rubocop:disable Metrics/MethodLength
   # rubocop:disable Layout/LineLength
   def self.up
     # rubocop:disable Layout/ExtraSpacing
@@ -922,7 +922,7 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     SQL
   end
   # rubocop:enable Metrics/AbcSize
-  # rubocop:enable MethodLength
+  # rubocop:enable Metrics/MethodLength
   # rubocop:enable Layout/LineLength
 
   def self.down
