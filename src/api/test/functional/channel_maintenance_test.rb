@@ -1,4 +1,4 @@
-# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/LineLength
 # rubocop:disable Metrics/AbcSize
 # rubocop:disable Metrics/MethodLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
@@ -965,4 +965,4 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
-# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/LineLength

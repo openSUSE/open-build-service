@@ -55,7 +55,7 @@ Style/WordArray:
 Metrics/ClassLength:
   Severity: refactor
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 150
   IgnoredPatterns: ['\A#']
 

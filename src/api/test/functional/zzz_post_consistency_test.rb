@@ -36,7 +36,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
     progress = nil
     failed = nil
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     IO.popen("cd #{ENV['OBS_BACKEND_TEMP']}/config; exec perl #{perlopts} ./bs_check_consistency --check-all --do-check-meta --do-check-signatures 2>&1") do |io|
       io.each do |line|
         #        puts ">#{line}<"
@@ -64,7 +64,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         progress = nil
         puts line
       end
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
     end
 
     assert_nil failed

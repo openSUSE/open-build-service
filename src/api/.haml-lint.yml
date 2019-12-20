@@ -26,7 +26,7 @@ linters:
       - Layout/HashAlignment
       - Metrics/BlockLength
       - Metrics/BlockNesting
-      - Metrics/LineLength
+      - Layout/LineLength
       - Naming/FileName
       - Style/FrozenStringLiteralComment
       - Style/IfUnlessModifier
