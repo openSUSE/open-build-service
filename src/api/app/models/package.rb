@@ -89,9 +89,9 @@ class Package < ApplicationRecord
 
   scope :order_by_name, -> { order('LOWER(name)') }
 
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
@@ -874,9 +874,9 @@ class Package < ApplicationRecord
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name, project.name, name)
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 

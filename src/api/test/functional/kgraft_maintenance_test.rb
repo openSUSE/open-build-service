@@ -108,7 +108,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/Channel/BaseDistro2/_meta', params: '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     # add reference to empty kgraft container
     post '/source/Channel/BaseDistro2?cmd=importchannel', params: "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
@@ -147,7 +147,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
             <binary name='package_newweaktags' package='kgraft-incident-0' />
           </binaries>
         </channel>"
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     assert_response :success
 
     # make the kgraft update an incident via maintenance_incident request

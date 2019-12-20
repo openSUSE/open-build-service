@@ -357,7 +357,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_request
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     login_Iggy
     get '/search/request', params: { match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')" }
     assert_response :success
@@ -381,7 +381,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get '/search/request', params: { match: '[@id=1]' }
     assert_response :success
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
 
     get '/search/request', params: { match: "(review[@state='new' and @by_user='adrian'])" }
     assert_response :success
@@ -417,9 +417,9 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_search_request_2
     login_Iggy
     # this is not a good test - as the actual test is that didn't create bizar SQL queries, but this requires human eyes
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     get '/search/request', params: { match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")' }
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     assert_response :success
   end
 

@@ -190,13 +190,13 @@ class SourceController < ApplicationController
       end
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name(@target_project_name,
                                                                                              @target_package_name,
                                                                                              follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
         validate_target_for_package_command_exists!
       end
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
     end
 
     dispatch_command(:package_command, @command)
@@ -1120,9 +1120,9 @@ class SourceController < ApplicationController
     end
   end
 
-  # rubocop:disable Metrics/LineLength
+  # rubocop:disable Layout/LineLength
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
-  # rubocop:enable Metrics/LineLength
+  # rubocop:enable Layout/LineLength
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 

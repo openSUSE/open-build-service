@@ -44,9 +44,9 @@ class BackendTests < ActionDispatch::IntegrationTest
         schema = 'person'
       end
 
-      # rubocop:disable Metrics/LineLength
+      # rubocop:disable Layout/LineLength
       r = system("cd #{ENV['OBS_BACKEND_TEMP']}/config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\\$BSXML::#{schema}, 0);\" 2>&1")
-      # rubocop:enable Metrics/LineLength
+      # rubocop:enable Layout/LineLength
       assert_equal true, r
     end
   end

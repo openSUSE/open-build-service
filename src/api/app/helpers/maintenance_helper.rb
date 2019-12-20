@@ -92,9 +92,9 @@ module MaintenanceHelper
     link.remove_attribute('project') # its a local link, project name not needed
     link['package'] = link['package'].gsub(/\..*/, '') + target_package_name.gsub(/.*\./, '.') # adapt link target with suffix
     link_xml = link.to_xml
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     Backend::Connection.put "/source/#{URI.escape(target_project.name)}/#{URI.escape(target_package_name)}/_link?rev=repository&user=#{CGI.escape(User.session!.login)}", link_xml
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
     # commit with noservice parameter
     upload_params = {
@@ -226,9 +226,9 @@ module MaintenanceHelper
     cp_params[:setupdateinfoid] = update_info_id if update_info_id
     cp_params[:setrelease] = setrelease if setrelease
     cp_params[:multibuild] = '1' unless source_package_name.include?(':')
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(target_package_name)}"
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
     cp_path << Backend::Connection.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
                                                                      :orepository, :setupdateinfoid,
                                                                      :resign, :setrelease, :multibuild])

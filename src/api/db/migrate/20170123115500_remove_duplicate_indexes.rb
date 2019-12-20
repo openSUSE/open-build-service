@@ -147,7 +147,7 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
   end
 
   def self.down
-    # rubocop:disable Metrics/LineLength
+    # rubocop:disable Layout/LineLength
     # re-add duplicate indexes.
     # generated based the output of pt-duplicate-key-checker and the index definitions as of 7669128
     execute 'ALTER TABLE `attrib_namespace_modifiable_bies` ADD INDEX `index_attrib_namespace_modifiable_bies_on_attrib_namespace_id` (`attrib_namespace_id`);'
@@ -160,6 +160,6 @@ class RemoveDuplicateIndexes < ActiveRecord::Migration[5.0]
     execute 'ALTER TABLE `package_issues` ADD INDEX `index_package_issues_on_package_id` (`package_id`);'
     execute 'ALTER TABLE `packages` ADD INDEX `index_packages_on_project_id` (`project_id`);'
     execute 'ALTER TABLE `reviews` ADD INDEX `index_reviews_on_state` (`state`);'
-    # rubocop:enable Metrics/LineLength
+    # rubocop:enable Layout/LineLength
   end
 end
