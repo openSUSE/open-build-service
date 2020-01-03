@@ -18,12 +18,13 @@
           - if package && project.send("#{type}_has_role?", record, role)
             = link_to(project_users_path(project: project)) do
               %i.fa.fa-cubes.text-secondary{ title: 'inherited from project' }
-    %td.text-nowrap
-      - if mail_subject && record.email
-        = mail_to(record.email, subject: mail_subject) do
-          %i.far.fa-envelope{ title: "Send email to #{type}" }
-      - if user_is_maintainer
-        = link_to('#', class: "remove-#{type}",
-          data: { toggle: 'modal', target: '#delete-role-modal',
-          action: user_or_groups_roles_delete_path(project, type, record, package), type: type, object: record.to_s }) do
-          %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }
+    - if User.session
+      %td.text-nowrap
+        - if mail_subject && record.email
+          = mail_to(record.email, subject: mail_subject) do
+            %i.far.fa-envelope{ title: "Send email to #{type}" }
+        - if user_is_maintainer
+          = link_to('#', class: "remove-#{type}",
+            data: { toggle: 'modal', target: '#delete-role-modal',
+            action: user_or_groups_roles_delete_path(project, type, record, package), type: type, object: record.to_s }) do
+            %i.fas.fa-times-circle.text-danger{ title: "Delete all roles for #{type}" }
