@@ -9,7 +9,7 @@ use Build;
 
 my $reporoot = "$BSConfig::bsdir/build";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 sub getconfig {

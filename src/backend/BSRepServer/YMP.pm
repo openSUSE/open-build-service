@@ -26,7 +26,7 @@ use BSXML;
 use BSUrlmapper;
 use Build;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 # find a binary given a binary name. Note that the binary
