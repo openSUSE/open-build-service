@@ -210,16 +210,6 @@ RSpec.describe Staging::StagedRequestsController do
           }
         end
         let(:body) { "<requests><request id='#{bs_request.number}'/><request id='#{another_bs_request.number}'/></requests>" }
-        let(:another_bs_request) do
-          create(:bs_request_with_submit_action,
-                 state: :review,
-                 creator: other_user,
-                 target_package: target_package,
-                 source_package: source_package,
-                 description: 'BsRequest 2',
-                 number: 2,
-                 review_by_group: group)
-        end
 
         before { subject }
 
@@ -237,6 +227,8 @@ RSpec.describe Staging::StagedRequestsController do
 
           it { expect(response).to have_http_status(:bad_request) }
           it { expect(response.body).to match(/Can't stage request '#{another_bs_request.number}'/) }
+          it { expect(staging_project.staged_requests).to include(bs_request) }
+          it { expect(staging_project.staged_requests).not_to include(another_bs_request) }
         end
 
         context 'with another package' do

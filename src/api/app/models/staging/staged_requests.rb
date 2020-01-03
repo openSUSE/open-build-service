@@ -5,23 +5,7 @@ class Staging::StagedRequests
   def create
     add_requests_excluded_errors
     add_request_not_found_errors
-    requests.each do |request|
-      bs_request_action = request.bs_request_actions.first
-      if bs_request_action.is_submit?
-        link_package(bs_request_action)
-      end
-      # TODO: implement delete requests
-      ProjectLogEntry.create!(
-        project: staging_project,
-        user_name: user_login,
-        bs_request: request,
-        event_type: :staged_request,
-        datetime: Time.now,
-        package_name: bs_request_action.target_package
-      )
-      staging_project.staged_requests << request
-      add_review_for_staged_request(request)
-    end
+    requests.each { |request| stage_request(request) }
 
     self
   end
@@ -109,13 +93,6 @@ class Staging::StagedRequests
   end
 
   def link_package(bs_request_action)
-    request = bs_request_action.bs_request
-
-    if Package.find_by(project: staging_project, name: bs_request_action.target_package)
-      errors << "Can't stage request '#{request.number}': package '#{bs_request_action.target_package}' already exists in '#{staging_project}'."
-      return
-    end
-
     query_options = { expand: 1, project: bs_request_action.source_project, package: bs_request_action.source_package }
     query_options[:rev] = bs_request_action.source_rev if bs_request_action.source_rev
 
@@ -194,5 +171,28 @@ class Staging::StagedRequests
   def link_xml(opts = {})
     # "<link package=\"foo\" project=\"bar\" rev=\"XXX\" cicount=\"copy\"/>"
     Nokogiri::XML::Builder.new { |x| x.link(opts) }.doc.root.to_s
+  end
+
+  def stage_request(request)
+    bs_request_action = request.bs_request_actions.first
+    if bs_request_action.is_submit?
+      if Package.find_by(project: staging_project, name: bs_request_action.target_package)
+        errors << "Can't stage request '#{request.number}': package '#{bs_request_action.target_package}' already exists in '#{staging_project}'."
+        return
+      end
+
+      link_package(bs_request_action)
+    end
+    # TODO: implement delete requests
+    ProjectLogEntry.create!(
+      project: staging_project,
+      user_name: user_login,
+      bs_request: request,
+      event_type: :staged_request,
+      datetime: Time.now,
+      package_name: bs_request_action.target_package
+    )
+    staging_project.staged_requests << request
+    add_review_for_staged_request(request)
   end
 end
