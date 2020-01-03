@@ -21,7 +21,8 @@
           %td Username
           - roles.each do |role|
             %td= role.title.capitalize
-          %td
+          - if User.session
+            %td
       %tbody
         = render partial: 'webui/shared/user_or_groups_roles/list',
                  locals: { records: users, roles: roles, type: 'user',
@@ -47,7 +48,7 @@
           %td Group name
           - roles.each do |role|
             %td= role.title.capitalize
-          - if user_is_maintainer
+          - if User.session
             %td
       %tbody
         = render partial: 'webui/shared/user_or_groups_roles/list',
