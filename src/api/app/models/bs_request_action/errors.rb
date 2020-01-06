@@ -21,7 +21,9 @@ module BsRequestAction::Errors
   class UnknownRole < APIError; setup 404; end
   class IllegalRequest < APIError; end
   class BuildNotFinished < APIError; end
-  class UnknownTargetProject < APIError; end
+  class UnknownTargetProject < APIError
+    setup 'unknown_target_project', 400, 'target project does not exist'
+  end
   class UnknownTargetPackage < APIError; end
   class WrongLinkedPackageSource < APIError; end
   class MissingPatchinfo < APIError
