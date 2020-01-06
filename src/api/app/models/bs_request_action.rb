@@ -405,10 +405,9 @@ class BsRequestAction < ApplicationRecord
   def create_expand_package(packages, opts = {})
     newactions = []
     incident_suffix = ''
-    if is_maintenance_release?
-      # The maintenance ID is always the sub project name of the maintenance project
-      incident_suffix = '.' + source_project.gsub(/.*:/, '')
-    end
+
+    # The maintenance ID is always the sub project name of the maintenance project
+    incident_suffix = '.' + source_project.gsub(/.*:/, '') if is_maintenance_release?
 
     found_patchinfo = false
     new_packages = []
