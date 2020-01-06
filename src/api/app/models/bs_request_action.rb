@@ -563,15 +563,15 @@ class BsRequestAction < ApplicationRecord
       if is_maintenance_release?
         if pkg.is_channel?
           # create submit request for possible changes in the _channel file
-          sumbit_action = BsRequestActionSubmit.new
-          sumbit_action.source_project = new_action.source_project
-          sumbit_action.source_package = new_action.source_package
-          sumbit_action.source_rev = new_action.source_rev
-          sumbit_action.target_project = tprj.name
-          sumbit_action.target_package = tpkg
+          submit_action = BsRequestActionSubmit.new
+          submit_action.source_project = new_action.source_project
+          submit_action.source_package = new_action.source_package
+          submit_action.source_rev = new_action.source_rev
+          submit_action.target_project = tprj.name
+          submit_action.target_package = tpkg
           # replace the new action
           new_action.destroy
-          new_action = sumbit_action
+          new_action = submit_action
         else # non-channel package
           next unless maintenance_trigger?(pkg.project.repositories, tprj.repositories)
           unless pkg.project.can_be_released_to_project?(tprj)
