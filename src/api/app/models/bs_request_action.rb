@@ -550,6 +550,7 @@ class BsRequestAction < ApplicationRecord
           raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
         end
       end
+      # call dup to work on a copy of self
       new_action = dup
       new_action.source_package = pkg.name
       if is_maintenance_incident?
