@@ -428,14 +428,14 @@ class BsRequestAction < ApplicationRecord
 
       while tprj == pkg.project
         data = Directory.hashed(project: tprj.name, package: ltpkg)
-        e = data['linkinfo']
+        data_linkinfo = data['linkinfo']
 
-        if e
-          suffix = ltpkg.gsub(/^#{Regexp.escape(e['package'])}/, '')
-          ltpkg = e['package']
-          tprj = Project.get_by_name(e['project'])
+        if data_linkinfo
+          suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
+          ltpkg = data_linkinfo['package']
+          tprj = Project.get_by_name(data_linkinfo['project'])
 
-          missing_ok_link = true if e['missingok']
+          missing_ok_link = true if data_linkinfo['missingok']
         else
           tprj = nil
         end
@@ -450,8 +450,8 @@ class BsRequestAction < ApplicationRecord
              elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
                # fallback, how can we get rid of it?
                data = Directory.hashed(project: tprj.name, package: ltpkg)
-               e = data['linkinfo']
-               e['package'] if e
+               data_linkinfo = data['linkinfo']
+               data_linkinfo['package'] if data_linkinfo
              else
                # we need to get rid of it again ...
                tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
@@ -537,7 +537,7 @@ class BsRequestAction < ApplicationRecord
       unless missing_ok_link
         # check if the main package container exists in target.
         # take into account that an additional local link with spec file might got added
-        unless e && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
+        unless data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
           if is_maintenance_release?
             pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|
