@@ -546,9 +546,8 @@ class BsRequestAction < ApplicationRecord
             end
             new_packages << pkg
             next
-          elsif !is_maintenance_incident? && !is_submit?
-            raise UnknownTargetPackage
           end
+          raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
         end
       end
       new_action = dup
