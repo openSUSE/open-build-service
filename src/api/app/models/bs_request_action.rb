@@ -522,13 +522,11 @@ class BsRequestAction < ApplicationRecord
             repo.release_targets.each do |rt|
               next if rt.trigger != 'maintenance'
               next unless rt.target_repository.project.is_maintenance_release?
-              if release_target && release_target != rt.target_repository.project
-                raise InvalidReleaseTarget, 'Multiple release target projects are not supported'
-              end
+              raise MultipleReleaseTargets if release_target && release_target != rt.target_repository.project
               release_target = rt.target_repository.project
             end
           end
-          raise InvalidReleaseTarget, 'Can not release to a maintenance incident project' unless release_target
+          raise InvalidReleaseTarget unless release_target
           tprj = release_target
         end
       end
