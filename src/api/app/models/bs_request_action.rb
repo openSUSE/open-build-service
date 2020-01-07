@@ -405,10 +405,9 @@ class BsRequestAction < ApplicationRecord
   def create_expand_package(packages, opts = {})
     newactions = []
     incident_suffix = ''
-    if is_maintenance_release?
-      # The maintenance ID is always the sub project name of the maintenance project
-      incident_suffix = '.' + source_project.gsub(/.*:/, '')
-    end
+
+    # The maintenance ID is always the sub project name of the maintenance project
+    incident_suffix = '.' + source_project.gsub(/.*:/, '') if is_maintenance_release?
 
     found_patchinfo = false
     new_packages = []
@@ -429,17 +428,14 @@ class BsRequestAction < ApplicationRecord
 
       while tprj == pkg.project
         data = Directory.hashed(project: tprj.name, package: ltpkg)
-        e = data['linkinfo']
+        data_linkinfo = data['linkinfo']
 
-        if e
-          suffix = ltpkg.gsub(/^#{Regexp.escape(e['package'])}/, '')
-          ltpkg = e['package']
-          tprj = Project.get_by_name(e['project'])
-
-          missing_ok_link = true if e['missingok']
-        else
-          tprj = nil
-        end
+        tprj = if data_linkinfo
+                 suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
+                 ltpkg = data_linkinfo['package']
+                 missing_ok_link = true if data_linkinfo['missingok']
+                 Project.get_by_name(data_linkinfo['project'])
+               end
       end
 
       tpkg = if target_package
@@ -451,8 +447,8 @@ class BsRequestAction < ApplicationRecord
              elsif tprj.try(:is_maintenance_incident?) && is_maintenance_release?
                # fallback, how can we get rid of it?
                data = Directory.hashed(project: tprj.name, package: ltpkg)
-               e = data['linkinfo']
-               e['package'] if e
+               data_linkinfo = data['linkinfo']
+               data_linkinfo['package'] if data_linkinfo
              else
                # we need to get rid of it again ...
                tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
@@ -463,7 +459,7 @@ class BsRequestAction < ApplicationRecord
 
       # overwrite target if defined
       tprj = Project.get_by_name(target_project) if target_project
-      raise UnknownTargetProject, 'target project does not exist' unless tprj || is_maintenance_release?
+      raise UnknownTargetProject unless tprj || is_maintenance_release?
 
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
@@ -494,24 +490,7 @@ class BsRequestAction < ApplicationRecord
             versrel[repo][package] ||= vrel
           end
         end
-
-        pkg.project.repositories.each do |repo|
-          next unless repo
-          firstarch = repo.architectures.first
-          next unless firstarch
-
-          # skip excluded patchinfos
-          status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-
-          next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
-
-          raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
-
-          check_maintenance_release(pkg, repo, firstarch)
-
-          found_patchinfo = true
-        end
-
+        found_patchinfo = check_patchinfo(pkg)
       end
 
       # re-route (for the kgraft case building against GM or former incident)
@@ -523,13 +502,11 @@ class BsRequestAction < ApplicationRecord
             repo.release_targets.each do |rt|
               next if rt.trigger != 'maintenance'
               next unless rt.target_repository.project.is_maintenance_release?
-              if release_target && release_target != rt.target_repository.project
-                raise InvalidReleaseTarget, 'Multiple release target projects are not supported'
-              end
+              raise MultipleReleaseTargets if release_target && release_target != rt.target_repository.project
               release_target = rt.target_repository.project
             end
           end
-          raise InvalidReleaseTarget, 'Can not release to a maintenance incident project' unless release_target
+          raise InvalidReleaseTarget unless release_target
           tprj = release_target
         end
       end
@@ -538,7 +515,7 @@ class BsRequestAction < ApplicationRecord
       unless missing_ok_link
         # check if the main package container exists in target.
         # take into account that an additional local link with spec file might got added
-        unless e && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
+        unless data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
           if is_maintenance_release?
             pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|
@@ -547,11 +524,11 @@ class BsRequestAction < ApplicationRecord
             end
             new_packages << pkg
             next
-          elsif !is_maintenance_incident? && !is_submit?
-            raise UnknownTargetPackage, 'target package does not exist'
           end
+          raise UnknownTargetPackage if !is_maintenance_incident? && !is_submit?
         end
       end
+      # call dup to work on a copy of self
       new_action = dup
       new_action.source_package = pkg.name
       if is_maintenance_incident?
@@ -566,15 +543,15 @@ class BsRequestAction < ApplicationRecord
       if is_maintenance_release?
         if pkg.is_channel?
           # create submit request for possible changes in the _channel file
-          sumbit_action = BsRequestActionSubmit.new
-          sumbit_action.source_project = new_action.source_project
-          sumbit_action.source_package = new_action.source_package
-          sumbit_action.source_rev = new_action.source_rev
-          sumbit_action.target_project = tprj.name
-          sumbit_action.target_package = tpkg
+          submit_action = BsRequestActionSubmit.new
+          submit_action.source_project = new_action.source_project
+          submit_action.source_package = new_action.source_package
+          submit_action.source_rev = new_action.source_rev
+          submit_action.target_project = tprj.name
+          submit_action.target_package = tpkg
           # replace the new action
           new_action.destroy
-          new_action = sumbit_action
+          new_action = submit_action
         else # non-channel package
           next unless maintenance_trigger?(pkg.project.repositories, tprj.repositories)
           unless pkg.project.can_be_released_to_project?(tprj)
@@ -800,6 +777,23 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def check_patchinfo(pkg)
+    pkg.project.repositories.collect do |repo|
+      firstarch = repo.architectures.first
+      next unless firstarch
+
+      # skip excluded patchinfos
+      status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
+
+      next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
+
+      raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
+
+      check_maintenance_release(pkg, repo, firstarch)
+      true
+    end.any?
+  end
 
   def check_repository_published!(state, pkg, repo, arch)
     raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(['finished', 'publishing'])

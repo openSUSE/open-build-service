@@ -7,7 +7,10 @@ module BsRequestAction::Errors
     setup 'remote_source', 400, 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
   end
   class RemoteTarget < APIError; end
-  class InvalidReleaseTarget < APIError; end
+  class InvalidReleaseTarget < APIError
+    setup 'invalid_release_target', 400, 'Can not release to a maintenance incident project'
+  end
+  class MultipleReleaseTargets < APIError; setup 'Multiple release target projects are not supported'; end
   class LackingMaintainership < APIError
     setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
   end
@@ -21,7 +24,9 @@ module BsRequestAction::Errors
   class UnknownRole < APIError; setup 404; end
   class IllegalRequest < APIError; end
   class BuildNotFinished < APIError; end
-  class UnknownTargetProject < APIError; end
+  class UnknownTargetProject < APIError
+    setup 'unknown_target_project', 400, 'target project does not exist'
+  end
   class UnknownTargetPackage < APIError; end
   class WrongLinkedPackageSource < APIError; end
   class MissingPatchinfo < APIError
