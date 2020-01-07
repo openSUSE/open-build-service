@@ -493,24 +493,7 @@ class BsRequestAction < ApplicationRecord
             versrel[repo][package] ||= vrel
           end
         end
-
-        pkg.project.repositories.each do |repo|
-          next unless repo
-          firstarch = repo.architectures.first
-          next unless firstarch
-
-          # skip excluded patchinfos
-          status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-
-          next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
-
-          raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
-
-          check_maintenance_release(pkg, repo, firstarch)
-
-          found_patchinfo = true
-        end
-
+        found_patchinfo = check_patchinfo(pkg)
       end
 
       # re-route (for the kgraft case building against GM or former incident)
@@ -797,6 +780,23 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def check_patchinfo(pkg)
+    pkg.project.repositories.collect do |repo|
+      firstarch = repo.architectures.first
+      next unless firstarch
+
+      # skip excluded patchinfos
+      status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
+
+      next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
+
+      raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
+
+      check_maintenance_release(pkg, repo, firstarch)
+      true
+    end.any?
+  end
 
   def check_repository_published!(state, pkg, repo, arch)
     raise BuildNotFinished, check_repository_published_error_message('publish', pkg.project.name, repo, arch) if state.in?(['finished', 'publishing'])
