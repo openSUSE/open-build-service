@@ -430,15 +430,12 @@ class BsRequestAction < ApplicationRecord
         data = Directory.hashed(project: tprj.name, package: ltpkg)
         data_linkinfo = data['linkinfo']
 
-        if data_linkinfo
-          suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
-          ltpkg = data_linkinfo['package']
-          tprj = Project.get_by_name(data_linkinfo['project'])
-
-          missing_ok_link = true if data_linkinfo['missingok']
-        else
-          tprj = nil
-        end
+        tprj = if data_linkinfo
+                 suffix = ltpkg.gsub(/^#{Regexp.escape(data_linkinfo['package'])}/, '')
+                 ltpkg = data_linkinfo['package']
+                 missing_ok_link = true if data_linkinfo['missingok']
+                 Project.get_by_name(data_linkinfo['project'])
+               end
       end
 
       tpkg = if target_package
