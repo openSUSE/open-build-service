@@ -406,6 +406,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    sync (0.5.0)
     sysexits (1.2.0)
     temple (0.8.2)
     term-ansicolor (1.7.1)
@@ -423,7 +424,8 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.10)
     timecop (0.9.1)
-    tins (1.22.2)
+    tins (1.23.0)
+      sync
     tzinfo (1.2.6)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
