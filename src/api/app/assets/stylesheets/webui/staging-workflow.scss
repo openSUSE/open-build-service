@@ -31,11 +31,17 @@ ul .table-list-group-item {
   }
 
   &.project {
+    @extend .w-25;
+
     > span.badge {
       @extend .w-100;
 
       > span.badge {
         @extend .m-1;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        display: inline-block;
+        white-space: normal;
       }
     }
 
