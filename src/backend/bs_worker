@@ -61,7 +61,7 @@ eval {
 
 use strict;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $buildroot;

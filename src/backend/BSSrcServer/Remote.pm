@@ -36,7 +36,7 @@ my $uploaddir = "$srcrep/:upload";
 my $proxy;
 $proxy = $BSConfig::proxy if defined $BSConfig::proxy;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 # remote getrev cache

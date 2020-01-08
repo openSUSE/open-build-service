@@ -138,7 +138,7 @@ my $notificationlay = [qw{number type time data []}];
 my $ajaxsocket = "$rundir/bs_srcserver.ajax";
 my $uploaddir = "$srcrep/:upload";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 my $datarepoid;
