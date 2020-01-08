@@ -658,7 +658,7 @@ CREATE TABLE `incident_updateinfo_counter_values` (
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github','jira') COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `url` varchar(255) CHARACTER SET utf8 NOT NULL,
   `show_url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1481,6 +1481,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190520130009'),
 ('20190704072437'),
 ('20190710094253'),
-('20190712084813');
+('20190712084813'),
+('20200107105426');
 
 
