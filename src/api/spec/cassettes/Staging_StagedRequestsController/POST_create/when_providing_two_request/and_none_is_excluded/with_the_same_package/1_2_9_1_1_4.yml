@@ -40,14 +40,14 @@ http_interactions:
           <person userid="permitted_user" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-3">
           <staging_project name="home:permitted_user:Staging:A"/>
         </workflow>
     headers:
@@ -73,15 +73,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="61">
-          <srcmd5>9dcb5cf420daed4d036a384bfeb64efb</srcmd5>
-          <time>1578073405</time>
+        <revision rev="65">
+          <srcmd5>602e8e3284f67812365e97e2880b3ef9</srcmd5>
+          <time>1578073413</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/_meta?user=permitted_user
@@ -91,7 +91,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -119,17 +119,17 @@ http_interactions:
         <project name="home:permitted_user:Staging:A">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_project/_staging_workflow?user=permitted_user
     body:
       encoding: UTF-8
       string: |
-        <workflow project="home:permitted_user" managers="staging-workflow-managers-1">
+        <workflow project="home:permitted_user" managers="staging-workflow-managers-3">
           <staging_project name="home:permitted_user:Staging:A"/>
           <staging_project name="home:permitted_user:Staging:B"/>
         </workflow>
@@ -156,15 +156,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="62">
-          <srcmd5>55c0e52fdb04d9dffcf1ab79dc2ec54c</srcmd5>
-          <time>1578073405</time>
+        <revision rev="66">
+          <srcmd5>2b5b5658007e8ef89a0cbc4576bcef05</srcmd5>
+          <time>1578073413</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:B/_meta?user=permitted_user
@@ -174,7 +174,7 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title/>
           <description/>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -202,10 +202,10 @@ http_interactions:
         <project name="home:permitted_user:Staging:B">
           <title></title>
           <description></description>
-          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+          <group groupid="staging-workflow-managers-3" role="maintainer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/_meta?user=permitted_user
@@ -216,7 +216,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+          <group groupid="staging-workflow-managers-3" role="reviewer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -245,10 +245,10 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="permitted_user" role="maintainer"/>
-          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+          <group groupid="staging-workflow-managers-3" role="reviewer"/>
         </project>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:25 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user/target_package/_meta?user=permitted_user
@@ -256,8 +256,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Fame Is the Spur</title>
-          <description>Id fugiat iusto ab.</description>
+          <title>A Time to Kill</title>
+          <description>Enim aut debitis molestias.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -278,16 +278,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="home:permitted_user">
-          <title>Fame Is the Spur</title>
-          <description>Id fugiat iusto ab.</description>
+          <title>A Time to Kill</title>
+          <description>Enim aut debitis molestias.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:26 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/_meta?user=permitted_user
@@ -295,7 +295,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Vanity Fair</title>
+          <title>The Moving Toyshop</title>
           <description/>
         </project>
     headers:
@@ -317,16 +317,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '102'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Vanity Fair</title>
+          <title>The Moving Toyshop</title>
           <description></description>
         </project>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:26 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/source_project/source_package/_meta?user=permitted_user
@@ -334,8 +334,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Absalom, Absalom!</title>
-          <description>Illum dolorum adipisci est.</description>
+          <title>A Scanner Darkly</title>
+          <description>Ipsa neque similique aliquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -356,16 +356,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Absalom, Absalom!</title>
-          <description>Illum dolorum adipisci est.</description>
+          <title>A Scanner Darkly</title>
+          <description>Ipsa neque similique aliquam.</description>
         </package>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:26 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:34 GMT
 - request:
     method: get
     uri: http://backend:5352/source/source_project/source_package?expand=1
@@ -398,7 +398,7 @@ http_interactions:
         <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:28 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_meta?user=permitted_user
@@ -437,7 +437,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:28 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:36 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:permitted_user:Staging:A/target_package/_link?user=permitted_user
@@ -468,14 +468,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="21" vrev="21">
+        <revision rev="23" vrev="23">
           <srcmd5>d5e16cac42930eeb8421736378202c08</srcmd5>
           <version>unknown</version>
-          <time>1578073408</time>
+          <time>1578073416</time>
           <user>permitted_user</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Fri, 03 Jan 2020 17:43:28 GMT
+  recorded_at: Fri, 03 Jan 2020 17:43:36 GMT
 recorded_with: VCR 5.0.0
