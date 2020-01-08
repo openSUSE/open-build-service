@@ -79,7 +79,7 @@ module Webui::Staging::WorkflowHelper
     classified_requests = staging_project.classified_requests
     number_of_requests = classified_requests.size
 
-    return 'None' if number_of_requests == 0
+    return '' if number_of_requests == 0
 
     requests_visible_by_default = 10
     requests_links = classified_requests.map do |request|

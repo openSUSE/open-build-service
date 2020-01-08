@@ -16,14 +16,28 @@
         - if policy(@staging_workflow).destroy? # This is outside of the h3 to prevent the font in the modal to be oversized
           = render(partial: 'delete', locals: { project: @project })
 
-        = render(partial: 'staging_projects_table',
-                 locals: { staging_workflow: @staging_workflow, staging_projects: @staging_projects,
-                           users_hash: @users_hash, groups_hash: @groups_hash })
+        - @categories.each do |category, projects|
+          - if category
+            %h5= category.title
+          = render(partial: 'staging_projects_table',
+                   locals: { staging_workflow: @staging_workflow, staging_projects: projects,
+                             users_hash: @users_hash, groups_hash: @groups_hash })
 
   .col-xl-2
     = render partial: 'webui/staging/shared/legend'
-    = render partial: 'infos', locals: { staging_workflow: @staging_workflow, empty_projects: @empty_projects,
+    = render partial: 'infos', locals: { staging_workflow: @staging_workflow,
                                          unassigned_requests: @unassigned_requests, more_unassigned_requests: @more_unassigned_requests,
                                          ready_requests: @ready_requests, more_ready_requests: @more_ready_requests,
                                          excluded_requests: @excluded_requests, more_excluded_requests: @more_excluded_requests,
                                          project: @project, managers: @managers }
+
+- content_for :ready_function do
+  :plain
+    $('.staging-projects-datatable').DataTable({
+      responsive: true,
+      paging: false,
+      ordering: false,
+      searching: false,
+      info: false,
+      "columnDefs": [ { "width": "6em", "targets": 0 } ]
+    });

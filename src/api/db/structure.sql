@@ -1172,6 +1172,17 @@ CREATE TABLE `sessions` (
   KEY `index_sessions_on_updated_at` (`updated_at`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `staging_project_categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staging_workflow_id` int(11) NOT NULL,
+  `title` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name_pattern` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_staging_project_categories_on_staging_workflow_id` (`staging_workflow_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `staging_request_exclusions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staging_workflow_id` int(11) NOT NULL,
@@ -1481,6 +1492,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190520130009'),
 ('20190704072437'),
 ('20190710094253'),
-('20190712084813');
+('20190712084813'),
+('20191128073647');
 
 

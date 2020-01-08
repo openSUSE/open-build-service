@@ -9,11 +9,7 @@ class Staging::Workflow < ApplicationRecord
   belongs_to :managers_group, class_name: 'Group'
 
   has_many :staging_projects, class_name: 'Project', inverse_of: :staging_workflow, dependent: :nullify,
-                              foreign_key: 'staging_workflow_id' do
-    def without_staged_requests
-      left_outer_joins(:staged_requests).where(bs_requests: { id: nil })
-    end
-  end
+                              foreign_key: 'staging_workflow_id'
 
   has_many :target_of_bs_requests, through: :project, foreign_key: 'staging_workflow_id' do
     def stageable(managers_group_title = nil)
@@ -29,6 +25,7 @@ class Staging::Workflow < ApplicationRecord
   has_many :staged_requests, class_name: 'BsRequest', through: :staging_projects
   has_many :request_exclusions, class_name: 'Staging::RequestExclusion', foreign_key: 'staging_workflow_id', dependent: :destroy
   has_many :excluded_requests, through: :request_exclusions, source: :bs_request
+  has_many :project_categories, class_name: 'Staging::ProjectCategory', foreign_key: 'staging_workflow_id', dependent: :destroy
 
   validates :managers_group, presence: true
 
