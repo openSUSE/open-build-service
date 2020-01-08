@@ -103,4 +103,9 @@ module Webui::Staging::WorkflowHelper
       safe_join(requests_links[requests_visible_by_default..-1])
     end
   end
+
+  def info_link(request, excluded = false)
+    options = { data: { content: request.request_exclusion.description, placement: 'top', toggle: 'popover' } } if excluded
+    link_to(elide(request.first_target_package, 19), request_show_path(request.number), options)
+  end
 end
