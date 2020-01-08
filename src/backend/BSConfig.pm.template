@@ -98,6 +98,18 @@ our $bsservicegroup = $bsgroup;
 # It is safe to be disabled on ext4 and btrfs filesystems.
 #our $disable_data_sync = 1;
 
+
+# configure special handling of selected repositories
+# our $publishredirect = { 'My:Project/repo' =>
+#                          [ "/srv/local/directory/",
+#                            undef, # or local sub path
+#                            "http://my.local.download.server/and/the/path/to/reach/repo",
+#                            "rsync://my.stage.server/module",
+#                            undef, # or special string for a repository pusher trigger file
+#                          ];
+#                          'My:Other:Project/images' => '/srv/local/other/directory/'
+#                         };
+
 # Package rc script / backend communication + log files
 our $rundir = "$bsdir/run";
 our $logdir = "$bsdir/log";

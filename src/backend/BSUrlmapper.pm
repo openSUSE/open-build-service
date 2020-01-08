@@ -94,7 +94,7 @@ sub get_extrep_stageservers {
   return ($extrep, undef) unless $extrep && ref($extrep);
   my $stageservers = $extrep->[3];
   $stageservers = [ $stageservers ] if $stageservers && !ref($stageservers);
-  return ($extrep->[0], $stageservers);
+  return ($extrep->[0], $stageservers, $extrep->[4]);
 }
 
 sub get_downloadurl {
