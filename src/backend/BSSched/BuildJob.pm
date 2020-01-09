@@ -392,6 +392,52 @@ sub set_genbuildreqs {
   }
 }
 
+
+=head2 flat_hash - utility function
+
+  my $a = {'accesslevels1' => {
+                  'content1' => 'val1',
+                  'content2' => 'val2',
+                  'accesslevels2' => {
+                      'content1' => 'val1',
+                      'content2' => 'val2'
+                  },
+
+      },
+  };
+
+  my %x = flat_hash('',$a);
+  print Dumper(%x);
+
+  $VAR1 = 'accesslevels1_content1';
+  $VAR2 = 'val1';
+  $VAR3 = 'accesslevels1_accesslevels2_content2';
+  $VAR4 = 'val2';
+  $VAR5 = 'accesslevels1_accesslevels2_content1';
+  $VAR6 = 'val1';
+  $VAR7 = 'accesslevels1_content2';
+  $VAR8 = 'val2';
+
+=cut
+
+sub flat_hash {
+    my ($key, $hsh) = @_;
+    my $ret;
+    $key = $key.'_' if $key ne '';
+    my $t;
+    foreach my $k (keys %$hsh){
+        if (ref($hsh->{$k}) eq 'HASH') {
+            $t = flat_hash($key.$k, $hsh->{$k});
+            @$ret{keys %$t} = values %$t
+        }
+        else {
+            $ret->{$key.$k} = $hsh->{$k};
+        }
+    }
+    return $ret;
+}
+
+
 =head2 jobfinished - called when a build job is finished
 
  - move artifacts into built result dir
@@ -542,6 +588,8 @@ sub jobfinished {
 
   unlink("$jobdatadir/.preinstallimage");
   BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
+  my $jobhist = makejobhist($info, $status, $js, 'succeeded');
+  addbuildstats($jobdatadir, $dst, $jobhist) if ($all{'_statistics'});
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
@@ -559,7 +607,6 @@ sub jobfinished {
 
   # write new status
   $status->{'status'} = 'succeeded';
-  my $jobhist = makejobhist($info, $status, $js, 'succeeded');
   addjobhist($gctx, $prp, $jobhist);
   writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
 
@@ -720,6 +767,15 @@ sub patchpackstatus {
   BSRedisnotify::updateoneresult("$prp/$myarch", $packid, "finished:$code", $job) if $BSConfig::redisserver;
 }
 
+
+sub addbuildstats {
+  my ($jobdatadir, $dst, $jobhist) = @_;
+  my $bstat = readxml("$jobdatadir/_statistics", $BSXML::buildstatistics, 1);
+  my $lay = $BSXML::buildstatslay;
+  my $bstat_ = flat_hash('stats_buildstatistics', $bstat);
+  my $jobhist_ = flat_hash('stats', $jobhist);
+  BSFileDB::fdb_add("$dst/stats", $lay, {%$jobhist_, %$bstat_});
+}
 
 =head2 makejobhist - return jobhistlay comaptible hash
 
