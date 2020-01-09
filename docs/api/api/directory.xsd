@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
   elementFormDefault="qualified">
 
   <xs:annotation>
@@ -20,7 +20,9 @@
         <xs:element ref="linkinfo" minOccurs="0" maxOccurs="unbounded"/>
         <xs:element ref="serviceinfo" minOccurs="0" maxOccurs="unbounded"/>
       </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="vrev" type="xs:string"/>
       <xs:attribute name="srcmd5" type="xs:string"/>
       <xs:attribute name="count" type="xs:int"/>
     </xs:complexType>
