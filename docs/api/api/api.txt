@@ -507,7 +507,7 @@ Parameters:
   repository: string, for view=info: parse buildinfo for this repository, optinal
   product: string, limit the product view to a given product
 
-XmlResult: package directory.xsd
+XmlResult: directory_filelist directory.xsd
 
 
 GET /source/<project>/<package>/_meta
