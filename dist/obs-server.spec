@@ -102,7 +102,7 @@ BuildRequires:  python-devel
 # also see requires in the obs-server-api sub package
 BuildRequires:  /usr/bin/xmllint
 BuildRequires:  openssl
-BuildRequires:  perl-BSSolv >= 0.28
+BuildRequires:  perl-BSSolv >= 0.36
 BuildRequires:  perl-Compress-Zlib
 BuildRequires:  perl-Diff-LibXDiff
 BuildRequires:  perl-File-Sync >= 0.10
@@ -121,8 +121,8 @@ BuildRequires:  perl(Test::Simple) > 1
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
-Requires:       build >= 20191114
-Requires:       perl-BSSolv >= 0.28
+Requires:       build >= 20200110
+Requires:       perl-BSSolv >= 0.36
 Requires:       perl(Date::Parse)
 # Required by source server
 Requires:       diffutils

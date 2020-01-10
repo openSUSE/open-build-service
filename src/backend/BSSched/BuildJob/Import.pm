@@ -24,7 +24,7 @@ use BSSched::BuildResult;
 use BSSched::EventSource::Directory; # for sendimportevent
 my $exportcnt = 0;
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 =head1 NAME
