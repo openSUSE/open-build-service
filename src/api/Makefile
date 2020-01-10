@@ -50,8 +50,8 @@ log_files:
 
 build: config
 	# we need to have *something* as secret key
-	echo "" | sha256sum| cut -d\  -f 1 > $(DESTDIR)/srv/www/obs/api/config/secret.key
-	cd $(DESTDIR)/srv/www/obs/api ;\
+	echo "" | sha256sum| cut -d\  -f 1 > $(DESTDIR)$(OBS_API_PREFIX)/config/secret.key
+	cd $(DESTDIR)$(OBS_API_PREFIX) ;\
 	bin/rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets || exit 1 ;\
 	rm -rf tmp/cache/sass tmp/cache/assets config/secret.key ;\
 	bin/bundle config --local frozen 1 || exit 1 ;\
