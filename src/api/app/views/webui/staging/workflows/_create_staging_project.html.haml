@@ -1,7 +1,7 @@
 .modal.fade#create-staging-projects-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'create-staging-projects-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      = form_tag(staging_workflow_staging_projects_path(staging_workflow), method: :post) do
+      = form_tag(staging_workflow_staging_project_index_path(staging_workflow.project), method: :post) do
         .modal-header
           %h5.modal-title#create-staging-projects-modal-label Create Staging Project
         .modal-body

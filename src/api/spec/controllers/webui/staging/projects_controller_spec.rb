@@ -20,7 +20,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
     context 'a staging_project' do
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:My:Projects' }
+        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
@@ -32,7 +32,7 @@ RSpec.describe Webui::Staging::ProjectsController do
         expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', 'home:tom:My:Projects'])
       end
 
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
 
@@ -45,14 +45,14 @@ RSpec.describe Webui::Staging::ProjectsController do
       let!(:existent_project) { create(:project, name: "#{project}:new-staging", maintainer: user) }
 
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: existent_project.name }
+        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: existent_project.name }
       end
 
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(4) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B', existent_project.name]) }
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:success]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).to have_been_enqueued }
 
@@ -63,21 +63,21 @@ RSpec.describe Webui::Staging::ProjectsController do
 
     context 'an existent staging project' do
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:Staging:A' }
+        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:Staging:A' }
       end
 
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(3) }
       it { expect(subject.staging_projects.map(&:name)).to match_array(['home:tom:Staging:A', 'home:tom:Staging:B']) }
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
 
     context 'when the user does not have permissions to create that project' do
       before do
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'Apache' }
+        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'Apache' }
       end
 
       it { expect(Project.where(name: 'Apache')).not_to exist }
@@ -89,13 +89,13 @@ RSpec.describe Webui::Staging::ProjectsController do
       before do
         staging_workflow
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
-        post :create, params: { staging_workflow_id: staging_workflow.id, staging_project_name: 'home:tom:My:Projects' }
+        post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
       subject { staging_workflow }
 
       it { expect(Project.count).to eq(3) }
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).not_to be_nil }
       it { expect(CreateProjectLogEntryJob).not_to have_been_enqueued }
     end
@@ -107,7 +107,7 @@ RSpec.describe Webui::Staging::ProjectsController do
     context 'a non-existent staging project' do
       before do
         staging_workflow
-        get :show, params: { staging_workflow_id: staging_workflow.id, project_name: 'non-existent' }
+        get :show, params: { workflow_project: staging_workflow.project, project_name: 'non-existent' }
       end
 
       it { expect(response).to redirect_to(staging_workflow_path(subject)) }
@@ -119,7 +119,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       before do
         staging_workflow
-        get :show, params: { staging_workflow_id: staging_workflow.id, project_name: staging_project.name }
+        get :show, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
 
       it 'assigns staging_project' do
@@ -147,12 +147,12 @@ RSpec.describe Webui::Staging::ProjectsController do
   describe 'DELETE #destroy' do
     context 'non existent staging project' do
       before do
-        delete :destroy, params: { staging_workflow_id: staging_workflow.id, project_name: 'fake_name' }
+        delete :destroy, params: { workflow_project: staging_workflow.project, project_name: 'fake_name' }
       end
 
       subject { staging_workflow }
 
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).not_to be_nil }
     end
 
@@ -160,7 +160,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       let(:staging_project) { staging_workflow.staging_projects.first }
 
       before do
-        delete :destroy, params: { staging_workflow_id: staging_workflow.id, project_name: staging_project.name }
+        delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
 
       subject { staging_workflow }
@@ -171,7 +171,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       end
 
       it { expect(assigns[:staging_workflow]).to eq(project.staging) }
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
     end
 
     context 'with a staged requests' do
@@ -194,12 +194,12 @@ RSpec.describe Webui::Staging::ProjectsController do
       before do
         bs_request.staging_project = staging_project
         bs_request.save
-        delete :destroy, params: { staging_workflow_id: staging_workflow.id, project_name: staging_project.name }
+        delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
 
       subject { staging_workflow }
 
-      it { expect(response).to redirect_to(edit_staging_workflow_path(subject)) }
+      it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).to include('could not be deleted because it has staged requests.') }
     end
   end
@@ -209,8 +209,8 @@ RSpec.describe Webui::Staging::ProjectsController do
     let(:staging_project_copy_name) { "#{original_staging_project_name}-copy" }
     let(:params) do
       {
-        staging_workflow_id: staging_workflow.id,
-        staging_project_project_name: original_staging_project_name,
+        workflow_project: staging_workflow.project,
+        project_name: original_staging_project_name,
         staging_project_copy_name: staging_project_copy_name
       }
     end

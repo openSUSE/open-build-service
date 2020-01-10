@@ -6,7 +6,7 @@
         %h3 Excluded Requests
         -# haml-lint:disable MultilinePipe
         %table.responsive.table.table-sm.table-bordered.table-hover.w-100#excluded-requests-datatable{ |
-        data: excluded_requests_remote_url(@staging_workflow.id) } |
+        data: excluded_requests_remote_url(@staging_workflow.project) } |
           -# haml-lint:enable MultilinePipe
           %thead
             %tr.text-center

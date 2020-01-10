@@ -377,11 +377,14 @@ OBSApi::Application.routes.draw do
   get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
-  resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', constraints: cons do
-    resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects', param: :project_name, constraints: cons do
-      get :preview_copy
-      post :copy
+  resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do
+    member do
+      resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects',
+                                   param: :project_name, constraints: cons, as: 'staging_workflow_staging_project' do
+        get :preview_copy, on: :member
+        post :copy, on: :member
+      end
+      resources :excluded_requests, controller: 'webui/staging/excluded_requests'
     end
-    resources :excluded_requests, controller: 'webui/staging/excluded_requests'
   end
 end

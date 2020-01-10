@@ -8,7 +8,7 @@
         %h3
           = @pagetitle
           - if policy(@staging_workflow).update?
-            = link_to(edit_staging_workflow_path(@staging_workflow), title: 'Edit Staging') do
+            = link_to(edit_staging_workflow_path(@staging_workflow.project), title: 'Edit Staging') do
               %i.fas.fa-edit.fa-xs.text-info
           - if policy(@staging_workflow).destroy?
             = link_to('#', title: 'Delete Staging', data: { toggle: 'modal', target: '#delete-staging-workflow' }) do
