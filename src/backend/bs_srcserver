@@ -5139,7 +5139,7 @@ sub published_path {
       $p = "$1/$bin";
     } elsif ($bin =~ /\.exe$/) {
       $p = $bin;
-    } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)$/) {
+    } elsif ($bin =~ /\.pkg\.tar(?:\.gz|\.xz|\.zstd)$/) {
       $p = ($cgi->{'arch'} eq 'i586' ? 'i686' : $cgi->{'arch'})."/$bin";
     } elsif ($bin =~ /\.iso(?:\.report)$/) {
       $p = "iso/$bin";

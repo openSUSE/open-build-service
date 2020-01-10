@@ -93,7 +93,7 @@ use BSSched::DoD;
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my @binsufs_lnk = (@binsufs, 'obsbinlnk');
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $binsufsre_lnk = join('|', map {"\Q$_\E"} @binsufs_lnk);
