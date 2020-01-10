@@ -31,10 +31,10 @@ use BSSched::RPC;		# for is_transient_error
 use BSSched::ProjPacks;		# for orderpackids
 use BSVerify;			# for verify_nevraquery
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz};
+my @binsufs_sign = qw{rpm pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre_sign = join('|', map {"\Q$_\E"} @binsufs_sign);
 
 =head1 NAME
