@@ -45,7 +45,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
     @ready_requests = @staging_workflow.ready_requests.first(5)
     @more_ready_requests = @staging_workflow.ready_requests.count - @ready_requests.size
-    @excluded_requests = @staging_workflow.excluded_requests.first(5)
+    @excluded_requests = @staging_workflow.excluded_requests.includes(:request_exclusion).first(5)
     @more_excluded_requests = @staging_workflow.excluded_requests.count - @excluded_requests.size
     @empty_projects = @staging_workflow.staging_projects.without_staged_requests
     @managers = @staging_workflow.managers_group
