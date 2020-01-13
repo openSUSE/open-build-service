@@ -1442,7 +1442,7 @@ sub deletepatterns_ymp {
 ##########################################################################
 
 sub sync_to_stage {
-  my ($prp, $extrep, $dbgsplit, $stageservers, $isdelete) = @_;
+  my ($prp, $extrep, $dbgsplit, $stageservers, $triggerstring, $isdelete) = @_;
 
   my @stageservers = @{$stageservers || []};
   if (!$stageservers && $BSConfig::stageserver) {
@@ -1473,6 +1473,7 @@ sub sync_to_stage {
     return unless $extrep =~ /\Q$extrepodir\E\/(.+)$/;
     $extdir = $1;
     $syncroot = $extrepodir;
+    $triggerstring = $extdir unless $triggerstring;
   }
 
   # sync the parent directory for deletes
@@ -1501,17 +1502,20 @@ sub sync_to_stage {
     }
   }
 
+  # skip trigger unless configured
+  return unless $triggerstring;
+  $triggerstring .= "\0";
+  return unless $BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\//;
+
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
   my $filename = $prp;
   $filename =~ s/\//_/g;
   $filename .= $dbgsplit if $dbgsplit;
-  writestr("$extrepodir_sync/.$$:$filename", "$extrepodir_sync/$filename", "$extdir\0");
-  if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\//) {
-    print "    running trigger rsync to $BSConfig::stageserver_sync at ".localtime(time)."\n";
-    # small sync, timout 1 minute
-    qsystem('rsync', '-a', @rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
-  }
+  writestr("$extrepodir_sync/.$$:$filename", "$extrepodir_sync/$filename", $triggerstring);
+  print "    running trigger rsync to $BSConfig::stageserver_sync at ".localtime(time)."\n";
+  # small sync, timout 1 minute
+  qsystem('rsync', '-a', @rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
 }
 
 sub clean_blobdir {
@@ -1528,7 +1532,7 @@ sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
   print "    deleting repository\n";
-  my ($extrep, $stageservers) = BSUrlmapper::get_extrep_stageservers($prp);
+  my ($extrep, $stageservers, $triggerstring) = BSUrlmapper::get_extrep_stageservers($prp);
   return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
@@ -1613,7 +1617,7 @@ sub deleterepo {
   qsystem('rm', '-rf', $extrep);
 
   # delete on stage servers
-  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, 1);
+  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, $triggerstring, 1);
 
   # also delete the split debug repo
   deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
@@ -1714,7 +1718,7 @@ sub publish {
   # correctly do iso image renaming where configured
   my $sleimage = $repotype{'sleimage'} ? 'dvd' : $repotype{'sleimage-media'} ? 'media' : undef;
 
-  my ($extrep, $stageservers) = BSUrlmapper::get_extrep_stageservers($prp);
+  my ($extrep, $stageservers, $triggerstring) = BSUrlmapper::get_extrep_stageservers($prp);
   return unless $extrep;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
@@ -2748,7 +2752,7 @@ publishprog_done:
   }
 
   # push the repo to the stage servers
-  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers);
+  sync_to_stage($prp, $extrep, $dbgsplit, $stageservers, $triggerstring);
 
   # support for regex usage in $BSConfig::unpublishedhook
   my $unpublish_prp = $prp;
