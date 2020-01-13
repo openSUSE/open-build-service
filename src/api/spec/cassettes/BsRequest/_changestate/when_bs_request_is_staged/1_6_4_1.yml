@@ -1,0 +1,832 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux">
+          <title/>
+          <description/>
+          <person userid="tux" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux">
+          <title></title>
+          <description></description>
+          <person userid="tux" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/_project/_staging_workflow?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tux" managers="staging-workflow-managers-1">
+          <staging_project name="home:tux:Staging:A"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '167'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="216">
+          <srcmd5>32e45f06c1f0741bb5492f732baabba2</srcmd5>
+          <time>1578926888</time>
+          <user>tux</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux:Staging:A/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/_project/_staging_workflow?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tux" managers="staging-workflow-managers-1">
+          <staging_project name="home:tux:Staging:A"/>
+          <staging_project name="home:tux:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '167'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="217">
+          <srcmd5>a1c3cadac5ce8050bfbd2289781ba2e7</srcmd5>
+          <time>1578926888</time>
+          <user>tux</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux:Staging:B/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:B">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:B">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux">
+          <title/>
+          <description/>
+          <person userid="tux" role="maintainer"/>
+          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '193'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux">
+          <title></title>
+          <description></description>
+          <person userid="tux" role="maintainer"/>
+          <group groupid="staging-workflow-managers-1" role="reviewer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_2/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title/>
+          <description/>
+          <person userid="user_2" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_2">
+          <title></title>
+          <description></description>
+          <person userid="user_2" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/target_package/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux">
+          <title>Nine Coaches Waiting</title>
+          <description>Sed et consequatur quia.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux">
+          <title>Nine Coaches Waiting</title>
+          <description>Sed et consequatur quia.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Frequent Hearses</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>Frequent Hearses</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=tux
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22source_package%22%20and%20linkinfo/@project=%22source_project%22%20and%20@project=%22source_project%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux:Staging:A">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux:Staging:A">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package?cmd=branch&noservice=1&opackage=source_package&oproject=source_project&user=user_2
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '206'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>8e451641a827df5f4f409d1d543fdb7b</srcmd5>
+          <version>unknown</version>
+          <time>1578926888</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux:Staging:A">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="home:tux:Staging:A">
+          <title>The Man Within</title>
+          <description>Quia animi dolore culpa.</description>
+        </package>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '434'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1578580163"/>
+        </directory>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '337'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="target_package" rev="1" vrev="1" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="source_project" package="source_package"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '434'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="target_package" rev="1" vrev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b">
+          <linkinfo project="source_project" package="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="7eae9f6b12a2579550692e1b40dfc7d6" lsrcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <entry name="_link" md5="703fd7abfeaa0a7804702191c078ab66" size="147" mtime="1578580163"/>
+        </directory>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '326'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="9e90eeac7decd7f662ab5578a5daa287">
+          <old project="home:tux:Staging:A" package="target_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tux:Staging:A" package="target_package" rev="1" srcmd5="8e451641a827df5f4f409d1d543fdb7b"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tux:Staging:A/target_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '384'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="e58c7f398595ad0c17a2e512b41ae3d9">
+          <old project="source_project" package="source_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tux:Staging:A" package="target_package" rev="7eae9f6b12a2579550692e1b40dfc7d6" srcmd5="7eae9f6b12a2579550692e1b40dfc7d6"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux/_project/_staging_workflow?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <workflow project="home:tux" managers="staging-workflow-managers-1">
+          <staging_project name="home:tux:Staging:A"/>
+          <staging_project name="home:tux:Staging:B"/>
+        </workflow>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '170'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="218">
+          <srcmd5>a1c3cadac5ce8050bfbd2289781ba2e7</srcmd5>
+          <time>1578926888</time>
+          <user>user_2</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tux:Staging:A/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:A">
+          <title/>
+          <description/>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tux:Staging:A">
+          <title></title>
+          <description></description>
+          <group groupid="staging-workflow-managers-1" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Mon, 13 Jan 2020 14:48:09 GMT
+recorded_with: VCR 5.0.0
