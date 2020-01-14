@@ -28,7 +28,12 @@ class TriggerController < ApplicationController
   def release
     raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
 
-    matched_repo = @pkg.project.repositories.includes(:release_targets).any? { |repo| matched_repo?(repo) }
+    matched_repo = false
+    @pkg.project.repositories.includes(:release_targets).each do |repo|
+      if matched_repo?(repo) then
+        matched_repo = true
+      end
+    end
 
     raise NoPermissionForPackage.setup('not_found', 404, "no repository from #{@pkg.project} could get released") unless matched_repo
 
