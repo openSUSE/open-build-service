@@ -40,7 +40,7 @@ module Webui
         end
 
         @staging_project_log_entries = @staging_project.project_log_entries
-                                                       .where(event_type: [:staging_project_created, :staged_request, :unstaged_request])
+                                                       .staging_history
                                                        .includes(:bs_request)
                                                        .order(datetime: :desc)
         @project = @staging_workflow.project

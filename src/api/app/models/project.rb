@@ -79,7 +79,11 @@ class Project < ApplicationRecord
 
   has_many :comments, as: :commentable, dependent: :destroy
 
-  has_many :project_log_entries, dependent: :delete_all
+  has_many :project_log_entries, dependent: :delete_all do
+    def staging_history
+      where(event_type: StagingProject::HISTORY_EVENT_TYPES)
+    end
+  end
 
   has_many :reviews, dependent: :nullify
 

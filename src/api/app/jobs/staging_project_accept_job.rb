@@ -19,5 +19,6 @@ class StagingProjectAcceptJob < ApplicationJob
     end
     staging_project.packages.where(name: accepted_packages).find_each(&:destroy)
     staging_project.staged_requests.delete_all
+    staging_project.project_log_entries.staging_history.delete_all
   end
 end

@@ -14,6 +14,8 @@ module StagingProject
     scope :staging_projects, -> { where.not(staging_workflow: nil) }
   end
 
+  HISTORY_EVENT_TYPES = [:staging_project_created, :staged_request, :unstaged_request].freeze
+
   def copy(new_project_name)
     transaction do
       new_project = deep_clone(include: [:flags], skip_missing_associations: true)
