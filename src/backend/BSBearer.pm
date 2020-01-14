@@ -48,8 +48,10 @@ sub authenticator_function {
     my $reply;
     eval { $reply = BSRPC::rpc($bparam, \&JSON::XS::decode_json, @args); };
     warn($@) if $@; 
-    return undef unless $reply && $reply->{'token'};
-    $auth = 'Bearer '.$reply->{'token'};
+    return undef unless $reply;
+    my $token = $reply->{'token'} || $reply->{'access_token'};
+    return undef unless $token;
+    $auth = "Bearer $token";
   }
   $state->{'auth'} = $auth if defined $auth;
   return $auth;
