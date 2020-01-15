@@ -73,7 +73,6 @@ class BsRequest < ApplicationRecord
       .includes(:reviews)
   }
 
-  before_save :assign_number
   has_many :bs_request_actions, dependent: :destroy
   has_many :reviews, dependent: :delete_all
   has_many :comments, as: :commentable, dependent: :delete_all
@@ -95,6 +94,8 @@ class BsRequest < ApplicationRecord
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
+  before_save :assign_number
+  before_save :accept_staged_request
   before_update :send_state_change
   before_validation :sanitize!, if: :sanitize?, on: :create
   after_commit :update_cache
@@ -827,6 +828,14 @@ class BsRequest < ApplicationRecord
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
     Event::RequestStatechange.create(notify_parameters)
+  end
+
+  def accept_staged_request
+    return if staging_project_id.nil? || state.to_sym != :accepted
+
+    accepted_package = bs_request_actions.map(&:target_package)
+    staging_project.packages.where(name: accepted_package).destroy_all
+    self.staging_project_id = nil
   end
 
   def notify_parameters(ret = {})

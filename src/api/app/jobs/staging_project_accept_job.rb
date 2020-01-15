@@ -9,16 +9,12 @@ class StagingProjectAcceptJob < ApplicationJob
 
   def accept(staging_project)
     staging_project.send(:clear_memoized_data)
-    accepted_packages = []
     staging_project.staged_requests.each do |staged_request|
       if staged_request.reviews.where(by_project: staging_project.name).exists?
         staged_request.change_review_state(:accepted, by_project: staging_project.name, comment: "Staging Project #{staging_project.name} got accepted.")
       end
       staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{staging_project.name} got accepted.")
-      accepted_packages.concat(staged_request.bs_request_actions.map(&:target_package))
     end
-    staging_project.packages.where(name: accepted_packages).find_each(&:destroy)
-    staging_project.staged_requests.delete_all
     staging_project.project_log_entries.staging_history.delete_all
   end
 end

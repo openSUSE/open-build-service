@@ -240,6 +240,59 @@ RSpec.describe BsRequest, vcr: true do
         expect(request.state).to eq(:accepted)
       end
     end
+
+    context 'when bs_request is staged' do
+      let(:project) { user.home_project }
+      let(:staging_workflow) { create(:staging_workflow_with_staging_projects, project: project) }
+      let(:group) { staging_workflow.managers_group }
+      let(:staging_project) { staging_workflow.staging_projects.first }
+      let(:target_package) { create(:package, name: 'target_package', project: project) }
+      let(:source_project) { create(:project, name: 'source_project') }
+      let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+      let(:bs_request) do
+        request = create(:bs_request_with_submit_action,
+                         state: :review,
+                         creator: admin,
+                         target_package: target_package,
+                         source_package: source_package,
+                         review_by_project: staging_project.name,
+                         staging_owner: admin)
+        request.staging_project = staging_project
+        request.save
+        request
+      end
+
+      before do
+        login user
+        staging_workflow
+        bs_request.change_review_state(:accepted, by_group: group.title, comment: 'accepted')
+      end
+
+      it { expect(bs_request.staging_project).to be_present }
+
+      context 'when a staged bs_request is accepted' do
+        let(:backend_response) do
+          <<~XML
+            <revision rev="12" vrev="12">
+              <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+              <version>unknown</version>
+              <time>1578926184</time>
+              <user>user_4</user>
+              <comment>fake comment.</comment>
+              <requestid>2</requestid>
+              <acceptinfo rev="12" srcmd5="d41d8cd98f00b204e9800998ecf8427e" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+            </revision>
+          XML
+        end
+        before do
+          allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_response)
+          bs_request.change_review_state(:accepted, by_project: staging_project.name, comment: 'accepted')
+          bs_request.change_state(newstate: 'accepted')
+        end
+
+        it { expect(bs_request.staging_project).to be_nil }
+      end
+    end
   end
 
   describe '#update_cache' do

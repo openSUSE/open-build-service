@@ -236,6 +236,8 @@ Metrics/BlockNesting:
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
   Max: 928
+  Exclude:
+   - 'app/models/bs_request.rb'
 
 # Offense count: 226
 Metrics/CyclomaticComplexity:
