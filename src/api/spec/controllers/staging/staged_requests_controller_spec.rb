@@ -368,6 +368,7 @@ RSpec.describe Staging::StagedRequestsController do
       bs_request.staging_project = staging_project
       bs_request.reviews << review_by_project
       bs_request.save
+      bs_request.change_review_state(:accepted, by_group: group.title, comment: 'accepted')
     end
 
     context 'invalid user' do
@@ -417,6 +418,32 @@ RSpec.describe Staging::StagedRequestsController do
         it { expect(response).to have_http_status(:success) }
         it { expect(staging_project.packages).to be_empty }
         it { expect(staging_project.staged_requests).to be_empty }
+      end
+
+      context 'with declined request' do
+        before do
+          login user
+          bs_request.change_state(newstate: 'declined', user: user.login, comment: 'Fake comment')
+          delete :destroy, params: { staging_workflow_project: staging_workflow.project.name, format: :xml },
+                           body: "<requests><request id='#{bs_request.number}'/></requests>"
+        end
+
+        it { expect(response).to have_http_status(:success) }
+        it { expect(staging_project.packages).to be_empty }
+        it { expect(staging_project.staged_requests).to be_empty }
+        it { expect(bs_request.reviews.where(by_group: group.title, state: 'new')).to be_present }
+        it { expect(bs_request.reviews.where(by_project: staging_project.name, state: 'new')).to be_empty }
+
+        context 'when the declined request was unstaged and reopened' do
+          before do
+            login user
+            bs_request.change_state(newstate: 'new', user: user.login, comment: 'Fake comment')
+          end
+
+          it { expect(bs_request.state).to eq(:review) }
+          it { expect(staging_project.staged_requests).to be_empty }
+          it { expect(staging_workflow.unassigned_requests).to include(bs_request) }
+        end
       end
     end
 
