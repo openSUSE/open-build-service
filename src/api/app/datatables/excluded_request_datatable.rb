@@ -1,5 +1,5 @@
 class ExcludedRequestDatatable < Datatable
-  def_delegators :@view, :link_to, :staging_workflow_excluded_request_path, :content_tag, :request_show_path
+  def_delegators :@view, :link_to, :excluded_request_path, :content_tag, :request_show_path
 
   def initialize(params, opts = {})
     @staging_workflow = opts[:staging_workflow]
@@ -39,7 +39,7 @@ class ExcludedRequestDatatable < Datatable
 
   def link_to_delete(request_exclusion)
     link_to('#', title: 'Include back this request?', data: { toggle: 'modal', target: '#delete-excluded-request-modal',
-                                                              action: staging_workflow_excluded_request_path(@staging_workflow, request_exclusion) }) do
+                                                              action: excluded_request_path(@staging_workflow.project, request_exclusion) }) do
       content_tag(:i, nil, class: 'fas fa-times-circle text-danger')
     end
   end

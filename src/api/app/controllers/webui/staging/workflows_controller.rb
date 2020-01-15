@@ -1,12 +1,13 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
   before_action :require_login, except: [:show]
   before_action :set_project, only: [:new, :create]
+  before_action :set_workflow_project, except: [:new, :create]
   before_action :set_staging_workflow, except: [:new, :create]
   after_action :verify_authorized, except: [:show, :new]
 
   def new
     if @project.staging
-      redirect_to staging_workflow_path(@project.staging)
+      redirect_to staging_workflow_path(@project)
       return
     end
 
@@ -31,7 +32,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       end
 
       flash[:success] = "Staging for #{@project} was successfully created"
-      redirect_to staging_workflow_path(staging_workflow)
+      redirect_to staging_workflow_path(staging_workflow.project)
     else
       flash[:error] = "Staging for #{@project} couldn't be created"
       redirect_to new_staging_workflow_path(project_name: @project)
@@ -62,7 +63,6 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   end
 
   def destroy
-    @staging_workflow = ::Staging::Workflow.find_by(id: params[:id])
     authorize @staging_workflow
     @project = @staging_workflow.project
 
@@ -75,7 +75,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       render js: "window.location='#{project_show_path(@project)}'"
     else
       flash[:error] = "Staging for #{@project} couldn't be deleted: #{@staging_workflow.errors.full_messages.to_sentence}."
-      render js: "window.location='#{staging_workflow_path(@staging_workflow)}'"
+      render js: "window.location='#{staging_workflow_path(@staging_workflow.project)}'"
     end
   end
 
@@ -89,17 +89,21 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
       flash[:error] = "Managers group couldn't be assigned: #{@staging_workflow.errors.full_messages.to_sentence}."
     end
 
-    redirect_to edit_staging_workflow_path(@staging_workflow)
+    redirect_to edit_staging_workflow_path(@staging_workflow.project)
   end
 
   private
 
+  def set_workflow_project
+    @project = Project.find_by!(name: params[:workflow_project])
+  end
+
   def set_staging_workflow
-    @staging_workflow = ::Staging::Workflow.find_by(id: params[:id])
+    @staging_workflow = @project.staging
     return if @staging_workflow
 
     redirect_back(fallback_location: root_path)
-    flash[:error] = "Staging with id = #{params[:id]} doesn't exist"
+    flash[:error] = "Project #{@project} doesn't have a Staging Workflow associated"
     return
   end
 end

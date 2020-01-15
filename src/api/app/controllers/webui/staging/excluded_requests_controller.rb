@@ -2,8 +2,8 @@ module Webui
   module Staging
     class ExcludedRequestsController < WebuiController
       before_action :require_login, except: [:index]
+      before_action :set_workflow_project
       before_action :set_staging_workflow
-      before_action :set_project
       before_action :set_request_exclusion, only: [:destroy]
       after_action :verify_authorized, except: [:index]
 
@@ -41,7 +41,7 @@ module Webui
         else
           flash[:error] = request_exclusion.errors.full_messages.to_sentence
         end
-        redirect_to staging_workflow_excluded_requests_path(@staging_workflow)
+        redirect_to excluded_requests_path(@staging_workflow.project)
       end
 
       def destroy
@@ -52,30 +52,29 @@ module Webui
         else
           flash[:error] = "Request #{@request_exclusion.number} couldn't be unexcluded"
         end
-        redirect_to staging_workflow_excluded_requests_path(@staging_workflow)
+        redirect_to excluded_requests_path(@staging_workflow.project)
       end
 
       private
 
-      def set_staging_workflow
-        @staging_workflow = ::Staging::Workflow.find_by(id: params[:staging_workflow_id])
-        return if @staging_workflow
-
-        redirect_back(fallback_location: root_path, error: "Staging Workflow #{params[:staging_workflow_id]} does not exist")
+      def set_workflow_project
+        @project = Project.find_by!(name: params[:workflow_project])
       end
 
-      def set_project
-        @project = @staging_workflow.project
-        return if @project
+      def set_staging_workflow
+        @staging_workflow = @project.staging
+        return if @staging_workflow
 
-        redirect_back(fallback_location: root_path, error: "Staging Workflow #{params[:staging_workflow_id]} is not assigned to a project")
+        redirect_back(fallback_location: root_path)
+        flash[:error] = 'Staging project not found'
+        return
       end
 
       def set_request_exclusion
         @request_exclusion = @staging_workflow.request_exclusions.find_by(id: params[:id])
         return if @request_exclusion
 
-        redirect_back(fallback_location: staging_workflow_excluded_requests_path(@staging_workflow), error: "Request doesn't exist")
+        redirect_back(fallback_location: excluded_requests_path(@staging_workflow), error: "Request doesn't exist")
       end
     end
   end

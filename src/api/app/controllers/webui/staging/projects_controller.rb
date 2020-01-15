@@ -2,6 +2,7 @@ module Webui
   module Staging
     class ProjectsController < WebuiController
       before_action :require_login, except: :show
+      before_action :set_workflow_project
       before_action :set_staging_workflow
       after_action :verify_authorized, except: :show
 
@@ -12,7 +13,7 @@ module Webui
                                  .find_or_initialize_by(name: params[:staging_project_name])
         authorize(staging_project, :create?)
 
-        redirect_to edit_staging_workflow_path(@staging_workflow)
+        redirect_to edit_staging_workflow_path(@staging_workflow.project)
 
         if staging_project.staging_workflow_id?
           flash[:error] = "\"#{staging_project}\" is already assigned to a staging workflow"
@@ -55,13 +56,13 @@ module Webui
         staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
 
         unless staging_project
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow))
+          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
           flash[:error] = "Staging Project \"#{params[:project_name]}\" doesn't exist for this Staging"
           return
         end
 
         if staging_project.staged_requests.present?
-          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow))
+          redirect_back(fallback_location: edit_staging_workflow_path(@staging_workflow.project))
           flash[:error] = "Staging Project \"#{params[:project_name]}\" could not be deleted because it has staged requests."
           return
         end
@@ -72,24 +73,24 @@ module Webui
           flash[:error] = "#{staging_project} couldn't be deleted: #{staging_project.errors.full_messages.to_sentence}"
         end
 
-        redirect_to edit_staging_workflow_path(@staging_workflow)
+        redirect_to edit_staging_workflow_path(@staging_workflow.project)
       end
 
       def preview_copy
         authorize @staging_workflow
 
-        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_project_name])
+        @staging_project = @staging_workflow.staging_projects.find_by(name: params[:project_name])
         @project = @staging_workflow.project
       end
 
       def copy
         authorize @staging_workflow
 
-        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:staging_project_project_name], params[:staging_project_copy_name], User.session!.id)
+        StagingProjectCopyJob.perform_later(@staging_workflow.project.name, params[:project_name], params[:staging_project_copy_name], User.session!.id)
 
-        flash[:success] = "Job to copy the staging project #{params[:staging_project_project_name]} successfully queued."
+        flash[:success] = "Job to copy the staging project #{params[:project_name]} successfully queued."
 
-        redirect_to edit_staging_workflow_path(@staging_workflow)
+        redirect_to edit_staging_workflow_path(@staging_workflow.project)
       end
 
       private
@@ -99,8 +100,17 @@ module Webui
         { 'project' => staging_project, 'user_name' => User.session!, 'event_type' => 'staging_project_created' }
       end
 
+      def set_workflow_project
+        @project = Project.find_by!(name: params[:workflow_project])
+      end
+
       def set_staging_workflow
-        @staging_workflow = ::Staging::Workflow.find(params[:staging_workflow_id])
+        @staging_workflow = @project.staging
+        return if @staging_workflow
+
+        redirect_back(fallback_location: root_path)
+        flash[:error] = 'Staging project not found'
+        return
       end
     end
   end

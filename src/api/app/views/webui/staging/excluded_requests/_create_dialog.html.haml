@@ -3,7 +3,7 @@
     .modal-content
       .modal-header
         %h5.modal-title#exclude-request-modal-label Exclude Request
-      = form_for Staging::RequestExclusion.new, url: staging_workflow_excluded_requests_path do |f|
+      = form_for Staging::RequestExclusion.new, url: excluded_requests_path do |f|
         .modal-body
           .form-group
             = f.label :number, 'Request'

@@ -16,5 +16,5 @@
       %dt= link_to('Ready:', project_requests_path(staging_workflow.project, state: :new))
       %dd= render 'requests_list', requests: ready_requests, more_requests: more_ready_requests
 
-      %dt= link_to('Excluded:', staging_workflow_excluded_requests_path(staging_workflow_id: staging_workflow))
+      %dt= link_to('Excluded:', excluded_requests_path(staging_workflow.project))
       %dd= render 'requests_list', requests: excluded_requests, more_requests: more_excluded_requests, excluded: true

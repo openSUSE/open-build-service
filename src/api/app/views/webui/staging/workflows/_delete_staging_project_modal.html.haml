@@ -2,8 +2,8 @@
              aria: { labelledby: 'confirm-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      = form_tag(staging_workflow_staging_project_path(staging_workflow_id: staging_workflow.id,
-                                                       project_name: staging_project.name), method: :delete) do
+      = form_tag(staging_workflow_staging_project_path(workflow_project: staging_workflow.project,
+                                                       project_name: staging_project), method: :delete) do
         .modal-header
           %h5.modal-title Delete Staging Projects?
         .modal-body
