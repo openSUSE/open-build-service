@@ -3,7 +3,7 @@ class TriggerController < ApplicationController
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
 
-  before_action :require_project_param, only: [:release]
+  before_action :disallow_project_param, only: [:release]
 
   before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token
   #
@@ -62,8 +62,8 @@ class TriggerController < ApplicationController
     URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
   end
 
-  def require_project_param
-    render_error(message: 'Token must define the release package', status: 403, errorcode: 'no_permission') if params[:project].present?
+  def disallow_project_param
+    render_error(message: 'You specified a project, but the token defines the project/package to release', status: 403, errorcode: 'no_permission') if params[:project].present?
   end
 
   def extract_auth_from_request
