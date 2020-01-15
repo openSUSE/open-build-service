@@ -42,6 +42,8 @@ module OBSApi
     def block_code(code, language)
       language ||= :plaintext
       CodeRay.scan(code, language).div(css: :class)
+    rescue ArgumentError
+      CodeRay.scan(code, :plaintext).div(css: :class) unless language == :plaintext
     end
   end
 end
