@@ -44,7 +44,7 @@ RSpec.describe TriggerController, vcr: true do
   end
 
   describe '#release' do
-    context 'when project param is given' do
+    context 'for inexistent project' do
       before do
         post :release, params: { project: 'foo', format: :xml }
       end
@@ -71,7 +71,7 @@ RSpec.describe TriggerController, vcr: true do
       it { is_expected.to respond_with(:success) }
     end
 
-    context 'when user has no rights' do
+    context 'when user has no rights for source' do
       let(:user) { create(:confirmed_user, login: 'mrfluffy') }
       let(:token) { Token::Release.create(user: user, package: package) }
       before do
@@ -82,6 +82,41 @@ RSpec.describe TriggerController, vcr: true do
       end
 
       it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/no permission for package/) }
+    end
+
+    context 'when user has no rights for target' do
+      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: user, package: package) }
+      let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: package) }
+
+      before do
+        release_target
+        allow(User).to receive(:session!).and_return(user)
+        allow(User).to receive(:possibly_nobody).and_return(user)
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
+          -> { OpenStruct.new(valid?: true, token: token) }
+        }
+        post :release, params: { package: package, format: :xml }
+      end
+
+      it { is_expected.to respond_with(403) }
+      it { expect(response.body).to include("No permission to modify project 'target_project' for user 'mrfluffy'") }
+    end
+
+    context 'when there are no release targets' do
+      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: user, package: package) }
+      let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: package) }
+
+      before do
+        allow(User).to receive(:session!).and_return(user)
+        allow(User).to receive(:possibly_nobody).and_return(user)
+        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
+          -> { OpenStruct.new(valid?: true, token: token) }
+        }
+      end
+
+      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/has no release targets that are triggered manually/) }
     end
   end
 

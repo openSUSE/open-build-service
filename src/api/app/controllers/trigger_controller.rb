@@ -3,7 +3,7 @@ class TriggerController < ApplicationController
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
 
-  before_action :require_project_param, only: [:release]
+  before_action :disallow_project_param, only: [:release]
 
   before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token
   #
@@ -28,9 +28,12 @@ class TriggerController < ApplicationController
   def release
     raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
 
-    matched_repo = @pkg.project.repositories.includes(:release_targets).any? { |repo| matched_repo?(repo) }
+    manual_release_targets = @pkg.project.release_targets.where(trigger: 'manual')
+    raise NoPermissionForPackage.setup('not_found', 404, "#{@pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
-    raise NoPermissionForPackage.setup('not_found', 404, "no repository from #{@pkg.project} could get released") unless matched_repo
+    manual_release_targets.each do |release_target|
+      release_package(@pkg, release_target.target_repository, @pkg.release_target_name, release_target.repository, nil, nil, nil, true)
+    end
 
     render_ok
   end
@@ -53,29 +56,14 @@ class TriggerController < ApplicationController
     raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@prj}")
   end
 
-  def matched_repo?(repo)
-    repo.release_targets.where(trigger: 'manual').any? do |releasetarget|
-      release_target_repository_project = releasetarget.target_repository.project
-      unless policy(release_target_repository_project).update?
-        raise NoPermissionForTarget.setup('no_permission',
-                                          403, "no permission for target #{release_target_repository_project}")
-      end
-      target_package_name = @pkg.release_target_name
-
-      # find md5sum and release source and binaries
-      release_package(@pkg, releasetarget.target_repository, target_package_name, repo, nil, nil, nil, true)
-      true
-    end
-  end
-
   def prepare_path_for_runservice
     path = @pkg.source_path
     params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
     URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
   end
 
-  def require_project_param
-    render_error(message: 'Token must define the release package', status: 403, errorcode: 'no_permission') if params[:project].present?
+  def disallow_project_param
+    render_error(message: 'You specified a project, but the token defines the project/package to release', status: 403, errorcode: 'no_permission') if params[:project].present?
   end
 
   def extract_auth_from_request
