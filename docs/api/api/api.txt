@@ -1298,7 +1298,7 @@ XmlResult: workercapability
 
 POST /worker?cmd=checkconstraints
 
-  Calculates the possible workers with a given contraints rule. Further required parameters
+  Calculates the possible workers with a given constraints rule. Further required parameters
   are:
 
 Parameters:

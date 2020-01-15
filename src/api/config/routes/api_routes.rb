@@ -1,5 +1,5 @@
 OBSApi::Application.routes.draw do
-  cons = RoutesContrains::CONS
+  cons = RoutesConstraints::CONS
 
   constraints(APIMatcher) do
     get '/' => 'main#index'

@@ -22,7 +22,7 @@ module DB
       @failed = false
     end
 
-    def contraints_to_check
+    def constraints_to_check
       # id, table, othertable, use_delete_statement
       [
         [:project_id, :packages, :projects, true],
@@ -78,7 +78,7 @@ module DB
     def check_foreign_keys
       print "\nChecking constraints "
       constraints_to_fix = []
-      contraints_to_check.each do |constraint|
+      constraints_to_check.each do |constraint|
         ids = check_foreign_key(constraint)
         print step(ids.empty? ? :ok : :fail)
         constraints_to_fix << [constraint, ids] unless ids.empty?
