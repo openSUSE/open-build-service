@@ -1,4 +1,4 @@
-module RoutesContrains
+module RoutesConstraints
   CONS = {
     arch: %r{[^\/]*},
     binary: %r{[^\/]*},
