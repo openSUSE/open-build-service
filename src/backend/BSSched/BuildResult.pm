@@ -811,11 +811,12 @@ sub wipe {
 
   my $locked = 0;
   $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
-  $locked = BSUtil::enabled($repoid, $pdata->{$packid}->{'lock'}, $locked, $myarch) if $pdata->{$packid}->{'lock'};
+  $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
   if ($locked) {
     print "ignoring wipe, package $projid/$packid is locked!\n";
     return;
   }
+
   # delete repository done flag
   unlink("$gdst/:repodone");
   # delete full entries
