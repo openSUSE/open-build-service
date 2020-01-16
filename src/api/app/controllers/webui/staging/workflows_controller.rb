@@ -42,6 +42,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
   def show
     @project = @staging_workflow.project
     @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).reject { |project| project.overall_state == :empty }
+                                         .sort_by! { |project| project_weight(project) }
     @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
     @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
     @ready_requests = @staging_workflow.ready_requests.first(5)
@@ -105,5 +106,27 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     redirect_back(fallback_location: root_path)
     flash[:error] = "Project #{@project} doesn't have a Staging Workflow associated"
     return
+  end
+
+  def project_weight(project)
+    weight = case project.overall_state
+             when :acceptable
+               0
+             when :review
+               10_000 - helpers.review_progress(project) * 10
+             when :testing
+               20_000 - helpers.testing_progress(project) * 10
+             when :building
+               30_000 - helpers.build_progress(project) * 10
+             when :failed
+               40_000
+             when :unacceptable
+               50_000
+             when :empty
+               60_000
+             else
+               Rails.logger.error "untracked #{project.overall_state}"
+             end
+    [weight, project.name]
   end
 end
