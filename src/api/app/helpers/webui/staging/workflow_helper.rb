@@ -23,11 +23,12 @@ module Webui::Staging::WorkflowHelper
   end
 
   def testing_progress(staging_project)
-    notdone = staging_project.checks.pending.size
-    allchecks = staging_project.checks.size + staging_project.missing_checks.size
+    return 0 if staging_project.checks.size.zero?
 
-    return 100 if allchecks == 0
-    100 - notdone * 100 / allchecks
+    not_done = staging_project.checks.pending.size + staging_project.missing_checks.size
+    all_checks = staging_project.checks.size + staging_project.missing_checks.size
+
+    100 - not_done * 100 / all_checks
   end
 
   def progress(staging_project)
