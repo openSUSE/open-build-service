@@ -43,7 +43,7 @@
         -# If Staging::Workflow.new(...) is executed above, project.staging will be a new object.
            It will be persisted if the project is really a staging workflow project.
         %li.nav-item
-          = tab_link('Staging', staging_workflow_path(project.staging), active)
+          = tab_link('Staging', staging_workflow_path(project), active)
     %li.nav-item.dropdown
       %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
       .dropdown-menu.dropdown-menu-right
