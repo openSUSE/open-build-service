@@ -609,7 +609,7 @@ sub build {
   return build_ptf_job($self, $ctx, $packid, $pdata, $job, \%metas, $reason) if $category eq 'ptf';
 
   my $update = {};
-  $update->{'status'} = $patchinfo->{'retracted'} ? 'retracted' : 'stable';
+  $update->{'status'} = exists($patchinfo->{'retracted'}) ? 'retracted' : 'stable';
   $update->{'from'} = $patchinfo->{'packager'} if $patchinfo->{'packager'};
   # quick hack, to be replaced with something sane
   if ($BSConfig::updateinfo_fromoverwrite) {
