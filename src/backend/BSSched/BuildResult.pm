@@ -809,13 +809,16 @@ sub wipe {
   my $proj = $projpacks->{$projid};
   my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
 
-  my $locked = 0;
-  $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
-  $locked = BSUtil::enabled($repoid, $pdata->{$packid}->{'lock'}, $locked, $myarch) if $pdata->{$packid}->{'lock'};
-  if ($locked) {
+  # lock overwrite from package is not possible, so ignoring project level on package check
+  if ($proj->{'lock'} && BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
+    print "ignoring wipe, project $projid is locked!\n";
+    return;
+  }
+  if ($pdata->{'lock'} && BSUtil::enabled($repoid, $pdata->{'lock'}, 0, $myarch)) {
     print "ignoring wipe, package $projid/$packid is locked!\n";
     return;
   }
+
   # delete repository done flag
   unlink("$gdst/:repodone");
   # delete full entries
