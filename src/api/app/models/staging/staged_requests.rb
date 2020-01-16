@@ -201,7 +201,7 @@ class Staging::StagedRequests
     request.with_lock do
       request.change_state(newstate: 'new', force: true, user: User.session!.login, comment: 'Reopened via staging workflow.')
       add_review_for_unstaged_request(request, staging_project)
-      request.change_state(newstate: 'declined', user: User.session!.login, comment: 'Declined via staging workflow.')
+      request.change_state(newstate: 'declined', force: true, user: User.session!.login, comment: 'Declined via staging workflow.')
     end
   end
 end
