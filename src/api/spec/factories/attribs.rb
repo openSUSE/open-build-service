@@ -54,6 +54,11 @@ FactoryBot.define do
       values { [build(:attrib_value, value: (Time.now - 14.days).to_s)] }
     end
 
+    factory :embargo_date_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate') }
+      values { [build(:attrib_value, value: '2021-11-11')] }
+    end
+
     factory :attrib_with_default_value do
       attrib_type { create(:attrib_type_with_default_value) }
     end
