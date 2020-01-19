@@ -85,7 +85,7 @@ ul .table-list-group-item {
   }
 
   &.requests {
-    @extend .w-50;
+    min-width: 50%;
 
     span.badge {
       margin-left: 10px;
