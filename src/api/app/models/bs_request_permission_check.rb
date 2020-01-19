@@ -119,6 +119,11 @@ class BsRequestPermissionCheck
       raise PostRequestMissingParamater, "Supersed a request requires a 'superseded_by' parameter with the request id."
     end
 
+    target_project = req.bs_request_actions.first.target_project_object
+    if target_project && target_project.staging
+      user_is_staging_manager = User.session!.groups_users.where(group: target_project.staging.managers_group).exists?
+    end
+
     permission_granted = false
     if User.admin_session?
       permission_granted = true
@@ -129,8 +134,12 @@ class BsRequestPermissionCheck
     if opts[:newstate].in?(['new', 'review', 'revoked', 'superseded']) && req.creator == User.session!.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == :declined && opts[:newstate].in?(['new', 'review']) && req.commenter == User.session!.login
+    elsif req.state == :declined && opts[:newstate].in?(['new', 'review']) && (req.commenter == User.session!.login || user_is_staging_manager)
       # people who declined a request shall also be able to reopen it
+
+      # NOTE: Staging managers should be able to repoen a request to unstage a declined request.
+      # The reason behind `user_is_staging_manager`, is that we need to manage reviews to send
+      # the request to the staging backlog.
       permission_granted = true
     end
 
