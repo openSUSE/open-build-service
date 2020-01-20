@@ -31,15 +31,17 @@ ul .table-list-group-item {
   }
 
   &.project {
-    @extend .w-25;
+    min-width: 9rem;
 
     > span.badge {
-      @extend .w-100;
+      width: 100%;
 
       > span.badge {
         @extend .m-1;
+        max-width: 15rem;
         overflow-wrap: break-word;
         word-wrap: break-word;
+        word-break: keep-all;
         display: inline-block;
         white-space: normal;
       }
@@ -89,10 +91,7 @@ ul .table-list-group-item {
       }
     }
   }
-
   &.requests {
-    min-width: 50%;
-
     span.badge {
       margin-left: 10px;
 
