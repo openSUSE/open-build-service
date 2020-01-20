@@ -506,7 +506,8 @@ sub jobfinished {
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);
-    addjobhist($gctx, $prp, $info, $status, $js, 'unchanged');
+    my $jobhist = makejobhist($info, $status, $js, 'unchanged');
+    addjobhist($gctx, $prp, $jobhist);
     $status->{'status'} = 'succeeded';
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;     # package is no longer blocking
@@ -521,7 +522,8 @@ sub jobfinished {
     unlink($_) for @all;
     rmdir($jobdatadir);
     $status->{'status'} = 'failed';
-    addjobhist($gctx, $prp, $info, $status, $js, 'failed');
+    my $jobhist = makejobhist($info, $status, $js, 'failed');
+    addjobhist($gctx, $prp, $jobhist);
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;     # package is no longer blocking
     return;
@@ -557,7 +559,8 @@ sub jobfinished {
 
   # write new status
   $status->{'status'} = 'succeeded';
-  addjobhist($gctx, $prp, $info, $status, $js, 'succeeded');
+  my $jobhist = makejobhist($info, $status, $js, 'succeeded');
+  addjobhist($gctx, $prp, $jobhist);
   writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
 
   # write history file
@@ -718,6 +721,23 @@ sub patchpackstatus {
 }
 
 
+=head2 makejobhist - return jobhistlay comaptible hash
+
+ The returned hash can be reused.
+
+=cut
+
+sub makejobhist {
+  my ($info, $status, $js, $code) = @_;
+  my $jobhist = {};
+  $jobhist->{'code'} = $code;
+  $jobhist->{$_} = $js->{$_} for qw{readytime starttime endtime uri workerid hostarch};
+  $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
+  $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
+  $jobhist->{'readytime'} ||= $status->{'readytime'};   # backward compat
+  return $jobhist
+}
+
 =head2 addjobhist - add a new job entry to :jobhistory file
 
  TODO: add description
@@ -725,13 +745,7 @@ sub patchpackstatus {
 =cut
 
 sub addjobhist {
-  my ($gctx, $prp, $info, $status, $js, $code) = @_;
-  my $jobhist = {};
-  $jobhist->{'code'} = $code;
-  $jobhist->{$_} = $js->{$_} for qw{readytime starttime endtime uri workerid hostarch};
-  $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
-  $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
-  $jobhist->{'readytime'} ||= $status->{'readytime'};   # backward compat
+  my ($gctx, $prp, $jobhist ) = @_;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   mkdir_p($gdst);

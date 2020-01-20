@@ -176,7 +176,8 @@ sub jobfinished {
   mkdir_p($dst);
   my $code = $js->{'result'} || 'failed';
   my $status = {'readytime' => $info->{'readytime'} || $info->{'starttime'}};
-  BSSched::BuildJob::addjobhist($gctx, $prp, $info, $status, $js, $code);
+  my $jobhist = BSSched::BuildJob::makejobhist($info, $status, $js, $code);
+  BSSched::BuildJob::addjobhist($gctx, $prp, $jobhist);
   if ($code ne 'succeeded') {
     print "  - $job: build failed\n";
     unlink("$dst/logfile");
