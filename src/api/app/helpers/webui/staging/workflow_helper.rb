@@ -54,9 +54,9 @@ module Webui::Staging::WorkflowHelper
       when 'by_user'
         tags << image_tag_for(users_hash[review[:by]], size: 20)
       when 'by_project'
-        tags << content_tag(:i, nil, class: 'fa fa-cubes text-secondary', title: review[:by])
+        tags << content_tag(:i, nil, class: 'fa fa-cubes', title: review[:by])
       when 'by_package'
-        tags << content_tag(:i, nil, class: 'fa fa-archive text-dark', title: review[:by])
+        tags << content_tag(:i, nil, class: 'fa fa-archive', title: review[:by])
       end
     end
     tags

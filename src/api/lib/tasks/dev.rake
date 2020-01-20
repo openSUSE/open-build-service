@@ -240,6 +240,7 @@ namespace :dev do
 
       # Create factory dashboard projects
       factory = create(:project, name: 'openSUSE:Factory')
+      sworkflow = create(:staging_workflow, project: factory)
       checker = create(:confirmed_user, login: 'repo-checker')
       create(:relationship, project: factory, user: checker, role: Role.hashed['reviewer'])
       osrt = create(:group, title: 'review-team')
@@ -250,6 +251,33 @@ namespace :dev do
       tw_apache = create(:package_with_file, name: 'apache2', project: factory)
 
       req = travel_to(90.minutes.ago) do
+        new_package1 = create(
+          :bs_request_with_submit_action,
+          creator: iggy,
+          target_package: 'inreview',
+          target_project: factory,
+          source_package: leap_apache
+        )
+        new_package1.staging_project = sworkflow.staging_projects.first
+        new_package1.reviews << create(:review, by_project: new_package1.staging_project)
+        new_package1.save
+        new_package1.change_review_state(:accepted, by_group: sworkflow.managers_group.title)
+
+        new_package2 = create(
+          :bs_request_with_submit_action,
+          creator: iggy,
+          target_package: 'reviewed',
+          target_project: factory,
+          source_package: leap_apache
+        )
+        new_package2.staging_project = sworkflow.staging_projects.second
+        new_package2.reviews << create(:review, by_project: new_package2.staging_project)
+        new_package2.save
+        new_package2.change_review_state(:accepted, by_group: sworkflow.managers_group.title)
+        new_package2.change_review_state(:accepted, by_user: checker.login)
+        new_package2.change_review_state(:accepted, by_group: osrt.title)
+        new_package2.change_review_state(:accepted, by_package: 'apache2', by_project: leap.name)
+
         req = create(
           :bs_request_with_submit_action,
           creator: iggy,
@@ -283,7 +311,6 @@ namespace :dev do
 
       create(:project, name: 'openSUSE:Factory:Rings:0-Bootstrap')
       create(:project, name: 'openSUSE:Factory:Rings:1-MinimalX')
-      create(:project, name: 'openSUSE:Factory:Staging:A', description: 'requests:')
 
       Configuration.download_url = 'https://download.opensuse.org'
       Configuration.save
