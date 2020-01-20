@@ -34,14 +34,13 @@ ul .table-list-group-item {
     min-width: 9rem;
 
     > span.badge {
-      width: 100%;
+      @extend .w-100;
 
       > span.badge {
         @extend .m-1;
         max-width: 15rem;
         overflow-wrap: break-word;
         word-wrap: break-word;
-        word-break: keep-all;
         display: inline-block;
         white-space: normal;
       }
@@ -92,6 +91,8 @@ ul .table-list-group-item {
     }
   }
   &.requests {
+    .request-elements { min-width: 20rem; }
+
     span.badge {
       margin-left: 10px;
 
@@ -144,6 +145,7 @@ ul .table-list-group-item {
       float: left;
     }
   }
+  .problem-elements { min-width: 12rem; }
 }
 
 li.missing-check {
