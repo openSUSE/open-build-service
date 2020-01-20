@@ -10,10 +10,12 @@
         %td.project
           = render partial: 'overall_state', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
         %td.requests
-          = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project,
-                                                                            users_hash: users_hash, groups_hash: groups_hash }
+          .request-elements
+            = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project,
+                                                                              users_hash: users_hash, groups_hash: groups_hash }
         %td
-          = render partial: 'problems', locals: { staging_project: staging_project }
+          .problem-elements
+            = render partial: 'problems', locals: { staging_project: staging_project }
 
 - content_for :ready_function do
   :plain
@@ -24,5 +26,10 @@
       searching: false,
       info: false,
       stateSave: true,
-      stateDuration: #{2.days}
+      stateDuration: #{2.days},
+      columnDefs: [
+        { width: null, targets: 0 },
+        { width: '75%', targets: 1 },
+        { width: '25%', targets: 2 },
+      ]
     });

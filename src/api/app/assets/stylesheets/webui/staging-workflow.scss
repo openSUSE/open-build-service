@@ -45,11 +45,18 @@ ul .table-list-group-item {
   }
 
   &.project {
+    min-width: 9rem;
+
     > span.badge {
       @extend .w-100;
 
       > span.badge {
         @extend .m-1;
+        max-width: 15rem;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        display: inline-block;
+        white-space: normal;
       }
     }
 
@@ -97,9 +104,8 @@ ul .table-list-group-item {
       }
     }
   }
-
   &.requests {
-    min-width: 50%;
+    .request-elements { min-width: 20rem; }
 
     span.badge {
       margin-left: 10px;
@@ -152,6 +158,7 @@ ul .table-list-group-item {
       float: left;
     }
   }
+  .problem-elements { min-width: 12rem; }
 }
 
 li.missing-check {
