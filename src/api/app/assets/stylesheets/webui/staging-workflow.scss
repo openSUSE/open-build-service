@@ -142,10 +142,6 @@ ul .table-list-group-item {
         background-color: $request-obsolete-color;
       }
 
-      &.state-untracked {
-        @extend .badge-dark;
-      }
-
       &.delete {
         a.request {
           text-decoration: line-through;
