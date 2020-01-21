@@ -26,7 +26,7 @@ if ENV['DO_COVERAGE']
   end
 end
 
-require File.expand_path('../../config/environment', __FILE__)
+require File.expand_path('../config/environment', __dir__)
 require_relative 'test_consistency_helper'
 
 require 'rails/test_help'
