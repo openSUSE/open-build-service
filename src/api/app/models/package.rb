@@ -84,14 +84,12 @@ class Package < ApplicationRecord
   # WHERE (packages.project_id not in (0))
   # because we assumes that there are more allowed projects than forbidden ones.
   default_scope do
-    where.not(id: Package.where(project_id: Relationship.forbidden_project_ids))
+    where.not(id: PackagesFinder.new.forbidden_packages)
   end
 
   scope :order_by_name, -> { order('LOWER(name)') }
 
-  # rubocop:disable Layout/LineLength
-  scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
-  # rubocop:enable Layout/LineLength
+  scope :dirty_backend_package, -> { PackagesFinder.new.dirty_backend_packages }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
@@ -236,60 +234,15 @@ class Package < ApplicationRecord
   end
 
   def self.find_by_project_and_name(project, package)
-    Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
+    PackagesFinder.new.by_package_and_project(package, project).first
   end
 
   def self.find_by_attribute_type(attrib_type, package = nil)
-    # One sql statement is faster than a ruby loop
-    # attribute match in package or project
-    sql = <<-END_SQL
-    SELECT pack.*
-    FROM packages pack
-    LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
-    LEFT OUTER JOIN attribs attrprj ON pack.project_id = attrprj.project_id
-    WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
-    END_SQL
-
-    if package
-      sql += ' AND pack.name = ? GROUP by pack.id'
-      ret = Package.find_by_sql([sql, attrib_type.id.to_s, attrib_type.id.to_s, package])
-      ret.each do |dbpkg|
-        ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-      end
-      return ret
-    end
-    sql += ' GROUP by pack.id'
-    ret = Package.find_by_sql([sql, attrib_type.id.to_s, attrib_type.id.to_s])
-    ret.each do |dbpkg|
-      ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-    end
-    ret
+    PackagesFinder.new.find_by_attribute_type(attrib_type, package)
   end
 
   def self.find_by_attribute_type_and_value(attrib_type, value, package = nil)
-    # One sql statement is faster than a ruby loop
-    sql = <<-END_SQL
-    SELECT pack.*
-    FROM packages pack
-    LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
-    LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
-    WHERE attr.attrib_type_id = ? AND val.value = ?
-    END_SQL
-
-    if package
-      sql += ' AND pack.name = ?'
-      ret = Package.find_by_sql([sql, attrib_type.id.to_s, value.to_s, package])
-      ret.each do |dbpkg|
-        ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-      end
-      return ret
-    end
-    sql += ' GROUP by pack.id'
-    ret = Package.find_by_sql([sql, attrib_type.id.to_s, value.to_s])
-    ret.each do |dbpkg|
-      ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-    end
-    ret
+    PackagesFinder.new.find_by_attribute_type_and_value(attrib_type, value, package)
   end
 
   def meta
