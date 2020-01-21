@@ -38,7 +38,7 @@ Configuration.first_or_create(name: 'private', title: 'Open Build Service') do |
     <a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations">this wiki page</a>.
     Have fun and fast build times!
   </p>
-EOT
+  EOT
 end
 
 puts 'Seeding roles table...'
