@@ -19,15 +19,6 @@ Capybara/CurrentPathExpectation:
 Capybara/FeatureMethods:
   Enabled: false
 
-# Offense count: 17
-# Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'test/unit/package_test.rb'
-    - 'test/unit/project_test.rb'
-
 # Offense count: 93
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
