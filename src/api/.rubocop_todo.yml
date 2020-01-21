@@ -788,17 +788,6 @@ Style/AccessModifierDeclarations:
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'app/models/attrib.rb'
-    - 'app/models/cloud/backend/upload_job.rb'
-    - 'app/models/role.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 132
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.

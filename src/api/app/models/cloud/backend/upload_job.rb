@@ -19,8 +19,8 @@ module Cloud
                      :arch,
                      :filename,
                      :size
-      alias_method :id, :name
-      alias_method :architecture, :arch
+      alias id name
+      alias architecture arch
       validate :validate_xml
 
       def self.create(params)
@@ -54,7 +54,7 @@ module Cloud
       def created
         Time.at(xml_object.created.to_i)
       end
-      alias_method :created_at, :created
+      alias created_at created
 
       private
 

@@ -160,7 +160,7 @@ module ActionDispatch
         headers
       end
 
-      alias_method :real_process, :process
+      alias real_process process
 
       def process(http_method, path, params: nil, headers: nil, env: nil, xhr: false, as: nil)
         CONFIG['global_write_through'] = true
