@@ -1772,6 +1772,8 @@ sub publish {
     my $r = "$reporoot/$prp/$arch/:repo";
     $found_repo = 1 if -e $r;
   }
+  # no published binary found, but we may want an empty repo nevertheless?
+  $found_repo = 1 if $config->{'publishflags:create_empty'};
   if (!defined($found_repo)) {
     deleterepo($projid, $repoid);
     return;

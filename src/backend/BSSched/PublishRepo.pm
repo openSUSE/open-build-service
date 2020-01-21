@@ -172,6 +172,9 @@ sub prpfinished {
     $seen_binary = {};
   }
 
+  # Let the publisher decide about empty repositories
+  $changed = 1 if $bconf && $bconf->{'publishflags:create_empty'} && ! -e "$reporoot/$prp/:repoinfo";
+
   my %newchecksums;
   # sort like in the full tree
   for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
