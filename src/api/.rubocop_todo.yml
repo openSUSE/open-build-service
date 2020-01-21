@@ -851,21 +851,6 @@ Style/EmptyLiteral:
     - 'app/models/obs_factory/openqa_job.rb'
     - 'app/presenters/obs_factory/staging_project_presenter.rb'
 
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: each, for
-Style/For:
-  Exclude:
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/project.rb'
-    - 'app/views/webui/feeds/news.rss.builder'
-    - 'db/attribute_descriptions.rb'
-    - 'test/functional/attributes_test.rb'
-    - 'test/unit/build_flag_test.rb'
-    - 'test/unit/debug_flag_test.rb'
-    - 'test/unit/publish_flag_test.rb'
-
 # Offense count: 1297
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

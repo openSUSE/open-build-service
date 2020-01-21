@@ -17,7 +17,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 2, @project.flags.of_type('publish').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       @project.flags.create(repo: "9.#{i}", status: 'enable', position: i + 2, flag: 'publish', architecture: @arch)
     end
 
@@ -52,7 +52,7 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 1, @package.flags.of_type('publish').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       @package.flags.create(repo: "10.#{i}", status: 'disable', position: i + 1, flag: 'publish', architecture: @arch)
     end
 

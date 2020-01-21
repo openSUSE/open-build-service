@@ -1220,7 +1220,7 @@ class Project < ApplicationRecord
     projects = []
     unused = 0
 
-    for i in 1..atoms.length do
+    (1..atoms.length).each do |i|
       p = atoms.slice(0, i).join(':')
       r = atoms.slice(unused, i - unused).join(':')
       if Project.where(name: p).exists? # ignore remote projects here
