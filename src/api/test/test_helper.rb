@@ -218,9 +218,7 @@ module Webui
       prepare_request_with_user(user, password)
     end
 
-    def current_user
-      @current_user
-    end
+    attr_reader :current_user
 
     self.use_transactional_tests = true
     fixtures :all
