@@ -281,25 +281,19 @@ class Package < ApplicationRecord
   end
 
   def kiwi_image_file
-    dir_hash.elements('entry') do |e|
-      return e['name'] if e['name'] =~ /.kiwi$/
-    end
-    nil
+    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
+    kiwi_file['name'] unless kiwi_file.nil?
   end
 
   def kiwi_file_md5
-    dir_hash.elements('entry') do |e|
-      return e['md5'] if e['name'] =~ /.kiwi$/
-    end
-    nil
+    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
+    kiwi_file['md5'] unless kiwi_file.nil?
   end
 
   def changes_files
-    result = []
-    dir_hash.elements('entry') do |e|
-      result << e['name'] if e['name'] =~ /.changes$/
-    end
-    result
+    dir_hash.elements('entry').collect do |e|
+      e['name'] if e['name'] =~ /.changes$/
+    end.compact
   end
 
   def commit_message(target_project, target_package)
