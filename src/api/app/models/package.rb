@@ -480,13 +480,11 @@ class Package < ApplicationRecord
     if is_patchinfo?
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       xml.elements('issue') do |i|
-        begin
-          current_issues['kept'] ||= []
-          current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
-        rescue IssueTracker::NotFoundError => e
-          # if the issue is invalid, we ignore it
-          Rails.logger.debug e
-        end
+        current_issues['kept'] ||= []
+        current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
+      rescue IssueTracker::NotFoundError => e
+        # if the issue is invalid, we ignore it
+        Rails.logger.debug e
       end
     else
       # onlyissues backend call gets the issues from .changes files

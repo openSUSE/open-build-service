@@ -105,12 +105,10 @@ module ObsFactory
     # @return [String] version string
     def source_version
       Rails.cache.fetch("source_version_for_#{name}", expires_in: 10.minutes) do
-        begin
-          p = Xmlhash.parse(Backend::Api::Sources::Package.file(name, SOURCE_VERSION_FILE[:package_name], SOURCE_VERSION_FILE[:filename]))
-          p.get('products').get('product').get('version')
-        rescue Backend::NotFoundError
-          nil
-        end
+        p = Xmlhash.parse(Backend::Api::Sources::Package.file(name, SOURCE_VERSION_FILE[:package_name], SOURCE_VERSION_FILE[:filename]))
+        p.get('products').get('product').get('version')
+      rescue Backend::NotFoundError
+        nil
       end
     end
 
