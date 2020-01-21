@@ -1637,7 +1637,8 @@ sub mapsleimage {
   my ($rdir, $rbin, $p, $media) = @_;
   if ($p =~ /-Build\d+/) {
     $rbin =~ s/\.sha256$//;
-    $rbin =~ s/\.iso//;
+    $rbin =~ s/\.xz$//;
+    $rbin =~ s/\.(iso|packages|raw|qcow2|vhdx|vmdk)$//;
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
     chomp $milestone;
     $milestone ||= 'GM';
@@ -1909,7 +1910,8 @@ sub publish {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
-	  $p = "$bin";
+	  $p = $bin;
+	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
@@ -1981,10 +1983,11 @@ sub publish {
 	  # Debian upstream tarball signature
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256)?$/) {
-	  $p = "$bin";
+	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
+          $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
         } elsif ($bin =~ /\.packages$/) {
-	  $p = "$bin";
+	  $p = $bin;
 	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
