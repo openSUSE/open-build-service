@@ -219,12 +219,8 @@ class Package < ApplicationRecord
   end
 
   def self.exists_on_backend?(package, project)
-    begin
-      answer = Backend::Connection.get(Package.source_path(project, package))
-      return true if answer
-    rescue Backend::Error
-      # ignored
-    end
+    !Backend::Connection.get(Package.source_path(project, package)).nil?
+  rescue Backend::Error
     false
   end
 
