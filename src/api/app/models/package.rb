@@ -141,14 +141,9 @@ class Package < ApplicationRecord
   end
 
   def self.internal_get_project(project)
-    if project.is_a?(Project)
-      prj = project
-    else
-      return if Project.is_remote_project?(project)
-      prj = Project.get_by_name(project)
-    end
-    raise UnknownObjectError, "#{project}/#{package}" unless prj
-    prj
+    return project if project.is_a?(Project)
+    return if Project.is_remote_project?(project)
+    Project.get_by_name(project)
   end
 
   def self.striping_multibuild_suffix(name)
@@ -224,12 +219,8 @@ class Package < ApplicationRecord
   end
 
   def self.exists_on_backend?(package, project)
-    begin
-      answer = Backend::Connection.get(Package.source_path(project, package))
-      return true if answer
-    rescue Backend::Error
-      # ignored
-    end
+    !Backend::Connection.get(Package.source_path(project, package)).nil?
+  rescue Backend::Error
     false
   end
 
@@ -281,25 +272,17 @@ class Package < ApplicationRecord
   end
 
   def kiwi_image_file
-    dir_hash.elements('entry') do |e|
-      return e['name'] if e['name'] =~ /.kiwi$/
-    end
-    nil
+    extract_kiwi_element('name')
   end
 
   def kiwi_file_md5
-    dir_hash.elements('entry') do |e|
-      return e['md5'] if e['name'] =~ /.kiwi$/
-    end
-    nil
+    extract_kiwi_element('md5')
   end
 
   def changes_files
-    result = []
-    dir_hash.elements('entry') do |e|
-      result << e['name'] if e['name'] =~ /.changes$/
-    end
-    result
+    dir_hash.elements('entry').collect do |e|
+      e['name'] if e['name'] =~ /.changes$/
+    end.compact
   end
 
   def commit_message(target_project, target_package)
@@ -540,11 +523,11 @@ class Package < ApplicationRecord
     # issues introduced by local changes
     if is_link?
       query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
-      new = parse_issues_xml(query)
-      (issue_change.keys + new.keys).uniq.each do |key|
+      new_issues = parse_issues_xml(query)
+      (issue_change.keys + new_issues.keys).uniq.each do |key|
         issue_change[key] ||= {}
-        issue_change[key].merge!(new[key]) if new[key]
-        issue_change['kept'].delete(new[key]) if issue_change['kept'] && key != 'kept'
+        issue_change[key].merge!(new_issues[key]) if new_issues[key]
+        issue_change['kept'].delete(new_issues[key]) if issue_change['kept'] && key != 'kept'
       end
     end
 
@@ -1421,6 +1404,11 @@ class Package < ApplicationRecord
   end
 
   private
+
+  def extract_kiwi_element(element)
+    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
+    kiwi_file[element] unless kiwi_file.nil?
+  end
 
   def _add_channel(mode, channel_binary, message)
     # add source container
