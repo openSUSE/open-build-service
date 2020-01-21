@@ -804,17 +804,6 @@ Style/ClassVars:
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerBackticks.
-# SupportedStyles: backticks, percent_x, mixed
-Style/CommandLiteral:
-  Exclude:
-    - 'config/initializers/git.rb'
-    - 'lib/memory_debugger.rb'
-    - 'lib/tasks/databases.rake'
-    - 'script/import_database.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: Keywords.

@@ -102,7 +102,7 @@ namespace :db do
     task verify_no_bigint: :environment do
       puts 'Checking db/structure.sql for bigint'
 
-      bigint_lines = %x(grep "bigint" #{Rails.root}/db/structure.sql)
+      bigint_lines = `grep "bigint" #{Rails.root}/db/structure.sql`
 
       if bigint_lines.present?
         abort <<-STR
