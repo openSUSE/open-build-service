@@ -11,7 +11,7 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
           get :index, params: { format: :xml, project: project.name }
         end
 
-        it { is_expected.to respond_with(:success) }
+        it { expect(response).to have_http_status(:success) }
 
         it 'assigns the project to an instance variable' do
           expect(assigns[:project]).to be_a(Project)
@@ -68,7 +68,7 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
         get :index, params: { format: :xml, project: 'NonExistantProject' }
       end
 
-      it { is_expected.to respond_with(:not_found) }
+      it { expect(response).to have_http_status(:not_found) }
     end
   end
 end

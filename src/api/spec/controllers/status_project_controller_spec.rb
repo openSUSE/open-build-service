@@ -14,7 +14,7 @@ RSpec.describe StatusProjectController, vcr: true do
         get :show, params: { project: project.name, format: :xml }
       end
 
-      it { is_expected.to respond_with(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(response.body).to include("project=\"#{project.name}\"") }
       it { expect(response.body).to include("name=\"#{package.name}\"") }
       it { expect(response.body).to include('srcmd5=') }

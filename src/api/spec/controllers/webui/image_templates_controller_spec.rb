@@ -8,7 +8,7 @@ RSpec.describe Webui::ImageTemplatesController, type: :controller do
       end
 
       it { is_expected.to render_template('webui/image_templates/index') }
-      it { is_expected.to respond_with(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(assigns(:projects)).to eq([]) }
     end
 
@@ -25,7 +25,7 @@ RSpec.describe Webui::ImageTemplatesController, type: :controller do
         get :index
       end
 
-      it { is_expected.to respond_with(:success) }
+      it { expect(response).to have_http_status(:success) }
       it { expect(assigns(:projects)).to eq([leap_project]) }
       it { is_expected.to render_template('webui/image_templates/index') }
 

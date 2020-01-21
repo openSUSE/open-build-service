@@ -28,7 +28,7 @@ RSpec.describe TriggerController, vcr: true do
         post :rebuild, params: { format: :xml }
       end
 
-      it { is_expected.to respond_with(:forbidden) }
+      it { expect(response).to have_http_status(:forbidden) }
     end
 
     context 'when token is valid and packet rebuild' do
@@ -39,7 +39,7 @@ RSpec.describe TriggerController, vcr: true do
         post :rebuild, params: { format: :xml }
       end
 
-      it { is_expected.to respond_with(:success) }
+      it { expect(response).to have_http_status(:success) }
     end
   end
 
@@ -49,7 +49,7 @@ RSpec.describe TriggerController, vcr: true do
         post :release, params: { project: 'foo', format: :xml }
       end
 
-      it { is_expected.to respond_with(:forbidden) }
+      it { expect(response).to have_http_status(:forbidden) }
     end
 
     context 'when token is valid and package exists' do
@@ -68,7 +68,7 @@ RSpec.describe TriggerController, vcr: true do
         post :release, params: { package: package, format: :xml }
       end
 
-      it { is_expected.to respond_with(:success) }
+      it { expect(response).to have_http_status(:success) }
     end
 
     context 'when user has no rights for source' do
@@ -99,7 +99,7 @@ RSpec.describe TriggerController, vcr: true do
         post :release, params: { package: package, format: :xml }
       end
 
-      it { is_expected.to respond_with(403) }
+      it { expect(response).to have_http_status(403) }
       it { expect(response.body).to include("No permission to modify project 'target_project' for user 'mrfluffy'") }
     end
 
@@ -129,6 +129,6 @@ RSpec.describe TriggerController, vcr: true do
       post :runservice, params: { package: package, format: :xml }
     end
 
-    it { is_expected.to respond_with(:success) }
+    it { expect(response).to have_http_status(:success) }
   end
 end
