@@ -354,7 +354,7 @@ class Project < ApplicationRecord
     # replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |linking_repository|
       linking_repository.path_elements.includes(:link).each do |path_element|
-        next unless path_element.link.db_project_id == id && !(path_element.repository.db_project_id == id)
+        next unless path_element.link.db_project_id == id && path_element.repository.db_project_id != id
         if linking_repository.path_elements.find_by_repository_id(Repository.deleted_instance)
           # repository has already a path to deleted repo
           path_element.destroy
@@ -582,7 +582,7 @@ class Project < ApplicationRecord
       errors.add(:base, 'is not locked')
     end
 
-    !errors.any?
+    errors.none?
   end
 
   def update_from_xml!(xmlhash, force = nil)

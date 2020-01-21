@@ -878,19 +878,6 @@ Style/IdenticalConditionalBranches:
 Style/IfUnlessModifier:
   Enabled: false
 
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/views/source/_common_issues.xml.builder'
-    - 'test/functional/request_events_test.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.
