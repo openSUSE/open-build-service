@@ -71,7 +71,7 @@ def load_dump
   end
 
   puts 'Downloading database backup ...'
-  `scp -v -P #{port ? port : 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path}`
+  `scp -v -P #{port || 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path}`
 end
 
 def import_dump
