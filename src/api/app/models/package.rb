@@ -141,14 +141,9 @@ class Package < ApplicationRecord
   end
 
   def self.internal_get_project(project)
-    if project.is_a?(Project)
-      prj = project
-    else
-      return if Project.is_remote_project?(project)
-      prj = Project.get_by_name(project)
-    end
-    raise UnknownObjectError, "#{project}/#{package}" unless prj
-    prj
+    return project if project.is_a?(Project)
+    return if Project.is_remote_project?(project)
+    Project.get_by_name(project)
   end
 
   def self.striping_multibuild_suffix(name)
