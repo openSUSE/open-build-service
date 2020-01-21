@@ -29,12 +29,11 @@ namespace :ci do
     SimpleCov.merge_timeout 100_000
 
     SimpleCov.configure do
-      add_group('WebUI') { |file| file.filename =~ %r{webui} && file.filename !~ %r{obs_factory} }
+      add_group('WebUI') { |file| file.filename =~ %r{webui} }
       add_group('Jobs') { |file| file.filename =~ %r{jobs/} }
-      add_group('Models') { |file| file.filename =~ %r{models/} && file.filename !~ %r{obs_factory} }
+      add_group('Models') { |file| file.filename =~ %r{models/} }
       add_group('Helpers') { |file| file.filename =~ %r{helpers/} && file.filename !~ %r{webui} }
       add_group('API Controllers') { |file| file.filename =~ %r{controllers/} && file.filename !~ %r{webui} }
-      add_group('Factory Dashboard') { |file| file.filename =~ %r{obs_factory} }
     end
 
     # upload the result for all
