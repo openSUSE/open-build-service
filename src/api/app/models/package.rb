@@ -534,11 +534,11 @@ class Package < ApplicationRecord
     # issues introduced by local changes
     if is_link?
       query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
-      new = parse_issues_xml(query)
-      (issue_change.keys + new.keys).uniq.each do |key|
+      new_issues = parse_issues_xml(query)
+      (issue_change.keys + new_issues.keys).uniq.each do |key|
         issue_change[key] ||= {}
-        issue_change[key].merge!(new[key]) if new[key]
-        issue_change['kept'].delete(new[key]) if issue_change['kept'] && key != 'kept'
+        issue_change[key].merge!(new_issues[key]) if new_issues[key]
+        issue_change['kept'].delete(new_issues[key]) if issue_change['kept'] && key != 'kept'
       end
     end
 
