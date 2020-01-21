@@ -272,13 +272,11 @@ class Package < ApplicationRecord
   end
 
   def kiwi_image_file
-    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
-    kiwi_file['name'] unless kiwi_file.nil?
+    extract_kiwi_element('name')
   end
 
   def kiwi_file_md5
-    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
-    kiwi_file['md5'] unless kiwi_file.nil?
+    extract_kiwi_element('md5')
   end
 
   def changes_files
@@ -1406,6 +1404,11 @@ class Package < ApplicationRecord
   end
 
   private
+
+  def extract_kiwi_element(element)
+    kiwi_file = dir_hash.elements('entry').find { |e| e['name'] =~ /.kiwi$/ }
+    kiwi_file[element] unless kiwi_file.nil?
+  end
 
   def _add_channel(mode, channel_binary, message)
     # add source container
