@@ -38,10 +38,10 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
       let(:meta) do
         # rubocop: disable Layout/IndentHeredoc
         <<~META
-        <package name="foo" project="#{project_with_package.name}">
-          <title>My cool package</title>
-          <description/>
-        </package>
+          <package name="foo" project="#{project_with_package.name}">
+            <title>My cool package</title>
+            <description/>
+          </package>
         META
         # rubocop: enable Layout/IndentHeredoc
       end

@@ -57,29 +57,10 @@ Layout/EndAlignment:
     - 'app/controllers/webui/webui_controller.rb'
     - 'app/models/obs_factory/distribution.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: squiggly, active_support, powerpack, unindent
-Layout/HeredocIndentation:
-  Exclude:
-    - 'spec/controllers/source_project_package_meta_controller_spec.rb'
-
 # Offense count: 19
 # Cop supports --auto-correct.
 Layout/LeadingEmptyLines:
   Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator.
-# SupportedStylesForExponentOperator: space, no_space
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'spec/controllers/webui/search_controller_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'test/functional/attributes_test.rb'
-    - 'test/functional/search_controller_test.rb'
 
 # Offense count: 23
 # Cop supports --auto-correct.
