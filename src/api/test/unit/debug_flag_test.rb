@@ -18,7 +18,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 2, @project.flags.of_type('debuginfo').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       f = Flag.new(repo: "9.#{i}", status: 'enable', position: i + 2, flag: 'debuginfo')
       f.architecture = @arch
       @project.flags << f
@@ -55,7 +55,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 1, @package.flags.of_type('debuginfo').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       f = Flag.new(repo: "10.#{i}", status: 'disable', position: i + 1, flag: 'debuginfo')
       f.architecture = @arch
       @package.flags << f

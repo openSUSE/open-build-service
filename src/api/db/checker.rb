@@ -96,14 +96,12 @@ module DB
         User.session = User.find_by_login('_nobody_')
         projects = {}
         Package.where('develpackage_id is not null').each do |package|
-          begin
-            package.resolve_devel_package
-            print step(:ok)
-          rescue Package::CycleError => e
-            projects[package.project.name] ||= []
-            projects[package.project.name] << [package.name, e.message]
-            print step(:fail)
-          end
+          package.resolve_devel_package
+          print step(:ok)
+        rescue Package::CycleError => e
+          projects[package.project.name] ||= []
+          projects[package.project.name] << [package.name, e.message]
+          print step(:fail)
         end
         puts summary(projects.empty? ? :ok : :fail)
         projects.keys.sort.each do |project|

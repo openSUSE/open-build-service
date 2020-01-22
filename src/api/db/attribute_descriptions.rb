@@ -30,7 +30,7 @@ def update_all_attrib_type_descriptions
   }
   # rubocop:enable Layout/LineLength
 
-  for k in d.keys do
+  d.keys.each do |k|
     at = ans.attrib_types.where(name: k).first
     next unless at # might be called in older migrations
     at.description = d[k]

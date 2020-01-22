@@ -77,7 +77,7 @@ class Role < ApplicationRecord
   def to_s
     title
   end
-  alias_method :to_param, :to_s
+  alias to_param to_s
 end
 
 # == Schema Information

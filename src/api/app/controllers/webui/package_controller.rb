@@ -274,17 +274,15 @@ class Webui::PackageController < Webui::WebuiController
     supersede_errors = []
     if params[:supersede_request_numbers]
       params[:supersede_request_numbers].each do |request_number|
-        begin
-          r = BsRequest.find_by_number!(request_number)
-          opts = {
-            newstate: 'superseded',
-            reason: "Superseded by request #{req.number}",
-            superseded_by: req.number
-          }
-          r.change_state(opts)
-        rescue APIError => e
-          supersede_errors << e.message.to_s
-        end
+        r = BsRequest.find_by_number!(request_number)
+        opts = {
+          newstate: 'superseded',
+          reason: "Superseded by request #{req.number}",
+          superseded_by: req.number
+        }
+        r.change_state(opts)
+      rescue APIError => e
+        supersede_errors << e.message.to_s
       end
     end
 
@@ -776,13 +774,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def rpmlint_log
-    begin
-      @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
-      @log.encode!(xml: :text)
-      render partial: 'rpmlint_log'
-    rescue Backend::NotFoundError
-      render plain: 'No rpmlint log'
-    end
+    @log = Backend::Api::BuildResults::Binaries.rpmlint_log(params[:project], params[:package], params[:repository], params[:architecture])
+    @log.encode!(xml: :text)
+    render partial: 'rpmlint_log'
+  rescue Backend::NotFoundError
+    render plain: 'No rpmlint log'
   end
 
   def meta

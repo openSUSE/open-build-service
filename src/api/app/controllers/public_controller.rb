@@ -202,12 +202,10 @@ class PublicController < ApplicationController
     # generic access checks
     key = 'public_package:' + project_name + ':' + package_name
     allowed = Rails.cache.fetch(key, expires_in: 30.minutes) do
-      begin
-        Package.get_by_project_and_name(project_name, package_name, use_source: false)
-        true
-      rescue Exception
-        false
-      end
+      Package.get_by_project_and_name(project_name, package_name, use_source: false)
+      true
+    rescue Exception
+      false
     end
     raise Package::UnknownObjectError, "#{project_name} / #{package_name} " unless allowed
   end

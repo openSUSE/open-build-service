@@ -26,7 +26,7 @@ if ENV['DO_COVERAGE']
   end
 end
 
-require File.expand_path('../../config/environment', __FILE__)
+require File.expand_path('../config/environment', __dir__)
 require_relative 'test_consistency_helper'
 
 require 'rails/test_help'
@@ -160,7 +160,7 @@ module ActionDispatch
         headers
       end
 
-      alias_method :real_process, :process
+      alias real_process process
 
       def process(http_method, path, params: nil, headers: nil, env: nil, xhr: false, as: nil)
         CONFIG['global_write_through'] = true
@@ -218,9 +218,7 @@ module Webui
       prepare_request_with_user(user, password)
     end
 
-    def current_user
-      @current_user
-    end
+    attr_reader :current_user
 
     self.use_transactional_tests = true
     fixtures :all

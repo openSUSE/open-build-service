@@ -214,17 +214,15 @@ class ConsistencyCheckJob < ApplicationJob
       if fix
         # restore from backend
         diff.each do |package|
-          begin
-            meta = Backend::Api::Sources::Project.meta(project.name)
-            pkg = project.packages.new(name: package)
-            pkg.commit_opts = { no_backend_write: 1 }
-            pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
-            pkg.save!
-          rescue ActiveRecord::RecordInvalid,
-                 Backend::NotFoundError
-            Backend::Api::Sources::Package.delete(project.name, package)
-            errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
-          end
+          meta = Backend::Api::Sources::Project.meta(project.name)
+          pkg = project.packages.new(name: package)
+          pkg.commit_opts = { no_backend_write: 1 }
+          pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
+          pkg.save!
+        rescue ActiveRecord::RecordInvalid,
+               Backend::NotFoundError
+          Backend::Api::Sources::Package.delete(project.name, package)
+          errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
         end
       end
     end

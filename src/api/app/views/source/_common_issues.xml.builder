@@ -9,6 +9,6 @@ issues.each do |i|
     # self.owner must not by used, since it is reserved by rails
     o = User.find i.issue.owner_id
   end
-  next if @login && (!o || !(@login == o.login))
+  next if @login && (!o || @login != o.login)
   i.issue.render_body(builder, change)
 end

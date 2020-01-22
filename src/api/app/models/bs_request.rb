@@ -323,11 +323,11 @@ class BsRequest < ApplicationRecord
   end
 
   def check_supersede_state
-    if state == :superseded && (!superseded_by.is_a?(Numeric) || !(superseded_by > 0))
+    if state == :superseded && (!superseded_by.is_a?(Numeric) || superseded_by <= 0)
       errors.add(:superseded_by, 'Superseded_by should be set')
     end
 
-    return unless superseded_by && !(state == :superseded)
+    return unless superseded_by && state != :superseded
     errors.add(:superseded_by, 'Superseded_by should not be set')
   end
 

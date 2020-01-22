@@ -71,7 +71,7 @@ def load_dump
   end
 
   puts 'Downloading database backup ...'
-  %x(scp -v -P #{port ? port : 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path})
+  `scp -v -P #{port || 22} #{username}@#{server}:#{File.join(location, filename)} #{@data_path}`
 end
 
 def import_dump
@@ -94,7 +94,7 @@ def import_dump
   cmds << "mysql -u#{username} -p#{password} -h#{host} #{database}"
 
   puts "Extracting and importing data from #{filename}..."
-  %x(#{cmds.join(' | ')})
+  `#{cmds.join(' | ')}`
   puts "Completed loading #{filename}."
 end
 

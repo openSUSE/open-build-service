@@ -717,17 +717,6 @@ Style/AccessModifierDeclarations:
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: prefer_alias, prefer_alias_method
-Style/Alias:
-  Exclude:
-    - 'app/models/attrib.rb'
-    - 'app/models/cloud/backend/upload_job.rb'
-    - 'app/models/role.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 132
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.
@@ -743,17 +732,6 @@ Style/ClassVars:
     - 'app/models/user_ldap_strategy.rb'
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerBackticks.
-# SupportedStyles: backticks, percent_x, mixed
-Style/CommandLiteral:
-  Exclude:
-    - 'config/initializers/git.rb'
-    - 'lib/memory_debugger.rb'
-    - 'lib/tasks/databases.rake'
-    - 'script/import_database.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -802,29 +780,6 @@ Style/EmptyLiteral:
     - 'app/models/obs_factory/openqa_job.rb'
     - 'app/presenters/obs_factory/staging_project_presenter.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/ExpandPathArguments:
-  Exclude:
-    - 'bin/bundle'
-    - 'spec/rails_helper.rb'
-    - 'test/test_helper.rb'
-
-# Offense count: 11
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: each, for
-Style/For:
-  Exclude:
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/project.rb'
-    - 'app/views/webui/feeds/news.rss.builder'
-    - 'db/attribute_descriptions.rb'
-    - 'test/functional/attributes_test.rb'
-    - 'test/unit/build_flag_test.rb'
-    - 'test/unit/debug_flag_test.rb'
-    - 'test/unit/publish_flag_test.rb'
-
 # Offense count: 1297
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -851,19 +806,6 @@ Style/IdenticalConditionalBranches:
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Enabled: false
-
-# Offense count: 9
-# Cop supports --auto-correct.
-# Configuration parameters: InverseMethods, InverseBlocks.
-Style/InverseMethods:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/views/source/_common_issues.xml.builder'
-    - 'test/functional/request_events_test.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.
@@ -930,26 +872,6 @@ Style/PercentLiteralDelimiters:
     - 'app/models/obs_factory/distribution.rb'
     - 'app/models/obs_factory/openqa_job.rb'
     - 'app/presenters/obs_factory/obs_project_presenter.rb'
-
-# Offense count: 9
-# Cop supports --auto-correct.
-Style/RedundantBegin:
-  Exclude:
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/jobs/consistency_check_job.rb'
-    - 'app/mixins/build_log_support.rb'
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/package.rb'
-    - 'db/checker.rb'
-    - 'script/start_test_backend'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantCondition:
-  Exclude:
-    - 'app/models/binary_release.rb'
-    - 'script/import_database.rb'
 
 # Offense count: 56
 # Cop supports --auto-correct.
@@ -1019,14 +941,6 @@ Style/SymbolArray:
 Style/SymbolProc:
   Exclude:
     - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, AllowedMethods.
-# AllowedMethods: to_ary, to_a, to_c, to_enum, to_h, to_hash, to_i, to_int, to_io, to_open, to_path, to_proc, to_r, to_regexp, to_str, to_s, to_sym
-Style/TrivialAccessors:
-  Exclude:
-    - 'test/test_helper.rb'
 
 # Offense count: 1
 # Cop supports --auto-correct.

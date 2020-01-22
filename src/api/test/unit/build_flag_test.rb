@@ -18,7 +18,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 2, @project.flags.of_type('build').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       f = Flag.new(repo: "9.#{i}", status: 'enable', flag: 'build')
       f.architecture = @arch
       @project.flags << f
@@ -53,7 +53,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 2, @package.flags.of_type('build').size
 
     # create two new flags and save it.
-    for i in 1..2 do
+    (1..2).each do |i|
       f = Flag.new(repo: "9.#{i}", status: 'disable', flag: 'build')
       f.architecture = @arch
       @package.flags << f

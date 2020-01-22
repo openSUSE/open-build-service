@@ -67,7 +67,7 @@ class BsRequestPermissionCheck
     unless by_user || by_group || by_package || by_project
       raise ReviewNotSpecified, 'The review must specified via by_user, by_group or by_project(by_package) argument.'
     end
-    if by_user && !(User.session! == by_user)
+    if by_user && User.session! != by_user
       raise ReviewChangeStateNoPermission, "review state change is not permitted for #{User.session!.login}"
     end
     if by_group && !User.session!.is_in_group?(by_group)

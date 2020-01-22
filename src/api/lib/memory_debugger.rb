@@ -37,7 +37,7 @@ class MemoryDebugger
   def call(env)
     logger = Rails.logger
     GC.start
-    before = %x(ps -orss= -p#{$PROCESS_ID}).to_i
+    before = `ps -orss= -p#{$PROCESS_ID}`.to_i
     file = File.new("/tmp/memprof-#{$PROCESS_ID}.log", 'w')
     ret = Memprof.dump(file.path) do
       ret = @app.call(env)
@@ -45,7 +45,7 @@ class MemoryDebugger
       ret
     end
     file.close
-    after = %x(ps -orss= -p#{$PROCESS_ID}).to_i
+    after = `ps -orss= -p#{$PROCESS_ID}`.to_i
     logger.debug "memory diff #{after - before} from #{before} to #{after}"
     file = File.new("/tmp/memprof-#{$PROCESS_ID}.log", 'r')
     ids = {}
