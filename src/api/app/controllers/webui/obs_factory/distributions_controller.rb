@@ -1,7 +1,5 @@
 module Webui::ObsFactory
   class DistributionsController < Webui::ObsFactory::ApplicationController
-    respond_to :html
-
     before_action :require_distribution, :require_dashboard
 
     def show

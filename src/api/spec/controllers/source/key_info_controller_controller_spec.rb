@@ -31,7 +31,7 @@ RSpec.describe Source::KeyInfoController, type: :controller do
       get :show, params: { format: :xml, project: project.name }
     end
 
-    it { is_expected.to respond_with(:success) }
+    it { expect(response).to have_http_status(:success) }
     it { expect(response.body).to eq(keyinfo_response) }
   end
 end

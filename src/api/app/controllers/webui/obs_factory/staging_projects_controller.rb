@@ -1,7 +1,5 @@
 module Webui::ObsFactory
   class StagingProjectsController < Webui::ObsFactory::ApplicationController
-    respond_to :json, :html
-
     before_action :require_distribution
     before_action :require_project_name, only: [:show]
 
