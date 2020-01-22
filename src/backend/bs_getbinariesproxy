@@ -302,44 +302,52 @@ sub getbinaries {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
-    my $res = BSRPC::rpc({
-      'uri' => "$server/getbinaries",
-      'directory' => $cachetmpdir,
-      'map' => $tmpprefix,
-      'timeout' => $gettimeout,
-      'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args, 'binaries='.join(',', @downloadbins));
-    my %havemeta;
-    for my $r (@$res) {
-      if ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.($binsufsre)$/) {
-	my $n = $1;
-	my $suf = $2;
-	next unless $downloadbins{$n};
-	my @s = stat("$cachetmpdir/$r->{'name'}");
-	die unless @s;
-	my $id = Build::queryhdrmd5("$cachetmpdir/$r->{'name'}");
-	$r->{'hdrmd5'} = $id; 
-	if (!$metaonly && !$toomany) {
-	  my $fd = gensym;
-	  open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
-	  push @cpio, {'name' => "$n.$suf", 'filename' => $fd};
-	  $openfds++;
+    my $res;
+    eval {
+      $res = BSRPC::rpc({
+	'uri' => "$server/getbinaries",
+	'directory' => $cachetmpdir,
+	'map' => $tmpprefix,
+	'timeout' => $gettimeout,
+	'receiver' => \&BSHTTP::cpio_receiver,
+      }, undef, @args, 'binaries='.join(',', @downloadbins));
+      for my $r (@$res) {
+	if ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.($binsufsre)$/) {
+	  my $n = $1;
+	  my $suf = $2;
+	  next unless $downloadbins{$n};
+	  my @s = stat("$cachetmpdir/$r->{'name'}");
+	  die unless @s;
+	  my $id = Build::queryhdrmd5("$cachetmpdir/$r->{'name'}");
+	  $r->{'hdrmd5'} = $id; 
+	  if (!$metaonly && !$toomany) {
+	    my $fd = gensym;
+	    open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
+	    push @cpio, {'name' => "$n.$suf", 'filename' => $fd};
+	    $openfds++;
+	  }
+	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
+	  push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
+	} elsif ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.meta$/) {
+	  my $n = $1;
+	  next unless $downloadbins{$n};
+	  if (!$nometa && !$toomany) {
+	    my $fd = gensym;
+	    open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
+	    push @cpio, {'name' => "$n.meta", 'filename' => $fd};
+	    $openfds++;
+	  }
 	}
-	my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
-	push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
-      } elsif ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.meta$/) {
-	my $n = $1;
-	next unless $downloadbins{$n};
-	if (!$nometa && !$toomany) {
-	  my $fd = gensym;
-	  open($fd, '<', "$cachetmpdir/$r->{'name'}") || die;
-	  push @cpio, {'name' => "$n.meta", 'filename' => $fd};
-	  $openfds++;
-	}
+	$toomany = 1 if $openfds + 16 > $maxopen;		# sorry
       }
-      $toomany = 1 if $openfds + 16 > $maxopen;		# sorry
+      manage_cache($cachesize, \@cacheold, \@cachenew);
+    };
+    if ($@) {
+      # clean up downloaded files
+      my $err = $@;
+      unlink("$cachetmpdir/$_") for grep {/^\Q$tmpprefix\E/} ls($cachetmpdir);
+      die($err);
     }
-    manage_cache($cachesize, \@cacheold, \@cachenew);
     # clean up
     for my $r (@$res) {
       unlink("$cachetmpdir/$r->{'name'}");
