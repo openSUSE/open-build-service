@@ -33,7 +33,7 @@ RSpec.describe Group do
     end
 
     context 'with invalid user input' do
-      before(:each) do
+      before do
         group.users << user
         @before = group.users
       end

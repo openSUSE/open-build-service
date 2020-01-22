@@ -385,17 +385,6 @@ RSpec/ExpectInHook:
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/features/webui/projects_spec.rb'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
-  Exclude:
-    - 'spec/models/branch_package_spec.rb'
-    - 'spec/models/group_spec.rb'
-    - 'spec/rails_helper.rb'
-    - 'spec/support/database_cleaner.rb'
-
 # Offense count: 45
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:

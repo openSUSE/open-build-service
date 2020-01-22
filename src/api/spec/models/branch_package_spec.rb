@@ -29,12 +29,12 @@ RSpec.describe BranchPackage, vcr: true do
       XML
     end
 
-    before(:each) do
+    before do
       login(user)
       update_project_attrib
     end
 
-    after(:each) do
+    after do
       Project.where('name LIKE ?', "#{user.home_project}:branches:%").destroy_all
     end
 

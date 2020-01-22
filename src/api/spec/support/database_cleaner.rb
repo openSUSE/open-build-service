@@ -14,7 +14,7 @@ RSpec.configure do |config|
     DatabaseCleaner.clean_with(:truncation, except: STATIC_TABLES)
   end
 
-  config.before(:each) do |example|
+  config.before do |example|
     # For feature test we use truncation instead of transactions because the
     # test suite and the capybara driver do not use the same server thread.
     if example.metadata[:type] == :feature || example.metadata[:type] == :migration || example.metadata[:thinking_sphinx] == true
@@ -40,7 +40,7 @@ RSpec.configure do |config|
     Configuration.update(allow_user_to_create_home_project: false)
   end
 
-  config.after(:each) do
+  config.after do
     DatabaseCleaner.clean
     User.session = nil
   end
