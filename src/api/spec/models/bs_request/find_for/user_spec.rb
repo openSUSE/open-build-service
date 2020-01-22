@@ -114,12 +114,14 @@ RSpec.describe BsRequest::FindFor::User do
 
         context 'submitted as array' do
           subject { klass.new(user: user.login, review_states: [:accepted, :new]).all }
+
           it { expect(subject).to include(request) }
           it { expect(subject).to include(another_request) }
         end
 
         context 'submitted as symbol' do
           subject { klass.new(user: user.login, review_states: :accepted).all }
+
           it { expect(subject).to include(request) }
           it { expect(subject).not_to include(another_request) }
         end

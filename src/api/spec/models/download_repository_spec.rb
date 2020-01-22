@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe DownloadRepository do
   describe 'validations' do
     subject(:download_repository) { create(:download_repository) }
+
     it { is_expected.to validate_presence_of(:url) }
     it { is_expected.to validate_presence_of(:arch) }
     it { is_expected.to validate_presence_of(:repotype) }
@@ -16,6 +17,7 @@ RSpec.describe DownloadRepository do
 
     describe 'architecture_inclusion validation' do
       subject(:download_repository) { create(:download_repository) }
+
       it {
         expect { download_repository.update_attributes!(arch: 's390x') }.to raise_error(
           ActiveRecord::RecordInvalid, 'Validation failed: Architecture has to be available via repository association'

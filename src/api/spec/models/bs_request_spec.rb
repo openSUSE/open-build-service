@@ -111,6 +111,7 @@ RSpec.describe BsRequest, vcr: true do
     end
 
     subject { Review.last }
+
     let(:history_element) { HistoryElement::RequestReviewAdded.last }
 
     it { expect(subject.state).to eq(:new) }

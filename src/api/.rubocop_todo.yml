@@ -352,17 +352,6 @@ RSpec/DescribedClass:
 RSpec/EmptyLineAfterFinalLet:
   Enabled: false
 
-# Offense count: 12
-# Cop supports --auto-correct.
-RSpec/EmptyLineAfterSubject:
-  Exclude:
-    - 'spec/models/backend_info_spec.rb'
-    - 'spec/models/bs_request/find_for/user_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'spec/models/download_repository_spec.rb'
-    - 'spec/models/review_spec.rb'
-    - 'spec/support/shared_examples/features/flags_tables.rb'
-
 # Offense count: 217
 # Configuration parameters: Max.
 RSpec/ExampleLength:

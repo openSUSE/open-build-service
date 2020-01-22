@@ -17,6 +17,7 @@ RSpec.describe BackendInfo, type: :model do
 
   describe '.setter' do
     subject { BackendInfo.where(key: :lastnotification_nr).first.value.to_i }
+
     it 'will set the assigned value' do
       BackendInfo.lastnotification_nr = 100
       expect(subject).to eq(100)
