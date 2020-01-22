@@ -59,12 +59,14 @@ class Relationship < ApplicationRecord
   after_rollback :discard_cache
   after_destroy :discard_cache
 
+  RELATIONSHIP_CACHE_SEQUENCE = 'cache_sequence_for_forbidden_projects'.freeze
+
   def self.add_user(obj, user, role, ignore_lock = nil, check = nil)
-    Relationship::AddRole.new(obj, role, user: user, ignore_lock: ignore_lock, check: check).add_role
+    add_role(obj, role, user: user, ignore_lock: ignore_lock, check: check)
   end
 
   def self.add_group(obj, group, role, ignore_lock = nil, check = nil)
-    Relationship::AddRole.new(obj, role, group: group, ignore_lock: ignore_lock, check: check).add_role
+    add_role(obj, role, group: group, ignore_lock: ignore_lock, check: check)
   end
 
   # calculate and cache forbidden_project_ids for users
@@ -92,8 +94,7 @@ class Relationship < ApplicationRecord
     # We don't need to check the relationships if we don't have a User
     return forbidden_projects[:projects] unless User.session
     # The cache sequence is for invalidating user centric cache entries for all users
-    cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
-    Rails.cache.fetch("users/#{User.possibly_nobody.id}-forbidden_projects-#{cache_sequence}") do
+    Rails.cache.fetch(cache_user_centric_key) do
       # Normal users can be in the whitelist let's substract allowed projects
       whitelistened_projects_for_user = forbidden_projects[:whitelist][User.possibly_nobody.id] || []
       result = forbidden_projects[:projects] - whitelistened_projects_for_user
@@ -104,8 +105,7 @@ class Relationship < ApplicationRecord
 
   def self.discard_cache
     # Increasing the cache sequence will 'discard' all user centric forbidden_projects caches
-    cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
-    Rails.cache.write('cache_sequence_for_forbidden_projects', cache_sequence + 1)
+    Rails.cache.write(RELATIONSHIP_CACHE_SEQUENCE, cache_sequence + 1)
     Rails.cache.delete('forbidden_projects')
   end
 
@@ -118,6 +118,20 @@ class Relationship < ApplicationRecord
   end
 
   private
+
+  class << self
+    def add_role(obj, role, opts = {})
+      Relationship::AddRole.new(obj, role, opts).add_role
+    end
+
+    def cache_sequence
+      Rails.cache.fetch(RELATIONSHIP_CACHE_SEQUENCE) { 0 }
+    end
+
+    def cache_user_centric_key
+      "users/#{User.possibly_nobody.id}-forbidden_projects-#{cache_sequence}"
+    end
+  end
 
   def discard_cache
     Relationship.discard_cache
