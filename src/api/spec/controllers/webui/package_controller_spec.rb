@@ -119,7 +119,7 @@ RSpec.describe Webui::PackageController, vcr: true do
                  target_package: package.name,
                  type: 'submit',
                  source_rev: 2
-        )).to exist
+               )).to exist
       end
     end
 

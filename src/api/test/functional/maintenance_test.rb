@@ -2563,7 +2563,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
     expectedvrev = "#{originvrev.to_i + 1}.1" # the origin gets incremented by one, but also extended to avoid that it can become
-    assert_equal expectedvrev, vrev.to_s        # newer than the origin project at any time later.
+    # newer than the origin project at any time later.
+    assert_equal expectedvrev, vrev.to_s
     assert_equal version, originversion
     assert_not_equal time, origintime
     assert_equal 'king', last_revision(history).value('user')

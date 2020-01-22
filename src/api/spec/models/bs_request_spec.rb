@@ -111,6 +111,7 @@ RSpec.describe BsRequest, vcr: true do
     end
 
     subject { Review.last }
+
     let(:history_element) { HistoryElement::RequestReviewAdded.last }
 
     it { expect(subject.state).to eq(:new) }
@@ -557,7 +558,7 @@ RSpec.describe BsRequest, vcr: true do
                  target_package: target_package.name,
                  source_project: target_package.project.name,
                  source_package: target_package.name
-        )).to exist
+               )).to exist
       end
 
       it 'does not set the sourceupdate' do

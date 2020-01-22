@@ -389,7 +389,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <arch>i586</arch>
                              </repository>
                            </project>"
-    ))
+                         ))
 
     xml = prj.to_axml
     assert_xml_tag xml, tag: :download, attributes: { arch: 'i586', url: 'http://me.org', repotype: 'rpmmd' }
@@ -441,7 +441,7 @@ class ProjectTest < ActiveSupport::TestCase
                              <description/>
                              <repository name='sp0_ga' />
                            </project>"
-    ))
+                         ))
     prj = Project.new(name: 'Enterprise-SP0:Update')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
@@ -451,7 +451,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
                              </repository>
                            </project>"
-    ))
+                         ))
     prj = Project.new(name: 'Enterprise-SP1:GA')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:GA'>
@@ -461,7 +461,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <path project='Enterprise-SP0:GA' repository='sp0_ga' />
                              </repository>
                            </project>"
-    ))
+                         ))
     prj = Project.new(name: 'Enterprise-SP1:Update')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
@@ -472,7 +472,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <path project='Enterprise-SP0:Update' repository='sp0_update' />
                              </repository>
                            </project>"
-    ))
+                         ))
     prj = Project.new(name: 'Enterprise-SP1:Channel:Server')
     prj.update_from_xml!(Xmlhash.parse(
                            "<project name='Enterprise-SP1:Channel:Server'>
@@ -482,7 +482,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
                              </repository>
                            </project>"
-    ))
+                         ))
     # this is what the classic add_repository call is producing:
     prj = Project.new(name: 'My:Branch')
     prj.update_from_xml!(Xmlhash.parse(
@@ -499,7 +499,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <path project='Enterprise-SP1:Update' repository='sp1_update' />
                              </repository>
                            </project>"
-    ))
+                         ))
     # however, this is not correct, because my:branch (or an incident)
     # is providing in this situation often a package in SP0:Update which
     # must be used for building the package in sp1 repo.
@@ -564,7 +564,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <title/>
                                <description/>
                              </project>"
-    ))
+                           ))
     prj_a.save!
     prj_b = Project.new(name: 'Project:B')
     prj_b.update_from_xml!(Xmlhash.parse(
@@ -573,7 +573,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <description/>
                                <link project='Project:A'/>
                              </project>"
-    ))
+                           ))
     prj_b.save!
     prj_a.update_from_xml!(Xmlhash.parse(
                              "<project name='Project:A'>
@@ -581,7 +581,7 @@ class ProjectTest < ActiveSupport::TestCase
                                <description/>
                                <link project='Project:B'/>
                              </project>"
-    ))
+                           ))
     prj_a.save!
 
     assert_equal [], prj_a.expand_all_packages

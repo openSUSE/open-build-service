@@ -52,6 +52,7 @@ RSpec.describe Review do
     include_context 'some assigned reviews and some unassigned reviews'
 
     subject { Review.assigned }
+
     it { is_expected.to match_array([review_assigned1, review_assigned2]) }
   end
 
@@ -59,6 +60,7 @@ RSpec.describe Review do
     include_context 'some assigned reviews and some unassigned reviews'
 
     subject { Review.unassigned }
+
     it { is_expected.to match_array([review_unassigned1, review_unassigned2]) }
   end
 

@@ -19,23 +19,6 @@ Capybara/CurrentPathExpectation:
 Capybara/FeatureMethods:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Layout/ClosingHeredocIndentation:
-  Exclude:
-    - 'db/seeds.rb'
-    - 'spec/helpers/webui/flash_helper_spec.rb'
-    - 'spec/models/project_spec.rb'
-
-# Offense count: 17
-# Cop supports --auto-correct.
-Layout/ClosingParenthesisIndentation:
-  Exclude:
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'test/unit/package_test.rb'
-    - 'test/unit/project_test.rb'
-
 # Offense count: 93
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
@@ -74,36 +57,10 @@ Layout/EndAlignment:
     - 'app/controllers/webui/webui_controller.rb'
     - 'app/models/obs_factory/distribution.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - 'test/functional/maintenance_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: squiggly, active_support, powerpack, unindent
-Layout/HeredocIndentation:
-  Exclude:
-    - 'spec/controllers/source_project_package_meta_controller_spec.rb'
-
 # Offense count: 19
 # Cop supports --auto-correct.
 Layout/LeadingEmptyLines:
   Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator.
-# SupportedStylesForExponentOperator: space, no_space
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'spec/controllers/webui/search_controller_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'test/functional/attributes_test.rb'
-    - 'test/functional/search_controller_test.rb'
 
 # Offense count: 23
 # Cop supports --auto-correct.
@@ -163,12 +120,6 @@ Lint/RedundantCopDisableDirective:
     - 'test/functional/product_test.rb'
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/zzz_post_consistency_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/RedundantCopEnableDirective:
-  Exclude:
-    - 'test/unit/schema_test.rb'
 
 # Offense count: 5
 Lint/RescueException:
@@ -401,17 +352,6 @@ RSpec/DescribedClass:
 RSpec/EmptyLineAfterFinalLet:
   Enabled: false
 
-# Offense count: 12
-# Cop supports --auto-correct.
-RSpec/EmptyLineAfterSubject:
-  Exclude:
-    - 'spec/models/backend_info_spec.rb'
-    - 'spec/models/bs_request/find_for/user_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'spec/models/download_repository_spec.rb'
-    - 'spec/models/review_spec.rb'
-    - 'spec/support/shared_examples/features/flags_tables.rb'
-
 # Offense count: 217
 # Configuration parameters: Max.
 RSpec/ExampleLength:
@@ -444,17 +384,6 @@ RSpec/ExpectInHook:
   Exclude:
     - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/features/webui/projects_spec.rb'
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: implicit, each, example
-RSpec/HookArgument:
-  Exclude:
-    - 'spec/models/branch_package_spec.rb'
-    - 'spec/models/group_spec.rb'
-    - 'spec/rails_helper.rb'
-    - 'spec/support/database_cleaner.rb'
 
 # Offense count: 45
 # Configuration parameters: AssignmentOnly.

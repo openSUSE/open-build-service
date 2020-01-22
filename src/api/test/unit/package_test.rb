@@ -144,7 +144,7 @@ class PackageTest < ActiveSupport::TestCase
                                    <description></description>
                                    <devel project='Notexistant'/>
                                  </package>"
-      ))
+                               ))
     end
     assert_raise Package::SaveError do
       @package.update_from_xml(Xmlhash.parse(
@@ -153,7 +153,7 @@ class PackageTest < ActiveSupport::TestCase
                                    <description></description>
                                    <devel project='home:Iggy' package='nothing'/>
                                  </package>"
-      ))
+                               ))
     end
 
     assert_raise NotFoundError do
@@ -163,7 +163,7 @@ class PackageTest < ActiveSupport::TestCase
                                    <description></description>
                                    <person userid='alice' role='maintainer'/>
                                  </package>"
-      ))
+                               ))
     end
 
     assert_raise HasRelationships::SaveError do
@@ -173,7 +173,7 @@ class PackageTest < ActiveSupport::TestCase
                                    <description></description>
                                    <person userid='tom' role='coolman'/>
                                  </package>"
-      ))
+                               ))
     end
 
     assert_equal orig, Xmlhash.parse(@package.to_axml)
@@ -184,7 +184,7 @@ class PackageTest < ActiveSupport::TestCase
                                         <person userid='fred' role='bugowner'/>
                                         <person userid='Iggy' role='maintainer'/>
                                       </package>"
-    ))
+                                    ))
   end
 
   def test_add_user

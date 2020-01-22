@@ -25,7 +25,7 @@ RSpec.describe Webui::FlashHelper do
             <li>error 2 content 2</li>
           </ul>
         </ul>
-       EOF
+      EOF
     end
 
     let(:flash) { 'example: \\n<i>error 1</i> <b>content</b>' }

@@ -223,7 +223,7 @@ RSpec.describe Project, vcr: true do
             <arch>x86_64</arch>
           </repository>
         </project>
-      XML_DATA
+        XML_DATA
       end
 
       before do

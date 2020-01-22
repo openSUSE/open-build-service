@@ -105,12 +105,14 @@ RSpec.shared_examples 'tests for sections with flag tables' do
     describe '#flag_table_build' do
       let(:flag_type) { 'build' }
       subject { find('#flag_table_build') }
+
       it_behaves_like 'a flag table'
     end
 
     describe '#flag_table_publish' do
       let(:flag_type) { 'publish' }
       subject { find('#flag_table_publish') }
+
       it_behaves_like 'a flag table'
     end
 
@@ -123,12 +125,14 @@ RSpec.shared_examples 'tests for sections with flag tables' do
       end
 
       subject { find('#flag_table_debuginfo') }
+
       it_behaves_like 'a flag table'
     end
 
     describe '#flag_table_useforbuild' do
       let(:flag_type) { 'useforbuild' }
       subject { find('#flag_table_useforbuild') }
+
       it_behaves_like 'a flag table'
     end
   end
