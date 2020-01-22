@@ -59,13 +59,6 @@ Layout/EndAlignment:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, AllowBeforeTrailingComments, ForceEqualSignAlignment.
-Layout/ExtraSpacing:
-  Exclude:
-    - 'test/functional/maintenance_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: squiggly, active_support, powerpack, unindent
 Layout/HeredocIndentation:
