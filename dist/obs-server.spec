@@ -161,6 +161,8 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 Requires:       perl-YAML-LibYAML
+# zstd is esp for Arch Linux
+Requires:       zstd
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
@@ -197,6 +199,8 @@ Recommends:     openslp lvm2
 Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
+# zstd is esp for Arch Linux
+Requires:       zstd
 Summary:        The Open Build Service -- Build Host Component
 Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
