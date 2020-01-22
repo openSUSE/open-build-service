@@ -121,12 +121,6 @@ Lint/RedundantCopDisableDirective:
     - 'test/functional/read_permission_test.rb'
     - 'test/functional/zzz_post_consistency_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/RedundantCopEnableDirective:
-  Exclude:
-    - 'test/unit/schema_test.rb'
-
 # Offense count: 5
 Lint/RescueException:
   Exclude:
