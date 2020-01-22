@@ -1,5 +1,14 @@
 FactoryBot.define do
   factory :bs_request do
+    # Monkeypatch how we create BsRequests to avoid errors caused by permission checks
+    # made in BsRequestPermissionCheck that depend on a logged in user.
+    to_create do |instance|
+      creator = User.find_by!(login: instance.creator)
+      creator.run_as do
+        instance.save!
+      end
+    end
+
     description { Faker::Lorem.paragraph }
     commenter do
       creator
@@ -98,10 +107,7 @@ FactoryBot.define do
       end
     end
 
-    after(:build) do |request, evaluator|
-      # Monkeypatch to avoid errors caused by permission checks made
-      # in user and bs_request model
-      User.session = evaluator.creating_user
+    after(:build) do |request|
       request[:state] ||= 'new'
     end
 

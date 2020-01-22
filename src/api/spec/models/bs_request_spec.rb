@@ -712,7 +712,9 @@ RSpec.describe BsRequest, vcr: true do
     before do
       bs_request.skip_sanitize
       allow(bs_request).to receive(:sanitize!)
-      bs_request.save!
+      User.find_by!(login: bs_request.creator).run_as do
+        bs_request.save!
+      end
     end
 
     it { expect(bs_request).not_to have_received(:sanitize!) }

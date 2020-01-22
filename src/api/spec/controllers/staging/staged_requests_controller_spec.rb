@@ -26,8 +26,10 @@ RSpec.describe Staging::StagedRequestsController do
 
   describe 'GET #index' do
     before do
+      login(user)
       bs_request.staging_project = staging_project
       bs_request.save
+      logout
       get :index, params: { staging_workflow_project: staging_workflow.project.name, staging_project_name: staging_project.name, format: :xml }
     end
 
@@ -365,10 +367,12 @@ RSpec.describe Staging::StagedRequestsController do
     let(:review_by_project) { create(:review, by_project: staging_project) }
 
     before do
+      login(group.users.first)
       bs_request.staging_project = staging_project
       bs_request.reviews << review_by_project
       bs_request.save
       bs_request.change_review_state(:accepted, by_group: group.title, comment: 'accepted')
+      logout
     end
 
     context 'invalid user' do
