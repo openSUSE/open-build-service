@@ -48,7 +48,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
                         target_project: 'does-not-exist',
                         target_package: target_package.name)
         request.skip_sanitize
-        request.save!
+        User.find_by!(login: request.creator).run_as do
+          request.save!
+        end
         request
       end
       let(:request_action) { request.bs_request_actions.first }
@@ -65,7 +67,9 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
                         source_package: source_package.name,
                         target_package: target_package)
         request.skip_sanitize
-        request.save!
+        User.find_by!(login: request.creator).run_as do
+          request.save!
+        end
         request
       end
       let(:request_action) { request.bs_request_actions.first }
