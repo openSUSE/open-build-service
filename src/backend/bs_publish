@@ -1638,7 +1638,7 @@ sub mapsleimage {
   if ($p =~ /-Build\d+/) {
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.xz$//;
-    $rbin =~ s/\.(iso|packages|raw|qcow2|vhdx|vmdk)$//;
+    $rbin =~ s/\.(iso|packages|raw|qcow2|vhdx|vmdk|vagrant\..*\.box)$//;
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
     chomp $milestone;
     $milestone ||= 'GM';
