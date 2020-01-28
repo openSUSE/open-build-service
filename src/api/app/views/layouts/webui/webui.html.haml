@@ -42,7 +42,8 @@
     = render 'peek/bar'
     #navigation
       = render partial: "layouts/#{responsive_namespace}/navigation"
-    .w-100.m-2
+    - unless flipper_responsive?
+      .w-100.m-2
     .container-xxl
       .row
         .col

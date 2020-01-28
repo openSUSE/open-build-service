@@ -125,6 +125,23 @@ body.responsive-ux {
   #bottom-navigation {
     height: 58px;
   }
+
+  .breadcrumb {
+    padding-bottom: 0;
+    @extend .mt-2;
+    .breadcrumb-item { line-height: 1.5rem; }
+    .breadcrumb-item::after {
+      display: inline-block;
+      padding: 0 0.5rem 0 0.25rem;
+      color: #6c757d;
+      content: "/";
+    }
+    .breadcrumb-item:last-child::after { content: ''; }
+    .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+
+    // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
+    .breadcrumb-item + .breadcrumb-item::before { display: none; }
+  }
   // END LAYOUT
 }
 
