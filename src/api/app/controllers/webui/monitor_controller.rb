@@ -37,26 +37,8 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def update_building
-    workers = {}
-    max_time = 4 * 3600
-    @workerstatus.elements('idle') do |b|
-      id = b['workerid'].gsub(%r{[:./]}, '_')
-      workers[id] = {}
-    end
-
-    @workerstatus.elements('building') do |b|
-      id = b['workerid'].gsub(%r{[:./]}, '_')
-      delta = (Time.now - Time.at(b['starttime'].to_i)).round
-      delta = 5 if delta < 5
-      delta = max_time if delta > max_time
-      delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
-      delta = 100 if delta > 100
-
-      workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
-                      'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
-    end
-    # logger.debug workers.inspect
-    render json: workers
+    building_info_updater = MonitorControllerService::BuildingInformationUpdater.new.call
+    render json: building_info_updater.workers
   end
 
   def events
