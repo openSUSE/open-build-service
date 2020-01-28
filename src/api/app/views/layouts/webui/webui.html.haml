@@ -60,5 +60,7 @@
     .container-xxl.flex-grow#content
       = yield
     .container-fluid.py-4.mt-4.bg-dark#footer
-      .container-xxl
+      .container-xxl{ class: "#{'footer-logged' if User.session}" }
         = render partial: "layouts/#{responsive_namespace}/footer"
+    - if User.session && flipper_responsive?
+      = render partial: "layouts/#{responsive_namespace}/bottom_navigation"

@@ -1,0 +1,27 @@
+.navbar-collapse.watchlist-collapse.navbar-dark
+  .navbar-nav
+    .nav.justify-content-end.py-2
+      %button.navbar-toggler{ 'type': 'button', data: { toggle: 'watchlist' }, aria: { expanded: 'false', label: 'Toggle navigation' } }
+        %i.fas.fa-times
+
+    - if params[:project]
+      .nav-item.pb-2.mb-4.border-bottom.border-gray-500
+        .h6.text-word-break-all Project #{params[:project]}
+        %a.nav-link#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
+          - if User.session!.watches? params[:project]
+            %p.mb-0.text-light
+              %i.fas.fa-times-circle
+              %span Remove this project from Watchlist
+          - else
+            %p.mb-0.text-light
+              %i.fas.fa-plus-circle
+              %span Watch this project
+
+    .h5.pt-2 Projects you are watching
+
+    .list-group.list-group-flush
+      - User.session!.watched_project_names.each do |project|
+        .bg-dark.list-group-item.border-0
+          = link_to project_show_path(project), class: 'text-word-break-all' do
+            %i.fas.fa-cubes
+            #{project}
