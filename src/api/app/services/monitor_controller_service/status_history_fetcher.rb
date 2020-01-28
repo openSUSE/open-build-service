@@ -11,11 +11,11 @@ module MonitorControllerService
       end
     end
 
+    private
+
     def user_range(range)
       [upper_range_limit, range].min
     end
-
-    private
 
     def upper_range_limit
       24 * 365
