@@ -368,7 +368,7 @@ GEM
     ruby-progressbar (1.10.1)
     ruby_parser (3.14.1)
       sexp_processor (~> 4.9)
-    rubyzip (2.0.0)
+    rubyzip (2.1.0)
     safe_yaml (1.0.5)
     sanitize (5.1.0)
       crass (~> 1.0.2)
