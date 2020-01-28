@@ -67,16 +67,16 @@ class Webui::MonitorController < Webui::WebuiController
     range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
+      data[prefix] = status_history("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
     end
 
     ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
+      data[prefix] = status_history("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 
-    low = Hash[gethistory("squeue_low_#{arch}", range)]
+    low = Hash[status_history("squeue_low_#{arch}", range)]
 
-    comb = gethistory("squeue_next_#{arch}", range).collect do |time, value|
+    comb = status_history("squeue_next_#{arch}", range).collect do |time, value|
       clow = low[time] || 0
       [1000 * time, clow + value]
     end
@@ -91,7 +91,7 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
-  def gethistory(key, range)
+  def status_history(key, range)
     MonitorControllerService::StatusHistoryFetcher.new(key, range.to_i).call
   end
 
