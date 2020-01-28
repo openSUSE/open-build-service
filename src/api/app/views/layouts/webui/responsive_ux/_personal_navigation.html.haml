@@ -1,0 +1,14 @@
+- if CONFIG['kerberos_mode']
+  = link_to 'Log In', new_session_path
+- elsif CONFIG['proxy_auth_mode'] == :on
+  = render partial: "layouts/#{responsive_namespace}/login_form", locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
+                                                                           form_url: CONFIG['proxy_auth_login_page'],
+                                                                           options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
+                                                                           proxy: true,
+                                                                           can_signup: CONFIG['proxy_auth_register_page'].present? }
+- else
+  = render partial: "layouts/#{responsive_namespace}/login_form", locals: { signup_url: signup_path,
+                                                                            form_url: session_path,
+                                                                            options: { method: :post },
+                                                                            proxy: false,
+                                                                            can_signup: can_register }

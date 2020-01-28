@@ -1,0 +1,121 @@
+body.responsive-ux {
+
+  // START LAYOUT
+
+  // open space to not overlap top navigation with content
+  padding-top: 3.5rem !important;
+
+  .border-gray-500 {
+    border-color: $gray-500 !important;
+  }
+
+  .navbar-dark .navbar-toggler {
+    color: $gray-300;
+  }
+
+  #navigation {
+    .fixed-top { height: 57px; }
+    .toggler {
+      @extend .ml-3;
+      @extend .d-none;
+      @extend .d-md-block;
+      cursor: pointer;
+    }
+
+    button.navbar-toggler {
+      .fas.fa-times {
+        display: none;
+        width: 20px;
+      }
+      .fas.fa-bars {
+        display: block;
+        width: 20px;
+      }
+      &.open {
+        .fas.fa-times {
+          display: block;
+        }
+        .fas.fa-bars {
+          display: none;
+        }
+      }
+    }
+    .navbar-nav .nav-link {
+      color: $gray-300;
+
+      &:hover {
+        color: white;
+      }
+    }
+
+    .menu-right { cursor: pointer; }
+
+    .watchlist-dropdown {
+      .dropdown-menu.dropdown-menu-right {
+        z-index: 1050;
+      }
+    }
+  }
+
+  .offcanvas-collapse {
+    top: 57px; /* Height of navbar */
+    bottom: 0;
+
+    .navbar-nav {
+      padding-top: 1rem;
+    }
+  }
+
+  .offcanvas-collapse {
+    position: fixed;
+    left: 100%;
+    width: 100%;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    overflow-y: auto;
+    visibility: hidden;
+    background-color: #343a40;
+    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+    z-index: 9000;
+    color: $gray-400;
+
+    & a {
+      color: $gray-300;
+
+      &:hover {
+        color: white;
+      }
+    }
+
+    &.open {
+      visibility: visible;
+      -webkit-transform: translateX(-100%);
+      transform: translateX(-100%);
+      z-index: 9000;
+    }
+  }
+
+  // END LAYOUT
+}
+
+@include media-breakpoint-up(md) {
+  body.responsive-ux {
+    .offcanvas-collapse {
+      top: 57px; /* Height of navbar */
+      bottom: 0;
+      width: 380px;
+
+      .navbar-nav {
+        width: 100%;
+        padding-top: 1rem;
+        margin-left: 0 !important;
+        -webkit-box-orient: vertical;
+        flex-direction: column;
+        align-self: flex-start;
+      }
+      .navbar-toggler { display: none; }
+    }
+  }
+}

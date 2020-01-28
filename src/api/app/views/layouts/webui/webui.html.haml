@@ -38,17 +38,18 @@
     - if User.possibly_nobody.rss_token
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
-  %body.d-flex.flex-column
+  %body.d-flex.flex-column{ class: "#{'responsive-ux' if flipper_responsive?}" }
     = render 'peek/bar'
     #navigation
-      = render partial: 'layouts/webui/navigation'
+      = render partial: "layouts/#{responsive_namespace}/navigation"
     .w-100.m-2
     .container-xxl
       .row
         .col
           = render partial: 'layouts/webui/breadcrumbs'
-        .col-auto.ml-auto#personal-navigation
-          = render partial: 'layouts/webui/personal_navigation'
+        - unless flipper_responsive?
+          .col-auto.ml-auto#personal-navigation
+            = render partial: 'layouts/webui/personal_navigation'
 
     .container-xxl.sticky-top.flash-and-announcement.text-word-break-all
       - unless @hide_announcement_notification
