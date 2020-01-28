@@ -214,6 +214,13 @@ sub doforward {
   return undef;
 }
 
+sub critlogger {
+  my ($logfile, $msg) = @_;
+  return unless $logfile;
+  my $logstr = sprintf "%s: %-7s %s\n", BSUtil::isotime(time), "[$$]", $msg;
+  BSUtil::appendstr($logfile, $logstr);
+}
+
 # copy @ARGV to keep it untouched in case of restart
 my ($options, @args) = parse_options(@ARGV);
 
@@ -226,6 +233,9 @@ $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 BSUtil::restartexit($options, 'redis', "$rundir/bs_redis");
 BSUtil::printlog("starting build service redis forwarder");
+
+my $critlogfile = "$BSConfig::logdir/redis.crit.log";
+BSUtil::setcritlogger(sub { critlogger($critlogfile, $_[0]) });
 
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_redis.lock") || die("$rundir/bs_redis.lock: $!\n");
