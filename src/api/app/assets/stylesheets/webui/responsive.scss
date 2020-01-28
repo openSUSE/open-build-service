@@ -97,6 +97,17 @@ body.responsive-ux {
     }
   }
 
+  #footer {
+    li { @extend .my-2; }
+
+    #footer-legal {
+      font-size: .9rem;
+
+      p { color: $gray-400; }
+      & a { color: $gray-300; }
+    }
+  }
+
   // END LAYOUT
 }
 

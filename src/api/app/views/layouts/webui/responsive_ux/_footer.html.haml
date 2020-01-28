@@ -1,0 +1,43 @@
+.d-flex
+  - if User.session
+    .flex-fill.d-none.d-md-block
+      %strong.text-uppercase User
+      %ul
+        %li= link_to('Your Profile', user_path(User.session!))
+        - if User.session!.home_project
+          %li= link_to('Home Project', project_show_path(User.session!.home_project))
+        - else
+          %li= link_to('Create Home Project', new_project_path(name: User.session!.home_project_name))
+        %li= link_to('Logout', session_path, method: :delete)
+  - if ::Configuration.anonymous
+    .flex-fill.d-none.d-md-block
+      %strong.text-uppercase Locations
+      %ul
+        %li= link_to('Projects', projects_path)
+        %li= link_to('Search', search_path, class: 'search-link')
+        - unless @spider_bot
+          %li= link_to('Status Monitor', monitor_path)
+  .flex-fill
+    %strong.text-uppercase Help
+    %ul
+      %li= link_to('Open Build Service', 'http://openbuildservice.org/')
+      %li= link_to('OBS Manuals', 'http://openbuildservice.org/help/manuals/')
+      %li= link_to('API Documentation', 'https://build.opensuse.org/apidocs/')
+      %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
+      %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
+      - if Announcement.last.present?
+        %li= link_to('Latest Announcement', announcement_path(Announcement.last))
+  .flex-fill
+    %strong.text-uppercase Contact
+    %ul
+      %li= link_to('Mailing List', 'http://lists.opensuse.org/opensuse-buildservice/')
+      %li= link_to('Forums', 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29')
+      %li= link_to('Chat (IRC)', 'irc://irc.opensuse.org/opensuse-buildservice')
+      %li= link_to('Twitter', 'http://twitter.com/OBShq')
+.row.mt-4#footer-legal
+  .col.px-0
+    %p.text-center
+      = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
+      is an
+      = succeed '.' do
+        = link_to('openSUSE project', 'http://www.opensuse.org')
