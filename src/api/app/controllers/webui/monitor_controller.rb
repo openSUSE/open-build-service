@@ -1,7 +1,7 @@
 class Webui::MonitorController < Webui::WebuiController
   before_action :set_default_architecture
-  before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
-  before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
+  before_action :require_settings, only: [:old, :index, :update_building]
+  before_action :fetch_workerstatus, only: [:old]
   before_action :check_ajax, only: [:update_building, :events]
 
   DEFAULT_SEARCH_RANGE = 24
