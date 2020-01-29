@@ -1634,14 +1634,16 @@ sub deleterepo {
 }
 
 sub mapsleimage {
-  my ($rdir, $rbin, $p, $media) = @_;
+  my ($config, $rdir, $rbin, $p, $media) = @_;
   if ($p =~ /-Build\d+/) {
     $rbin =~ s/\.sha256$//;
-    $rbin =~ s/\.xz$//;
-    $rbin =~ s/\.(iso|packages|raw|qcow2|vhdx|vmdk|vagrant\..*\.box)$//;
+    $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
+    $rbin =~ s/\.(iso|packages|raw|tbz|tgz|tar|qcow2|vhdx|vmdk|vagrant\..*\.box)$//;
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
     chomp $milestone;
     $milestone ||= 'GM';
+    $milestone = Build::Rpm::expandmacros($config, $milestone) if $milestone =~ /%/;
+    $milestone =~ s/[\/\n]/_/sg;
     $p =~ s/-Build\d+(\.\d+)?/-$milestone/;
   }
   $p =~ s/-Media/-DVD/ if $media eq 'dvd';
@@ -1907,13 +1909,13 @@ sub publish {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
-	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+    	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = $bin;
-	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
@@ -1951,7 +1953,7 @@ sub publish {
 	      undef $containerinfo if $3;
 	    }
 	  } else {
-	    $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	    $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	  }
 	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
           # Dockerfile case
@@ -1987,10 +1989,10 @@ sub publish {
         } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256)?$/) {
 	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
-          $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+          $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
         } elsif ($bin =~ /\.packages$/) {
 	  $p = $bin;
-	  $p = mapsleimage("$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
 	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
