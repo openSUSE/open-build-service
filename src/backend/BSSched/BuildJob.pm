@@ -1097,6 +1097,9 @@ sub create {
     my $genbuildreqs = ($ctx->{'genbuildreqs'} || {})->{$packid};
     $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
     $binfo->{'genbuildreqs'} = $genbuildreqs->[0] if $genbuildreqs;
+    if ($bconf->{'buildflags:obsgendiff'} && @{$ctx->{'repo'}->{'releasetarget'} || []}) {
+      $binfo->{'obsgendiff'} = $ctx->{'repo'}->{'releasetarget'}->[0];
+    }
   }
   $ctx->writejob($job, $binfo, $reason);
 
