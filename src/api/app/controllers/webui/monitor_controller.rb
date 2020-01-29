@@ -1,7 +1,7 @@
 class Webui::MonitorController < Webui::WebuiController
   before_action :set_default_architecture
-  before_action :require_settings, only: [:old, :index, :filtered_list, :update_building]
-  before_action :fetch_workerstatus, only: [:old, :filtered_list, :update_building]
+  before_action :require_settings, only: [:old, :index, :update_building]
+  before_action :fetch_workerstatus, only: [:old]
   before_action :check_ajax, only: [:update_building, :events]
 
   DEFAULT_SEARCH_RANGE = 24
@@ -37,26 +37,8 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def update_building
-    workers = {}
-    max_time = 4 * 3600
-    @workerstatus.elements('idle') do |b|
-      id = b['workerid'].gsub(%r{[:./]}, '_')
-      workers[id] = {}
-    end
-
-    @workerstatus.elements('building') do |b|
-      id = b['workerid'].gsub(%r{[:./]}, '_')
-      delta = (Time.now - Time.at(b['starttime'].to_i)).round
-      delta = 5 if delta < 5
-      delta = max_time if delta > max_time
-      delta = (100 * Math.sin(Math.acos(1 - (Float(delta) / max_time)))).round
-      delta = 100 if delta > 100
-
-      workers[id] = { 'delta' => delta, 'project' => b['project'], 'repository' => b['repository'],
-                      'package' => b['package'], 'arch' => b['arch'], 'starttime' => b['starttime'] }
-    end
-    # logger.debug workers.inspect
-    render json: workers
+    building_info_updater = MonitorControllerService::BuildingInformationUpdater.new.call
+    render json: building_info_updater.workers
   end
 
   def events
@@ -67,16 +49,16 @@ class Webui::MonitorController < Webui::WebuiController
     range = params.fetch(:range, DEFAULT_SEARCH_RANGE)
 
     ['waiting', 'blocked', 'squeue_high', 'squeue_med'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
+      data[prefix] = status_history("#{prefix}_#{arch.name}", range).map { |time, value| [time * 1000, value] }
     end
 
     ['idle', 'building', 'away', 'down', 'dead'].each do |prefix|
-      data[prefix] = gethistory("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
+      data[prefix] = status_history("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 
-    low = Hash[gethistory("squeue_low_#{arch}", range)]
+    low = Hash[status_history("squeue_low_#{arch}", range)]
 
-    comb = gethistory("squeue_next_#{arch}", range).collect do |time, value|
+    comb = status_history("squeue_next_#{arch}", range).collect do |time, value|
       clow = low[time] || 0
       [1000 * time, clow + value]
     end
@@ -91,15 +73,8 @@ class Webui::MonitorController < Webui::WebuiController
 
   private
 
-  def gethistory(key, range)
-    upper_range_limit = DEFAULT_SEARCH_RANGE * 365
-    # define an upper-limit to range to avoid long running queries
-    range = [upper_range_limit, range.to_i].min
-
-    cachekey = "#{key}-#{range}"
-    Rails.cache.fetch(cachekey, expires_in: (range.to_i * 3600) / 150, shared: true) do
-      StatusHistory.history_by_key_and_hours(key, range).sort_by { |a| a[0] }
-    end
+  def status_history(key, range)
+    MonitorControllerService::StatusHistoryFetcher.new(key, range.to_i).call
   end
 
   def set_default_architecture
