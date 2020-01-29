@@ -774,7 +774,7 @@ sub addbuildstats {
   my $lay = $BSXML::buildstatslay;
   my $bstat_ = flat_hash('stats_buildstatistics', $bstat);
   my $jobhist_ = flat_hash('stats', $jobhist);
-  BSFileDB::fdb_add("$dst/stats", $lay, {%$jobhist_, %$bstat_});
+  BSFileDB::fdb_add("$dst/.stats", $lay, {%$jobhist_, %$bstat_});
 }
 
 =head2 makejobhist - return jobhistlay comaptible hash

@@ -440,7 +440,7 @@ sub update_dst_full {
   } elsif ($new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
-    @oldfiles = grep {$_ ne 'stats' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
+    @oldfiles = grep {$_ ne '.stats' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
     mkdir_p($dst);
     my $oldbininfo = read_bininfo($dst);
     delete $oldbininfo->{'.bininfo'};   # delete new version marker
