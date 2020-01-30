@@ -1,5 +1,5 @@
 .dropdown#login-form-dropdown
-  = link_to('#', id: 'login-trigger', class: 'nav-link btn btn-sm btn-outline-light ml-3 text-nowrap', 'data-toggle': 'dropdown') do
+  = link_to('#', id: 'login-trigger', class: 'btn btn-outline-light ml-3 text-nowrap', 'data-toggle': 'dropdown') do
     Sign In
   .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
@@ -16,4 +16,5 @@
           = label_tag(:password, 'Password', class: 'text-light')
           = password_field_tag(:password, nil, placeholder: 'Password', required: true, class: 'form-control')
         .clearfix
-          = submit_tag('Log In', class: 'btn btn-success float-right')
+          = link_to('Sign Up', signup_url, class: 'btn btn-outline-light float-left d-block d-md-none')
+          = submit_tag('Sign In', class: 'btn btn-success float-right')

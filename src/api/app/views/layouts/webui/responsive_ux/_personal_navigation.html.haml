@@ -1,5 +1,6 @@
+= link_to('Sign Up', signup_url, class: 'nav-link ml-3 text-light d-none d-md-block')
 - if CONFIG['kerberos_mode']
-  = link_to 'Log In', new_session_path
+  = link_to 'Sign In', new_session_path, class: 'btn btn-outline-light ml-3 text-nowrap'
 - elsif CONFIG['proxy_auth_mode'] == :on
   = render partial: "layouts/#{responsive_namespace}/login_form", locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
                                                                            form_url: CONFIG['proxy_auth_login_page'],
