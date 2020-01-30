@@ -1801,6 +1801,75 @@ our $buildstatistics = [
       ],
 ];
 
+# This array is an outcome of following perl snippet
+# our $buildstatslay = [
+#     'stats' =>
+#        $buildstatistics,
+#        @$jobhistlay,
+# ];
+# 
+#  
+# sub flat_arr {
+#     my $first = shift @_;
+#     return [] if ! defined($first);
+#     my $second = [map { ref eq 'ARRAY' ? @{flat_arr(@$_)} : $_ } @_];
+#     return [map { join '_',$first, $_  } @$second];
+# }
+#
+# $buildstatslay = flat_arr(@$buildstatslay)
+#  
+# adding new elements to the buildstatistics array should get a new entry in this array 
+# otherwise that entry will not saved to the stats file 
+
+
+our $buildstatslay = [
+    'stats_buildstatistics_disk_usage_size_unit',
+    'stats_buildstatistics_disk_usage_size__content',
+    'stats_buildstatistics_disk_usage_io_requests',
+    'stats_buildstatistics_disk_usage_io_sectors',
+    'stats_buildstatistics_memory_usage_size_unit',
+    'stats_buildstatistics_memory_usage_size__content',
+    'stats_buildstatistics_times_total_time_unit',
+    'stats_buildstatistics_times_total_time__content',
+    'stats_buildstatistics_times_preinstall_time_unit',
+    'stats_buildstatistics_times_preinstall_time__content',
+    'stats_buildstatistics_times_install_time_unit',
+    'stats_buildstatistics_times_install_time__content',
+    'stats_buildstatistics_times_main_time_unit',
+    'stats_buildstatistics_times_main_time__content',
+    'stats_buildstatistics_times_postchecks_time_unit',
+    'stats_buildstatistics_times_postchecks_time__content',
+    'stats_buildstatistics_times_rpmlint_time_unit',
+    'stats_buildstatistics_times_rpmlint_time__content',
+    'stats_buildstatistics_times_buildcmp_time_unit',
+    'stats_buildstatistics_times_buildcmp_time__content',
+    'stats_buildstatistics_times_deltarpms_time_unit',
+    'stats_buildstatistics_times_deltarpms_time__content',
+    'stats_buildstatistics_times_download_time_unit',
+    'stats_buildstatistics_times_download_time__content',
+    'stats_buildstatistics_download_size_unit',
+    'stats_buildstatistics_download_size__content',
+    'stats_buildstatistics_download_binaries',
+    'stats_buildstatistics_download_cachehits',
+    'stats_buildstatistics_download_preinstallimage',
+    'stats_package',
+    'stats_rev',
+    'stats_srcmd5',
+    'stats_versrel',
+    'stats_bcnt',
+    'stats_readytime',
+    'stats_starttime',
+    'stats_endtime',
+    'stats_code',
+    'stats_uri',
+    'stats_workerid',
+    'stats_hostarch',
+    'stats_reason',
+    'stats_verifymd5'
+];
+
+
+
 our $notifications = [
     'notifications' =>
 	'next',
