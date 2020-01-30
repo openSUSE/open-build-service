@@ -5,13 +5,11 @@ body.responsive-ux {
   // open space to not overlap top navigation with content
   padding-top: 3.5rem !important;
 
-  .border-gray-500 {
-    border-color: $gray-500 !important;
-  }
+  .border-gray-500 { border-color: $gray-500 !important; }
 
-  .navbar-dark .navbar-toggler {
-    color: $gray-300;
-  }
+  .navbar-dark .navbar-toggler { color: $gray-300; }
+
+  // NAVIGATION
 
   #navigation {
     .fixed-top { height: 57px; }
@@ -32,38 +30,46 @@ body.responsive-ux {
         width: 20px;
       }
       &.open {
-        .fas.fa-times {
-          display: block;
-        }
-        .fas.fa-bars {
-          display: none;
-        }
+        .fas.fa-times { display: block; }
+        .fas.fa-bars { display: none; }
       }
     }
     .navbar-nav .nav-link {
       color: $gray-300;
-
-      &:hover {
-        color: white;
-      }
+      &:hover { color: white; }
     }
 
     .menu-right { cursor: pointer; }
-
-    .watchlist-dropdown {
-      .dropdown-menu.dropdown-menu-right {
-        z-index: 1050;
-      }
-    }
   }
+
+  #bottom-navigation { height: 58px; }
+
+  // BREADCRUMBS
+
+  .breadcrumb {
+    padding-bottom: 0;
+    @extend .mt-2;
+    .breadcrumb-item { line-height: 1.5rem; }
+    .breadcrumb-item::after {
+      display: inline-block;
+      padding: 0 0.5rem 0 0.25rem;
+      color: #6c757d;
+      content: "/";
+    }
+    .breadcrumb-item:last-child::after { content: ''; }
+    .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+
+    // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
+    .breadcrumb-item + .breadcrumb-item::before { display: none; }
+  }
+
+  // OFFCANVAS MENU
 
   .offcanvas-collapse {
     top: 57px; /* Height of navbar */
     bottom: 0;
 
-    .navbar-nav {
-      padding-top: 1rem;
-    }
+    .navbar-nav { padding-top: 1rem; }
   }
 
   .watchlist-collapse {
@@ -72,9 +78,7 @@ body.responsive-ux {
 
     button.navbar-toggler {
       line-height: 1.875rem;
-      .fas.fa-times {
-        width: 20px;
-      }
+      .fas.fa-times { width: 20px; }
     }
   }
 
@@ -95,10 +99,7 @@ body.responsive-ux {
 
     & a {
       color: $gray-300;
-
-      &:hover {
-        color: white;
-      }
+      &:hover { color: white; }
     }
 
     &.open {
@@ -108,6 +109,8 @@ body.responsive-ux {
       z-index: 9000;
     }
   }
+
+  // FOOTER
 
   #footer {
     li { @extend .my-2; }
@@ -121,32 +124,13 @@ body.responsive-ux {
 
     .footer-logged { padding-bottom: 58px; }
   }
-
-  #bottom-navigation {
-    height: 58px;
-  }
-
-  .breadcrumb {
-    padding-bottom: 0;
-    @extend .mt-2;
-    .breadcrumb-item { line-height: 1.5rem; }
-    .breadcrumb-item::after {
-      display: inline-block;
-      padding: 0 0.5rem 0 0.25rem;
-      color: #6c757d;
-      content: "/";
-    }
-    .breadcrumb-item:last-child::after { content: ''; }
-    .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
-
-    // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
-    .breadcrumb-item + .breadcrumb-item::before { display: none; }
-  }
+ 
   // END LAYOUT
 }
 
 @include media-breakpoint-up(md) {
   body.responsive-ux {
+    // START LAYOUT
     .watchlist-collapse, .offcanvas-collapse {
       top: 57px; /* Height of navbar */
       bottom: 0;
@@ -166,5 +150,6 @@ body.responsive-ux {
     #footer {
       .footer-logged { padding-bottom: 0; }
     }
+    // END LAYOUT
   }
 }
