@@ -1823,7 +1823,8 @@ our $buildstatistics = [
 # $buildstatslay = flat_arr(@$buildstatslay)
 #  
 # adding new elements to the buildstatistics array should get a new entry in this array 
-# otherwise that entry will not saved to the stats file 
+# otherwise that entry will not saved to the stats file. New entries must only be
+# appended to the end of this list!
 
 
 our $buildstatslay = [
