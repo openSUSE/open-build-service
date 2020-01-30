@@ -1084,6 +1084,19 @@ sub getfollowupsources {
   }, undef, "rev=$buildinfo->{'srcmd5'}");
 }
 
+sub getobsgendiffdata {
+  my ($buildinfo, $dir) = @_;
+  my $obsgendiff = $buildinfo->{'obsgendiff'};
+  return undef unless $obsgendiff;
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  my $res = BSRPC::rpc({
+    'uri' => "$server/getobsgendiffdata",
+    'directory' => $dir,
+    'timeout' => $gettimeout,
+  }, $BSXML::dir, "project=$obsgendiff->{'project'}", "repository=$obsgendiff->{'repository'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
+  return $res;
+}
+
 sub getsslcert {
   my ($buildinfo, $dir, $signtype) = @_;
   my $server = $buildinfo->{'srcserver'} || $srcserver;
@@ -3037,6 +3050,7 @@ sub dobuild {
 	close F;
       }
     }
+    getobsgendiffdata($buildinfo, $srcdir) if $buildinfo->{'obsgendiff'};
     getsslcert($buildinfo, $srcdir, $needappxsslcert ? 'appx' : undef) if $needsslcert || $needappxsslcert;
     readbuildenv($buildinfo, $srcdir);
     print "packages, ";

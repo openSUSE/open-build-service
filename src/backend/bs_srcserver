@@ -5403,6 +5403,19 @@ sub worker_getbinaryversions {
   return ($bvl, $BSXML::binaryversionlist);
 }
 
+sub getobsgendiffdata {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  checkprojrepoarch($projid, $repoid, $arch);
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $param = {
+    'uri' => "$reposerver/getobsgendiffdata",
+    'ignorestatus' => 1,
+    'receiver' => \&BSServer::reply_receiver,
+  };
+  BSWatcher::rpc($param, undef, BSRPC::args($cgi, 'project', 'repository', 'arch', 'workerid'));
+  return undef;
+}
+
 ####################################################################
 
 # this is shared for AJAX requests
@@ -6647,6 +6660,7 @@ my $dispatches = [
   '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
   '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaryversions,
+  '/getobsgendiffdata $project $repository $arch workerid?' => \&getobsgendiffdata,
 
   # publisher/signer calls
   '/getsignkey $project withpubkey:bool? autoextend:bool? withalgo:bool?' => \&getsignkey,

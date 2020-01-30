@@ -1780,6 +1780,17 @@ sub getpreinstallimageinfos {
   return ($answer, 'Content-Type: application/octet-stream');
 }
 
+sub getobsgendiffdata {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $dir = "$reporoot/$projid/$repoid/$arch/:repo";
+  my @files;
+  for my $f (grep {/[^\.].*\.obsgendiff$/} sort(ls($dir))) {
+    push @files, {'name' => $f, 'filename' => "$dir/$f"};
+  }
+  BSWatcher::reply_cpio(\@files);
+  return undef;
+}
+
 sub dirty {
   my ($projid, $repoid, $arch) = @_;
 
@@ -4323,6 +4334,7 @@ my $dispatches = [
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
   '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
   '!worker /getpreinstallimageinfos $prpa+ match:? workerid?' => \&getpreinstallimageinfos,
+  '/getobsgendiffdata $project $repository $arch workerid?' => \&getobsgendiffdata,
 
   # published files
   '/published' => \&publisheddir,
