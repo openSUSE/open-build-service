@@ -214,10 +214,6 @@ OBSApi::Application.routes.draw do
       post 'project/unlock' => :unlock
     end
 
-    get 'project/dashboard/:project' => 'webui/obs_factory/distributions#show', as: 'dashboard', constraints: cons
-    get 'project/staging_projects/:project' => 'webui/obs_factory/staging_projects#index', as: 'staging_projects', constraints: cons
-    get 'project/staging_projects/:project/:project_name' => 'webui/obs_factory/staging_projects#show', as: 'staging_project', constraints: cons
-
     # For backward compatibility
     controller 'webui/projects/meta' do
       get 'project/meta/:project', to: redirect('/projects/%{project}/meta')
