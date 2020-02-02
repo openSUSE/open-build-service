@@ -105,9 +105,7 @@ class Project < ApplicationRecord
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {
-    includes(:packages).joins(attribs: { attrib_type: :attrib_namespace }).
-      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).
-      order(:title)
+    ProjectsWithImageTemplatesFinder.new.call
   }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
