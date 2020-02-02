@@ -251,7 +251,7 @@ class Project < ApplicationRecord
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ':' + remote_name if dbp
-        raise UnknownObjectError, name
+        raise Project::Errors::UnknownObjectError, name
       end
       if opts[:includeallpackages]
         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
@@ -268,7 +268,7 @@ class Project < ApplicationRecord
       at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
       maintenance_project = Project.find_by_attribute_type(at).first
       unless maintenance_project && check_access?(maintenance_project)
-        raise UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
+        raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
       end
       maintenance_project
     end
@@ -407,7 +407,7 @@ class Project < ApplicationRecord
               if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
                 return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
               end
-            rescue UnknownObjectError
+            rescue Project::Errors::UnknownObjectError
               return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
             end
           end
@@ -1609,6 +1609,7 @@ class Project < ApplicationRecord
     combined_status_reports.map(&:missing_checks).flatten
   end
 end
+
 # rubocop:enable Metrics/ClassLength
 
 # == Schema Information
