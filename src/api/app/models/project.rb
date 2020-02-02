@@ -1483,15 +1483,8 @@ class Project < ApplicationRecord
   end
 
   def categories
-    AttribValue
-      .joins(attrib: { attrib_type: :attrib_namespace })
-      .where(attribs: { project: self },
-             attrib_types: { name: 'QualityCategory' },
-             attrib_namespaces: { name: 'OBS' })
-      .map(&:value)
+    OBSQualityCategoriesFinder.call(self)
   end
-
- 
 
   def build_results
     project_state.search("/resultlist/result[@project='#{name}']")
