@@ -496,23 +496,6 @@ class Project < ApplicationRecord
     @config ||= ProjectConfigFile.new(project_name: name)
   end
 
-  def cleanup_before_destroy
-    # find linking projects
-    cleanup_linking_projects
-
-    # find linking repositories
-    cleanup_linking_repos
-
-    # find linking target repositories
-    cleanup_linking_targets
-
-    revoke_requests # Revoke all requests that have this project as source/target
-    cleanup_packages # Deletes packages (only in DB)
-
-    repositories.each(&:mark_for_destruction)
-  end
-  private :cleanup_before_destroy
-
   def buildresults
     Buildresult.summary(name)
   end
@@ -801,27 +784,6 @@ class Project < ApplicationRecord
     true
   end
 
-  def delete_on_backend
-    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      begin
-        options = { user: User.session!.login, comment: @commit_opts[:comment] }
-        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-        Backend::Api::Sources::Project.delete(name, options)
-      rescue Backend::NotFoundError
-        # ignore this error, backend was out of sync
-        logger.warn("Project #{name} was already missing on backend on removal")
-      end
-      logger.tagged('backend_sync') { logger.warn "Deleted Project #{name}" }
-    elsif @commit_opts[:no_backend_write]
-      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
-    else
-      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
-    end
-
-    self.commit_opts = {}
-  end
-  private :delete_on_backend
-
   def store(opts = {})
     self.commit_opts = opts if opts.present?
     transaction do
@@ -839,11 +801,6 @@ class Project < ApplicationRecord
       package.destroy
     end
   end
-
-  def reset_cache
-    Rails.cache.delete("xml_project_#{id}") if id
-  end
-  private :reset_cache # whoever changes the project, needs to store it too
 
   # Give me the first ancestor of that project
   def parent
@@ -1291,28 +1248,6 @@ class Project < ApplicationRecord
     @is_locked = nil
   end
 
-  def bsrequest_repos_map(project)
-    Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      begin
-        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
-      rescue Backend::Error
-        return {}
-      end
-
-      ret = {}
-      xml.get('project').elements('repository') do |repo|
-        repo.elements('path') do |path|
-          ret[path['project']] ||= []
-          ret[path['project']] << repo
-        end
-      end
-
-      ret
-    end
-  end
-
-  private :bsrequest_repos_map
-
   def valid_name
     errors.add(:name, 'is illegal') unless Project.valid_name?(name)
   end
@@ -1567,6 +1502,66 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def bsrequest_repos_map(project)
+    Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
+      begin
+        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
+      rescue Backend::Error
+        return {}
+      end
+
+      ret = {}
+      xml.get('project').elements('repository') do |repo|
+        repo.elements('path') do |path|
+          ret[path['project']] ||= []
+          ret[path['project']] << repo
+        end
+      end
+
+      ret
+    end
+  end
+
+  def reset_cache
+    Rails.cache.delete("xml_project_#{id}") if id
+  end
+
+  def delete_on_backend
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
+      begin
+        options = { user: User.session!.login, comment: @commit_opts[:comment] }
+        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+        Backend::Api::Sources::Project.delete(name, options)
+      rescue Backend::NotFoundError
+        # ignore this error, backend was out of sync
+        logger.warn("Project #{name} was already missing on backend on removal")
+      end
+      logger.tagged('backend_sync') { logger.warn "Deleted Project #{name}" }
+    elsif @commit_opts[:no_backend_write]
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
+    else
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
+    end
+
+    self.commit_opts = {}
+  end
+
+  def cleanup_before_destroy
+    # find linking projects
+    cleanup_linking_projects
+
+    # find linking repositories
+    cleanup_linking_repos
+
+    # find linking target repositories
+    cleanup_linking_targets
+
+    revoke_requests # Revoke all requests that have this project as source/target
+    cleanup_packages # Deletes packages (only in DB)
+
+    repositories.each(&:mark_for_destruction)
+  end
 
   def discard_cache
     Relationship.discard_cache
