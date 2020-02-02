@@ -1,4 +1,3 @@
-require_dependency 'has_relationships'
 
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
