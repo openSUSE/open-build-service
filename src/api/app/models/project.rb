@@ -36,7 +36,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)', "%#{search}%"]).order('length(name)', :name).limit(50)
+      AutocompletePackagesFinder.new(self, search).call
     end
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
