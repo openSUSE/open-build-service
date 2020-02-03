@@ -1182,16 +1182,14 @@ class Project < ApplicationRecord
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where('bs_request_actions.source_project = ? or bs_request_actions.target_project = ?', name, name)
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: [:new, :review, :declined])
+                                                               .joins(:bs_request_actions), name).call
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
-    rel = BsRequest.where(state: [:new, :review])
-    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", name)
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: [:new, :review])
+                                                       .joins(:reviews), name).call
   end
 
   # list only the repositories that have a target project in the build path
