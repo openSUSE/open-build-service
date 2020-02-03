@@ -10,6 +10,6 @@
         .toggler{ data: { toggle: 'offcanvas' } }
           = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
       - else
-        = render partial: "layouts/#{responsive_namespace}/authentication_form"
+        = render partial: 'layouts/webui/responsive_ux/unlogged_navigation'
 - if User.session
-  = render partial: "layouts/#{responsive_namespace}/personal_navigation"
+  = render partial: 'layouts/webui/responsive_ux/logged_navigation'

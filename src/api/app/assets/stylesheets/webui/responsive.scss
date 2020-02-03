@@ -52,32 +52,57 @@ body.responsive-ux {
 
   // OFFCANVAS MENU
 
+  button.navbar-toggler {
+    .fas.fa-times {
+      line-height: 1.875rem;
+      width: 20px;
+    }
+  }
+
+  #login-form-canvas {
+    bottom: 0;
+    .card {
+      margin: 1rem auto 3rem;
+      max-width: 330px;
+
+      .login-separator {
+        position: relative;
+        span {
+          position: absolute;
+          top: -.7rem;
+          left: 50%;
+          padding: 0 .5rem;
+          margin-left: -1rem;
+        }
+      }
+    }
+  }
+
   .watchlist-collapse, .offcanvas-collapse {
+    bottom: 58px;
+    background-color: #343a40;
+    color: $gray-400;
+
+    & a {
+      color: $gray-300;
+      &:hover { color: white; }
+    }
+
+    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+  }
+
+  .watchlist-collapse, .offcanvas-collapse, #login-form-canvas {
     position: fixed;
     top: 57px;
-    bottom: 58px;
     left: 100%;
     width: 100%;
     padding-right: 1rem;
     padding-left: 1rem;
     overflow-y: auto;
     visibility: hidden;
-    background-color: #343a40;
-    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
-    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
-    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
     z-index: 9000;
-    color: $gray-400;
-
-    button.navbar-toggler {
-      line-height: 1.875rem;
-      .fas.fa-times { width: 20px; }
-    }
-
-    & a {
-      color: $gray-300;
-      &:hover { color: white; }
-    }
 
     &.open {
       visibility: visible;
@@ -98,9 +123,8 @@ body.responsive-ux {
       p { color: $gray-400; }
       & a { color: $gray-300; }
     }
-
-    .footer-logged { padding-bottom: 58px; }
   }
+  .footer-separator { height: 58px; }
   // END LAYOUT
 }
 
@@ -121,6 +145,10 @@ body.responsive-ux {
         align-self: flex-start;
       }
       .navbar-toggler { display: none; }
+    }
+
+    #login-form-canvas {
+      display: none;
     }
 
     #footer {

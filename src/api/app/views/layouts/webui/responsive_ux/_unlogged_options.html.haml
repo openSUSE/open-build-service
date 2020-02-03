@@ -1,0 +1,52 @@
+- if can_signup
+  = link_to('Sign Up', signup_url, class: 'nav-link ml-3 text-light d-none d-md-block')
+.dropdown.d-none.d-md-block
+  = link_to('#', id: 'login-trigger', class: 'btn btn-outline-light ml-3 text-nowrap ', 'data-toggle': 'dropdown') do
+    Log In
+  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
+    .px-4.py-3#login-form
+      = form_tag(form_url, options) do
+        - if proxy
+          = hidden_field_tag(:context, 'default')
+          = hidden_field_tag(:proxypath, 'reserve')
+          = hidden_field_tag(:message, 'Please log in')
+          = hidden_field_tag(:url, request.fullpath)
+        .form-group
+          = label_tag(:username, 'Username', class: 'text-light')
+          = text_field_tag(:username, nil, required: true, class: 'form-control')
+        .form-group
+          = label_tag(:password, 'Password', class: 'text-light')
+          = password_field_tag(:password, nil, required: true, class: 'form-control')
+        .clearfix
+          = submit_tag('Log In', class: 'btn btn-success float-right')
+
+= content_for :unlogged_options_bottom do
+  - if can_signup
+    %li.nav-item.border-right.border-gray-500
+      - if CONFIG['proxy_auth_mode'] == :on
+        = link_to('Sign Up', signup_url, class: 'nav-link text-light')
+      - else
+        = link_to('Sign Up', '#', class: 'nav-link text-light', data: { toggle: 'sign-up' })
+  %li.nav-item
+    = link_to('#', class: 'nav-link text-light', data: { toggle: 'log-in' }) do
+      Log In
+
+= content_for :unlogged_forms do
+  .bg-dark#login-form-canvas
+    .navbar-nav
+      .nav.justify-content-end.py-2
+        %button.navbar-toggler{ 'type': 'button', data: { toggle: 'log-in' }, aria: { expanded: 'false', label: 'Toggle log-in' } }
+          %i.fas.fa-times.d-block
+    .card.text-dark
+      .card-body
+        = link_to(root_path, class: 'd-block text-center', alt: 'Logo') do
+          = image_tag('favicon.svg', height: '60')
+
+        = render partial: 'layouts/webui/responsive_ux/log_in', locals: { form_url: form_url,
+                                                                           proxy: proxy,
+                                                                           options: options,
+                                                                           request: request,
+                                                                           can_signup: can_signup,
+                                                                           signup_url: signup_url }
+        - if can_signup
+          = render partial: 'layouts/webui/responsive_ux/sign_up'

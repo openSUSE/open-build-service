@@ -7,8 +7,7 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login with home project shows a link to it' do
     login user
-    # TODO: Remove subheader when dropping old UI
-    within('#subheader, #personal-navigation') do
+    within('#personal-navigation') do
       expect(page).to have_link('Home Project')
     end
   end
@@ -17,8 +16,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     login admin
     user.home_project.destroy
     login user
-    # TODO: Remove subheader when dropping old UI
-    within('#subheader, #personal-navigation') do
+    within('#personal-navigation') do
       expect(page).to have_link('Create Home')
     end
   end
@@ -37,7 +35,9 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login via widget' do
     visit root_path
-    click_link('Log In')
+    within('#login-form-dropdown') do
+      click_link('Log In')
+    end
 
     within('div#login-form') do
       fill_in 'username', with: user.login
@@ -50,7 +50,9 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login with wrong data' do
     visit root_path
-    click_link('Log In')
+    within('#login-form-dropdown') do
+      click_link('Log In')
+    end
 
     within('#login-form') do
       fill_in 'username', with: user.login
@@ -64,8 +66,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   scenario 'logout' do
     login(user)
 
-    # TODO: Remove subheader when dropping old UI
-    within('#subheader, #personal-navigation') do
+    within('#personal-navigation') do
       click_link('Logout')
     end
 
