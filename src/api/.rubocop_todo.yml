@@ -55,7 +55,6 @@ Layout/EndAlignment:
     - 'app/controllers/search_controller.rb'
     - 'app/controllers/source_controller.rb'
     - 'app/controllers/webui/webui_controller.rb'
-    - 'app/models/obs_factory/distribution.rb'
 
 # Offense count: 19
 # Cop supports --auto-correct.
@@ -68,12 +67,6 @@ Layout/LeadingEmptyLines:
 Layout/Tab:
   Exclude:
     - 'db/migrate/20170123115500_remove_duplicate_indexes.rb'
-
-# Offense count: 1
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'app/models/obs_factory/staging_project.rb'
 
 # Offense count: 1
 Lint/Debugger:
@@ -179,7 +172,6 @@ Metrics/BlockNesting:
     - 'app/models/branch_package.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request_action.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
     - 'lib/xpath_engine.rb'
     - 'test/node_matcher.rb'
 
@@ -269,7 +261,6 @@ Naming/HeredocDelimiterNaming:
 # SupportedStylesForLeadingUnderscores: disallowed, required, optional
 Naming/MemoizedInstanceVariableName:
   Exclude:
-    - 'app/models/obs_factory/distribution.rb'
     - 'lib/authenticator.rb'
 
 # Offense count: 11
@@ -571,14 +562,6 @@ Rails/CreateTableWithTimestamps:
     - 'db/migrate/20160321105300_request_counter.rb'
     - 'db/migrate/20171030143054_create_kiwi_preference_types.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: EnforceForPrefixed.
-Rails/Delegate:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/obs_project.rb'
-
 # Offense count: 81
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: slashes, arguments
@@ -617,7 +600,6 @@ Rails/HelperInstanceVariable:
   Exclude:
     - 'app/helpers/webui/buildresult_helper.rb'
     - 'app/helpers/webui/markdown_helper.rb'
-    - 'app/helpers/webui/obs_factory/application_helper.rb'
     - 'app/helpers/webui/project_helper.rb'
     - 'app/helpers/webui/projects/status_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
@@ -727,7 +709,6 @@ Style/ClassAndModuleChildren:
 # Offense count: 12
 Style/ClassVars:
   Exclude:
-    - 'app/models/obs_factory/openqa_job.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
     - 'test/functional/branch_publish_flag_test.rb'
@@ -759,42 +740,12 @@ Style/ConditionalAssignment:
 Style/Documentation:
   Enabled: false
 
-# Offense count: 1
-Style/DoubleNegation:
-  Exclude:
-    - 'app/models/obs_factory/openqa_job.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: empty, nil, both
-Style/EmptyElse:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/EmptyLiteral:
-  Exclude:
-    - 'app/models/obs_factory/openqa_api.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
 # Offense count: 1297
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: always, never
 Style/FrozenStringLiteralComment:
   Enabled: false
-
-# Offense count: 7
-# Configuration parameters: MinBodyLength.
-Style/GuardClause:
-  Exclude:
-    - 'app/controllers/webui/obs_factory/distributions_controller.rb'
-    - 'app/controllers/webui/obs_factory/staging_projects_controller.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-    - 'app/models/obs_factory/staging_project.rb'
 
 # Offense count: 6
 Style/IdenticalConditionalBranches:
@@ -806,13 +757,6 @@ Style/IdenticalConditionalBranches:
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Enabled: false
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-Style/MethodCallWithoutArgsParentheses:
-  Exclude:
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
 
 # Offense count: 1
 Style/MethodMissingSuper:
@@ -842,21 +786,6 @@ Style/MultipleComparison:
     - 'lib/tasks/extract.rake'
     - 'script/reformat_memprof'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: literals, strict
-Style/MutableConstant:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-
-# Offense count: 6
-# Cop supports --auto-correct.
-# Configuration parameters: MinDigits, Strict.
-Style/NumericLiterals:
-  Exclude:
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
 # Offense count: 45
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle, IgnoredMethods.
@@ -864,26 +793,11 @@ Style/NumericLiterals:
 Style/NumericPredicate:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: PreferredDelimiters.
-Style/PercentLiteralDelimiters:
-  Exclude:
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
-
 # Offense count: 56
 # Cop supports --auto-correct.
 # Configuration parameters: AllowMultipleReturnValues.
 Style/RedundantReturn:
   Enabled: false
-
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/RedundantSelf:
-  Exclude:
-    - 'app/presenters/obs_factory/obs_project_presenter.rb'
 
 # Offense count: 95
 # Cop supports --auto-correct.
@@ -891,12 +805,6 @@ Style/RedundantSelf:
 # SupportedStyles: slashes, percent_r, mixed
 Style/RegexpLiteral:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RescueModifier:
-  Exclude:
-    - 'app/models/obs_factory/openqa_job.rb'
 
 # Offense count: 25
 # Cop supports --auto-correct.
@@ -918,13 +826,6 @@ Style/SafeNavigation:
 # SupportedStyles: single_quotes, double_quotes
 Style/StringLiterals:
   Exclude:
-    - 'app/controllers/webui/obs_factory/application_controller.rb'
-    - 'app/models/obs_factory/distribution.rb'
-    - 'app/models/obs_factory/distribution_strategy_factory_ppc.rb'
-    - 'app/models/obs_factory/openqa_api.rb'
-    - 'app/models/obs_factory/openqa_job.rb'
-    - 'app/models/obs_factory/staging_project.rb'
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
     - 'config/initializers/inflector.rb'
 
 # Offense count: 360
@@ -933,20 +834,6 @@ Style/StringLiterals:
 # SupportedStyles: percent, brackets
 Style/SymbolArray:
   EnforcedStyle: brackets
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: IgnoredMethods.
-# IgnoredMethods: respond_to, define_method
-Style/SymbolProc:
-  Exclude:
-    - 'app/presenters/obs_factory/staging_project_presenter.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/UnlessElse:
-  Exclude:
-    - 'app/models/obs_factory/openqa_job.rb'
 
 # Offense count: 256
 # Cop supports --auto-correct.
