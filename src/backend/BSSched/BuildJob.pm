@@ -406,35 +406,31 @@ sub set_genbuildreqs {
       },
   };
 
-  my %x = flat_hash('',$a);
-  print Dumper(%x);
+  my $x = flat_hash($a);
+  print Dumper($x);
 
-  $VAR1 = 'accesslevels1_content1';
-  $VAR2 = 'val1';
-  $VAR3 = 'accesslevels1_accesslevels2_content2';
-  $VAR4 = 'val2';
-  $VAR5 = 'accesslevels1_accesslevels2_content1';
-  $VAR6 = 'val1';
-  $VAR7 = 'accesslevels1_content2';
-  $VAR8 = 'val2';
+  $VAR1 = {
+            'accesslevels1_accesslevels2_content2' => 'val2',
+            'accesslevels1_content1' => 'val1',
+            'accesslevels1_content2' => 'val2',
+            'accesslevels1_accesslevels2_content1' => 'val1'
+          };
+
 
 =cut
 
 sub flat_hash {
-    my ($key, $hsh) = @_;
-    my $ret;
-    $key = $key.'_' if $key ne '';
-    my $t;
-    foreach my $k (keys %$hsh){
-        if (ref($hsh->{$k}) eq 'HASH') {
-            $t = flat_hash($key.$k, $hsh->{$k});
-            @$ret{keys %$t} = values %$t
-        }
-        else {
-            $ret->{$key.$k} = $hsh->{$k};
-        }
+  my ($hsh, $key, $ret) = @_;
+  $ret ||= {};
+  $key = defined($key) && $key ne '' ? $key.'_' : '';
+  for my $k (keys %$hsh){
+    if (ref($hsh->{$k}) eq 'HASH') {
+      flat_hash($hsh->{$k}, $key.$k, $ret);
+    } else {
+      $ret->{$key.$k} = $hsh->{$k};
     }
-    return $ret;
+  }
+  return $ret;
 }
 
 
@@ -770,11 +766,9 @@ sub patchpackstatus {
 
 sub addbuildstats {
   my ($jobdatadir, $dst, $jobhist) = @_;
-  my $bstat = readxml("$jobdatadir/_statistics", $BSXML::buildstatistics, 1);
-  my $lay = $BSXML::buildstatslay;
-  my $bstat_ = flat_hash('stats_buildstatistics', $bstat);
-  my $jobhist_ = flat_hash('stats', $jobhist);
-  BSFileDB::fdb_add("$dst/.stats", $lay, {%$jobhist_, %$bstat_});
+  my $bstat = readxml("$jobdatadir/_statistics", $BSXML::buildstatistics, 1) || {};
+  my $data = flat_hash({ 'stats' => $jobhist, 'stats_buildstatistics' => $bstat });
+  BSFileDB::fdb_add("$dst/.stats", $BSXML::buildstatslay, $data);
 }
 
 =head2 makejobhist - return jobhistlay comaptible hash
