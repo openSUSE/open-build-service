@@ -147,7 +147,7 @@ GEM
       railties (>= 4.2.0)
     faker (2.10.1)
       i18n (>= 1.6, < 2)
-    ffi (1.12.1)
+    ffi (1.12.2)
     flipper (0.17.2)
     flipper-active_record (0.17.2)
       activerecord (>= 4.2, < 7)
