@@ -1,20 +1,15 @@
-%nav.navbar.navbar-expand-md.navbar-dark.bg-dark.border-bottom.border-gray-500.fixed-top
+%nav.navbar.navbar-dark.bg-dark.border-bottom.border-gray-500.fixed-top
   .d-flex.flex-nowrap.justify-content-between.w-100
     = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
       = image_tag('obs-logo_small.svg', height: '30')
     .d-flex
       = render partial: "layouts/#{responsive_namespace}/search"
       - if User.session
-        %button.navbar-toggler.ml-3{ 'type': 'button', data: { toggle: 'offcanvas' } }
-          %i.fas.fa-bars
-          %i.fas.fa-times
         .toggler.pt-1
           %i.fas.fa-bookmark.fa-lg{ class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' } }
         .toggler{ data: { toggle: 'offcanvas' } }
           = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
       - else
-        = render partial: "layouts/#{responsive_namespace}/personal_navigation"
+        = render partial: "layouts/#{responsive_namespace}/authentication_form"
 - if User.session
-  .navbar-collapse.offcanvas-collapse#global-navigation
-    %ul.navbar-nav.ml-auto.text-nowrap
-      = render partial: "layouts/#{responsive_namespace}/logged_in_user_navigation"
+  = render partial: "layouts/#{responsive_namespace}/personal_navigation"

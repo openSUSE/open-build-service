@@ -1,8 +1,8 @@
 %nav.navbar.fixed-bottom.navbar-dark.bg-dark.border-top.border-gray-500.d-block.d-md-none#bottom-navigation
   %ul.nav.justify-content-center.w-100.nav-fill
     %li.nav-item
-      = link_to(home_project_link, class: 'btn btn-dark nav-link', alt: 'Home project') do
-        %i.fas.fa-briefcase.fa-lg
+      = link_to('#', class: 'btn btn-dark nav-link', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+        %i.fas.fa-bookmark.fa-lg
     %li.nav-item
       - tasks = User.session!.tasks
       = link_to(my_tasks_path, class: 'btn btn-dark nav-link', alt: 'Tasks') do
@@ -10,7 +10,7 @@
         - if tasks.positive?
           .badge.badge-primary= tasks
     %li.nav-item
-      = link_to('#', class: 'btn btn-dark nav-link', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
-        %i.fas.fa-bookmark.fa-lg
+      = link_to('#', class: 'btn btn-dark nav-link', alt: 'Menu', data: { toggle: 'offcanvas' }) do
+        %i.fas.fa-bars.fa-lg
 
 = render partial: "layouts/#{responsive_namespace}/watchlist"

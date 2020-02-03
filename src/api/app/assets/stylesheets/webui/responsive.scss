@@ -20,20 +20,6 @@ body.responsive-ux {
       cursor: pointer;
     }
 
-    button.navbar-toggler {
-      .fas.fa-times {
-        display: none;
-        width: 20px;
-      }
-      .fas.fa-bars {
-        display: block;
-        width: 20px;
-      }
-      &.open {
-        .fas.fa-times { display: block; }
-        .fas.fa-bars { display: none; }
-      }
-    }
     .navbar-nav .nav-link {
       color: $gray-300;
       &:hover { color: white; }
@@ -66,25 +52,10 @@ body.responsive-ux {
 
   // OFFCANVAS MENU
 
-  .offcanvas-collapse {
-    top: 57px; /* Height of navbar */
-    bottom: 0;
-
-    .navbar-nav { padding-top: 1rem; }
-  }
-
-  .watchlist-collapse {
-    top: 0;
-    bottom: 58px; /* Height of navbar */
-
-    button.navbar-toggler {
-      line-height: 1.875rem;
-      .fas.fa-times { width: 20px; }
-    }
-  }
-
   .watchlist-collapse, .offcanvas-collapse {
     position: fixed;
+    top: 57px;
+    bottom: 58px;
     left: 100%;
     width: 100%;
     padding-right: 1rem;
@@ -97,6 +68,11 @@ body.responsive-ux {
     transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
     z-index: 9000;
     color: $gray-400;
+
+    button.navbar-toggler {
+      line-height: 1.875rem;
+      .fas.fa-times { width: 20px; }
+    }
 
     & a {
       color: $gray-300;

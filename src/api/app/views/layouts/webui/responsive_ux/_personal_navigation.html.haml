@@ -1,15 +1,26 @@
-= link_to('Sign Up', signup_url, class: 'nav-link ml-3 text-light d-none d-md-block')
-- if CONFIG['kerberos_mode']
-  = link_to 'Sign In', new_session_path, class: 'btn btn-outline-light ml-3 text-nowrap'
-- elsif CONFIG['proxy_auth_mode'] == :on
-  = render partial: "layouts/#{responsive_namespace}/login_form", locals: { signup_url: "#{CONFIG['proxy_auth_register_page']}?%22",
-                                                                           form_url: CONFIG['proxy_auth_login_page'],
-                                                                           options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
-                                                                           proxy: true,
-                                                                           can_signup: CONFIG['proxy_auth_register_page'].present? }
-- else
-  = render partial: "layouts/#{responsive_namespace}/login_form", locals: { signup_url: signup_path,
-                                                                            form_url: session_path,
-                                                                            options: { method: :post },
-                                                                            proxy: false,
-                                                                            can_signup: can_register }
+.navbar-collapse.offcanvas-collapse.navbar-dark
+  .navbar-nav
+    .nav.justify-content-end.py-2
+      %button.navbar-toggler{ 'type': 'button', data: { toggle: 'offcanvas' }, aria: { expanded: 'false', label: 'Toggle navigation' } }
+        %i.fas.fa-times
+  %ul.navbar-nav.ml-auto.pt-0.text-nowrap
+    %li.nav-item
+      = link_to('Profile', user_path(User.session!),  id: 'link-to-user-home', class: 'nav-link')
+    %li.nav-item
+      - if User.session!.home_project
+        = link_to(project_show_path(User.session!.home_project), class: 'nav-link') do
+          Home Project
+      - else
+        = link_to(new_project_path(name: User.session!.home_project_name), class: 'nav-link') do
+          Create Home
+    %li.nav-item
+      - tasks = User.session!.tasks
+      = link_to(my_tasks_path, class: 'nav-link') do
+        - if tasks.positive?
+          %span{ title: 'where an action is requested from you' }
+            = pluralize(tasks, 'Task')
+        - else
+          Tasks
+    %li.nav-item
+      = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+        Logout
