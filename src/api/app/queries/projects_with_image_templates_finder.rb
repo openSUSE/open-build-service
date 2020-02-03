@@ -1,12 +1,5 @@
-class ProjectsWithImageTemplatesFinder
-  def initialize(relation = Project.all)
-    @relation = relation
-  end
-
-  def call
-    @relation.includes(:packages).joins(attribs: { attrib_type: :attrib_namespace })
-             .where(attrib_types: { name: 'ImageTemplates' },
-                    attrib_namespaces: { name: 'OBS' })
-             .order(:title)
+class ProjectsWithImageTemplatesFinder < AttribFinder
+  def initialize(relation = Project.all, namespace = 'OBS', name = 'ImageTemplates')
+    super(relation, namespace, name)
   end
 end

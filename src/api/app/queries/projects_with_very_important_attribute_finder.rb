@@ -1,11 +1,5 @@
-class ProjectsWithVeryImportantAttributeFinder
-  def initialize(relation = Project.all)
-    @relation = relation
-  end
-
-  def call
-    @relation.joins(attribs: { attrib_type: :attrib_namespace })
-             .where(attrib_namespaces: { name: 'OBS' },
-                    attrib_types: { name: 'VeryImportantProject' })
+class ProjectsWithVeryImportantAttributeFinder < AttribFinder
+  def initialize(relation = Project.all, namespace = 'OBS', name = 'VeryImportantProject')
+    super(relation, namespace, name)
   end
 end
