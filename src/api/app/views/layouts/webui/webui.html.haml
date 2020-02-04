@@ -43,21 +43,21 @@
     #navigation
       = render partial: 'layouts/webui/navigation'
     .w-100.m-2
-    .container
+    .container-xxl
       .row
         .col
           = render partial: 'layouts/webui/breadcrumbs'
         .col-auto.ml-auto#personal-navigation
           = render partial: 'layouts/webui/personal_navigation'
 
-    .container.sticky-top.flash-and-announcement.text-word-break-all
+    .container-xxl.sticky-top.flash-and-announcement.text-word-break-all
       - unless @hide_announcement_notification
         #announcement= render partial: 'layouts/webui/announcement', locals: { pending_announcement: @pending_announcement }
       #flash= render partial: 'layouts/webui/flash', object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
 
-    .container.flex-grow#content
+    .container-xxl.flex-grow#content
       = yield
     .container-fluid.py-4.mt-4.bg-dark#footer
-      .container
+      .container-xxl
         = render partial: 'layouts/webui/footer'
