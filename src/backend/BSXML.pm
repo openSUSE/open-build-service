@@ -548,7 +548,7 @@ our $buildinfo = [
 	'genbuildreqs',	# internal
       [ 'obsgendiff' =>
 	    'project',
-	    'package',
+	    'repository',
       ],		# internal
       [ 'dep' ],
      [[ 'bdep' =>

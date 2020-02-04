@@ -1093,7 +1093,8 @@ sub getobsgendiffdata {
     'uri' => "$server/getobsgendiffdata",
     'directory' => $dir,
     'timeout' => $gettimeout,
-  }, $BSXML::dir, "project=$obsgendiff->{'project'}", "repository=$obsgendiff->{'repository'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
+    'receiver' => \&BSHTTP::cpio_receiver,
+  }, undef, "project=$obsgendiff->{'project'}", "repository=$obsgendiff->{'repository'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
   return $res;
 }
 

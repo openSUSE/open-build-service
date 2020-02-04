@@ -4334,7 +4334,7 @@ my $dispatches = [
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
   '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
   '!worker /getpreinstallimageinfos $prpa+ match:? workerid?' => \&getpreinstallimageinfos,
-  '/getobsgendiffdata $project $repository $arch workerid?' => \&getobsgendiffdata,
+  '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
 
   # published files
   '/published' => \&publisheddir,

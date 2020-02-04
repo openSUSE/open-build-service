@@ -1162,7 +1162,10 @@ sub create {
     $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
     $binfo->{'genbuildreqs'} = $genbuildreqs->[0] if $genbuildreqs;
     if ($bconf->{'buildflags:obsgendiff'} && @{$ctx->{'repo'}->{'releasetarget'} || []}) {
-      $binfo->{'obsgendiff'} = $ctx->{'repo'}->{'releasetarget'}->[0];
+       my $releasetarget = $ctx->{'repo'}->{'releasetarget'}->[0];
+       $binfo->{'obsgendiff'} = { 'project' => $releasetarget->{'project'},
+                                  'repository' => $releasetarget->{'repository'} };
+
     }
   }
   $ctx->writejob($job, $binfo, $reason);
