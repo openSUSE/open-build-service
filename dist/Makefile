@@ -20,13 +20,28 @@ install_obsapisetup: system_dirs
 	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
 
 install_apache:
-	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
-	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
+	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONFDIR_VHOST)
+	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONFDIR_VHOST)/obs.conf
+	sed -i \
+	  -e 's,@@APACHE_LOGDIR@@,$(APACHE_LOGDIR),' \
+	  -e 's,@@OBS_BACKEND_DATA_DIR@@,$(OBS_BACKEND_DATA_DIR),' \
+	  -e 's,@@OBS_API_PREFIX@@,$(OBS_API_PREFIX),' \
+	  -e 's,@@OBS_DOCUMENT_ROOT@@,$(OBS_DOCUMENT_ROOT),' \
+	    $(DESTDIR)$(APACHE_CONFDIR_VHOST)/obs.conf
+
 
 install_systemd_services: system_dirs
 	$(foreach target,$(SYSTEMD_TARGET_FILES),$(shell $(INSTALL) -m 644 ./systemd/$(target).target $(DESTDIR)$(UNITDIR)$(target).target) )
 	$(foreach service,$(SYSTEMD_SERVICE_FILES) $(SYSTEMD_SERVICE_FILES_WITHOUT_LINK),$(shell $(INSTALL) -m 644 ./systemd/$(service).service $(DESTDIR)$(UNITDIR)$(service).service) )
 	$(foreach service,$(SYSTEMD_TARGET_FILES) $(SYSTEMD_SERVICE_FILES),$(shell ln -sf /usr/sbin/service $(DESTDIR)/usr/sbin/rc$(service) ) )
+	sed -i \
+	  -e 's,@@OBS_BUNDLE_BIN@@,$(OBS_BUNDLE_BIN),' \
+	  -e 's,@@OBS_RUBY_VERSION@@,$(OBS_RUBY_VERSION),' \
+	  -e 's,@@APACHE_USER@@,$(APACHE_USER),' \
+	  -e 's,@@APACHE_GROUP@@,$(APACHE_GROUP),' \
+	  -e 's,@@OBS_API_PREFIX@@,$(OBS_API_PREFIX),' \
+	    $(DESTDIR)$(UNITDIR)/*.service
+
 
 install_project_update: system_dirs
 	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update

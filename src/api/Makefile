@@ -23,6 +23,9 @@ prepare_rake: prepare_dirs
 	rm $(DESTDIR)$(OBS_API_PREFIX)/Procfile
 	touch $(DESTDIR)$(OBS_API_PREFIX)/log/production.log
 	touch $(DESTDIR)$(OBS_API_PREFIX)/config/production.sphinx.conf
+	sed -i -e 's,#!/usr/bin/ruby.ruby2.5,#!$(OBS_RUBY_BIN),' $(DESTDIR)$(OBS_API_PREFIX)/bin/* $(DESTDIR)$(OBS_API_PREFIX)/script/*
+	sed -i -e 's,#!/usr/bin/rake.ruby2.5,#!$(OBS_RAKE_BIN),' $(DESTDIR)$(OBS_API_PREFIX)/Rakefile
+
 
 docs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api

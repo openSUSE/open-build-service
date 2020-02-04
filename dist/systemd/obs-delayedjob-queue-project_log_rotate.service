@@ -4,13 +4,13 @@ BindsTo = obs-api-support.target
 
 [Service]
 Environment = "RAILS_ENV=production"
-User = wwwrun
-Group = www
-WorkingDirectory = /srv/www/obs/api
-ExecStart = /usr/bin/bundle.ruby2.5 exec script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
-ExecStop = /usr/bin/bundle.ruby2.5 exec script/delayed_job.api.rb --queue=project_log_rotate stop -i 1040
+User = @@APACHE_USER@@
+Group = @@APACHE_GROUP@@
+WorkingDirectory = @@OBS_API_PREFIX@@
+ExecStart = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=project_log_rotate start -i 1040
+ExecStop  = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=project_log_rotate stop -i 1040
 Type = forking
-PIDFile = /srv/www/obs/api/tmp/pids/delayed_job.1040.pid
+PIDFile = @@OBS_API_PREFIX@@/tmp/pids/delayed_job.1040.pid
 
 [Install]
 WantedBy = obs-api-support.target
