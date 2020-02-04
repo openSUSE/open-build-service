@@ -7,10 +7,10 @@
           %i.fas.fa-bookmark.fa-lg
       %li.nav-item.border-left.border-gray-500
         - tasks = User.session!.tasks
-        = link_to(my_tasks_path, class: 'btn btn-dark nav-link', alt: 'Tasks') do
+        = link_to(my_tasks_path, class: 'btn btn-dark nav-link d-inline-block', alt: 'Tasks') do
           %i.fas.fa-tasks.fa-lg
           - if tasks.positive?
-            .badge.badge-primary= tasks
+            .badge.badge-primary.align-text-top= tasks
       %li.nav-item.border-left.border-gray-500
         = link_to('#', class: 'btn btn-dark nav-link', alt: 'Menu', data: { toggle: 'offcanvas' }) do
           %i.fas.fa-bars.fa-lg

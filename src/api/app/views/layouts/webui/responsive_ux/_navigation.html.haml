@@ -7,6 +7,12 @@
       - if User.session
         .toggler.pt-1
           %i.fas.fa-bookmark.fa-lg{ class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' } }
+        .toggler
+          - tasks = User.session!.tasks
+          = link_to(my_tasks_path, class: 'nav-link d-inline-block', alt: 'Tasks') do
+            %i.fas.fa-tasks.fa-lg.text-light
+            - if tasks.positive?
+              %span.badge.badge-primary.align-text-top= tasks
         .toggler{ data: { toggle: 'offcanvas' } }
           = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
       - else

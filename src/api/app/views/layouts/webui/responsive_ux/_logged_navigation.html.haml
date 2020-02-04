@@ -3,25 +3,21 @@
     .nav.justify-content-end.py-2
       %button.navbar-toggler{ 'type': 'button', data: { toggle: 'offcanvas' }, aria: { expanded: 'false', label: 'Toggle navigation' } }
         %i.fas.fa-times
-  %ul.navbar-nav.ml-auto.pt-0.text-nowrap
+  %ul.navbar-nav.ml-auto.pt-0.text-nowrap.menu-options
     %li.nav-item
       = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link') do
-        = User.session!.login
-    %li.nav-item
-      - tasks = User.session!.tasks
-      = link_to(my_tasks_path, class: 'nav-link') do
-        - if tasks.positive?
-          %span{ title: 'where an action is requested from you' }
-            = pluralize(tasks, 'Task')
-        - else
-          Tasks
+        = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light mr-2')
+        Profile
     %li.nav-item
       - if User.session!.home_project
         = link_to(project_show_path(User.session!.home_project), class: 'nav-link') do
-          Home Project
+          %i.fas.fa-cubes.fa-lg.mr-2
+          Your Home Project
       - else
         = link_to(new_project_path(name: User.session!.home_project_name), class: 'nav-link') do
-          Create Home
+          %i.fas.fa-cubes.fa-lg.mr-2
+          Create Your Home Project
     %li.nav-item
       = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
+        %i.fas.fa-sign-out-alt.fa-lg.mr-2
         Logout
