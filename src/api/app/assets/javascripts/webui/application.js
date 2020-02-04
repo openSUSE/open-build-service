@@ -54,4 +54,4 @@
 //= require webui/kiwi_editor.js
 //= require webui/monitor.js
 //= require webui/airbrake-js
-//= require webui/offcanvas
+//= require webui/responsive_ux

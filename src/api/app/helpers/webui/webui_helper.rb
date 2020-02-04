@@ -357,6 +357,31 @@ module Webui::WebuiHelper
   end
 
   # responsive_ux:
+  def access_params
+    return proxy_params if CONFIG['proxy_auth_mode'] == :on
+    no_proxy_params
+  end
+
+  # responsive_ux:
+  def proxy_params
+    { sign_up_url: "#{CONFIG['proxy_auth_register_page']}?%22",
+      form_url: CONFIG['proxy_auth_login_page'],
+      options: { method: :post,
+                 enctype: 'application/x-www-form-urlencoded' },
+      proxy: true,
+      can_sign_up: CONFIG['proxy_auth_register_page'].present? }
+  end
+
+  # responsive_ux:
+  def no_proxy_params
+    { sign_up_url: signup_path,
+      form_url: session_path,
+      options: { method: :post },
+      proxy: false,
+      can_sign_up: can_register }
+  end
+
+  # responsive_ux:
   def flipper_responsive?
     Flipper.enabled?(:responsive_ux, User.possibly_nobody)
   end

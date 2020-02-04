@@ -16,6 +16,11 @@
         .toggler{ data: { toggle: 'offcanvas' } }
           = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
       - else
-        = render partial: 'layouts/webui/responsive_ux/unlogged_navigation'
+        = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
+
 - if User.session
-  = render partial: 'layouts/webui/responsive_ux/logged_navigation'
+  = render partial: 'layouts/webui/responsive_ux/user_navigation'
+- elsif !CONFIG['kerberos_mode']
+  = render partial: 'layouts/webui/responsive_ux/login_modal'
+  - if CONFIG['proxy_auth_mode'] != :on && access_params[:can_sign_up]
+    = render partial: 'layouts/webui/responsive_ux/sign_up_modal'

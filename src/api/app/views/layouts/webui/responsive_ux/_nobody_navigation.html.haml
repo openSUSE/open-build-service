@@ -1,0 +1,9 @@
+- if CONFIG['kerberos_mode']
+  = link_to 'Log In', new_session_path, class: 'btn btn-outline-light ml-3 text-nowrap'
+- else
+  - if CONFIG['proxy_auth_mode'] == :on
+    - if proxy_params[:can_sign_up]
+      = link_to('Sign Up', proxy_params[:sign_up_url], class: 'nav-link ml-3 text-light toggler')
+  - elsif can_register
+    = link_to('Sign Up', '#', class: 'nav-link ml-3 text-light toggler', data: { toggle: 'modal', target: '#sign-up-modal' })
+  = link_to('Log In', '#', class: 'nav-link btn btn-outline-light ml-3 text-nowrap toggler', data: { toggle: 'modal', target: '#log-in-modal' })

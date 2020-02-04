@@ -14,8 +14,18 @@
       %li.nav-item.border-left.border-gray-500
         = link_to('#', class: 'btn btn-dark nav-link', alt: 'Menu', data: { toggle: 'offcanvas' }) do
           %i.fas.fa-bars.fa-lg
+    - elsif CONFIG['kerberos_mode']
+      %li.nav-item
+        = link_to 'Log In', new_session_path, class: 'nav-link text-light'
     - else
-      = content_for :unlogged_options_bottom
-  = content_for :unlogged_forms
+      %li.nav-item.border-right.border-gray-500
+        - if CONFIG['proxy_auth_mode'] == :on
+          - if proxy_params[:can_sign_up]
+            = link_to('Sign Up', proxy_params[:sign_up_url], class: 'nav-link text-light')
+        - elsif can_register
+          = link_to('Sign Up', '#', class: 'nav-link text-light', data: { toggle: 'modal', target: '#sign-up-modal' })
+      %li.nav-item
+        = link_to('Log In', '#', class: 'nav-link text-light', data: { toggle: 'modal', target: '#log-in-modal' })
+
 - if User.session
   = render partial: "layouts/#{responsive_namespace}/watchlist"

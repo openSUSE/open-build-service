@@ -9,14 +9,13 @@
         - else
           %li= link_to('Create Home Project', new_project_path(name: User.session!.home_project_name))
         %li= link_to('Logout', session_path, method: :delete)
-  - if ::Configuration.anonymous
-    .flex-fill.d-none.d-md-block
-      %strong.text-uppercase Locations
-      %ul
-        %li= link_to('Projects', projects_path)
-        %li= link_to('Search', search_path, class: 'search-link')
-        - unless @spider_bot
-          %li= link_to('Status Monitor', monitor_path)
+  .flex-fill.d-none.d-md-block
+    %strong.text-uppercase Locations
+    %ul
+      %li= link_to('Projects', projects_path)
+      %li= link_to('Search', search_path, class: 'search-link')
+      - unless @spider_bot
+        %li= link_to('Status Monitor', monitor_path)
   .flex-fill
     %strong.text-uppercase Help
     %ul

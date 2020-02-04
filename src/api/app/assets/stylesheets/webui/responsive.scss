@@ -26,7 +26,6 @@ body.responsive-ux {
     }
 
     .menu-right { cursor: pointer; }
-    #login-form { width: 250px; }
     .menu-options { font-size: 1.1rem }
   }
 
@@ -51,6 +50,24 @@ body.responsive-ux {
     .breadcrumb-item + .breadcrumb-item::before { display: none; }
   }
 
+  // LOG IN AND SIGN UP
+
+  .access-modal {
+    background-color: #00000080;
+    .close { cursor: pointer; }
+    .login-separator {
+      position: relative;
+      span {
+        position: absolute;
+        top: -.7rem;
+        left: 50%;
+        padding: 0 .5rem;
+        margin-left: -1.5rem;
+      }
+    }
+  }
+
+
   // OFFCANVAS MENU
 
   button.navbar-toggler {
@@ -60,50 +77,27 @@ body.responsive-ux {
     }
   }
 
-  #login-form-canvas {
-    bottom: 0;
-    .card {
-      margin: 1rem auto 3rem;
-      max-width: 330px;
-
-      .login-separator {
-        position: relative;
-        span {
-          position: absolute;
-          top: -.7rem;
-          left: 50%;
-          padding: 0 .5rem;
-          margin-left: -1rem;
-        }
-      }
-    }
-  }
-
   .watchlist-collapse, .offcanvas-collapse {
-    bottom: 58px;
-    background-color: #343a40;
-    color: $gray-400;
-
-    & a {
-      color: $gray-300;
-      &:hover { color: white; }
-    }
-
-    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
-    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
-    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
-  }
-
-  .watchlist-collapse, .offcanvas-collapse, #login-form-canvas {
     position: fixed;
     top: 57px;
     left: 100%;
+    bottom: 58px;
     width: 100%;
     padding-right: 1rem;
     padding-left: 1rem;
     overflow-y: auto;
     visibility: hidden;
     z-index: 9000;
+    background-color: #343a40;
+    color: $gray-400;
+    transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+    transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+
+    & a {
+      color: $gray-300;
+      &:hover { color: white; }
+    }
 
     &.open {
       visibility: visible;
@@ -146,10 +140,6 @@ body.responsive-ux {
         align-self: flex-start;
       }
       .navbar-toggler { display: none; }
-    }
-
-    #login-form-canvas {
-      display: none;
     }
 
     #footer {
