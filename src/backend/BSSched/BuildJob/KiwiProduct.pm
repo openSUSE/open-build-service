@@ -367,7 +367,7 @@ sub check {
 	for my $fn (@bi) {
 	  next unless $fn =~ /\.rpm$/;
 	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
-	  next if $nosrcpkgs && $fn =~ /\.(?:nosrc|src)\.rpm$/;
+	  next if $fn =~ /\.(?:nosrc|src)\.rpm$/;
 	  if ($fn =~ /^::import::.*?::(.*)$/) {
 	    # ignore import if we already got the package (can happen with aggregates)
 	    next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
@@ -383,6 +383,24 @@ sub check {
 	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
 	}
 	next unless $needit;
+	# collect all source packages if we needed one binary package
+	if (!$nosrcpkgs) {
+	  for my $fn (@bi) {
+	    next unless $fn =~ /\.(?:nosrc|src)\.rpm$/;
+	    if ($fn =~ /^::import::.*?::(.*)$/) {
+	      # ignore import if we already got the package (can happen with aggregates)
+	      next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
+	    }
+	    my $b = $bininfo->{$fn};
+	    if ($seen_binary) {
+	      next if $seen_binary->{"$b->{'name'}-$b->{'version'}-$b->{'release'}.$b->{'arch'}"};
+	      $seen_binary->{"$b->{'name'}-$b->{'version'}-$b->{'release'}.$b->{'arch'}"} = 1;
+	    }
+	    push @got, "$aprp/$arch/$apackid/$fn";
+	    $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
+	    $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
+	  }
+        }
 	# ok we need it. check if the package is built.
 	my $code = $ps->{$apackid} || 'unknown';
 	if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
