@@ -9,7 +9,11 @@
 - if submit_message && show_link
   %ul.list-inline
     %li.list-inline-item
-      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#submit-request-modal' }) do
+      = link_to('#',
+          class: 'nav-link',
+          data: { toggle: 'modal',
+                  target: '#submit-request-modal',
+                  url: package_branch_diff_info_path(project.name, package.name) }) do
         %i.fas.fa-share-square.text-warning
         = submit_message
 
