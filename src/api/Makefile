@@ -1,4 +1,5 @@
 include ../../Makefile.include
+-include ../../Makefile.local
 
 
 OBS_API_LOGS := access.log backend_access.log delayed_job.log error.log lastevents.access.log
@@ -71,3 +72,5 @@ clean:
 	rm -rf ../../docs/api/html
 
 .PHONY: test
+
+include ../../Makefile.targets

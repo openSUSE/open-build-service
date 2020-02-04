@@ -1,4 +1,5 @@
 include ../Makefile.include
+-include ../Makefile.local
 
 LOGROTATE_CONFIGS     := obs-api obs-server obs-source_service
 OBS_BIN_SCRIPTS       := obs_productconvert
@@ -76,3 +77,5 @@ test_appliance:
 	prove -v t/*.ta
 
 .PHONY: test_unit test_system
+
+include ../Makefile.targets
