@@ -22,15 +22,56 @@
 %global sbin /sbin
 %endif
 
-%if 0%{?fedora} || 0%{?rhel}
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
 %global apache_user apache
 %global apache_group apache
+%global apache_confdir /etc/httpd
+%global apache_vhostdir %{apache_confdir}/conf.d
+%global apache_logdir /var/log/httpd
+%define apache_group_requires Requires(pre):  httpd
+%global apache_requires \
+Requires:       httpd\
+Requires:       mod_xforward\
+Requires:       rubygem-passenger\
+Requires:       mod_passenger\
+Requires:       ruby\
+Requires:       rubygem-rails\
+%{nil}
+
+%define __obs_ruby_version 2.6.0
+%define __obs_ruby_bin /usr/bin/ruby
+%define __obs_bundle_bin /usr/bin/bundle
+%define __obs_rake_bin /usr/bin/rake
+%define __obs_document_root /srv/www/obs
+%define __obs_api_prefix %{__obs_document_root}/api
+%define __obs_build_package_name obs-build
+
 %else
 %global apache_user wwwrun
 %global apache_group www
+%global apache_confdir /etc/apache2
+%global apache_vhostdir %{apache_confdir}/vhost.d
+%global apache_logdir /var/log/apache2
+%define apache_group_requires Requires(pre):  group(%{apache_group})
+%global apache_requires \
+Requires:       apache2\
+Requires:       apache2-mod_xforward\
+Requires:       ruby2.5-rubygem-passenger\
+Requires:       rubygem-passenger-apache2\
+Requires:       ruby(abi) = %{__obs_ruby_version}\
+%{nil}
+
+%define __obs_ruby_version 2.5.0
+%define __obs_ruby_bin /usr/bin/ruby.ruby2.5
+%define __obs_bundle_bin /usr/bin/bundle.ruby2.5
+%define __obs_rake_bin /usr/bin/rake.ruby2.5
+%define __obs_document_root /srv/www/obs
+%define __obs_api_prefix %{__obs_document_root}/api
+%define __obs_build_package_name build
+
 %endif
 
-%define secret_key_file /srv/www/obs/api/config/secret.key
+%define secret_key_file %{__obs_api_prefix}/config/secret.key
 %define obs_backend_data_dir /srv/obs
 
 %if ! %{defined _restart_on_update_reload}
@@ -100,7 +141,6 @@ BuildRequires:  python-devel
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  /usr/bin/xmllint
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.36
 BuildRequires:  perl-Compress-Zlib
@@ -115,13 +155,12 @@ BuildRequires:  perl-XML-Simple
 BuildRequires:  perl-XML-Structured
 BuildRequires:  perl-YAML-LibYAML
 BuildRequires:  procps
-BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
 BuildRequires:  perl(Test::Simple) > 1
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
-Requires:       build >= 20200110
+Requires:       %{__obs_build_package_name} >= 20200110
 Requires:       perl-BSSolv >= 0.36
 Requires:       perl(Date::Parse)
 # Required by source server
@@ -138,6 +177,11 @@ Provides:       obs-devel
 
 BuildRequires:  xz
 
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
+BuildRequires:  rubygem-sassc
+BuildRequires: obs-server-macros
+%endif
+
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
 PreReq:         %insserv_prereq permissions pwdutils
@@ -149,12 +193,16 @@ Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
 Recommends:     obs-signd
+
+%if 0%{?suse_version}
 Recommends:     inst-source-utils
+%endif
+
 Recommends:     perl-Diff-LibXDiff
 %else
-Requires:       dpkg
-Requires:       yum
-Requires:       yum-metadata-parser
+Recommends:       dpkg
+Recommends:       yum
+Recommends:       yum-metadata-parser
 %endif
 Requires:       perl-Compress-Zlib
 Requires:       perl-File-Sync >= 0.10
@@ -222,8 +270,8 @@ run a local playground test installation.
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
 Group:          Productivity/Networking/Web/Utilities
-Requires(pre):  shadow
 %if 0%{?suse_version}
+Requires(pre):  shadow
 PreReq:         %fillup_prereq
 %endif
 
@@ -233,28 +281,30 @@ This is a package providing basic configuration files.
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
 Group:          Productivity/Networking/Web/Utilities
-%if 0%{?suse_version}
 Requires(pre):  obs-common
-%endif
-%if 0%{?suse_version} >= 1330
-Requires(pre):  group(www)
-%endif
-
-# For apache
-Requires:       apache2
-Requires:       apache2-mod_xforward
-Requires:       ruby2.5-rubygem-passenger
-Requires:       rubygem-passenger-apache2
+%{apache_group_requires}
+%{apache_requires}
 Conflicts:      memcached < 1.4
 
-Requires:       ruby(abi) = 2.5.0
 # for test suite:
 BuildRequires:  createrepo_c
 BuildRequires:  curl
+%if 0%{?suse_version}
+BuildRequires:  /usr/bin/xmllint
+BuildRequires:  timezone
 BuildRequires:  netcfg
+%else
+# nothing provides timezone
+# nothing provides netcfg
+%endif
+
 # write down dependencies for production
 BuildRequires:  obs-api-testsuite-deps
+%if 0%{?suse_version}
 Requires:       ghostscript-fonts-std
+%else
+# - nothing provides ghostscript-fonts-std needed by obs-api-2.11~alpha.20200117T213441.b4cf6c4da5-9555.1.noarch
+%endif
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
 
@@ -265,7 +315,7 @@ OBS.
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
 Group:          Productivity/Networking/Web/Utilities
-Requires:       build
+Requires:       %{__obs_build_package_name}
 Requires:       osc
 
 %description -n obs-utils
@@ -314,6 +364,30 @@ find -name .keep -o -name .gitignore | xargs rm -rf
 
 %build
 export DESTDIR=$RPM_BUILD_ROOT
+export BUNDLE_FORCE_RUBY_PLATFORM=true
+
+cat <<EOF > Makefile.local
+INSTALL=/usr/bin/install
+OBS_BACKEND_PREFIX=/usr/lib/obs/server
+OBS_BACKEND_DATA_DIR=%{obs_backend_data_dir}
+OBS_DOCUMENT_ROOT=%{__obs_document_root}
+OBS_API_PREFIX=%{__obs_document_root}/api
+OBS_APIDOCS_PREFIX=%{__obs_document_root}/docs
+
+# TODO: find fix for RH in spec/Makefile
+# This here is preparation for multi distro support
+APACHE_USER=%{apache_user}
+APACHE_GROUP=%{apache_group}
+APACHE_CONFDIR=%{apache_confdir}
+APACHE_CONFDIR_VHOST=%{apache_vhostdir}
+APACHE_VHOST_CONF=obs-apache24.conf
+APACHE_LOGDIR=%{apache_logdir}
+
+OBS_RUBY_BIN=%{__obs_ruby_bin}
+OBS_BUNDLE_BIN=%{__obs_bundle_bin}
+OBS_RAKE_BIN=%{__obs_rake_bin}
+OBS_RUBY_VERSION=%{__obs_ruby_version}
+EOF
 
 pushd src/api
 # configure to the bundled gems
@@ -327,34 +401,23 @@ make
 
 %install
 export DESTDIR=$RPM_BUILD_ROOT
-
-%if 0%{?suse_version} < 1300
-  perl -p -i -e 's/^APACHE_VHOST_CONF=.*/APACHE_VHOST_CONF=obs-apache2.conf/' Makefile.include
-%endif
-
-%if 0%{?fedora} || 0%{?rhel}
-  # Fedora use different user:group for apache
-  perl -p -i -e 's/^APACHE_USER=.*/APACHE_USER=apache/' Makefile.include
-  perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
-%endif
-
 export OBS_VERSION="%{version}"
-DESTDIR=%{buildroot} make install FILLUPDIR=%{_fillupdir}
+DESTDIR=%{buildroot} make install
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
-    sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}/srv/www/obs/api/last_deploy
+    sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}%{__obs_api_prefix}/last_deploy
 else
-    echo "" > %{buildroot}/srv/www/obs/api/last_deploy
+    echo "" > %{buildroot}%{__obs_api_prefix}/last_deploy
 fi
 #
 # turn duplicates into hard links
 #
 # There's dupes between webui and api:
 %if 0%{?suse_version}
-%fdupes $RPM_BUILD_ROOT/srv/www/obs
+%fdupes $RPM_BUILD_ROOT%{__obs_document_root}
 %endif
 
 # drop testcases for now
-rm -rf %{buildroot}/srv/www/obs/api/spec
+rm -rf %{buildroot}%{__obs_api_prefix}/spec
 
 # fail when Makefiles created a directory
 if ! test -L %{buildroot}/usr/lib/obs/server/build; then
@@ -369,10 +432,19 @@ mkdir -p $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws
 install -m 644 $RPM_BUILD_DIR/open-build-service-%version/dist/aws_credentials.example $RPM_BUILD_ROOT/etc/obs/cloudupload/.aws/credentials
 
 # Link the assets without hash to make them accessible for third party tools like the pattern library
-pushd $RPM_BUILD_ROOT/srv/www/obs/api/public/assets/webui/
+pushd $RPM_BUILD_ROOT%{__obs_api_prefix}/public/assets/webui/
 ln -sf application-*.js application.js
 ln -sf application-*.css application.css
 popd
+
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
+[-d $RPM_BUILD_ROOT/etc/sysconfig] || mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+cp dist/rc.status $RPM_BUILD_ROOT/etc
+install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/etc/sysconfig/obs-server
+%else
+mkdir -p $RPM_BUILD_ROOT/%{_fillupdir}
+install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/%{_fillupdir}
+%endif
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -447,11 +519,11 @@ if [ -f /etc/sysconfig/obs-server ] ; then
     . /etc/sysconfig/obs-server
 fi
 for i in deltastore dispatcher dodup obsgetbinariesproxy publisher rep_server servicedispatch signer src_server warden ; do
-    LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
+    LOG=${OBS_LOG_DIR:=%{obs_backend_data_dir}/log}/$i.log
     test -f $LOG && chown obsrun:obsrun $LOG
 done
 for i in src_service ; do
-    LOG=${OBS_LOG_DIR:=/srv/obs/log}/$i.log
+    LOG=${OBS_LOG_DIR:=%{obs_backend_data_dir}/log}/$i.log
     test -f $LOG && chown obsservicerun:obsrun $LOG
 done
 
@@ -526,7 +598,7 @@ exit 0
 %service_add_post obsclouduploadserver.service
 
 %posttrans
-[ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
+[ -d %{obs_backend_data_dir} ] || install -d -o obsrun -g obsrun %{obs_backend_data_dir}
 # this changes from directory to symlink. rpm can not handle this itself.
 if [ -e /usr/lib/obs/server/build -a ! -L /usr/lib/obs/server/build ]; then
   rm -rf /usr/lib/obs/server/build
@@ -551,7 +623,7 @@ fi
 %service_del_postun -r obsnotifyforward.service
 %service_del_postun -r obsredis.service
 # cleanup empty directory just in case
-rmdir /srv/obs 2> /dev/null || :
+rmdir %{obs_backend_data_dir} 2> /dev/null || :
 
 %postun -n obs-common
 # NOT used on purpose: restart_on_update obsstoragesetup
@@ -573,7 +645,7 @@ rmdir /srv/obs 2> /dev/null || :
 
 %pre -n obs-api
 getent passwd obsapidelayed >/dev/null || \
-  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
+  /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d %{__obs_api_prefix} -g %{apache_group} obsapidelayed
 %service_add_pre %{obs_api_support_scripts}
 
 # On upgrade keep the values for the %post script
@@ -592,37 +664,39 @@ fi
 
 %post -n obs-common
 %service_add_post obsstoragesetup.service
+%if 0%{?suse_version}
 %{fillup_and_insserv -n obs-server}
+%endif
 
 %post -n obs-api
-if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
-  cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
+if [ -e %{__obs_document_root}/frontend/config/database.yml ] && [ ! -e %{__obs_api_prefix}/config/database.yml ]; then
+  cp %{__obs_document_root}/frontend/config/database.yml %{__obs_api_prefix}/config/database.yml
 fi
 for i in production.rb ; do
-  if [ -e /srv/www/obs/frontend/config/environments/$i ] && [ ! -e /srv/www/obs/api/config/environments/$i ]; then
-    cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
+  if [ -e s%{__obs_document_root}/frontend/config/environments/$i ] && [ ! -e %{__obs_api_prefix}/config/environments/$i ]; then
+    cp %{__obs_document_root}/frontend/config/environments/$i %{__obs_api_prefix}/config/environments/$i
   fi
 done
 
 if [ ! -s %{secret_key_file} ]; then
-  pushd /srv/www/obs/api
+  pushd %{__obs_api_prefix}
   RAILS_ENV=production bin/rails secret > %{secret_key_file}
   popd
 fi
 chmod 0640 %{secret_key_file}
-chown root.www %{secret_key_file}
+chown root:%{apache_group} %{secret_key_file}
 
 # update config
-sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
-touch /srv/www/obs/api/log/production.log
-chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
+sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' %{__obs_api_prefix}/config/database.yml
+touch %{__obs_api_prefix}/log/production.log
+chown %{apache_user}:%{apache_group} %{__obs_api_prefix}/log/production.log
 
 %restart_on_update memcached
 %service_add_post %{obs_api_support_scripts}
 # We need to touch the last_deploy file in the post hook
 # to update the timestamp which we use to display the
 # last deployment time in the API
-touch /srv/www/obs/api/last_deploy || true
+touch %{__obs_api_prefix}/last_deploy || true
 
 # Upgrading from SysV obsapidelayed.service to systemd obs-api-support.target
 # This must be done after %%service_add_post. Otherwise the distribution preset is
@@ -763,32 +837,32 @@ usermod -a -G docker obsservicerun
 %files -n obs-api
 %defattr(-,root,root)
 %doc dist/{README.UPDATERS,README.SETUP} docs/openSUSE.org.xml ReleaseNotes-* README.md COPYING AUTHORS
-/srv/www/obs/overview
+%{__obs_document_root}/overview
 
-/srv/www/obs/api/config/thinking_sphinx.yml.example
-%config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
-%attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
+%{__obs_api_prefix}/config/thinking_sphinx.yml.example
+%config(noreplace) %{__obs_api_prefix}/config/thinking_sphinx.yml
+%attr(-,%{apache_user},%{apache_group}) %config(noreplace) %{__obs_api_prefix}/config/production.sphinx.conf
 
-%dir /srv/www/obs
-%dir /srv/www/obs/api
-%dir /srv/www/obs/api/config
-%config(noreplace) /srv/www/obs/api/config/cable.yml
-%config(noreplace) /srv/www/obs/api/config/feature.yml
-%config(noreplace) /srv/www/obs/api/config/puma.rb
-%config(noreplace) /srv/www/obs/api/config/secrets.yml
-%config(noreplace) /srv/www/obs/api/config/spring.rb
-%config(noreplace) /srv/www/obs/api/config/crawler-user-agents.json
-/srv/www/obs/api/config/initializers
-%dir /srv/www/obs/api/config/environments
-%dir /srv/www/obs/api/files
-%dir /srv/www/obs/api/db
-/srv/www/obs/api/db/checker.rb
-/srv/www/obs/api/Gemfile
-%verify(not mtime) /srv/www/obs/api/last_deploy
-/srv/www/obs/api/Gemfile.lock
-/srv/www/obs/api/config.ru
-/srv/www/obs/api/config/application.rb
-/srv/www/obs/api/config/clock.rb
+%dir %{__obs_document_root}
+%dir %{__obs_api_prefix}
+%dir %{__obs_api_prefix}/config
+%config(noreplace) %{__obs_api_prefix}/config/cable.yml
+%config(noreplace) %{__obs_api_prefix}/config/feature.yml
+%config(noreplace) %{__obs_api_prefix}/config/puma.rb
+%config(noreplace) %{__obs_api_prefix}/config/secrets.yml
+%config(noreplace) %{__obs_api_prefix}/config/spring.rb
+%config(noreplace) %{__obs_api_prefix}/config/crawler-user-agents.json
+%{__obs_api_prefix}/config/initializers
+%dir %{__obs_api_prefix}/config/environments
+%dir %{__obs_api_prefix}/files
+%dir %{__obs_api_prefix}/db
+%{__obs_api_prefix}/db/checker.rb
+%{__obs_api_prefix}/Gemfile
+%verify(not mtime) %{__obs_api_prefix}/last_deploy
+%{__obs_api_prefix}/Gemfile.lock
+%{__obs_api_prefix}/config.ru
+%{__obs_api_prefix}/config/application.rb
+%{__obs_api_prefix}/config/clock.rb
 %config(noreplace) /etc/logrotate.d/obs-api
 %{_unitdir}/obsapisetup.service
 %{_unitdir}/obs-api-support.target
@@ -813,73 +887,80 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobs-delayedjob-queue-staging
 %{_sbindir}/rcobs-sphinx
 %{_sbindir}/rcobsapisetup
-/srv/www/obs/api/app
-%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
-%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/data_schema.rb
-/srv/www/obs/api/db/attribute_descriptions.rb
-/srv/www/obs/api/db/data
-/srv/www/obs/api/db/migrate
-/srv/www/obs/api/db/seeds.rb
-/srv/www/obs/api/files/wizardtemplate.spec
-/srv/www/obs/api/lib
-/srv/www/obs/api/public
-/srv/www/obs/api/Rakefile
-/srv/www/obs/api/script
-/srv/www/obs/api/bin
-/srv/www/obs/api/test
-/srv/www/obs/api/vendor/assets
-/srv/www/obs/docs
+%{__obs_api_prefix}/app
+%attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/structure.sql
+%attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/data_schema.rb
+%{__obs_api_prefix}/db/attribute_descriptions.rb
+%{__obs_api_prefix}/db/data
+%{__obs_api_prefix}/db/migrate
+%{__obs_api_prefix}/db/seeds.rb
+%{__obs_api_prefix}/files/wizardtemplate.spec
+%{__obs_api_prefix}/lib
+%{__obs_api_prefix}/public
+%{__obs_api_prefix}/Rakefile
+%{__obs_api_prefix}/script
+%{__obs_api_prefix}/bin
+%{__obs_api_prefix}/test
+%{__obs_api_prefix}/vendor/assets
+%{__obs_document_root}/docs
 
-/srv/www/obs/api/config/locales
-%dir /srv/www/obs/api/vendor
-/srv/www/obs/api/vendor/diststats
+%{__obs_api_prefix}/config/locales
+%dir %{__obs_api_prefix}/vendor
+%{__obs_api_prefix}/vendor/diststats
 
 #
 # some files below config actually are _not_ config files
 # so here we go, file by file
 #
 
-/srv/www/obs/api/config/boot.rb
-/srv/www/obs/api/config/routes.rb
-/srv/www/obs/api/config/routes
-/srv/www/obs/api/config/environments/development.rb
-%attr(0640,root,%apache_group) %config(noreplace) %verify(md5) /srv/www/obs/api/config/database.yml
-%attr(0640,root,%apache_group) /srv/www/obs/api/config/database.yml.example
-%attr(0644,root,root) %config(noreplace) %verify(md5) /srv/www/obs/api/config/options.yml
-%attr(0644,root,root) /srv/www/obs/api/config/options.yml.example
-%dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx
-%dir %attr(0755,%apache_user,%apache_group) /srv/www/obs/api/db/sphinx/production
-/srv/www/obs/api/.bundle
+%{__obs_api_prefix}/config/boot.rb
+%{__obs_api_prefix}/config/routes.rb
+%{__obs_api_prefix}/config/routes
+%{__obs_api_prefix}/config/environments/development.rb
+%attr(0640,root,%apache_group) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/database.yml
+%attr(0640,root,%apache_group) %{__obs_api_prefix}/config/database.yml.example
+%attr(0644,root,root) %config(noreplace) %verify(md5) %{__obs_api_prefix}/config/options.yml
+%attr(0644,root,root) %{__obs_api_prefix}/config/options.yml.example
+%dir %attr(0755,%apache_user,%apache_group) %{__obs_api_prefix}/db/sphinx
+%dir %attr(0755,%apache_user,%apache_group) %{__obs_api_prefix}/db/sphinx/production
+%{__obs_api_prefix}/.bundle
 
-%config /srv/www/obs/api/config/environment.rb
-%config /srv/www/obs/api/config/environments/production.rb
-%config /srv/www/obs/api/config/environments/test.rb
-%config /srv/www/obs/api/config/environments/stage.rb
+%config %{__obs_api_prefix}/config/environment.rb
+%config %{__obs_api_prefix}/config/environments/production.rb
+%config %{__obs_api_prefix}/config/environments/test.rb
+%config %{__obs_api_prefix}/config/environments/stage.rb
 
-%dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log
-%attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
+%dir %attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/log
+%attr(-,%{apache_user},%{apache_group}) %{__obs_api_prefix}/tmp
 
 # these dirs primarily belong to apache2:
-%dir /etc/apache2
-%dir /etc/apache2/vhosts.d
-%config(noreplace) /etc/apache2/vhosts.d/obs.conf
+%dir %{apache_confdir}
+%dir %{apache_vhostdir}
+%config(noreplace) %{apache_vhostdir}/obs.conf
 
-%defattr(0644,wwwrun,www)
-%ghost /srv/www/obs/api/log/access.log
-%ghost /srv/www/obs/api/log/backend_access.log
-%ghost /srv/www/obs/api/log/delayed_job.log
-%ghost /srv/www/obs/api/log/error.log
-%ghost /srv/www/obs/api/log/lastevents.access.log
-%ghost /srv/www/obs/api/log/production.log
-%ghost %attr(0640,root,www) %secret_key_file
+%defattr(0644,%{apache_user},%{apache_group})
+%ghost %{__obs_api_prefix}/log/access.log
+%ghost %{__obs_api_prefix}/log/backend_access.log
+%ghost %{__obs_api_prefix}/log/delayed_job.log
+%ghost %{__obs_api_prefix}/log/error.log
+%ghost %{__obs_api_prefix}/log/lastevents.access.log
+%ghost %{__obs_api_prefix}/log/production.log
+%ghost %attr(0640,root,%{apache_group}) %secret_key_file
 
 %files -n obs-common
 %defattr(-,root,root)
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
+%config(noreplace) /etc/sysconfig/obs-server
+%else
 %{_fillupdir}/sysconfig.obs-server
+%endif
 /usr/lib/obs/server/setup-appliance.sh
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
 /usr/sbin/rcobsstoragesetup
+%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
+/etc/rc.status
+%endif
 
 %files -n obs-utils
 %defattr(-,root,root)
