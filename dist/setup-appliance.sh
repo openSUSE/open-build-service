@@ -22,9 +22,11 @@ function check_unit {
   [[ $SETUP_ONLY == 1 ]] && return
 
   echo "Checking unit $srv ..."
-
-  logline "Enabling $srv"
-  execute_silently systemctl enable $srv
+  IS_ENABLED=`systemctl is-enabled $srv`
+  if [ "$IS_ENABLED" != "enabled" ];then
+    logline "Enabling $srv"
+    execute_silently systemctl enable --now $srv
+  fi
   if [[ $? -gt 0 ]];then
     logline "WARNING: Enabling $srv daemon failed."
   fi
@@ -240,14 +242,26 @@ function prepare_database_setup {
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
-    echo " - reconfiguring /etc/my.cnf"
-    perl -p -i -e 's#.*datadir\s*=\s*/var/lib/mysql$#datadir= /srv/obs/MySQL#' /etc/my.cnf
+    DATADIR_FILE=$(grep datadir -rl /etc/my.cnf*)
+    echo " - reconfiguring datadir in $DATADIR_FILE"
+    perl -p -i -e 's#.*datadir\s*=\s*/var/lib/mysql$#datadir= /srv/obs/MySQL#' $DATADIR_FILE
     echo " - installing to new datadir"
     mysql_install_db
     echo " - changing ownership for new datadir"
     chown mysql:mysql -R /srv/obs/MySQL
+    MYSQL_LOG=$(grep log-error /etc/my.cnf.d/*.cnf|perl -p -e 's/.*:log-error=(.*)/$1/')
+    if [ -n "$MYSQL_LOG" ];then
+      echo " - prepare log file $MYSQL_LOG"
+      LOG_DIR=`dirname $MYSQL_LOG`
+      if [ ! -d $LOG_DIR ];then
+        mkdir -p $LOG_DIR
+        chown mysql:mysql $LOG_DIR
+      fi
+      touch $MYSQL_LOG
+      chown mysql:mysql $MYSQL_LOG
+    fi
     echo " - restarting mysql"
-    systemctl restart mysql
+    systemctl restart $MYSQL_SERVICE
     echo " - setting new password for user root in mysql"
     mysqladmin -u root password "opensuse"
     if [[ $? > 0 ]];then
@@ -352,8 +366,8 @@ function import_ca_cert {
   # apache has to trust the api ssl certificate
   if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.crt ]; then
     cp $backenddir/certs/server.${FQHOSTNAME}.crt \
-      /usr/share/pki/trust/anchors/server.${FQHOSTNAME}.pem
-    update-ca-certificates
+      ${TRUST_ANCHORS_DIR}/server.${FQHOSTNAME}.pem
+    $UPDATE_SSL_TRUST_BIN
   fi
 }
 ###############################################################################
@@ -376,7 +390,7 @@ function relink_server_cert {
 ###############################################################################
 function fix_permissions {
   cd $apidir
-  chown -R wwwrun.www $apidir/log
+  chown -R $HTTPD_USER:$HTTPD_GROUP $apidir/log
 }
 
 ###############################################################################
@@ -434,8 +448,8 @@ function check_required_backend_services {
 
   for srv in $REQUIRED_SERVICES ;do
     ENABLED=`systemctl is-enabled $srv`
+    [[ "$ENABLED" == "enabled" ]] || systemctl enable --now $srv
     ACTIVE=`systemctl is-active $srv`
-    [[ "$ENABLED" == "enabled" ]] || systemctl enable $srv
     [[ "$ACTIVE" == "active" ]] || systemctl start $srv
   done
 
@@ -444,7 +458,6 @@ function check_required_backend_services {
 function check_recommended_backend_services {
 
   [[ $SETUP_ONLY == 1 ]] && return
-  RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd obsservicedispatch"
 
   for srv in $RECOMMENDED_SERVICES;do
     STATE=$(chkconfig $srv|awk '{print $2}')
@@ -452,8 +465,7 @@ function check_recommended_backend_services {
       ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
       case $rv in
         y|yes|Y|YES)
-          systemctl enable $srv
-          systemctl start $srv
+          systemctl enable --now $srv
         ;;
       esac
     fi
@@ -477,8 +489,7 @@ function check_optional_backend_services {
       ask "Service $srv is not enabled. Would you like to enable it? [yN]" $DEFAULT_ANSWER
       case $rv in
         y|yes|Y|YES)
-          systemctl enable $srv
-          systemctl start $srv
+          systemctl enable --now $srv
         ;;
       esac
     fi
@@ -489,27 +500,28 @@ function prepare_apache2 {
 
   [[ $SETUP_ONLY == 1 ]] && return
 
-  PACKAGES="apache2 apache2-mod_xforward rubygem-passenger-apache2 memcached"
   PKG2INST=""
-  for pkg in $PACKAGES;do
+  for pkg in $APACHE_ADDITIONAL_PACKAGES;do
     rpm -q $pkg >/dev/null || PKG2INST="$PKG2INST $pkg"
   done
 
   if [[ -n $PKG2INST ]];then
-    zypper --non-interactive install $PKG2INST >/dev/null
+    $INST_PACKAGES_CMD $PKG2INST >/dev/null
   fi
 
-  MODULES="passenger rewrite proxy proxy_http xforward headers socache_shmcb"
+  if [ "$CONFIGURE_APACHE" == 1 ];then
+    MODULES="passenger rewrite proxy proxy_http headers socache_shmcb"
 
-  for mod in $MODULES;do
-    a2enmod -q $mod || a2enmod $mod
-  done
+    for mod in $MODULES;do
+      a2enmod -q $mod || a2enmod $mod
+    done
 
-  FLAGS=SSL
+    FLAGS=SSL
 
-  for flag in $FLAGS;do
-    a2enflag $flag >/dev/null
-  done
+    for flag in $FLAGS;do
+      a2enflag $flag >/dev/null
+    done
+  fi
 
 }
 ###############################################################################
@@ -517,8 +529,7 @@ function prepare_passenger {
 
   perl -p -i -e \
     's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.5"#' \
-      /etc/apache2/conf.d/mod_passenger.conf
-
+      $MOD_PASSENGER_CONF
 
 }
 ###############################################################################
@@ -580,6 +591,42 @@ EOF
 
 }
 
+function prepare_os_settings {
+  . /etc/os-release
+  for d in $ID_LIKE;do
+    case $d in
+      suse|opensuse)
+        MYSQL_SERVICE=mysql
+        HTTPD_SERVICE=apache2
+        HTTPD_USER=wwwrun
+        HTTPD_GROUP=www
+        PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/mod_passenger.conf
+        TRUST_ANCHORS_DIR=/usr/share/pki/trust/anchors
+        UPDATE_SSL_TRUST_BIN=update-ca-certificates
+        MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/mod_passenger.conf
+        INST_PACKAGES_CMD="zypper --non-interactive install"
+        APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE apache2-mod_xforward rubygem-passenger-apache2 memcached"
+        CONFIGURE_APACHE=1
+        RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd obsservicedispatch"
+      ;;
+      fedora)
+        MYSQL_SERVICE=mariadb
+        HTTPD_SERVICE=httpd
+        HTTPD_USER=apache
+        HTTPD_GROUP=apache
+        PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/passenger.conf
+        TRUST_ANCHORS_DIR=/etc/pki/ca-trust/source/anchors
+        UPDATE_SSL_TRUST_BIN=update-ca-trust
+        MOD_PASSENGER_CONF=/etc/$HTTPD_SERVICE/conf.d/passenger.conf
+        INST_PACKAGES_CMD="dnf -y install"
+        APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE mod_xforward mod_passenger memcached"
+        CONFIGURE_APACHE=0
+        RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner signd obsservicedispatch"
+      ;;
+    esac
+  done
+}
+
 ###############################################################################
 #
 # MAIN
@@ -587,6 +634,8 @@ EOF
 ###############################################################################
 
 export LC_ALL=C
+
+prepare_os_settings
 
 ENABLE_OPTIONAL_SERVICES=0
 
@@ -645,7 +694,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   check_optional_backend_services
 
-  check_unit mysql.service 1
+  check_unit $MYSQL_SERVICE.service 1
 
   get_hostname
 
@@ -704,13 +753,13 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   prepare_passenger
 
-  check_unit apache2.service
+  check_unit $HTTPD_SERVICE.service
 
   check_unit memcached.service
 
   # make sure that apache gets restarted after cert change
   if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
-      systemctl reload apache2
+      systemctl reload $HTTPD_SERVICE.service
   fi
 
   check_unit obs-api-support.target
