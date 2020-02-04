@@ -8,7 +8,16 @@ my $tests    = 14;
 my $max_wait = 300;
 
 my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
-                 obsscheduler.service   obssrcserver.service    apache2.service         mysql.service/;
+                 obsscheduler.service   obssrcserver.service    /;
+
+my $os = get_distribution();
+if ($os eq "suse") {
+  push @daemons, "apache2.service", "mysql.service";
+} elsif ($os eq 'rh') {
+  push @daemons, "httpd.service", "mariadb.service";
+} else {
+  die "Could not determine distribution!\n";
+}
 
 my $version = `rpm -q --queryformat %{Version} obs-server`;
 
@@ -52,3 +61,16 @@ foreach my $srv ( @daemons ) {
 
 
 exit 0;
+
+sub get_distribution {
+  my $fh;
+  my $os = "";
+  open $fh, '<', '/etc/os-release' || die "Could not open /etc/os-release: $!";
+  my $line;
+  while ($line = <$fh>) {
+    $os = 'suse' if ($line =~ /^ID_LIKE=.*suse.*/);
+    $os = 'rh' if ($line =~ /^ID_LIKE=.*fedora.*/);
+  }
+  close $fh;
+  return $os
+}
