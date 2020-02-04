@@ -14,8 +14,8 @@ TABLES_IN_DB=$(mysql -e "show tables" $DB_NAME)
 [[ $TABLES_IN_DB ]]
 is "$?" 0 "Checking if tables in database $DB_NAME"
 
-D=`ps -ef|grep "mysqld .* --datadir=/srv/obs/MySQL"|wc -l`
+D=$(mysql -e 'SHOW VARIABLES WHERE Variable_Name LIKE "datadir"'|grep datadir |awk '{ print $2 }')
 
-[ $D -gt 1 -o -f /srv/obs/MySQL/*.pid ]
+[ $D == '/srv/obs/MySQL/' -o -f /srv/obs/MySQL/*.pid ]
 
 is "$?" 0 "Checking if database is started under /srv/obs/MySQL"
