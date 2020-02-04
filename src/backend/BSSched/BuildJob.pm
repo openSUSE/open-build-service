@@ -1162,8 +1162,9 @@ sub create {
     $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
     $binfo->{'genbuildreqs'} = $genbuildreqs->[0] if $genbuildreqs;
     if ($bconf->{'buildflags:obsgendiff'} && @{$ctx->{'repo'}->{'releasetarget'} || []}) {
-       $binfo->{'obsgendiff'} = { 'project' => $ctx->{'repo'}->{'releasetarget'}->[0]->{'project'},
-                                  'repository' => $ctx->{'repo'}->{'releasetarget'}->[0]->{'repository'} };
+       my $releasetarget = $ctx->{'repo'}->{'releasetarget'}->[0];
+       $binfo->{'obsgendiff'} = { 'project' => $releasetarget->{'project'},
+                                  'repository' => $releasetarget->{'repository'} };
 
     }
   }
