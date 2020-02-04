@@ -1,4 +1,3 @@
-require_dependency 'has_relationships'
 
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
@@ -37,7 +36,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)', "%#{search}%"]).order('length(name)', :name).limit(50)
+      AutocompletePackagesFinder.new(self, search).call
     end
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
@@ -102,21 +101,17 @@ class Project < ApplicationRecord
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
-  scope :autocomplete, ->(search) { where('lower(name) like lower(?)', "%#{search}%").order('length(name)', :name).limit(50) }
+  scope :autocomplete, ->(search) { AutocompleteProjectsFinder.new(Project.all, search).call }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   scope :local_image_templates, lambda {
-    includes(:packages).joins(attribs: { attrib_type: :attrib_namespace }).
-      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).
-      order(:title)
+    ProjectsWithImageTemplatesFinder.new.call
   }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
   scope :very_important_projects_with_attributes, lambda {
-    joins(attribs: { attrib_type: :attrib_namespace })
-      .where(attrib_namespaces: { name: 'OBS' },
-             attrib_types: { name: 'VeryImportantProject' })
+    ProjectsWithVeryImportantAttributeFinder.new.call
   }
 
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
@@ -125,77 +120,364 @@ class Project < ApplicationRecord
 
   validates :kind, inclusion: { in: TYPES }
 
-  def self.home?(name)
-    name.start_with?('home:')
-  end
+  class << self
+    def home?(name)
+      name.start_with?('home:')
+    end
 
-  def self.deleted?(project_name)
-    return false if find_by_name(project_name)
+    # NOTE: This has to cover project name validations in src/backend/BSVerify.pm (verify_projid)
+    def valid_name?(name)
+      return false unless name.is_a?(String)
+      return false if name == '0'
+      return false if name =~ /:[:\._]/
+      return false if name =~ /\A[:\._]/
+      return false if name.end_with?(':')
+      return true  if name =~ /\A[-+\w\.:]{1,200}\z/
+      false
+    end
 
-    response = ProjectFile.new(project_name: project_name, name: '_history').content(deleted: 1)
-    return false unless response
+    def deleted?(project_name)
+      return false if find_by_name(project_name)
 
-    !Xmlhash.parse(response).empty?
-  end
+      response = ProjectFile.new(project_name: project_name, name: '_history').content(deleted: 1)
+      return false unless response
 
-  def self.restore(project_name, backend_opts = {})
-    Backend::Api::Sources::Project.undelete(project_name, backend_opts)
+      !Xmlhash.parse(response).empty?
+    end
 
-    # read meta data from backend to restore database object
-    project = Project.new(name: project_name)
+    def restore(project_name, backend_opts = {})
+      Backend::Api::Sources::Project.undelete(project_name, backend_opts)
 
-    Project.transaction do
-      project.update_from_xml!(Xmlhash.parse(project.meta.content))
-      project.store
+      # read meta data from backend to restore database object
+      project = Project.new(name: project_name)
 
-      # restore all package meta data objects in DB
-      backend_packages = Xmlhash.parse(Backend::Api::Search.packages_for_project(project_name))
-      backend_packages.elements('package') do |package|
-        package = project.packages.new(name: package['name'])
-        package_meta = Xmlhash.parse(package.meta.content)
+      Project.transaction do
+        project.update_from_xml!(Xmlhash.parse(project.meta.content))
+        project.store
 
-        Package.transaction do
-          package.update_from_xml(package_meta)
-          package.store
+        # restore all package meta data objects in DB
+        backend_packages = Xmlhash.parse(Backend::Api::Search.packages_for_project(project_name))
+        backend_packages.elements('package') do |package|
+          package = project.packages.new(name: package['name'])
+          package_meta = Xmlhash.parse(package.meta.content)
+
+          Package.transaction do
+            package.update_from_xml(package_meta)
+            package.store
+          end
         end
       end
+
+      project
     end
 
-    project
-  end
+    def image_templates
+      local_image_templates + remote_image_templates
+    end
 
-  def self.image_templates
-    local_image_templates + remote_image_templates
-  end
+    def remote_image_templates
+      result = []
+      Project.remote.each do |project|
+        body = load_from_remote(project, '/image_templates.xml')
+        next if body.blank?
 
-  def self.remote_image_templates
-    result = []
-    Project.remote.each do |project|
-      body = load_from_remote(project, '/image_templates.xml')
-      next if body.blank?
+        Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
+          result << remote_image_template_from_xml(project, image_template_project)
+        end
+      end
+      result
+    end
 
-      Xmlhash.parse(body).elements('image_template_project').each do |image_template_project|
-        result << remote_image_template_from_xml(project, image_template_project)
+    def load_from_remote(project, path)
+      Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
+        Project::RemoteURL.load(project, path)
       end
     end
-    result
-  end
 
-  def self.load_from_remote(project, path)
-    Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-      Project::RemoteURL.load(project, path)
+    def remote_image_template_from_xml(remote_project, image_template_project)
+      # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
+      project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
+      image_template_project.elements('image_template_package').each do |image_template_package|
+        project.packages.new(name: image_template_package['name'].presence,
+                             title: image_template_package['title'].presence,
+                             description: image_template_package['description'].presence)
+      end
+      project
     end
-  end
 
-  def self.remote_image_template_from_xml(remote_project, image_template_project)
-    # We don't store the project and packages objects because they're fetched from remote instances and stored in cache
-    project = Project.new(name: "#{remote_project.name}:#{image_template_project['name']}")
-    image_template_project.elements('image_template_package').each do |image_template_package|
-      project.packages.new(name: image_template_package['name'].presence,
-                           title: image_template_package['title'].presence,
-                           description: image_template_package['description'].presence)
+    def deleted_instance
+      project = Project.find_by(name: 'deleted')
+      unless project
+        project = Project.create(title: 'Place holder for a deleted project instance',
+                                 name: 'deleted')
+        project.store
+      end
+      project
     end
-    project
+
+    def is_remote_project?(name, skip_access = false)
+      lpro = find_remote_project(name, skip_access)
+
+      lpro && lpro[0].defines_remote_instance?
+    end
+
+    def check_access?(project)
+      return false if project.nil?
+      # check for 'access' flag
+
+      return true unless Relationship.forbidden_project_ids.include?(project.id)
+
+      # simple check for involvement --> involved users can access project.id, User.session!
+      project.relationships.groups.includes(:group).any? do |grouprel|
+        # check if User.session! belongs to group.
+        User.session!.is_in_group?(grouprel.group) ||
+          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
+          CONFIG['ldap_mode'] == :on &&
+            CONFIG['ldap_group_support'] == :on &&
+            UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id)
+      end
+    end
+
+    # returns an object of project(local or remote) or raises an exception
+    # should be always used when a project is required
+    # The return value is either a Project for local project or an xml
+    # array for a remote project
+    def get_by_name(name, opts = {})
+      dbp = find_by_name(name, skip_check_access: true)
+      if dbp.nil?
+        dbp, remote_name = find_remote_project(name)
+        return dbp.name + ':' + remote_name if dbp
+        raise Project::Errors::UnknownObjectError, name
+      end
+      if opts[:includeallpackages]
+        Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
+          raise ReadAccessError, name unless Package.check_access?(pkg)
+        end
+      end
+
+      raise ReadAccessError, name unless check_access?(dbp)
+      dbp
+    end
+
+    def get_maintenance_project(at = nil)
+      # hardcoded default. frontends can lookup themselfs a different target via attribute search
+      at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
+      maintenance_project = Project.find_by_attribute_type(at).first
+      unless maintenance_project && check_access?(maintenance_project)
+        raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
+      end
+      maintenance_project
+    end
+
+    # check existence of a project (local or remote)
+    def exists_by_name(name)
+      local_project = find_by_name(name, skip_check_access: true)
+      if local_project.nil?
+        find_remote_project(name).present?
+      else
+        check_access?(local_project)
+      end
+    end
+
+    # FIXME: to be obsoleted, this function is not throwing exceptions on problems
+    # use get_by_name or exists_by_name instead
+    def find_by_name(name, opts = {})
+      dbp = find_by(name: name)
+
+      return if dbp.nil?
+      return if !opts[:skip_check_access] && !check_access?(dbp)
+      dbp
+    end
+
+    def find_by_attribute_type(attrib_type)
+      Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
+    end
+
+    def find_remote_project(name, skip_access = false)
+      return unless name
+
+      fragments = name.split(/:/)
+
+      while fragments.length > 1
+        remote_project = [fragments.pop, remote_project].compact.join(':')
+        local_project = fragments.join(':')
+
+        logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
+
+        project = Project.find_by(name: local_project)
+        if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
+          logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
+          return project, remote_project
+        end
+      end
+      return
+    end
+
+    # Returns a list of pairs (full name, short name) for each parent
+    def parent_projects(project_name)
+      atoms = project_name.split(':')
+      projects = []
+      unused = 0
+
+      (1..atoms.length).each do |i|
+        p = atoms.slice(0, i).join(':')
+        r = atoms.slice(unused, i - unused).join(':')
+        if Project.where(name: p).exists? # ignore remote projects here
+          projects << [p, r]
+          unused = i
+        end
+      end
+      projects
+    end
+
+    def source_path(project, file = nil, opts = {})
+      path = "/source/#{URI.escape(project)}"
+      path += "/#{URI.escape(file)}" if file.present?
+      path += '?' + opts.to_query if opts.present?
+      path
+    end
+
+    def validate_remote_permissions(request_data)
+      return {} if User.admin_session?
+
+      # either OBS interconnect or repository "download on demand" feature used
+      if request_data.key?('remoteurl') ||
+         request_data.key?('remoteproject') ||
+         has_dod_elements?(request_data['repository'])
+        return { error: 'Admin rights are required to change projects using remote resources' }
+      end
+      {}
+    end
+
+    def has_dod_elements?(request_data)
+      if request_data.is_a?(Array)
+        request_data.any? { |r| r['download'] }
+      elsif request_data.is_a?(Hash)
+        request_data['download'].present?
+      end
+    end
+
+    def validate_maintenance_xml_attribute(request_data)
+      request_data.elements('maintenance') do |maintenance|
+        maintenance.elements('maintains') do |maintains|
+          target_project_name = maintains.value('project')
+          target_project = Project.get_by_name(target_project_name)
+          unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
+            return { error: "No write access to maintained project #{target_project_name}" }
+          end
+        end
+      end
+      {}
+    end
+
+    def validate_link_xml_attribute(request_data, project_name)
+      request_data.elements('link') do |e|
+        # permissions check
+        target_project_name = e.value('project')
+        target_project = Project.get_by_name(target_project_name)
+
+        # The read access protection for own and linked project must be the same.
+        # ignore this for remote targets
+        if target_project.class == Project &&
+           target_project.disabled_for?('access', nil, nil) &&
+           !FlagHelper.xml_disabled_for?(request_data, 'access')
+          return {
+            error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
+          }
+        end
+        logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"
+      end
+      {}
+    end
+
+    def validate_repository_xml_attribute(request_data, project_name)
+      # Check used repo pathes for existens and read access permissions
+      request_data.elements('repository') do |repository|
+        repository.elements('path') do |element|
+          # permissions check
+          target_project_name = element.value('project')
+          if target_project_name != project_name
+            begin
+              target_project = Project.get_by_name(target_project_name)
+              # user can access tprj, but backend would refuse to take binaries from there
+              if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
+                return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
+              end
+            rescue Project::Errors::UnknownObjectError
+              return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
+            end
+          end
+          logger.debug "Project #{project_name} repository path checked against #{target_project_name} projects permission"
+        end
+      end
+      {}
+    end
+
+    def check_repositories(repositories)
+      linking_repositories = []
+      linking_target_repositories = []
+
+      repositories.each do |repository|
+        linking_repositories += repository.linking_repositories
+        linking_target_repositories += repository.linking_target_repositories
+      end
+
+      unless linking_repositories.empty?
+        str = linking_repositories.map! { |l| l.project.name + '/' + l.name }.join("\n")
+        return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
+      end
+
+      unless linking_target_repositories.empty?
+        str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join("\n")
+        return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}" }
+      end
+      {}
+    end
+
+    # opts: recursive_remove no_write_to_backend
+    def remove_repositories(repositories, opts = {})
+      deleted_repository = Repository.deleted_instance
+
+      repositories.each do |repo|
+        linking_repositories = repo.linking_repositories
+        project = repo.project
+
+        # full remove, otherwise the model will take care of the cleanup
+        if opts[:recursive_remove]
+          # recursive for INDIRECT linked repositories
+          unless linking_repositories.empty?
+            # FIXME: we would actually need to check for :no_write_to_backend here as well
+            #        but the calling code is currently broken and would need the starting
+            #        project different
+            Project.remove_repositories(linking_repositories, recursive_remove: true)
+          end
+
+          # try to remove the repository
+          # but never remove the special repository named "deleted"
+          unless repo == deleted_repository
+            # permission check
+            unless User.possibly_nobody.can_modify?(project)
+              return { error: "No permission to remove a repository in project '#{project.name}'" }
+            end
+          end
+        end
+
+        # remove this repository, but be careful, because we may have done it already.
+        repository = project.repositories.find(repo.id)
+        next unless Repository.exists?(repo.id) && repository
+        logger.info "destroy repo #{repository.name} in '#{project.name}'"
+        repository.destroy
+        project.store(lowprio: true) unless opts[:no_write_to_backend]
+      end
+      {}
+    end
+
+    def very_important_projects_with_categories
+      very_important_projects_with_attributes.map do |p|
+        [p.name, p.title, p.categories]
+      end
+    end
+    # class_methods
   end
 
   def init
@@ -209,33 +491,6 @@ class Project < ApplicationRecord
   def config
     @config ||= ProjectConfigFile.new(project_name: name)
   end
-
-  def self.deleted_instance
-    project = Project.find_by(name: 'deleted')
-    unless project
-      project = Project.create(title: 'Place holder for a deleted project instance',
-                               name: 'deleted')
-      project.store
-    end
-    project
-  end
-
-  def cleanup_before_destroy
-    # find linking projects
-    cleanup_linking_projects
-
-    # find linking repositories
-    cleanup_linking_repos
-
-    # find linking target repositories
-    cleanup_linking_targets
-
-    revoke_requests # Revoke all requests that have this project as source/target
-    cleanup_packages # Deletes packages (only in DB)
-
-    repositories.each(&:mark_for_destruction)
-  end
-  private :cleanup_before_destroy
 
   def buildresults
     Buildresult.summary(name)
@@ -379,104 +634,6 @@ class Project < ApplicationRecord
         linking_target_repository.project.write_to_backend
       end
     end
-  end
-
-  def self.is_remote_project?(name, skip_access = false)
-    lpro = find_remote_project(name, skip_access)
-
-    lpro && lpro[0].defines_remote_instance?
-  end
-
-  def self.check_access?(project)
-    return false if project.nil?
-    # check for 'access' flag
-
-    return true unless Relationship.forbidden_project_ids.include?(project.id)
-
-    # simple check for involvement --> involved users can access project.id, User.session!
-    project.relationships.groups.includes(:group).any? do |grouprel|
-      # check if User.session! belongs to group.
-      User.session!.is_in_group?(grouprel.group) ||
-        # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-        CONFIG['ldap_mode'] == :on &&
-          CONFIG['ldap_group_support'] == :on &&
-          UserLdapStrategy.user_in_group_ldap?(User.session!, grouprel.group_id)
-    end
-  end
-
-  # returns an object of project(local or remote) or raises an exception
-  # should be always used when a project is required
-  # The return value is either a Project for local project or an xml
-  # array for a remote project
-  def self.get_by_name(name, opts = {})
-    dbp = find_by_name(name, skip_check_access: true)
-    if dbp.nil?
-      dbp, remote_name = find_remote_project(name)
-      return dbp.name + ':' + remote_name if dbp
-      raise UnknownObjectError, name
-    end
-    if opts[:includeallpackages]
-      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|
-        raise ReadAccessError, name unless Package.check_access?(pkg)
-      end
-    end
-
-    raise ReadAccessError, name unless check_access?(dbp)
-    dbp
-  end
-
-  def self.get_maintenance_project(at = nil)
-    # hardcoded default. frontends can lookup themselfs a different target via attribute search
-    at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
-    maintenance_project = Project.find_by_attribute_type(at).first
-    unless maintenance_project && check_access?(maintenance_project)
-      raise UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
-    end
-    maintenance_project
-  end
-
-  # check existence of a project (local or remote)
-  def self.exists_by_name(name)
-    local_project = find_by_name(name, skip_check_access: true)
-    if local_project.nil?
-      find_remote_project(name).present?
-    else
-      check_access?(local_project)
-    end
-  end
-
-  # FIXME: to be obsoleted, this function is not throwing exceptions on problems
-  # use get_by_name or exists_by_name instead
-  def self.find_by_name(name, opts = {})
-    dbp = find_by(name: name)
-
-    return if dbp.nil?
-    return if !opts[:skip_check_access] && !check_access?(dbp)
-    dbp
-  end
-
-  def self.find_by_attribute_type(attrib_type)
-    Project.joins(:attribs).where(attribs: { attrib_type_id: attrib_type.id })
-  end
-
-  def self.find_remote_project(name, skip_access = false)
-    return unless name
-
-    fragments = name.split(/:/)
-
-    while fragments.length > 1
-      remote_project = [fragments.pop, remote_project].compact.join(':')
-      local_project = fragments.join(':')
-
-      logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
-
-      project = Project.find_by(name: local_project)
-      if project && (skip_access || check_access?(project)) && project.defines_remote_instance?
-        logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
-        return project, remote_project
-      end
-    end
-    return
   end
 
   def check_write_access!(ignore_lock = nil)
@@ -623,27 +780,6 @@ class Project < ApplicationRecord
     true
   end
 
-  def delete_on_backend
-    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      begin
-        options = { user: User.session!.login, comment: @commit_opts[:comment] }
-        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
-        Backend::Api::Sources::Project.delete(name, options)
-      rescue Backend::NotFoundError
-        # ignore this error, backend was out of sync
-        logger.warn("Project #{name} was already missing on backend on removal")
-      end
-      logger.tagged('backend_sync') { logger.warn "Deleted Project #{name}" }
-    elsif @commit_opts[:no_backend_write]
-      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
-    else
-      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
-    end
-
-    self.commit_opts = {}
-  end
-  private :delete_on_backend
-
   def store(opts = {})
     self.commit_opts = opts if opts.present?
     transaction do
@@ -661,11 +797,6 @@ class Project < ApplicationRecord
       package.destroy
     end
   end
-
-  def reset_cache
-    Rails.cache.delete("xml_project_#{id}") if id
-  end
-  private :reset_cache # whoever changes the project, needs to store it too
 
   # Give me the first ancestor of that project
   def parent
@@ -1051,16 +1182,14 @@ class Project < ApplicationRecord
 
   def open_requests_with_project_as_source_or_target
     # Includes also requests for packages contained in this project
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where('bs_request_actions.source_project = ? or bs_request_actions.target_project = ?', name, name)
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    OpenRequestsWithProjectAsSourceOrTargetFinder.new(BsRequest.where(state: [:new, :review, :declined])
+                                                               .joins(:bs_request_actions), name).call
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
-    rel = BsRequest.where(state: [:new, :review])
-    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", name)
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    OpenRequestsWithByProjectReviewFinder.new(BsRequest.where(state: [:new, :review])
+                                                       .joins(:reviews), name).call
   end
 
   # list only the repositories that have a target project in the build path
@@ -1111,39 +1240,6 @@ class Project < ApplicationRecord
   after_save do
     Rails.cache.delete "bsrequest_repos_map-#{name}"
     @is_locked = nil
-  end
-
-  def bsrequest_repos_map(project)
-    Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
-      begin
-        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
-      rescue Backend::Error
-        return {}
-      end
-
-      ret = {}
-      xml.get('project').elements('repository') do |repo|
-        repo.elements('path') do |path|
-          ret[path['project']] ||= []
-          ret[path['project']] << repo
-        end
-      end
-
-      ret
-    end
-  end
-
-  private :bsrequest_repos_map
-
-  # NOTE: This has to cover project name validations in src/backend/BSVerify.pm (verify_projid)
-  def self.valid_name?(name)
-    return false unless name.is_a?(String)
-    return false if name == '0'
-    return false if name =~ /:[:\._]/
-    return false if name =~ /\A[:\._]/
-    return false if name.end_with?(':')
-    return true  if name =~ /\A[-+\w\.:]{1,200}\z/
-    false
   end
 
   def valid_name
@@ -1212,23 +1308,6 @@ class Project < ApplicationRecord
   # for the clockworkd - called delayed
   def update_packages_if_dirty
     packages.dirty_backend_package.each(&:update_if_dirty)
-  end
-
-  # Returns a list of pairs (full name, short name) for each parent
-  def self.parent_projects(project_name)
-    atoms = project_name.split(':')
-    projects = []
-    unused = 0
-
-    (1..atoms.length).each do |i|
-      p = atoms.slice(0, i).join(':')
-      r = atoms.slice(unused, i - unused).join(':')
-      if Project.where(name: p).exists? # ignore remote projects here
-        projects << [p, r]
-        unused = i
-      end
-    end
-    projects
   end
 
   def lock(comment = nil)
@@ -1327,13 +1406,6 @@ class Project < ApplicationRecord
     packages.joins(:flags).where(flags: { flag: :build, status: 'enable', repo: release_targets.select(:name) })
   end
 
-  def self.source_path(project, file = nil, opts = {})
-    path = "/source/#{URI.escape(project)}"
-    path += "/#{URI.escape(file)}" if file.present?
-    path += '?' + opts.to_query if opts.present?
-    path
-  end
-
   def source_path(file = nil, opts = {})
     Project.source_path(name, file, opts)
   end
@@ -1350,82 +1422,6 @@ class Project < ApplicationRecord
     Backend::Api::Sources::Project.write_configuration(name, new_configuration)
   end
 
-  def self.validate_remote_permissions(request_data)
-    return {} if User.admin_session?
-
-    # either OBS interconnect or repository "download on demand" feature used
-    if request_data.key?('remoteurl') ||
-       request_data.key?('remoteproject') ||
-       has_dod_elements?(request_data['repository'])
-      return { error: 'Admin rights are required to change projects using remote resources' }
-    end
-    {}
-  end
-
-  def self.has_dod_elements?(request_data)
-    if request_data.is_a?(Array)
-      request_data.any? { |r| r['download'] }
-    elsif request_data.is_a?(Hash)
-      request_data['download'].present?
-    end
-  end
-
-  def self.validate_maintenance_xml_attribute(request_data)
-    request_data.elements('maintenance') do |maintenance|
-      maintenance.elements('maintains') do |maintains|
-        target_project_name = maintains.value('project')
-        target_project = Project.get_by_name(target_project_name)
-        unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
-          return { error: "No write access to maintained project #{target_project_name}" }
-        end
-      end
-    end
-    {}
-  end
-
-  def self.validate_link_xml_attribute(request_data, project_name)
-    request_data.elements('link') do |e|
-      # permissions check
-      target_project_name = e.value('project')
-      target_project = Project.get_by_name(target_project_name)
-
-      # The read access protection for own and linked project must be the same.
-      # ignore this for remote targets
-      if target_project.class == Project &&
-         target_project.disabled_for?('access', nil, nil) &&
-         !FlagHelper.xml_disabled_for?(request_data, 'access')
-        return {
-          error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
-        }
-      end
-      logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"
-    end
-    {}
-  end
-
-  def self.validate_repository_xml_attribute(request_data, project_name)
-    # Check used repo pathes for existens and read access permissions
-    request_data.elements('repository') do |repository|
-      repository.elements('path') do |element|
-        # permissions check
-        target_project_name = element.value('project')
-        if target_project_name != project_name
-          begin
-            target_project = Project.get_by_name(target_project_name)
-            # user can access tprj, but backend would refuse to take binaries from there
-            if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
-              return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
-            end
-          rescue UnknownObjectError
-            return { error: "A project with the name #{target_project_name} does not exist. Please update the repository path elements." }
-          end
-        end
-        logger.debug "Project #{project_name} repository path checked against #{target_project_name} projects permission"
-      end
-    end
-    {}
-  end
-
   def get_removed_repositories(request_data)
     new_repositories = request_data.elements('repository').map(&:values).flatten
     old_repositories = repositories.pluck(:name)
@@ -1438,65 +1434,6 @@ class Project < ApplicationRecord
       result << repository if repository.remote_project_name.blank?
     end
     result
-  end
-
-  def self.check_repositories(repositories)
-    linking_repositories = []
-    linking_target_repositories = []
-
-    repositories.each do |repository|
-      linking_repositories += repository.linking_repositories
-      linking_target_repositories += repository.linking_target_repositories
-    end
-
-    unless linking_repositories.empty?
-      str = linking_repositories.map! { |l| l.project.name + '/' + l.name }.join("\n")
-      return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}" }
-    end
-
-    unless linking_target_repositories.empty?
-      str = linking_target_repositories.map { |l| l.project.name + '/' + l.name }.join("\n")
-      return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}" }
-    end
-    {}
-  end
-
-  # opts: recursive_remove no_write_to_backend
-  def self.remove_repositories(repositories, opts = {})
-    deleted_repository = Repository.deleted_instance
-
-    repositories.each do |repo|
-      linking_repositories = repo.linking_repositories
-      project = repo.project
-
-      # full remove, otherwise the model will take care of the cleanup
-      if opts[:recursive_remove]
-        # recursive for INDIRECT linked repositories
-        unless linking_repositories.empty?
-          # FIXME: we would actually need to check for :no_write_to_backend here as well
-          #        but the calling code is currently broken and would need the starting
-          #        project different
-          Project.remove_repositories(linking_repositories, recursive_remove: true)
-        end
-
-        # try to remove the repository
-        # but never remove the special repository named "deleted"
-        unless repo == deleted_repository
-          # permission check
-          unless User.possibly_nobody.can_modify?(project)
-            return { error: "No permission to remove a repository in project '#{project.name}'" }
-          end
-        end
-      end
-
-      # remove this repository, but be careful, because we may have done it already.
-      repository = project.repositories.find(repo.id)
-      next unless Repository.exists?(repo.id) && repository
-      logger.info "destroy repo #{repository.name} in '#{project.name}'"
-      repository.destroy
-      project.store(lowprio: true) unless opts[:no_write_to_backend]
-    end
-    {}
   end
 
   def has_remote_repositories?
@@ -1540,18 +1477,7 @@ class Project < ApplicationRecord
   end
 
   def categories
-    AttribValue
-      .joins(attrib: { attrib_type: :attrib_namespace })
-      .where(attribs: { project: self },
-             attrib_types: { name: 'QualityCategory' },
-             attrib_namespaces: { name: 'OBS' })
-      .map(&:value)
-  end
-
-  def self.very_important_projects_with_categories
-    very_important_projects_with_attributes.map do |p|
-      [p.name, p.title, p.categories]
-    end
+    OBSQualityCategoriesFinder.call(self)
   end
 
   def build_results
@@ -1563,6 +1489,66 @@ class Project < ApplicationRecord
   end
 
   private
+
+  def bsrequest_repos_map(project)
+    Rails.cache.fetch("bsrequest_repos_map-#{project}", expires_in: 2.hours) do
+      begin
+        xml = Xmlhash.parse(Backend::Api::Sources::Project.repositories(project.to_s))
+      rescue Backend::Error
+        return {}
+      end
+
+      ret = {}
+      xml.get('project').elements('repository') do |repo|
+        repo.elements('path') do |path|
+          ret[path['project']] ||= []
+          ret[path['project']] << repo
+        end
+      end
+
+      ret
+    end
+  end
+
+  def reset_cache
+    Rails.cache.delete("xml_project_#{id}") if id
+  end
+
+  def delete_on_backend
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
+      begin
+        options = { user: User.session!.login, comment: @commit_opts[:comment] }
+        options[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+        Backend::Api::Sources::Project.delete(name, options)
+      rescue Backend::NotFoundError
+        # ignore this error, backend was out of sync
+        logger.warn("Project #{name} was already missing on backend on removal")
+      end
+      logger.tagged('backend_sync') { logger.warn "Deleted Project #{name}" }
+    elsif @commit_opts[:no_backend_write]
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, backend_write is off " }
+    else
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{name}, global_write_through is off" }
+    end
+
+    self.commit_opts = {}
+  end
+
+  def cleanup_before_destroy
+    # find linking projects
+    cleanup_linking_projects
+
+    # find linking repositories
+    cleanup_linking_repos
+
+    # find linking target repositories
+    cleanup_linking_targets
+
+    revoke_requests # Revoke all requests that have this project as source/target
+    cleanup_packages # Deletes packages (only in DB)
+
+    repositories.each(&:mark_for_destruction)
+  end
 
   def discard_cache
     Relationship.discard_cache
@@ -1605,6 +1591,7 @@ class Project < ApplicationRecord
     combined_status_reports.map(&:missing_checks).flatten
   end
 end
+
 # rubocop:enable Metrics/ClassLength
 
 # == Schema Information

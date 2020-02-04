@@ -14,6 +14,10 @@ FactoryBot.define do
       end
     end
 
+    factory :very_important_project_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject') }
+    end
+
     factory :maintained_attrib do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'Maintained') }
     end
