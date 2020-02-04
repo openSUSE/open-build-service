@@ -356,12 +356,6 @@ module Webui::WebuiHelper
     return checks, build_problems, remaining_checks, remaining_build_problems
   end
 
-  # responsive_ux: used only in beta feature
-  def home_project_link
-    return project_show_path(User.session!.home_project_name) if User.session!.home_project
-    new_project_path(name: User.session!.home_project_name)
-  end
-
   # responsive_ux:
   def flipper_responsive?
     Flipper.enabled?(:responsive_ux, User.possibly_nobody)
