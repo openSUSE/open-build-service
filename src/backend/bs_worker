@@ -3258,6 +3258,13 @@ sub dobuild {
     if (($buildinfo->{'reason'} || '') eq "rebuild counter sync") {
       $ret = 0;
     } else {
+      if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
+        my $statsfile = "$buildroot/.mount/.build.packages/OTHER/_statistics";
+        updatestatsfromfile($stats, $statsfile) if -e $statsfile;
+      }
+      $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
+      mkdir_p("$buildroot/.build.packages/OTHER");
+      writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
       return 2;
     }
   } elsif ($ret == 3 * 256) {
@@ -3292,10 +3299,42 @@ sub dobuild {
     symlink('.', "$buildroot/.build.packages/DEBS");
     symlink('.', "$buildroot/.build.packages/KIWI");
     # convert build statistics into xml
-    if (-e "$buildroot/.build.packages/OTHER/_statistics") {
+    my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
+    updatestatsfromfile($stats, $statsfile) if -e $statsfile;
+  }
+  $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
+  mkdir_p("$buildroot/.build.packages/OTHER");
+  writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
+
+  if ($buildinfo->{'outbuildinfo'}) {
+    writexml("$buildroot/.build.packages/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
+  }
+
+  if (!$followupmode && $kiwiorigins) {
+    $buildinfo->{'buildtime'} = time();
+    if (!$kiwimode) {
+      # some builds like python-venv also write a .packages file
+      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+    } elsif ($kiwimode ne 'product') {
+      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
+    } else {
+      # as a special service we also create a channel file from the report files
+      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+    }
+  }
+
+  if (%$followupcopy) {
+    writestr("$buildroot/.build.packages/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
+  }
+  return 0;
+}
+
+
+sub updatestatsfromfile {
+  my ($stats, $filepath) = @_;
       my $iosectors = 0;
       my $iorequests = 0;
-      open(FILE, "<", "$buildroot/.build.packages/OTHER/_statistics") || die;
+      open(FILE, "<", $filepath) || die;
       my %timekeys = (
 	'TIME_preinstall' => 'preinstall',
 	'TIME_install' => 'install',
@@ -3323,33 +3362,6 @@ sub dobuild {
         }
       }
       close FILE;
-    }
-  }
-  $stats->{'times'}->{'total'}->{'time'} = { 'unit' => 's', '_content' => (time() - $starttime) };
-  mkdir_p("$buildroot/.build.packages/OTHER");
-  writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
-
-  if ($buildinfo->{'outbuildinfo'}) {
-    writexml("$buildroot/.build.packages/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
-  }
-
-  if (!$followupmode && $kiwiorigins) {
-    $buildinfo->{'buildtime'} = time();
-    if (!$kiwimode) {
-      # some builds like python-venv also write a .packages file
-      createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
-    } elsif ($kiwimode ne 'product') {
-      createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
-    } else {
-      # as a special service we also create a channel file from the report files
-      createchannel($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
-    }
-  }
-
-  if (%$followupcopy) {
-    writestr("$buildroot/.build.packages/OTHER/$_", undef, $followupcopy->{$_}) for keys %$followupcopy;
-  }
-  return 0;
 }
 
 sub buildkiwitree {
@@ -4018,6 +4030,8 @@ if (!$ex) {
 } elsif ($ex == 2) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
+  my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
+  push @send, {name => '_statistics', filename => $statsfile} if -e $statsfile;
 } elsif ($ex == 3 && $buildinfo->{'nobadhost'}) {
   print "build failed (ignored bad build host flag)...\n";
   BSUtil::appendstr("$buildroot/.build.log", "\n$buildinfo->{'nobadhost'}\n");

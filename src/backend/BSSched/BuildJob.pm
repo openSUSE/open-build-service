@@ -544,11 +544,12 @@ sub jobfinished {
     }
     # Add a comment to logfile from last real build
     BSUtil::appendstr("$dst/logfile", "\nRetried build at ".localtime(time())." returned same result, skipped\n");
+    my $jobhist = makejobhist($info, $status, $js, 'unchanged');
+    addbuildstats($jobdatadir, $dst, $jobhist) if $all{'_statistics'};
     unlink("$gdst/:logfiles.fail/$packid");
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);
-    my $jobhist = makejobhist($info, $status, $js, 'unchanged');
     addjobhist($gctx, $prp, $jobhist);
     $status->{'status'} = 'succeeded';
     writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
