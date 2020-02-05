@@ -1,6 +1,6 @@
 .border-gray-500 { border-color: $gray-500 !important; }
-
 .navbar-dark .navbar-toggler { color: $gray-300; }
+.flash-and-announcement.sticky-top { top: 60px; }
 
 // NAVIGATION
 
@@ -24,6 +24,14 @@
 
 #bottom-navigation { height: 58px; }
 
+#navigation, #bottom-navigation {
+  a.nav-link {
+    &.active {
+      background-color: darken($dark, 10%);
+      @extend .rounded;
+    }
+  }
+}
 // BREADCRUMBS
 
 .breadcrumb {
