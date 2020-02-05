@@ -22,12 +22,31 @@ install: prepare_dirs install_data_dirs bs_config
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/examples
 	# just for check section, it is a %%ghost
 	ln -sf /usr/lib/build $(DESTDIR)$(OBS_BACKEND_PREFIX)/build 
+	sed -i \
+	    -e 's|/srv/www/obs/api|$(OBS_API_PREFIX)|' \
+	    -e 's|/srv/obs|$(OBS_BACKEND_DATA_DIR)|' \
+	    -e 's|5352|$(OBS_SRCSERVER_PORT)|' \
+	    -e 's|5252|$(OBS_REPOSERVER_PORT)|' \
+	    -e 's|5152|$(OBS_SERVICESERVER_PORT)|' \
+	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/bs_* \
+	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/*.pm \
+	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/*.pm.template \
 
 install_data_dirs: prepare_dirs
 	$(foreach data_dir,$(OBS_BACKEND_DATA_SUBDIRS), \
 		$(shell $(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/$(data_dir) ) \
 	)
 	install -d -m 700 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/gnupg
+ifneq ($(OBS_BACKEND_LOG_DIR),$(OBS_BACKEND_DATA_DIR)/log)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_LOG_DIR)
+	rmdir $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
+	ln -s $(OBS_BACKEND_LOG_DIR) $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
+endif
+ifneq ($(OBS_BACKEND_SERVICE_LOG_DIR),$(OBS_BACKEND_DATA_DIR)/service/log)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_SERVICE_LOG_DIR)
+	rmdir $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/service/log
+	ln -s $(OBS_BACKEND_SERVICE_LOG_DIR) $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/service/log
+endif
 
 
 test_unit: bs_config

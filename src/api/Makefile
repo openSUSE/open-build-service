@@ -6,6 +6,14 @@ OBS_API_LOGS := access.log backend_access.log delayed_job.log error.log lasteven
 all:
 
 install: prepare_dirs prepare_rake docs config log_files build
+ifneq ($(OBS_API_LOG_DIR),$(OBS_API_PREFIX)/log)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_LOG_DIR)
+	test -n "`ls -A $(DESTDIR)$(OBS_API_PREFIX)/log`" && \
+	    mv $(DESTDIR)$(OBS_API_PREFIX)/log/* \
+	       $(DESTDIR)$(OBS_API_LOG_DIR) || :
+	rmdir $(DESTDIR)$(OBS_API_PREFIX)/log
+	ln -s $(OBS_API_LOG_DIR) $(DESTDIR)$(OBS_API_PREFIX)/log
+endif
 
 prepare_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_API_PREFIX)
@@ -29,8 +37,8 @@ docs:
 	cp -av ../../docs/api/api $(DESTDIR)$(OBS_APIDOCS_PREFIX)
 	cp -av ../../docs/api/html/* $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api/html/
 	ln -sf $(OBS_APIDOCS_PREFIX)/api/ $(DESTDIR)$(OBS_API_PREFIX)/public/schema
-	echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
-	echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
+	echo 'CONFIG["apidocs_location"] ||= File.expand_path("$(OBS_APIDOCS_PREFIX)/api/html/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
+	echo 'CONFIG["schema_location"] ||= File.expand_path("$(OBS_APIDOCS_PREFIX)/api/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
 
 config: prepare_dirs
 	# we need config also in building environment, otherwise rake will break
@@ -44,6 +52,10 @@ config: prepare_dirs
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/thinking_sphinx.yml
+	sed -i \
+	    -e 's|5352|$(OBS_SRCSERVER_PORT)|' \
+	    $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml \
+	    $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml.example
 
 log_files:
 	$(foreach logfile,$(OBS_API_LOGS),$(shell touch $(DESTDIR)$(OBS_API_PREFIX)/log/$(logfile) ))
