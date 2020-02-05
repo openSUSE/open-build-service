@@ -3,6 +3,9 @@
   %ul.nav.justify-content-center.w-100.nav-fill
     - if User.session
       %li.nav-item
+        = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Contextual menu', data: { toggle: 'contextual' }) do
+          %i.fas.fa-th.fa-lg
+      %li.nav-item.border-left.border-gray-500
         = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
           %i.fas.fa-bookmark.fa-lg
       %li.nav-item.border-left.border-gray-500

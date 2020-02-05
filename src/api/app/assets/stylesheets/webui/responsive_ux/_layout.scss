@@ -108,6 +108,47 @@ button.navbar-toggler {
   }
 }
 
+.contextual-collapse {
+  position: fixed;
+  left: 0;
+  bottom: -100%;
+  width: 100%;
+  max-height: 300px;
+  padding-bottom: 1.5rem;
+  background-color: #343a40;
+  color: $gray-400;
+  border-radius: 0.5rem 0.5rem 0 0;
+  transition: bottom .3s ease-in-out;
+  z-index: 1020;
+  overflow-y: scroll;
+
+  & a {
+    color: $gray-300;
+    &:hover { color: white; }
+  }
+
+  .grid-col-3 {
+    display: grid;
+    grid-template-columns: auto auto auto;
+    grid-column-gap: 1rem;
+    grid-row-gap: 1.5rem;
+  }
+
+  &.open {
+    bottom: 58px;
+  }
+
+  .fas {
+    width: 40px;
+  }
+}
+
+.contextual-actions {
+  a {
+    color: black;
+  }
+}
+
 // FOOTER
 
 #footer {
@@ -119,5 +160,6 @@ button.navbar-toggler {
     p { color: $gray-400; }
     & a { color: $gray-300; }
   }
+
 }
 .footer-separator { height: 58px; }

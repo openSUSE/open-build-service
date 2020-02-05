@@ -4,7 +4,7 @@
       News
     .float-right
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
-        %i.fa.fa-rss
+        %i.fa.fa-rss.fa-lg
   .list-group
     - @status_messages.each do |message|
       = render partial: 'status_message', locals: { message: message }
