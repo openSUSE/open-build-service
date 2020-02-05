@@ -1,5 +1,5 @@
 :ruby
-  @pagetitle = "Home of #{@displayed_user}"
+  @pagetitle = "Profile of #{@displayed_user}"
 
   content_for(:meta_title, @pagetitle)
   content_for(:meta_image, gravatar_url(@displayed_user.email))

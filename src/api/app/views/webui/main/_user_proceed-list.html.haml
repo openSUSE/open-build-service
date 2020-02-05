@@ -1,9 +1,9 @@
 - if User.session
   .col
-    = link_to(user_path(User.session!), class: 'btn btn-default', title: 'Go to your home') do
-      %i.fas.fa-home.fa-2x.text-dark
+    = link_to(user_path(User.session!), class: 'btn btn-default', title: 'Go to your profile') do
+      %i.fas.fa-user.fa-2x.text-dark
       %br
-      Your Home
+      Profile
 .col
   = link_to(projects_path, class: 'btn btn-default', title: 'See all projects') do
     %i.fas.fa-list.fa-2x.text-muted

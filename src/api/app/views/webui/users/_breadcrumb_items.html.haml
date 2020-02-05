@@ -10,7 +10,7 @@
   - when 'show'
     = render partial: 'webui/main/breadcrumb_items'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Home of #{@displayed_user}
+      Profile of #{@displayed_user}
   - when 'edit'
     = render partial: 'webui/configuration/breadcrumb_items'
     %li.breadcrumb-item
