@@ -1,0 +1,25 @@
+.footer-separator.d-block.d-md-none
+%nav.navbar.fixed-bottom.navbar-dark.bg-dark.border-top.border-gray-500.d-block.d-md-none#bottom-navigation
+  %ul.nav.justify-content-center.w-100.nav-fill
+    - if User.session
+      %li.nav-item
+        = link_to('#', class: 'btn btn-dark nav-link', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+          %i.fas.fa-bookmark.fa-lg
+      %li.nav-item.border-left.border-gray-500
+        - tasks = User.session!.tasks
+        = link_to(my_tasks_path, class: 'btn btn-dark nav-link d-inline-block', alt: 'Tasks') do
+          %i.fas.fa-tasks.fa-lg
+          - if tasks.positive?
+            .badge.badge-primary.align-text-top= tasks
+      %li.nav-item.border-left.border-gray-500
+        = link_to('#', class: 'btn btn-dark nav-link', alt: 'Menu', data: { toggle: 'offcanvas' }) do
+          %i.fas.fa-bars.fa-lg
+    - else
+      - unless kerberos_mode? || !can_sign_up?
+        %li.nav-item.border-right.border-gray-500
+          = sign_up_link(css_class: 'nav-link text-light')
+      %li.nav-item
+        = log_in_link(css_class: 'nav-link text-light')
+
+- if User.session
+  = render partial: "layouts/#{responsive_namespace}/watchlist"

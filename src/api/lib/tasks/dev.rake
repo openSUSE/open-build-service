@@ -188,8 +188,8 @@ namespace :dev do
       Rake::Task['db:create'].invoke
       Rake::Task['db:setup'].invoke
 
-      # we enable bootstrap as default
-      Flipper[:bootstrap].enable
+      # enable responsive_ux as default
+      Flipper[:responsive_ux].enable
 
       iggy = create(:confirmed_user, login: 'Iggy')
       admin = User.where(login: 'Admin').first

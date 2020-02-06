@@ -1,4 +1,4 @@
-- unless current_page?(root_path)
+- unless current_page?(root_path) || flipper_responsive?
   %li
     = link_to(root_path, title: home_title) do
       %i.fas.fa-home.mr-2
