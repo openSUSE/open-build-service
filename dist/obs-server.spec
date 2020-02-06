@@ -52,7 +52,11 @@ Requires:       rubygem-rails\
 %global apache_confdir /etc/apache2
 %global apache_vhostdir %{apache_confdir}/vhost.d
 %global apache_logdir /var/log/apache2
+%if 0%{?suse_version} < 1500
+%define apache_group_requires Requires(pre):  apache2
+%else
 %define apache_group_requires Requires(pre):  group(%{apache_group})
+%endif
 %global apache_requires \
 Requires:       apache2\
 Requires:       apache2-mod_xforward\
