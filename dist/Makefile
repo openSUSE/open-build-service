@@ -30,7 +30,6 @@ install_apache:
 install_systemd_services: system_dirs
 	$(foreach target,$(SYSTEMD_TARGET_FILES),$(shell $(INSTALL) -m 644 ./systemd/$(target).target $(DESTDIR)$(UNITDIR)$(target).target) )
 	$(foreach service,$(SYSTEMD_SERVICE_FILES) $(SYSTEMD_SERVICE_FILES_WITHOUT_LINK),$(shell $(INSTALL) -m 644 ./systemd/$(service).service $(DESTDIR)$(UNITDIR)$(service).service) )
-	$(foreach service,$(SYSTEMD_TARGET_FILES) $(SYSTEMD_SERVICE_FILES),$(shell ln -sf /usr/sbin/service $(DESTDIR)/usr/sbin/rc$(service) ) )
 	sed -i \
 	  -e 's,@@OBS_BUNDLE_BIN@@,$(OBS_BUNDLE_BIN),' \
 	  -e 's,@@OBS_RUBY_VERSION@@,$(OBS_RUBY_VERSION),' \

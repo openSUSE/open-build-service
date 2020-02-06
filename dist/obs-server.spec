@@ -403,6 +403,16 @@ make
 export DESTDIR=$RPM_BUILD_ROOT
 export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
+
+%if 0%{?suse_version}
+systemd_services="$(basename --multiple --suffix .service %{buildroot}%{_unitdir}/*.service) $(basename --multiple --suffix .target %{buildroot}%{_unitdir}/*.target)"
+for systemd_service in $systemd_services; do
+    if [[ $systemd_service != *"@"* ]]; then
+        ln -sf /usr/sbin/service %{buildroot}%{_sbindir}/rc${systemd_service}
+    fi
+done
+%endif
+
 if [ -f %{_sourcedir}/open-build-service.obsinfo ]; then
     sed -n -e 's/commit: \(.\+\)/\1/p' %{_sourcedir}/open-build-service.obsinfo > %{buildroot}%{__obs_api_prefix}/last_deploy
 else
@@ -738,6 +748,7 @@ fi
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
 /usr/sbin/obsscheduler
+%if 0%{?suse_version}
 /usr/sbin/rcobsdispatcher
 /usr/sbin/rcobspublisher
 /usr/sbin/rcobsrepserver
@@ -751,6 +762,7 @@ fi
 /usr/sbin/rcobssigner
 /usr/sbin/rcobsnotifyforward
 /usr/sbin/rcobsredis
+%endif
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSDispatcher
 /usr/lib/obs/server/BSRepServer
@@ -813,7 +825,9 @@ fi
 %dir /etc/cron.d
 %endif
 %config(noreplace) /etc/cron.d/cleanup_scm_cache
+%if 0%{?suse_version}
 /usr/sbin/rcobsservice
+%endif
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-docker.sh
 /usr/lib/obs/server/run-service-containerized
@@ -832,7 +846,9 @@ usermod -a -G docker obsservicerun
 %defattr(-,root,root)
 %{_unitdir}/obsworker.service
 /usr/sbin/obsworker
+%if 0%{?suse_version}
 /usr/sbin/rcobsworker
+%endif
 
 %files -n obs-api
 %defattr(-,root,root)
@@ -876,6 +892,7 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obs-delayedjob-queue-releasetracking.service
 %{_unitdir}/obs-delayedjob-queue-staging.service
 %{_unitdir}/obs-sphinx.service
+%if 0%{?suse_version}
 %{_sbindir}/rcobs-api-support
 %{_sbindir}/rcobs-clockwork
 %{_sbindir}/rcobs-delayedjob-queue-consistency_check
@@ -887,6 +904,7 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobs-delayedjob-queue-staging
 %{_sbindir}/rcobs-sphinx
 %{_sbindir}/rcobsapisetup
+%endif
 %{__obs_api_prefix}/app
 %attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/structure.sql
 %attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/data_schema.rb
@@ -957,7 +975,9 @@ usermod -a -G docker obsservicerun
 /usr/lib/obs/server/setup-appliance.sh
 %{_unitdir}/obsstoragesetup.service
 /usr/sbin/obsstoragesetup
+%if 0%{?suse_version}
 /usr/sbin/rcobsstoragesetup
+%endif
 %if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
 /etc/rc.status
 %endif
@@ -976,8 +996,10 @@ usermod -a -G docker obsservicerun
 %defattr(-,root,root)
 %{_unitdir}/obsclouduploadworker.service
 %{_unitdir}/obsclouduploadserver.service
+%if 0%{?suse_version}
 /usr/sbin/rcobsclouduploadworker
 /usr/sbin/rcobsclouduploadserver
+%endif
 /usr/lib/obs/server/bs_clouduploadserver
 /usr/lib/obs/server/bs_clouduploadworker
 %{_bindir}/clouduploader
