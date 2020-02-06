@@ -1,0 +1,115 @@
+.border-gray-500 { border-color: $gray-500 !important; }
+
+.navbar-dark .navbar-toggler { color: $gray-300; }
+
+// NAVIGATION
+
+#navigation {
+  .fixed-top { height: 57px; }
+  .toggler {
+    @extend .ml-3;
+    @extend .d-none;
+    @extend .d-md-block;
+    cursor: pointer;
+  }
+
+  .navbar-nav .nav-link {
+    color: $gray-300;
+    &:hover { color: white; }
+  }
+
+  .menu-right { cursor: pointer; }
+  .menu-options { font-size: 1.1rem }
+}
+
+#bottom-navigation { height: 58px; }
+
+// BREADCRUMBS
+
+.breadcrumb {
+  padding-bottom: 0;
+  @extend .mt-2;
+  .breadcrumb-item { line-height: 1.5rem; }
+  .breadcrumb-item::after {
+    display: inline-block;
+    padding: 0 0.5rem 0 0.25rem;
+    color: #6c757d;
+    content: "/";
+  }
+  .breadcrumb-item:last-child::after { content: ''; }
+  .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+
+  // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
+  .breadcrumb-item + .breadcrumb-item::before { display: none; }
+}
+
+// LOG IN AND SIGN UP
+
+.access-modal {
+  background-color: #00000080;
+  .close { cursor: pointer; }
+  .login-separator {
+    position: relative;
+    span {
+      position: absolute;
+      top: -.7rem;
+      left: 50%;
+      padding: 0 .5rem;
+      margin-left: -1.5rem;
+    }
+  }
+}
+
+
+// OFFCANVAS MENU
+
+button.navbar-toggler {
+  .fas.fa-times {
+    line-height: 1.875rem;
+    width: 20px;
+  }
+}
+
+.watchlist-collapse, .offcanvas-collapse {
+  position: fixed;
+  top: 57px;
+  left: 100%;
+  bottom: 58px;
+  width: 100%;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  overflow-y: auto;
+  visibility: hidden;
+  z-index: 9000;
+  background-color: #343a40;
+  color: $gray-400;
+  transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+  transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+  transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+
+  & a {
+    color: $gray-300;
+    &:hover { color: white; }
+  }
+
+  &.open {
+    visibility: visible;
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+    z-index: 9000;
+  }
+}
+
+// FOOTER
+
+#footer {
+  li { @extend .my-2; }
+
+  #footer-legal {
+    font-size: .9rem;
+
+    p { color: $gray-400; }
+    & a { color: $gray-300; }
+  }
+}
+.footer-separator { height: 58px; }
