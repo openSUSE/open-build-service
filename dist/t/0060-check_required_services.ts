@@ -69,7 +69,7 @@ sub get_distribution {
   my $line;
   while ($line = <$fh>) {
     $os = 'suse' if ($line =~ /^ID_LIKE=.*suse.*/);
-    $os = 'rh' if ($line =~ /^ID_LIKE=.*fedora.*/);
+    $os = 'rh' if ($line =~ /^ID(_LIKE)?=.*fedora.*/);
   }
   close $fh;
   return $os
