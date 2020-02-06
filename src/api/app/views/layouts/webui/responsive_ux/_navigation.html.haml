@@ -20,7 +20,7 @@
 
 - if User.session
   = render partial: 'layouts/webui/responsive_ux/user_navigation'
-- elsif !CONFIG['kerberos_mode']
-  = render partial: 'layouts/webui/responsive_ux/login_modal'
-  - if CONFIG['proxy_auth_mode'] != :on && access_params[:can_sign_up]
+- elsif !kerberos_mode?
+  - if !proxy_mode? && can_sign_up?
     = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
+  = render partial: 'layouts/webui/responsive_ux/login_modal'

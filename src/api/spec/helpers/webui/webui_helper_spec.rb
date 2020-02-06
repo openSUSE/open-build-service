@@ -141,29 +141,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#can_register' do
-    context 'current user is admin' do
-      before do
-        User.session = create(:admin_user)
-      end
-
-      it { expect(can_register).to be(true) }
-    end
-
-    context 'user is not registered' do
-      before do
-        User.session = create(:user)
-        allow(UnregisteredUser).to receive(:can_register?).and_raise(APIError)
-      end
-
-      it { expect(can_register).to be(false) }
-    end
-
-    context 'user is registered' do
-      it { expect(can_register).to be(true) }
-    end
-  end
-
   describe '#project_or_package_link' do
     skip('Please add some tests')
   end

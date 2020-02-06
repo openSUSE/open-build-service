@@ -2,7 +2,7 @@
   .alert.alert-warning{ role: 'alert' }
     Login required, please
     = link_to('login', new_session_url)
-    - if can_register
+    - if can_register?
       or
       = link_to('signup', new_user_url)
     in order to comment
