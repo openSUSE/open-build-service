@@ -1,4 +1,5 @@
 include ../../Makefile.include
+-include ../../Makefile.local
 
 OBS_BACKEND_DATA_SUBDIRS := build events info jobs log projects repos run sources trees workers service service/log
 OBS_BACKEND_DATA_DIR := /srv/obs
@@ -43,3 +44,5 @@ clean_cover:
 	rm -rf cover_db/
 
 .PHONY: test_unit cover
+
+include ../../Makefile.targets

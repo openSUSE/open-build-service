@@ -1,4 +1,8 @@
+include ../../Makefile.include
+-include ../../Makefile.local
+
 apidocs:
+	sed -i -e 's,#!/usr/bin/ruby.ruby2.5,#!$(OBS_RUBY_BIN),' ./restility/bin/rest_doc ./restility/bin/rest_test
 	cd api; make apidocs
 
 doc: apidocs
@@ -12,3 +16,7 @@ doc: apidocs
 validate:
 	python validate_xml.py api/
 	python validate_xml.py backend/
+
+.PHONY: apidocs doc validate
+
+include ../../Makefile.targets

@@ -20,6 +20,7 @@
 # Description:       Finds the storage device to be used for OBS server and/or worker
 ### END INIT INFO
 
+
 . /etc/rc.status
 
 # BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
@@ -474,6 +475,7 @@ case "$1" in
 			/tmp/obsworkerscript.$$
 			rm /tmp/obsworkerscript.$$
 		fi
+		[ -d $OBS_WORKER_DIRECTORY/cache ] || mkdir -p $OBS_WORKER_DIRECTORY/cache
 		rc_status -v
 	;;
 	stop)

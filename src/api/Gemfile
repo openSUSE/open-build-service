@@ -85,6 +85,8 @@ gem 'deep_cloneable', '~> 3.0.0'
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
 gem 'coderay'
+# required by rails
+gem 'bigdecimal'
 
 group :development, :production do
   # to have the delayed job daemon

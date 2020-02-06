@@ -1,0 +1,9 @@
+  function rc_status {
+    echo "DEBUG: rc_status $@"
+  }
+  function rc_reset {
+    echo "DEBUG: rc_reset $@"
+  }
+  function rc_exit {
+    echo "DEBUG: rc_exit $@"
+  }

@@ -27,6 +27,8 @@ Group:          Productivity/Networking/Web/Utilities
 Url:            http://www.openbuildservice.org
 Source0:        Gemfile
 Source1:        Gemfile.lock
+Source2:        gem_build_cleanup.sh
+#Source2:        gem_build_cleanup.sh
 BuildRequires:  autoconf
 BuildRequires:  automake
 BuildRequires:  cyrus-sasl-devel
@@ -40,10 +42,20 @@ BuildRequires:  libxslt-devel
 BuildRequires:  make
 BuildRequires:  mysql-devel
 BuildRequires:  nodejs
-BuildRequires:  openldap2-devel
 BuildRequires:  python-devel
+%if 0%{?suse_version}
+%define __obs_ruby_version 2.5.0
+%define __obs_ruby_interpreter /usr/bin/ruby.ruby2.5
 BuildRequires:  ruby2.5-devel
-BuildRequires:  rubygem(ruby:2.5.0:bundler)
+BuildRequires:  rubygem(ruby:%{__obs_ruby_version}:bundler)
+BuildRequires:  openldap2-devel
+%else
+%define __obs_ruby_version 2.6.0
+%define __obs_ruby_interpreter /usr/bin/ruby
+BuildRequires:  ruby-devel
+BuildRequires:  rubygem-bundler
+BuildRequires:  openldap-devel
+%endif
 BuildRequires:  chrpath
 
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -58,16 +70,25 @@ to make it easier to deploy the obs-server package.
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version}
 Requires:       build >= 20170315
+%else
+Requires:       obs-build
+%endif
 Requires:       memcached >= 1.4
 Requires:       mysql
 Requires:       obs-bundled-gems = %{version}
 Requires:       sphinx >= 2.1.8
 Requires:       perl(GD)
-Requires:       rubygem(ruby:2.5.0:bundler)
-Requires:       rubygem(ruby:2.5.0:rake:%{rake_version})
-Requires:       rubygem(ruby:2.5.0:rack:%{rack_version})
-
+%if 0%{?suse_version}
+Requires:       rubygem(ruby:%{__obs_ruby_version}:bundler)
+Requires:       rubygem(ruby:%{__obs_ruby_version}:rake:%{rake_version})
+Requires:       rubygem(ruby:%{__obs_ruby_version}:rack:%{rack_version})
+%else
+Requires:       rubygem-bundler
+Requires:       rubygem-rake
+Requires:       rubygem-rack
+%endif
 %description -n obs-api-deps
 To simplify splitting the test suite packages off the main package,
 this package is just a meta package used to run and build obs-api
@@ -78,7 +99,9 @@ this package is just a meta package used to run and build obs-api
 %package -n obs-api-testsuite-deps
 Summary:        Holding dependencies required to run frontend test suites
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version}
 Requires:       inst-source-utils
+%endif
 Requires:       nodejs
 Requires:       obs-api-deps = %{version}
 
@@ -105,18 +128,20 @@ bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
 
-%install
 bundle --local --path %{buildroot}%_libdir/obs-api/
 
 # test that the rake and rack macros is still matching our Gemfile
-test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rake-%{rake_version}/rake.gemspec
-test -f %{buildroot}%_libdir/obs-api/ruby/2.5.0/gems/rack-%{rack_version}/rack.gemspec
+test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rake-%{rake_version}/rake.gemspec
+test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rack-%{rack_version}/rack.gemspec
 
 # run gem clean up script
-/usr/lib/rpm/gem_build_cleanup.sh %{buildroot}%_libdir/obs-api/ruby/*/
+chmod 755 %{S:2}
+%{S:2}  %{buildroot}%_libdir/obs-api/ruby/*/
 
 # Remove sources of extensions, we don't need them
+%if 0%{?suse_version}
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/ext/
+%endif
 
 # remove binaries with invalid interpreters
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
@@ -136,13 +161,14 @@ find %{buildroot}%_libdir/obs-api -name .gitignore | xargs rm -rf
 
 # fix interpreter in installed binaries
 for bin in %{buildroot}%_libdir/obs-api/ruby/*/bin/*; do
-  sed -i -e 's,/usr/bin/env ruby.ruby2.5,/usr/bin/ruby.ruby2.5,' $bin
+  sed -i -e 's,/usr/bin/env ruby.ruby2.5,%{__obs_ruby_interpreter},' $bin
 done
 
 # remove exec bit from all other files still containing /usr/bin/env - mostly helper scripts
 find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read file; do
   chmod a-x $file
 done
+
 
 %files
 %_libdir/obs-api

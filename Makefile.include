@@ -1,24 +1,18 @@
 INSTALL=/usr/bin/install
 OBS_BACKEND_PREFIX=/usr/lib/obs/server
+OBS_BACKEND_DATA_DIR=/srv/obs
 OBS_DOCUMENT_ROOT=/srv/www/obs
 OBS_API_PREFIX=$(OBS_DOCUMENT_ROOT)/api
 OBS_APIDOCS_PREFIX=$(OBS_DOCUMENT_ROOT)/docs
 
-# TODO: find fix for RH in spec/Makefile
-# This here is preparation for multi distro support
 APACHE_USER=wwwrun
 APACHE_GROUP=www
-APACHE_CONIFGDIR=/etc/apache2
-APACHE_CONIFGDIR_VHOST=$(APACHE_CONIFGDIR)/vhosts.d
+APACHE_CONFDIR=/etc/apache2
+APACHE_CONFDIR_VHOST=$(APACHE_CONFDIR)/vhosts.d
 APACHE_VHOST_CONF=obs-apache24.conf
+APACHE_LOGDIR=/var/log/apache2
 
-# some sortcuts
-test: test_unit
-
-test_all: test_unit test_system
-
-t: test
-
-ta: test_all
-
-ts: test_system
+OBS_RUBY_BIN=/usr/bin/ruby.ruby25
+OBS_BUNDLE_BIN=/usr/bin/bundle.ruby25
+OBS_RAKE_BIN=/usr/bin/rake.ruby25
+OBS_RUBY_VERSION=2.5.0
