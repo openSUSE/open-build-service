@@ -67,7 +67,7 @@ sub normalize_container {
   $containerinfo->{'imageid'} =~ s/^sha256://;
   $containerinfo->{'goarch'} = $config->{'architecture'};
   $containerinfo->{'goos'} = $config->{'os'};
-  # XXX: should add a variant for arm
+  $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);
 
   if ($deletetar) {

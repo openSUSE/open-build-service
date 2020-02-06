@@ -553,6 +553,7 @@ for my $tarfile (@tarfiles) {
   if ($multiarch) {
     # see if a already have this arch/os combination
     my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
+    $platformstr .= " variant:$config->{'variant'}" if $config->{'variant'};
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
       close $tarfd if $tarfd;
@@ -626,6 +627,7 @@ for my $tarfile (@tarfiles) {
       'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
       'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
     };
+    $multimani->{'platform'}->{'variant'} = $config->{'variant'} if $config->{'variant'};
     push @multimanifests, $multimani;
   } else {
     manifest_upload_tags($mani_json, \@tags);

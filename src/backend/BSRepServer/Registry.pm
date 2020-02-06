@@ -28,8 +28,9 @@ use strict;
 my $uploaddir = "$BSConfig::bsdir/upload";
 
 sub select_manifest {
-  my ($mani, $goarch, $goos) = @_;
+  my ($mani, $goarch, $goos, $govariant) = @_;
   for my $m (@{$mani->{'manifests'} || []}) {
+    next if $govariant && $m->{'platform'}->{'variant'} && $m->{'platform'}->{'variant'} ne $govariant;
     return $m->{'digest'} if $m->{'platform'} && $m->{'platform'}->{'architecture'} eq $goarch && $m->{'platform'}->{'os'} eq $goos;
   }
   return undef;
