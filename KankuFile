@@ -34,7 +34,6 @@ jobs:
     options:
       commands:
         - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_Factory/OBS:Server:Unstable.repo
-        - zypper ar https://download.opensuse.org/repositories/home:/M0ses:/branches:/OBS:/Server:/Unstable/openSUSE_Factory/home:M0ses:branches:OBS:Server:Unstable.repo
         - zypper -n --gpg-auto-import-keys ref -s
         - zypper -n install perl ruby2.5-rubygem-bundler zlib-devel ruby-devel ruby2.5-devel rsync bsdtar less git patch openldap2-devel libxml2-devel libmysqld-devel gcc make gcc-c++ libxslt-devel cyrus-sasl-devel nodejs-common obs-api-deps
         - rsync -av /tmp/kanku/ /root/open-build-service

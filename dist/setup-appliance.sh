@@ -593,7 +593,7 @@ EOF
 
 function prepare_os_settings {
   . /etc/os-release
-  for d in $ID_LIKE;do
+  for d in $ID_LIKE $ID;do
     case $d in
       suse|opensuse)
         MYSQL_SERVICE=mysql

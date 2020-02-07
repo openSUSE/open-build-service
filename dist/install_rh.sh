@@ -14,10 +14,12 @@ then
   exit 1
 fi
 
-# FIXME: uses my branch ATM
-repo=home:M0ses:branches:OBS:Server:Unstable
+# FIXME: calculate dist based on current installation
+dist="Fedora_31"
+repo=OBS:Server:Unstable
+repo_path=`echo $repo|sed -e 's,:,:/,g'`
 echo "configuring $repo"
-curl https://download.opensuse.org/repositories/home:/M0ses:/branches:/OBS:/Server:/Unstable/Fedora_31/$repo.repo > /etc/yum.repos.d/$repo.repo || exit 1
+curl https://download.opensuse.org/repositories/$repo_path/$dist/$repo.repo > /etc/yum.repos.d/$repo.repo || exit 1
 
 ####
 # install required packages
