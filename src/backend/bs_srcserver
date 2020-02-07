@@ -925,6 +925,23 @@ sub readbuildenv {
   }
 }
 
+sub rpm_includecallback {
+  my ($rev, $files, $fn) = @_;
+  my %files = map {$_ => $_} keys %$files;
+  if ($files{'_service'}) {
+    for (sort keys %files) {
+      next unless /^_service:.*:(.*?)$/s;
+      $files{$1} = delete($files{$_}) if $files{$_};
+    }
+  }
+  $fn =~ s/.*\///;
+  $fn = $files{$fn};
+  return undef unless $fn;
+  my @s = BSRevision::revstat($rev, $fn, $files->{$fn});
+  return undef if !@s || $s[7] > 100000;
+  return BSRevision::revreadstr($rev, $fn, $files->{$fn});
+}
+
 sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   local *oldbsrpc = *BSRPC::rpc;
@@ -1608,6 +1625,7 @@ sub getprojpack {
 	      $conf->{'buildflavor'} = $2;
 	    }
 	    my $d;
+	    local $Build::Rpm::includecallback = sub { rpm_includecallback($rev, $files, @_) };
 	    eval {
 	      $d = Build::parse_typed($conf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
 	    };
@@ -5845,6 +5863,7 @@ sub sourceinfo {
     $bconf->{'buildflavor'} = $2;
   }
   
+  local $Build::Rpm::includecallback = sub { rpm_includecallback($rev, $files, @_) };
   my $d;
   eval {
     $d = Build::parse_typed($bconf, BSRevision::revfilename($rev, $file, $files->{$file}), $buildtype);
