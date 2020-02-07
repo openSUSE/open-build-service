@@ -1,25 +1,45 @@
 class WorkerStatus
-  def self.hidden
-    mydata = Rails.cache.read('workerstatus')
-    ws = Nokogiri::XML(mydata || Backend::Api::BuildResults::Worker.status).root
-    prjs = {}
-    ws.css('building').each do |b|
-      prjs[b['project']] = 1
+  class << self
+    def hidden
+      mydata = Rails.cache.read('workerstatus')
+      ws = Nokogiri::XML(mydata || Backend::Api::BuildResults::Worker.status).root
+      # remove information about projects which are not visible to the current user
+      hide_project_information(ws)
     end
-    names = {}
-    # now try to find those we have a match for (the rest are hidden from you
-    Project.where(name: prjs.keys).pluck(:name).each do |n|
-      names[n] = 1
+
+    private
+
+    def hide_project_information(worker_status_root)
+      worker_status = worker_status_root
+      prjs = initialize_projects(worker_status)
+      xpath_string = generate_xpath(project_names(prjs.keys))
+      worker_status.xpath(xpath_string).each do |b|
+        b['project'] = '---'
+        b['repository'] = '---'
+        b['package'] = '---'
+      end
+      worker_status
     end
-    ws.css('building').each do |b|
-      # no prj -> we are not allowed
-      next if names.key?(b['project'])
-      Rails.logger.debug "workerstatus2clean: hiding #{b['project']} for user #{User.possibly_nobody.login}"
-      b['project'] = '---'
-      b['repository'] = '---'
-      b['package'] = '---'
+
+    # use Xpath to filter the projects
+    def generate_xpath(names)
+      return '//building' if names.empty?
+      # find all entries where project isn't in names
+      "//building[not(@project=#{xpath_list(names)})]"
     end
-    ws
+
+    # from array of project names generates a xpath sequence like ('name1', 'name2', 'nameX')
+    def xpath_list(names)
+      format("(#{names.collect { '\'%s\'' }.join(',')})", *names)
+    end
+
+    def initialize_projects(ws)
+      Hash[ws.css('building').collect { |b| [b['project'], 1] }]
+    end
+
+    def project_names(prjs)
+      ProjectNamesFinder.new(prjs).call
+    end
   end
 
   def update_workerstatus_cache
