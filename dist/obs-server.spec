@@ -50,7 +50,7 @@ Requires:       rubygem-rails\
 %global apache_user wwwrun
 %global apache_group www
 %global apache_confdir /etc/apache2
-%global apache_vhostdir %{apache_confdir}/vhost.d
+%global apache_vhostdir %{apache_confdir}/vhosts.d
 %global apache_logdir /var/log/apache2
 %if 0%{?suse_version} < 1500
 %define apache_group_requires Requires(pre):  apache2
