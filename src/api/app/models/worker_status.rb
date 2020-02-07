@@ -44,77 +44,80 @@ class WorkerStatus
 
   def update_workerstatus_cache
     # do not add hiding in here - this is purely for statistics
-    ret = Backend::Api::BuildResults::Worker.status
-    wdata = Xmlhash.parse(ret)
+    backend_status = Backend::Api::BuildResults::Worker.status
+    wdata = Nokogiri::XML(backend_status)
     @mytime = Time.now.to_i
-    @squeues = {}
-    Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
+    @squeues = Hash.new(0)
+
+    Rails.cache.write('workerstatus', backend_status, expires_in: 3.minutes)
+
     StatusHistory.transaction do
-      wdata.elements('blocked') do |e|
-        save_value_line(e, 'blocked')
+      ['blocked', 'waiting'].each do |state|
+        wdata.search("//#{state}").each { |e| save_value_line(e, state) }
       end
-      wdata.elements('waiting') do |e|
-        save_value_line(e, 'waiting')
-      end
-      wdata.elements('partition') do |p|
-        p.elements('daemon') do |daemon|
-          parse_daemon_infos(daemon)
-        end
-      end
+      wdata.search('partition/daemon').each { |daemon| parse_daemon_infos(daemon) }
       parse_worker_infos(wdata)
-      @squeues.each_pair do |key, value|
-        StatusHistory.create(time: @mytime, key: key, value: value)
-      end
+      @squeues.each_pair { |key, value| StatusHistory.create(time: @mytime, key: key, value: value) }
     end
-    ret
+
+    backend_status
   end
 
   private
 
   def add_squeue(key, value)
-    @squeues[key] ||= 0
     @squeues[key] += value.to_i
   end
 
   def parse_daemon_infos(daemon)
-    return unless daemon['type'] == 'scheduler'
-    arch = daemon['arch']
-    # FIXME2.5: The current architecture model is a gross hack, not connected at all
-    #           to the backend config.
-    a = Architecture.find_by_name(arch)
-    if a
-      a.available = true
-      a.save
-    end
-    queue = daemon.get('queue')
+    return unless daemon.attributes['type'].value == 'scheduler'
+
+    queue = daemon.at_xpath('queue')
     return unless queue
-    ['high', 'next', 'med', 'low'].each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
+
+    architecture_name = daemon.attributes['arch'].value
+
+    daemon_architecture(architecture_name)
+
+    ['high', 'next', 'med', 'low'].each do |key|
+      s_key = squeue_key([key, architecture_name])
+      add_squeue(s_key, queue.attributes[key].value)
+    end
+  end
+
+  def squeue_key(key_parts)
+    generic_key_generation(key_parts.prepend('squeue'))
+  end
+
+  def generic_key_generation(key_parts)
+    key_parts.join('_')
+  end
+
+  def daemon_architecture(arch_name)
+    Architecture.unavailable.find_by(name: arch_name).try(:update, available: true)
   end
 
   def parse_worker_infos(wdata)
-    allworkers = {}
+    allworkers = Hash.new(0)
     workers = {}
+
     ['building', 'idle', 'dead', 'down', 'away'].each do |state|
-      wdata.elements(state) do |e|
-        id = e['workerid']
-        if workers.key?(id)
-          Rails.logger.debug 'building+idle worker'
-          next
-        end
-        workers[id] = 1
-        key = state + '_' + e['hostarch']
-        allworkers["building_#{e['hostarch']}"] ||= 0
-        allworkers["idle_#{e['hostarch']}"] ||= 0
-        allworkers["dead_#{e['hostarch']}"] ||= 0
-        allworkers["down_#{e['hostarch']}"] ||= 0
-        allworkers["away_#{e['hostarch']}"] ||= 0
-        allworkers[key] = allworkers[key] + 1
+      wdata.search("//#{state}").each do |e|
+        worker_id = e.attributes['workerid'].value
+        # building+idle worker
+        next if workers.key?(worker_id)
+        workers[worker_id] = 1
+        key = generic_key_generation([state, e.attributes['hostarch'].value])
+        allworkers[key] += 1
       end
     end
 
-    allworkers.each do |key, value|
-      line = StatusHistory.new
-      line.time = @mytime
+    allworkers.each { |key, value| generic_save_value_line(@mytime, key, value) }
+  end
+
+  def generic_save_value_line(status_history_timestamp, key, value)
+    StatusHistory.new.tap do |line|
+      line.time = status_history_timestamp
       line.key = key
       line.value = value
       line.save
@@ -122,10 +125,6 @@ class WorkerStatus
   end
 
   def save_value_line(e, prefix)
-    line = StatusHistory.new
-    line.time = @mytime
-    line.key = "#{prefix}_#{e['arch']}"
-    line.value = e['jobs']
-    line.save
+    generic_save_value_line(@mytime, "#{prefix}_#{e['arch']}", e['jobs'])
   end
 end
