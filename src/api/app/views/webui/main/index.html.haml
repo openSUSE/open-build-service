@@ -9,14 +9,7 @@
         -# rubocop:disable Rails/OutputSafety
         = raw @configuration['description']
         -# rubocop:enable Rails/OutputSafety
-        .row.no-gutters.text-center#proceed-list
-          - if flipper_responsive?
-            = render partial: "layouts/#{responsive_namespace}/proceed-list"
-            .contextual-actions.d-none.d-md-flex
-              .grid-col-3
-                = render partial: 'proceed-list'
-          - else
-            = render partial: 'proceed-list'
+        = render partial: 'welcome-actions'
     = render(partial: 'system_status', locals: { busy: @busy,
                                                  building_workers: @building_workers,
                                                  overall_workers: @overall_workers,

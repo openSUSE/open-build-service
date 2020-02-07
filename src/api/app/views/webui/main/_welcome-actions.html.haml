@@ -1,0 +1,13 @@
+.row.no-gutters.text-center#proceed-list
+  - if flipper_responsive?
+    = render partial: "layouts/#{responsive_namespace}/proceed-list"
+    - if User.session
+      .contextual-actions.d-none.d-md-flex
+        .grid-col-3
+          = render partial: 'proceed-list'
+    - else
+      .contextual-actions
+        .grid-col-3
+          = render partial: 'proceed-list'
+  - else
+    = render partial: 'proceed-list'
