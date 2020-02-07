@@ -431,7 +431,7 @@ GEM
     unicode-display_width (1.6.1)
     uniform_notifier (1.13.0)
     url (0.3.2)
-    vcr (5.0.0)
+    vcr (5.1.0)
     voight_kampff (1.1.3)
       rack (>= 1.4, < 3.0)
     webmock (3.8.0)
