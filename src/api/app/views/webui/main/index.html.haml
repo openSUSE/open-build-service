@@ -13,7 +13,8 @@
           - if flipper_responsive?
             = render partial: "layouts/#{responsive_namespace}/proceed-list"
             .contextual-actions.d-none.d-md-flex
-              = render partial: 'proceed-list'
+              .grid-col-3
+                = render partial: 'proceed-list'
           - else
             = render partial: 'proceed-list'
     = render(partial: 'system_status', locals: { busy: @busy,
