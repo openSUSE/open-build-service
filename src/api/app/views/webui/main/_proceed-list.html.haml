@@ -1,9 +1,8 @@
-.contextual-actions.d-none.d-md-flex
-  - if User.admin_session?
-    = render partial: 'admin_proceed-list'
-  = render partial: 'user_proceed-list'
-  - unless @spider_bot
-    = link_to(monitor_path, class: 'nav-link', title: 'See the status of the builds') do
-      %i.fas.fa-heartbeat.fa-2x.text-danger
-      %br
-      Status Monitor
+- if User.admin_session?
+  = render partial: 'admin_proceed-list'
+= render partial: 'user_proceed-list'
+- unless @spider_bot
+  = link_to(monitor_path, class: 'nav-link', title: 'See the status of the builds') do
+    %i.fas.fa-heartbeat.fa-2x.text-danger
+    %br
+    Status Monitor
