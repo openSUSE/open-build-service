@@ -1,11 +1,9 @@
 require_dependency 'api_error'
 require 'builder/xchar'
-require 'builder'
 require 'rexml/document'
 require_dependency 'has_relationships'
 require_dependency 'opensuse/validator'
 require_dependency 'authenticator'
-require 'digest'
 
 # rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
@@ -1281,6 +1279,7 @@ class Package < ApplicationRecord
     params = {}
     params[:comment] = opt[:comment] if opt[:comment]
     params[:user] = User.session!.login
+    params[:rev] = opt[:rev]
     Backend::Api::Sources::Package.write_file(project.name, name, opt[:filename], content, params)
 
     # KIWI file
@@ -1294,39 +1293,6 @@ class Package < ApplicationRecord
     return if opt[:rev] == 'repository' || ['_project', '_pattern'].include?(name)
 
     sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
-  end
-
-  def save_files(opt = {})
-    filelist = []
-    filenames = opt[:filenames]
-    xml = ::Builder::XmlMarkup.new
-
-    # Iterate over existing files first to keep them in file list
-    dir_hash.elements('entry') { |e| xml.entry('name' => e['name'], 'md5' => e['md5'], 'hash' => e['hash']) }
-    opt[:files].try(:each) do |file|
-      filenames[file.original_filename] ||= file.original_filename
-      filelist << filename
-      # Set rev so revision includes all the files
-      save_file(rev: 'repository', file: file, filename: filenames[file.original_filename])
-
-      # Add required fields to xml sent in `write filelist` post
-      content = File.open(file.path).read if file.is_a?(ActionDispatch::Http::UploadedFile)
-      xml.entry('name' => filename, 'md5' => Digest::MD5.hexdigest(content), 'hash' => 'sha256:' + Digest::SHA256.hexdigest(content))
-    end
-    opt[:files_new].try(:each) do |new|
-      # Set rev so revision includes all the files
-      filelist << new
-      save_file(rev: 'repository', filename: new)
-
-      # Add required fields to xml sent in `write filelist` post
-      xml.entry('name' => new, 'md5' => Digest::MD5.hexdigest(''), 'hash' => 'sha256:' + Digest::SHA256.hexdigest(''))
-    end
-
-    Backend::Api::Sources::Package.write_filelist(project.name, name, "<directory>#{xml.target!}</directory>", user: User.session!.login, comment: opt[:comment])
-
-    # update package timestamp and reindex sources
-    return if ['_project', '_pattern'].include?(name)
-    sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].any? { |i| filelist.include?(i) })
   end
 
   def to_param

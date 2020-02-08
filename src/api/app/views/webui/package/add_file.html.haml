@@ -5,7 +5,7 @@
   .card-body
     %h3
       Upload files to #{@project.name}/#{@package.name}
-    = form_tag({ action: :save_file, project: @project, package: @package }, multipart: true) do
+    = form_tag({ action: :save_files, project: @project, package: @package }, multipart: true) do
       .form-group.package-add-file
         .custom-file
           = file_field_tag 'files[]', class: 'custom-file-input', multiple: true, id: 'files'

@@ -6,13 +6,13 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
 
   before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :add_file, :save_file,
+                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :add_file, :save_file, :save_files,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
+                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file, :save_files,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
                                          :binary_download]
@@ -36,7 +36,8 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
-  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :save_file, :save_files, :abort_build, :trigger_rebuild,
+                                          :wipe_binaries, :save_meta, :save, :abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -367,12 +368,8 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :update?
 
     file = params[:file]
-    files = params[:files]
     file_url = params[:file_url]
-    file_urls = params[:file_urls]
     filename = params[:filename]
-    filenames = params[:filenames]
-    files_new = params[:files_new] # Contains a list of filenames to create new files
 
     errors = []
 
@@ -393,26 +390,8 @@ class Webui::PackageController < Webui::WebuiController
         end
       elsif filename.present? # No file is provided so we just create an empty new file (touch)
         @package.save_file(filename: filename)
-      elsif file_urls.blank? && files.blank? && files_new.blank?
+      else
         errors << 'No file or URI given'
-      end
-
-      # Allow to submit multiple kinds of data at once
-      if file_urls.present?
-        services = @package.services
-
-        # file_urls is an array, where even index is name and odd index is url
-        Hash[*file_urls].each do |name, url|
-          services.addDownloadURL(url, name)
-        end
-
-        unless services.save
-          errors << "Failed to add file from URL '#{file_url}'"
-        end
-      end
-      if files.present? || files_new.present?
-        # We are getting uploaded files in an array, with a hash containing name changes and array with new filenames
-        @package.save_files(files: files, filenames: filenames, files_new: files_new, comment: params[:comment])
       end
     rescue APIError => e
       errors << e.message
@@ -423,11 +402,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if errors.empty?
-      if file_urls.present? || files.present? || files_new.present?
-        message = 'The files have been successfully saved.'
-      else
-        message = "The file '#{filename}' has been successfully saved."
-      end
+      message = "The file '#{filename}' has been successfully saved."
       # We have to check if it's an AJAX request or not
       if request.xhr?
         flash.now[:success] = message
@@ -449,6 +424,72 @@ class Webui::PackageController < Webui::WebuiController
 
     status ||= 200
     render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
+  end
+
+  def save_files
+    authorize @package, :update?
+    filenames = params[:filenames]
+    filelist = []
+
+    errors = []
+
+    xml = ::Builder::XmlMarkup.new
+
+    # Iterate over existing files first to keep them in file list
+    @package.dir_hash.elements('entry') { |e| xml.entry('name' => e['name'], 'md5' => e['md5'], 'hash' => e['hash']) }
+    begin
+      # Add new services to _service
+      if params[:file_urls].present?
+        services = @package.services
+
+        Hash[*params[:file_urls]].try(:each) do |name, url|
+          services.addDownloadURL(url, name)
+        end
+
+        if services.save
+          filelist << '_service'
+        else
+          errors << 'Failed to add file from URL'
+        end
+      end
+      # Assign names to the uploaded files
+      params[:files].try(:each) do |file|
+        filenames[file.original_filename] ||= file.original_filename
+        filelist << filenames[file.original_filename]
+        @package.save_file(rev: 'repository', file: file, filename: filenames[file.original_filename])
+        content = File.open(file.path).read if file.is_a?(ActionDispatch::Http::UploadedFile)
+        xml.entry('name' => filenames[file.original_filename], 'md5' => Digest::MD5.hexdigest(content), 'hash' => 'sha256:' + Digest::SHA256.hexdigest(content))
+      end
+      # Create new files from the namelist
+      params[:files_new].try(:each) do |new|
+        filelist << new
+        @package.save_file(rev: 'repository', filename: new)
+        xml.entry('name' => new, 'md5' => Digest::MD5.hexdigest(''), 'hash' => 'sha256:' + Digest::SHA256.hexdigest(''))
+      end
+
+      if filelist.blank?
+        errors << 'No file uploaded, empty file specified or URI given'
+      else
+        Backend::Api::Sources::Package.write_filelist(@package.project.name, @package.name, "<directory>#{xml.target!}</directory>", user: User.session!.login, comment: params[:comment])
+        return if ['_project', '_pattern'].include?(@package.name)
+
+        @package.sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].any? { |i| filelist.include?(i) })
+      end
+    rescue APIError => e
+      errors << e.message
+    rescue Backend::Error => e
+      errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
+    rescue StandardError => e
+      errors << e.message
+    end
+
+    if errors.empty?
+      message = "'#{filelist}' have been successfully saved."
+      redirect_to({ action: :show, project: @project, package: @package }, success: message)
+    else
+      message = "Error while creating '#{filelist}': #{errors.compact.join("\n")}."
+      redirect_back(fallback_location: root_path, error: message)
+    end
   end
 
   def remove_file

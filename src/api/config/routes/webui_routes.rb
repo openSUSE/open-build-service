@@ -76,6 +76,7 @@ OBSApi::Application.routes.draw do
         post 'package/remove/:project/:package' => :remove, constraints: cons
         get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
+        post 'package/save_files/:project/:package' => :save_files, constraints: cons
         post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
         post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
         post 'package/save_group/:project/:package' => :save_group, constraints: cons, as: 'package_save_group'
