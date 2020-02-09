@@ -367,7 +367,7 @@ GEM
       rubocop (>= 0.68.1)
     ruby-ldap (0.9.20)
     ruby-progressbar (1.10.1)
-    ruby_parser (3.14.1)
+    ruby_parser (3.14.2)
       sexp_processor (~> 4.9)
     rubyzip (2.2.0)
     safe_yaml (1.0.5)
