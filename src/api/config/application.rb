@@ -12,6 +12,11 @@ module OBSApi
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
 
+    # Enable rails version 6.0 defaults
+    config.load_defaults '6.0'
+    # For now, use the classic/oldway for code loading in rails instead of zeitwerk
+    config.autoloader = :classic
+
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
     config.eager_load_paths << Rails.root.join('lib', 'backend')
