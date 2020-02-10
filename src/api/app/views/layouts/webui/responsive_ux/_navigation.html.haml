@@ -1,27 +1,30 @@
-%nav.navbar.navbar-dark.bg-dark.border-bottom.border-gray-500.fixed-top
-  .d-flex.flex-nowrap.justify-content-between.w-100
-    = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
-      = image_tag('obs-logo_small.svg', height: '30')
-    .d-flex
-      = render partial: "layouts/#{responsive_namespace}/search"
-      - if User.session
-        .toggler
-          = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
-            %i.fas.fa-bookmark.fa-lg
-        .toggler
-          - tasks = User.session!.tasks
-          = link_to(my_tasks_path, class: 'nav-link text-light', alt: 'Tasks') do
-            %i.fas.fa-tasks.fa-lg
-            - if tasks.positive?
-              %span.badge.badge-primary.align-text-top= tasks
-        .toggler{ data: { toggle: 'offcanvas' } }
-          = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
-      - else
-        = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
+%nav.navbar.navbar-dark.bg-dark.px-0.border-bottom.border-gray-500.fixed-top
+  .container-xxl
+    .d-flex.flex-nowrap.justify-content-between.w-100
+      = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
+        = image_tag('obs-logo_small.svg', height: '30')
+      .d-flex
+        = render partial: "layouts/#{responsive_namespace}/search"
+        - if User.session
+          .toggler
+            = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+              %i.fas.fa-bookmark.fa-lg
+          .toggler
+            - tasks = User.session!.tasks
+            = link_to(my_tasks_path, class: 'nav-link text-light', alt: 'Tasks') do
+              %i.fas.fa-tasks.fa-lg
+              - if tasks.positive?
+                %span.badge.badge-primary.align-text-top= tasks
+          .toggler{ data: { toggle: 'offcanvas' } }
+            = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
+        - else
+          = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
 
-- if User.session
-  = render partial: 'layouts/webui/responsive_ux/user_navigation'
-- elsif !kerberos_mode?
-  - if !proxy_mode? && can_sign_up?
-    = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
-  = render partial: 'layouts/webui/responsive_ux/login_modal'
+    - if User.session
+      = render partial: 'layouts/webui/responsive_ux/user_navigation'
+      = render partial: "layouts/#{responsive_namespace}/watchlist"
+- unless User.session
+  - unless kerberos_mode?
+    - if !proxy_mode? && can_sign_up?
+      = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
+    = render partial: 'layouts/webui/responsive_ux/login_modal'

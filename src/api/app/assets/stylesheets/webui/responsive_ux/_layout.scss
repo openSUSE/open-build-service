@@ -5,6 +5,7 @@
 // NAVIGATION
 
 #navigation {
+  .container-xxl { position: relative; }
   .fixed-top { height: 57px; }
   .toggler {
     @extend .ml-3;

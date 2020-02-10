@@ -10,20 +10,37 @@ body.responsive-ux {
 @include media-breakpoint-up(md) {
   body.responsive-ux {
     // START LAYOUT
-    .watchlist-collapse, .offcanvas-collapse {
-      top: 57px; /* Height of navbar */
-      bottom: 0;
-      width: 380px;
+    #navigation {
+      .watchlist-collapse, .offcanvas-collapse {
+        position: absolute;
+        top: 49px;
+        right: 0;
+        bottom: initial;
+        left: initial;
+        width: initial;
+        max-width: 380px;
+        max-height: 560px;
+        padding: 1rem;
+        transition: none;
 
-      .navbar-nav {
-        width: 100%;
-        padding-top: 1rem;
-        margin-left: 0 !important;
-        -webkit-box-orient: vertical;
-        flex-direction: column;
-        align-self: flex-start;
+        &.open {
+          transform: none;
+          border-radius: 0 0 .2rem .2rem;
+          overflow-y: auto;
+
+          // Firefox
+          scrollbar-color: $gray-500 $dark;
+          scrollbar-width: thin;
+
+          // Chrome
+          &::-webkit-scrollbar { width: .4rem; }
+          &::-webkit-scrollbar-track { background: $dark }
+          &::-webkit-scrollbar-thumb {
+            background-color: $gray-500 ;
+            border: 0;
+          }
+        }
       }
-      .navbar-toggler { display: none; }
     }
 
     #footer {
