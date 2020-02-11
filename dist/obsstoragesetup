@@ -4,24 +4,7 @@
 # Author: adrian@suse.de
 #
 # /etc/init.d/obsstoragesetup
-#   and its symbolic link
-# /usr/sbin/rcobsstoragesetup
-#
-### BEGIN INIT INFO
-# Provides:          obsstoragesetup
-# X-Start-Before:    mysql sshd obsapisetup
-# Should-Start:      xendomains haveged
-# Should-Stop:       $none
-# Required-Start:    $network
-# Required-Stop:     $null
-# Default-Start:     3 5
-# Default-Stop:      0 1 2 4 6
-# Short-Description  OBS storage setup
-# Description:       Finds the storage device to be used for OBS server and/or worker
-### END INIT INFO
 
-
-. /etc/rc.status
 
 # BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
 # this is also sourcing /etc/sysconfig/obs-server
@@ -53,7 +36,6 @@ if [ -z "$OBS_WORKER_DIRECTORY" ]; then
 	OBS_WORKER_DIRECTORY="/var/cache/obs/worker"
 fi
 
-rc_reset
 case "$1" in
 	start)
 
@@ -476,31 +458,13 @@ case "$1" in
 			rm /tmp/obsworkerscript.$$
 		fi
 		[ -d $OBS_WORKER_DIRECTORY/cache ] || mkdir -p $OBS_WORKER_DIRECTORY/cache
-		rc_status -v
 	;;
 	stop)
-                # nothing to do
-		rc_status -v
-	;;
-	restart)
-                # nothing to do
-		rc_status
-	;;
-	try-restart)
-                # nothing to do
-		rc_status
-	;;
-	reload)
-                # nothing to do
-		rc_status
-	;;
-	status)
 		# nothing to do
-		rc_status -v
+		exit 0
 	;;
 	*)
-		echo "Usage: $0 {start|stop|status|try-restart|restart|reload}"
+		echo "Usage: $0 {start|stop}"
 		exit 1
 	;;
 esac
-rc_exit
