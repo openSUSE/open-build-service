@@ -1129,7 +1129,9 @@ while (1) {
   @jobprpas = sort {$scales{$a} * $load->{$a} <=> $scales{$b} * $load->{$b}} @jobprpas;
 
   my %checkconstraintscache;
+  my %nativeonlycache;
   #BSUtil::printlog("assigning jobs");
+
   while (@jobprpas) {
     my $prpa = shift @jobprpas;
     my $arch = (split('/', $prpa))[2];
@@ -1207,6 +1209,7 @@ while (1) {
     }
 
     my $rerun;
+    my $nativeonly = $nativeonlycache{$arch};
     for my $job (@b) {
       my $info = $ic->{$job};
       next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
@@ -1221,6 +1224,11 @@ while (1) {
       }
       my @idle = List::Util::shuffle(@{$idlearch{$info->{'hostarch'} || $arch} || []});
       last unless @idle;
+      if ($nativeonly) {
+	# remove nativeonly hosts that cannot build this job
+	@idle = grep {!$nativeonly->{$_}} @idle;
+	last unless @idle;
+      }
       if (@idle > 1) {
         # sort by worker load
         my %idleload;
@@ -1295,8 +1303,7 @@ while (1) {
         my $worker = $workerinfo{$idle};
 	if (!$worker) {
 	  my @s = stat("$workersdir/idle/$idle");
-	  next unless @s;
-	  $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1);
+	  $worker = readxml("$workersdir/idle/$idle", $BSXML::worker, 1) if @s;
 	  if (!$worker) {
 	    for (@{$cando{$harch} || []}) { 
 	       $idlearch{$_} = [ grep {$_ ne $idle} @{$idlearch{$_}} ];
@@ -1311,6 +1318,8 @@ while (1) {
 	}
         # is a helper needed for personality change?
         if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
+	  $nativeonly = $nativeonlycache{$arch} = {} unless $nativeonly;
+	  $nativeonly->{$idle} = 1;
           next;	# worker is not supporting the needed personality change
         }
 	if ($constraints) {
@@ -1332,7 +1341,10 @@ while (1) {
 	    }
 	  }
 	}
-	last unless -e "$jobsdir/$arch/$job";
+	if (!-e "$jobsdir/$arch/$job") {
+	  $haveassigned = 1;		# hack: disable constrains check
+	  last;
+	}
 	last if $assigned && $tries >= 5;
 	$tries++;
 	my $res = assignjob($job, $idle, $arch);
