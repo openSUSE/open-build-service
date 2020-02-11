@@ -453,7 +453,6 @@ popd
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
 [-d $RPM_BUILD_ROOT/etc/sysconfig] || mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-cp dist/rc.status $RPM_BUILD_ROOT/etc
 install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/etc/sysconfig/obs-server
 %else
 mkdir -p $RPM_BUILD_ROOT/%{_fillupdir}
@@ -981,9 +980,6 @@ usermod -a -G docker obsservicerun
 /usr/sbin/obsstoragesetup
 %if 0%{?suse_version}
 /usr/sbin/rcobsstoragesetup
-%endif
-%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
-/etc/rc.status
 %endif
 
 %files -n obs-utils
