@@ -13,13 +13,26 @@ if [[ $EUID == 0 ]];then
   MYSQLD_USER=mysql
 fi
 
+MYSQL_SERVER=
+for dir in /usr/bin /usr/sbin /usr/libexec; do
+  if [ -x "$dir/mysqld" ]; then
+    MYSQL_SERVER="$dir/mysqld"
+    break
+  fi
+done
+if [ -z "$MYSQL_SERVER" ]; then
+  echo mysqld not found >&2
+  exit 1
+fi
+
+
 ### do testing now
 
 rm -rf $MYSQL_DATADIR $MYSQL_SOCKET
 mkdir -p $MYSQL_BASEDIR
 chown -R $MYSQLD_USER $MYSQL_BASEDIR
 mysql_install_db --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR
-/usr/sbin/mysqld --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --skip-networking --socket=$MYSQL_SOCKET &
+$MYSQL_SERVER --user=$MYSQLD_USER --datadir=$MYSQL_DATADIR --skip-networking --socket=$MYSQL_SOCKET --pid-file=$TEMP_DIR/mysqld.pid &
 sleep 2
 
 ##################### api
