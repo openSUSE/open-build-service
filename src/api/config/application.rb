@@ -16,6 +16,8 @@ module OBSApi
     config.load_defaults '6.0'
     # For now, use the classic/oldway for code loading in rails instead of zeitwerk
     config.autoloader = :classic
+    # Require `belongs_to` associations by default. Previous versions had false.
+    config.active_record.belongs_to_required_by_default = false
 
     # Custom directories with classes and modules you want to be autoloadable.
     # config.autoload_paths += %W(#{config.root}/extras)
