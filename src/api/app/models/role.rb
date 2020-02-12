@@ -22,8 +22,8 @@ class Role < ApplicationRecord
                       allow_nil: false }
 
   # We want to validate a role's title pretty thoroughly.
-  validates :title,
-            uniqueness: { message: 'is the name of an already existing role' }
+  validates :title, uniqueness: { case_sensitive: true,
+                                  message: 'is the name of an already existing role' }
 
   belongs_to :groups_roles
   belongs_to :attrib_type_modifiable_bies
