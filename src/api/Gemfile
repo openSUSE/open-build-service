@@ -151,7 +151,7 @@ end
 group :development, :test do
   gem 'rspec'
   # as testing framework
-  gem 'rspec-rails'
+  gem 'rspec-rails', '>= 4.0.0.beta4'
   # for fixtures
   gem 'factory_bot_rails'
   # for mocking the backend
