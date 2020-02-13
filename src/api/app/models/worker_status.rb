@@ -4,33 +4,25 @@ class WorkerStatus
       mydata = Rails.cache.read('workerstatus')
       ws = Nokogiri::XML(mydata || Backend::Api::BuildResults::Worker.status).root
       # remove information about projects which are not visible to the current user
-      hide_project_information(ws)
+      hidden_projects(ws)
     end
 
     private
 
-    def hide_project_information(worker_status_root)
+    def hidden_projects(worker_status_root)
       worker_status = worker_status_root
       prjs = initialize_projects(worker_status)
-      xpath_string = generate_xpath(project_names(prjs.keys))
-      worker_status.xpath(xpath_string).each do |b|
-        b['project'] = '---'
-        b['repository'] = '---'
-        b['package'] = '---'
+      prj_names = project_names(prjs.keys)
+
+      worker_status.css('building').each do |b|
+        next if prj_names.include?(b['project'])
+        hide_project_information(b)
       end
       worker_status
     end
 
-    # use Xpath to filter the projects
-    def generate_xpath(names)
-      return '//building' if names.empty?
-      # find all entries where project isn't in names
-      "//building[not(@project=#{xpath_list(names)})]"
-    end
-
-    # from array of project names generates a xpath sequence like ('name1', 'name2', 'nameX')
-    def xpath_list(names)
-      format("(#{names.collect { '\'%s\'' }.join(',')})", *names)
+    def hide_project_information(prj)
+      ['project', 'repository', 'package'].each { |k| prj[k] = '---' }
     end
 
     def initialize_projects(ws)
