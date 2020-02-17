@@ -134,16 +134,20 @@ sub fetchdodbinary {
   die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
   my $suf = $1;
   my $pkgname = $pool->pkg2name($p);
+  if (defined(&BSSolv::pool::pkg2inmodule) && $pool->pkg2inmodule($p)) {
+    $pkgname .= '-' . $pool->pkg2evr($p) . '.' . $pool->pkg2arch($p);
+  }
+  $pkgname .= ".$suf";
   BSVerify::verify_filename($pkgname);
   BSVerify::verify_simple($pkgname);
-  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname.$suf";
+  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname";
   return $localname if -e $localname;
   # we really need to download, handoff to ajax if not already done
   BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
-  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname.$suf";
+  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname";
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
@@ -228,6 +232,7 @@ sub getbinaryversions {
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
+  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
   my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
   my %names = $repo ? $repo->pkgnames() : ();
   @bins = sort keys %names if !@bins && !defined $cgi->{'binaries'};
@@ -247,9 +252,9 @@ sub getbinaryversions {
     if ($dodurl && $hdrmd5 eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
       my @handoff;
       if (defined $cgi->{'binaries'}) {
-	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+	@handoff = ('/getbinaryversions', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module'));
       } else {
-	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', map {"binary=$_"} @{$cgi->{'binary'} || []});
+	@handoff = ("/build/$projid/$repoid/$arch/_repository", undef, 'view=binaryversions', BSRPC::args($cgi, 'binary', 'module'));
       }
       $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
       return unless defined $path;
@@ -434,6 +439,7 @@ sub getbinaries {
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
+  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
   my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
   my %names = $repo ? $repo->pkgnames() : ();
   my @send;
@@ -447,7 +453,7 @@ sub getbinaries {
     }
     my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", "binaries=$cgi->{'binaries'}");
+      my @handoff = ('/getbinaries', undef, "project=$projid", "repository=$repoid", "arch=$arch", BSRPC::args($cgi, 'binaries', 'module'));
       $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
       return unless defined $path;
       $needscan = 1;
@@ -526,7 +532,7 @@ sub getrpmheaders {
 }
 
 sub getavailable {
-my ($projid, $repoid, $arch, $available, $available_pattern, $available_product) = @_;
+  my ($projid, $repoid, $arch, $available, $available_pattern, $available_product) = @_;
   my $pool = BSSolv::pool->new();
   my $dir = "$reporoot/$projid/$repoid/$arch/:full";
   my $repo;
@@ -644,7 +650,7 @@ sub getbinarylist_repository {
   my $view = $cgi->{'view'} || '';
 
   if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
-    my @args = BSRPC::args($cgi, 'view', 'binary');
+    my @args = BSRPC::args($cgi, 'view', 'binary', 'module');
     BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
@@ -704,45 +710,86 @@ sub getbinarylist_repository {
       'name' => 'repositorystate',
       'data' => XMLout($BSXML::repositorystate, $repostate),
     };
-    my $fd = gensym;
+    my $fd;
     if (-s "$reporoot/$prp/$arch/:full.solv") {
       my @s = stat(_);
       my $id64 = pack("a64", "$s[9]/$s[7]/$s[1]");
-      if (open($fd, '<', "$reporoot/$prp/$arch/:full.xcache")) {
+      my $xcachefile = "$reporoot/$prp/$arch/:full.xcache";
+
+      my @modules = @{$cgi->{'module'} || []};
+      # can we use the xcache?
+      if (!@modules && open($fd, '<', $xcachefile)) {
 	my $id;
 	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
           push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
 	  BSWatcher::reply_cpio(\@files);
 	  return undef;
 	}
-	unlink("$reporoot/$prp/$arch/:full.xcache");
+	unlink($xcachefile);
+	close($fd);
+	undef $fd;
       }
+
       my $pool = BSSolv::pool->new();
       my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
-      if ($repo) {
-        my %data = $repo->pkgnames();
-        for my $p (values %data) {
-	  $p = $pool->pkg2data($p);
-	  if ($p->{'annotation'}) {
-	    $p->{'annotationdata'} = export_annotation($p->{'annotation'});
-	    $p->{'annotation'} = create_legacy_annotation($p->{'annotationdata'});
-	  }
-        }
-	if (keys(%data) < 100 && $s[7] < 10000) {
-	  # small repo, feed from memory
-	  push @files, { 'name' => 'repositorycache', 'data' => BSUtil::tostorable(\%data) };
-	} else {
-	  # cache result
-	  my $tmpname = "$reporoot/$prp/$arch/:full.xcache.$$";
-	  open($fd, '+>', $tmpname) || die("$tmpname: $!\n");
-	  # Storable uses PerlIO_write, so we have to use print instead of syswrite here
-	  print $fd $id64;
-	  Storable::nstore_fd(\%data, $fd) || die("nstore_fd $tmpname: $!\n");
-	  $fd->flush();
-	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
-	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
+      if (!$repo) {
+        undef $pool;
+        BSWatcher::reply_cpio(\@files);
+        return undef;
+      }
+
+      my @repomodules;	# modules known in this repo
+      if (@modules) {
+	@repomodules = $repo->getmodules() if defined &BSSolv::pool::getmodules;
+	# reduce requested modules to the modules known in this repo
+	my %repomodules = map {$_ => 1} @repomodules;
+	@modules = grep {$repomodules{$_}} @modules;
+      }
+
+      # can we now use the xcache?
+      if (!@repomodules && open($fd, '<', $xcachefile)) {
+	my $id;
+	if (sysread($fd, $id, 64) == 64 && $id eq $id64) {
+	  undef $repo;
+	  undef $pool;
 	  push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
+	  BSWatcher::reply_cpio(\@files);
+	  return undef;
 	}
+	unlink($xcachefile);
+	close($fd);
+	undef $fd;
+      }
+
+      $pool->setmodules(\@modules) if @modules && defined &BSSolv::pool::setmodules;
+      my %data = $repo->pkgnames();
+      for my $p (values %data) {
+	$p = $pool->pkg2data($p);
+	if ($p->{'annotation'}) {
+	  $p->{'annotationdata'} = export_annotation($p->{'annotation'});
+	  $p->{'annotation'} = create_legacy_annotation($p->{'annotationdata'});
+	}
+      }
+      # return known modules if some module was requested
+      $data{'/modules'} = \@repomodules if @repomodules;
+      if (keys(%data) < 100 && $s[7] < 10000) {
+	# small repo, feed from memory
+	push @files, { 'name' => 'repositorycache', 'data' => BSUtil::tostorable(\%data) };
+      } else {
+	# cache result
+	my $tmpname = "$xcachefile.$$";
+	open($fd, '+>', $tmpname) || die("$tmpname: $!\n");
+	# Storable uses PerlIO_write, so we have to use print instead of syswrite here
+	print $fd $id64;
+	Storable::nstore_fd(\%data, $fd) || die("nstore_fd $tmpname: $!\n");
+	$fd->flush();
+	BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
+	if (@repomodules) {
+	  unlink($tmpname);
+	} else {
+	  rename($tmpname, $xcachefile);
+	}
+	push @files, { 'name' => 'repositorycache', 'filename' => $fd, 'offset' => 64 };
       }
       undef $repo;
       undef $pool;
@@ -758,6 +805,7 @@ sub getbinarylist_repository {
 
   if ($view eq 'cpioheaders') {
     my $pool = BSSolv::pool->new();
+    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
     my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
@@ -795,6 +843,7 @@ sub getbinarylist_repository {
     return if $BSStdServer::isajax && !defined $serial;
     my @files;
     my $pool = BSSolv::pool->new();
+    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
     my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
     my %names = $repo ? $repo->pkgnames() : ();
     my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
@@ -808,7 +857,7 @@ sub getbinarylist_repository {
       }
       my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
       if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-	my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, "view=$view", map {"binary=$_"} @{$cgi->{'binary'} || []});
+	my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, BSRPC::args($cgi, 'view', 'binary', 'module'));
         $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
         return unless defined $path;
         $needscan = 1;
@@ -863,13 +912,14 @@ sub getbinarylist_repository {
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
+  $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
   my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
   my %names = $repo ? $repo->pkgnames() : ();
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
   my @res;
   my $needscan;
   my $dodurl = $repo->dodurl();
-  my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, BSRPC::args($cgi, 'view', 'binary'));
+  my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, BSRPC::args($cgi, 'view', 'binary', 'module'));
   for my $bin (@bins) {
     my $p = $names{$bin};
     if (!$p) {
@@ -1328,6 +1378,7 @@ sub getbinary_info {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
@@ -1386,6 +1437,7 @@ sub getbinary_repository {
   if (! -f $path) {
     # return by name
     my $pool = BSSolv::pool->new();
+    $pool->setmodules($cgi->{'module'} || []) if defined &BSSolv::pool::setmodules;
     my $repo = BSRepServer::addrepo_scan($pool, "$projid/$repoid", $arch);
     my $dodurl = $repo->dodurl();
     my %rnames = $repo ? $repo->pkgnames() : ();
@@ -1399,7 +1451,7 @@ sub getbinary_repository {
     die("404 no such binary '$bin'\n") unless $p;
     $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
     if ($dodurl && $pool->pkg2pkgid($p) eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0') {
-      my @handoff = ("/build/$projid/$repoid/$arch/_repository/$bin", undef, $view ? ("view=$view") : ());
+      my @handoff = ("/build/$projid/$repoid/$arch/_repository/$bin", undef, BSRPC::args($cgi, 'view', 'module'));
       $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
       return unless defined $path;
       $needscan = 1;
@@ -4236,7 +4288,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module*' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
@@ -4244,7 +4296,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,
   'DELETE:/build/$project/$repository/$arch/_repository/$filename' => \&delbinary,
   '/search/published/binary/id $match:' => \&search_published_binary_id,
@@ -4265,8 +4317,8 @@ my $dispatches = [
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
   '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port workerid?' => \&workerdispatched,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid?' => \&getbinaries,
-  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid?' => \&getbinaryversions,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? module*' => \&getbinaries,
+  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? module*' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
   '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
@@ -4320,11 +4372,11 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool?' => \&getbinarylist,
-  '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
+  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool? module*' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module*' => \&getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&getbinaryversions,
 ];
 
 my $conf = {

@@ -357,6 +357,8 @@ sub addrepo_remote {
     print "    remote project $prp/$arch: $remoteproj->{'error'}\n";
     return undef;
   }
+  my @modules;
+  @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
   my $gctx = $ctx->{'gctx'};
   print "    fetching remote repository state for $prp\n";
   my $param = {
@@ -366,7 +368,7 @@ sub addrepo_remote {
     'proxy' => $gctx->{'remoteproxy'},
   };
   if ($gctx->{'asyncmode'}) {
-    $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch };
+    $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch, '_modules' => \@modules };
   }
   my $cpio;
   my $solvok;
@@ -381,22 +383,24 @@ sub addrepo_remote {
   if ($@ && $@ =~ /unsupported view/) {
     $solvok = undef;
     delete $param->{'async'}->{'_solvok'} if $param->{'async'};
+    my @args = ('view=cache');
+    push @args, map {"module=$_"} @modules;
     eval {
-      $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, 'view=cache');
+      $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, @args);
     };
   }
   if ($@) {
-    return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, undef, $@);
+    return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, undef, \@modules, $@);
   }
   return 0 if $param->{'async'} && $cpio;       # hack: false but not undef
-  return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, $solvok);
+  return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, $solvok, \@modules);
 }
 
 sub addrepo_remote_resume {
   my ($ctx, $handle, $error, $cpio) = @_;
   my $gctx = $ctx->{'gctx'};
   my $pool = BSSolv::pool->new();
-  my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
+  my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $handle->{'_modules'}, $error);
   $ctx->setchanged($handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
 }
 
@@ -411,15 +415,18 @@ sub import_annotation {
 }
 
 sub addrepo_remote_unpackcpio {
-  my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $error) = @_;
+  my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $modules, $error) = @_;
 
   my $myarch = $gctx->{'arch'};
-
   my $remotecache = $gctx->{'remotecache'};
-  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
+  my @modules = @{$modules || []};
+
+  my $modulestr = @modules ? '/'.join('/', sort @$modules) : '';
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
   substr($cachemd5, 2, 0, '/');
 
   my $repocache = $gctx->{'repodatas'};
+  my @setcacheargs = ('isremote' => 1, 'modulestr' => $modulestr);
 
   if ($error) {
     chomp $error;
@@ -433,12 +440,12 @@ sub addrepo_remote_unpackcpio {
         my $r;
         eval {$r = $pool->repofromfile($prp, $solvfile);};
         if ($r) {
-	  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) if $repocache;
+	  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, @setcacheargs) if $repocache;
 	  return $r;
         }
       }
     }
-    $repocache->setcache($prp, $arch, 'error' => $error, 'isremote' => 1) if $repocache;
+    $repocache->setcache($prp, $arch, 'error' => $error, @setcacheargs) if $repocache;
     return undef;
   }
 
@@ -459,7 +466,6 @@ sub addrepo_remote_unpackcpio {
     warn($@) if $@;
   } elsif (exists $cpio{'repositorycache'}) {
     my $cache;
-    my $havedod;
     if (defined &BSSolv::thawcache) {
       eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
     } else {
@@ -471,7 +477,26 @@ sub addrepo_remote_unpackcpio {
     delete $cache->{'/url'};
     delete $cache->{'/dodcookie'};
     delete $cache->{'/external/'};
+    my $repomodules = delete $cache->{'/modules'};
+
+    if (@modules) {
+      # intersect requested modules with known modules
+      $repomodules ||= [];
+      if (@$repomodules) {
+	my %repomodules = map {$_ => 1} @$repomodules;
+        @modules = grep { $repomodules{$_} } @modules;
+      } else {
+        @modules = ();
+      }
+      # update modulestr and cachemd5 with new modules list
+      $modulestr = @modules ? '/'.join('/', sort @$modules) : '';
+      $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
+      substr($cachemd5, 2, 0, '/');
+      @setcacheargs = ('isremote' => 1, 'modulestr' => $modulestr, 'modules' => $repomodules);
+    }
+
     # postprocess entries
+    my $havedod;
     for (values %$cache) {
       $havedod = 1 if ($_->{'hdrmd5'} || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
       # free some unused entries to save mem
@@ -486,7 +511,7 @@ sub addrepo_remote_unpackcpio {
   } else {
     # return empty repo
     $r = $pool->repofrombins($prp, '');
-    $repocache->setcache($prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1) if $repocache;
+    $repocache->setcache($prp, $arch, 'solv' => $r->tostr(), @setcacheargs) if $repocache;
     $isempty = 1;
   }
   return undef unless $r;
@@ -494,7 +519,7 @@ sub addrepo_remote_unpackcpio {
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   my $solvfile = "$remotecache/$cachemd5.solv";
   BSSched::BuildRepo::writesolv("$solvfile$$", $solvfile, $r);
-  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) if $repocache && !$isempty;
+  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, @setcacheargs) if $repocache && !$isempty;
   return $r;
 }
 

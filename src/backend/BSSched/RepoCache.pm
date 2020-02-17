@@ -33,6 +33,9 @@ sub setcache {
 
   my $repodata = $self->{"$prp/$arch"};
   $self->{"$prp/$arch"} = $repodata = {} unless $repodata;
+  my $modulestr = delete $conf{'modulestr'};
+  $repodata->{'modules'} = $conf{'modules'} if $conf{'modules'};
+  $repodata = ($repodata->{"modules$modulestr"} ||= {}) if $modulestr;
   delete $repodata->{$_} for qw{solv solvfile error lastscan random isremote};
   $repodata->{$_} = $conf{$_} for keys %conf;
   # we don't cache local alien repos
@@ -46,6 +49,20 @@ sub addrepo {
   my ($self, $pool, $prp, $arch) = @_;
 
   my $repodata = $self->{"$prp/$arch"};
+
+  my @modules;
+  @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
+  if (@modules && $repodata) {
+    if ($repodata->{'modules'}) {
+      my %repomodules = map {$_ => 1} @{$repodata->{'modules'}};
+      @modules = grep {$repomodules{$_}} @modules;
+    }
+    if (@modules) {
+      my $modulestr = '/'.join('/', sort @modules);
+      $repodata = $repodata->{"modules$modulestr"};
+    }
+  }
+
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > time()) {
     if ($repodata->{'error'}) {
       print "    repo $prp/$arch: $repodata->{'error'}\n";

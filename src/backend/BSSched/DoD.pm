@@ -100,10 +100,27 @@ sub put_doddata_in_cache {
 =cut
 
 sub clean_obsolete_dodpackages {
-  my ($cache, $dir, @bins) = @_;
+  my ($pool, $cache, $dir, @bins) = @_;
 
   return @bins unless defined &BSSolv::repo::pkgpaths;
   my %paths = $cache->pkgpaths();
+  if (defined(&BSSolv::repo::mayhavemodules) && $cache->mayhavemodules()) {
+    my @modules;
+    if (defined(&BSSolv::repo::modulesfrombins)) {
+      @modules = $cache->modulesfrombins(@bins);
+    } else {
+      @modules = $cache->getmodules();
+    }
+    print "    clean_obsolete_dodpackages: @modules\n";
+    if (@modules) {
+      my @oldpoolmodules = $pool->getmodules();
+      for my $module (sort(BSUtil::unify(@modules))) {
+	$pool->setmodules([ $module ]);
+        %paths = (%paths, $cache->pkgpaths());
+      }
+      $pool->setmodules(\@oldpoolmodules);
+    }
+  }
   my @nbins;
   my $nbinsdirty;
   while (@bins) {
@@ -141,7 +158,13 @@ sub dodcheck {
     next unless $p && ($pool->pkg2pkgid($p) || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
     # ohhh, we have to download
     my $prp = $pool->pkg2reponame($p);
-    $ctx->{'doddownloads'}->{"$prp/$arch"}->{$pkg} = 1;
+    my @modules;
+    @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
+    if (@modules) {
+      $ctx->{'doddownloads'}->{"$prp/$arch/".join('/', @modules)}->{$pkg} = 1;
+    } else {
+      $ctx->{'doddownloads'}->{"$prp/$arch"}->{$pkg} = 1;
+    }
     $todownload{$pkg} = 1;
   }
   return unless %todownload;
@@ -180,11 +203,12 @@ sub dodfetch {
   return unless $doddownloads;
   my $gctx = $ctx->{'gctx'};
   my $remoteprojs = $gctx->{'remoteprojs'};
-  for my $prpa (sort(keys %$doddownloads)) {
-    my @pkgs = sort(keys %{$doddownloads->{$prpa} || {}});
+  for my $prpam (sort(keys %$doddownloads)) {
+    my @pkgs = sort(keys %{$doddownloads->{$prpam} || {}});
     next unless @pkgs;
+    my ($projid, $repoid, $arch, @modules) = split('/', $prpam);
+    my $prpa = "$projid/$repoid/$arch";
     print "    requesting ".@pkgs." dod packages from $prpa\n";
-    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     my $server = $BSConfig::reposerver || $BSConfig::srcserver;
     if ($remoteprojs->{$projid}) {
       $server = $BSConfig::srcserver;
@@ -199,8 +223,11 @@ sub dodfetch {
         '_prpa' => $prpa,
       },
     };
+    my @args = 'view=binaryversions';
+    push @args, map {"module=$_"} @modules;
+    push @args, map {"binary=$_"} @pkgs;
     eval {
-      $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+      $ctx->xrpc("dodfetch/$prpa", $param, undef, @args);
     };
     if ($@) {
       warn($@);

@@ -155,6 +155,7 @@ sub check {
     # calculate packages needed for building
     $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
     my $delayed_errors = '';
     for my $aprp (@bprps) {
       if (!$ctx->checkprpaccess($aprp)) {

@@ -112,6 +112,7 @@ BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
 BuildRequires:  perl-XML-Simple
+BuildRequires:  perl-YAML-LibYAML
 BuildRequires:  procps
 BuildRequires:  timezone
 BuildRequires:  perl(Devel::Cover)
@@ -119,7 +120,7 @@ BuildRequires:  perl(Test::Simple) > 1
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires(pre):  obs-common
-Requires:       build >= 20181031
+Requires:       build >= 20191114
 Requires:       perl-BSSolv >= 0.28
 Requires:       perl(Date::Parse)
 # Required by source server
@@ -159,6 +160,7 @@ Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
+Requires:       perl-YAML-LibYAML
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9

@@ -204,6 +204,8 @@ sub check {
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
 
   my $delayed_errors = '';
   for my $aprp (@aprps) {
