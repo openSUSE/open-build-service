@@ -6,24 +6,44 @@ body.responsive-ux {
 }
 
 // FIXME: move to somewhere else?
-
 @include media-breakpoint-up(md) {
   body.responsive-ux {
     // START LAYOUT
-    .watchlist-collapse, .offcanvas-collapse {
-      top: 57px; /* Height of navbar */
-      bottom: 0;
-      width: 380px;
+    #navigation {
+      .menu-options { font-size: initial; }
+      .offcanvas-collapse { right: .5rem; }
+      .watchlist-collapse { right: 8rem; }
 
-      .navbar-nav {
-        width: 100%;
-        padding-top: 1rem;
-        margin-left: 0 !important;
-        -webkit-box-orient: vertical;
-        flex-direction: column;
-        align-self: flex-start;
+      .watchlist-collapse, .offcanvas-collapse {
+        position: absolute;
+        top: 49px;
+        bottom: initial;
+        left: initial;
+        width: initial;
+        max-width: 380px;
+        max-height: 560px;
+        padding: 1rem;
+        transition: none;
+
+        &.open {
+          border-radius: 0 0 .2rem .2rem;
+          overflow-y: auto;
+          -webkit-transform: none;
+          transform: none;
+
+          // Firefox
+          scrollbar-color: $gray-500 $dark;
+          scrollbar-width: thin;
+
+          // Chrome
+          &::-webkit-scrollbar { width: .4rem; }
+          &::-webkit-scrollbar-track { background: $dark }
+          &::-webkit-scrollbar-thumb {
+            background-color: $gray-500 ;
+            border: 0;
+          }
+        }
       }
-      .navbar-toggler { display: none; }
     }
 
     #footer {

@@ -5,7 +5,12 @@
 // NAVIGATION
 
 #navigation {
-  .fixed-top { height: 57px; }
+  .container-xxl { position: relative; }
+  .fixed-top {
+    height: 57px;
+    z-index: 1040;
+  }
+
   .toggler {
     @extend .ml-3;
     @extend .d-none;

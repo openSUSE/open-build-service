@@ -20,6 +20,3 @@
           = sign_up_link(css_class: 'nav-link text-light')
       %li.nav-item
         = log_in_link(css_class: 'nav-link text-light')
-
-- if User.session
-  = render partial: "layouts/#{responsive_namespace}/watchlist"

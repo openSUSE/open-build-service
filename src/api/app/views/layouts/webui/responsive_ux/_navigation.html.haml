@@ -20,9 +20,11 @@
         - else
           = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
 
-- if User.session
-  = render partial: 'layouts/webui/responsive_ux/user_navigation'
-- elsif !kerberos_mode?
-  - if !proxy_mode? && can_sign_up?
-    = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
-  = render partial: 'layouts/webui/responsive_ux/login_modal'
+    - if User.session
+      = render partial: 'layouts/webui/responsive_ux/user_navigation'
+      = render partial: "layouts/#{responsive_namespace}/watchlist"
+- unless User.session
+  - unless kerberos_mode?
+    - if !proxy_mode? && can_sign_up?
+      = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
+    = render partial: 'layouts/webui/responsive_ux/login_modal'
