@@ -1,0 +1,15 @@
+= link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link px-0 px-md-3') do
+  = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light')
+  %span.ml-2.d-inline-block.d-md-none Profile
+- if User.session!.home_project
+  = link_to(project_show_path(User.session!.home_project), class: 'nav-link px-0 px-md-3', title: 'Home Project') do
+    %i.fas.fa-cubes.fa-lg
+    %span.ml-2.d-inline-block.d-md-none Your Home Project
+- else
+  = link_to(new_project_path(name: User.session!.home_project_name), class: 'nav-link px-0 px-md-3', title: 'Create Home Project') do
+    %i.fas.fa-cubes.fa-lg
+    %span.ml-2.d-inline-block.d-md-none Create Your Home Project
+= link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link px-0 px-md-3', title: 'Logout') do
+  %i.fas.fa-sign-out-alt.fa-lg
+  %span.ml-2.d-inline-block.d-md-none Logout
+

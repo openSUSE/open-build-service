@@ -10,13 +10,27 @@ body.responsive-ux {
   body.responsive-ux {
     // START LAYOUT
     #navigation {
-      .menu-options { font-size: initial; }
-      .offcanvas-collapse { right: .5rem; }
-      .watchlist-collapse { right: 8rem; }
+      .menu-options {
+        font-size: initial;
 
-      .watchlist-collapse, .offcanvas-collapse {
+        #link-to-user-home { order: 2; }
+        #logout-link { order: 3; }
+        .nav-link {
+          order: 1;
+          i { vertical-align: middle; }
+          &:last-child { padding-right: 0 !important; }
+        }
+      }
+
+      .toggler {
+        display: flex !important;
+        .nav-link { color: #f8f9fa !important; }
+      }
+
+      .watchlist-collapse {
         position: absolute;
         top: 49px;
+        right: 8rem;
         bottom: initial;
         left: initial;
         width: initial;
