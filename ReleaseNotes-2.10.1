@@ -14,8 +14,31 @@ from a previous OBS release.
 Features
 ========
 
+Backend:
+ * EXPERIMENTAL: Add support for rpm-md modules (RHEL/CentOS 8 only).
+                 Modules can get enabled via 
+
+                   ExpandFlags: module:$MODULE_NAME
+
+                 in build configuration. Note: they tend to conflict.
+ * bs_publish: support Debian's InRelease file
+ * support zchunk compression for rpm-md metadata
+
+Bugfixes
+========
+
 Frontend:
- * Security update for gem nokogiri (CVE-2019-5477)
+ * Fixed inconsistent data on package undelete
+ * Sphinx startup fixes
+ * Fix maintained projects link
+
+Backend:
+ * Support openssl 1.1 and newer
+ * fix publisher sleeping behaviour (obs#8276)
+ * bs_publish: fix $rsync_extra_options handling (obs#8384)
+ * service expansion: tweak oldfiles handling (obs#7596)
+ * fix publishing of containers when no registry is configured
+ * 
 
 Shipment:
  * obsdodup starts after obsapisetup
