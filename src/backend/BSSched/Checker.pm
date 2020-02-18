@@ -587,7 +587,12 @@ sub expandandsort {
       next;
     }
     my @deps = @{$info->{'dep'} || []};
-    push @deps, @{$genbuildreqs_prp->{$packid}->[1]} if $genbuildreqs_prp->{$packid};
+    my $genbuildreqs = $genbuildreqs_prp->{$packid};
+    if ($genbuildreqs) {
+      my $verifymd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
+      undef $genbuildreqs if $genbuildreqs->[2] && $genbuildreqs->[2] ne $verifymd5;
+      push @deps, @{$genbuildreqs->[1]} if $genbuildreqs;
+    }
     my $handler = $handlers{$buildtype} || $handlers{default};
     my ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
     if (!$eok) {
