@@ -369,14 +369,14 @@ sub update_buildavg {
 }
 
 sub set_genbuildreqs {
-  my ($gctx, $prp, $packid, $file) = @_;
+  my ($gctx, $prp, $packid, $file, $verifymd5) = @_;
   my $filecontent = $file ? readstr($file, 1) : undef;
   my $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp};
   if (defined $filecontent) {
     my $md5 = Digest::MD5::md5_hex($filecontent);
     return if $genbuildreqs && ($genbuildreqs->{$packid} || [''])->[0] eq $md5;
     $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp} = {} unless $genbuildreqs;
-    $genbuildreqs->{$packid} = [ $md5, [ split("\n", $filecontent) ] ];
+    $genbuildreqs->{$packid} = [ $md5, [ split("\n", $filecontent) ], $verifymd5 ];
   } else {
     return if !$genbuildreqs || !delete($genbuildreqs->{$packid});
     delete($gctx->{'genbuildreqs'}->{$prp}) if !%$genbuildreqs;
@@ -573,7 +573,8 @@ sub jobfinished {
   }
   if ($code eq 'genbuildreqs') {
     print "  - $job: build has different generated build requires\n";
-    set_genbuildreqs($gctx, $prp, $packid, "$jobdatadir/_generated_buildreqs");
+    my $verifymd5 = $info->{'verifymd5'} || $info->{'srcmd5'};
+    set_genbuildreqs($gctx, $prp, $packid, "$jobdatadir/_generated_buildreqs", $verifymd5);
     unlink($_) for @all;
     rmdir($jobdatadir);
     $changed->{$prp} ||= 1;     # package is no longer blocking
@@ -965,6 +966,7 @@ sub create {
   my $proj = $projpacks->{$projid};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
+  my $verifymd5 = $pdata->{'verifymd5'} || $srcmd5;
   my $jobprefix = $packid ? jobname($prp, $packid) : undef;
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $dobuildinfo = $ctx->{'dobuildinfo'};
@@ -1030,6 +1032,7 @@ sub create {
 
   # calculate packages needed for building
   my $genbuildreqs = ($ctx->{'genbuildreqs'} || {})->{$packid};
+  undef $genbuildreqs if $genbuildreqs && $genbuildreqs->[2] && $genbuildreqs->[2] ne $verifymd5;
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @{$genbuildreqs->[1]} if $genbuildreqs;
