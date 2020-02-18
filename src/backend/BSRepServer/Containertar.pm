@@ -28,7 +28,7 @@ use BSUtil;
 use strict;
 
 sub normalize_container {
-  my ($dir, $container, $writeblobs, $deletetar) = @_;
+  my ($dir, $container, $writeblobs, $deletetar, $arch) = @_;
 
   # sanity check
   die("must not delete container if blobs are not stored\n") if $deletetar && !$writeblobs;
@@ -67,6 +67,11 @@ sub normalize_container {
   $containerinfo->{'imageid'} =~ s/^sha256://;
   $containerinfo->{'goarch'} = $config->{'architecture'};
   $containerinfo->{'goos'} = $config->{'os'};
+  if (!$config->{'variant'} && $arch) {
+    # fake variant by looking at the scheduler architecture
+    $config->{'variant'} = "v$1" if $config->{'architecture'} eq 'arm' && $arch =~ /^armv(\d+)/;
+    $config->{'variant'} = "v8" if $config->{'architecture'} eq 'arm64';
+  }
   $containerinfo->{'govariant'} = $config->{'variant'} if $config->{'variant'};
   BSRepServer::Containerinfo::writecontainerinfo("$dir/.$containerinfo_file", "$dir/$containerinfo_file", $containerinfo);
 
