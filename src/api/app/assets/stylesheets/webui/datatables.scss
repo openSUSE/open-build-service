@@ -33,3 +33,8 @@ table.dataTable.table-sm {
 .table-hover tbody tr:hover {
   background-color: $gray-300;
 }
+
+#projects-datatable_wrapper .dataTables_paginate {
+  @extend .d-flex;
+  @extend .justify-content-center;
+}
