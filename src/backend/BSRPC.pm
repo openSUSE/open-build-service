@@ -178,6 +178,15 @@ sub readanswerheaderblock {
   return ($1, $ans);
 }
 
+sub lookuphost {
+  my ($host, $cache) = @_;
+  return $cache->{$host}->[0] if $cache && $cache->{$host} && $cache->{$host}->[1] > time();
+  my $hostaddr = inet_aton($host);
+  return undef unless $hostaddr;
+  $cache->{$host} = [ $hostaddr, time() + 24 * 3600 ] if $cache;
+  return $hostaddr;
+}
+
 #
 # handled paramters:
 # timeout
@@ -278,14 +287,11 @@ sub rpc {
   if (exists($param->{'socket'})) {
     $sock = $param->{'socket'};
   } else {
-    if (!$hostlookupcache{$host}) {
-      my $hostaddr = inet_aton($host);
-      die("unknown host '$host'\n") unless $hostaddr;
-      $hostlookupcache{$host} = $hostaddr;
-    }
+    my $hostaddr = lookuphost($host, \%hostlookupcache);
+    die("unknown host '$host'\n") unless $hostaddr;
     socket($sock, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
     setsockopt($sock, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
-    connect($sock, sockaddr_in($port, $hostlookupcache{$host})) || die("connect to $host:$port: $!\n");
+    connect($sock, sockaddr_in($port, $hostaddr)) || die("connect to $host:$port: $!\n");
     if ($proxytunnel) {
       BSHTTP::swrite($sock, $proxytunnel);
       my ($status, $ans) = readanswerheaderblock($sock);
