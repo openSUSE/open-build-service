@@ -1,0 +1,7 @@
+bundles:
+  - ruby:
+    - brakeman
+    - bundler-audit
+    # Handled by circleCI - rubocop
+report.pullRequest.comment: false
+report.pullRequest.findings: onChangedLinesOnly
