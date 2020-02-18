@@ -23,11 +23,14 @@ Backend:
                  in build configuration. Note: they tend to conflict.
  * bs_publish: support Debian's InRelease file
  * support zchunk compression for rpm-md metadata
+ * new systemd-nspawn backend
+ * Support zstd compression for rpm and deb
 
 Bugfixes
 ========
 
 Frontend:
+ * Fix partial editor option hash defaults (obs#8018)
  * Fixed inconsistent data on package undelete
  * Sphinx startup fixes
  * Fix maintained projects link
@@ -38,7 +41,6 @@ Backend:
  * bs_publish: fix $rsync_extra_options handling (obs#8384)
  * service expansion: tweak oldfiles handling (obs#7596)
  * fix publishing of containers when no registry is configured
- * 
 
 Shipment:
  * obsdodup starts after obsapisetup
@@ -46,3 +48,4 @@ Shipment:
 Bugfixes:
  * Make cleanup_scm_cache cron job work again
  * Fix LogRotate setup
+
