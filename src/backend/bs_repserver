@@ -1161,6 +1161,13 @@ sub getbuildhistory {
   return ({'entry' => \@history}, $BSXML::buildhist);
 }
 
+sub getbuildstats {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  my @bstats = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/.stats", $BSXML::buildstatslay, $cgi->{'limit'} || 100);
+  @bstats = reverse @bstats;
+  return ({'entry' => \@bstats}, $BSXML::buildstatslist);
+}
+
 sub getbuildreason {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -4306,6 +4313,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
+  '/build/$project/$repository/$arch/$package/_buildstats limit:num?' => \&getbuildstats,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? lastsucceeded:bool? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,

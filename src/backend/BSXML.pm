@@ -1874,6 +1874,13 @@ our $buildstatslay = [
 ];
 
 
+our $buildstatslist = [
+    'buildstats' =>
+    [[ 'entry' =>
+         @$buildstatslay
+    ]]
+];
+
 
 our $notifications = [
     'notifications' =>
