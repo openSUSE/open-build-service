@@ -60,7 +60,11 @@
 
     .container-xxl.flex-grow#content
       = yield
-    .container-fluid.py-4.mt-4.bg-dark#footer
+    - if flipper_responsive?
+      .container-fluid.py-4.mt-4#sponsor
+        .container-xxl
+          = render partial: "layouts/#{responsive_namespace}/sponsors"
+    .container-fluid.py-4.bg-dark#footer
       .container-xxl
         = render partial: "layouts/#{responsive_namespace}/footer"
     - if flipper_responsive? && !current_page?(signup_path) && !current_page?(new_session_path)

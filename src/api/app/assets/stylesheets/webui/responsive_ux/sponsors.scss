@@ -1,0 +1,40 @@
+#sponsor {
+    background: #fff;
+}
+
+.sponsors {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    .sponsor-item {
+        text-align: center;
+        padding: 1em;
+
+        a {
+            img {
+                height: 50px;
+            }
+        }
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .sponsors {
+        flex-direction: row;
+
+        .sponsor-item {
+            flex-basis: 33%;
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .sponsors {
+        flex-direction: row;
+
+        .sponsor-item {
+            flex-basis: 13%;
+        }
+    }
+}

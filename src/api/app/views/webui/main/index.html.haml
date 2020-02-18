@@ -18,6 +18,8 @@
                                                  host_title: @configuration['title'],
                                                  system_stats: @system_stats })
   .col-md-4.col-lg-5
+    - unless flipper_responsive?
+      = render partial: 'layouts/webui/legacy_sponsors'
     - if !User.session && can_register?
       .card.mb-3
         %h5.card-header New here? Sign up!
@@ -26,4 +28,3 @@
     - if @status_messages.present? || User.admin_session?
       = render partial: 'status_messages'
     = render(partial: 'latest_updates') if @latest_updates && (::Configuration.anonymous || User.session)
-    = render partial: 'sponsors'
