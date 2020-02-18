@@ -16,6 +16,7 @@ class Architecture < ApplicationRecord
 
   #### Scopes (first the default_scope macro if is used)
   scope :available, -> { where(available: 1) }
+  scope :unavailable, -> { where(available: 0) }
 
   #### Validations macros
   validates :name, uniqueness: true
