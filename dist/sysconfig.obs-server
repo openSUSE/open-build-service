@@ -76,6 +76,17 @@ OBS_SRC_SERVER=""
 OBS_REPO_SERVERS=""
 
 ## Path:        Applications/OBS
+## Description: define a malloc wrapper for scheduler
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# Define a wrapper script for preloading libs for scheduler startup
+# "jemalloc.sh" is a possibility here after installing jemalloc package.
+#
+OBS_SCHEDULER_WRAPPER=""
+
+## Path:        Applications/OBS
 ## Description: define number of build instances
 ## Type:        integer
 ## Default:     0
