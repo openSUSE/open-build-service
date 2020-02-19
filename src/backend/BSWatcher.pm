@@ -1094,12 +1094,9 @@ sub rpc {
     die("https not supported\n") unless $tossl || $param->{'https'};
   }
   $param->{'proto'} = $proto;
-  if (!$hostlookupcache{$host}) {
-    # should do this async, but that's hard to do in perl
-    my $hostaddr = inet_aton($host);
-    die("unknown host '$host'\n") unless $hostaddr;
-    $hostlookupcache{$host} = $hostaddr;
-  }
+  # should do this async, but that's hard to do in perl
+  my $hostaddr = BSRPC::lookuphost($host, \%hostlookupcache);
+  die("unknown host '$host'\n") unless $hostaddr;
   my $fd;
   socket($fd, PF_INET, SOCK_STREAM, $tcpproto) || die("socket: $!\n");
   fcntl($fd, F_SETFL,O_NONBLOCK);
@@ -1119,7 +1116,7 @@ sub rpc {
   push @{$ev->{'joblist'}}, $jev;
   $rpcs{$rpcuri} = $ev;
   #print "new rpc $uri\n";
-  if (!connect($fd, sockaddr_in($port, $hostlookupcache{$host}))) {
+  if (!connect($fd, sockaddr_in($port, $hostaddr))) {
     if ($! == POSIX::EINPROGRESS) {
       $ev->{'handler'} = \&rpc_connect_handler;
       $ev->{'timeouthandler'} = \&rpc_connect_timeout;
