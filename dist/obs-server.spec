@@ -188,7 +188,7 @@ BuildRequires: obs-server-macros
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
-PreReq:         %insserv_prereq permissions pwdutils
+Requires(pre):  shadow
 %endif
 
 %if 0%{?suse_version:1}
@@ -227,9 +227,6 @@ Provides:       obs-source_service = %version
 
 Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
-%if 0%{?suse_version} >= 1550
-Requires:       insserv-compat
-%endif
 
 BuildRequires:  systemd-rpm-macros
 
@@ -262,9 +259,6 @@ Group:          Productivity/Networking/Web/Utilities
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
 Recommends:     powerpc32
-%if 0%{?suse_version} >= 1550
-Requires:       insserv-compat
-%endif
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -276,7 +270,7 @@ Summary:        The Open Build Service -- base configuration files
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 Requires(pre):  shadow
-PreReq:         %fillup_prereq
+Requires(pre):  %fillup_prereq
 %endif
 
 %description -n obs-common
@@ -453,7 +447,6 @@ popd
 
 %if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
 [-d $RPM_BUILD_ROOT/etc/sysconfig] || mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
-cp dist/rc.status $RPM_BUILD_ROOT/etc
 install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/etc/sysconfig/obs-server
 %else
 mkdir -p $RPM_BUILD_ROOT/%{_fillupdir}
@@ -654,9 +647,6 @@ rmdir %{obs_backend_data_dir} 2> /dev/null || :
 %service_del_postun -r obsclouduploadworker.service
 %service_del_postun -r obsclouduploadserver.service
 
-%verifyscript -n obs-server
-%verify_permissions
-
 %pre -n obs-api
 getent passwd obsapidelayed >/dev/null || \
   /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d %{__obs_api_prefix} -g %{apache_group} obsapidelayed
@@ -679,7 +669,7 @@ fi
 %post -n obs-common
 %service_add_post obsstoragesetup.service
 %if 0%{?suse_version}
-%{fillup_and_insserv -n obs-server}
+%{fillup_only -n obs-server}
 %endif
 
 %post -n obs-api
@@ -725,7 +715,6 @@ if [ -e %{_rundir}/start_obs-api-support.target ];then
 fi
 
 %postun -n obs-api
-%insserv_cleanup
 %service_del_postun %{obs_api_support_scripts}
 %service_del_postun -r apache2
 
@@ -981,9 +970,6 @@ usermod -a -G docker obsservicerun
 /usr/sbin/obsstoragesetup
 %if 0%{?suse_version}
 /usr/sbin/rcobsstoragesetup
-%endif
-%if 0%{?fedora} || 0%{?rhel} || 0%{?centos}
-/etc/rc.status
 %endif
 
 %files -n obs-utils
