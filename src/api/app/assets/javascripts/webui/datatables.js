@@ -6,7 +6,14 @@
 //= require datatables/extensions/FixedColumns/dataTables.fixedColumns
 
 var DEFAULT_DT_PARAMS = {
-  language: { search: '', searchPlaceholder: "Search..." },
+  language: { 
+    search: '', searchPlaceholder: "Search...",
+    zeroRecords: "Nothing found",
+    infoEmpty: "No records available",
+    info: "page _PAGE_ of _PAGES_ (_TOTAL_ records)",
+    infoFiltered: ""
+  },
+
   pageLength: 25,
   stateSave: true,
   pagingType: 'full',
