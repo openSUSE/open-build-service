@@ -52,7 +52,7 @@ case "$1" in
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		for i in $OBS_SCHEDULER_ARCHITECTURES; do
-		        ./bs_sched $i >> "$logdir"/scheduler_$i.log 2>&1 &
+		        $OBS_SCHEDULER_WRAPPER ./bs_sched $i >> "$logdir"/scheduler_$i.log 2>&1 &
 		done
 		rc_status -v
 	;;
