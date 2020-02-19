@@ -233,6 +233,10 @@ jobs:
     steps:
       - attach_workspace:
          at: .
+      - run:
+          name: Patch brakeman in
+          command: |
+            sed -i -e 's,# BRAKEMAN,gem "brakeman",' src/api/Gemfile
       - run: *install_dependencies
       - run:
           name: Run brakeman
