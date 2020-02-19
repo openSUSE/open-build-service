@@ -367,17 +367,6 @@
     </choice>
   </define>
 
-  <define ns="" name="cpu-flags">
-    <choice>
-      <value>fpu</value>
-      <value>mmx</value>
-      <value>sse</value>
-      <value>sse2</value>
-      <value>sse3</value>
-      <value>ssse3</value>
-    </choice>
-  </define>
-
   <define ns="" name="size-unit">
     <element name="size">
       <attribute name="unit">

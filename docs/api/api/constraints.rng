@@ -91,7 +91,7 @@
               <element name="cpu">
                 <oneOrMore> 
                   <element name="flag">
-                    <ref name="cpu-flags"/>
+                    <text />
                   </element>
                 </oneOrMore> 
               </element>
