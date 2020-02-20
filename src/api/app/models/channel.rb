@@ -26,7 +26,7 @@ class Channel < ApplicationRecord
         if project
           prj = Project.get_by_name(project)
           if b['package']
-            pkg = prj.find_package(b['package'])
+            pkg = prj.find_package(b['package'].gsub(/:.*$/, ''))
             raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
           if b['repository'] && !prj.repositories.find_by_name(b['repository'])
@@ -130,8 +130,8 @@ class Channel < ApplicationRecord
       arch = nil
       arch = Architecture.find_by_name!(b['arch']) if b['arch']
       hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
-               project: nil, architecture: arch,
-               package: b['package'], repository: nil }
+               project: nil, architecture: arch, repository: nil }
+      hash[:package] = b['package'].blank? ? nil : b['package'].gsub(/:.*$/, '')
       if b['project']
         hash[:project] = Project.get_by_name(b['project'])
         hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
