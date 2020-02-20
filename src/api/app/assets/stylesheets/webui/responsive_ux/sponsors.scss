@@ -3,7 +3,6 @@
 }
 
 .sponsors {
-    display: flex;
     flex-direction: column;
     justify-content: space-between;
 
@@ -24,7 +23,7 @@
         flex-direction: row;
 
         .sponsor-item {
-            flex-basis: 33%;
+            flex-basis: 20%;
         }
     }
 }

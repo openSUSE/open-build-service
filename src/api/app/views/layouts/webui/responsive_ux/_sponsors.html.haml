@@ -1,6 +1,6 @@
 - if CONFIG['sponsors'].present?
   .container-fluid.py-4.mt-4#sponsor
-    .container-xxl.sponsors.flex-wrap
+    .container-xxl.sponsors.d-flex.flex-wrap
       - CONFIG['sponsors'].each do |sponsor|
         .sponsor-item
           = link_to_sponsor(sponsor)
