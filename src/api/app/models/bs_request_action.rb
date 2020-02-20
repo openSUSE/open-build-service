@@ -578,25 +578,18 @@ class BsRequestAction < ApplicationRecord
       if pkg.is_patchinfo?
         release_targets = Patchinfo.new.fetch_release_targets(pkg)
       end
-      new_targets.each do |p|
+      new_targets.each do |new_target_project|
         if release_targets.present?
-          found = false
-          release_targets.each do |rt|
-            if rt['project'] == p
-              found = true
-              break
-            end
-          end
-          next unless found
+          next unless release_targets.any? { |rt| rt['project'] == new_target_project }
         end
 
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(p).repositories)
+        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(new_target_project).repositories)
 
         new_action = dup
         new_action.source_package = pkg.name
         unless is_maintenance_incident?
-          new_action.target_project = p
+          new_action.target_project = new_target_project
           new_action.target_package = pkg.name + incident_suffix
         end
         newactions << new_action
