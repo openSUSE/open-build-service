@@ -574,10 +574,7 @@ class BsRequestAction < ApplicationRecord
     new_targets.uniq!
     new_packages.uniq!
     new_packages.each do |pkg|
-      release_targets = nil
-      if pkg.is_patchinfo?
-        release_targets = Patchinfo.new.fetch_release_targets(pkg)
-      end
+      release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
       new_targets.each do |new_target_project|
         if release_targets.present?
           next unless release_targets.any? { |rt| rt['project'] == new_target_project }
