@@ -22,7 +22,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
       group_in_datatable(page, group)
     end
 
-    expect(page).to have_content('Showing 1 to 2 of 2 entries')
+    expect(page).to have_content('1 of 1 (2 records)')
   end
 
   scenario 'visit group show page' do
