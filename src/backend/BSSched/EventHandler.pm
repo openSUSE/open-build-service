@@ -549,7 +549,8 @@ sub event_suspendproject {
   my $gctx = $ectx->{'gctx'};
   return unless $ev->{'job'};
   print "suspending project $projid: $ev->{'job'}\n";
-  $gctx->{'projsuspended'}->{$projid} = $ev->{'job'};
+  push @{$gctx->{'projsuspended'}->{$projid}}, $ev->{'job'};
+
   # try to set the repo state right away
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
@@ -565,13 +566,18 @@ sub event_resumeproject {
   my ($ectx, $ev) = @_;
   my $projid = $ev->{'project'};
   my $gctx = $ectx->{'gctx'};
-  my $job = $gctx->{'projsuspended'}->{$projid};
   my $evjob = $ev->{'job'} || '';
-  if (!$job) {
+  my $suspend = $gctx->{'projsuspended'}->{$projid};
+  if (!$suspend) {
     print "ignoring resumeproject for project $projid ($evjob)\n";
     return;
   }
-  print "resuming project $projid: $job ($evjob)\n";
+  my $lastjob = pop @$suspend;
+  if (@$suspend) {
+    print "not yet resuming project $projid ($evjob) ($lastjob): @$suspend\n";
+    return;
+  }
+  print "resuming project $projid: $lastjob ($evjob)\n";
   delete $gctx->{'projsuspended'}->{$projid};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};

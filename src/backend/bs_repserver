@@ -2570,7 +2570,13 @@ sub copybuild {
   # for simple files it happened already
   if (%delayed_linking) {
     my $pid = xfork();
-    return $BSStdServer::return_ok if $pid;
+    if ($pid) {
+      # hack: suspend the scheduler until we are done with copying
+      my $ev = {'type' => 'suspendproject', 'project' => $projid, 'job' => "copybuild:$job" };
+      mkdir_p("$eventdir/$arch");
+      writexml("$eventdir/$arch/.suspendproject:$job$$", "$eventdir/$arch/suspendproject:$job", $ev, $BSXML::event);
+      return $BSStdServer::return_ok;
+    }
     for (sort(keys %delayed_linking)) {
       BSUtil::linktree($delayed_linking{$_}, $_);
     }
@@ -2596,6 +2602,11 @@ sub copybuild {
   dirty($projid, $repoid, $arch) if $arch ne 'signer';
   mkdir_p("$eventdir/$arch");
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
+  if (%delayed_linking) {
+    # see above
+    $ev = {'type' => 'resumeproject', 'project' => $projid, 'job' => "copybuild:$job" };
+    writexml("$eventdir/$arch/.resumeproject:$job$$", "$eventdir/$arch/resumeproject:$job", $ev, $BSXML::event);
+  }
   BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }

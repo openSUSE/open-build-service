@@ -629,7 +629,8 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
     }
 
     # update projsuspended hash
-    my $oldprojsuspended =  $schedstate->{'projsuspended'} || {};
+    my $oldprojsuspended = $schedstate->{'projsuspended'} || {};
+    $_ = ref($_) ? $_ : [ $_ ] for values %$oldprojsuspended;	# convert to array refs
     %{$gctx->{'projsuspended'}} = %$oldprojsuspended;
 
     # use old start values
