@@ -542,13 +542,10 @@ class BsRequestAction < ApplicationRecord
       new_action.source_rev = rev if rev
       if is_maintenance_release?
         if pkg.is_channel?
+
           # create submit request for possible changes in the _channel file
-          submit_action = BsRequestActionSubmit.new
-          submit_action.source_project = new_action.source_project
-          submit_action.source_package = new_action.source_package
-          submit_action.source_rev = new_action.source_rev
-          submit_action.target_project = tprj.name
-          submit_action.target_package = tpkg
+          submit_action = create_submit_action(source_package: new_action.source_package, source_project: new_action.source_project,
+                                               target_package: tpkg, target_project: tprj.name, source_rev: new_action.source_rev)
           # replace the new action
           new_action.destroy
           new_action = submit_action
@@ -777,6 +774,17 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def create_submit_action(source_package:, source_project:, target_package:, target_project:,
+                           source_rev:)
+    submit_action = BsRequestActionSubmit.new
+    submit_action.source_package = source_package
+    submit_action.source_project = source_project
+    submit_action.target_package = target_package
+    submit_action.target_project = target_project
+    submit_action.source_rev = source_rev
+    submit_action
+  end
 
   def check_patchinfo(pkg)
     pkg.project.repositories.collect do |repo|
