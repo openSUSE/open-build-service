@@ -1035,6 +1035,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def get_diff(project, package, options = {})
     options[:view] = :xml
+    options[:cacheonly] = 1 unless User.session
     options[:withissues] = 1
     begin
       @rdiff = Backend::Api::Sources::Package.source_diff(project, package, options.merge(expand: 1))
