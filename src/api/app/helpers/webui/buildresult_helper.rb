@@ -33,4 +33,17 @@ module Webui::BuildresultHelper
     return collapsed_repositories[key].exclude?(repository_name) if collapsed_repositories[key]
     true
   end
+
+  def collapse_link(expanded, main_name, repository_name = nil)
+    collapse_id = repository_name ? "#{main_name}-#{repository_name}" : main_name
+    collapse_text = repository_name ? 'repository' : 'package'
+
+    link_to('#', aria: { controls: "collapse-#{collapse_id}", expanded: expanded }, class: 'px-2 float-right',
+                 data: { toggle: 'collapse' }, href: ".collapse-#{collapse_id}", role: 'button') do
+      capture do
+        concat(content_tag(:i, nil, class: ['fas', 'fa-chevron-left', 'expander'], title: "Show build results for this #{collapse_text}"))
+        concat(content_tag(:i, nil, class: ['fas', 'fa-chevron-down', 'collapser'], title: "Hide build results for this #{collapse_text}"))
+      end
+    end
+  end
 end

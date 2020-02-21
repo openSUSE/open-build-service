@@ -31,6 +31,10 @@
   @extend .text-nowrap;
 }
 
+.build-results {
+  a[data-toggle="collapse"] { width: 1.875rem; }
+}
+
 .build-state-succeeded {
   color: $green;
 }
