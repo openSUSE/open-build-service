@@ -18,6 +18,19 @@
   }
 }
 
+.repository-state {
+  @extend .pl-1;
+  @extend .pl-sm-3;
+  @extend .text-nowrap;
+  flex-basis: 38%;
+}
+
+.build-state {
+  @extend .pl-1;
+  @extend .pl-sm-2;
+  @extend .text-nowrap;
+}
+
 .build-state-succeeded {
   color: $green;
 }
