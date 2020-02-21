@@ -4,6 +4,7 @@
 
 .build-results {
   grid-area: build-results;
+  .sticky-top { top: 57px; }
 }
 
 .comments {
