@@ -247,6 +247,19 @@ RSpec.describe BsRequestAction do
   describe 'create_expand_package' do
     before do
       allow(User).to receive(:session!).and_return(user)
+      allow(Backend::Api::BuildResults::Binaries).to receive(:files).and_return(binary_list)
+      allow(Backend::Api::BuildResults::Binaries).to receive(:history).and_return(build_history)
+      allow(Directory).to receive(:hashed).and_return(hashed)
+    end
+
+    let(:hashed) do
+      {
+        'linkinfo' => { 'project' => target_prj.name, 'package' => target_pkg.name,
+                        'srcmd5' => 'aaee591c4043f45e369dd8b022ce1a7b',
+                        'xsrcmd5' => 'ab6a14a292165f7f9eb012fc9528224a',
+                        'lsrcmd5' => '683e6f3cee9a19e1e839dcc61cbc6256' },
+        'srcmd5' => 'ef521827053c2e3b3cc735662c5d5bb0'
+      }
     end
 
     let(:binary_list) do

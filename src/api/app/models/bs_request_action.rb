@@ -542,13 +542,10 @@ class BsRequestAction < ApplicationRecord
       new_action.source_rev = rev if rev
       if is_maintenance_release?
         if pkg.is_channel?
+
           # create submit request for possible changes in the _channel file
-          submit_action = BsRequestActionSubmit.new
-          submit_action.source_project = new_action.source_project
-          submit_action.source_package = new_action.source_package
-          submit_action.source_rev = new_action.source_rev
-          submit_action.target_project = tprj.name
-          submit_action.target_package = tpkg
+          submit_action = create_submit_action(source_package: new_action.source_package, source_project: new_action.source_project,
+                                               target_package: tpkg, target_project: tprj.name, source_rev: new_action.source_rev)
           # replace the new action
           new_action.destroy
           new_action = submit_action
@@ -577,29 +574,19 @@ class BsRequestAction < ApplicationRecord
     new_targets.uniq!
     new_packages.uniq!
     new_packages.each do |pkg|
-      release_targets = nil
-      if pkg.is_patchinfo?
-        release_targets = Patchinfo.new.fetch_release_targets(pkg)
-      end
-      new_targets.each do |p|
+      release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
+      new_targets.each do |new_target_project|
         if release_targets.present?
-          found = false
-          release_targets.each do |rt|
-            if rt['project'] == p
-              found = true
-              break
-            end
-          end
-          next unless found
+          next unless release_targets.any? { |rt| rt['project'] == new_target_project }
         end
 
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(p).repositories)
+        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(new_target_project).repositories)
 
         new_action = dup
         new_action.source_package = pkg.name
         unless is_maintenance_incident?
-          new_action.target_project = p
+          new_action.target_project = new_target_project
           new_action.target_package = pkg.name + incident_suffix
         end
         newactions << new_action
@@ -777,6 +764,17 @@ class BsRequestAction < ApplicationRecord
   end
 
   private
+
+  def create_submit_action(source_package:, source_project:, target_package:, target_project:,
+                           source_rev:)
+    submit_action = BsRequestActionSubmit.new
+    submit_action.source_package = source_package
+    submit_action.source_project = source_project
+    submit_action.target_package = target_package
+    submit_action.target_project = target_project
+    submit_action.source_rev = source_rev
+    submit_action
+  end
 
   def check_patchinfo(pkg)
     pkg.project.repositories.collect do |repo|
