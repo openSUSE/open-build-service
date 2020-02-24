@@ -16,16 +16,23 @@ function updateRpmlintResult(index) { // jshint ignore:line
 }
 
 function updateBuildResult(index) { // jshint ignore:line
-  var elements = {};
+  var collapsedPackages = [];
+  var collapsedRepositories = {};
   $('.result div.collapse:not(.show)').map(function(_index, domElement) {
     var main = $(domElement).data('main') ? $(domElement).data('main') : 'project';
-    if (elements[main] === undefined) { elements[main] = []; }
-    elements[main].push($(domElement).data('repository'));
+    if (collapsedRepositories[main] === undefined) { collapsedRepositories[main] = []; }
+    if ($(domElement).data('repository') === undefined) {
+      collapsedPackages.push(main);
+    }
+    else {
+      collapsedRepositories[main].push($(domElement).data('repository'));
+    }
   });
 
   var ajaxDataShow = $('#buildresult' + index + '-box').data();
   ajaxDataShow.show_all = $('#show_all_'+index).is(':checked'); // jshint ignore:line
-  ajaxDataShow.collapsedRepositories = elements;
+  ajaxDataShow.collapsedPackages = collapsedPackages;
+  ajaxDataShow.collapsedRepositories = collapsedRepositories;
   $('#build'+index+'-reload').addClass('fa-spin');
   $.ajax({
     url: $('#buildresult' + index + '-urls').data('buildresultUrl'),
