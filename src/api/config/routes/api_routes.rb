@@ -364,4 +364,32 @@ OBSApi::Application.routes.draw do
     get 'project/sitemap' => :projects
     get 'package/sitemap(/:project_name)' => :packages
   end
+
+  ### /worker
+  get 'worker/_status' => 'worker/status#index', as: :worker_status
+  get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # For backward compatibility
+  get 'worker/:worker' => 'worker/capability#show'
+  post 'worker' => 'worker/command#run'
+
+  ### /build
+  get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
+  match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/:repository/:arch/:package/:filename' => 'build/file#show', constraints: cons
+  put 'build/:project/:repository/:arch/:package/:filename' => 'build/file#update', constraints: cons
+  delete 'build/:project/:repository/:arch/:package/:filename' => 'build/file#destroy', constraints: cons
+  match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: [:get, :post], constraints: cons
+  match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
+  get 'build/:project/_result' => 'build#result', constraints: cons
+  match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project' => 'build#project_index', constraints: cons, via: [:get, :post, :put]
+  get 'build' => 'source#index'
+
+  ### /published
+
+  # :arch can be also a ymp for a pattern :/
+  get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
+  get 'published/' => 'source#index', via: :get
 end
