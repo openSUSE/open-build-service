@@ -41,6 +41,15 @@ Style/RedundantInterpolation:
 Style/FormatStringToken:
   Enabled: false
 
+# At the moment, the default configuration of the previous cops are pending
+# and, the autocorrect are unsafe. So for now, we will disable them.
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+
 ##################### Metrics ##################################
 
 # Disabled due Rspec.describe and routes.draw can't be split

@@ -50,6 +50,15 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
+# At the moment, the default configuration of the previous cops are pending
+# and, the autocorrect are unsafe. So for now, we will disable them.
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+
 ##################### Metrics ##################################
 
 Metrics/ClassLength:
