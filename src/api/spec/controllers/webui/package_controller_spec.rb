@@ -920,12 +920,14 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'full diff not requested' do
         it 'shows a hint' do
+          login user
           get :rdiff, params: { project: source_project, package: package_ascii_file, rev: 2 }
           expect(assigns(:not_full_diff)).to be_truthy
         end
 
         context 'for ASCII files' do
           before do
+            login user
             get :rdiff, params: { project: source_project, package: package_ascii_file, rev: 2 }
           end
 
@@ -937,6 +939,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
         context 'for archives' do
           before do
+            login user
             get :rdiff, params: { project: source_project, package: package_binary_file }
           end
 

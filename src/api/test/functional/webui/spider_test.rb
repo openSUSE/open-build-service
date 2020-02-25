@@ -7,7 +7,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def ignore_link?(link)
     return true if link =~ %r{/mini-profiler-resources}
     # that link is just a top ref
-    return true if link.end_with?('/package/rdiff')
+    return true if link =~ %r{/package/rdiff}
     # admin can see even the hidden
     return true if link.end_with?('/package/show/HiddenRemoteInstance')
     return true if link =~ %r{/package/show/SourceprotectedProject}
