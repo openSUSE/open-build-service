@@ -117,7 +117,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Subprojects')
 
       expect(page).to have_text('This project has no subprojects')
-      click_link('Add New Subproject')
+      click_link('Create Subproject')
       fill_in 'project_name', with: 'coolstuff'
       click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")

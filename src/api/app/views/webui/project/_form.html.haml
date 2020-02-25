@@ -1,6 +1,6 @@
 .form-group
   - if local_assigns.key?(:namespace)
-    = hidden_field_tag(:ns, namespace)
+    = hidden_field_tag(:namespace, namespace)
     = form.label(:name, 'Subproject Name:')
     %abbr.text-danger{ title: 'Required' } *
     .input-group

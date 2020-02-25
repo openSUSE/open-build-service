@@ -1,4 +1,4 @@
-- @pagetitle = 'Create New Project'
+- @pagetitle = @namespace.nil? ? 'Create Project' : 'Create Subproject'
 
 .card
   .card-body
@@ -19,5 +19,7 @@
           if you want to restore the project. If you want to start from scratch, click the 'Create Project' button again.
           %strong (Be aware that starting from scratch would mean that you'd delete the old state of the project and it can never get restored again!)
     = form_for(@project, url: projects_create_path, method: :post) do |form|
-      = render partial: 'form', locals: { form: form, configuration: @configuration }
+      - locals = { form: form, configuration: @configuration }
+      - locals[:namespace] = @namespace if @namespace.present?
+      = render partial: 'form', locals: locals
       = submit_tag('Accept', class: 'btn btn-sm btn-primary px-4')

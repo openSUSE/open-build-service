@@ -409,7 +409,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with a namespace called 'base'" do
       before do
-        post :create, params: { project: { name: 'my_project' }, ns: user.home_project_name }
+        post :create, params: { project: { name: 'my_project' }, namespace: user.home_project_name }
       end
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
@@ -419,7 +419,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with a param called maintenance_project' do
       before do
-        post :create, params: { project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true }
+        post :create, params: { project: { name: 'my_project' }, namespace: user.home_project_name, maintenance_project: true }
       end
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
@@ -430,7 +430,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     context 'with a param that disables a flag' do
       shared_examples 'a param that creates a disabled flag' do |param_name, flag_name|
         before do
-          post :create, params: { :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true }
+          post :create, params: { project: { name: 'my_project' }, namespace: user.home_project_name, param_name.to_sym => true }
         end
 
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
@@ -446,7 +446,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'with an invalid project data' do
       before do
-        post :create, params: { project: { name: 'my invalid project' }, ns: user.home_project_name }
+        post :create, params: { project: { name: 'my invalid project' }, namespace: user.home_project_name }
       end
 
       it { expect(flash[:error]).to start_with('Failed to save project') }
