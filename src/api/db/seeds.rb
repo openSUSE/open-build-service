@@ -321,3 +321,8 @@ IssueTracker.where(name: 'lf').first_or_create(description: 'Linux Foundation Bu
                                                regex: 'lf#(\d+)',
                                                url: 'https://developerbugs.linuxfoundation.org',
                                                label: 'lf#@@@', show_url: 'https://developerbugs.linuxfoundation.org/show_bug.cgi?id=@@@')
+IssueTracker.where(name: 'gh').first_or_create(description: 'Generic Github Tracker',
+                                               kind: 'github',
+                                               regex: '(?:gh|github)#(\w+\/\w+#\d+)',
+                                               url: 'https://www.github.com',
+                                               label: 'gh#@@@', show_url: 'https://github.com/@@@')

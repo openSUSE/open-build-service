@@ -261,3 +261,13 @@ obs_github:
   label: obs#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
+generic_github:
+  name: gh
+  kind: github
+  description: Generic Github Tracker
+  url: https://www.github.com
+  show_url: https://github.com/@@@
+  regex: (?:gh|github)#(\w+\/\w+#\d+)
+  label: gh#@@@
+  issues_updated: 2011-07-29 14:00:21.000000000 Z
+  enable_fetch: 0
