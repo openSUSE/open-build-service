@@ -59,6 +59,9 @@
 
 .build-state-unresolvable, .build-state-broken, .build-state-failed {
   color: $red;
+  &:hover {
+    color: $red;
+  }
 }
 
 .build-state-disabled {
