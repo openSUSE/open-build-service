@@ -343,6 +343,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     post '/person/lost_guy?cmd=delete'
     assert_response 403
 
+    # verify data exists
+    lost_guy = User.find_by(login: 'lost_guy')
+    assert_equal 'lonely_person@universe.com', lost_guy.email
+    assert_equal 'The Other Guy', lost_guy.realname
+
     # but the admin can ...
     login_king
     post '/person/lost_guy?cmd=lock'
@@ -367,8 +372,11 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:lost_guy/_meta'
     assert_response 404
 
-    # cleanup
-    User.session = User.find_by(login: 'lost_guy')
+    # delete has removed the right user data, but entry is still there
+    lost_guy = User.find_by(login: 'lost_guy')
+    assert_equal 'deleted', lost_guy.state
+    assert_equal '', lost_guy.email
+    assert_equal '', lost_guy.realname
   end
 
   def test_register_disabled

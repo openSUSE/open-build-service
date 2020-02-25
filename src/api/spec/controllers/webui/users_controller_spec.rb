@@ -132,14 +132,8 @@ RSpec.describe Webui::UsersController do
       it "changes the state to 'deleted'" do
         delete :destroy, params: { login: user.login }
         expect(user.reload.state).to eq('deleted')
-      end
-
-      it 'handles validation errors' do
-        user.update_attributes(email: 'invalid')
-        user.save!(validate: false)
-        delete :destroy, params: { login: user.login }
-        expect(user.reload.state).to eq('confirmed')
-        expect(flash[:error]).to eq("Marking user '#{user.login}' as deleted failed: Email must be a valid email address")
+        expect(user.reload.email).to eq('')
+        expect(user.reload.realname).to eq('')
       end
     end
 

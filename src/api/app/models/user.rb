@@ -633,17 +633,23 @@ class User < ApplicationRecord
   end
 
   def delete!
-    oldstate = self.state
+    # remove user data as much as possible
+    # but we must NOT remove the information that the account did exist
+    # or another user could take over the identity which can open security
+    # issues (other infrastructur and systems using repositories)
+
+    self.email = ''
+    self.realname = ''
     self.state = 'deleted'
     save!
 
     # wipe also all home projects
-    Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
-      prj.commit_opts = { comment: 'User account got deleted' }
-      prj.destroy
+    Project.where("name LIKE '#{home_project_name}:%'").or(Project.where(name: home_project_name)).each do |project|
+      project.commit_opts = { comment: 'User account got deleted' }
+      project.destroy
     end
 
-    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless oldstate == 'deleted'
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
     true
   end
 
