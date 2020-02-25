@@ -10,7 +10,8 @@ module TriggerControllerService
     end
 
     def extract_auth_token
-      @auth_token = if @http_request.env['HTTP_X_GITLAB_EVENT'] == 'Push Hook'
+      events = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook']
+      @auth_token = if events.any? { |event| event == @http_request.env['HTTP_X_GITLAB_EVENT'] }
                       'Token ' + @http_request.env['HTTP_X_GITLAB_TOKEN']
                     else
                       @http_request.env['HTTP_AUTHORIZATION']
