@@ -52,6 +52,7 @@
 /src/backend/sat-solver
 /src/backend/t/tmp
 docker-compose.override.yml
+docker-compose.minitest-user.yml
 docker-files/home/.bash_history
 docker-files/home/.irb_history
 docker-files/home/.pry_history

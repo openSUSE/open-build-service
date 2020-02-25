@@ -4,10 +4,9 @@
 
 FROM registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/frontend-backend
 
-# FIXME: We can't have an .minitest.yml specific overwrite file, how do we get the CONTAINER_USERID into the build?
 # Configure our user
-# ARG CONTAINER_USERID
-# RUN usermod -u "$CONTAINER_USERID" frontend
+ARG CONTAINER_USERID
+RUN usermod -u "$CONTAINER_USERID" frontend
 
 # We copy the Gemfiles into this intermediate build stage so it's checksum
 # changes and all the subsequent stages (a.k.a. the bundle install call below)
