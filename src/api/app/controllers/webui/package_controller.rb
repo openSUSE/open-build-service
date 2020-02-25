@@ -362,7 +362,7 @@ class Webui::PackageController < Webui::WebuiController
     if linked_package
       target_project = linked_package.project.name
       target_package = linked_package.name
-      description = @package.commit_message(target_project, target_package)
+      description = @package.commit_message_from_changes_file(target_project, target_package)
     end
 
     render json: {

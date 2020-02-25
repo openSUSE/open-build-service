@@ -606,7 +606,7 @@ RSpec.describe Package, vcr: true do
     end
   end
 
-  describe '#commit_message' do
+  describe '#commit_message_from_changes_file' do
     let(:changes_file) { file_fixture('factory_target_package.changes').read }
     let(:project) { create(:project, name: 'home:foo:Apache') }
     let(:package) { create(:package_with_changes_file, project: project, name: 'package_with_changes_file') }
@@ -616,7 +616,7 @@ RSpec.describe Package, vcr: true do
       let!(:target_package) do
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
       end
-      subject { package.commit_message(target_project, target_package) }
+      subject { package.commit_message_from_changes_file(target_project, target_package) }
 
       it { expect(subject).to include('- Testing the submit diff') }
       it { expect(subject).not_to include('- Temporary hack') }
@@ -626,7 +626,7 @@ RSpec.describe Package, vcr: true do
     end
 
     context 'with no diff to the target package changes file' do
-      subject { package.commit_message(nil, nil) }
+      subject { package.commit_message_from_changes_file(nil, nil) }
 
       it { expect(subject).to include('- Testing the submit diff') }
       it { expect(subject).to include('- Temporary hack') }
@@ -638,7 +638,7 @@ RSpec.describe Package, vcr: true do
     context 'of a package without a changes file' do
       let(:package) { create(:package, project: project, name: 'apache2') }
 
-      it { expect(package.commit_message(nil, nil)).to eq('') }
+      it { expect(package.commit_message_from_changes_file(nil, nil)).to eq('') }
     end
 
     context 'of a package with more than one changes file' do
@@ -649,7 +649,7 @@ RSpec.describe Package, vcr: true do
         end
       end
 
-      it { expect(package.commit_message(nil, nil)).to include('Lorem ipsum dolorem') }
+      it { expect(package.commit_message_from_changes_file(nil, nil)).to include('Lorem ipsum dolorem') }
     end
   end
 
