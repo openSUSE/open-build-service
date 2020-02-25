@@ -93,6 +93,12 @@
           </element>
         </optional>
         <optional>
+          <element name="api_url">
+            <!-- api url to be used from services -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="http_proxy">
             <!-- May be used if external hosts, like remote OBS instances, gravatar or to download from external sides -->
             <text/>
