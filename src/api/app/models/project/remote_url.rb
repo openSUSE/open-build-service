@@ -7,6 +7,9 @@ class Project::RemoteURL
     if ENV['http_proxy'].blank?
       ENV['http_proxy'] = Configuration.first.http_proxy
     end
+    if ENV['https_proxy'].blank?
+      ENV['https_proxy'] = Configuration.first.http_proxy
+    end
     if ENV['no_proxy'].blank?
       ENV['no_proxy'] = Configuration.first.no_proxy
     end
