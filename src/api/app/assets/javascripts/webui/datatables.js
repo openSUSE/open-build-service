@@ -13,7 +13,7 @@ var DEFAULT_DT_PARAMS = {
     info: "page _PAGE_ of _PAGES_ (_TOTAL_ records)",
     infoFiltered: ""
   },
-
+  responsive: true,
   pageLength: 25,
   stateSave: true,
   pagingType: 'full',
