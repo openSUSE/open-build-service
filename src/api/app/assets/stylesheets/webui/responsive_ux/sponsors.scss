@@ -2,6 +2,15 @@
     background: #fff;
 }
 
+.sponsors-header {
+    @extend .text-center;
+    @extend .mb-2;
+
+    font-size: 0.9rem;
+    color: $gray-700;
+    font-weight: bold;
+}
+
 .sponsors {
     flex-direction: column;
     justify-content: space-between;
