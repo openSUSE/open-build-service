@@ -16,12 +16,10 @@
           %p
             %i This project has no subprojects
         - if User.possibly_nobody.can_modify?(@project)
-          = link_to('#', data: { toggle: 'modal', target: '#new-project-modal' }, class: 'nav-link') do
+          = link_to(new_project_path(namespace: @project), class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
-            Add New Subproject
+            Create Subproject
     .row.mt-3
       .col-md-12
         - if @project.siblingprojects.exists?
           = render partial: 'projects_table', locals: { table_title: 'Sibling Project', project: @project }
-
-= render partial: 'new_project_modal', locals: { project: @project, configuration: @configuration }

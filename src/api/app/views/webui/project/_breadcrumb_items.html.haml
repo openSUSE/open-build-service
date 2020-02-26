@@ -11,7 +11,7 @@
       List of All Projects
   - elsif current_page?(new_project_path)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      New
+      = @namespace.nil? ? 'Create Project' : 'Create Subproject'
   - else
     %li.breadcrumb-item.text-word-break-all
       - if flipper_responsive?
@@ -32,3 +32,6 @@
     - elsif current_page?(project_config_path(@project))
       %li.breadcrumb-item.active{ 'aria-current' => 'page' }
         Configuration
+    - elsif current_page?(project_subprojects_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Subprojects

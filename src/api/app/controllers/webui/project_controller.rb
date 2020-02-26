@@ -80,6 +80,7 @@ class Webui::ProjectController < Webui::WebuiController
   def new
     @project = Project.new
     @project.name = params[:name] if params[:name]
+    @namespace = params[:namespace]
 
     @show_restore_message = params[:restore_option] && Project.deleted?(params[:name])
   end
@@ -163,8 +164,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def create
-    # ns means namespace / parent project
-    params[:project][:name] = "#{params[:ns]}:#{params[:project][:name]}" if params[:ns]
+    params[:project][:name] = "#{params[:namespace]}:#{params[:project][:name]}" if params[:namespace]
 
     @project = Project.new(project_params)
     authorize(@project, :create?)
@@ -479,7 +479,7 @@ class Webui::ProjectController < Webui::WebuiController
   def project_params
     params.require(:project).permit(
       :name,
-      :ns,
+      :namespace,
       :title,
       :description,
       :maintenance_project,
