@@ -700,7 +700,14 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def trigger_rebuild
-    authorize @package, :update?
+    # When we're in a linked project, the package's project points to some other
+    # project, not the one we're triggering the build from.
+    # Here we detect that, and if so, we authorize against the linked project.
+    if @project != @package.project
+      authorize @project, :update?
+    else
+      authorize @package, :update?
+    end
 
     allowed_params = [:project, :package, :repository, :arch]
 
