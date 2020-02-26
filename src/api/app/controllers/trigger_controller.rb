@@ -33,7 +33,12 @@ class TriggerController < ApplicationController
     raise NoPermissionForPackage.setup('not_found', 404, "#{@pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
-      release_package(@pkg, release_target.target_repository, @pkg.release_target_name, release_target.repository, nil, nil, nil, true, "Releasing via trigger event")
+      release_package(@pkg,
+                      release_target.target_repository,
+                      @pkg.release_target_name,
+                      { filter_source_repository: release_target.repository,
+                        manual: true,
+                        comment: 'Releasing via trigger event' })
     end
 
     render_ok

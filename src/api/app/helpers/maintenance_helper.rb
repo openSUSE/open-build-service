@@ -40,10 +40,15 @@ module MaintenanceHelper
     end
   end
 
-  def release_package(source_package, target, target_package_name,
-                      filter_source_repository = nil, multibuild_container = nil, action = nil,
-                      setrelease = nil, manual = nil, comment = nil)
-    if action and comment.nil?
+  def release_package(source_package, target, target_package_name, opts = {})
+    filter_source_repository = opts[:filter_source_repository]
+    multibuild_container     = opts[:multibuild_container]
+    action                   = opts[:action]
+    setrelease               = opts[:setrelease]
+    manual                   = opts[:manual]
+    comment                  = opts[:comment]
+
+    if action && comment.nil?
       comment = "Release request #{action.bs_request.number}"
     end
 
