@@ -6,12 +6,16 @@ module Backend
         extend Backend::ConnectionHelper
 
         # lock the project for the scheduler for atomic change when using multiple operations
-        def self.suspend_scheduler(project_name)
-          http_post(['/build/:project', project_name], params: { cmd: :suspendproject })
+        def self.suspend_scheduler(project_name, comment=nil)
+          params = { cmd: :suspendproject }
+	  params[:comment] = comment if comment
+          http_post(['/build/:project', project_name], params)
         end
 
-        def self.resume_scheduler(project_name)
-          http_post(['/build/:project', project_name], params: { cmd: :resumeproject })
+        def self.resume_scheduler(project_name, comment=nil)
+          params = { cmd: :resumeproject }
+	  params[:comment] = comment if comment
+          http_post(['/build/:project', project_name], params)
         end
 
         def self.wipe_binaries(project_name)
