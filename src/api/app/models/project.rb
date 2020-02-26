@@ -1233,7 +1233,11 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true, comment)
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now),
+			  { filter_source_repository: repo,
+                            setrelease: params[:setrelease],
+			    manual: true,
+			    comment: comment })
         end
       end
     end

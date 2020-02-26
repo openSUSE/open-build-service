@@ -1018,8 +1018,12 @@ class SourceController < ApplicationController
         repo.release_targets.each do |releasetarget|
           next unless releasetarget.trigger.in?(['manual', 'maintenance'])
           # find md5sum and release source and binaries
-          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo,
-			  multibuild_container, nil, params[:setrelease], true, "Releasing package #{pkg.name}")
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now),
+			  { filter_source_repository: repo,
+                            multibuild_container: multibuild_container,
+			    setrelease: params[:setrelease],
+			    manual: true,
+			    comment: "Releasing package #{pkg.name}" })
         end
       end
     end
@@ -1040,7 +1044,12 @@ class SourceController < ApplicationController
     raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count > 0
     repo = repo.first
 
-    release_package(pkg, targetrepo, pkg.name, repo, multibuild_container, nil, params[:setrelease], true)
+    release_package(pkg, targetrepo, pkg.name,
+                    { filter_source_repository: repo,
+                      multibuild_container: multibuild_container,
+                      setrelease: params[:setrelease],
+                      manual: true,
+                      comment: "Releasing package #{pkg.name}" })
   end
   private :_package_command_release_manual_target
 

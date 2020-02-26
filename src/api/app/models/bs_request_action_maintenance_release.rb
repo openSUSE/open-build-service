@@ -33,7 +33,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
-    opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(target_project), target_package, nil, nil, self)
+    opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(target_project), target_package, {action: self})
     opts[:projectCommit] ||= {}
     opts[:projectCommit][target_project] = source_project
 
