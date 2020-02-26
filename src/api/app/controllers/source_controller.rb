@@ -1019,7 +1019,7 @@ class SourceController < ApplicationController
           next unless releasetarget.trigger.in?(['manual', 'maintenance'])
           # find md5sum and release source and binaries
           release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo,
-                          multibuild_container, nil, params[:setrelease], true)
+			  multibuild_container, nil, params[:setrelease], true, "Releasing package #{pkg.name}")
         end
       end
     end

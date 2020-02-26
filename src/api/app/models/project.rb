@@ -1221,6 +1221,8 @@ class Project < ApplicationRecord
   def do_project_release(params)
     User.session ||= User.find_by!(login: params[:user])
 
+    comment = "Project release by #{User.session.login}"
+
     # uniq timestring for all targets
     time_now = Time.now.utc
 
@@ -1234,7 +1236,7 @@ class Project < ApplicationRecord
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.release_target_name(releasetarget.target_repository, time_now), repo, nil, nil, params[:setrelease], true, comment)
         end
       end
     end
@@ -1356,12 +1358,12 @@ class Project < ApplicationRecord
   end
 
   # lock the project for the scheduler for atomic change when using multiple operations
-  def suspend_scheduler
-    Backend::Api::Build::Project.suspend_scheduler(name)
+  def suspend_scheduler(comment = nil)
+    Backend::Api::Build::Project.suspend_scheduler(name, comment)
   end
 
-  def resume_scheduler
-    Backend::Api::Build::Project.resume_scheduler(name)
+  def resume_scheduler(comment = nil)
+    Backend::Api::Build::Project.resume_scheduler(name, comment)
   end
 
   def reopen_release_targets
