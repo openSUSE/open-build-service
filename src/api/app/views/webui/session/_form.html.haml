@@ -6,7 +6,8 @@
     = hidden_field_tag(:context, 'default')
     = hidden_field_tag(:proxypath, 'reserve')
     = hidden_field_tag(:message, 'Please log in')
-    = hidden_field_tag(:url, return_to_location)
+    - if with_redirect
+      = hidden_field_tag(:url, return_to_location)
   .form-group
     = label_tag(:username, 'Username', class: "#{label_css}")
     = text_field_tag(:username, nil, placeholder: 'User Name', required: true, id: 'user-login', class: 'form-control')
