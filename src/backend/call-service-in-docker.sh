@@ -126,7 +126,7 @@ echo -n "${INNERSCRIPT}.command"                                                
 # dirname /srv/obs/service/11875/out/
 printlog "Creating INNERSCRIPT.command '$MOUNTDIR/${INNERSCRIPT}.command'"
 echo "#!/bin/bash"               			>  "$MOUNTDIR/${INNERSCRIPT}.command"
-echo "set -x" 						>> "$MOUNTDIR/${INNERSCRIPT}.command"
+#echo "set -x" 						>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
 DOCKER_OPTS_NET="--net=bridge"
@@ -164,7 +164,6 @@ if [[ $DEBUG_DOCKER ]];then
 	INNERSCRIPT=/bin/bash
 fi
 
-find $MOUNTDIR
 # run jailed process
 DOCKER_RUN_CMD="docker run -u 2:2 $DOCKER_OPTS_NET $LINK --rm --name $CONTAINER_ID $DOCKER_CUSTOM_OPT $DOCKER_VOLUMES $DEBUG_OPTIONS $DOCKER_IMAGE $INNERSCRIPT"
 printlog "DOCKER_RUN_CMD: '$DOCKER_RUN_CMD'"
