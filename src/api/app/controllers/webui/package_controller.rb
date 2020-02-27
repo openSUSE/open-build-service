@@ -700,22 +700,14 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def trigger_rebuild
-    # When we're in a linked project, the package's project points to some other
-    # project, not the one we're triggering the build from.
-    # Here we detect that, and if so, we authorize against the linked project.
-    if @project != @package.project
-      authorize @project, :update?
-    else
-      authorize @package, :update?
-    end
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @package, project: @project, params: params)
+    authorize rebuild_trigger.policy_object, :update?
 
-    allowed_params = [:project, :package, :repository, :arch]
-
-    if @package.rebuild(params.slice(*allowed_params).permit!.to_h)
-      flash[:success] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
+    if rebuild_trigger.rebuild?
+      flash[:success] = rebuild_trigger.success_message
       redirect_to package_show_path(project: @project, package: @package)
     else
-      flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      flash[:error] = rebuild_trigger.error_message
       redirect_to package_binaries_path(project: @project, package: @package, repository: params[:repository])
     end
   end
