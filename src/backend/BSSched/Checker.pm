@@ -244,7 +244,7 @@ sub setup {
     return ('disabled', undef);
   }
   my $suspend = $gctx->{'projsuspended'}->{$projid};
-  return ('blocked', "@$suspend") if $suspend;
+  return ('blocked', join(', ', @$suspend)) if $suspend;
   $ctx->{'repo'} = $repo;
 
   # set config

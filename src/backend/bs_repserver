@@ -2679,6 +2679,10 @@ sub forwardevent {
   $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   $arch = 'dispatch' if $type eq 'badhost';
   $arch = 'publish' if $type eq 'publish';
+  if ($type eq 'suspendproject' || $type eq 'resumeproject') {
+    # those events stack - we must not overwrite them. randomize somewhat.
+    $evname = "type:::$$-".Digest::MD5::md5_hex("$$/$evname".time());
+  }
   mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
     dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
