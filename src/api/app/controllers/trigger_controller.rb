@@ -20,8 +20,9 @@ class TriggerController < ApplicationController
   include Trigger::Errors
 
   def rebuild
-    check_rebuild_permission!
-    Backend::Api::Sources::Package.rebuild(@prj.name, @pkg_name)
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
+    authorize rebuild_trigger.policy_object, :update?
+    rebuild_trigger.rebuild?
     render_ok
   end
 
@@ -48,13 +49,6 @@ class TriggerController < ApplicationController
   end
 
   private
-
-  def check_rebuild_permission!
-    return if User.session.can_modify_project?(@prj)
-    return if @pkg.project == @prj && policy(@pkg).update?
-
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@prj}")
-  end
 
   def prepare_path_for_runservice
     path = @pkg.source_path
