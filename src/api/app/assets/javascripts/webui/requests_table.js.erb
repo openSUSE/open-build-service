@@ -16,9 +16,15 @@ $(document).ready(function() {
         { orderable: false, targets: [6] }
       ],
       paging: true,
+      pagingType: 'full',
       pageLength: pageLength,
       processing: true,
-      language: {
+      language: { 
+        search: '', searchPlaceholder: "Search...",
+        zeroRecords: "Nothing found",
+        infoEmpty: "No records available",
+        info: "page _PAGE_ of _PAGES_ (_TOTAL_ records)",
+        infoFiltered: "",
         processing: "<span>Processing...<i class='fas fa-spinner fa-spin'></span>"
       },
       responsive: true,
