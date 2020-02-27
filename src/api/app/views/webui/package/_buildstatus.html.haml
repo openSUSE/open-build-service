@@ -10,7 +10,7 @@
   :ruby
     package_name = package.tr('.:', '_')
     expanded = collapsed_packages.exclude?(package_name)
-  %h5.text-primary.mt-3.mb-3
+  %h5.d-flex.flex-row.text-primary.mt-3.mb-3
     = package
     - if buildresults.results.count > 1
       = collapse_link(expanded, package_name)
@@ -22,12 +22,11 @@
           repository_name = result.repository.tr('.', '_')
           expanded = repository_expanded?(collapsed_repositories, repository_name, package_name)
         - if result.repository != previous_repo
-          .row.no-gutters.py-1.bg-light
-            .col.pl-1.pl-sm-2{ title: result.repository.to_s }
-              = link_to(word_break(result.repository, 22),
-                package_binaries_path(project: project, package: package, repository: result.repository),
-                data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
-              = collapse_link(expanded, package_name, repository_name)
+          .d-flex.flex-row.py-1.bg-light.pl-1.pl-sm-2
+            = link_to(word_break(result.repository, 22),
+              package_binaries_path(project: project, package: package, repository: result.repository),
+              data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
+            = collapse_link(expanded, package_name, repository_name)
 
         .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
                    data: { repository: repository_name, main: package_name } }
