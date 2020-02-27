@@ -38,7 +38,7 @@ $(document).ready(function() {
         }
       },
       stateSave: true,
-      stateDuration: 172800 // 2 days
+      stateDuration: 0 // forever
     });
   });
 });
