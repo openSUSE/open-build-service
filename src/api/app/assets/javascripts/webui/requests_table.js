@@ -1,5 +1,5 @@
 $(document).ready(function() {
-  $('.requests-datatable').each(function(index){
+  $('.requests-datatable').each(function(){
     // 1. Create DataTable
     var dataTableId = $(this).attr('id');
     var typeDropdown = $('select[name=request_type_select][data-table=' + dataTableId + ']');
@@ -16,9 +16,15 @@ $(document).ready(function() {
         { orderable: false, targets: [6] }
       ],
       paging: true,
+      pagingType: 'full',
       pageLength: pageLength,
       processing: true,
-      language: {
+      language: { 
+        search: '', searchPlaceholder: "Search...",
+        zeroRecords: "Nothing found",
+        infoEmpty: "No records available",
+        info: "page _PAGE_ of _PAGES_ (_TOTAL_ records)",
+        infoFiltered: "",
         processing: "<span>Processing...<i class='fas fa-spinner fa-spin'></span>"
       },
       responsive: true,
@@ -32,7 +38,7 @@ $(document).ready(function() {
         }
       },
       stateSave: true,
-      stateDuration: 172800 // 2 days
+      stateDuration: 0 // forever
     });
   });
 });
