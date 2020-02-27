@@ -59,3 +59,5 @@ Intentional changes:
     - /home/my_work
     - /home/home_project
     - /home/list_my
+
+ * Switched from OR to AND when checking CPU flags in _constraints file

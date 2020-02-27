@@ -115,7 +115,7 @@ sub oracle {
     if ($constraints->{'hardware'}->{'cpu'}) {
       return 0 unless $worker->{'hardware'}->{'cpu'};
       my %workerflags = map {$_ => 1} @{$worker->{'hardware'}->{'cpu'}->{'flag'} || []};
-      return 0 unless grep {$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
+      return 0 if grep {!$workerflags{$_}} @{$constraints->{'hardware'}->{'cpu'}->{'flag'} || []};
     }
   }
   return 1;
