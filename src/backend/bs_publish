@@ -329,7 +329,9 @@ sub getsigndata {
   my ($projid) = @_;
 
   my $signargs = [];
-  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
+  my @args = ("withpubkey=1", "withalgo=1");
+  push @args, "autoextend=1" if $BSConfig::sign;
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
   my $pubkey;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
