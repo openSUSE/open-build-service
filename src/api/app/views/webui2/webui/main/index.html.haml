@@ -26,4 +26,5 @@
     = render partial: 'sponsors'
     - if @status_messages.present? || User.admin_session?
       = render partial: 'status_messages'
-    = render(partial: 'latest_updates') if @latest_updates && ::Configuration.anonymous
+    - if @latest_updates && (::Configuration.anonymous || User.session)
+      = render(partial: 'latest_updates')
