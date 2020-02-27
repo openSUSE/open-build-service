@@ -510,7 +510,7 @@ function prepare_apache2 {
   fi
 
   if [ "$CONFIGURE_APACHE" == 1 ];then
-    MODULES="passenger rewrite proxy proxy_http headers socache_shmcb"
+    MODULES="passenger rewrite proxy proxy_http headers socache_shmcb xforward"
 
     for mod in $MODULES;do
       a2enmod -q $mod || a2enmod $mod
