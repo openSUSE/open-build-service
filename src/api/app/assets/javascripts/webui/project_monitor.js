@@ -41,6 +41,7 @@ function initializeMonitorDataTable() {
   var projectName = data.project;
 
   initializeDataTable('#project-monitor-table', { // jshint ignore:line
+    responsive: false,
     scrollX: true,
     fixedColumns: true,
     pageLength: 50,
