@@ -3,6 +3,8 @@ body.responsive-ux {
   padding-top: 3.5rem !important;
 
   @import 'responsive_ux/layout';
+
+  .build-results .sticky-top { top: 57px; }
 }
 
 // FIXME: move to somewhere else?
