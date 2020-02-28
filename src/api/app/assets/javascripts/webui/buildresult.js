@@ -69,3 +69,9 @@ function updateRpmlintDisplay(index) {
     }
   });
 }
+
+function toggleBuildInfo() { // jshint ignore:line
+  $('.toggle-build-info').on('click', function(){
+    $(this).parents('.toggle-build-info-parent').next().toggleClass('collapsed');
+  });
+}
