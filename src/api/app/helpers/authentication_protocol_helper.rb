@@ -47,8 +47,6 @@ module AuthenticationProtocolHelper
   private
 
   def base_url
-    url = "#{request.protocol}#{request.host}"
-    url += ":#{request.port}" if request.port.present?
-    url
+    "#{request.protocol}#{request.host}"
   end
 end

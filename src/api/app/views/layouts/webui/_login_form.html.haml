@@ -6,4 +6,7 @@
     Log In
   .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
-      = render partial: 'webui/session/form', locals: { label_css: 'text-light', button_css: 'float-right', with_sign_up: false }
+      = render partial: 'webui/session/form', locals: { label_css: 'text-light',
+                                                        button_css: 'float-right',
+                                                        with_sign_up: false,
+                                                        with_redirect: false }
