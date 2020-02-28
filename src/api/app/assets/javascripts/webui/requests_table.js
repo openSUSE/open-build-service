@@ -1,4 +1,9 @@
 $(document).ready(function() {
+  $('#requests').find('a[data-toggle="tab"]').on('shown.bs.tab', function(){
+    $($.fn.dataTable.tables(true)).DataTable()
+       .columns.adjust();
+  });
+
   $('.requests-datatable').each(function(){
     // 1. Create DataTable
     var dataTableId = $(this).attr('id');
