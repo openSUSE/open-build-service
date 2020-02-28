@@ -50,8 +50,6 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'url', content: 'http://example.com'
     assert_xml_tag tag: 'show-url', content: 'http://example.com/@@@'
     assert_no_xml_tag tag: 'password'
-    get '/issue_trackers/test.json'
-    assert_response :success
 
     # FIXME: check backend data
 
@@ -69,10 +67,10 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     </issue-tracker>
     EOF
     login_adrian
-    put '/issue_trackers/test', params: issue_tracker_xml
+    raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response 403
     login_king
-    put '/issue_trackers/test', params: issue_tracker_xml
+    raw_put '/issue_trackers/test', issue_tracker_xml
     assert_response :success
     get '/issue_trackers/test'
     assert_response :success

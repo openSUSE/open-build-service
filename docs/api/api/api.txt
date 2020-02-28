@@ -97,7 +97,7 @@ POST /issue_tracker/<name>
 
   Create new issue tracker.
 
-XmlResult: issue_tracker
+XmlResult: status
 
 DELETE /issue_tracker/<name>
 
