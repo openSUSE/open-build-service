@@ -32,7 +32,10 @@ class IssueTracker < ApplicationRecord
   def show_url_for(issue, html = nil)
     return unless issue
     url = show_url.gsub('@@@', issue)
-    url.gsub!(/(github#|gh#)/, '').gsub!('#', '/issues/') if kind == 'github'
+    if url && kind == 'github'
+      url.gsub!(/(github#|gh#)/, '')
+      url.gsub!('#', '/issues/')
+    end
     return "<a href=\"#{url}\">#{CGI.escapeHTML(show_label_for(issue))}</a>" if html
     url
   end
