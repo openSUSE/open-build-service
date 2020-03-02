@@ -365,6 +365,16 @@ OBSApi::Application.routes.draw do
     get 'package/sitemap(/:project_name)' => :packages
   end
 
+  scope :worker, as: :worker do
+    resources :status, only: [:index], controller: 'worker/status'
+    resources :capability, only: [:show], param: :worker, controller: 'worker/capability'
+    resources :command, only: [], controller: 'worker/command' do
+      collection do
+        post 'run'
+      end
+    end
+  end
+
   ### /worker
   get 'worker/_status' => 'worker/status#index', as: :worker_status
   get 'build/_workerstatus' => 'worker/status#index', as: :build_workerstatus # For backward compatibility
