@@ -42,6 +42,9 @@ use BSUtil;
 
 use strict;
 
+require BSSSL;
+my $tossl = \&BSSSL::tossl;
+
 my $MS2;	# secondary server port
 
 our $request;		# FIXME: should not be global
@@ -319,6 +322,9 @@ sub server {
   };
 
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
+  if ($conf->{'proto'} eq 'https') {
+      $tossl->(\*CLNT, $conf->{'ssl_keyfile'}, $conf->{'ssl_certfile'}, 0);
+  }
   if ($conf->{'accept'}) {
     eval {
       $conf->{'accept'}->($conf, $req);

@@ -213,6 +213,7 @@ sub server {
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
+    $conf->{'proto'} = 'http' unless defined $conf->{'proto'};
     $conf->{'name'} = $name;
     BSDispatch::compile($conf);
   }
