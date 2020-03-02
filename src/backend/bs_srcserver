@@ -1895,7 +1895,7 @@ sub putproject {
     createkey({ %$cgi, 'comment' => 'autocreate key' }, $projid) if $sk eq '';
   } elsif ($BSConfig::keyfile) {
     if (-e $BSConfig::keyfile) {
-       $pk = readstr($BSConfig::keyfile);
+       my ($pk) = readstr($BSConfig::keyfile);
        mkdir_p("$projectsdir/$projid.pkg") || die("creating $projectsdir/$projid.pkg: $!\n");
        writestr("$projectsdir/$projid.pkg/_pubkey", undef, $pk);
     } else {
