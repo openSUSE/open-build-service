@@ -54,15 +54,3 @@ $(document).on('change', 'select[data-table]', function() {
 
   $(tableSelector).DataTable().ajax.reload();
 });
-
-// The reload button on the user request page
-$(document).on('click', '.result_reload[data-table]', function() {
-  var tableSelector = '#' + $(this).data('table'),
-      loadingSpinner = $(this).children('i');
-
-  loadingSpinner.addClass('fa-spin');
-
-  $(tableSelector).DataTable().ajax.reload(function(){
-    loadingSpinner.removeClass('fa-spin');
-  });
-});
