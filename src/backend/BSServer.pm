@@ -36,6 +36,9 @@ use BSUtil;
 
 use strict;
 
+require BSSSL;
+my $tossl = \&BSSSL::tossl;
+
 my $server;		# FIXME: just one server?
 my $serverstatus_ok;
 
@@ -398,6 +401,10 @@ sub server {
   };
 
   setsockopt($clnt, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
+
+  if ($conf->{'proto'} eq 'https') {
+      $tossl->($clnt, $conf->{'ssl_keyfile'}, $conf->{'ssl_certfile'}, 0);
+  }
 
   # run the accept hook if configured
   if ($conf->{'accept'}) {

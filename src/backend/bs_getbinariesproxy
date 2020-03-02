@@ -52,6 +52,11 @@ my $gettimeout = 3600;
 
 my $port = 5254;        
 $port = $1 if $BSConfig::getbinariesproxyserver && $BSConfig::getbinariesproxyserver =~ /:(\d+)$/;
+my $proto = 'http';
+$proto = $1 if $BSConfig::getbinariesproxyserver =~ /^(https?):/;
+if ($proto eq 'https') {
+  die("need ssl_keyfile and ssl_certfile for HTTPS") unless defined $BSConfig::ssl_keyfile and defined $BSConfig::ssl_certfile;
+}
 
 my $cachedir = "$BSConfig::bsdir/getbinariesproxycache";
 my $cachesize = 1024 * 1024 * 1024;	# default: 1G
@@ -422,6 +427,9 @@ my $dispatches = [
 
 my $conf = {
   'port' => $port,
+  'ssl_keyfile' => $BSConfig::ssl_keyfile || '',
+  'ssl_certfile' => $BSConfig::ssl_certfile || '',
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
   'maxchild' => 40,

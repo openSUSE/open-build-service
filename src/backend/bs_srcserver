@@ -109,6 +109,11 @@ use strict;
 
 my $port = 5352;	#'SR'
 $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
+my $proto = 'http';
+$proto = $1 if $BSConfig::srcserver =~ /^(https?):/;
+if ($proto eq 'https') {
+  die("need ssl_keyfile and ssl_certfile for HTTPS") unless defined $BSConfig::ssl_keyfile and defined $BSConfig::ssl_certfile;
+}
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
@@ -6820,6 +6825,9 @@ my $dispatches_ajax = [
 
 my $conf = {
   'port' => $port,
+  'ssl_keyfile' => $BSConfig::ssl_keyfile || '',
+  'ssl_certfile' => $BSConfig::ssl_certfile || '',
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'maxchild' => 20,
   'maxchild2' => 20,
@@ -6836,6 +6844,9 @@ if ($BSConfig::workersrcserver) {
   my $wport = $port;
   $wport = $1 if $BSConfig::workersrcserver =~ /:(\d+)$/;
   $conf->{'port2'} = $wport if $wport != $port;
+  my $wproto = $proto;
+  $wproto = $1 if $BSConfig::workersrcserver =~ /^(https?):/;
+  die("worker port on $wproto but normal port on $proto: both need to be the same\n") unless $wproto eq $proto;
 }
 
 # create bsdir before root privileges are dropped

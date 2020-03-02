@@ -249,6 +249,7 @@ sub server {
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$conf->{'rundir'}/$name.status";
     $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
+    $conf->{'proto'} = 'http' unless defined $conf->{'proto'};
     $conf->{'run'} ||= \&BSServer::server;
     $conf->{'slowrequestlog'} ||= "$BSConfig::logdir/$name.slow.log" if $conf->{'slowrequestthr'};
     $conf->{'slowrequestlog2'} ||= "$BSConfig::logdir/${name}2.slow.log" if $conf->{'slowrequestthr'} && $conf->{'port2'};
