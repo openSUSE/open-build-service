@@ -3,3 +3,13 @@
     min-width: 22rem;
   }
 }
+
+@include media-breakpoint-down(sm) {
+  .dataTables_wrapper .dataTables_filter { 
+    input[type=search] {
+      margin-left: 0;
+      width: 100%;
+    }
+    label { width: 100%; }
+  }
+}
