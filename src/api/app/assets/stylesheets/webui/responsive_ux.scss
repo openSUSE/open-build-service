@@ -3,6 +3,7 @@ body.responsive-ux {
   padding-top: 3.5rem !important;
 
   @import 'responsive_ux/layout';
+  @import 'responsive_ux/build-result';
 
   .build-results .sticky-top { top: 57px; }
 }
@@ -32,5 +33,19 @@ body.responsive-ux {
       .footer-logged { padding-bottom: 0; }
     }
     // END LAYOUT
+
+    .build-info .triangle {
+      &.left { left: .25rem; }
+    }
+  }
+}
+
+@include media-breakpoint-between(sm, md) {
+  body.responsive-ux {
+    .build-info .triangle {
+      &.center { margin-left: calc(38% + .75rem); }
+      &.left { left: .5rem; }
+    }
+
   }
 }

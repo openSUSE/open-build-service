@@ -108,8 +108,16 @@ module Webui::WebuiHelper
 
     repo_state_class = repository_state_class(outdated, status)
 
-    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}",
-                        data: { content: description, placement: 'top', toggle: 'popover' })
+    data_options = {}
+    data_options.merge!(content: description, placement: 'top', toggle: 'popover') unless flipper_responsive?
+    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
+  end
+
+  # NOTE: reponsive_ux
+  def repository_info(status)
+    outdated = status.sub!(/^outdated_/, '')
+    description = outdated ? 'State needs recalculations, former state was: ' : ''
+    description << repo_status_description(status)
   end
 
   def repository_state_class(outdated, status)

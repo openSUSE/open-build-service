@@ -14,6 +14,10 @@ module Webui::BuildresultHelper
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
     end
 
+    if flipper_responsive?
+      return build_state(code: code, css_class: theclass, package_name: package_name, status_id: status_id, repo: repo, arch: arch)
+    end
+
     capture do
       if enable_help && status['code']
         concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
@@ -25,6 +29,19 @@ module Webui::BuildresultHelper
         concat(link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
                        data: { content: link_title, placement: 'right', toggle: 'popover' }, rel: 'nofollow', class: theclass))
+      end
+    end
+  end
+
+  # NOTE: reponsive_ux
+  def build_state(attr)
+    capture do
+      if attr[:code].in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
+        concat(link_to(attr[:code], 'javascript:void(0);', id: attr[:status_id], class: attr[:css_class]))
+      else
+        concat(link_to(attr[:code].gsub(/\s/, '&nbsp;'),
+                       package_live_build_log_path(project: @project.to_s, package: attr[:package_name], repository: attr[:repo], arch: attr[:arch]),
+                       rel: 'nofollow', class: attr[:css_class]))
       end
     end
   end

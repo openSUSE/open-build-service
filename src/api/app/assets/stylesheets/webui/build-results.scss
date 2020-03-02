@@ -28,7 +28,7 @@
 .build-state {
   @extend .pl-1;
   @extend .pl-sm-2;
-  @extend .text-nowrap;
+  flex-basis: 62%;
 }
 
 .build-results {
