@@ -1893,6 +1893,14 @@ sub putproject {
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
     createkey({ %$cgi, 'comment' => 'autocreate key' }, $projid) if $sk eq '';
+  } elsif ($BSConfig::keyfile) {
+    if (-e $BSConfig::keyfile) {
+       my ($pk) = readstr($BSConfig::keyfile);
+       mkdir_p("$projectsdir/$projid.pkg") || die("creating $projectsdir/$projid.pkg: $!\n");
+       writestr("$projectsdir/$projid.pkg/_pubkey", undef, $pk);
+    } else {
+      print "WARNING: configured default sign key $BSConfig::keyfile does not exist.\n";
+    }
   }
 
   my %except = map {$_ => 1} qw{title description person group url attributes};
