@@ -212,6 +212,7 @@ OBSApi::Application.routes.draw do
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons, as: :edit_comment_form
       post 'project/edit_comment/:project' => :edit_comment, constraints: cons
       post 'project/unlock' => :unlock
+      get 'project/keys_and_certificates/:project' => :keys_and_certificates, constraints: cons, as: 'keys_and_certificates'
     end
 
     # For backward compatibility
