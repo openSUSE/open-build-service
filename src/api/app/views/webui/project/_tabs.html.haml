@@ -1,7 +1,7 @@
 .bg-light
   %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
     %li.nav-item
-      = tab_link('Overview', project_show_path(project))
+      = tab_link('Overview', [project_show_path(project), keys_and_certificates_path(project)])
     - unless @spider_bot
       - if project.is_maintenance?
         %li.nav-item
