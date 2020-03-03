@@ -226,6 +226,25 @@ jobs:
           path: src/api/coverage_results
           destination: raw_coverage
 
+  brakeman:
+    docker:
+      - <<: *frontend_base
+
+    steps:
+      - attach_workspace:
+         at: .
+      - run:
+          name: Patch brakeman in
+          command: |
+            sed -i -e 's,# BRAKEMAN,gem "brakeman",' src/api/Gemfile
+      - run: *install_dependencies
+      - run:
+          name: Run brakeman
+          command: |
+            cd src/api
+            brakeman .
+
+
 workflows:
   version: 2
   test_all:
@@ -247,3 +266,6 @@ workflows:
           requires:
             - rspec
             - minitest
+      - brakeman:
+          requires:
+            - checkout_code
