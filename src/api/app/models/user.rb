@@ -644,7 +644,7 @@ class User < ApplicationRecord
     save!
 
     # wipe also all home projects
-    Project.where("name LIKE '#{home_project_name}:%'").or(Project.where(name: home_project_name)).each do |project|
+    Project.where(Project.arel_table[:name].matches("#{home_project_name}:%")).or(Project.where(name: home_project_name)).each do |project|
       project.commit_opts = { comment: 'User account got deleted' }
       project.destroy
     end
