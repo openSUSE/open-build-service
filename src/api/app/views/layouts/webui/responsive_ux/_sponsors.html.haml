@@ -1,5 +1,5 @@
 - if CONFIG['sponsors'].present?
-  .sponsors-header Open Build Service is sponsored by
+  .sponsors-header #{Configuration.title} is sponsored by
   .container-fluid#sponsor
     .container-xxl.sponsors.d-flex.flex-wrap.justify-content-center
       - CONFIG['sponsors'].each do |sponsor|
