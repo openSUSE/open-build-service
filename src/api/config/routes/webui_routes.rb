@@ -336,16 +336,6 @@ OBSApi::Application.routes.draw do
     get 'apidocs/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
   end
 
-  scope :worker, as: :worker do
-    resources :status, only: [:index], controller: 'worker/status'
-    resources :capability, only: [:show], param: :worker, controller: 'worker/capability'
-    resources :command, only: [], controller: 'worker/command' do
-      collection do
-        post 'run'
-      end
-    end
-  end
-
   resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do
     member do
       resources :staging_projects, only: [:create, :destroy, :show], controller: 'webui/staging/projects',
