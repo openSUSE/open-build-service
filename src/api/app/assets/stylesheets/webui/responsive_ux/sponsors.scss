@@ -1,0 +1,48 @@
+#sponsor {
+    background: #fff;
+}
+
+.sponsors-header {
+    @extend .text-center;
+    @extend .mb-2;
+
+    font-size: 0.9rem;
+    color: $gray-700;
+    font-weight: bold;
+}
+
+.sponsors {
+    flex-direction: column;
+    justify-content: space-between;
+
+    .sponsor-item {
+        text-align: center;
+        padding: 1em;
+
+        a {
+            img {
+                height: 50px;
+            }
+        }
+    }
+}
+
+@include media-breakpoint-up(sm) {
+    .sponsors {
+        flex-direction: row;
+
+        .sponsor-item {
+            flex-basis: 20%;
+        }
+    }
+}
+
+@include media-breakpoint-up(md) {
+    .sponsors {
+        flex-direction: row;
+
+        .sponsor-item {
+            flex-basis: 13%;
+        }
+    }
+}
