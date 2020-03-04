@@ -10,7 +10,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     login user
     visit project_show_path(project: project)
     expect(page).to have_text(/Packages .*0/)
-    expect(page).to have_text('This project does not contain any packages')
+    expect(page).to have_text('This project does not contain any package')
     expect(page).to have_text(project.description)
     expect(page).to have_css('h3', text: project.title)
   end

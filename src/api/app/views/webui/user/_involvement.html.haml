@@ -16,7 +16,7 @@
       %li.nav-item
         = link_to('#owned', id: 'owned-tab', class: 'nav-link text-nowrap',
                   data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'owned', selected: false }) do
-          Owned Project/Packages
+          Owned Projects/Packages
           %span.badge.badge-primary
             = owned.size
       %li.nav-item.dropdown
@@ -28,7 +28,7 @@
       .tab-pane.fade.show.active#involved-packages{ role: 'tabpanel', aria: { labelledby: 'involved-packages-tab' } }
         - if involved_packages.blank?
           %p.md-3
-            #{user.name} is not involved in any packages
+            #{user.name} is not involved in any package
         - else
           %table.table.table-sm.table-fixed.table-bordered.table-hover#involved-packages-table
             %thead
