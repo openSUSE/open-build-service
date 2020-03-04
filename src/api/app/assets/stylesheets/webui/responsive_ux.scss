@@ -1,3 +1,9 @@
+// Variables
+// TODO: move to app/assets/stylesheets/webui/bootstrap_variables/sizes.scss
+$top-bar-height: 57px;
+$bottom-bar-height: 69px;
+$md-top-bar-height: 69px;
+
 body.responsive-ux {
   // open space to not overlap top navigation with content
   padding-top: 3.5rem !important;
@@ -6,16 +12,25 @@ body.responsive-ux {
   @import 'responsive_ux/build-result';
   @import 'responsive_ux/sponsors';
 
-  .build-results .sticky-top { top: 57px; }
+  .build-results .sticky-top { top: $top-bar-height; }
 }
 
 // FIXME: move to somewhere else?
 
 @include media-breakpoint-up(md) {
+
   body.responsive-ux {
     // START LAYOUT
+    .flash-and-announcement.sticky-top { top: $md-top-bar-height + 4px; }
+    #top_0.sticky-top { top: $md-top-bar-height; }
+
+    #navigation {
+      .fixed-top { height: $md-top-bar-height; }
+      .navbar-brand img { height: 42px; }
+    }
+
     .watchlist-collapse, .offcanvas-collapse {
-      top: 57px; /* Height of navbar */
+      top: $md-top-bar-height; /* Height of navbar */
       bottom: 0;
       width: 380px;
 
