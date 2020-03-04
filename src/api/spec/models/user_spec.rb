@@ -66,6 +66,13 @@ RSpec.describe User do
     end
   end
 
+  describe '#delete!' do
+    subject { user.delete! }
+
+    it { expect { subject }.not_to raise_error }
+    it { expect { subject }.to change(User, :count).by(1) }
+  end
+
   describe '#can_modify_user?' do
     it { expect(admin_user.can_modify_user?(confirmed_user)).to be(true) }
     it { expect(user.can_modify_user?(confirmed_user)).to be(false) }
