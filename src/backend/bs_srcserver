@@ -4787,6 +4787,8 @@ sub search_published_updatedb {
         $repoinfodb->{'noindexatall'} = 1;
       }
       $repoinfodb->store($k, $v);
+    } elsif ($w eq 'patterninfo') {
+      # ignore the patterninfo for now
     } else {
       die("bad data type: '$w'\n");
     }
