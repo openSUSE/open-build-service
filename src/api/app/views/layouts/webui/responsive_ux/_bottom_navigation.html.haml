@@ -15,17 +15,17 @@
             .badge.badge-primary.align-text-top= tasks
           %br
           .small Tasks
-      %li.nav-item.border-left.border-gray-500
-        = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Menu', data: { toggle: 'offcanvas' }) do
-          %i.fas.fa-bars.fa-lg
-          %br
-          .small Menu
     - else
       - unless kerberos_mode? || !can_sign_up?
         %li.nav-item.border-right.border-gray-500
           = sign_up_link(css_class: 'nav-link text-light p-1')
       %li.nav-item
         = log_in_link(css_class: 'nav-link text-light p-1')
+    %li.nav-item.border-left.border-gray-500
+      = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Menu', data: { toggle: 'offcanvas' }) do
+        %i.fas.fa-bars.fa-lg
+        %br
+        .small Menu
 
 - if User.session
   = render partial: "layouts/#{responsive_namespace}/watchlist"

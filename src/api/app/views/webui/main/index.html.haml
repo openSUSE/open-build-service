@@ -9,8 +9,9 @@
         -# rubocop:disable Rails/OutputSafety
         = raw @configuration['description']
         -# rubocop:enable Rails/OutputSafety
-        .row.no-gutters.text-center#proceed-list
-          = render partial: 'proceed-list'
+        - unless flipper_responsive?
+          .row.no-gutters.text-center#proceed-list
+            = render partial: 'proceed-list'
     = render(partial: 'system_status', locals: { busy: @busy,
                                                  building_workers: @building_workers,
                                                  overall_workers: @overall_workers,
