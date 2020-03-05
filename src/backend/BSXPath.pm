@@ -26,15 +26,11 @@ use Data::Dumper;
 
 use strict;
 
-sub boolop_eq {
-  return $_[0] eq $_[1];
-}
-sub boolop_not {
-  return !$_[0];
-}
+sub boolop_eq { $_[0] eq $_[1] }
+sub boolop_not { !$_[0] }
 
 sub boolop {
-  my ($cwd, $v1, $v2, $op, $negpol) = @_;
+  my ($cwd, $v1, $v2, $op, $negpol, $hint) = @_;
   #print Dumper($cwd).Dumper($v1).Dumper($v2);
   my @v1 = @$v1;
   my @v2 = @$v2;
@@ -47,7 +43,7 @@ sub boolop {
     $e2 = '' if ref($e2) eq 'ARRAY' && !@$e2;
     my $r = shift @cwd;
     if ($r->[4]) {
-      push @vr, $r->[4]->boolop($e1, $e2, $op, $negpol);
+      push @vr, $r->[4]->boolop($e1, $e2, $op, $negpol, $hint);
       next;
     }
     if (ref($e1) ne '' && ref($e1) ne 'HASH' && ref($e1) ne 'ARRAY') {
@@ -293,11 +289,11 @@ sub expr {
     if ($f eq 'not') {
       die("$f: one argument required\n") unless @args == 1;
       push @args, [ (1) x scalar(@$cwd) ];
-      $v = boolop($cwd, @args, \&boolop_not, $negpol);
+      $v = boolop($cwd, @args, \&boolop_not, $negpol, $f);
     } elsif ($f eq 'starts-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]}, $negpol);
+      $v = boolop($cwd, @args, sub {substr($_[0], 0, length($_[1])) eq $_[1]}, $negpol, $f);
     } elsif ($f eq 'contains') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
@@ -315,23 +311,23 @@ sub expr {
     } elsif ($f eq 'compare') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {$_[0] cmp $_[1]}, $negpol);
+      $v = boolop($cwd, @args, sub {$_[0] cmp $_[1]}, $negpol, $f);
     } elsif ($f eq 'ends-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr($_[0], -length($_[1])) eq $_[1]}, $negpol);
+      $v = boolop($cwd, @args, sub {substr($_[0], -length($_[1])) eq $_[1]}, $negpol, $f);
     } elsif ($f eq 'equals-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {lc($_[0]) eq lc($_[1])}, $negpol);
+      $v = boolop($cwd, @args, sub {lc($_[0]) eq lc($_[1])}, $negpol, $f);
     } elsif ($f eq 'starts-with-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr(lc($_[0]), 0, length($_[1])) eq lc($_[1])}, $negpol);
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), 0, length($_[1])) eq lc($_[1])}, $negpol, $f);
     } elsif ($f eq 'ends-with-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
-      $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])}, $negpol);
+      $v = boolop($cwd, @args, sub {substr(lc($_[0]), -length($_[1])) eq lc($_[1])}, $negpol, $f);
     } elsif ($f eq 'contains-ic') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: at least two arguments required\n") unless @args >= 2;
@@ -344,7 +340,7 @@ sub expr {
 	@args = map {lc($_->[0])} @args;
         $v = boolop($cwd, $arg1, $arg2, sub {!grep {index(lc($_[0]), $_) == -1} @args}, $negpol);
       } else {
-        $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol);
+        $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol, $f);
       }
     } elsif ($f eq 'position') {
       die("$f: no arguments required\n") unless @args == 0;
@@ -379,7 +375,7 @@ sub expr {
     } elsif ($expr =~ /^=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
-      $v = boolop($cwd, $v, $v2, \&boolop_eq, $negpol);
+      $v = boolop($cwd, $v, $v2, \&boolop_eq, $negpol, 'equals');
     } elsif ($expr =~ /^!=/) {
       return ($v, $expr) if $lev > 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
