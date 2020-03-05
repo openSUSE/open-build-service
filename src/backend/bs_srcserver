@@ -4985,7 +4985,7 @@ sub search_add_downloadurl {
 }
 
 sub search_published_binary_id {
-  my ($cgi, $match) = @_;
+  my ($cgi, $match, $name) = @_;
   my $binarydb = BSDB::opendb($extrepodb, 'binary');
   $binarydb->{'allkeyspath'} = 'name';
   $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
@@ -4998,10 +4998,18 @@ sub search_published_binary_id {
   $binarydb->{'cheapfetch'} = 1;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
   my $rootnode = BSXPathKeys::node($binarydb, '', $limit && $limit < 10 ? 1000 : $limit * 100);
-  my $data = BSXPath::match($rootnode, $match) || [];
-  # epoch?
-  @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
-  delete $_->{'versrel'} for @$data;
+  my $data;
+  if ($name) {
+    $data = $rootnode->keymatch($match) || [];
+    $_ = binary_key_to_name($binarydb, $_) for @$data;
+    my %names = map { $_ => 1 } grep {defined($_)} @$data;
+    $data = [ map { { 'name' => $_ } } sort keys %names ];
+  } else {
+    $data = BSXPath::match($rootnode, $match) || [];
+    # epoch?
+    @$data = sort {Build::Rpm::verscmp($b->{'version'}, $a->{'version'}) || $a->{'name'} cmp $b->{'name'} || $a->{'arch'} cmp $b->{'arch'}} @$data;
+    delete $_->{'versrel'} for @$data;
+  }
   my $res = {};
   $res->{'matches'} = @$data;
   $res->{'limited'} = 'true' if $limit && @$data > $limit;
@@ -5010,6 +5018,11 @@ sub search_published_binary_id {
   search_add_downloadurl($data) if $cgi->{'withdownloadurl'};
   $res->{'binary'} = $data;
   return ($res, $BSXML::collection);
+}
+
+sub search_published_binary_name {
+  my ($cgi, $match) = @_;
+  return search_published_binary_id($cgi, $match, 1);
 }
 
 sub search_published_pattern_id {
@@ -6748,6 +6761,7 @@ my $dispatches = [
 
   'POST:/search/published cmd:' => \&search_published_updatedb,
   '/search/published/binary/id $match: limit:num? withdownloadurl:bool?' => \&search_published_binary_id,
+  '/search/published/binary/name $match: limit:num?' => \&search_published_binary_name,
   '/search/published/pattern/id $match: limit:num? withdownloadurl:bool?' => \&search_published_pattern_id,
 
   # service interface, just for listing for now
