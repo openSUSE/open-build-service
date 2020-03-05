@@ -31,7 +31,8 @@ class Patchinfo
     'recommended' => 'green',
     'security' => 'maroon',
     'optional' => 'olive',
-    'feature' => ''
+    'feature' => '',
+    'ptf' => ''
   }.freeze
 
   # '' is a valid category

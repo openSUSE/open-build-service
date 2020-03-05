@@ -132,6 +132,7 @@
       <value>recommended</value>
       <value>optional</value>
       <value>feature</value>
+      <value>ptf</value>
     </choice>
   </define>
 
