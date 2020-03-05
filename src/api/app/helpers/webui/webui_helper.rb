@@ -368,18 +368,38 @@ module Webui::WebuiHelper
 
   def sign_up_link(css_class: nil)
     return unless can_sign_up?
+
     if proxy_mode?
-      link_to('Sign Up', sign_up_params[:url], class: css_class)
+      link_to(sign_up_params[:url], class: css_class) do
+        link_content('Sign Up', css_class, 'fa-user-plus')
+      end
     else
-      link_to('Sign Up', '#', class: css_class, data: { toggle: 'modal', target: '#sign-up-modal' })
+      link_to('#', class: css_class, data: { toggle: 'modal', target: '#sign-up-modal' }) do
+        link_content('Sign Up', css_class, 'fa-user-plus')
+      end
     end
   end
 
   def log_in_link(css_class: nil)
     if kerberos_mode?
-      link_to('Log In', new_session_path, class: css_class)
+      link_to(new_session_path, class: css_class) do
+        link_content('Log In', css_class, 'fa-sign-in-alt')
+      end
     else
-      link_to('Log In', '#', class: css_class, data: { toggle: 'modal', target: '#log-in-modal' })
+      link_to('#', class: css_class, data: { toggle: 'modal', target: '#log-in-modal' }) do
+        link_content('Log In', css_class, 'fa-sign-in-alt')
+      end
+    end
+  end
+
+  def link_content(text, css_class, icon)
+    if css_class && css_class.include?('nav-link')
+      capture do
+        concat(content_tag(:i, '', class: "fas #{icon} fa-lg"))
+        concat(content_tag(:div, text, class: 'small'))
+      end
+    else
+      text
     end
   end
 end

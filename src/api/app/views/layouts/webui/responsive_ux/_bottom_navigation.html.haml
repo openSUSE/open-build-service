@@ -23,9 +23,9 @@
     - else
       - unless kerberos_mode? || !can_sign_up?
         %li.nav-item.border-right.border-gray-500
-          = sign_up_link(css_class: 'nav-link text-light')
+          = sign_up_link(css_class: 'nav-link text-light p-1')
       %li.nav-item
-        = log_in_link(css_class: 'nav-link text-light')
+        = log_in_link(css_class: 'nav-link text-light p-1')
 
 - if User.session
   = render partial: "layouts/#{responsive_namespace}/watchlist"
