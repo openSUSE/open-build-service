@@ -352,6 +352,8 @@ fi
 
 # drop testcases for now
 rm -rf %{buildroot}/srv/www/obs/api/spec
+# only config for CI
+rm %{buildroot}%{__obs_api_prefix}/config/brakeman.ignore
 
 # fail when Makefiles created a directory
 if ! test -L %{buildroot}/usr/lib/obs/server/build; then
