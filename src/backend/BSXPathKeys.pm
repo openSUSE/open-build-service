@@ -35,6 +35,11 @@ use strict;
 #   db->keys($path, $value) -> array of keys;
 #   db->fetch($key)         -> data;
 #
+# also used if available:
+#   db->{"fetch_$key"}      super-fast select_path_from_key function
+#   db->{'noindex'}->{$path}
+#   db->{'noindexdatall'}
+#
 
 
 #
@@ -141,7 +146,7 @@ sub toconcrete {
 }
 
 sub boolop {
-  my ($self, $v1, $v2, $op, $negpol) = @_;
+  my ($self, $v1, $v2, $op, $negpol, $hint) = @_;
   if (ref($v1) ne ref($self) && ref($v2) ne ref($self)) {
     return $op->($v1, $v2) ? 'true' : '';
   }
@@ -205,7 +210,7 @@ sub boolop {
         @k = grep {$k{$_}} @k if $v1->{'keys'};
         #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
         $negpol = 0;
-     }
+      }
     } elsif ($op == \&BSXPath::boolop_not && $v1->{'keys'} && !exists($v1->{'value'})) {
       for my $k (@{$v1->{'keys'}}) {
 	my $vv = $db->fetch($k);
@@ -221,7 +226,7 @@ sub boolop {
     } else {
       my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v1->{'path'}}) || $db->{'noindexatall'};
       my @values;
-      @values = $db->values($v1->{'path'}, $v1->{'keys'}) unless $noindex;
+      @values = $db->values($v1->{'path'}, $v1->{'keys'}, $hint, $v2) unless $noindex;
       if ($noindex || ($v1->{'keys'} && @values > @{$v1->{'keys'}})) {
 	for my $k (@{$v1->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
@@ -278,7 +283,7 @@ sub boolop {
     } else {
       my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v2->{'path'}}) || $db->{'noindexatall'};
       my @values;
-      @values = $db->values($v2->{'path'}, $v2->{'keys'}) unless $noindex;
+      @values = $db->values($v2->{'path'}, $v2->{'keys'}, $hint, $v1) unless $noindex;
       if ($noindex || ($v2->{'keys'} && @values > @{$v2->{'keys'}})) {
 	for my $k (@{$v2->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
