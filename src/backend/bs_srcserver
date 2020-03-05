@@ -4961,15 +4961,21 @@ sub published_binary_projectindexfunc {
   my @repoids = map {$_->{'name'}} @{$proj->{'repository'} || []};
   my %bins;
   for my $repoid (@repoids) {
-    my $prp = "$value/$repoid";
-    my $prp_ext = $prp;
-    $prp_ext =~ s/:/:\//g;
-    my $repoinfo = $prp_to_repoinfo{$prp} || prp_to_repoinfo($prp);
-    for (keys %{$repoinfo->{'binaryorigins'} || {}}) {
-      next unless /\//;
-      # keep in sync with updatebinaryindex in bs_publish
-      next unless /\.(?:rpm|deb|pkg\.tar\..z)$/;
-      $bins{"$prp_ext/$_"} = 1;
+    my $dbgsplit;
+    while (1) {
+      my $prp = "$value/$repoid";
+      my $prp_ext = $prp;
+      $prp_ext =~ s/:/:\//g;
+      my $repoinfo = $prp_to_repoinfo{$prp} || prp_to_repoinfo($prp);
+      for (keys %{$repoinfo->{'binaryorigins'} || {}}) {
+	# keep in sync with updatebinaryindex in bs_publish
+	next unless /\.(?:rpm|deb|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zstd)$/;
+	$bins{"$prp_ext/$_"} = 1;
+      }
+      last if defined $dbgsplit;
+      $dbgsplit = $repoinfo->{'splitdebug'};
+      last unless $dbgsplit;
+      $repoid .= $dbgsplit;
     }
   }
   return sort keys %bins;
