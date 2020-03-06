@@ -334,16 +334,16 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def request_action_attributes(type)
-    {
-      target_project: params[:project],
-      target_package: params[:package],
-      source_project: params[:devel_project],
-      source_package: params[:devel_package] || params[:package],
-      target_repository: params[:repository],
-      person_name: params[:user],
-      group_name: params[:group],
-      role: params[:role],
-      type: type.to_s
-    }
+    opt = {}
+    opt['target_project'] = params[:project]
+    opt['target_package'] = params[:package]
+    opt['source_project'] = params[:devel_project]
+    opt['source_package'] = params[:devel_package] || params[:package]
+    opt['target_repository'] = params[:repository]
+    opt['person_name'] = params[:user] if params[:user].present?
+    opt['group_name'] = params[:group] if params[:group].present?
+    opt['role'] = params[:role]
+    opt['type'] = type.to_s
+    opt
   end
 end
