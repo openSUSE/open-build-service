@@ -329,7 +329,9 @@ sub getsigndata {
   my ($projid) = @_;
 
   my $signargs = [];
-  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
+  my @args = ("withpubkey=1", "withalgo=1");
+  push @args, "autoextend=1" if $BSConfig::sign;
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
   my $pubkey;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
@@ -1422,6 +1424,7 @@ sub createpatterns_ymp {
     $ympidx->{'summary'} = $pat->{'summary'}->[0]->{'_content'} if $pat->{'summary'};;
     $ympidx->{'description'} = $pat->{'description'}->[0]->{'_content'} if $pat->{'description'};
     $ympidx->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
+    $data->{'patterninfo'}->{$ympname} = $ympidx;
     db_store($patterndb, "$prp_ext/$ympname", $ympidx) if $patterndb;
   }
 }
@@ -1793,6 +1796,7 @@ sub publish {
       my @s = stat("$r/$rbin");
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+      $binaryorigins->{$p} = undef;
     }
   }
 
@@ -1933,7 +1937,6 @@ sub publish {
 	  } elsif ($bin =~ /(.*)\.containerinfo$/) {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
-	  $binaryorigins->{$p} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
 	  next;
 	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
           # kiwi image case
@@ -2054,7 +2057,7 @@ sub publish {
 
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
-      $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+      $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin};
       $kiwimedium{$p} = $kiwimedium if $kiwimedium;
       $containers{$p} = $containerinfo if $containerinfo;
 
@@ -2156,6 +2159,7 @@ sub publish {
 	if ($sha256sum eq $containerinfo->{'tar_sha256sum'}) {
 	  $bins{$p} = undef;
 	  $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+	  $binaryorigins->{$p} = $containerinfo->{'_origin'};
 	  next;
 	}
 	close($fd);
@@ -2168,6 +2172,7 @@ sub publish {
       my @s = stat("$extrep/$p");
       $bins{$p} = undef;
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
+      $binaryorigins->{$p} = $containerinfo->{'_origin'};
       push @changed, "$extrep/$p";
       $changed = 1;
     }
@@ -2679,6 +2684,7 @@ sub publish {
     'repotags' => \@repotags,
     'chksumfiles' => \@chksumfiles,
     'config' => $config,
+    'patterninfo' => {},
   };
 
   if ($repotype{'rpm-md'}) {
@@ -2743,6 +2749,9 @@ sub publish {
   if (-e "$extrep/index") {
     createrepo_virtbuilder($extrep, $projid, $xrepoid, $data);
   }
+
+  my $patterninfodb = db_open('patterninfo');
+  db_store($patterninfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, %{$data->{'patterninfo'}} ? $data->{'patterninfo'} : undef) if $patterninfodb;
 
 publishprog_done:
   unlink("$uploaddir/publisher.$$") if @$signargs;

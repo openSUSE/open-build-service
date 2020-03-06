@@ -152,7 +152,7 @@ sub modify {
     my %data = map {$_ => $_} @data;
     for my $rel (@{$rembyfile{$file} || []}) {
       if (ref($rel->[2]) eq 'CODE') {
-        @data = sort keys %data if $changes;
+	@data = sort values %data if $changes;
 	$changes += $rel->[2]->($db, $rel, \@data);
 	%data = map {$_ => $_} @data;
 	next;
