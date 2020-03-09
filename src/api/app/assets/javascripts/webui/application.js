@@ -55,3 +55,4 @@
 //= require webui/monitor.js
 //= require webui/airbrake-js
 //= require webui/responsive_ux
+//= require webui/in_place_editing.js

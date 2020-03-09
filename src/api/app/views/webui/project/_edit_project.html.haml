@@ -1,0 +1,21 @@
+= in_place_text_field(project, :title, refresh_target_id: 'in-place-refresh') do
+    %h3#project-title= project.title.presence || project
+- if project.categories.any?
+    - project.categories.each do |category|
+        = category_badge(category)
+= in_place_text_field(project, :url, refresh_target_id: 'in-place-refresh') do
+    - if project.url.present?
+        = link_to(project.url, project.url, id: 'project-url', class: 'mb-3')
+    - else
+        %i No url set
+= in_place_text_area(project, :description, refresh_target_id: 'in-place-refresh') do
+    #description-text
+        - if project.description.blank?
+            %i#project-description No description set
+        - else
+            = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
+
+:javascript
+    $('.in-place-editing').each(function (_, element) {
+        activate_in_place_editing($(element));
+    });

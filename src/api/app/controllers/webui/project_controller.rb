@@ -19,7 +19,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :move_path, :clear_failed_comment, :pulse,
                                      :keys_and_certificates]
 
-  before_action :set_project_by_id, only: :update
+  before_action :set_project_by_id, only: [:update, :update_title]
 
   before_action :load_project_info, only: :show
 
@@ -225,11 +225,18 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        flash[:success] = 'Project was successfully updated.'
+        flash.now[:success] = 'Project was successfully updated.'
       else
-        flash[:error] = 'Failed to update project'
+        flash.now[:error] = 'Failed to update project'
       end
-      format.html { redirect_to project_show_path(@project) }
+      format.html do 
+        if request.xhr?
+          render partial: "edit_project", locals: { project: @project }, layout: false, status: :ok
+        else
+          redirect_to project_show_path(@project)
+        end
+      end
+      format.js { render json: @project, status: :ok }
     end
   end
 

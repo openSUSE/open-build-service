@@ -1,5 +1,8 @@
 -# NOTE: look into app/assets/stylesheets/webui/collapsible-text.scss
 - if text.present?
   .obs-collapsible-textbox
-    .obs-collapsible-text
+    .obs-collapsible-text#project-description
       = simple_format(text)
+
+:javascript
+    activateCollapsibleText();
