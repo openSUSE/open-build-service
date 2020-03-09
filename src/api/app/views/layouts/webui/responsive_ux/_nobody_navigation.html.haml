@@ -2,8 +2,9 @@
   = sign_up_link(css_class: 'nav-link text-light text-center p-1')
 .toggler
   = log_in_link(css_class: 'nav-link text-light text-center p-1')
-.toggler{ data: { toggle: 'offcanvas' } }
-  %i.fas.fa-user-circle.fa-2x.text-light
+.toggler
+  = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Generic Links', data: { toggle: 'offcanvas' }) do
+    %i.fas.fa-user-circle.fa-2x
 .navbar-collapse.offcanvas-collapse.navbar-dark
   .navbar-nav
     .nav.justify-content-end.py-2

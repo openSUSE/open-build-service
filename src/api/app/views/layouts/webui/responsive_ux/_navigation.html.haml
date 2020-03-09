@@ -19,13 +19,14 @@
             %br
             .small Tasks
         - if content_for?(:actions)
-          .toggler
+          .toggler.text-center
             = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Actions', data: { toggle: 'actions' }) do
               %i.fas.fa-ellipsis-v.fa-lg
               %br
               .small Actions
-        .toggler{ data: { toggle: 'offcanvas' } }
-          = image_tag_for(User.session, size: 52, custom_class: 'rounded-circle bg-light')
+        .toggler
+          = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Generic Links', data: { toggle: 'offcanvas' }) do
+            = image_tag_for(User.session, size: 32, custom_class: 'rounded-circle bg-light')
       - else
         = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
 
