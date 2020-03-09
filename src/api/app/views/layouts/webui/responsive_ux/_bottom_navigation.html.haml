@@ -15,6 +15,12 @@
             .badge.badge-primary.align-text-top= tasks
           %br
           .small Tasks
+      - if content_for?(:actions)
+        %li.nav-item.border-left.border-gray-500
+          = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Actions', data: { toggle: 'actions' }) do
+            %i.fas.fa-ellipsis-v.fa-lg
+            %br
+            .small Actions
     - else
       - unless kerberos_mode? || !can_sign_up?
         %li.nav-item.border-right.border-gray-500
