@@ -1,0 +1,14 @@
+- content_for :actions do
+  - if User.admin_session?
+    %li.nav-item
+      = link_to('#', class: 'nav-link', 'data-toggle': 'modal', 'data-target': '#status-message-modal') do
+        %i.fas.fa-plus-square.fa-lg.mr-2
+        Create Status Message
+  %li.nav-item
+    = link_to(new_project_path, class: 'nav-link') do
+      %i.fas.fa-plus-square.fa-lg.mr-2
+      Create Project
+  %li.nav-item
+    = link_to(image_templates_path, class: 'nav-link') do
+      %i.fas.fa-compact-disc.fa-lg.mr-2
+      New Image
