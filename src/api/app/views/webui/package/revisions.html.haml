@@ -1,7 +1,7 @@
 - @pagetitle = "Revisions of #{@package}"
 
 .card
-  = render(partial: 'tabs', locals: { project: @project, package: @package })
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
 
   .card-body
     %h3
