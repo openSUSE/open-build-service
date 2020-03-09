@@ -348,6 +348,12 @@ Requires:       python-ec2uploadimg
 %description -n obs-cloud-uploader
 This package contains all the necessary tools for upload images to the cloud.
 
+%package -n perl-OBS-XML
+Summary:        XML dtd for OBS
+
+%description -n perl-OBS-XML
+This package contains the XML::Structured DTD describing the OBS API.
+
 #--------------------------------------------------------------------------------
 %prep
 %setup -q -n open-build-service-%version
@@ -454,6 +460,13 @@ install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/etc/sysconfig/obs-serv
 mkdir -p $RPM_BUILD_ROOT/%{_fillupdir}
 install -m 0644 dist/sysconfig.obs-server $RPM_BUILD_ROOT/%{_fillupdir}
 %endif
+
+# perl-OBS-XML
+DIR=%buildroot%perl_vendorlib/OBS
+[ -d $DIR ] || mkdir -p $DIR
+cp src/backend/BSXML.pm $DIR/XML.pm
+sed -i -e 's,package BSXML;,package OBS::XML;,' $DIR/XML.pm
+
 
 %check
 %if 0%{?disable_obs_test_suite}
@@ -1000,5 +1013,9 @@ usermod -a -G docker obsservicerun
 %dir /etc/obs/cloudupload/.aws
 %config(noreplace) /etc/obs/cloudupload/.aws/credentials
 %config /etc/obs/cloudupload/.ec2utils.conf
+
+%files -n perl-OBS-XML
+%dir %perl_vendorlib/OBS
+%attr(0644,root,root) %perl_vendorlib/OBS/XML.pm
 
 %changelog
