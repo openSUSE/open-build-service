@@ -10,7 +10,8 @@
   .toggler {
     @extend .ml-2;
     @extend .d-none;
-    @extend .d-md-block;
+    @extend .d-md-flex;
+    @extend .align-items-center;
     cursor: pointer;
     &.text-center { min-width: 62px; }
     &:first-of-type { @extend .ml-3;  }
