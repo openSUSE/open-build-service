@@ -15,7 +15,7 @@ module Webui::InPlaceEditingHelper
     end
   end
 
-  def build_form_element(object, field_name, editor, &custom_element_builder)
+  def build_form_element(object, field_name, editor, &editing_control_builder)
     form_for(object,
              url: editor.update_url,
              remote: true,
@@ -23,7 +23,7 @@ module Webui::InPlaceEditingHelper
              data: { type: 'html' },
              html: { id: editor.form_id, class: 'd-none' }) do |form|
       concat(hidden_field_tag(:id, object.id))
-      concat(custom_element_builder.call(form, field_name, editor))
+      concat(editing_control_builder.call(form, field_name, editor))
       concat(form.submit("Save changes", class: 'btn btn-primary btn-sm ml-3'))
       concat(form.button("Cancel changes",
                          id: editor.cancel_button_id,
@@ -31,14 +31,9 @@ module Webui::InPlaceEditingHelper
     end
   end
 
-  def in_place_text_field(object, field_name, options = {}, &block)
-    editor = InPlaceEditor.new(object, field_name, options)
-    form_element = build_form_element(object, field_name, editor) do |form, field_name, editor|
-      form.text_field(field_name.to_sym, id: editor.input_id)
-    end
-
+  def build_auxiliar_markup(editor, form_element, &custom_element_builder)
     content_tag(:div, class: 'd-flex in-place-editing align-items-end', data: { id: editor.editable_id, 'refresh-target-id': editor.refresh_target }) do
-      concat(content_tag(:div, class: 'triggering-wrapper') { block.call if block_given? })
+      concat(content_tag(:div, class: 'triggering-wrapper') { custom_element_builder.call if block_given? })
       trigger_element = content_tag(:i, nil,
                                     id: editor.trigger_id,
                                     class: editor.trigger_classes)
@@ -47,19 +42,19 @@ module Webui::InPlaceEditingHelper
     end
   end
 
-  def in_place_text_area(object, field_name, options = {}, &block)
+  def in_place_text_field(object, field_name, options = {}, &custom_element_builder)
+    editor = InPlaceEditor.new(object, field_name, options)
+    form_element = build_form_element(object, field_name, editor) do |form, field_name, editor|
+      form.text_field(field_name.to_sym, id: editor.input_id)
+    end
+    build_auxiliar_markup(editor, form_element, custom_element_builder)
+  end
+
+  def in_place_text_area(object, field_name, options = {}, &custom_element_builder)
     editor = InPlaceEditor.new(object, field_name, options)
     form_element = build_form_element(object, field_name, editor) do |form, field_name, editor|
       form.text_area(field_name.to_sym, id: editor.input_id)
     end
-
-    content_tag(:div, class: 'd-flex in-place-editing align-items-end', data: { id: editor.editable_id, 'refresh-target-id': editor.refresh_target }) do
-      concat(content_tag(:div, class: 'triggering-wrapper') { block.call if block_given? })
-      trigger_element = content_tag(:i, nil,
-                                    id: editor.trigger_id,
-                                    class: editor.trigger_classes)
-      concat(trigger_element)
-      concat(form_element)
-    end
+    build_auxiliar_markup(editor, form_element, custom_element_builder)
   end
 end
