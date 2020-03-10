@@ -238,7 +238,6 @@ class Webui::ProjectController < Webui::WebuiController
           redirect_to project_show_path(@project)
         end
       end
-      format.js { render json: @project, status: :ok }
     end
   end
 
