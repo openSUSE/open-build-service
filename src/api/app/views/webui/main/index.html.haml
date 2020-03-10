@@ -1,5 +1,8 @@
-- @pagetitle = 'Welcome'
-- render partial: 'actions'
+:ruby
+  @pagetitle = 'Welcome'
+  if flipper_responsive?
+    render partial: 'webui/main/responsive_ux/actions'
+  end
 
 .row
   .col-md-8.col-lg-7
