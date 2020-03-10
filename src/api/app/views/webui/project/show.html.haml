@@ -1,8 +1,17 @@
+-# haml-lint:disable ViewLength
+  This is going to be fine once again when we remove the flipper_responsive? calls
 :ruby
   content_for(:meta_title, @project.title.presence || @project)
   content_for(:meta_description, @project.description)
-
-- @pagetitle = "Show #{@project}"
+  @pagetitle = "Show #{@project}"
+  if flipper_responsive?
+    render partial: 'webui/project/responsive_ux/actions', locals: { bugowners_mail: @bugowner_mail,
+                                                                     project: @project,
+                                                                     packages: @packages,
+                                                                     has_patchinfo: @has_patchinfo,
+                                                                     open_release_requests: @open_release_requests,
+                                                                     release_targets: @releasetargets }
+  end
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project }
@@ -33,12 +42,13 @@
                                                   package: @package,
                                                   linking_projects: @linking_projects,
                                                   project_maintenance_project: @project_maintenance_project }
-      = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowner_mail,
-                                                    project: @project,
-                                                    packages: @packages,
-                                                    has_patchinfo: @has_patchinfo,
-                                                    open_release_requests: @open_release_requests,
-                                                    release_targets: @releasetargets }
+      - unless flipper_responsive?
+        = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowner_mail,
+                                                      project: @project,
+                                                      packages: @packages,
+                                                      has_patchinfo: @has_patchinfo,
+                                                      open_release_requests: @open_release_requests,
+                                                      release_targets: @releasetargets }
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }
@@ -96,3 +106,4 @@
 
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');
+-# haml-lint:enable ViewLength
