@@ -11,7 +11,7 @@
                                                                                  has_patchinfo: has_patchinfo,
                                                                                  open_release_requests: open_release_requests,
                                                                                  release_targets: release_targets }
-      = render partial: 'webui/project/bottom_actions/edit_project', locals: { project: project }
+      = render partial: 'webui/project/bottom_actions/edit_project', locals: { project: project } unless flipper_responsive?
       = render partial: 'webui/project/bottom_actions/delete_project', locals: { project: project }
     - elsif !project.is_locked?
       = render partial: 'webui/project/bottom_actions/request_role_addition_and_deletion', locals: { project: project }

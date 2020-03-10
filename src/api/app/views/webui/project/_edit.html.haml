@@ -1,0 +1,15 @@
+= form_for(project, url: project_update_url, method: :patch, remote: true) do |form|
+  %h5 Edit Project #{project}
+  = hidden_field_tag(:id, project.id)
+  .form-group
+    = form.label(:title, 'Title:')
+    = form.text_field(:title, class: 'form-control', autofocus: true)
+  .form-group
+    = form.label(:url, 'URL:')
+    = form.text_field(:url, class: 'form-control')
+  .form-group
+    = form.label(:description, 'Description:')
+    = form.text_area(:description, rows: 8, class: 'form-control')
+  .form-group.text-right
+    = link_to 'Cancel', project_show_path(project), class: 'cancel btn btn-outline-danger px-4', remote: true
+    = submit_tag('Update', class: 'btn btn-primary px-4')

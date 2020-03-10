@@ -18,18 +18,7 @@
   .card-body
     .row
       .col-md-8
-        %h3#project-title
-          = @project.title.presence || @project
-        - if @project.categories.any?
-          - @project.categories.each do |category|
-            = category_badge(category)
-        - if @project.url.present?
-          = link_to(@project.url, @project.url, class: 'mb-3 d-block')
-        #description-text
-          - if @project.description.blank?
-            %i No description set
-          - else
-            = render partial: 'webui/shared/collapsible_text', locals: { text: @project.description }
+        = render partial: 'basic_info', locals: { project: @project }
       .col-md-4
         = render partial: 'side_links', locals: { open_maintenance_incidents: @open_maintenance_incidents,
                                                   project: @project,

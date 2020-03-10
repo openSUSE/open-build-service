@@ -10,7 +10,7 @@ class Webui::ProjectController < Webui::WebuiController
                                        :new_release_request, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :new_package,
+                                     :new_package, :edit,
                                      :show, :buildresult,
                                      :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :toggle_watch,
@@ -135,6 +135,10 @@ class Webui::ProjectController < Webui::WebuiController
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
 
   def buildresult
@@ -221,15 +225,29 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  def edit
+    authorize @project, :update?
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def update
     authorize @project, :update?
     respond_to do |format|
       if @project.update(project_params)
-        flash[:success] = 'Project was successfully updated.'
+        format.html do
+          flash[:success] = 'Project was successfully updated.'
+          redirect_to project_show_path(@project)
+        end
+        format.js { flash.now[:success] = 'Project was successfully updated.' }
       else
-        flash[:error] = 'Failed to update project'
+        format.html do
+          flash[:error] = 'Failed to update project'
+          redirect_to project_show_path(@project)
+        end
+        format.js
       end
-      format.html { redirect_to project_show_path(@project) }
     end
   end
 
