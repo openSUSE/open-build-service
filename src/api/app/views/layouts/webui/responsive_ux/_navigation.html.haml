@@ -1,21 +1,25 @@
 %nav.navbar.navbar-dark.bg-dark.border-bottom.border-gray-500.fixed-top
   .d-flex.flex-nowrap.justify-content-between.w-100
     = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
-      = image_tag('obs-logo_small.svg', height: '30')
+      = image_tag('obs-logo_small.svg')
     .d-flex
       = render partial: "layouts/#{responsive_namespace}/search"
       - if User.session
-        .toggler
-          = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+        .toggler.text-center
+          = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
             %i.fas.fa-bookmark.fa-lg
-        .toggler
+            %br
+            .small Watchlist
+        .toggler.text-center
           - tasks = User.session!.tasks
-          = link_to(my_tasks_path, class: 'nav-link text-light', alt: 'Tasks') do
+          = link_to(my_tasks_path, class: 'nav-link text-light p-1', alt: 'Tasks') do
             %i.fas.fa-tasks.fa-lg
             - if tasks.positive?
               %span.badge.badge-primary.align-text-top= tasks
+            %br
+            .small Tasks
         .toggler{ data: { toggle: 'offcanvas' } }
-          = image_tag_for(User.session, size: 40, custom_class: 'rounded-circle bg-light')
+          = image_tag_for(User.session, size: 52, custom_class: 'rounded-circle bg-light')
       - else
         = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
 

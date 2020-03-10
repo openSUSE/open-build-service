@@ -1,17 +1,19 @@
 .border-gray-500 { border-color: $gray-500 !important; }
 .navbar-dark .navbar-toggler { color: $gray-300; }
-.flash-and-announcement.sticky-top { top: 60px; }
-#top_0.sticky-top { top: 57px; }
+.flash-and-announcement.sticky-top { top: $top-bar-height + 16px; }
+#top_0.sticky-top { top: $top-bar-height; }
 
 // NAVIGATION
 
 #navigation {
-  .fixed-top { height: 57px; }
+  .fixed-top { height: $top-bar-height; }
   .toggler {
-    @extend .ml-3;
+    @extend .ml-2;
     @extend .d-none;
     @extend .d-md-block;
     cursor: pointer;
+    &.text-center { min-width: 62px; }
+    &:first-of-type { @extend .ml-3;  }
   }
 
   .navbar-nav .nav-link {
@@ -21,18 +23,26 @@
 
   .menu-right { cursor: pointer; }
   .menu-options { font-size: 1.1rem }
+
+  .navbar-brand img { height: 30px; }
 }
 
-#bottom-navigation { height: 58px; }
+#bottom-navigation { height: $bottom-bar-height; }
 
 #navigation, #bottom-navigation {
   a.nav-link {
+    .small {
+      line-height: 1rem;
+      padding-top: 0.25rem;
+    }
+
     &.active {
       background-color: darken($dark, 10%);
       @extend .rounded;
     }
   }
 }
+
 // BREADCRUMBS
 
 .breadcrumb {
@@ -81,9 +91,9 @@ button.navbar-toggler {
 
 .watchlist-collapse, .offcanvas-collapse {
   position: fixed;
-  top: 57px;
+  top: $top-bar-height;
   left: 100%;
-  bottom: 58px;
+  bottom: $bottom-bar-height;
   width: 100%;
   padding-right: 1rem;
   padding-left: 1rem;
@@ -121,4 +131,4 @@ button.navbar-toggler {
     & a { color: $gray-300; }
   }
 }
-.footer-separator { height: 58px; }
+.footer-separator { height: $bottom-bar-height; }
