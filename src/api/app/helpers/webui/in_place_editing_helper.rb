@@ -6,7 +6,7 @@ module Webui::InPlaceEditingHelper
       @object_name = object.class.model_name.to_s.underscore
       @editable_id = "#{object_name}-#{field_name}"
       @trigger_id = "#{@editable_id}-trigger" # The pencil-shaped control to trigger the edition
-      @trigger_classes = 'fas fa-pen text-secondary small mb-3 ml-1'
+      @trigger_classes = 'fas fa-pen text-secondary small mb-1 ml-1'
       @form_id = "#{@editable_id}-form"
       @input_id = "#{@editable_id}-input"
       @update_url = [@object_name, "update".to_sym]
@@ -24,8 +24,10 @@ module Webui::InPlaceEditingHelper
              html: { id: editor.form_id, class: 'd-none' }) do |form|
       concat(hidden_field_tag(:id, object.id))
       concat(custom_element_builder.call(form, field_name, editor))
-      concat(form.submit("Save changes"))
-      concat(form.button("Cancel changes", id: editor.cancel_button_id));
+      concat(form.submit("Save changes", class: 'btn btn-primary btn-sm ml-3'))
+      concat(form.button("Cancel changes",
+                         id: editor.cancel_button_id,
+                         class: 'btn btn-outline-danger btn-sm ml-3'));
     end
   end
 
