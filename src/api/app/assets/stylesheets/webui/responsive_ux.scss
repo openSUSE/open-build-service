@@ -29,7 +29,7 @@ body.responsive-ux {
       .navbar-brand img { height: 42px; }
     }
 
-    .watchlist-collapse, .offcanvas-collapse {
+    .watchlist-collapse, .offcanvas-collapse, .actions-collapse {
       top: $md-top-bar-height; /* Height of navbar */
       bottom: 0;
       width: 380px;
