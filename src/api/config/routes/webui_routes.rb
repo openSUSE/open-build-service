@@ -188,6 +188,7 @@ OBSApi::Application.routes.draw do
       get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
       get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
       get 'project/new' => :new, as: 'new_project'
+      get 'project/edit/:project' => :edit, constraints: cons, as: 'edit_project'
       post 'project/create' => :create, constraints: cons, as: 'projects_create'
       post 'project/restore' => :restore, constraints: cons, as: 'projects_restore'
       patch 'project/update' => :update, constraints: cons

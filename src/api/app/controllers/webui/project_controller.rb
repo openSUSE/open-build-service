@@ -10,7 +10,7 @@ class Webui::ProjectController < Webui::WebuiController
                                        :new_release_request, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :new_package,
+                                     :new_package, :edit,
                                      :show, :buildresult,
                                      :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :toggle_watch,
@@ -221,6 +221,13 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  def edit
+    authorize @project, :update?
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def update
     authorize @project, :update?
     respond_to do |format|
@@ -230,6 +237,7 @@ class Webui::ProjectController < Webui::WebuiController
         flash[:error] = 'Failed to update project'
       end
       format.html { redirect_to project_show_path(@project) }
+      format.js
     end
   end
 

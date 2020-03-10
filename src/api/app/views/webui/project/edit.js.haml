@@ -1,0 +1,2 @@
+$('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
+$('.in-place-edition').html("#{escape_javascript(render(partial: 'webui/project/edit', locals: { project: @project }))}");
