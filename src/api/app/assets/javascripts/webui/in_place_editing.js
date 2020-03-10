@@ -32,7 +32,3 @@ var activate_in_place_editing = function($hook) {
     event.preventDefault();
   });
 };
-
-$('.in-place-editing').each(function (_, element) {
-  activate_in_place_editing($(element));
-});
