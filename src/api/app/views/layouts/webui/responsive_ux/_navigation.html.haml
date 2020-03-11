@@ -24,9 +24,11 @@
               %i.fas.fa-ellipsis-v.fa-lg
               %br
               .small Actions
-        .toggler
-          = link_to('javascript:void(0)', class: 'nav-link text-light', alt: 'Generic Links', data: { toggle: 'offcanvas' }) do
-            = image_tag_for(User.session, size: 32, custom_class: 'rounded-circle bg-light')
+        .toggler.text-center
+          = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Places', data: { toggle: 'offcanvas' }) do
+            %i.fas.fa-bars.fa-lg
+            %br
+            .small Places
       - else
         = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
 

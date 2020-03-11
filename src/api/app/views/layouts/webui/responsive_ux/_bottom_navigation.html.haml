@@ -28,10 +28,10 @@
       %li.nav-item
         = log_in_link(css_class: 'nav-link text-light p-1')
     %li.nav-item.border-left.border-gray-500
-      = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Menu', data: { toggle: 'offcanvas' }) do
+      = link_to('javascript:void(0)', class: 'nav-link text-light p-1', alt: 'Places', data: { toggle: 'offcanvas' }) do
         %i.fas.fa-bars.fa-lg
         %br
-        .small Menu
+        .small Places
 
 - if User.session
   = render partial: "layouts/#{responsive_namespace}/watchlist"
