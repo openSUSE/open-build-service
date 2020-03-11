@@ -10,7 +10,7 @@ class Webui::ProjectController < Webui::WebuiController
                                        :new_release_request, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :new_package, :edit,
+                                     :new_package,
                                      :show, :buildresult,
                                      :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :toggle_watch,
@@ -218,13 +218,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       flash[:error] = 'Project was never deleted.'
       redirect_back(fallback_location: root_path)
-    end
-  end
-
-  def edit
-    authorize @project, :update?
-    respond_to do |format|
-      format.js
     end
   end
 
