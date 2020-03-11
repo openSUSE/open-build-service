@@ -1,4 +1,4 @@
-$(document).ready(function() {
+var activateCollapsibleText = function() {
   $('.obs-collapsible-textbox').on('click', function() {
     var selectedText = document.getSelection().toString();
     if(!selectedText) {
@@ -13,4 +13,4 @@ $(document).ready(function() {
       $(element).after($link);
     }
   });
-});
+}
