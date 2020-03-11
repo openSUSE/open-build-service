@@ -233,11 +233,21 @@ class Webui::ProjectController < Webui::WebuiController
     respond_to do |format|
       if @project.update(project_params)
         flash[:success] = 'Project was successfully updated.'
+        format.html do
+          if request.xhr?
+            render partial: 'basic_info', locals: { project: @project }, layout: false, status: :ok
+          else
+            redirect_to project_show_path(@project)
+          end
+        end
       else
         flash[:error] = 'Failed to update project'
+        format.html do
+          if request.xhr?
+            render partial: 'edit', locals: { project: @project }, layout: false, status: :ok
+          end
+        end
       end
-      format.html { redirect_to project_show_path(@project) }
-      format.js
     end
   end
 

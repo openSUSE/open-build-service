@@ -1,15 +1,23 @@
-= form_for(project, url: project_update_url, method: :patch, remote: true) do |form|
+= form_for(project, url: project_update_url, method: :patch, remote: true, html: { id: 'in_place_editing_for_project', class: 'd-none' }) do |form|
   %h5 Edit Project #{project}
   = hidden_field_tag(:id, project.id)
   .form-group
     = form.label(:title, 'Title:')
     = form.text_field(:title, class: 'form-control')
+    = show_error_messages(project, :title)
   .form-group
     = form.label(:url, 'URL:')
     = form.text_field(:url, class: 'form-control')
+    = show_error_messages(project, :url)
   .form-group
     = form.label(:description, 'Description:')
     = form.text_area(:description, rows: 8, class: 'form-control')
-  %a.cancel.btn.btn-outline-danger.px-4
+    = show_error_messages(project, :description)
+  %a.cancel.btn.btn-outline-danger.px-4.in-place-editing-cancel
     Cancel
   = submit_tag('Update', class: 'btn btn-primary px-4')
+
+:javascript
+  $('#in_place_editing_for_project').on("ajax:success", function(event, data, status, xhr) {
+    $('#project-in-place-editing').html(xhr.responseText);
+  });

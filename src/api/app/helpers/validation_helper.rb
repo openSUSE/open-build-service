@@ -63,4 +63,12 @@ module ValidationHelper
     # FIXME: actually a per user checking would be more accurate here
     raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
   end
+
+  def show_error_messages(object, field_name)
+    if object.errors[field_name].any?
+      content_tag(:div, class: 'alert alert-dismissible alert-error') do
+        object.errors[:url].join.capitalize
+      end
+    end
+  end
 end
