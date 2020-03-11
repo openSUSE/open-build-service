@@ -66,6 +66,14 @@ sub boolop {
       }
       $e2 = $e2->{'_content'};
     }
+    if ($op == \&boolop_not) {
+      if (!ref($e1)) {
+        push @vr, $e1 ? '' : 'true';
+      } else {
+        push @vr, (grep {$_} @$e1) ? '' : 'true';
+      }
+      next;
+    }
     if (!ref($e1) && !ref($e2)) {
       push @vr, $op->($e1, $e2) ? 'true' : '';
       next;
@@ -364,56 +372,56 @@ sub expr {
   while (1) {
     $expr =~ s/^\s+//;
     if ($expr =~ /^or/) {
-      return ($v, $expr) if $lev > 1;
+      return ($v, $expr) if $lev >= 1;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 1, $negpol);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] || $_[1]}, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] || $_[1]}, $negpol, 'or');
     } elsif ($expr =~ /^and/) {
-      return ($v, $expr) if $lev > 2;
+      return ($v, $expr) if $lev >= 2;
       my $cwd2 = limit($cwd, $v);
       ($v2, $expr) = expr($cwd2, substr($expr, 3), 2, $negpol);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] && $_[1]}, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] && $_[1]}, $negpol, 'and');
     } elsif ($expr =~ /^=/) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
       $v = boolop($cwd, $v, $v2, \&boolop_eq, $negpol, 'equals');
     } elsif ($expr =~ /^!=/) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
-      $v = boolop($cwd, $v, $v2, sub {$_[0] ne $_[1]}, $negpol);
+      $v = boolop($cwd, $v, $v2, sub {$_[0] ne $_[1]}, $negpol, 'not-equals');
     } elsif ($expr =~ /^<=/) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
       $v = boolop($cwd, $v, $v2, sub {$_[0] <= $_[1]}, $negpol);
     } elsif ($expr =~ /^>=/) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 2), 3, $negpol);
       $v = boolop($cwd, $v, $v2, sub {$_[0] >= $_[1]}, $negpol);
     } elsif ($expr =~ /^</) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
       $v = boolop($cwd, $v, $v2, sub {$_[0] < $_[1]}, $negpol);
     } elsif ($expr =~ /^>/) {
-      return ($v, $expr) if $lev > 3;
+      return ($v, $expr) if $lev >= 3;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 3, $negpol);
       $v = boolop($cwd, $v, $v2, sub {$_[0] > $_[1]}, $negpol);
     } elsif ($expr =~ /^\+/) {
-      return ($v, $expr) if $lev > 4;
+      return ($v, $expr) if $lev >= 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] + $_[1]});
     } elsif ($expr =~ /^-/) {
-      return ($v, $expr) if $lev > 4;
+      return ($v, $expr) if $lev >= 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] - $_[1]});
     } elsif ($expr =~ /^\*/) {
-      return ($v, $expr) if $lev > 5;
+      return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] * $_[1]});
     } elsif ($expr =~ /^div/) {
-      return ($v, $expr) if $lev > 5;
+      return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] / $_[1]});
     } elsif ($expr =~ /^mod/) {
-      return ($v, $expr) if $lev > 5;
+      return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
       $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
