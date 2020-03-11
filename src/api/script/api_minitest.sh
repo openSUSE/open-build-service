@@ -8,7 +8,7 @@ source ./mysql_environment
 export RAILS_ENV=development
 bin/rake db:create || exit 1
 mv db/structure.sql db/structure.sql.git
-xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=$MYSQL_SOCKET
+xzcat test/dump_2.5.sql.xz | mysql  -u $MYSQLD_USER --socket=$MYSQL_SOCKET
 bin/rake db:migrate:with_data db:structure:dump db:drop
 ./script/compare_structure_sql.sh db/structure.sql.git db/structure.sql
 
@@ -22,7 +22,7 @@ rm -f log/test.log
 bin/rake test:api test:spider
 
 #cleanup
-/usr/bin/mysqladmin -u root --socket=$MYSQL_SOCKET shutdown || true
+/usr/bin/mysqladmin -u $MYSQLD_USER --socket=$MYSQL_SOCKET shutdown || true
 rm -rf $MYSQL_DATADIR $MYSQL_SOCKET_DIR
 
 exit 0
