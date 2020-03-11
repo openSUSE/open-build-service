@@ -32,8 +32,8 @@ OBSApi::Application.routes.draw do
     resources :interconnects, only: [:new, :create], controller: 'webui/interconnects'
 
     controller 'webui/subscriptions' do
-      get 'notifications' => :index
-      put 'notifications' => :update
+      get 'subscriptions' => :index
+      put 'subscriptions' => :update
     end
 
     controller 'webui/architectures' do
