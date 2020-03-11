@@ -845,8 +845,12 @@ CREATE TABLE `notifications` (
   `updated_at` datetime(6) NOT NULL,
   `subscriber_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `subscriber_id` int(11) DEFAULT NULL,
+  `notifiable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notifiable_id` int(11) DEFAULT NULL,
+  `bs_request_oldstate` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`)
+  KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`),
+  KEY `index_notifications_on_notifiable_type_and_notifiable_id` (`notifiable_type`,`notifiable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `package_issues` (
@@ -1482,6 +1486,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190704072437'),
 ('20190710094253'),
 ('20190712084813'),
-('20200107105426');
+('20200107105426'),
+('20200311132129');
 
 
