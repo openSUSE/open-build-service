@@ -1,24 +1,24 @@
-- @pagetitle = 'Notifications'
+- @pagetitle = 'Subscriptions'
 
 .card
   .card-header.d-flex.justify-content-between
-    %h5 Notifications
+    %h5 Subscriptions
   - unless @groups_users.empty?
     .card-body
       %h4.card-title Groups
-      .card-text#notifications-groups
+      .card-text#subscriptions-groups
         %p You will receive emails from the checked groups
         - @groups_users.each do |group_user|
           .custom-control.custom-checkbox.custom-control-inline
             = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}",
-              data: { url: my_notifications_path, method: :put, remote: true }
+              data: { url: my_subscriptions_path, method: :put, remote: true }
             = label_tag group_user.group.title, nil, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
             %i.fas.fa-spinner.invisible
   .card-body
     %h4.card-title Events
     %p Choose from which events you want to get an email
     #subscriptions-form
-      = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: my_notifications_path, subscriptions_form: @subscriptions_form }
+      = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: my_subscriptions_path, subscriptions_form: @subscriptions_form }
 
 .card.mt-3
   .card-body
@@ -30,12 +30,12 @@
         = link_to(user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'),
         user_rss_notifications_url(token: @user.rss_token.string, format: 'rss'), target: '_blank', rel: 'noopener')
       - else
-        No feed url exists for your notifications.
+        No feed url exists for your subscription.
       .card-body
         = submit_tag "#{@user.rss_token ? 'Regenerate Url' : 'Generate Url'}", class: 'btn btn-primary'
 
 - content_for :ready_function do
   :plain
-    $('#notifications-groups, #subscriptions-form').on('ajax:before ajax:complete', '.custom-control-input', function() {
+    $('#subscriptions-groups, #subscriptions-form').on('ajax:before ajax:complete', '.custom-control-input', function() {
       $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
     });

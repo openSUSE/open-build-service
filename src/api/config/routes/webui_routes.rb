@@ -286,8 +286,8 @@ OBSApi::Application.routes.draw do
 
     scope :my do
       resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
-      get 'notifications' => :index,  controller: 'webui/users/subscriptions', as: :my_notifications
-      put 'notifications' => :update, controller: 'webui/users/subscriptions'
+      get 'subscriptions' => :index,  controller: 'webui/users/subscriptions', as: :my_subscriptions
+      put 'subscriptions' => :update, controller: 'webui/users/subscriptions'
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       # To accept announcements as user
       post 'announcements/:id' => :create, controller: 'webui/users/announcements', as: :my_announcements

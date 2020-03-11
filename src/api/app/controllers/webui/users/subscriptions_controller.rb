@@ -20,9 +20,9 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     end
 
     subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]
-    flash[:success] = 'Notifications settings updated'
+    flash[:success] = 'Subscriptions settings updated'
   rescue ActiveRecord::RecordInvalid
-    flash[:error] = 'Notifications settings could not be updated due to an error'
+    flash[:error] = 'Subscriptions settings could not be updated due to an error'
   ensure
     respond_to do |format|
       format.html { redirect_to action: :index }
