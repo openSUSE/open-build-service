@@ -1,7 +1,7 @@
 - @pagetitle = 'Manage Groups'
 
 .card.mb-3
-  = render partial: 'webui/configuration/tabs'
+  = render partial: "webui/configuration/#{@namespace}tabs"
   .card-body
     %h3= @pagetitle
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#manage-groups-table

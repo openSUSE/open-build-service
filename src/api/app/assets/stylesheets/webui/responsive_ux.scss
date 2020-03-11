@@ -11,6 +11,7 @@ body.responsive-ux {
   @import 'responsive_ux/layout';
   @import 'responsive_ux/build-result';
   @import 'responsive_ux/sponsors';
+  @import 'responsive_ux/tabs';
 
   .build-results .sticky-top { top: $top-bar-height; }
 }
