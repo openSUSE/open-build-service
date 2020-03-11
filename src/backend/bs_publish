@@ -1086,10 +1086,10 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
         $link = "${1}_${3}.snap";
         $link = "${1}_${3}_$2.snap" if $versioned;
-      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256)?)$/s) {
+      } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256(?:\.asc)?)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256(?:\.asc)?)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$5";
@@ -1639,6 +1639,7 @@ sub deleterepo {
 sub mapsleimage {
   my ($config, $rdir, $rbin, $p, $media) = @_;
   if ($p =~ /-Build\d+/) {
+    $rbin =~ s/\.asc$//;
     $rbin =~ s/\.sha256$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(iso|packages|raw|tbz|tgz|tar|qcow2|vhdx|vmdk|vagrant\..*\.box)$//;
@@ -1910,14 +1911,14 @@ sub publish {
 	next unless $q && defined($q->{'arch'});
 	$p = "$q->{'arch'}/$bin";
       } else {
-	if ($bin =~ /\.iso(?:\.sha256)?$/) {
+	if ($bin =~ /\.iso(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
     	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
-	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
 	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	} elsif ($bin =~ /\.containerinfo$/) {
@@ -1977,19 +1978,19 @@ sub publish {
 	    }
 	  }
 	  next if $bin =~ /-(?:appstream|desktopfiles|polkitactions|mimetypes)\.tar/;
-        } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256)?$/) {
+        } elsif ($bin =~ /\.(?:tgz|zip)?(?:\.sha256(?:\.asc)?)?$/) {
           # esp. for Go builds
           $p = "$bin";
         } elsif ($bin =~ /\.squashfs$/) {
 	  $p = "$bin";	# for simpleimage builds
-	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.dsc(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.orig\.tar\.(gz|xz|bz2)\.asc$/) {
 	  # Debian upstream tarball signature
 	  $p = "$bin";
-        } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256)?$/) {
+        } elsif ($bin =~ /^(.*)\.(?:box|json|ovf|phar|qcow2|vdi|vhdfixed|vmx|vmdk|vhdx)(?:\.xz)?(\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
           $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;

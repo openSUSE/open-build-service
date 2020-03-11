@@ -48,6 +48,11 @@ Bugfixes:
 Intentional changes:
 ====================
 
+Backend:
+ * .sha256 files get gpg signed in detached mode now
+ * Switched from OR to AND when checking CPU flags in _constraints file
+
+Webui:
   Features enabled by default:
     * Image Template
     * Kiwi Image Editor
@@ -60,4 +65,3 @@ Intentional changes:
     - /home/home_project
     - /home/list_my
 
- * Switched from OR to AND when checking CPU flags in _constraints file
