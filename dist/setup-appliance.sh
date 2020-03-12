@@ -589,7 +589,7 @@ EOF
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       # ensure that $OBS_SIGND gets restarted if already started
-      systemctl is-active $OBS_SIGND 2>&1 > /dev/null
+      systemctl is-enabled $OBS_SIGND 2>&1 > /dev/null
       if [ $? -eq 0 ] ; then
         logline "Restarting $OBS_SIGND"
         systemctl restart $OBS_SIGND
