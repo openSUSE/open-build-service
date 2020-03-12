@@ -459,15 +459,19 @@ function check_recommended_backend_services {
 
   [[ $SETUP_ONLY == 1 ]] && return
 
+  RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner $OBS_SIGND obsservicedispatch"
+
   for srv in $RECOMMENDED_SERVICES;do
-    STATE=$(chkconfig $srv|awk '{print $2}')
-    if [[ $STATE != on ]];then
+    STATE=$(systemctl is-enabled $srv)
+    if [ $STATE != "enabled" ];then
       ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
       case $rv in
         y|yes|Y|YES)
           systemctl enable --now $srv
         ;;
       esac
+    else
+      logline "Recommended service $srv already enabled!"
     fi
   done
 }
@@ -484,14 +488,16 @@ function check_optional_backend_services {
   OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice"
 
   for srv in $OPTIONAL_SERVICES;do
-    STATE=$(chkconfig $srv|awk '{print $2}')
-    if [[ $STATE != on ]];then
+    STATE=$(systemctl is-enabled $srv)
+    if [ $STATE != "enabled" ];then
       ask "Service $srv is not enabled. Would you like to enable it? [yN]" $DEFAULT_ANSWER
       case $rv in
         y|yes|Y|YES)
           systemctl enable --now $srv
         ;;
       esac
+    else
+      logline "Optional service $srv already enabled!"
     fi
   done
 }
@@ -581,6 +587,12 @@ EOF
       rm /tmp/obs-gpg.$$
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
+      # ensure that $OBS_SIGND gets restarted if already started
+      systemctl is-active $OBS_SIGND 2>&1 > /dev/null
+      if [ $? -eq 0 ] ; then
+        logline "Restarting $OBS_SIGND"
+        systemctl restart $OBS_SIGND
+      fi
     fi
     if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
         sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
@@ -607,7 +619,7 @@ function prepare_os_settings {
         INST_PACKAGES_CMD="zypper --non-interactive install"
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE apache2-mod_xforward rubygem-passenger-apache2 memcached"
         CONFIGURE_APACHE=1
-        RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd obsservicedispatch"
+        OBS_SIGND=obssignd
       ;;
       fedora)
         MYSQL_SERVICE=mariadb
@@ -621,7 +633,7 @@ function prepare_os_settings {
         INST_PACKAGES_CMD="dnf -y install"
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE mod_xforward mod_passenger memcached"
         CONFIGURE_APACHE=0
-        RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner signd obsservicedispatch"
+        OBS_SIGND=signd
       ;;
     esac
   done
