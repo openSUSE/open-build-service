@@ -3850,7 +3850,7 @@ sub getresult {
     if ($BSConfig::source_db_sqlite) {
       my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
       for my $packid (@{$cgi->{'package'}}) {
-	push @packages, $packid, BSSrcServer::SQLite::getlocallinks($db, $projid, $packid);
+	push @packages, $packid, $db->getlocallinks($projid, $packid);
       }
     } else {
       my $db = BSDB::opendb($sourcedb, 'linkinfo');
@@ -4766,10 +4766,10 @@ sub search_pack {
   if ($id && $BSConfig::source_db_sqlite) {
     my $data;
     if ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\"\)$/s) {
-      $data = [ BSSrcServer::SQLite::getlinkers($db, $2, $1) ];
+      $data = [ $db->getlinkers($2, $1) ];
     } elsif ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\" and \@project=\"([^\"]+)\"\)$/s) {
       my $limitprojid = $3;
-      $data = [ grep {/^\Q$limitprojid\E\//} BSSrcServer::SQLite::getlinkers($db, $2, $1) ];
+      $data = [ grep {/^\Q$limitprojid\E\//} $db->getlinkers($2, $1) ];
     }
     if ($data) {
       for (@$data) {
@@ -4828,9 +4828,9 @@ sub search_published_updatedb {
     while (@$data) {
       my ($w, $k, $v) = splice(@$data, 0, 3);
       if ($w eq 'repoinfo') {
-        BSSrcServer::SQLite::updatedb_repoinfo($db, $k, $v);
+        $db->updatedb_repoinfo($k, $v);
       } elsif ($w eq 'patterninfo') {
-        BSSrcServer::SQLite::updatedb_patterninfo($db, $k, $v);
+        $db->updatedb_patterninfo($k, $v);
       } elsif ($w ne 'binary' && $w ne 'pattern') {
         die("bad data type: '$w'\n");
       }
@@ -4896,7 +4896,7 @@ sub prp_to_repoinfo {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
     $binarydb ||= BSSrcServer::SQLite::opendb($extrepodb, 'binary');
-    $repoinfo = BSSrcServer::SQLite::getrepoinfo($binarydb, $prp_ext) || {};
+    $repoinfo = $binarydb->getrepoinfo($prp_ext) || {};
   } else {
     my $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
     $repoinfo = $repoinfodb->fetch($prp) || {};
@@ -4921,7 +4921,7 @@ sub prp_to_repoorigins {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
     $binarydb ||= BSSrcServer::SQLite::opendb($extrepodb, 'binary');
-    $repoorigins = BSSrcServer::SQLite::getrepoorigins($binarydb, $prp_ext);
+    $repoorigins = $binarydb->getrepoorigins($prp_ext);
   } else {
     prp_to_repoinfo($prp);
     return $prp_to_repoorigins{$prp};
@@ -5047,7 +5047,7 @@ sub pattern_key_to_data {
     my $location = join('/', @p, $filename);
     my $prp_ext = "$project/$repository";
     $prp_ext =~ s/:/:\//g;
-    $res = BSSrcServer::SQLite::getrecord($db, $prp_ext, $location);
+    $res = $db->getrecord($prp_ext, $location);
   } else {
     $res = $db->rawfetch($key);
   }
@@ -5063,7 +5063,7 @@ sub pattern_key_to_data {
 sub published_binary_projectindexfunc {
   my ($db, $path, $value) = @_;
 
-  return BSSrcServer::SQLite::getprojectkeys($db, $value) if $BSConfig::published_db_sqlite;
+  return $db->getprojectkeys($value) if $BSConfig::published_db_sqlite;
 
   return findprojects() unless defined $value;
   my $proj = BSRevision::readproj_local($value);
