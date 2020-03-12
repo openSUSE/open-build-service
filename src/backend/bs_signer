@@ -549,6 +549,7 @@ sub signjob {
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
 	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
 	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
+	@signmode = ('-d') if $signfile =~ /\.sha256$/;
 	if ($signfile =~ /\.key$/s) {
 	  next unless (-s "$jobdir/$signfile") == 8192;
 	  my $signfilec = readstr("$jobdir/$signfile");
