@@ -65,7 +65,6 @@ use BSRegistryServer;
 use BSXPath;
 use BSXPathKeys;
 use BSDB;
-use BSDBIndex;
 
 use BSSrcServer::Remote;
 use BSSrcServer::Partition;
@@ -3847,12 +3846,17 @@ sub getresult {
   }
   if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
     my @packages;
-    # find all packages that are links
-    my $db = BSDB::opendb($sourcedb, '');
+    # add all local link packages
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    my $ll;
     for my $packid (@{$cgi->{'package'}}) {
-      push @packages, $packid;
-      my @l = grep {s/^\Q$projid\///} BSDBIndex::getvalues($db, 'linkinfo/package', $packid);
-      push @packages, @l;
+      my @l;
+      @l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid) if !$ll || %$ll;
+      if (@l) {
+	$ll ||= { map {$_ => 1} grep {s/^\Q$projid\///} $db->rawkeys('project', $projid) };
+	@l = grep {$ll->{$_}} @l;
+      }
+      push @packages, $packid, @l;
     }
     @packages = BSUtil::unify(@packages);
     $cgi->{'package'} = \@packages;
@@ -4676,13 +4680,13 @@ sub pkgsearch_fetch {
   my ($projid, $packid) = split('/', $k, 2);
   my $pack = BSRevision::readpack_local($projid, $packid, 1) || {'name' => $packid};
   $pack->{'project'} = $projid;
-  #my @linkinfo = BSDBIndex::getvalues($db, 'linkinfo', $k);
-  #$pack->{'linkinfo'} = $linkinfo[0] if @linkinfo;
+  #my $linkinfo = $db->rawfetch($k);
+  #$pack->{'linkinfo'} = $linkinfo if $linkinfo;
   return $pack;
 }
 
 sub pkgsearch_indexfunc {
-  my ($db, $path, $value, $lkeys) = @_;
+  my ($db, $path, $value, $lkeys, $hint, $hintval) = @_;
   if (!defined($path)) {
     return @{$db->{'_allkeys'}} if $db->{'_allkeys'};
     my @projids = findprojects();
@@ -4692,23 +4696,38 @@ sub pkgsearch_indexfunc {
     }
     $db->{'_allkeys'} = \@r;
     return @r;
-  } elsif (!defined($value)) {
-    return BSDBIndex::getkeys($db, "$db->{'index'}$path") if $path =~ /^linkinfo\//;
-    return findprojects() if $path eq 'project';
-    if ($path eq 'name') {
-      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+  }
+  if ($path =~ /^linkinfo\/(.*)/) {
+    if (!defined($value)) {
+      return $db->rawvalues($1, $hint, $hintval);
+    } else {
+      return $db->rawkeys($1, $value);
+    }
+  }
+  if ($path eq 'project') {
+    return findprojects() unless defined($value);
+    return map {"$value/$_"} BSRevision::lspackages_local($value);
+  }
+  if ($path eq 'name') {
+    $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+    if (!defined($value)) {
       my %v = map {$_ => 1} grep {s/^.*\///} map {$_} @$lkeys;
       return sort keys %v;
-    }
-  } else {
-    return BSDBIndex::getvalues($db, "$db->{'index'}$path", $value) if $path =~ /^linkinfo\//;
-    return map {"$value/$_"} BSRevision::lspackages_local($value) if $path eq 'project';
-    if ($path eq 'name') {
-      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+    } else {
       return grep {/\Q$value\E$/} @$lkeys;
     }
   }
   return ();
+}
+
+sub pkgsearch_key_to_project {
+  my ($db, $key) = @_;
+  return (split('/', $key, 2))[0];
+}
+
+sub pkgsearch_key_to_package {
+  my ($db, $key) = @_;
+  return (split('/', $key, 2))[1];
 }
 
 sub search_pack {
@@ -4730,7 +4749,7 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $db = BSDB::opendb($sourcedb, '');
+  my $db = BSDB::opendb($sourcedb, 'linkinfo');
   $db->{'indexfunc'} = {
     'project' => \&pkgsearch_indexfunc,
     'name' => \&pkgsearch_indexfunc,
@@ -4738,8 +4757,11 @@ sub search_pack {
     'linkinfo/package' => \&pkgsearch_indexfunc,
     'linkinfo/rev' => \&pkgsearch_indexfunc,
   };
+  $db->{'allkeyspath'} = 'project';
   $db->{'noindexatall'} = 1;
   $db->{'fetch'} = \&pkgsearch_fetch;
+  $db->{'fetch_project'} = \&pkgsearch_key_to_project;
+  $db->{'fetch_name'} = \&pkgsearch_key_to_package;
   my $data = BSXPathKeys::node($db, '');
   if ($id) {
     $data = $data->keymatch($match);
@@ -4997,8 +5019,7 @@ sub pattern_key_to_data {
     $prp_ext =~ s/:/:\//g;
     $res = BSSrcServer::SQLite::getrecord($db, $prp_ext, $location);
   } else {
-    my @v = BSDBIndex::getvalues($db, $db->{'table'}, $key);
-    $res = $v[0];
+    $res = $db->rawfetch($key);
   }
   $res ||= {};
   $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
@@ -5059,8 +5080,8 @@ sub search_published_binary_id {
     $binarydb = BSSrcServer::SQLite::opendb($extrepodb, 'binary');
   } else {
     $binarydb = BSDB::opendb($extrepodb, 'binary');
+    $binarydb->{'allkeyspath'} = 'name';
   }
-  $binarydb->{'allkeyspath'} = 'name';
   $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
   $binarydb->{'indexfunc'} = {'project' => \&published_binary_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
