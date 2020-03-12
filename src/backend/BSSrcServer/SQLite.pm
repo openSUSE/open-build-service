@@ -56,21 +56,26 @@ sub connectdb {
   mkdir_p($sqlitedb);
   my $h = DBI->connect("dbi:SQLite:dbname=$sqlitedb/published");
   $h->{AutoCommit} = 1;
+  dbdo($h, 'PRAGMA foreign_keys = OFF');
   $db->{'sqlite'} = $h;
-  createtables_binary($db, $h);
-  createtables_pattern($db, $h) if $db->{'table'} eq 'pattern';
   return $h;
 }
 
-my %tables = (
-  'binary' => { map {$_ => 1} qw {package name} },
-  'pattern' => { map {$_ => 1} qw {package name summary description type} },
-);
+sub list_tables {
+  my ($h) = @_;
+  my $sh = $h->table_info(undef, undef, undef, 'TABLE');
+  return map {$_->[2]} @{$sh->fetchall_arrayref()};
+}
 
-sub createtables_binary {
-  my ($db, $h) = @_;
-  dbdo($h, 'PRAGMA foreign_keys = OFF');
-  dbdo($h, <<'EOS');
+sub init_published {
+  my ($extrepodb) = @_;
+  my $db = opendb($extrepodb, 'binary');
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my %t = map {$_ => 1} list_tables($h);
+  if (!$t{'prp_ext'} || !$t{'binary'} || !$t{'pattern'}) {
+    # need to create our tables. abort if there is an old database
+    BSUtil::diecritcal("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
+    dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS prp_ext(
   id INTEGER PRIMARY KEY,
   path TEXT,
@@ -79,7 +84,7 @@ CREATE TABLE IF NOT EXISTS prp_ext(
   UNIQUE(path)
 )
 EOS
-  dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS binary(
   prp_ext INTEGER,
   name TEXT,
@@ -88,24 +93,7 @@ CREATE TABLE IF NOT EXISTS binary(
   FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
 )
 EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext);
-EOS
-}
-
-sub createtables_pattern {
-  my ($db, $h) = @_;
-  return if $db->{'sqlite_pattern_created'};
-  dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS pattern(
   prp_ext INTEGER,
   path TEXT,
@@ -118,14 +106,19 @@ CREATE TABLE IF NOT EXISTS pattern(
   FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
 )
 EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext);
-EOS
-  $db->{'sqlite_pattern_created'} = 1;
+  }
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext)');
 }
+
+my %tables = (
+  'binary' => { map {$_ => 1} qw {package name} },
+  'pattern' => { map {$_ => 1} qw {package name summary description type} },
+);
 
 ###########################################################################
 
@@ -175,7 +168,6 @@ sub updatedb_deleterepo {
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return unless $prp_ext_id;
 
-  createtables_pattern($db, $h) unless $db->{'sqlite_pattern_created'};
   $h->begin_work() || die($h->errstr);
   dbdo_bind($h, 'DELETE FROM binary WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
   dbdo_bind($h, 'DELETE FROM pattern WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
@@ -259,8 +251,6 @@ sub updatedb_patterninfo {
 
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return unless $prp_ext_id;
-
-  createtables_pattern($db, $h) unless $db->{'sqlite_pattern_created'};
 
   my @pats = sort keys %{$patterninfo || {}};
   if (!@pats) {

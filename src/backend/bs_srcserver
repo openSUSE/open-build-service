@@ -6740,6 +6740,12 @@ sub notary_forward {
 
 ####################################################################
 
+sub run {
+  my ($conf) = @_;
+  BSSrcServer::SQLite::init_published($extrepodb) if $BSConfig::published_db_sqlite;
+  BSServer::server($conf);
+}
+
 my $dispatches = [
   '/' => \&hello,
 
@@ -6971,6 +6977,7 @@ my $conf = {
   'maxchild2' => 20,
   'slowrequestthr' => 10,
   'errorreply' => \&BSRegistryServer::errreply,
+  'run' => \&run,
 };
 
 my $aconf = {
