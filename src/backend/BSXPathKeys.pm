@@ -315,14 +315,6 @@ sub boolop {
   }
 }
 
-sub op {
-  my ($self, $v1, $v2, $op) = @_;
-  if (ref($v1) ne ref($self) && ref($v2) ne ref($self)) {
-    return $op->($v1, $v2);
-  }
-  die("op not implemented for abstract elements\n");
-}
-
 sub predicate {
   my ($self, $v, $expr) = @_;
   if (ref($v) ne ref($self)) {

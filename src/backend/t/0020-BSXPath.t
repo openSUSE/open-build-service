@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More tests => 30;
+use Test::More tests => 34;
 use Data::Dumper;
 
 use BSXPath;
@@ -41,6 +41,9 @@ my @select_tests = (
   '2 * -2'                      => '-4',
   '7 = 1 + 2 * 3'               => 'true',
   '5 mod 2'                     => '1',
+  'string(1 and 0)'             => 'false',
+  'number(1 and 0)'             => '0',
+  'concat("foo", "bar", "baz")' => 'foobarbaz',
 
   'fruits/fruit[name="grape"]/color="green"' => 'true',
   'fruits/fruit[name="grape"]/color!="green"' => 'true',
@@ -48,6 +51,7 @@ my @select_tests = (
   'fruits/fruit[starts-with(name,"a")]/name' => [ 'apple', 'ananas' ],
   'fruits/fruit[not(xxx)]/name' => [ 'apple', 'grape', 'ananas' ],
   'fruits/fruit[starts-with(name,"a") and not(contains(name,"as"))]/name' => [ 'apple' ],
+  'string(fruits/fruit[name="grape"]/color)' => 'green',
 );
 
 while (@select_tests) {

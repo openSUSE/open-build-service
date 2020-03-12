@@ -98,7 +98,7 @@ sub boolop {
   return \@vr;
 }
 
-sub op {
+sub numop {
   my ($cwd, $v1, $v2, $op) = @_;
   my @v1 = @$v1;
   my @v2 = @{$v2 || []};
@@ -107,26 +107,54 @@ sub op {
     my $vv2;
     $vv2 = shift @v2 if defined $v2;
     my $r = shift @cwd;
-    if ($r->[4]) {
-      $vv = $r->[4]->op($vv, $vv2, $op);
-      next;
-    }
-    if (ref($vv) ne '' && ref($vv) ne 'HASH' && ref($vv) ne 'ARRAY') {
-      $vv = $vv->value();
-    }
+    $vv = $vv->value() if ref($vv) ne '' && ref($vv) ne 'HASH' && ref($vv) ne 'ARRAY';
     if (ref($vv) eq 'HASH') {
       $vv = $vv->{'_content'};
-    } elsif (ref($vv) ne '') {
-      $vv = '';
+    } elsif (ref($vv) eq 'ARRAY') {
+      $vv = @$vv ? $vv->[0] : 0;
+    } elsif ($vv eq 'true' || $vv eq '') {
+      $vv = $vv ? 1 : 0;
     }
-    if ($vv2) {
-      if (ref($vv2) ne '' && ref($vv2) ne 'HASH' && ref($vv2) ne 'ARRAY') {
-        $vv2 = $vv2->value();
-      }
+    if (defined($vv2)) {
+      $vv2 = $vv2->value() if ref($vv2) ne '' && ref($vv2) ne 'HASH' && ref($vv2) ne 'ARRAY';
       if (ref($vv2) eq 'HASH') {
         $vv2 = $vv2->{'_content'};
-      } elsif (ref($vv2) ne '') {
-        $vv2 = '';
+      } elsif (ref($vv2) eq 'ARRAY') {
+        $vv2 = @$vv2 ? $vv2->[0] : 0;
+      } elsif ($vv2 eq 'true' || $vv2 eq '') {
+        $vv2 = $vv2 ? 1 : 0;
+      }
+    }
+    $vv = $op->($vv, $vv2);
+  }
+  return \@v1;
+}
+
+sub strop {
+  my ($cwd, $v1, $v2, $op) = @_;
+  my @v1 = @$v1; 
+  my @v2 = @{$v2 || []};
+  my @cwd = @$cwd;
+  for my $vv (@v1) {
+    my $vv2;
+    $vv2 = shift @v2 if defined $v2;
+    my $r = shift @cwd;
+    $vv = $vv->value() if ref($vv) ne '' && ref($vv) ne 'HASH' && ref($vv) ne 'ARRAY';
+    if (ref($vv) eq 'HASH') {
+      $vv = $vv->{'_content'};
+    } elsif (ref($vv) eq 'ARRAY') {
+      $vv = @$vv ? $vv->[0] : '';
+    } elsif (defined($vv) && ($vv eq 'true' || $vv eq '')) {
+      $vv = $vv ? 'true' : 'false';
+    }
+    if (defined($vv2)) {
+      $vv2 = $vv2->value() if ref($vv2) ne '' && ref($vv2) ne 'HASH' && ref($vv2) ne 'ARRAY';
+      if (ref($vv2) eq 'HASH') {
+        $vv2 = $vv2->{'_content'};
+      } elsif (ref($vv2) eq 'ARRAY') {
+        $vv2 = @$vv2 ? $vv2->[0] : '';
+      } elsif ($vv2 eq 'true' || $vv2 eq '') {
+        $vv2 = $vv2 ? 'true' : 'false';
       }
     }
     $vv = $op->($vv, $vv2);
@@ -247,7 +275,7 @@ sub expr {
     die("missing ) in expression\n") unless $expr =~ s/^\)//;
   } elsif ($t eq '-') {
     ($v, $expr) = expr($cwd, substr($expr, 1), 6, $negpol);
-    $v = op($cwd, $v, undef, sub {-$_[0]});
+    $v = numop($cwd, $v, undef, sub {-$_[0]});
   } elsif ($t eq "'") {
     die("missing string terminator\n") unless $expr =~ /^\'([^\']*)\'(.*)$/s;
     $v = $1;
@@ -298,6 +326,10 @@ sub expr {
       die("$f: one argument required\n") unless @args == 1;
       push @args, [ (1) x scalar(@$cwd) ];
       $v = boolop($cwd, @args, \&boolop_not, $negpol, $f);
+    } elsif ($f eq 'boolean') {
+      die("$f: one argument required\n") unless @args == 1;
+      push @args, [ (1) x scalar(@$cwd) ];
+      $v = boolop($cwd, @args, sub {$_[0]}, $negpol, $f);
     } elsif ($f eq 'starts-with') {
       unshift @args, [ map {$_->[1]} @$cwd ] if @args == 1;
       die("$f: one or two arguments required\n") unless @args == 2;
@@ -350,6 +382,18 @@ sub expr {
       } else {
         $v = boolop($cwd, @args, sub {index(lc($_[0]), lc($_[1])) != -1}, $negpol, $f);
       }
+    } elsif ($f eq 'number') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 0;
+      die("$f: zero or one arguments required\n") unless @args == 1;
+      $v = numop($cwd, $args[0], undef, sub {$_[0]});
+    } elsif ($f eq 'string') {
+      unshift @args, [ map {$_->[1]} @$cwd ] if @args == 0;
+      die("$f: zero or one arguments required\n") unless @args == 1;
+      $v = strop($cwd, $args[0], undef, sub {$_[0]});
+    } elsif ($f eq 'concat') {
+      die("$f: at least two arguments required\n") unless @args >= 2;
+      $v = shift(@args);
+      $v = strop($cwd, $v, shift @args, sub {$_[0].$_[1]}) while @args;
     } elsif ($f eq 'position') {
       die("$f: no arguments required\n") unless @args == 0;
       $v = [ map {$_->[2]} @$cwd ];
@@ -407,23 +451,23 @@ sub expr {
     } elsif ($expr =~ /^\+/) {
       return ($v, $expr) if $lev >= 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
-      $v = op($cwd, $v, $v2, sub {$_[0] + $_[1]});
+      $v = numop($cwd, $v, $v2, sub {$_[0] + $_[1]});
     } elsif ($expr =~ /^-/) {
       return ($v, $expr) if $lev >= 4;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 4, $negpol);
-      $v = op($cwd, $v, $v2, sub {$_[0] - $_[1]});
+      $v = numop($cwd, $v, $v2, sub {$_[0] - $_[1]});
     } elsif ($expr =~ /^\*/) {
       return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 1), 5, $negpol);
-      $v = op($cwd, $v, $v2, sub {$_[0] * $_[1]});
+      $v = numop($cwd, $v, $v2, sub {$_[0] * $_[1]});
     } elsif ($expr =~ /^div/) {
       return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
-      $v = op($cwd, $v, $v2, sub {$_[0] / $_[1]});
+      $v = numop($cwd, $v, $v2, sub {$_[0] / $_[1]});
     } elsif ($expr =~ /^mod/) {
       return ($v, $expr) if $lev >= 5;
       ($v2, $expr) = expr($cwd, substr($expr, 3), 5, $negpol);
-      $v = op($cwd, $v, $v2, sub {$_[0] % $_[1]});
+      $v = numop($cwd, $v, $v2, sub {$_[0] % $_[1]});
     } elsif ($expr =~ /^\|/) {
       die("union op not implemented yet\n");
     } elsif ($expr =~ /^\/(\@?(?:[-_a-zA-Z0-9]+|\*))(.*?)$/s) {
