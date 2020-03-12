@@ -26,12 +26,31 @@ class SendEventEmailsJob < ApplicationJob
 
   def create_rss_notifications(event)
     event.subscriptions.each do |subscription|
-      Notification::RssFeedItem.create(
+      notification_params = {
         subscriber: subscription.subscriber,
         event_type: event.eventtype,
         event_payload: event.payload,
         subscription_receiver_role: subscription.receiver_role
-      )
+      }
+      Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+    end
+  end
+
+  def notification_dynamic_params(event)
+    case event.eventtype
+    when 'ReviewWanted', 'RequestCreate', 'RequestStatechange'
+      {
+        notifiable_type: 'BsRequest',
+        notification_id: event.payload['id'],
+        bs_request_oldstate: (event.payload['oldstate'] if event.eventtype == 'RequestStatechange')
+      }.compact
+    when 'CommentForProject', 'CommentForPackage', 'CommentForRequest'
+      {
+        notifiable_type: 'Comment',
+        notification_id: event.payload['id']
+      }
+    else
+      {}
     end
   end
 end
