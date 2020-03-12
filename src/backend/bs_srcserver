@@ -79,7 +79,7 @@ use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
 
-require BSSrcServer::SQLite if $BSConfig::published_db_sqlite;
+require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -3847,16 +3847,23 @@ sub getresult {
   if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
     my @packages;
     # add all local link packages
-    my $db = BSDB::opendb($sourcedb, 'linkinfo');
-    my $ll;
-    for my $packid (@{$cgi->{'package'}}) {
-      my @l;
-      @l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid) if !$ll || %$ll;
-      if (@l) {
-	$ll ||= { map {$_ => 1} grep {s/^\Q$projid\///} $db->rawkeys('project', $projid) };
-	@l = grep {$ll->{$_}} @l;
+    if ($BSConfig::source_db_sqlite) {
+      my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+      for my $packid (@{$cgi->{'package'}}) {
+	push @packages, $packid, BSSrcServer::SQLite::getlocallinks($db, $projid, $packid);
       }
-      push @packages, $packid, @l;
+    } else {
+      my $db = BSDB::opendb($sourcedb, 'linkinfo');
+      my $ll;
+      for my $packid (@{$cgi->{'package'}}) {
+	my @l;
+	@l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid) if !$ll || %$ll;
+	if (@l) {
+	  $ll ||= { map {$_ => 1} grep {s/^\Q$projid\///} $db->rawkeys('project', $projid) };
+	  @l = grep {$ll->{$_}} @l;
+	}
+	push @packages, $packid, @l;
+      }
     }
     @packages = BSUtil::unify(@packages);
     $cgi->{'package'} = \@packages;
@@ -4749,7 +4756,30 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $db = BSDB::opendb($sourcedb, 'linkinfo');
+  my $db;
+  if ($BSConfig::source_db_sqlite) {
+    $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+  } else {
+    $db = BSDB::opendb($sourcedb, 'linkinfo');
+  }
+  # more really ugly hacks to speed up needed api calls
+  if ($id && $BSConfig::source_db_sqlite) {
+    my $data;
+    if ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\"\)$/s) {
+      $data = [ BSSrcServer::SQLite::getlinkers($db, $2, $1) ];
+    } elsif ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\" and \@project=\"([^\"]+)\"\)$/s) {
+      my $limitprojid = $3;
+      $data = [ grep {/^\Q$limitprojid\E\//} BSSrcServer::SQLite::getlinkers($db, $2, $1) ];
+    }
+    if ($data) {
+      for (@$data) {
+	my @p = split('/', $_, 2);
+	$_ = {'name' => $p[1], 'project' => $p[0]};
+      }
+      my $res = {'package' => $data};
+      return ($res, $BSXML::collection);
+    }
+  }
   $db->{'indexfunc'} = {
     'project' => \&pkgsearch_indexfunc,
     'name' => \&pkgsearch_indexfunc,
@@ -6742,7 +6772,8 @@ sub notary_forward {
 
 sub run {
   my ($conf) = @_;
-  BSSrcServer::SQLite::init_published($extrepodb) if $BSConfig::published_db_sqlite;
+  BSSrcServer::SQLite::init_publisheddb($extrepodb) if $BSConfig::published_db_sqlite;
+  BSSrcServer::SQLite::init_sourcedb($sourcedb) if $BSConfig::source_db_sqlite;
   BSServer::server($conf);
 }
 

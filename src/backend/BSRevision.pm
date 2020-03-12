@@ -330,9 +330,14 @@ sub updatelinkinfodb {
       $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
     }
   }
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  $linkdb->{'blocked'} = [ 'linkinfo' ];
-  $linkdb->store("$projid/$packid", $linkinfo);
+  if ($BSConfig::source_db_sqlite) {
+    my $linkdb = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    $linkdb->store_linkinfo($projid, $packid, $linkinfo);
+  } else {
+    my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+    $linkdb->{'blocked'} = [ 'linkinfo' ];
+    $linkdb->store("$projid/$packid", $linkinfo);
+  }
 }
 
 sub movelinkinfos {
