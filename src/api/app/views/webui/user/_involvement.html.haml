@@ -11,13 +11,13 @@
             Involved Packages
             %span.badge.badge-primary
               = involved_packages.size
-
+        %li.nav-item
           = link_to('#involved-projects', id: 'involved-projects-tab', class: 'nav-link text-nowrap',
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects', selected: false }) do
             Involved Projects
             %span.badge.badge-primary
               = involved_projects.size
-
+        %li.nav-item
           = link_to('#owned', id: 'owned-tab', class: 'nav-link text-nowrap',
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'owned', selected: false }) do
             Owned Projects/Packages
@@ -45,7 +45,6 @@
                     = link_to(package_name, package_show_path(package: package_name, project: project_name))
                   %td
                     = link_to(project_name, project_show_path(project: project_name))
-
       .tab-pane.fade#involved-projects{ role: 'tabpanel', aria: { labelledby: 'involved-projects-tab' } }
         - if involved_projects.blank?
           %p.mt-3
@@ -63,7 +62,6 @@
                     = link_to(project_name, project_show_path(project: project_name))
                   %td
                     = project_title
-
       .tab-pane.fade#owned{ role: 'tabpanel', aria: { labelledby: 'owned-tab' } }
         - if owned.blank?
           %p.mt-3
