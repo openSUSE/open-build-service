@@ -577,6 +577,7 @@ EOF
     fi
     # to update sign.conf also after an appliance update
     if [ -e "$backenddir"/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
+      logline "Configuring /etc/sign.conf"
       # extend signd config
       echo "user: defaultkey@localobs"   >> /etc/sign.conf
       echo "server: 127.0.0.1"           >> /etc/sign.conf
