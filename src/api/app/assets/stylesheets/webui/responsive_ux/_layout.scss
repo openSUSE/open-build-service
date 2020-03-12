@@ -100,7 +100,7 @@ button.navbar-toggler {
   padding-left: 1rem;
   overflow-y: auto;
   visibility: hidden;
-  z-index: 9000;
+  z-index: 1040;
   background-color: #343a40;
   color: $gray-400;
   transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
@@ -116,7 +116,7 @@ button.navbar-toggler {
     visibility: visible;
     -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
-    z-index: 9000;
+    z-index: 1040;
   }
 }
 
