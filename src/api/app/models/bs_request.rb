@@ -839,6 +839,7 @@ class BsRequest < ApplicationRecord
   end
 
   def notify_parameters(ret = {})
+    ret[:id] = id
     ret[:number] = number
     ret[:description] = description
     ret[:state] = state

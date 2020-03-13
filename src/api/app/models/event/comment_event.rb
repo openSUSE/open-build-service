@@ -2,7 +2,7 @@ module Event
   module CommentEvent
     def self.included(base)
       base.class_eval do
-        payload_keys :commenters, :commenter, :comment_body, :comment_title
+        payload_keys :id, :commenters, :commenter, :comment_body, :comment_title
         receiver_roles :commenter
         shortenable_key :comment_body
       end

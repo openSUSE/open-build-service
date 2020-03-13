@@ -2,7 +2,7 @@ module Event
   class Request < Base
     self.description = 'Request was updated'
     self.abstract_class = true
-    payload_keys :author, :comment, :description, :number, :actions, :state, :when, :who
+    payload_keys :author, :comment, :description, :id, :number, :actions, :state, :when, :who
     shortenable_key :description
 
     DIFF_LIMIT = 120

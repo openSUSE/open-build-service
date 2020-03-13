@@ -39,6 +39,7 @@ class Comment < ApplicationRecord
   private
 
   def create_notification(params = {})
+    params[:id] = id
     params[:commenter] = user.login
     params[:comment_body] = body
     params[:commenters] = involved_users
