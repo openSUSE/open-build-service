@@ -31,6 +31,16 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
+  context 'recently_seen' do
+    let!(:dead_user) { create(:dead_user, login: 'caspar') }
+    let!(:active_user) { create(:confirmed_user, login: 'active_user') }
+
+    subject { User.recently_seen }
+
+    it { expect(subject).not_to include(dead_user) }
+    it { expect(subject).to include(active_user) }
+  end
+
   context 'is_admin?' do
     it { expect(admin_user.is_admin?).to be(true) }
     it { expect(user.is_admin?).to be(false) }
