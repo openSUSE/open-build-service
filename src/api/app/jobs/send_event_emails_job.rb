@@ -37,20 +37,29 @@ class SendEventEmailsJob < ApplicationJob
   end
 
   def notification_dynamic_params(event)
-    case event.eventtype
-    when 'ReviewWanted', 'RequestCreate', 'RequestStatechange'
-      {
+    if event.eventtype == 'RequestStatechange'
+      return {
         notifiable_type: 'BsRequest',
         notification_id: event.payload['id'],
-        bs_request_oldstate: (event.payload['oldstate'] if event.eventtype == 'RequestStatechange')
-      }.compact
-    when 'CommentForProject', 'CommentForPackage', 'CommentForRequest'
-      {
+        bs_request_state: event.payload['state'],
+        bs_request_oldstate: event.payload['oldstate']
+      }
+    end
+
+    if event.eventtype.in?(['ReviewWanted', 'RequestCreate'])
+      return {
+        notifiable_type: 'BsRequest',
+        notification_id: event.payload['id']
+      }
+    end
+
+    if event.eventtype.in?(['CommentForProject', 'CommentForPackage', 'CommentForRequest'])
+      return {
         notifiable_type: 'Comment',
         notification_id: event.payload['id']
       }
-    else
-      {}
     end
+
+    {}
   end
 end

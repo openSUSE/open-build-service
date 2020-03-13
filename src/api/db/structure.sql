@@ -848,6 +848,7 @@ CREATE TABLE `notifications` (
   `notifiable_type` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `notifiable_id` int(11) DEFAULT NULL,
   `bs_request_oldstate` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `bs_request_status` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_notifications_on_subscriber_type_and_subscriber_id` (`subscriber_type`,`subscriber_id`),
   KEY `index_notifications_on_notifiable_type_and_notifiable_id` (`notifiable_type`,`notifiable_id`)
@@ -1487,6 +1488,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20190710094253'),
 ('20190712084813'),
 ('20200107105426'),
-('20200311132129');
+('20200311132129'),
+('20200313143312');
 
 
