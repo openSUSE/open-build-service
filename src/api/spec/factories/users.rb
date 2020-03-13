@@ -58,6 +58,13 @@ FactoryBot.define do
       end
     end
 
+    factory :dead_user do
+      after(:create) do |user|
+        user.last_logged_in_at = 4.months.ago
+        user.save!(validate: false)
+      end
+    end
+
     factory :user_deprecated_password do
       after(:create) do |user|
         user.password_digest = nil
