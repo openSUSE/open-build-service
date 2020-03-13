@@ -224,18 +224,16 @@ class Webui::ProjectController < Webui::WebuiController
   def update
     authorize @project, :update?
     respond_to do |format|
-      if @project.update(project_params)
-        flash[:success] = 'Project was successfully updated.'
-        format.html do
+      format.html do
+        if @project.update(project_params)
+          flash[:success] = 'Project was successfully updated.'
           if request.xhr?
             render partial: 'basic_info', locals: { project: @project }, layout: false, status: :ok
           else
             redirect_to project_show_path(@project)
           end
-        end
-      else
-        flash[:error] = 'Failed to update project'
-        format.html do
+        else
+          flash[:error] = 'Failed to update project'
           if request.xhr?
             render partial: 'edit', locals: { project: @project }, layout: false, status: :ok
           end
