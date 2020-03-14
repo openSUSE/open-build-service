@@ -3845,28 +3845,7 @@ sub getresult {
     $cgi->{'package'} = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
-    my @packages;
-    # add all local link packages
-    if ($BSConfig::source_db_sqlite) {
-      my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
-      for my $packid (@{$cgi->{'package'}}) {
-	push @packages, $packid, $db->getlocallinks($projid, $packid);
-      }
-    } else {
-      my $db = BSDB::opendb($sourcedb, 'linkinfo');
-      my $ll;
-      for my $packid (@{$cgi->{'package'}}) {
-	my @l;
-	@l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid) if !$ll || %$ll;
-	if (@l) {
-	  $ll ||= { map {$_ => 1} grep {s/^\Q$projid\///} $db->rawkeys('project', $projid) };
-	  @l = grep {$ll->{$_}} @l;
-	}
-	push @packages, $packid, @l;
-      }
-    }
-    @packages = BSUtil::unify(@packages);
-    $cgi->{'package'} = \@packages;
+    $cgi->{'package'} = [ BSRevision::addlocallinks($projid, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
@@ -4756,25 +4735,26 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $db;
-  if ($BSConfig::source_db_sqlite) {
-    $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
-  } else {
-    $db = BSDB::opendb($sourcedb, 'linkinfo');
-  }
+  my $db = BSRevision::openlinkinfodb();
   # more really ugly hacks to speed up needed api calls
-  if ($id && $BSConfig::source_db_sqlite) {
-    my $data;
+  if ($id) {
+    my ($packid, $projid, $limitprojid);
     if ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\"\)$/s) {
-      $data = [ $db->getlinkers($2, $1) ];
+      ($packid, $projid) = ($1, $2);
     } elsif ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\" and \@project=\"([^\"]+)\"\)$/s) {
-      my $limitprojid = $3;
-      $data = [ grep {/^\Q$limitprojid\E\//} $db->getlinkers($2, $1) ];
+      ($packid, $projid, $limitprojid) = ($1, $2, $3);
     }
-    if ($data) {
-      for (@$data) {
-	my @p = split('/', $_, 2);
-	$_ = {'name' => $p[1], 'project' => $p[0]};
+    if ($projid) {
+      my $data;
+      if ($limitprojid && $projid eq $limitprojid) {
+	$data = [ map { { 'name' => $_, 'project' => $projid} } BSRevision::getlocallinks($projid, $packid) ];
+      } else {
+        $data = [ BSRevision::getlinkers($projid, $packid) ];
+	$data = [ grep {/^\Q$limitprojid\E\//} @$data ]  if $limitprojid;
+        for (@$data) {
+	  my @p = split('/', $_, 2);
+	  $_ = {'name' => $p[1], 'project' => $p[0]};
+        }
       }
       my $res = {'package' => $data};
       return ($res, $BSXML::collection);

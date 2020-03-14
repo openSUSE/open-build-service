@@ -319,7 +319,6 @@ sub updatelinkinfodb {
   my ($projid, $packid, $rev, $files) = @_;
 
   return if $packid eq '_project';	# no links allowed
-  mkdir_p($sourcedb) unless -d $sourcedb;
   my $linkinfo;
   if ($files && $files->{'_link'}) {
     my $l = revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
@@ -330,24 +329,13 @@ sub updatelinkinfodb {
       $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
     }
   }
-  if ($BSConfig::source_db_sqlite) {
-    my $linkdb = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
-    $linkdb->store_linkinfo($projid, $packid, $linkinfo);
-  } else {
-    my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-    $linkdb->{'blocked'} = [ 'linkinfo' ];
-    $linkdb->store("$projid/$packid", $linkinfo);
-  }
+  storelinkinfo($projid, $packid, $linkinfo);
 }
 
 sub movelinkinfos {
   my ($projid, $oprojid) = @_;
   return if $projid eq $oprojid;
-  return unless -d $sourcedb;
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  return unless $linkdb;
-  my @packids = grep {s/\Q$oprojid\E\///} $linkdb->keys();
-  for my $packid (@packids) {
+  for my $packid (getlinkpackages($projid)) {
     next unless -e "$projectsdir/$projid.pkg/$packid.xml";
     eval {
       my $rev = getrev_local($projid, $packid);
@@ -613,6 +601,95 @@ sub readconfig_local {
 sub readproj_local_use_cache {
   my ($ok) = @_;
   $readproj_local_cache = $ok ? {} : undef;
+}
+
+###
+### linkinfo database handling
+###
+
+sub openlinkinfodb {
+  if ($BSConfig::source_db_sqlite) {
+    return BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+  } else {
+    return BSDB::opendb($sourcedb, 'linkinfo');
+  }
+}
+
+sub storelinkinfo {
+  my ($projid, $packid, $linkinfo) = @_;
+  if ($BSConfig::source_db_sqlite) {
+    my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    $db->store_linkinfo($projid, $packid, $linkinfo);
+  } else {
+    mkdir_p($sourcedb) unless -d $sourcedb;
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    $db->{'blocked'} = [ 'linkinfo' ];
+    $db->store("$projid/$packid", $linkinfo);
+  }
+}
+
+sub getlinkpackages {
+  my ($projid) = @_;
+  if ($BSConfig::source_db_sqlite) {
+    my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    return $db->getlinkpackages($projid);
+  } else {
+    return() unless -d $sourcedb;
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    return grep {s/\Q$projid\E\///} $db->keys();
+  }
+}
+
+sub getlinkers {
+  my ($projid, $packid) = @_;
+  if ($BSConfig::source_db_sqlite) {
+    my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    return $db->getlinkers($projid, $packid);
+  } else {
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    my @l = $db->rawkeys('package', $packid);
+    return () unless @l;
+    my %ll = map {$_ => 1} $db->rawkeys('project', $projid);
+    return grep {$ll{$_}} @l;
+  }
+}
+
+sub getlocallinks {
+  my ($projid, $packid) = @_;
+  if ($BSConfig::source_db_sqlite) {
+    my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    return $db->getlocallinks($projid, $packid);
+  } else {
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    my @l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid);
+    return () unless @l;
+    my %ll = map {$_ => 1} $db->rawkeys('project', $projid);
+    return grep {$ll{"$projid/$_"}} @l;
+  }
+}
+
+sub addlocallinks {
+  my ($projid, @packages) = @_;
+
+  if ($BSConfig::source_db_sqlite) {
+    my $db = BSSrcServer::SQLite::opendb($sourcedb, 'linkinfo');
+    for my $packid (splice @packages) {
+      push @packages, $packid, $db->getlocallinks($projid, $packid);
+    }
+  } else {
+    my $db = BSDB::opendb($sourcedb, 'linkinfo');
+    my $ll;
+    for my $packid (splice @packages) {
+      my @l;
+      @l = grep {s/^\Q$projid\///} $db->rawkeys('package', $packid) if !$ll || %$ll;
+      if (@l) {
+	$ll ||= { map {$_ => 1} grep {s/^\Q$projid\///} $db->rawkeys('project', $projid) };
+	@l = grep {$ll->{$_}} @l;
+      }
+      push @packages, $packid, @l;
+    }
+  }
+  return BSUtil::unify(@packages);
 }
 
 1;
