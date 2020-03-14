@@ -16,6 +16,7 @@ class Comment < ApplicationRecord
   after_destroy :delete_parent_if_unused
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
+  has_many :notifications, as: :notifiable, dependent: :delete_all
 
   extend ActsAsTree::TreeWalker
   acts_as_tree order: 'created_at'
