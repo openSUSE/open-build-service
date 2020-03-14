@@ -388,14 +388,11 @@ sub getprojectkeys {
   my ($db, $projid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
   if (!$projid) {
-    my $sh = dbdo_bind($h, 'SELECT project FROM prp_ext');
-    $sh->bind_columns(\$projid);
-    my @res;
-    push @res, $projid while $sh->fetch();
-    die($sh->errstr) if $sh->err();
-    return sort(@res);
+    my $ary = $h->selectcol_arrayref("SELECT project FROM prp_ext") || die($h->errstr);
+    return sort(BSUtil::unify(@$ary));
   }
   my $table = $db->{'table'};
+  return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
   my $sh = dbdo_bind($h, "SELECT prp_ext.path,$table.path,package FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE prp_ext.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
@@ -428,6 +425,13 @@ sub getlinkinfo {
   my $linkinfo = { 'project' => $ary[0], 'package' => $ary[1] };
   $linkinfo->{'rev'} = $ary[2] if defined $ary[2];
   return $linkinfo;
+}
+
+sub getlinkpackages {
+  my ($db, $projid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $ary = $h->selectcol_arrayref("SELECT sourcepackage FROM linkinfo WHERE sourceproject = ?", undef, $projid) || die($h->errstr);
+  return sort(@$ary);
 }
 
 sub getlocallinks {
@@ -470,6 +474,11 @@ sub opendb {
 
 sub rawfetch {
   my ($db, $key) = @_;
+  my $table = $db->{'table'};
+  if ($table eq 'linkinfo') {
+    my ($projid, $packid) = split('/', $key, 2);
+    return $db->getlinkinfo($projid, $packid);
+  }
   die("Cannot fetch data set in query\n");
 }
 
