@@ -1,8 +1,7 @@
 // Variables
 // TODO: move to app/assets/stylesheets/webui/bootstrap_variables/sizes.scss
-$top-bar-height: 57px;
-$bottom-bar-height: 69px;
-$md-top-bar-height: 69px;
+$top-bar-height: 3.5625rem;
+$bottom-bar-height: 3.5rem;
 
 body.responsive-ux {
   // open space to not overlap top navigation with content
@@ -22,18 +21,9 @@ body.responsive-ux {
 
   body.responsive-ux {
     // START LAYOUT
-    .flash-and-announcement.sticky-top { top: $md-top-bar-height + 4px; }
-    #top_0.sticky-top { top: $md-top-bar-height; }
-
-    #navigation {
-      .fixed-top { height: $md-top-bar-height; }
-      .navbar-brand img { height: 42px; }
-    }
-
     .watchlist-collapse, .offcanvas-collapse, .actions-collapse {
-      top: $md-top-bar-height; /* Height of navbar */
       bottom: 0;
-      width: 380px;
+      width: 23.75rem;
 
       .navbar-nav {
         width: 100%;
