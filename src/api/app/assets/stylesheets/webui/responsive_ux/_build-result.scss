@@ -40,4 +40,14 @@
       opacity: 0;
     }
   }
+
+  &.hover {
+    max-height: 100vh;
+    @extend .mb-2;
+
+    .triangle {
+      top: -.5rem;
+      opacity: 1;
+    }
+  }
 }
