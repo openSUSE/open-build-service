@@ -14,6 +14,7 @@ class Group < ApplicationRecord
   has_many :reviews, dependent: :nullify
 
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
+  has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
 
   validates :title,
             format: { with: %r{\A[\w\.\-]*\z},
