@@ -40,7 +40,7 @@ class SendEventEmailsJob < ApplicationJob
     if event.eventtype == 'RequestStatechange'
       return {
         notifiable_type: 'BsRequest',
-        notification_id: event.payload['id'],
+        notifiable_id: event.payload['id'],
         bs_request_state: event.payload['state'],
         bs_request_oldstate: event.payload['oldstate']
       }
@@ -49,14 +49,14 @@ class SendEventEmailsJob < ApplicationJob
     if event.eventtype.in?(['ReviewWanted', 'RequestCreate'])
       return {
         notifiable_type: 'BsRequest',
-        notification_id: event.payload['id']
+        notifiable_id: event.payload['id']
       }
     end
 
     if event.eventtype.in?(['CommentForProject', 'CommentForPackage', 'CommentForRequest'])
       return {
         notifiable_type: 'Comment',
-        notification_id: event.payload['id']
+        notifiable_id: event.payload['id']
       }
     end
 
