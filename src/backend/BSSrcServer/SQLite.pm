@@ -479,7 +479,21 @@ sub rawfetch {
     my ($projid, $packid) = split('/', $key, 2);
     return $db->getlinkinfo($projid, $packid);
   }
-  die("Cannot fetch data set in query\n");
+  if ($table eq 'pattern') {
+    return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
+    return getrecord($db, $1, $2);
+  }
+  die("Cannot fetch data set for sqlite table $table\n");
+}
+
+sub store {
+  my ($db, $key, $v) = @_;
+  my $table = $db->{'table'};
+  if ($table eq 'linkinfo') {
+    my ($projid, $packid) = split('/', $key, 2);
+    return $db->store_linkinfo($projid, $packid, $v);
+  }
+  die("Cannot store data set for sqlite table $table\n");
 }
 
 sub hint2prefixes {
