@@ -792,6 +792,7 @@ fi
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/bs_redis
 /usr/lib/obs/server/bs_notifyforward
+/usr/lib/obs/server/bs_dbtool
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
 /usr/lib/obs/server/obs-ptf.spec

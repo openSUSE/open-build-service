@@ -70,13 +70,14 @@ sub list_tables {
 }
 
 sub init_publisheddb {
-  my ($extrepodb) = @_;
+  my ($extrepodb, $onlytable) = @_;
   my $db = opendb($extrepodb, 'binary');
   my $h = $db->{'sqlite'} || connectdb($db);
   my %t = map {$_ => 1} list_tables($h);
   if (!$t{'prp_ext'} || !$t{'binary'} || !$t{'pattern'}) {
     # need to create our tables. abort if there is an old database
     BSUtil::diecritcal("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
+    BSUtil::diecritcal("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'prp_ext'};
     dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS prp_ext(
   id INTEGER PRIMARY KEY,
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS prp_ext(
   UNIQUE(path)
 )
 EOS
-    dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'binary';
 CREATE TABLE IF NOT EXISTS binary(
   prp_ext INTEGER,
   name TEXT,
@@ -95,7 +96,7 @@ CREATE TABLE IF NOT EXISTS binary(
   FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
 )
 EOS
-    dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'pattern';
 CREATE TABLE IF NOT EXISTS pattern(
   prp_ext INTEGER,
   path TEXT,
@@ -111,10 +112,14 @@ EOS
   }
   dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project)');
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name)');
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext)');
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name)');
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext)');
+  if (!$onlytable || $onlytable eq 'binary') {
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext)');
+  }
+  if (!$onlytable || $onlytable eq 'pattern') {
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext)');
+  }
 }
 
 sub init_sourcedb {
@@ -138,6 +143,12 @@ EOS
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_project_package on linkinfo(project,package)');
   dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_package on linkinfo(package)');
+}
+
+sub asyncmode {
+  my ($db) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  dbdo($h, 'PRAGMA synchronous = off');
 }
 
 my %tables = (
