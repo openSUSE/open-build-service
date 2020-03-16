@@ -56,12 +56,12 @@ FactoryBot.define do
           create(:service_token, user: user)
         end
       end
-    end
-
-    factory :dead_user do
-      after(:create) do |user|
-        user.last_logged_in_at = 4.months.ago
-        user.save!(validate: false)
+      factory :dead_user do
+        after(:create) do |user|
+          user.created_at = 5.months.ago
+          user.last_logged_in_at = 4.months.ago
+          user.save!(validate: false)
+        end
       end
     end
 
