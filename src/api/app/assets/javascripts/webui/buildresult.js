@@ -72,6 +72,16 @@ function updateRpmlintDisplay(index) {
 
 function toggleBuildInfo() { // jshint ignore:line
   $('.toggle-build-info').on('click', function(){
-    $(this).parents('.toggle-build-info-parent').next().toggleClass('collapsed');
+    var replaceTitle = $(this).attr('title') === 'Click to keep it open' ? 'Click to close it' : 'Click to keep it open';
+    var infoContainer = $(this).parents('.toggle-build-info-parent').next();
+    $(infoContainer).toggleClass('collapsed');
+    $(infoContainer).removeClass('hover');
+    $(this).attr('title', replaceTitle);
+  });
+  $('.toggle-build-info').on('mouseover', function(){
+    $(this).parents('.toggle-build-info-parent').next().addClass('hover');
+  });
+  $('.toggle-build-info').on('mouseout', function(){
+    $(this).parents('.toggle-build-info-parent').next().removeClass('hover');
   });
 }
