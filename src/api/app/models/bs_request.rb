@@ -2,6 +2,7 @@ require 'xmlhash'
 
 include MaintenanceHelper
 
+# rubocop:disable Metrics/ClassLength
 class BsRequest < ApplicationRecord
   include BsRequest::Errors
   SEARCHABLE_FIELDS = [
@@ -1189,6 +1190,8 @@ class BsRequest < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
   end
 end
+
+# rubocop: enable Metrics/ClassLength
 
 # == Schema Information
 #
