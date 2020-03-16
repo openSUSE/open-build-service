@@ -1,6 +1,6 @@
 .border-gray-500 { border-color: $gray-500 !important; }
 .navbar-dark .navbar-toggler { color: $gray-300; }
-.flash-and-announcement.sticky-top { top: $top-bar-height + 4px; }
+.flash-and-announcement.sticky-top { top: $top-bar-height + .25rem; }
 #top_0.sticky-top { top: $top-bar-height; }
 
 // NAVIGATION
@@ -13,7 +13,7 @@
     @extend .d-md-flex;
     @extend .align-items-center;
     cursor: pointer;
-    &.text-center { min-width: 62px; }
+    &.text-center { min-width: 3.875rem; }
     &:first-of-type { @extend .ml-3;  }
   }
 
@@ -25,17 +25,13 @@
   .menu-right { cursor: pointer; }
   .menu-options { font-size: 1.1rem }
 
-  .navbar-brand img { height: 30px; }
+  .navbar-brand img { height: 1.875rem; }
 }
 
 #bottom-navigation { height: $bottom-bar-height; }
-
 #navigation, #bottom-navigation {
   a.nav-link {
-    .small {
-      line-height: 1rem;
-      padding-top: 0.25rem;
-    }
+    .small { line-height: 1rem; }
 
     &.active {
       background-color: darken($dark, 10%);
