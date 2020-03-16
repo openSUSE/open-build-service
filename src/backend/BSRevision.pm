@@ -636,7 +636,7 @@ sub getlinkpackages {
   } else {
     return() unless -d $sourcedb;
     my $db = BSDB::opendb($sourcedb, 'linkinfo');
-    return grep {s/\Q$projid\E\///} $db->keys();
+    return map {grep {s/\Q$projid\E\///} $db->keys('project', $_)} $db->values('project');
   }
 }
 
