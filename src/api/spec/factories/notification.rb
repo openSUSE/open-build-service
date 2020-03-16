@@ -6,5 +6,14 @@ FactoryBot.define do
   end
 
   factory :rss_notification, parent: :notification, class: 'Notification::RssFeedItem' do
+    transient do
+      stale { false }
+    end
+    after(:create) do |notification, evaluator|
+      if evaluator.stale
+        notification.created_at = 6.months.ago
+        notification.save
+      end
+    end
   end
 end
