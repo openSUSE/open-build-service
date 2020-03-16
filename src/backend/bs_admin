@@ -50,6 +50,10 @@ use BSSolv;
 use BSSrcrep;
 use BSRevision;
 
+use BSSrcServer::LinkinfoDB;
+
+$BSRevision::storelinkinfo = \&BSSrcServer::LinkinfoDB::storelinkinfo;
+
 my $nosharedtrees;
 $nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
 

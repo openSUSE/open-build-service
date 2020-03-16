@@ -78,6 +78,7 @@ use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
+use BSSrcServer::LinkinfoDB;
 
 require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
@@ -105,6 +106,8 @@ $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 $Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
 $Build::Kiwi::repoextras = 1 if defined $Build::Kiwi::repoextras;
+
+$BSRevision::storelinkinfo = \&BSSrcServer::LinkinfoDB::storelinkinfo;
 
 use strict;
 
@@ -3126,7 +3129,7 @@ sub moveproject {
   rename("$treesdir/$oprojid", "$treesdir/$projid") if $BSConfig::nosharedtrees && -e "$treesdir/$oprojid";
 
   # move entries in linkinfo database
-  BSRevision::movelinkinfos($projid, $oprojid);
+  BSRevision::movelinkinfos($projid, $oprojid, BSSrcServer::LinkinfoDB::getlinkpackages($oprojid));
 
   # move in the backend as well
   my @args;
@@ -3845,7 +3848,7 @@ sub getresult {
     $cgi->{'package'} = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
-    $cgi->{'package'} = [ BSRevision::addlocallinks($projid, @{$cgi->{'package'}}) ];
+    $cgi->{'package'} = [ BSSrcServer::LinkinfoDB::addlocallinks($projid, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
@@ -4735,7 +4738,7 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $db = BSRevision::openlinkinfodb();
+  my $db = BSSrcServer::LinkinfoDB::openlinkinfodb();
   # more really ugly hacks to speed up needed api calls
   if ($id) {
     my ($packid, $projid, $limitprojid);
@@ -4747,9 +4750,9 @@ sub search_pack {
     if ($projid) {
       my $data;
       if ($limitprojid && $projid eq $limitprojid) {
-	$data = [ map { { 'name' => $_, 'project' => $projid} } BSRevision::getlocallinks($projid, $packid) ];
+	$data = [ map { { 'name' => $_, 'project' => $projid} } BSSrcServer::LinkinfoDB::getlocallinks($projid, $packid) ];
       } else {
-        $data = [ BSRevision::getlinkers($projid, $packid) ];
+	$data = [ BSSrcServer::LinkinfoDB::getlinkers($projid, $packid) ];
 	$data = [ grep {/^\Q$limitprojid\E\//} @$data ]  if $limitprojid;
         for (@$data) {
 	  my @p = split('/', $_, 2);
