@@ -33,4 +33,32 @@ RSpec.describe Notification do
 
     it { expect(test_group.notifications).to include(notification) }
   end
+
+  describe 'validate if user is away or not' do
+    context 'when notification has an away user' do
+      let!(:away_user) { create(:dead_user, login: 'foo') }
+      let(:rss_notification) { build(:rss_notification, subscriber: away_user) }
+
+      it { expect(rss_notification).not_to be_valid }
+
+      context 'error message exist' do
+        before { rss_notification.valid? }
+
+        it { expect(rss_notification.errors[:subscriber]).not_to be_empty }
+      end
+    end
+
+    context 'when notification has an active user' do
+      let!(:confirmed_user) { create(:confirmed_user, login: 'foo') }
+      let(:rss_notification) { build(:rss_notification, subscriber: confirmed_user) }
+
+      it { expect(rss_notification).to be_valid }
+
+      context 'error message is empty' do
+        before { rss_notification.valid? }
+
+        it { expect(rss_notification.errors[:subscriber]).to be_empty }
+      end
+    end
+  end
 end

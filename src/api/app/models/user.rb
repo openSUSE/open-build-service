@@ -279,6 +279,10 @@ class User < ApplicationRecord
     raise NotFoundError, "Couldn't find User with login = #{login}"
   end
 
+  def away?
+    last_logged_in_at < 3.months.ago
+  end
+
   def authenticate_via_password(password)
     if authenticate(password)
       mark_login!
