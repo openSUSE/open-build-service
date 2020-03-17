@@ -54,23 +54,31 @@ sub dbdo_bind {
 sub connectdb {
   my ($db) = @_;
   mkdir_p($sqlitedb);
-  my $h = DBI->connect("dbi:SQLite:dbname=$sqlitedb/published");
+  my $dbname = $db->{'sqlite_dbname'};
+  die("no dbname defined\n") unless $dbname;
+  my $h = DBI->connect("dbi:SQLite:dbname=$sqlitedb/$dbname");
   $h->{AutoCommit} = 1;
+  dbdo($h, 'PRAGMA foreign_keys = OFF');
   $db->{'sqlite'} = $h;
-  createtables_binary($db, $h);
-  createtables_pattern($db, $h) if $db->{'table'} eq 'pattern';
   return $h;
 }
 
-my %tables = (
-  'binary' => { map {$_ => 1} qw {package name} },
-  'pattern' => { map {$_ => 1} qw {package name summary description type} },
-);
+sub list_tables {
+  my ($h) = @_;
+  my $sh = $h->table_info(undef, undef, undef, 'TABLE');
+  return map {$_->[2]} @{$sh->fetchall_arrayref()};
+}
 
-sub createtables_binary {
-  my ($db, $h) = @_;
-  dbdo($h, 'PRAGMA foreign_keys = OFF');
-  dbdo($h, <<'EOS');
+sub init_publisheddb {
+  my ($extrepodb, $onlytable) = @_;
+  my $db = opendb($extrepodb, 'binary');
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my %t = map {$_ => 1} list_tables($h);
+  if (!$t{'prp_ext'} || !$t{'binary'} || !$t{'pattern'}) {
+    # need to create our tables. abort if there is an old database
+    BSUtil::diecritcal("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
+    BSUtil::diecritcal("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'prp_ext'};
+    dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS prp_ext(
   id INTEGER PRIMARY KEY,
   path TEXT,
@@ -79,7 +87,7 @@ CREATE TABLE IF NOT EXISTS prp_ext(
   UNIQUE(path)
 )
 EOS
-  dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'binary';
 CREATE TABLE IF NOT EXISTS binary(
   prp_ext INTEGER,
   name TEXT,
@@ -88,24 +96,7 @@ CREATE TABLE IF NOT EXISTS binary(
   FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
 )
 EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext);
-EOS
-}
-
-sub createtables_pattern {
-  my ($db, $h) = @_;
-  return if $db->{'sqlite_pattern_created'};
-  dbdo($h, <<'EOS');
+    dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'pattern';
 CREATE TABLE IF NOT EXISTS pattern(
   prp_ext INTEGER,
   path TEXT,
@@ -118,14 +109,53 @@ CREATE TABLE IF NOT EXISTS pattern(
   FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
 )
 EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name);
-EOS
-  dbdo($h, <<'EOS');
-CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext);
-EOS
-  $db->{'sqlite_pattern_created'} = 1;
+  }
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project)');
+  if (!$onlytable || $onlytable eq 'binary') {
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext)');
+  }
+  if (!$onlytable || $onlytable eq 'pattern') {
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext)');
+  }
 }
+
+sub init_sourcedb {
+  my ($sourcedb) = @_;
+  my $db = opendb($sourcedb, 'linkinfo');
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my %t = map {$_ => 1} list_tables($h);
+  if (!$t{'linkinfo'}) {
+    BSUtil::diecritcal("Please convert the source database to sqlite first") if $sourcedb && -d $sourcedb;
+    dbdo($h, <<'EOS');
+CREATE TABLE IF NOT EXISTS linkinfo(
+  sourceproject TEXT,
+  sourcepackage TEXT,
+  project TEXT,
+  package TEXT,
+  rev TEXT,
+  UNIQUE(sourceproject,sourcepackage)
+)
+EOS
+  }
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_sourceproject_sourcepackage on linkinfo(sourceproject,sourcepackage)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_project_package on linkinfo(project,package)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS linkinfo_idx_package on linkinfo(package)');
+}
+
+sub asyncmode {
+  my ($db) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  dbdo($h, 'PRAGMA synchronous = off');
+}
+
+my %tables = (
+  'binary' => { map {$_ => 1} qw {package name} },
+  'pattern' => { map {$_ => 1} qw {package name summary description type} },
+  'linkinfo'=> { map {$_ => 1} qw {project package rev} },
+);
 
 ###########################################################################
 
@@ -175,7 +205,6 @@ sub updatedb_deleterepo {
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return unless $prp_ext_id;
 
-  createtables_pattern($db, $h) unless $db->{'sqlite_pattern_created'};
   $h->begin_work() || die($h->errstr);
   dbdo_bind($h, 'DELETE FROM binary WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
   dbdo_bind($h, 'DELETE FROM pattern WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
@@ -260,8 +289,6 @@ sub updatedb_patterninfo {
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return unless $prp_ext_id;
 
-  createtables_pattern($db, $h) unless $db->{'sqlite_pattern_created'};
-
   my @pats = sort keys %{$patterninfo || {}};
   if (!@pats) {
     $h->begin_work() || die($h->errstr);
@@ -318,6 +345,26 @@ sub updatedb_patterninfo {
   $h->commit() || die $h->errstr;
 }
 
+sub store_linkinfo {
+  my ($db, $projid, $packid, $linkinfo) = @_;
+
+  my $h = $db->{'sqlite'} || connectdb($db);
+  $h->begin_work() || die($h->errstr);
+  if ($linkinfo) {
+    my $lprojid = $linkinfo->{'project'};
+    my $lpackid = $linkinfo->{'package'};
+    my $lrev = $linkinfo->{'rev'};
+    my @ary = $h->selectrow_array("SELECT rowid,project,package,rev FROM linkinfo WHERE sourceproject = ? AND sourcepackage = ?", undef, $projid, $packid);
+    if (!$ary[0] || $ary[1] ne $lprojid || $ary[2] ne $lpackid || (defined($ary[3]) ? $ary[3] : '') ne (defined($lrev) ? $lrev : '')) {
+      dbdo_bind($h, 'DELETE FROM linkinfo WHERE rowid = ?', [ $ary[0], SQL_INTEGER ]) if $ary[0];
+      dbdo_bind($h, 'INSERT INTO linkinfo(sourceproject,sourcepackage,project,package,rev) VALUES(?,?,?,?,?)', [ $projid ], [ $packid ], [ $lprojid ], [ $lpackid ], [ $lrev ])
+    }
+  } else {
+    dbdo_bind($h, 'DELETE FROM linkinfo WHERE sourceproject = ? AND sourcepackage = ?', [ $projid ], [ $packid ]);
+  }
+  $h->commit() || die $h->errstr;
+}
+
 ###########################################################################
 #
 # Search helpers
@@ -352,14 +399,11 @@ sub getprojectkeys {
   my ($db, $projid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
   if (!$projid) {
-    my $sh = dbdo_bind($h, 'SELECT project FROM prp_ext');
-    $sh->bind_columns(\$projid);
-    my @res;
-    push @res, $projid while $sh->fetch();
-    die($sh->errstr) if $sh->err();
-    return sort(@res);
+    my $ary = $h->selectcol_arrayref("SELECT project FROM prp_ext") || die($h->errstr);
+    return sort(BSUtil::unify(@$ary));
   }
   my $table = $db->{'table'};
+  return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
   my $sh = dbdo_bind($h, "SELECT prp_ext.path,$table.path,package FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE prp_ext.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
@@ -384,6 +428,44 @@ sub getrecord {
   return $ary[0] ? JSON::XS::decode_json($ary[0]) : undef;
 }
 
+sub getlinkinfo {
+  my ($db, $projid, $packid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my @ary = $h->selectrow_array("SELECT project,package,rev FROM linkinfo WHERE sourceproject = ? AND sourcepackage = ?", undef, $projid, $packid);
+  return undef unless @ary >= 2;
+  my $linkinfo = { 'project' => $ary[0], 'package' => $ary[1] };
+  $linkinfo->{'rev'} = $ary[2] if defined $ary[2];
+  return $linkinfo;
+}
+
+sub getlinkpackages {
+  my ($db, $projid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $ary = $h->selectcol_arrayref("SELECT sourcepackage FROM linkinfo WHERE sourceproject = ?", undef, $projid) || die($h->errstr);
+  return sort(@$ary);
+}
+
+sub getlocallinks {
+  my ($db, $projid, $packid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $sh = dbdo_bind($h, "SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", [ $projid ], [ $packid ] , [ $projid ]);
+  my $ary = $h->selectcol_arrayref("SELECT sourcepackage FROM linkinfo WHERE project = ? AND package = ? AND sourceproject = ?", undef, $projid, $packid, $projid) || die($h->errstr);
+  return sort(@$ary);
+}
+
+sub getlinkers {
+  my ($db, $projid, $packid) = @_;
+  my $h = $db->{'sqlite'} || connectdb($db);
+  my $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM linkinfo WHERE project = ? AND package = ?", [ $projid ], [ $packid ]);
+  my ($sourceproject, $sourcepackage);
+  $sh->bind_columns(\$sourceproject, \$sourcepackage);
+  my @res;
+  push @res, "$sourceproject/$sourcepackage" while $sh->fetch();
+  die($sh->errstr) if $sh->err();
+  return sort(@res);
+}
+
+
 ###########################################################################
 #
 # BSDB query interface
@@ -392,14 +474,37 @@ sub getrecord {
 sub opendb {
   my ($dbpath, $table) = @_;
   die("unsupported table: $table\n") unless $tables{$table};
-  my $db = { 'dir' => $dbpath, 'table' => $table, 'sqlite_cols' => $tables{$table} };
+  my $dbname = $table eq 'linkinfo' ? 'source' : 'published';
+  my $db = { 'dir' => $dbpath, 'table' => $table, 'sqlite_cols' => $tables{$table}, 'sqlite_dbname' => $dbname };
   return bless $db;
 }
 
-sub fetch {
+*fetch = \&BSDB::fetch;
+*keys = \&BSDB::keys;
+*values = \&BSDB::values;
+
+sub rawfetch {
   my ($db, $key) = @_;
-  return $db->{'fetch'}->($db, $key) if $db->{'fetch'};
-  die("Cannot fetch data set in query\n");
+  my $table = $db->{'table'};
+  if ($table eq 'linkinfo') {
+    my ($projid, $packid) = split('/', $key, 2);
+    return $db->getlinkinfo($projid, $packid);
+  }
+  if ($table eq 'pattern') {
+    return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
+    return getrecord($db, $1, $2);
+  }
+  die("Cannot fetch data set for sqlite table $table\n");
+}
+
+sub store {
+  my ($db, $key, $v) = @_;
+  my $table = $db->{'table'};
+  if ($table eq 'linkinfo') {
+    my ($projid, $packid) = split('/', $key, 2);
+    return $db->store_linkinfo($projid, $packid, $v);
+  }
+  die("Cannot store data set for sqlite table $table\n");
 }
 
 sub hint2prefixes {
@@ -418,14 +523,8 @@ sub hint2prefixes {
   return @prefixes;
 }
 
-sub values {
-  my ($db, $path, $lkeys, $hint, $hintval) = @_;
-  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
-    return $db->{'indexfunc'}->{$path}->($db, $path, undef, $lkeys);
-  }
-  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || $db->{'noindexatall'} || ($lkeys && $db->{'cheapfetch'})) {
-    return BSDB::values($db, $path, $lkeys);
-  }
+sub rawvalues {
+  my ($db, $path, $hint, $hintval) = @_;
 
   my $table = $db->{'table'};
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
@@ -465,24 +564,26 @@ sub values {
   return sort(@$ary);
 }
 
-sub keys {
-  my ($db, $path, $value, $lkeys) = @_;
-  if (!defined($path)) {
-    return @$lkeys if $lkeys;
-    die("413 refusing to get all keys\n");
-  }
-  if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
-    return $db->{'indexfunc'}->{$path}->($db, $path, $value, $lkeys);
-  }
-  if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || $db->{'noindexatall'}) {
-    return BSDB::keys($db, $path, $value, $lkeys);
-  }
+sub rawkeys {
+  my ($db, $path, $value) = @_;
 
   my $table = $db->{'table'};
+  die("413 refusing to get all keys\n") unless defined $path;
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
 
   # get all keys for a table column
   my $h = $db->{'sqlite'} || connectdb($db);
+
+  if ($table eq 'linkinfo') {
+    my $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table WHERE $path = ?", [ $value ]);
+    my ($sourceproject, $sourcepackage);
+    $sh->bind_columns(\$sourceproject, \$sourcepackage);
+    my @res;
+    push @res, "$sourceproject/$sourcepackage" while $sh->fetch();
+    die($sh->errstr) if $sh->err();
+    return sort(@res);
+  }
+
   my $sh = dbdo_bind($h, "SELECT prp_ext.path,$table.path,package FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE $path = ?", [ $value ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);

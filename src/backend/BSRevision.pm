@@ -35,11 +35,11 @@ my $projectsdir = "$BSConfig::bsdir/projects";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
-my $sourcedb = "$BSConfig::bsdir/db/source";
-
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 
 my $readproj_local_cache;
+
+our $storelinkinfo;	# linkinfo database store function
 
 sub getrev_deleted_srcmd5 {
   my ($projid, $packid, $srcmd5) = @_;
@@ -319,9 +319,6 @@ sub updatelinkinfodb {
   my ($projid, $packid, $rev, $files) = @_;
 
   return if $packid eq '_project';	# no links allowed
-  mkdir_p($sourcedb) unless -d $sourcedb;
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  $linkdb->{'blocked'} = [ 'linkinfo' ];
   my $linkinfo;
   if ($files && $files->{'_link'}) {
     my $l = revreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
@@ -332,17 +329,14 @@ sub updatelinkinfodb {
       $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
     }
   }
-  $linkdb->store("$projid/$packid", $linkinfo);
+  die("BSRevision: storelinkinfo is not set\n") unless $storelinkinfo;
+  $storelinkinfo->($projid, $packid, $linkinfo);
 }
 
 sub movelinkinfos {
-  my ($projid, $oprojid) = @_;
+  my ($projid, $oprojid, @packages) = @_;
   return if $projid eq $oprojid;
-  return unless -d $sourcedb;
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  return unless $linkdb;
-  my @packids = grep {s/\Q$oprojid\E\///} $linkdb->keys();
-  for my $packid (@packids) {
+  for my $packid (@packages) {
     next unless -e "$projectsdir/$projid.pkg/$packid.xml";
     eval {
       my $rev = getrev_local($projid, $packid);

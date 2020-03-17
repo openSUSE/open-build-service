@@ -145,6 +145,8 @@ sub toconcrete {
   return $vv;
 }
 
+sub boolop_not_helper {$_[0]};
+
 sub boolop {
   my ($self, $v1, $v2, $op, $negpol, $hint) = @_;
   if (ref($v1) ne ref($self) && ref($v2) ne ref($self)) {
@@ -188,63 +190,50 @@ sub boolop {
       $v->{'other'} = $op->($v1->{'other'}, $v2) ? 'true' : '';
       return $v;
     }
+    if ($op == \&BSXPath::boolop_not) {
+      $op = \&boolop_not_helper;	# convert not op to boolean op
+      $negpol = !$negpol;
+    }
     my @k;
     my %k = map {$_ => 1} @{$v1->{'keys'} || []};
     if ($v1->{'keys'} && !@{$v1->{'keys'}}) {
       @k = ();
-    } elsif ($op == \&BSXPath::boolop_eq) {
-      if ($v1->{'keys'} && $v1->{'path'} && $db->{"fetch_$v1->{'path'}"}) {
-	# have super-fast select_path_from_key function
-	for my $k (@{$v1->{'keys'}}) {
-	  my @d = $db->{"fetch_$v1->{'path'}"}->($db, $k);
-	  next unless @d; 
-	  if (!$negpol) {
-	    next unless grep {$_ eq $v2} @d; 
-	  } else {
-	    next if grep {$_ eq $v2} @d; 
-	  }
-	  push @k, $k; 
-	}
+    } elsif ($v1->{'keys'} && $v1->{'path'} && $db->{"fetch_$v1->{'path'}"}) {
+      # have super-fast select_path_from_key function
+      # optimize boolop_eq because it is so common
+      if ($op == \&BSXPath::boolop_eq && !$negpol) {
+        for my $k (@{$v1->{'keys'}}) {
+          push @k, $k if grep {$_ eq $v2} $db->{"fetch_$v1->{'path'}"}->($db, $k);
+        }
       } else {
-        @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
-        @k = grep {$k{$_}} @k if $v1->{'keys'};
-        #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
-        $negpol = 0;
-      }
-    } elsif ($op == \&BSXPath::boolop_not && $v1->{'keys'} && !exists($v1->{'value'})) {
-      for my $k (@{$v1->{'keys'}}) {
-	my $vv = $db->fetch($k);
-	next unless defined $vv;
-	my @p = selectpath($vv, $v1->{'path'});
-	if (!$negpol) {
-	  next unless !@p || grep {!$_} @p;
-	} else {
-	  next if !@p || grep {!$_} @p;
+	for my $k (@{$v1->{'keys'}}) {
+	  my $r = grep {$op->($_, $v2)} $db->{"fetch_$v1->{'path'}"}->($db, $k);
+	  push @k, $k if $negpol ? !$r : $r;
 	}
-	push @k, $k;
       }
+    } elsif ($op == \&BSXPath::boolop_eq) {
+      @k = $db->keys($v1->{'path'}, $v2, $v1->{'keys'});
+      @k = grep {$k{$_}} @k if $v1->{'keys'};
+      #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
+      $negpol = 0;
     } else {
       my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v1->{'path'}}) || $db->{'noindexatall'};
+      $noindex = 1 if !$v1->{'keys'} && $op == \&boolop_not_helper;
       my @values;
-      @values = $db->values($v1->{'path'}, $v1->{'keys'}, $hint, $v2) unless $noindex;
+      if (!$noindex) {
+        for my $vv ($db->values($v1->{'path'}, $v1->{'keys'}, $hint, $v2)) {
+	  push @values, $vv if $negpol ? !$op->($vv, $v2) : $op->($vv, $v2);
+	}
+      }
       if ($noindex || ($v1->{'keys'} && @values > @{$v1->{'keys'}})) {
 	for my $k (@{$v1->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
-	  if (!$negpol) {
-	    next unless grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
-	  } else {
-	    next if grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
-	  }
-	  push @k, $k;
+	  my $r = grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
+	  push @k, $k if $negpol ? !$r : $r;
 	}
       } else {
 	for my $vv (@values) {
-	  if (!$negpol) {
-	    next unless $op->($vv, $v2);
-	  } else {
-	    next if $op->($vv, $v2);
-	  }
 	  if ($v1->{'keys'}) {
 	    push @k, grep {$k{$_}} $db->keys($v1->{'path'}, $vv, $v1->{'keys'});
 	  } else {
@@ -254,6 +243,7 @@ sub boolop {
 	}
       }
     }
+    $negpol = !$negpol if $op == \&boolop_not_helper;	# back to original value
     $v->{'keys'} = \@k;
     $v->{'value'} = $negpol ? '' : 'true';
     $v->{'other'} = $negpol ? 'true' : '';
@@ -275,6 +265,19 @@ sub boolop {
     my %k = map {$_ => 1} @{$v2->{'keys'} || []};
     if ($v2->{'keys'} && !@{$v2->{'keys'}}) {
       @k = ();
+    } elsif ($v2->{'keys'} && $v2->{'path'} && $db->{"fetch_$v2->{'path'}"}) {
+      # have super-fast select_path_from_key function
+      # optimize boolop_eq because it is so common
+      if ($op == \&BSXPath::boolop_eq && !$negpol) {
+        for my $k (@{$v2->{'keys'}}) {
+          push @k, $k if grep {$v1 eq $_} $db->{"fetch_$v2->{'path'}"}->($db, $k);
+        }
+      } else {
+	for my $k (@{$v2->{'keys'}}) {
+	  my $r = grep {$op->($v1, $_)} $db->{"fetch_$v2->{'path'}"}->($db, $k);
+	  push @k, $k if $negpol ? !$r : $r;
+	}
+      }
     } elsif ($op == \&BSXPath::boolop_eq) {
       @k = $db->keys($v2->{'path'}, $v1, $v2->{'keys'});
       @k = grep {$k{$_}} @k if $v2->{'keys'};
@@ -283,25 +286,20 @@ sub boolop {
     } else {
       my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v2->{'path'}}) || $db->{'noindexatall'};
       my @values;
-      @values = $db->values($v2->{'path'}, $v2->{'keys'}, $hint, $v1) unless $noindex;
+      if (!$noindex) {
+        for my $vv ($db->values($v2->{'path'}, $v2->{'keys'}, $hint, $v1)) {
+	  push @values, $vv if $negpol ? !$op->($v1, $vv) : $op->($v1, $vv);
+	}
+      }
       if ($noindex || ($v2->{'keys'} && @values > @{$v2->{'keys'}})) {
 	for my $k (@{$v2->{'keys'} || [ $db->keys() ]}) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
-	  if (!$negpol) {
-	    next unless grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
-	  } else {
-	    next if grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
-	  }
-	  push @k, $k;
+	  my $r = grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
+	  push @k, $k if $negpol ? !$r : $r;
 	}
       } else {
 	for my $vv (@values) {
-	  if (!$negpol) {
-	    next unless $op->($v1, $vv);
-	  } else {
-	    next if $op->($v1, $vv);
-	  }
 	  if ($v2->{'keys'}) {
 	    push @k, grep {$k{$_}} $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
 	  } else {
@@ -315,14 +313,6 @@ sub boolop {
     $v->{'other'} = $negpol ? 'true' : '';
     return $v;
   }
-}
-
-sub op {
-  my ($self, $v1, $v2, $op) = @_;
-  if (ref($v1) ne ref($self) && ref($v2) ne ref($self)) {
-    return $op->($v1, $v2);
-  }
-  die("op not implemented for abstract elements\n");
 }
 
 sub predicate {

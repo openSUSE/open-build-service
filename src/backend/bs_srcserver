@@ -65,7 +65,6 @@ use BSRegistryServer;
 use BSXPath;
 use BSXPathKeys;
 use BSDB;
-use BSDBIndex;
 
 use BSSrcServer::Remote;
 use BSSrcServer::Partition;
@@ -79,8 +78,9 @@ use BSSrcServer::Blame;
 use BSSrcServer::Registry;
 use BSSrcServer::Signkey;
 use BSSrcServer::Notify;
+use BSSrcServer::LinkinfoDB;
 
-require BSSrcServer::SQLite if $BSConfig::published_db_sqlite;
+require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
 
 # configure modules
 $BSSrcServer::Projlink::getrev       = \&getrev;
@@ -106,6 +106,8 @@ $BSSrcServer::Product::notify_repservers = \&notify_repservers;
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 $Build::Rpm::conflictdeps = 1 if defined $Build::Rpm::conflictdeps;
 $Build::Kiwi::repoextras = 1 if defined $Build::Kiwi::repoextras;
+
+$BSRevision::storelinkinfo = \&BSSrcServer::LinkinfoDB::storelinkinfo;
 
 use strict;
 
@@ -3127,7 +3129,7 @@ sub moveproject {
   rename("$treesdir/$oprojid", "$treesdir/$projid") if $BSConfig::nosharedtrees && -e "$treesdir/$oprojid";
 
   # move entries in linkinfo database
-  BSRevision::movelinkinfos($projid, $oprojid);
+  BSRevision::movelinkinfos($projid, $oprojid, BSSrcServer::LinkinfoDB::getlinkpackages($oprojid));
 
   # move in the backend as well
   my @args;
@@ -3846,16 +3848,7 @@ sub getresult {
     $cgi->{'package'} = [ BSSrcServer::Multibuild::addmultibuildpackages($projid, undef, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'locallink'} && $cgi->{'package'} && !$BSStdServer::isajax) {
-    my @packages;
-    # find all packages that are links
-    my $db = BSDB::opendb($sourcedb, '');
-    for my $packid (@{$cgi->{'package'}}) {
-      push @packages, $packid;
-      my @l = grep {s/^\Q$projid\///} BSDBIndex::getvalues($db, 'linkinfo/package', $packid);
-      push @packages, @l;
-    }
-    @packages = BSUtil::unify(@packages);
-    $cgi->{'package'} = \@packages;
+    $cgi->{'package'} = [ BSSrcServer::LinkinfoDB::addlocallinks($projid, @{$cgi->{'package'}}) ];
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
@@ -4676,13 +4669,13 @@ sub pkgsearch_fetch {
   my ($projid, $packid) = split('/', $k, 2);
   my $pack = BSRevision::readpack_local($projid, $packid, 1) || {'name' => $packid};
   $pack->{'project'} = $projid;
-  #my @linkinfo = BSDBIndex::getvalues($db, 'linkinfo', $k);
-  #$pack->{'linkinfo'} = $linkinfo[0] if @linkinfo;
+  #my $linkinfo = $db->rawfetch($k);
+  #$pack->{'linkinfo'} = $linkinfo if $linkinfo;
   return $pack;
 }
 
 sub pkgsearch_indexfunc {
-  my ($db, $path, $value, $lkeys) = @_;
+  my ($db, $path, $value, $lkeys, $hint, $hintval) = @_;
   if (!defined($path)) {
     return @{$db->{'_allkeys'}} if $db->{'_allkeys'};
     my @projids = findprojects();
@@ -4692,23 +4685,38 @@ sub pkgsearch_indexfunc {
     }
     $db->{'_allkeys'} = \@r;
     return @r;
-  } elsif (!defined($value)) {
-    return BSDBIndex::getkeys($db, "$db->{'index'}$path") if $path =~ /^linkinfo\//;
-    return findprojects() if $path eq 'project';
-    if ($path eq 'name') {
-      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+  }
+  if ($path =~ /^linkinfo\/(.*)/) {
+    if (!defined($value)) {
+      return $db->rawvalues($1, $hint, $hintval);
+    } else {
+      return $db->rawkeys($1, $value);
+    }
+  }
+  if ($path eq 'project') {
+    return findprojects() unless defined($value);
+    return map {"$value/$_"} BSRevision::lspackages_local($value);
+  }
+  if ($path eq 'name') {
+    $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+    if (!defined($value)) {
       my %v = map {$_ => 1} grep {s/^.*\///} map {$_} @$lkeys;
       return sort keys %v;
-    }
-  } else {
-    return BSDBIndex::getvalues($db, "$db->{'index'}$path", $value) if $path =~ /^linkinfo\//;
-    return map {"$value/$_"} BSRevision::lspackages_local($value) if $path eq 'project';
-    if ($path eq 'name') {
-      $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
+    } else {
       return grep {/\Q$value\E$/} @$lkeys;
     }
   }
   return ();
+}
+
+sub pkgsearch_key_to_project {
+  my ($db, $key) = @_;
+  return (split('/', $key, 2))[0];
+}
+
+sub pkgsearch_key_to_package {
+  my ($db, $key) = @_;
+  return (split('/', $key, 2))[1];
 }
 
 sub search_pack {
@@ -4730,7 +4738,31 @@ sub search_pack {
     my $res = {'package' => $data};
     return ($res, $BSXML::collection);
   }
-  my $db = BSDB::opendb($sourcedb, '');
+  my $db = BSSrcServer::LinkinfoDB::openlinkinfodb();
+  # more really ugly hacks to speed up needed api calls
+  if ($id) {
+    my ($packid, $projid, $limitprojid);
+    if ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\"\)$/s) {
+      ($packid, $projid) = ($1, $2);
+    } elsif ($match =~ /^\(linkinfo\/\@package=\"([^\"]+)\" and linkinfo\/\@project=\"([^\"]+)\" and \@project=\"([^\"]+)\"\)$/s) {
+      ($packid, $projid, $limitprojid) = ($1, $2, $3);
+    }
+    if ($projid) {
+      my $data;
+      if ($limitprojid && $projid eq $limitprojid) {
+	$data = [ map { { 'name' => $_, 'project' => $projid} } BSSrcServer::LinkinfoDB::getlocallinks($projid, $packid) ];
+      } else {
+	$data = [ BSSrcServer::LinkinfoDB::getlinkers($projid, $packid) ];
+	$data = [ grep {/^\Q$limitprojid\E\//} @$data ]  if $limitprojid;
+        for (@$data) {
+	  my @p = split('/', $_, 2);
+	  $_ = {'name' => $p[1], 'project' => $p[0]};
+        }
+      }
+      my $res = {'package' => $data};
+      return ($res, $BSXML::collection);
+    }
+  }
   $db->{'indexfunc'} = {
     'project' => \&pkgsearch_indexfunc,
     'name' => \&pkgsearch_indexfunc,
@@ -4738,8 +4770,11 @@ sub search_pack {
     'linkinfo/package' => \&pkgsearch_indexfunc,
     'linkinfo/rev' => \&pkgsearch_indexfunc,
   };
+  $db->{'allkeyspath'} = 'project';
   $db->{'noindexatall'} = 1;
   $db->{'fetch'} = \&pkgsearch_fetch;
+  $db->{'fetch_project'} = \&pkgsearch_key_to_project;
+  $db->{'fetch_name'} = \&pkgsearch_key_to_package;
   my $data = BSXPathKeys::node($db, '');
   if ($id) {
     $data = $data->keymatch($match);
@@ -4776,9 +4811,9 @@ sub search_published_updatedb {
     while (@$data) {
       my ($w, $k, $v) = splice(@$data, 0, 3);
       if ($w eq 'repoinfo') {
-        BSSrcServer::SQLite::updatedb_repoinfo($db, $k, $v);
+        $db->updatedb_repoinfo($k, $v);
       } elsif ($w eq 'patterninfo') {
-        BSSrcServer::SQLite::updatedb_patterninfo($db, $k, $v);
+        $db->updatedb_patterninfo($k, $v);
       } elsif ($w ne 'binary' && $w ne 'pattern') {
         die("bad data type: '$w'\n");
       }
@@ -4844,7 +4879,7 @@ sub prp_to_repoinfo {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
     $binarydb ||= BSSrcServer::SQLite::opendb($extrepodb, 'binary');
-    $repoinfo = BSSrcServer::SQLite::getrepoinfo($binarydb, $prp_ext) || {};
+    $repoinfo = $binarydb->getrepoinfo($prp_ext) || {};
   } else {
     my $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
     $repoinfo = $repoinfodb->fetch($prp) || {};
@@ -4869,7 +4904,7 @@ sub prp_to_repoorigins {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
     $binarydb ||= BSSrcServer::SQLite::opendb($extrepodb, 'binary');
-    $repoorigins = BSSrcServer::SQLite::getrepoorigins($binarydb, $prp_ext);
+    $repoorigins = $binarydb->getrepoorigins($prp_ext);
   } else {
     prp_to_repoinfo($prp);
     return $prp_to_repoorigins{$prp};
@@ -4995,10 +5030,9 @@ sub pattern_key_to_data {
     my $location = join('/', @p, $filename);
     my $prp_ext = "$project/$repository";
     $prp_ext =~ s/:/:\//g;
-    $res = BSSrcServer::SQLite::getrecord($db, $prp_ext, $location);
+    $res = $db->getrecord($prp_ext, $location);
   } else {
-    my @v = BSDBIndex::getvalues($db, $db->{'table'}, $key);
-    $res = $v[0];
+    $res = $db->rawfetch($key);
   }
   $res ||= {};
   $res->{'baseproject'} = $res->{'path'}->[-1]->{'project'} if $res->{'path'};
@@ -5012,7 +5046,7 @@ sub pattern_key_to_data {
 sub published_binary_projectindexfunc {
   my ($db, $path, $value) = @_;
 
-  return BSSrcServer::SQLite::getprojectkeys($db, $value) if $BSConfig::published_db_sqlite;
+  return $db->getprojectkeys($value) if $BSConfig::published_db_sqlite;
 
   return findprojects() unless defined $value;
   my $proj = BSRevision::readproj_local($value);
@@ -5059,8 +5093,8 @@ sub search_published_binary_id {
     $binarydb = BSSrcServer::SQLite::opendb($extrepodb, 'binary');
   } else {
     $binarydb = BSDB::opendb($extrepodb, 'binary');
+    $binarydb->{'allkeyspath'} = 'name';
   }
-  $binarydb->{'allkeyspath'} = 'name';
   $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
   $binarydb->{'indexfunc'} = {'project' => \&published_binary_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
@@ -6719,6 +6753,13 @@ sub notary_forward {
 
 ####################################################################
 
+sub run {
+  my ($conf) = @_;
+  BSSrcServer::SQLite::init_publisheddb($extrepodb) if $BSConfig::published_db_sqlite;
+  BSSrcServer::SQLite::init_sourcedb($sourcedb) if $BSConfig::source_db_sqlite;
+  BSServer::server($conf);
+}
+
 my $dispatches = [
   '/' => \&hello,
 
@@ -6950,6 +6991,7 @@ my $conf = {
   'maxchild2' => 20,
   'slowrequestthr' => 10,
   'errorreply' => \&BSRegistryServer::errreply,
+  'run' => \&run,
 };
 
 my $aconf = {
