@@ -322,12 +322,16 @@ sub dod_deb {
   writestr($file, undef, '');
   my $basearch = Build::Deb::basearch($doddata->{'arch'});
   for my $component (@components) {
-    my $pfile = $component eq '.' ? 'Packages.gz' : "$component/binary-$basearch/Packages.gz";
+    my $pfile;
+    for ('Packages.xz', 'Packages.gz') {
+      $pfile = $component eq '.' ? $_ : "$component/binary-$basearch/$_";
+      last if $files{$pfile};
+    }
     die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
     my $tmp = "$file.tmp";
     fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
     chkverify($tmp, $files{$pfile}) if $files{$pfile};
-    uncompress($tmp, "Packages.gz", $file);
+    uncompress($tmp, $pfile, $file);
     unlink($tmp);
   }
   return ($newcookie, $baseurl);
