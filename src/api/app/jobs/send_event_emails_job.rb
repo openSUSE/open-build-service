@@ -32,6 +32,8 @@ class SendEventEmailsJob < ApplicationJob
         event_payload: event.payload,
         subscription_receiver_role: subscription.receiver_role
       }
+
+      next if subscription.subscriber && subscription.subscriber.away?
       Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
     end
   end
