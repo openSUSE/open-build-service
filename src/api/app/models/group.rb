@@ -187,6 +187,10 @@ class Group < ApplicationRecord
     !users.where(state: 'confirmed').empty?
   end
 
+  def away?
+    users.recently_seen.empty?
+  end
+
   def maintainer?(user)
     group_maintainers.where(user: user).exists?
   end
