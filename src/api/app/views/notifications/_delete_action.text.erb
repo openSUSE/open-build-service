@@ -1,0 +1,5 @@
+<% if action.target_repository -%>
+- delete repository <%= action.target_repository %> in <%= action.target_project -%>
+<% else -%>
+- delete <%= project_or_package_text(action.target_project, action.target_package) -%>
+<% end %>

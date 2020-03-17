@@ -32,22 +32,27 @@ class SendEventEmailsJob < ApplicationJob
   private
 
   def create_rss_notifications(event)
-    event.subscriptions.each do |subscription|
-      notification_params = {
-        subscriber: subscription.subscriber,
-        event_type: event.eventtype,
-        event_payload: event.payload,
-        subscription_receiver_role: subscription.receiver_role
-      }
+    return unless event.eventtype.in?(EVENTS_TO_NOTIFY)
 
-      next if subscription.subscriber && subscription.subscriber.away?
-      Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+    event.subscriptions.each do |subscription|
+      create_rss_notification(event, subscription)
     end
   end
 
-  def notification_dynamic_params(event)
-    return {} unless event.eventtype.in?(EVENTS_TO_NOTIFY)
+  def create_rss_notification(event, subscription)
+    return if subscription.subscriber && subscription.subscriber.away?
 
+    notification_params = {
+      subscriber: subscription.subscriber,
+      event_type: event.eventtype,
+      event_payload: event.payload,
+      subscription_receiver_role: subscription.receiver_role
+    }
+
+    Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+  end
+
+  def notification_dynamic_params(event)
     dynamic_params = { notifiable_id: event.payload['id'], notifiable_type: 'BsRequest', title: notification_title(event.subject) }
 
     if event.eventtype == 'Event::RequestStatechange'

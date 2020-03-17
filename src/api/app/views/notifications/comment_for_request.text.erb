@@ -1,0 +1,6 @@
+<%- comment = notification.notifiable %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: comment.commentable.number, host: @host, only_path: false) %>
+
+<%= comment.user.realname %> wrote in request <%= comment.commentable.number %>:
+
+<%= comment.body %>

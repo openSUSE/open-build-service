@@ -21,4 +21,8 @@ class Notification < ApplicationRecord
   def any_user_in_group_active?
     !subscriber.users.recently_seen.empty?
   end
+
+  def template_name
+    event_type.gsub('Event::', '').underscore
+  end
 end
