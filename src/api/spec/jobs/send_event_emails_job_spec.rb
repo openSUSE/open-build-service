@@ -4,25 +4,23 @@ RSpec.describe SendEventEmailsJob, type: :job do
   include ActiveJob::TestHelper
 
   describe '#perform' do
+    let(:user) { create(:confirmed_user) }
+    let(:group) { create(:group) }
+    let(:project) { create(:project, name: 'comment_project', maintainer: [user, group]) }
+    let(:comment_author) { create(:confirmed_user) }
+    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
+    let(:user_maintainer) { create(:group) }
+
     before do
       ActionMailer::Base.deliveries = []
       # Needed for X-OBS-URL
       allow_any_instance_of(Configuration).to receive(:obs_url).and_return('https://build.example.com')
+      group.add_user(user)
     end
-
-    let!(:user) { create(:confirmed_user) }
-    let!(:group) { create(:group) }
-    let!(:project) { create(:project, name: 'comment_project', maintainer: [user, group]) }
-
-    let!(:comment_author) { create(:confirmed_user) }
-
-    let!(:comment) { create(:comment_project, commentable: project, body: "Hey @#{user.login} how are things?", user: comment_author) }
-    let!(:user_maintainer) { create(:group) }
 
     context 'with no errors being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
       let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
-      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'commenter', user: comment_author) }
 
       subject! { SendEventEmailsJob.new.perform }
 

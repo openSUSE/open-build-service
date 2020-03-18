@@ -1,7 +1,7 @@
 Admin:
   created_at: 2012-01-17 09:54:31.000000000 Z
   updated_at: 2012-01-17 09:54:31.000000000 Z
-  last_logged_in_at: 2012-01-17 09:54:31.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: Admin
   email: root@localhost
@@ -11,6 +11,7 @@ Admin:
 Iggy:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: Iggy
   email: Iggy@pop.org
@@ -29,6 +30,7 @@ _nobody_:
 adrian:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian
   email: adrian@example.com
@@ -37,6 +39,7 @@ adrian:
   state: "confirmed"
 adrian_downloader:
   created_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_downloader
@@ -47,6 +50,7 @@ adrian_downloader:
 adrian_nobody:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian_nobody
   email: adrian@example.com
@@ -56,6 +60,7 @@ adrian_nobody:
 adrian_reader:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian_reader
   email: adrian@example.com
@@ -65,6 +70,7 @@ adrian_reader:
 binary_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: binary_homer
   email: homer@nospam.net
@@ -74,7 +80,7 @@ binary_homer:
 deleted:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: deleted
   email: test@example.com
@@ -84,7 +90,7 @@ deleted:
 dmayr:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: dmayr
   email: test@example.com
@@ -94,6 +100,7 @@ dmayr:
 fred:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: fred
   email: fred@feuerstein.de
@@ -103,6 +110,7 @@ fred:
 fredlibs:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: fredlibs
   email: fred@feuerstein.de
@@ -112,6 +120,7 @@ fredlibs:
 hidden_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: hidden_homer
   email: homer@nospam.net
@@ -121,6 +130,7 @@ hidden_homer:
 king:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: king
   email: king@all-the-kings.org
@@ -130,6 +140,7 @@ king:
 maintenance_assi:
   created_at: 2014-04-07 06:51:18.000000000 Z
   updated_at: 2014-04-07 06:51:18.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: maintenance_assi
   email: homer@nospam.net
@@ -139,6 +150,7 @@ maintenance_assi:
 maintenance_coord:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: maintenance_coord
   email: dirkmueller@example.com
@@ -148,6 +160,7 @@ maintenance_coord:
 sourceaccess_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: sourceaccess_homer
   email: homer@nospam.net
@@ -157,6 +170,7 @@ sourceaccess_homer:
 tom:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: tom
   email: tschmidt@example.com
@@ -166,7 +180,7 @@ tom:
 user1:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user1
   email: user1@example.com
@@ -176,7 +190,7 @@ user1:
 user2:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user2
   email: user2@example.com
@@ -186,7 +200,7 @@ user2:
 user3:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user3
   email: test@example.com
@@ -196,7 +210,7 @@ user3:
 user4:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user4
   email: user4@example.com
@@ -206,7 +220,7 @@ user4:
 user5:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user5
   email: user5@example.com
@@ -216,7 +230,7 @@ user5:
 user6:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user6
   email: test@example.com
@@ -226,7 +240,6 @@ user6:
 unconfirmed_user:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
   login: unconfirmed_user
   email: test@example.com

@@ -33,4 +33,42 @@ RSpec.describe Notification do
 
     it { expect(test_group.notifications).to include(notification) }
   end
+
+  describe '#user_active?' do
+    let(:rss_notification) { create(:rss_notification, subscriber: test_user) }
+    subject { rss_notification.user_active? }
+
+    context 'when subscriber is away' do
+      let(:test_user) { create(:dead_user, login: 'foo') }
+
+      it { expect(subject).to be_falsey }
+    end
+
+    context 'when subscribe logged in recently' do
+      let(:test_user) { create(:confirmed_user, login: 'foo') }
+
+      it { expect(subject).to be_truthy }
+    end
+  end
+
+  describe '#any_user_in_group_active?' do
+    let(:rss_notification) { create(:rss_notification, subscriber: test_group) }
+    let(:test_group) { create(:group) }
+
+    subject { rss_notification.any_user_in_group_active? }
+
+    before do
+      test_group.add_user(test_user)
+    end
+
+    context 'no active user in the group' do
+      let!(:test_user) { create(:dead_user, login: 'foo') }
+      it { expect(subject).to be_falsey }
+    end
+
+    context 'active user in the group' do
+      let!(:test_user) { create(:confirmed_user, login: 'foo') }
+      it { expect(subject).to be_truthy }
+    end
+  end
 end
