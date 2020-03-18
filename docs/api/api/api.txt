@@ -65,8 +65,8 @@ XmlResult: status
 GET /architectures
 
   Get a list of all known architectures known to OBS in general.
-  This is not the list of architectures provided by this instance, go
-  to /configuration for this
+  This is not the list of architectures provided by this instance, check the
+  schedulers element from the /configuration route for this.
 
 XmlResult: architecture list
 
@@ -2025,6 +2025,16 @@ DELETE /staging/<staging_workflow_project>/staged_requests
   Remove requests from the staging projects they are staged in.
 XmlBody: remove_staged_requests
 XmlResult: status_ok
+
+
+== Configuration
+
+GET /configuration
+
+  Publicly readable configuration of this OBS instance.
+
+XmlResult: configuration configuration.rng
+
 
 == Internal only routes
 
