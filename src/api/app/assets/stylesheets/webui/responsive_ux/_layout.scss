@@ -15,6 +15,7 @@
     cursor: pointer;
     &.text-center { min-width: 3.875rem; }
     &:first-of-type { @extend .ml-3;  }
+    &.action { @extend .d-xl-none; }
   }
 
   .navbar-nav .nav-link {
@@ -23,8 +24,6 @@
   }
 
   .menu-right { cursor: pointer; }
-  .menu-options { font-size: 1.1rem }
-
   .navbar-brand img { height: 1.875rem; }
 }
 
@@ -86,26 +85,34 @@ button.navbar-toggler {
   }
 }
 
+.watchlist-collapse {
+  a {
+    color: $gray-300;
+    &:hover { color: white; }
+  }
+}
+
 .watchlist-collapse, .offcanvas-collapse, .actions-collapse {
   position: fixed;
   top: $top-bar-height;
   left: 100%;
   bottom: $bottom-bar-height;
   width: 100%;
-  padding-right: 1rem;
-  padding-left: 1rem;
   overflow-y: auto;
   visibility: hidden;
   z-index: 1040;
-  background-color: #343a40;
+  background-color: #344040;
   color: $gray-400;
   transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
   transition: transform .3s ease-in-out, visibility .3s ease-in-out;
   transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
 
-  & a {
-    color: $gray-300;
-    &:hover { color: white; }
+  a.nav-link {
+    padding: .8rem 1rem;
+    &:hover {
+      background-color: #485353;
+      i.fas { filter: none; }
+    }
   }
 
   &.open {
