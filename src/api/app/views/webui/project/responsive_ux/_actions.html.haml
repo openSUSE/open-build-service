@@ -17,16 +17,13 @@
   - elsif project.key_info.present?
     = render partial: 'webui/project/responsive_ux/actions/gpg_key_ssl_certificate', locals: { project: project }
 
-  %li.nav-item
-    = link_to(image_templates_path, class: 'nav-link') do
-      %i.fas.fa-compact-disc.fa-lg.mr-2
-      New Image
+  = link_to(image_templates_path, class: 'menu-link') do
+    %i.fas.fa-compact-disc.fa-lg.mr-2
+    New Image
   - if User.possibly_nobody.can_modify?(project) && show_package_actions?
-    %li.nav-item
-      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
-        %i.fas.fa-plus-circle.fa-lg.mr-2
-        Create Package
-    %li.nav-item
-      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
-        %i.fas.fa-code-branch.fa-lg.mr-2
-        Branch Existing Package
+    = link_to('#', class: 'menu-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
+      %i.fas.fa-plus-circle.fa-lg.mr-2
+      Create Package
+    = link_to('#', class: 'menu-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
+      %i.fas.fa-code-branch.fa-lg.mr-2
+      Branch Existing Package
