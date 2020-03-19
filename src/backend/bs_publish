@@ -43,7 +43,7 @@ use File::Temp qw/tempfile/;
 
 use BSConfiguration;
 use BSCando;
-use BSRPC;
+use BSRPC ':https';
 use BSUtil;
 use BSDBIndex;
 use Build;

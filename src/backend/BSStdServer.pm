@@ -255,6 +255,8 @@ sub server {
     $conf->{'critlogfile'} ||= "$BSConfig::logdir/$name.crit.log";
     $conf->{'name'} = $name;
     $conf->{'logfile'} = $logfile if $logfile;
+    $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
+    $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
     BSDispatch::compile($conf);
   }
   if ($request) {

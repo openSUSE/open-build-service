@@ -45,7 +45,9 @@ use BSHTTP;
 use strict;
 
 my $port = 5452;
+my $proto = 'http';
 $port = $1 if $BSConfig::clouduploadserver =~ /:(\d+)$/;
+$proto = $1 if $BSConfig::clouduploadserver =~ /^(https):/;
 
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobdir = "$BSConfig::bsdir/cloudupload";
@@ -388,6 +390,7 @@ my $dispatches_ajax = [
 
 my $conf = {
   'port' => $port,
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
   'maxchild' => $maxchild,

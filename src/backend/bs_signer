@@ -37,7 +37,7 @@ use Build;
 use Storable;
 
 use BSConfiguration;
-use BSRPC;
+use BSRPC ':https';
 use BSUtil;
 use BSXML;
 use BSHTTP;
