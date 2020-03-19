@@ -1,0 +1,13 @@
+.basic-info.mb-3{ class: flipper_responsive? ? 'in-place-editing' : '' }
+  %h3#project-title
+    = project.title.presence || project
+  - if project.categories.any?
+    - project.categories.each do |category|
+      = category_badge(category)
+  - if project.url.present?
+    = link_to(project.url, project.url, class: 'mb-3 d-block')
+  #description-text
+    - if project.description.blank?
+      %i No description set
+    - else
+      = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }

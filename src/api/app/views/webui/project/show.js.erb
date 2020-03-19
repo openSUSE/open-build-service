@@ -1,0 +1,8 @@
+$('.in-place-editing').animate({
+  opacity: 0.25
+}, 400, function() {
+  scrollToInPlace();
+  $('.in-place-editing').html("<%= escape_javascript(render(partial: 'webui/project/basic_info', locals: { project: @project })) %>");
+  setCollapsible();
+  $('.in-place-editing').animate({ opacity: 1 }, 400);
+});
