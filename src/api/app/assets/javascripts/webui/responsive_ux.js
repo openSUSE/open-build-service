@@ -34,6 +34,11 @@ $(function () {
     $('#login').focus();
     $('#username').focus();
   });
+
+  $('#navigation .nav-item').on('click', function (){
+    $('.actions-collapse').removeClass('open');
+    $('a[data-toggle="actions"]').removeClass('active');
+  });
 });
 
 /* bootstrap's tabs javascript doesn't remove the active class
