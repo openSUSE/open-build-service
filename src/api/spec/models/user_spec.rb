@@ -66,6 +66,30 @@ RSpec.describe User do
     end
   end
 
+  describe '#away?' do
+    subject { user }
+
+    context 'user do not logged in recently' do
+      let(:user) { create(:dead_user, login: 'foo') }
+      it { expect(subject).to be_away }
+    end
+
+    context 'user logged in recently' do
+      let(:user) { create(:confirmed_user, login: 'foo') }
+      it { expect(subject).not_to be_away }
+    end
+
+    context 'user has last_logged_in nil' do
+      let(:user) { create(:confirmed_user, login: 'foo') }
+
+      before do
+        allow(user).to receive(:last_logged_in_at).and_return(user.created_at)
+      end
+
+      it { expect(subject).not_to be_away }
+    end
+  end
+
   describe '#find_by_login!' do
     it 'returns a user if it exists' do
       expect(User.find_by_login!(user.login)).to eq(user)
