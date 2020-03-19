@@ -1,6 +1,13 @@
 class SendEventEmailsJob < ApplicationJob
   queue_as :mailers
 
+  EVENTS_TO_NOTIFY = ['Event::RequestStatechange',
+                      'Event::RequestCreate',
+                      'Event::ReviewWanted',
+                      'Event::CommentForProject',
+                      'Event::CommentForPackage',
+                      'Event::CommentForRequest'].freeze
+
   def perform
     Event::Base.where(mails_sent: false).order(created_at: :asc).limit(1000).each do |event|
       subscribers = event.subscribers
@@ -39,29 +46,23 @@ class SendEventEmailsJob < ApplicationJob
   end
 
   def notification_dynamic_params(event)
-    if event.eventtype == 'RequestStatechange'
-      return {
-        notifiable_type: 'BsRequest',
-        notifiable_id: event.payload['id'],
-        bs_request_state: event.payload['state'],
-        bs_request_oldstate: event.payload['oldstate']
-      }
+    return {} unless event.eventtype.in?(EVENTS_TO_NOTIFY)
+
+    dynamic_params = { notifiable_id: event.payload['id'], notifiable_type: 'BsRequest', title: notification_title(event.subject) }
+
+    if event.eventtype == 'Event::RequestStatechange'
+      return dynamic_params.merge!({ bs_request_state: event.payload['state'], bs_request_oldstate: event.payload['oldstate'] })
     end
 
-    if event.eventtype.in?(['ReviewWanted', 'RequestCreate'])
-      return {
-        notifiable_type: 'BsRequest',
-        notifiable_id: event.payload['id']
-      }
-    end
+    return dynamic_params if event.eventtype == 'Event::RequestCreate'
+    return dynamic_params.merge!({ notifiable_type: 'Review' }) if event.eventtype == 'Event::ReviewWanted'
 
-    if event.eventtype.in?(['CommentForProject', 'CommentForPackage', 'CommentForRequest'])
-      return {
-        notifiable_type: 'Comment',
-        notifiable_id: event.payload['id']
-      }
-    end
+    dynamic_params.merge!({ notifiable_type: 'Comment' })
+  end
 
-    {}
+  def notification_title(subject)
+    return subject if subject.size <= 255
+
+    subject.slice(0, 252).concat('...')
   end
 end
