@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
-
-  <include href="obs.rng" />
-
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" xmlns:a="http://www.w3.org/2001/XMLSchema" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="obs.rng"/>
   <start>
     <ref name="configuration-element"/>
   </start>
-
   <define ns="" name="configuration-element">
     <element name="configuration">
       <interleave>
         <element name="title">
-          <!-- short description of this OBS instance showed in the webui -->
+          <a:documentation>
+            short description of this OBS instance showed in the webui
+          </a:documentation>
           <text/>
         </element>
         <element name="description">
-          <!-- long description of this OBS instance showed in the webui on main page -->
+          <a:documentation>
+            long description of this OBS instance showed in the webui on the main page
+          </a:documentation>
           <text/>
         </element>
         <optional>
           <element name="anonymous">
-            <!-- webui (or other sites) can show the content of the OBS instance also to not logged in users. -->
+            <a:documentation>
+              The webui (or other sites) can show the content of this OBS instance to not logged in users too.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -29,7 +32,9 @@
         </optional>
         <optional>
           <element name="change_password">
-            <!-- Users can change their password. This may not work with ldap or proxy_auth mechanisms. -->
+            <a:documentation>
+              Users can change their password. This may not work with ldap or proxy_auth mechanisms.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -38,7 +43,9 @@
         </optional>
         <optional>
           <element name="disallow_group_creation">
-            <!-- Disallow to create groups via the api. Usefull when groups do come via LDAP -->
+            <a:documentation>
+              Disallow group creation via the API. Useful when groups are provided via LDAP.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -47,7 +54,9 @@
         </optional>
         <optional>
           <element name="allow_user_to_create_home_project">
-            <!-- Users are allowed to create projects in their home: namespace themself -->
+            <a:documentation>
+              Users are allowed to create projects in their 'home:' namespace themselves.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -56,7 +65,9 @@
         </optional>
         <optional>
           <element name="default_access_disabled">
-            <!-- New created projects have disabled access by default -->
+            <a:documentation>
+              Newly created projects have access disabled by default.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -65,8 +76,9 @@
         </optional>
         <optional>
           <element name="registration">
-            <!-- New user can themself register (allow), needs approval after registration(confirmation) or
-                 accounts can only be created by the admin (deny) -->
+            <a:documentation>
+              New user can register themselves (allow) or they need approval after registration (confirmation) or accounts can only be created by the admin (deny).
+            </a:documentation>
             <choice>
               <value>allow</value>
               <value>confirmation</value>
@@ -76,51 +88,69 @@
         </optional>
         <optional>
           <element name="default_tracker">
-            <!-- Defines the default issue tracker to be used -->
+            <a:documentation>
+              Defines the default issue tracker to be used
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="download_url">
-            <!-- Defines the prefix of where the published repositories become accessable to the users -->
+            <a:documentation>
+               Base URL of the published repositories.
+               This url points to the root of the published repositories, all projects appear underneath it as follows: '$download_url/Foo:/Subproj:/repository_name'
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="obs_url">
-            <!-- The URL to this OBS instance as seen from outside -->
+            <a:documentation>
+              The URL to this OBS instances webui as seen from outside.
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="api_url">
-            <!-- api url to be used from services -->
+            <a:documentation>
+              API URL to be used by services.
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="http_proxy">
-            <!-- May be used if external hosts, like remote OBS instances, gravatar or to download from external sides -->
+            <a:documentation>
+              May be used if external hosts, like remote OBS instances, gravatar or to download from external sides
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="no_proxy">
-            <!-- proxy filter, to be used like the environment variable with a comma seperated list.-->
+            <a:documentation>
+              A filter that specifies URLs that should be excluded from proxying.
+
+              This should be a coma separated list like the environment variable 'NO_PROXY', e.g.: NO_PROXY="*.foo.com,bar.org,.startup.io"
+            </a:documentation>
             <text/>
           </element>
         </optional>
-
         <!-- backend stuff -->
         <optional>
           <element name="name">
-            <!-- The obs instance name as it will become of the DISTURL macro in each built rpm -->
+            <a:documentation>
+              This OBS instances' name. It is exposed as the '%DISTURL' macro when building rpms.
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="download_on_demand">
-            <!-- EXPERIMENTAL: allows admins to use external package repositories in project repositories -->
+            <a:documentation>
+              EXPERIMENTAL: allows admins to use external package repositories in project repositories
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -129,7 +159,9 @@
         </optional>
         <optional>
           <element name="enforce_project_keys">
-            <!-- always create a signing key when a project is created and no upper project has a key. It disallows to remove the key also in that case. -->
+            <a:documentation>
+              Always create a signing key when a project is created and no parent project has a key. Key removal is prohibited in that case.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -138,7 +170,9 @@
         </optional>
         <optional>
           <element name="cleanup_empty_projects">
-            <!-- If the last package in a project is cleaned up by sourceupdate=cleanup, delete the whole project? -->
+            <a:documentation>
+              If the last package in a project is cleaned up via 'sourceupdate=cleanup', delete the whole project too?
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -147,48 +181,61 @@
         </optional>
         <optional>
           <element name="disable_publish_for_branches">
-            <!-- When a user creates a new project as a side-effect of branching a package, disable publishing that project? The default is "on" to save disk space and bandwidth. -->
+            <a:documentation>
+              When a user creates a new project by branching a package, disable publishing for that project. The default is "on" to save disk space and bandwidth.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
             </choice>
           </element>
         </optional>
-
         <!-- webui only stuff -->
         <optional>
           <element name="ymp_url">
-            <!-- URL prefix for one-click installation files (software.opensuse.org) -->
+            <a:documentation>
+              URL prefix for one-click installation files (software.opensuse.org)
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="bugzilla_url">
-            <!-- Default bugzilla instance for reporting to bugowners -->
+            <a:documentation>
+              Default bugzilla instance for reporting to bugowners
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="admin_email">
-            <!-- default email adress to contact this OBS admin -->
+            <a:documentation>
+              Email address to contact the admin of this OBS instance.
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="theme">
-            <!-- used webui theme -->
+            <a:documentation>
+              The webui theme
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="cleanup_after_days">
-            <!-- Enables delete requests for branch projects after given number of days. -->
+            <a:documentation>
+              Enables delete requests for branched projects after given number of days.
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="gravatar">
-            <!-- Loads pictures of users from gravatar. This works via a hash of their email adress. -->
+            <a:documentation>
+              Load user's profile pictures from Gravatar.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -197,7 +244,9 @@
         </optional>
         <optional>
           <element name="hide_private_options">
-            <!-- Do not show options to hide projects or packages. -->
+            <a:documentation>
+              Do not show the options to hide projects or packages.
+            </a:documentation>
             <choice>
               <value>on</value>
               <value>off</value>
@@ -206,26 +255,31 @@
         </optional>
         <optional>
           <element name="unlisted_projects_filter">
-            <!-- The exclusion filter itself. Is a Regular Expression (eg: ^home:.*) -->
+            <a:documentation>
+              Regular expression for projects that should be hidden (e.g.: '^home:.*').
+            </a:documentation>
             <text/>
           </element>
         </optional>
         <optional>
           <element name="unlisted_projects_filter_description">
-            <!-- The description that will appear in projects list for explaining the exclusion filter. -->
+            <a:documentation>
+              The description that will appear in the project list explaining the exclusion filter.
+            </a:documentation>
             <text/>
           </element>
         </optional>
-
-        <!-- active schedulers -->
+        <a:documentation>
+          Architectures for which this server can schedule builds.
+        </a:documentation>
         <element name="schedulers">
           <zeroOrMore>
             <element name="arch">
-              <ref name="build-arch" />
+              <ref name="build-arch"/>
             </element>
           </zeroOrMore>
         </element>
-      <empty/>
+        <empty/>
       </interleave>
     </element>
   </define>
