@@ -10,11 +10,8 @@
             %i.fas.fa-bookmark
             .small Watchlist
         .toggler.text-center.justify-content-center
-          - tasks = User.session!.tasks
-          = link_to(my_tasks_path, class: 'nav-link text-light p-0 w-100', alt: 'Tasks') do
+          = link_to(user_notifications_path(User.session), class: 'nav-link text-light p-0 w-100', alt: 'Tasks') do
             %i.fas.fa-tasks
-            - if tasks.positive?
-              %span.badge.badge-primary.align-text-top= tasks
             .small Tasks
         - if content_for?(:actions)
           .toggler.text-center.justify-content-center

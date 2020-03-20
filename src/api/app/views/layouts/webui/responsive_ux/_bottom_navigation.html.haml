@@ -7,11 +7,8 @@
           %i.fas.fa-bookmark
           .small Watchlist
       %li.nav-item.border-left.border-gray-500
-        - tasks = User.session!.tasks
-        = link_to(my_tasks_path, class: 'nav-link px-1 py-2 text-light', alt: 'Tasks') do
+        = link_to(user_notifications_path(User.session), class: 'nav-link px-1 py-2 text-light', alt: 'Tasks') do
           %i.fas.fa-tasks
-          - if tasks.positive?
-            .badge.badge-primary.align-text-top= tasks
           .small Tasks
       - if content_for?(:actions)
         %li.nav-item.border-left.border-gray-500
