@@ -2,6 +2,13 @@ class Notification < ApplicationRecord
   belongs_to :subscriber, polymorphic: true
   belongs_to :notifiable, polymorphic: true
 
+  scope :with_notifiable, -> { where.not(notifiable_id: nil, notifiable_type: nil) }
+  scope :for_subscribed_user, lambda { |user|
+    where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
+          user, user.groups.map(&:id))
+  }
+  scope :not_marked_as_done, -> { where(delivered: false) }
+
   serialize :event_payload, JSON
 
   scope :stale, -> { where('created_at < ?', 3.months.ago) }
