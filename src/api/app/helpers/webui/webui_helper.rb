@@ -91,7 +91,7 @@ module Webui::WebuiHelper
   end
 
   def image_template_icon(template)
-    default_icon = image_url('icons/drive-optical-48.png')
+    default_icon = image_url('drive-optical-48.png')
     icon = template.public_source_path('_icon') if template.has_icon?
     capture_haml do
       haml_tag(:object, data: icon || default_icon, type: 'image/png', title: template.title, width: 32, height: 32) do
