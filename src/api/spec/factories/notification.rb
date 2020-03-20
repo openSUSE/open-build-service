@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :notification do
-    type { 'Notification' }
+    type { 'Notification::RssFeedItem' }
     event_type { 'FakeEventType' }
     event_payload { { fake: 'payload' } }
     subscription_receiver_role { 'owner' }
@@ -13,12 +13,12 @@ FactoryBot.define do
       bs_request_oldstate { :new }
     end
 
-    trait :creation do
+    trait :request_created do
       event_type { 'Event::RequestCreated' }
       association :notifiable, factory: :bs_request_with_submit_action
     end
 
-    trait :review do
+    trait :review_wanted do
       event_type { 'Event::ReviewWanted' }
       association :notifiable, factory: :bs_request_with_submit_action
     end
