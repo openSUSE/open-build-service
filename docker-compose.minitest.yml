@@ -1,9 +1,9 @@
 version: "2.1"
 services:
   minitest:
-    image: openbuildservice/frontend-backend
+    image: openbuildservice/minitest
     build:
-      dockerfile: docker-files/Dockerfile.frontend-backend
+      dockerfile: docker-files/Dockerfile.minitest
       context: src/api
     volumes:
       - .:/obs
