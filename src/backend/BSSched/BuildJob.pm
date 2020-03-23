@@ -374,7 +374,7 @@ sub set_genbuildreqs {
   my $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp};
   if (defined $filecontent) {
     my $md5 = Digest::MD5::md5_hex($filecontent);
-    return if $genbuildreqs && ($genbuildreqs->{$packid} || [''])->[0] eq $md5;
+    return if $genbuildreqs && ($genbuildreqs->{$packid} || [''])->[0] eq $md5 && (($genbuildreqs->{$packid} || [])->[2] || '') eq ($verifymd5 || '');
     $genbuildreqs = $gctx->{'genbuildreqs'}->{$prp} = {} unless $genbuildreqs;
     $genbuildreqs->{$packid} = [ $md5, [ split("\n", $filecontent) ], $verifymd5 ];
   } else {
@@ -1162,7 +1162,6 @@ sub create {
     }
   }
   if (!$ctx->{'isreposerver'}) {
-    my $genbuildreqs = ($ctx->{'genbuildreqs'} || {})->{$packid};
     $binfo->{'logidlelimit'} = $bconf->{'buildflags:logidlelimit'} if $bconf->{'buildflags:logidlelimit'};
     $binfo->{'genbuildreqs'} = $genbuildreqs->[0] if $genbuildreqs;
     if ($bconf->{'buildflags:obsgendiff'} && @{$ctx->{'repo'}->{'releasetarget'} || []}) {
