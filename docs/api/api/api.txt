@@ -832,7 +832,6 @@ POST /source/<project>/<package>
   linkdiff: for server side diff of a linked or branched package
   servicediff: shows the changes of the service run
   commit: commit files in upload revision
-  commitfilelist: commit defined files in upload revision
   deleteuploadrev: delete all uploaded sources which are not committed yet
   copy: copy package sources from another package
   undelete: undelete the package
@@ -880,9 +879,22 @@ Parameters:
   onlyissues: used to limit to issues (for diff commands)
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string.
-  withvalidate: activate sha validation code
   withvrev: copy also the vrev counter of the revision
 
+POST /source/<project>/<package>?cmd=commitfilelist
+
+  creating a new commit including defined files already uploaded to the repository.
+  This can be done via PUT using rev=repository which avoids a commit.
+
+  This requires a directory xml providing file name and md5 as body.
+  It is recommended to use the withvalidate parameter and including the 
+  sha256 sum including "sha256:" prefix in "hash" attribute for security reason.
+
+Parameters:
+  withvalidate: activate sha validation code (optional, but recommended)
+  comment: comment for history, optional
+
+XmlBody: directory
 
 
 GET /source/<project>/<package>/<binary>/_attribute/<attribute>
