@@ -13,6 +13,13 @@ body.responsive-ux {
   @import 'responsive_ux/tabs';
 
   .build-results .sticky-top { top: $top-bar-height; }
+  #notifications-filter-desktop {
+    strong { cursor: pointer; }
+    .collapse {
+      &.show { border-top: 1px solid $gray-300;}
+    }
+  }
+
 }
 
 // FIXME: move to somewhere else?
@@ -43,6 +50,10 @@ body.responsive-ux {
 
     .build-info .triangle {
       &.left { left: .25rem; }
+    }
+
+    #notifications-filter-desktop {
+      .collapse { display: block !important; }
     }
   }
 }

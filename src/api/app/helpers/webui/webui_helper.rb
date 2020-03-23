@@ -401,6 +401,12 @@ module Webui::WebuiHelper
       text
     end
   end
+
+  def user_notification_link(link_text, new_filter, filter: 'inbox')
+    css_class = 'list-group-item list-group-item-action'
+    css_class += ' active' if new_filter == filter || (filter.nil? && new_filter == 'inbox')
+    link_to(link_text, user_notifications_path(type: new_filter), class: css_class)
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength
