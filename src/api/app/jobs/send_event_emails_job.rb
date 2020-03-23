@@ -17,21 +17,23 @@ class SendEventEmailsJob < ApplicationJob
         next
       end
 
-      begin
-        create_rss_notifications(event)
-        EventMailer.event(subscribers, event).deliver_now
-      rescue StandardError => e
-        Airbrake.notify(e, event_id: event.id)
-      ensure
-        event.update_attributes(mails_sent: true)
-      end
+      create_notifications(event)
+      send_email(subscribers, event)
     end
     true
   end
 
   private
 
-  def create_rss_notifications(event)
+  def send_email(subscribers, event)
+    EventMailer.event(subscribers, event).deliver_now
+  rescue StandardError => e
+    Airbrake.notify(e, event_id: event.id)
+  ensure
+    event.update_attributes(mails_sent: true)
+  end
+
+  def create_notifications(event)
     return unless event.eventtype.in?(EVENTS_TO_NOTIFY)
 
     event.subscriptions.each do |subscription|
@@ -50,6 +52,8 @@ class SendEventEmailsJob < ApplicationJob
     }
 
     Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+  rescue StandardError => e
+    Airbrake.notify(e, event_id: event.id)
   end
 
   def notification_dynamic_params(event)
