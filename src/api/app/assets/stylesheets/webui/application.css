@@ -1,0 +1,41 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+ *= require token-input
+ *= require token-input-facebook
+ *= require codemirror
+ *= require mousetrap
+ *= require peek
+ *= require webui/application/bento.css
+ *= require webui/application/cm2.css
+ *= require webui/application/icons.css
+ *= require webui/application/style.css
+ *= require webui/application/our-own-jquery-ui.css
+ *= require webui/application/monitor.css
+ *= require webui/application/package.css
+ *= require webui/application/project.css
+ *= require webui/application/search.css
+ *= require webui/application/home.css
+ *= require webui/application/comments.css
+ *= require webui/application/notifications.css
+ *= require webui/application/attribute.css
+ *= require webui/application/request.css
+ *= require webui/application/datatable.css
+ *= require webui/application/jobhistory.css
+ *= require webui/application/kiwi_image.css
+ *= require webui/application/cloud.css
+ *= require webui/application/image_templates.css
+ *= require webui/application/flash.css
+ *= require webui/application/box-extensions.css
+ *= require webui/application/utils.css
+ *= require webui/application/datatables.css
+ *= require webui/application/announcements.css
+ *= require webui/application/interconnect.css
+*/
