@@ -112,7 +112,9 @@ $BSRevision::storelinkinfo = \&BSSrcServer::LinkinfoDB::storelinkinfo;
 use strict;
 
 my $port = 5352;	#'SR'
+my $proto = 'http';
 $port = $1 if $BSConfig::srcserver =~ /:(\d+)$/;
+$proto = $1 if $BSConfig::srcserver =~ /^(https):/;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
@@ -6986,6 +6988,7 @@ my $dispatches_ajax = [
 
 my $conf = {
   'port' => $port,
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'maxchild' => 20,
   'maxchild2' => 20,
@@ -7003,6 +7006,9 @@ if ($BSConfig::workersrcserver) {
   my $wport = $port;
   $wport = $1 if $BSConfig::workersrcserver =~ /:(\d+)$/;
   $conf->{'port2'} = $wport if $wport != $port;
+  my $wproto = 'http';
+  $wproto = $1 if $BSConfig::workersrcserver =~ /^(https):/;
+  die("worker port on $wproto but normal port on $proto: both need to be the same\n") unless $wproto eq $proto;
 }
 
 # create bsdir before root privileges are dropped

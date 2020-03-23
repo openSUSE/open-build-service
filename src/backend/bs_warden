@@ -36,7 +36,7 @@ use XML::Structured ':bytes';
 use Getopt::Long ();
 
 use BSConfiguration;
-use BSRPC;
+use BSRPC ':https';
 use BSUtil;
 use BSXML;
 use BSRedisnotify;

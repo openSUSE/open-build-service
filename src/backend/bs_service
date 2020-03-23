@@ -61,7 +61,9 @@ BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BS
 my $tempdir = $BSConfig::servicetempdir;
 my $verbose;
 my $port = 5152;
+my $proto = 'http';
 $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
+$proto = $1 if $BSConfig::serviceserver =~ /^(https):/;
 
 my $servicedir = $BSConfig::servicedir || "/usr/lib/obs/service";
 my $rootservicedir = $BSConfig::serviceroot ? "$BSConfig::serviceroot/$servicedir" : $servicedir;
@@ -310,6 +312,7 @@ my $dispatches = [
 
 my $conf = {
   'port' => $port,
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'setkeepalive' => 1,
   'maxchild' => $maxchild,

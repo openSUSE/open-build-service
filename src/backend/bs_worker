@@ -39,7 +39,7 @@ BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
 use Storable;
 
-use BSRPC;
+use BSRPC ':https';
 use BSServer;
 use BSDispatch;
 use BSConfiguration;

@@ -90,7 +90,9 @@ $Build::Kiwi::repoextras = 1 if defined $Build::Kiwi::repoextras;
 use strict;
 
 my $port = 5252;	#'RR'
+my $proto = 'http';
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
+$proto = $1 if $BSConfig::reposerver =~ /^(https):/;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
@@ -4416,6 +4418,7 @@ my $dispatches_ajax = [
 
 my $conf = {
   'port' => $port,
+  'proto' => $proto,
   'dispatches' => $dispatches,
   'maxchild' => 20,
   'maxchild2' => 20,
@@ -4432,6 +4435,9 @@ if ($BSConfig::workerreposerver) {
   my $wport = $port;
   $wport = $1 if $BSConfig::workerreposerver =~ /:(\d+)$/;
   $conf->{'port2'} = $wport if $wport != $port;
+  my $wproto = 'http';
+  $wproto = $1 if $BSConfig::workerreposerver =~ /^(https):/;
+  die("worker port on $wproto but normal port on $proto: both need to be the same\n") unless $wproto eq $proto;
 }
 
 # create bsdir before root privileges are dropped
