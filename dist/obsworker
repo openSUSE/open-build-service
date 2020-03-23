@@ -318,7 +318,7 @@ EOF
 }
 
 case "$1" in
-    start)
+    start|run)
         # reset screenrc
         mkdir -p "$obsrundir"
         chown obsrun:obsrun "$obsrundir"
@@ -462,8 +462,12 @@ case "$1" in
                 >> $screenrc
             mkdir -p $workerdir/$I
         done
+        detachflag=
+        if [ "$1" = "start" ]; then
+            detachflag=-d
+        fi
         pushd "$workerbootdir" > /dev/null
-        screen -S obsworker -m -d -c $screenrc
+        screen -S obsworker -m $detachflag -c $screenrc
         popd > /dev/null
     ;;
     stop)
@@ -481,7 +485,7 @@ case "$1" in
         screen -S obsworker -X quit
     ;;
     *)
-        echo "Usage: $0 {start|stop}"
+        echo "Usage: $0 {start|stop|run}"
         exit 1
     ;;
 esac
