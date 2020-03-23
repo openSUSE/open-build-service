@@ -14,7 +14,7 @@ AllCops:
     - 'src/backend/**/*'
     # These files are RPM spec files
     - 'dist/*.spec'
-    - 'dist/t/spec/fixtures/ctris.spec'
+    - 'dist/t/spec/fixtures/hello_world.spec'
 
 #################### Layout ###########################
 
