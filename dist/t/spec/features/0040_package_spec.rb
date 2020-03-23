@@ -29,7 +29,7 @@ RSpec.describe "Package" do
     click_link('Add file')
     attach_file("file", File.expand_path('../fixtures/hello_world.spec', __dir__), make_visible: true)
     click_button('Save')
-    expect(page).to have_content("The file 'hello_word.sppec' has been successfully saved.")
+    expect(page).to have_content("The file 'hello_word.spec' has been successfully saved.")
   end
 
   it "should be able to branch" do
