@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :notification do
     type { 'Notification::RssFeedItem' }
-    event_type { 'FakeEventType' }
+    event_type { 'Event::StateChange' }
     event_payload { { fake: 'payload' } }
     subscription_receiver_role { 'owner' }
     title { Faker::Lorem.sentence }
