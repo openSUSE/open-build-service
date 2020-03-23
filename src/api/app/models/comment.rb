@@ -57,6 +57,8 @@ class Comment < ApplicationRecord
       Event::CommentForProject.create(params)
     when 'BsRequest'
       params = commentable.notify_parameters(params)
+      # params[:id] got overwritten with notify_parameters. We need to assign it again
+      params[:id] = id
       # call the action
       Event::CommentForRequest.create(params)
     end
