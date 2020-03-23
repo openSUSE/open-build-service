@@ -9,14 +9,24 @@ xml.rss version: '2.0' do
 
     @notifications.each do |notification|
       xml.item do
-        xml.title notification.event.subject
-        # We render the event_mailer view to 'description'
-        xml.description render(
-          template: "event_mailer/#{notification.event.template_name}",
-          layout: false,
-          formats: :text,
-          locals: { event: notification.event.expanded_payload }
-        )
+        if notification.notifiable
+          xml.title notification.title
+          xml.description render(
+            template: "notifications/#{notification.template_name}",
+            layout: false,
+            formats: :text,
+            locals: { notification: notification }
+          )
+        else
+          # TODO: responsive_ux: This 'else' clause will be removed after all records from notifications are migrated
+          xml.title notification.event.subject
+          xml.description render(
+            template: "event_mailer/#{notification.event.template_name}",
+            layout: false,
+            formats: :text,
+            locals: { event: notification.event.expanded_payload }
+          )
+        end
         xml.category "#{notification.event_type}/#{notification.subscription_receiver_role}"
         xml.pubDate notification.created_at
         xml.author @configuration['title']

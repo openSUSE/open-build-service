@@ -1,0 +1,13 @@
+<%- bs_request = notification.notifiable %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: bs_request.number, host: @host, only_path: false) %>
+
+State of request <%= bs_request.number %> was changed by <%= bs_request.commenter %>:
+
+  <%= notification.bs_request_oldstate %> -> <%= notification.bs_request_state %>
+
+<% if bs_request.comment.present? -%>
+Comment:
+  <%= bs_request.comment %>
+
+<% end -%>
+<%= render partial: 'notifications/actions', locals: { actions: bs_request.bs_request_actions } %>

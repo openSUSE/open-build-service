@@ -12,6 +12,8 @@ class Review < ApplicationRecord
   belongs_to :bs_request, touch: true
   has_many :history_elements, -> { order(:created_at) }, class_name: 'HistoryElement::Review', foreign_key: :op_object_id
   has_many :history_elements_assigned, class_name: 'HistoryElement::ReviewAssigned', foreign_key: :op_object_id
+  has_many :notifications, as: :notifiable, dependent: :delete_all
+
   validates :state, inclusion: { in: VALID_REVIEW_STATES }
 
   validates :by_user, length: { maximum: 250 }
@@ -203,6 +205,7 @@ class Review < ApplicationRecord
 
   def create_notification(params = {})
     params = params.merge(_get_attributes)
+    params[:id] = id
     params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
 

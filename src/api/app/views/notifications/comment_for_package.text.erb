@@ -1,0 +1,6 @@
+<%- comment = notification.notifiable %>
+Visit <%= url_for(project: comment.commentable.project, package: comment.commentable, controller: 'webui/package', action: :show, only_path: false, host: @host) %>
+
+<%= comment.user.realname %> wrote in package <%= comment.commentable.project %>/<%= comment.commentable %>:
+
+<%= comment.body %>

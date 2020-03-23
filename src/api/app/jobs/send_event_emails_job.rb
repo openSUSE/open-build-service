@@ -17,37 +17,46 @@ class SendEventEmailsJob < ApplicationJob
         next
       end
 
-      begin
-        create_rss_notifications(event)
-        EventMailer.event(subscribers, event).deliver_now
-      rescue StandardError => e
-        Airbrake.notify(e, event_id: event.id)
-      ensure
-        event.update_attributes(mails_sent: true)
-      end
+      create_notifications(event)
+      send_email(subscribers, event)
     end
     true
   end
 
   private
 
-  def create_rss_notifications(event)
-    event.subscriptions.each do |subscription|
-      notification_params = {
-        subscriber: subscription.subscriber,
-        event_type: event.eventtype,
-        event_payload: event.payload,
-        subscription_receiver_role: subscription.receiver_role
-      }
+  def send_email(subscribers, event)
+    EventMailer.event(subscribers, event).deliver_now
+  rescue StandardError => e
+    Airbrake.notify(e, event_id: event.id)
+  ensure
+    event.update_attributes(mails_sent: true)
+  end
 
-      next if subscription.subscriber && subscription.subscriber.away?
-      Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+  def create_notifications(event)
+    return unless event.eventtype.in?(EVENTS_TO_NOTIFY)
+
+    event.subscriptions.each do |subscription|
+      create_rss_notification(event, subscription)
     end
   end
 
-  def notification_dynamic_params(event)
-    return {} unless event.eventtype.in?(EVENTS_TO_NOTIFY)
+  def create_rss_notification(event, subscription)
+    return if subscription.subscriber && subscription.subscriber.away?
 
+    notification_params = {
+      subscriber: subscription.subscriber,
+      event_type: event.eventtype,
+      event_payload: event.payload,
+      subscription_receiver_role: subscription.receiver_role
+    }
+
+    Notification::RssFeedItem.create(notification_params.merge!(notification_dynamic_params(event)))
+  rescue StandardError => e
+    Airbrake.notify(e, event_id: event.id)
+  end
+
+  def notification_dynamic_params(event)
     dynamic_params = { notifiable_id: event.payload['id'], notifiable_type: 'BsRequest', title: notification_title(event.subject) }
 
     if event.eventtype == 'Event::RequestStatechange'
