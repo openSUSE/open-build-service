@@ -269,7 +269,7 @@ GEM
       peek
     pkg-config (1.4.1)
     popper_js (1.16.0)
-    power_assert (1.1.6)
+    power_assert (1.1.7)
     pry (0.13.0)
       coderay (~> 1.1)
       method_source (~> 1.0)
