@@ -74,12 +74,12 @@ sub init_publisheddb {
   my $db = opendb($extrepodb, 'binary');
   my $h = $db->{'sqlite'} || connectdb($db);
   my %t = map {$_ => 1} list_tables($h);
-  if (!$t{'prp_ext'} || !$t{'binary'} || !$t{'pattern'}) {
+  if (!$t{'repoinfo'} || !$t{'binary'} || !$t{'pattern'}) {
     # need to create our tables. abort if there is an old database
     BSUtil::diecritcal("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
-    BSUtil::diecritcal("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'prp_ext'};
+    BSUtil::diecritcal("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'repoinfo'};
     dbdo($h, <<'EOS');
-CREATE TABLE IF NOT EXISTS prp_ext(
+CREATE TABLE IF NOT EXISTS repoinfo(
   id INTEGER PRIMARY KEY,
   path TEXT,
   json TEXT,
@@ -89,16 +89,16 @@ CREATE TABLE IF NOT EXISTS prp_ext(
 EOS
     dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'binary';
 CREATE TABLE IF NOT EXISTS binary(
-  prp_ext INTEGER,
+  repoinfo INTEGER,
   name TEXT,
   path TEXT,
   package TEXT,
-  FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
+  FOREIGN KEY(repoinfo) REFERENCES repoinfo(id)
 )
 EOS
     dbdo($h, <<'EOS') if !$onlytable || $onlytable eq 'pattern';
 CREATE TABLE IF NOT EXISTS pattern(
-  prp_ext INTEGER,
+  repoinfo INTEGER,
   path TEXT,
   package TEXT,
   json TEXT,
@@ -106,19 +106,19 @@ CREATE TABLE IF NOT EXISTS pattern(
   summary TEXT,
   description TEXT,
   type TEXT,
-  FOREIGN KEY(prp_ext) REFERENCES prp_ext(id)
+  FOREIGN KEY(repoinfo) REFERENCES repoinfo(id)
 )
 EOS
   }
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_path on prp_ext(path)');
-  dbdo($h, 'CREATE INDEX IF NOT EXISTS prp_ext_idx_project on prp_ext(project)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS repoinfo_idx_path on repoinfo(path)');
+  dbdo($h, 'CREATE INDEX IF NOT EXISTS repoinfo_idx_project on repoinfo(project)');
   if (!$onlytable || $onlytable eq 'binary') {
     dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_name on binary(name)');
-    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_prp_ext on binary(prp_ext)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS binary_idx_repoinfo on binary(repoinfo)');
   }
   if (!$onlytable || $onlytable eq 'pattern') {
     dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_name on pattern(name)');
-    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_prp_ext on pattern(prp_ext)');
+    dbdo($h, 'CREATE INDEX IF NOT EXISTS pattern_idx_repoinfo on pattern(repoinfo)');
   }
 }
 
@@ -154,6 +154,7 @@ sub asyncmode {
 my %tables = (
   'binary' => { map {$_ => 1} qw {package name} },
   'pattern' => { map {$_ => 1} qw {package name summary description type} },
+  'repoinfo' => { map {$_ => 1} qw {project} },
   'linkinfo'=> { map {$_ => 1} qw {project package rev} },
 );
 
@@ -162,7 +163,7 @@ my %tables = (
 sub prpext2id {
   my ($h, $prp_ext, $repoinfo) = @_;
   if (!$repoinfo) {
-    my @ary = $h->selectrow_array('SELECT id from prp_ext WHERE path = ?', undef, $prp_ext);
+    my @ary = $h->selectrow_array('SELECT id from repoinfo WHERE path = ?', undef, $prp_ext);
     return $ary[0];
   }
   my @p = split('/', $prp_ext);
@@ -173,14 +174,14 @@ sub prpext2id {
   delete $i{$_} for qw{binaryorigins state code starttime endtime publishid};
   my $json = JSON::XS->new->utf8->canonical->encode(\%i);
 
-  my @ary = $h->selectrow_array('SELECT id,json from prp_ext WHERE path = ?', undef, $prp_ext);
+  my @ary = $h->selectrow_array('SELECT id,json from repoinfo WHERE path = ?', undef, $prp_ext);
   if (!$ary[0]) {
-    dbdo_bind($h, 'INSERT OR IGNORE INTO prp_ext(path,json,project) VALUES(?,?,?)', [ $prp_ext ], [ $json ], [ $project ]);
-    @ary = $h->selectrow_array('SELECT id from prp_ext where path = ?', undef, $prp_ext);
+    dbdo_bind($h, 'INSERT OR IGNORE INTO repoinfo(path,json,project) VALUES(?,?,?)', [ $prp_ext ], [ $json ], [ $project ]);
+    @ary = $h->selectrow_array('SELECT id from repoinfo where path = ?', undef, $prp_ext);
   } elsif (!$ary[1] || $ary[1] ne $json) {
-    dbdo_bind($h, 'UPDATE prp_ext SET json = ?, project = ? WHERE path = ?', [ $json ], [ $project ], [ $prp_ext ]);
+    dbdo_bind($h, 'UPDATE repoinfo SET json = ?, project = ? WHERE path = ?', [ $json ], [ $project ], [ $prp_ext ]);
   }
-  die("could not insert new prp_ext '$prp_ext'\n") unless $ary[0];
+  die("could not insert new repoinfo '$prp_ext'\n") unless $ary[0];
   return $ary[0];
 }
 
@@ -206,9 +207,9 @@ sub updatedb_deleterepo {
   return unless $prp_ext_id;
 
   $h->begin_work() || die($h->errstr);
-  dbdo_bind($h, 'DELETE FROM binary WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
-  dbdo_bind($h, 'DELETE FROM pattern WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
-  dbdo_bind($h, 'DELETE FROM prp_ext WHERE id = ?', [ $prp_ext_id, SQL_INTEGER ]);
+  dbdo_bind($h, 'DELETE FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
+  dbdo_bind($h, 'DELETE FROM pattern WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
+  dbdo_bind($h, 'DELETE FROM repoinfo WHERE id = ?', [ $prp_ext_id, SQL_INTEGER ]);
   $h->commit() || die $h->errstr;
 }
 
@@ -229,7 +230,7 @@ sub updatedb_repoinfo {
 
   if (!@bins) {
     $h->begin_work() || die($h->errstr);
-    dbdo_bind($h, 'DELETE FROM binary WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
+    dbdo_bind($h, 'DELETE FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
     $h->commit() || die $h->errstr;
     return;
   }
@@ -238,7 +239,7 @@ sub updatedb_repoinfo {
   $h->begin_work() || die($h->errstr);
 
   # get old data
-  $sh = dbdo_bind($h, 'SELECT rowid,name,path FROM binary WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
+  $sh = dbdo_bind($h, 'SELECT rowid,name,path FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
   my ($rowid, $name, $path);
   $sh->bind_columns(\$rowid, \$name, \$path);
   my %old;
@@ -255,7 +256,7 @@ sub updatedb_repoinfo {
       next;
     }
     if (!$sh) {
-      $sh = $h->prepare('INSERT INTO binary(prp_ext,name,path,package) VALUES(?,?,?,?)') || die($h->errstr);
+      $sh = $h->prepare('INSERT INTO binary(repoinfo,name,path,package) VALUES(?,?,?,?)') || die($h->errstr);
       $sh->bind_param(1, $prp_ext_id, SQL_INTEGER);
     }
     $sh->bind_param(2, $name);
@@ -292,7 +293,7 @@ sub updatedb_patterninfo {
   my @pats = sort keys %{$patterninfo || {}};
   if (!@pats) {
     $h->begin_work() || die($h->errstr);
-    dbdo_bind($h, 'DELETE FROM pattern WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
+    dbdo_bind($h, 'DELETE FROM pattern WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
     $h->commit() || die $h->errstr;
     return;
   }
@@ -301,7 +302,7 @@ sub updatedb_patterninfo {
   my $sh;
 
   # get old data
-  $sh = dbdo_bind($h, 'SELECT rowid,path,json FROM pattern WHERE prp_ext = ?', [ $prp_ext_id, SQL_INTEGER ]);
+  $sh = dbdo_bind($h, 'SELECT rowid,path,json FROM pattern WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
   my ($rowid, $path, $json);
   $sh->bind_columns(\$rowid, \$path, \$json);
   my %old;
@@ -318,7 +319,7 @@ sub updatedb_patterninfo {
       next;
     }
     if (!$sh) {
-      $sh = $h->prepare('INSERT INTO pattern(prp_ext,path,package,json,name,summary,description,type) VALUES(?,?,?,?,?,?,?,?)') || die($h->errstr);
+      $sh = $h->prepare('INSERT INTO pattern(repoinfo,path,package,json,name,summary,description,type) VALUES(?,?,?,?,?,?,?,?)') || die($h->errstr);
       $sh->bind_param(1, $prp_ext_id, SQL_INTEGER);
     }
     $sh->bind_param(2, $path);
@@ -375,7 +376,7 @@ our %binarykey2package;		# cache for key->package translation
 sub getrepoinfo {
   my ($db, $prp_ext) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  my @ary = $h->selectrow_array('SELECT id,json from prp_ext WHERE path = ?', undef, $prp_ext);
+  my @ary = $h->selectrow_array('SELECT id,json from repoinfo WHERE path = ?', undef, $prp_ext);
   return undef unless $ary[1];
   return JSON::XS::decode_json($ary[1]);
 }
@@ -387,7 +388,7 @@ sub getrepoorigins {
   return undef unless $prp_ext_id;
   my $table = $db->{'table'};
   my %binaryorigins;
-  my $sh = dbdo_bind($h, "SELECT path,package FROM $table WHERE prp_ext = ?", [ $prp_ext_id, SQL_INTEGER ]);
+  my $sh = dbdo_bind($h, "SELECT path,package FROM $table WHERE repoinfo = ?", [ $prp_ext_id, SQL_INTEGER ]);
   my ($path, $packid) = @_;
   $sh->bind_columns(\$path, \$packid);
   $binaryorigins{$path} = $packid while $sh->fetch();
@@ -399,12 +400,13 @@ sub getprojectkeys {
   my ($db, $projid) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
   if (!$projid) {
-    my $ary = $h->selectcol_arrayref("SELECT project FROM prp_ext") || die($h->errstr);
+    my $ary = $h->selectcol_arrayref("SELECT project FROM repoinfo") || die($h->errstr);
     return sort(BSUtil::unify(@$ary));
   }
   my $table = $db->{'table'};
   return map {"$projid/$_"} $db->getlinkpackages($projid) if $table eq 'linkinfo';
-  my $sh = dbdo_bind($h, "SELECT prp_ext.path,$table.path,package FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE prp_ext.project = ?", [ $projid ]);
+  return rawkeys($db, 'project', $projid) if $table eq 'repoinfo';
+  my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
   my @res;
@@ -424,7 +426,7 @@ sub getrecord {
   return undef unless $prp_ext_id;
   my $table = $db->{'table'};
   return undef if $table eq 'binary';		# no json element in binary
-  my @ary = $h->selectrow_array("SELECT $table.json FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE prp_ext.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
+  my @ary = $h->selectrow_array("SELECT $table.json FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.path = ? AND $table.path  = ?", undef, $prp_ext, $path);
   return $ary[0] ? JSON::XS::decode_json($ary[0]) : undef;
 }
 
@@ -493,6 +495,9 @@ sub rawfetch {
   if ($table eq 'pattern') {
     return undef unless $key =~ /^(.+?(?<!:)\/.+?)(?<!:)\/(.*)$/;
     return getrecord($db, $1, $2);
+  }
+  if ($table eq 'repoinfo') {
+    return getrepoinfo($db, $key);
   }
   die("Cannot fetch data set for sqlite table $table\n");
 }
@@ -584,7 +589,12 @@ sub rawkeys {
     return sort(@res);
   }
 
-  my $sh = dbdo_bind($h, "SELECT prp_ext.path,$table.path,package FROM $table LEFT JOIN prp_ext ON prp_ext.id = $table.prp_ext WHERE $path = ?", [ $value ]);
+  if ($table eq 'repoinfo') {
+    my $ary = $h->selectcol_arrayref("SELECT repoinfo.path FROM $table WHERE $path = ?", undef, $value) || die($h->errstr);
+    return @$ary;
+  }
+
+  my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
   my @res;

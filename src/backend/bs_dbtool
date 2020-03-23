@@ -45,7 +45,7 @@ if (defined $user) {
   die "setuid: $!\n" if ($> != $user);
 }
 
-die("usage: bs_dbtool binary|pattern|linkinfo <cmd> [args]\n") unless @ARGV >= 2;
+die("usage: bs_dbtool binary|pattern|repoinfo|linkinfo <cmd> [args]\n") unless @ARGV >= 2;
 
 my $table = shift @ARGV;
 my $cmd = shift @ARGV;
@@ -58,13 +58,14 @@ if ($table eq 'linkinfo') {
     $db = BSDB::opendb($sourcedb, $table);
   }
   $db->{'allkeyspath'} = 'project';
-} elsif ($table eq 'binary' || $table eq 'pattern') {
+} elsif ($table eq 'binary' || $table eq 'pattern' || $table eq 'repoinfo') {
   if ($BSConfig::published_db_sqlite) {
     $db = BSSrcServer::SQLite::opendb($extrepodb, $table);
   } else {
     $db = BSDB::opendb($extrepodb, $table);
   }
   $db->{'allkeyspath'} = 'name';
+  $db->{'allkeyspath'} = 'project' if $table eq 'repoinfo';
 } else {
   die("unknown database table $table\n");
 }
@@ -176,6 +177,8 @@ if ($cmd eq 'convert') {
   } elsif ($table eq 'binary') {
     $ndb = BSSrcServer::SQLite::opendb($extrepodb, $table);
     $db = BSDB::opendb($extrepodb, 'repoinfo');
+  } else {
+    die("unsupported table to convert\n");
   }
 
   my @todo;
