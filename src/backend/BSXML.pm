@@ -702,6 +702,10 @@ our $event = [
 	'projectservicesmd5',	# for type=servicedispatch
 	'oldsrcmd5',		# for type=servicedispatch
 	'details',              # for type=dispatchdetails
+        [[ 'included' =>        # for type=sourcepublish (optional)
+             'project',
+             'package',
+             'srcmd5' ]]
 ];
 
 our $events = [

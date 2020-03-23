@@ -6316,9 +6316,52 @@ sub external_notification_redis {
   return $BSStdServer::return_ok;
 }
 
+sub verify_sourcepublish_event {
+  my ($project, $package, $md5) = @_;
+  BSVerify::verify_projid($project);
+  BSVerify::verify_packid($package);
+  BSVerify::verify_md5($md5);
+  # FIXME improve caching and error handling
+  BSSrcServer::Access::checksourceaccess($project, $package);
+}
+
+sub external_notification_sourcepublish {
+  my ($cgi) = @_;
+  die("need payload for sourcepublish notification\n") unless BSServer::have_content();
+  my $payload = BSUtil::fromstorable(BSServer::read_data());
+
+  my $sourcepublishdir = "$eventdir/sourcepublish";
+  mkdir_p($sourcepublishdir) unless -d $sourcepublishdir;
+
+  for (keys %$payload) {
+    my ($project, $package, $md5) = split('/', $_);
+    verify_sourcepublish_event($project, $package, $md5);
+
+    my @included;
+    for my $source (@{$payload->{$_} || []}) {
+      my ($iproject, $ipackage, $imd5) = split("/", $source);
+      verify_sourcepublish_event($iproject, $ipackage, $imd5);
+      push @included, { 'project' => $iproject, 'package' => $ipackage, 'srcmd5' => $imd5 };
+    }
+
+    my $evname = "${project}::${package}::${md5}";
+    my $ev = { 'type' => "sourcepublish" };
+    $ev->{'project'} = $project;
+    $ev->{'package'} = $package;
+    $ev->{'srcmd5'} = $md5;
+    $ev->{'included'} = \@included if @included;
+    writexml("$sourcepublishdir/.$evname$$", "$sourcepublishdir/$evname", $ev, $BSXML::event);
+  }
+
+  BSUtil::ping("$sourcepublishdir/.ping");
+
+  return $BSStdServer::return_ok;
+}
+
 sub external_notification {
   my ($cgi, $type) = @_;
   return external_notification_redis($cgi) if $type eq 'redis';
+  return external_notification_sourcepublish($cgi) if $type eq 'sourcepublish';
   my $param = {};
   for (keys %$cgi) {
     $param->{$_} = $cgi->{$_} unless $_ eq '_type' || /^\./;

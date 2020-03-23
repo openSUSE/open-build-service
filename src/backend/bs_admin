@@ -105,6 +105,9 @@ Job Controlling
  --check-package <project> <package> <architecture>
    Check status of a package in all repositories
 
+ --publish-source <project> <package> <md5sum>
+   Creates an event for the source publisher. It won't get executed if not enabled.
+
  --publish-repository <project> <repository>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
    The publisher may skip the event, if nothing has changed.
@@ -518,6 +521,17 @@ sub write_publish_event {
   BSUtil::ping("$eventroot/publish/.ping");
 }
 
+sub write_source_publish_event {
+  my ($project, $package, $md5) = @_;
+  my $evname = "${project}::${package}::${md5}";
+  my $ev = { 'type' => "sourcepublish" };
+  $ev->{'project'} = $project;
+  $ev->{'package'} = $package;
+  $ev->{'srcmd5'} = $md5;
+  writexml("$eventroot/sourcepublish/.$evname$$", "$eventroot/sourcepublish/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventroot/sourcepublish/.ping");
+}
+
 sub prefer_publish_event {
   my ($name) = @_;
   rename( "$eventroot/publish/$name", "$eventroot/publish/_$name" ) || die("rename of $eventroot/publish/$name failed: $!");
@@ -792,6 +806,12 @@ while (@ARGV) {
     $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
     check_project($project, $repo, $arch, 1);
+  } elsif ( $arg eq "--publish-source" ) {
+    die("ERROR: need project, package and md5sum as argument!\n") if @ARGV != 3;
+    my $project = shift @ARGV;
+    my $package = shift @ARGV;
+    my $md5 = shift @ARGV;
+    write_source_publish_event($project, $package, $md5);
   } elsif ( $arg eq "--publish-repository" || $arg eq "--unpublish-repository" || $arg eq "--republish-repository" ) {
     die("ERROR: need project and repository as argument!\n") if @ARGV != 2;
     my $project = shift @ARGV;
