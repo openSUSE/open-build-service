@@ -14,28 +14,22 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Create Package')
-    fill_in 'name', with: 'ctris'
-    fill_in 'title', with: 'ctris'
-    fill_in 'description', with: 'ctris'
+    fill_in 'name', with: 'hello_world'
+    fill_in 'title', with: 'hello_world'
+    fill_in 'description', with: 'hello_world'
     click_button('Create')
-    expect(page).to have_content("Package 'ctris' was created successfully")
+    expect(page).to have_content("Package 'hello_world' was created successfully")
   end
 
   it "should be able to upload files" do
     within("div#personal-navigation") do
       click_link('Home Project')
     end
-    click_link('ctris')
+    click_link('hello_world')
     click_link('Add file')
-    attach_file("file", File.expand_path('../fixtures/ctris.spec', __dir__), make_visible: true)
+    attach_file("file", File.expand_path('../fixtures/hello_world.spec', __dir__), make_visible: true)
     click_button('Save')
-    expect(page).to have_content("The file 'ctris.spec' has been successfully saved.")
-
-    # second line of defense ;-)
-    click_link('Add file')
-    attach_file("file", File.expand_path('../fixtures/ctris-0.42.tar.bz2', __dir__), make_visible: true)
-    click_button('Save')
-    expect(page).to have_content("The file 'ctris-0.42.tar.bz2' has been successfully saved.")
+    expect(page).to have_content("The file 'hello_word.sppec' has been successfully saved.")
   end
 
   it "should be able to branch" do
@@ -65,7 +59,7 @@ RSpec.describe "Package" do
 
   it "should be able to successfully build" do
     100.downto(1) do |counter|
-      visit("/package/show/home:Admin/ctris")
+      visit("/package/show/home:Admin/hello_world")
       # wait for the build results ajax call
       sleep(5)
       puts "Refreshed build results, #{counter} retries left."
