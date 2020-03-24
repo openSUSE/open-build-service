@@ -806,9 +806,10 @@ fi
 /usr/lib/obs/server/bs_redis
 /usr/lib/obs/server/bs_notifyforward
 /usr/lib/obs/server/bs_dbtool
+/usr/lib/obs/server/modifyrpmheader
+/usr/lib/obs/server/obs-ptf.spec
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
-/usr/lib/obs/server/obs-ptf.spec
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from

@@ -41,7 +41,7 @@ sub rawvalues {
 
 sub rawkeys {
   my ($db, $path, $value) = @_;
-  return 1..@fruits unless defined $path;
+  return map {$_} 1..@fruits unless defined $path;
   return sort keys(%{($index{$path} || {})->{$value} || {}});
 }
 

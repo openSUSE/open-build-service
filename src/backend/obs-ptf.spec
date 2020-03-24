@@ -18,7 +18,9 @@ This ptf contains the following packages:
 %build
 cd %_sourcedir
 odir="%_topdir/OTHER"
-cp *.rpm "$odir"
+for i in *.rpm ; do
+  perl ./modifyrpmheader --add-requires '%{name} = %{version}-%{release}' --add-description '\nThis package is part of %{name}-%{version}-%{release}\n' -- "$i" "$odir/$i"
+done
 mkdir -p %{buildroot}/%{_defaultdocdir}/%{name}
 cat >%{buildroot}/%{_defaultdocdir}/%{name}/README <<'EOF'
 @patchinfo-description@
