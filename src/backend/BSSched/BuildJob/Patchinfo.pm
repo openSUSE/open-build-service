@@ -395,6 +395,7 @@ sub build_ptf_job {
     }
   }
   writestr("$jobdatadir/ptf.spec", undef, join("\n", @ptfspec)."\n");
+  BSUtil::cp("$obssrcdir/modifyrpmheader", "$jobdatadir/modifyrpmheader");
   my @new_meta = ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   push @new_meta, "$metas->{$_}  $_" for sort keys %$metas;
   writestr("$jobdatadir/meta", undef, join("\n", @new_meta)."\n");
