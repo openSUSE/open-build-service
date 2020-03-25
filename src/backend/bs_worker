@@ -103,6 +103,7 @@ my $hardstatus;
 
 my $jobs;
 my $threads;
+my $network;
 my $cachedir;
 my $cachesize;
 my $cleanup_chroot;
@@ -299,6 +300,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --tmpfs     : uses tmpfs (memory) for the build root
 
+       --network   : enable network access inside the chroot
+
        --device    : set kvm or xen root device (default is <root>/root file)
 
        --swap      : set kvm or xen swap device (default is <root>/swap file)
@@ -460,6 +463,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--tmpfs') {
     shift @ARGV;
     $vm_tmpfs_mode = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--network') {
+    shift @ARGV;
+    $network = 1;
     next;
   }
   if ($ARGV[0] eq '--xendevice' || $ARGV[0] eq '--device') {
@@ -3219,6 +3227,7 @@ sub dobuild {
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
   push @args, '--signdummy' if ($kiwimode || '') eq 'product' && -e "$statedir/build/signdummy";
+  push @args, '--network' if $network;
   if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
     $packid =~ /^(.*):(.*?)$/;
     push @args, "--obspackage=$1" if $needobspackage;
