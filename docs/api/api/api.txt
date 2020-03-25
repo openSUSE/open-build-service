@@ -816,7 +816,7 @@ XmlResult: status
 
 DELETE /source/<project>/<package>/<filename>
 
-  Delete source file.
+  Delete the specified file and commits the changes.
 
 XmlResult: status
 
