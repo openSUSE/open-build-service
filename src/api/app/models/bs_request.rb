@@ -314,7 +314,7 @@ class BsRequest < ApplicationRecord
     # Allow admins to create requests for deleted or inactive users
     return if User.admin_session?
 
-    user = User.not_deleted.find_by(login: creator)
+    user = User.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
     raise APIError unless User.possibly_nobody.can_modify_user?(user)
 
