@@ -39,7 +39,7 @@ BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
 use Storable;
 
-use BSRPC ':https';
+use BSRPC;
 use BSServer;
 use BSDispatch;
 use BSConfiguration;
@@ -57,6 +57,11 @@ eval {
   require BSTar;
   require BSContar;
   $can_rewrite_containers = 1;
+};
+
+eval {
+  require BSSSL;
+  BSSSL::import('https:');
 };
 
 use strict;
