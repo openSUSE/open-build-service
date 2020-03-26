@@ -87,6 +87,8 @@ gem 'ajax-datatables-rails'
 gem 'coderay'
 # required by rails
 gem 'bigdecimal'
+# Catch unsafe migrations in development
+gem 'strong_migrations'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -182,8 +184,6 @@ group :development, :test do
   gem 'puma', '~> 4.0'
   # to drive headless chrome
   gem 'selenium-webdriver'
-  # Catch unsafe migrations in development
-  gem 'strong_migrations'
   # scan for security vulnerability (circleci only, do not touch)
   # BRAKEMAN
 end
