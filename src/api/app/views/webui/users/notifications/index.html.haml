@@ -24,18 +24,17 @@
           = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session!),
                     page_length: 10 })
         - else
-          - @notifications.each do |n|
-            - notification = NotificationPresenter.new(n)
-            .d-flex.flex-column
-              .notification-item.d-flex.flex-nowrap.px-3.py-3.border-bottom
-                .d-flex.flex-column.flex-sm-row.justify-content-sm-between.flex-fill
-                  .text
-                    .text-nowrap
-                      %span.badge.badge-secondary= notification.notification_badge
-                      %small.text-muted= time_ago_in_words(notification.created_at)
-                    = link_to(n.title, notification.link_to_notification_target)
-                  - unless params[:type] == 'done'
-                    .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                      = link_to(user_notification_path(user_login: User.session, id: notification),
-                                        method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Done') do
-                        %i.fas.fa-check
+          .list-group.list-group-flush
+            - @notifications.each do |n|
+              - notification = NotificationPresenter.new(n)
+              .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+                .content
+                  .text-nowrap
+                    %span.badge.badge-secondary= notification.notification_badge
+                    %small.text-muted= time_ago_in_words(notification.created_at)
+                  = link_to(n.title, notification.link_to_notification_target)
+                - unless params[:type] == 'done'
+                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                    = link_to(user_notification_path(user_login: User.session, id: notification),
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Done') do
+                      %i.fas.fa-check
