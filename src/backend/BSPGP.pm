@@ -78,6 +78,16 @@ sub pkdecodesubpacket {
   return (unpack('C', substr($pk, $off - 1, 1)), substr($pk, $off, $len - 1), substr($pk, $len + $off - 1));
 }
 
+sub pkencodepacket {
+  my ($tag, $d) = @_;
+  # always uses the old format
+  my $l = length($d);
+  die if $tag < 0 || $tag >= 16;
+  return pack('CC', 128 + 4 * $tag, $l).$d if $l < 256;
+  return pack('Cn', 128 + 4 * $tag + 1, $l).$d if $l < 65536;
+  return pack('CN', 128 + 4 * $tag + 2, $l).$d;
+}
+
 sub pk2times {
   my ($pk) = @_;
   my ($kct, $kex, $rct);
@@ -193,14 +203,16 @@ sub pk2sigdata {
   ($tag, $pack, $pk) = pkdecodepacket($pk);
   die("not a signature\n") unless $tag == 2;
   my $d = {};
-  my $algo;
+  my ($type, $algo, $hash);
   my $ver = unpack('C', substr($pack, 0, 1));
   if ($ver == 3) {
+    $type = unpack('C', substr($pack, 2, 1));
     $d->{'signtime'} = unpack('N', substr($pack, 3, 4));
     $d->{'issuer'} = unpack('H*', substr($pack, 7, 8));
     $algo = unpack('C', substr($pack, 15, 1));
+    $hash = unpack('C', substr($pack, 16, 1));
   } elsif ($ver == 4) {
-    $algo = unpack('C', substr($pack, 2, 1));
+    ($type, $algo, $hash) = unpack('CCC', substr($pack, 1, 3));
     my $plen = unpack('n', substr($pack, 4, 2));
     my $pack2 = substr($pack, 6 + $plen + 2, unpack('n', substr($pack, 6 + $plen, 2)));
     $pack = substr($pack, 6, $plen);
@@ -218,6 +230,15 @@ sub pk2sigdata {
   }
   $d->{'algo'} = 'rsa' if $algo == 1;
   $d->{'algo'} = 'dsa' if $algo == 17;
+  $d->{'hash'} = 'md5' if $hash == 1;
+  $d->{'hash'} = 'sha1' if $hash == 2;
+  $d->{'hash'} = 'sha256' if $hash == 8;
+  $d->{'hash'} = 'sha384' if $hash == 9;
+  $d->{'hash'} = 'sha512' if $hash == 10;
+  $d->{'hash'} = 'sha224' if $hash == 11;
+  $d->{'pgptype'} = $type;
+  $d->{'pgpalgo'} = $algo;
+  $d->{'pgphash'} = $hash;
   return $d;
 }
 
