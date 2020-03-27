@@ -2151,6 +2151,17 @@ sub notify_jobresult {
   } elsif ($jobstatus->{'result'} eq 'succeeded') {
     BSNotify::notify('BUILD_SUCCESS', \%ninfo);
   } else {
+    my $failcnt = 1;
+    my $filter = sub {
+        if ($_[0]->{'code'} eq 'failed') {
+            $failcnt += 1;
+            return 1;
+        } else {
+            return -1;
+        }
+    };
+    BSFileDB::fdb_getall_reverse("$reporoot/$prpa/:jobhistory", $BSXML::jobhistlay, 100, $filter);
+    $ninfo{'successive_failcount'} = $failcnt;
     BSNotify::notify('BUILD_FAIL', \%ninfo);
   }
 }
