@@ -202,8 +202,8 @@ sub cleanup_job {
     }
   }
 
-  # if this is the chroot case, get rid of it after the build
-  if ((!$vm || $vm eq 'lxc') && $cleanup_chroot) {
+  # if this is a chroot like case, get rid of it after the build
+  if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan') && $cleanup_chroot && -d $buildroot) {
       printf "Removing buildroot $buildroot";
       rm_rf($buildroot);
       mkdir_p($buildroot);
