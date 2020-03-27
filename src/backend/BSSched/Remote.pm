@@ -489,7 +489,7 @@ sub addrepo_remote_unpackcpio {
         @modules = ();
       }
       # update modulestr and cachemd5 with new modules list
-      $modulestr = @modules ? '/'.join('/', sort @$modules) : '';
+      $modulestr = @modules ? '/'.join('/', sort @modules) : '';
       $cachemd5 = Digest::MD5::md5_hex("$prp/$arch$modulestr");
       substr($cachemd5, 2, 0, '/');
       @setcacheargs = ('isremote' => 1, 'modulestr' => $modulestr, 'modules' => $repomodules);
