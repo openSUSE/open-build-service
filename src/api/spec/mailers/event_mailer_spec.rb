@@ -114,5 +114,16 @@ RSpec.describe EventMailer, vcr: true do
         it { expect(mail.html_part.to_s).to include("I =E2=9D=A4=EF=B8=8F <a href=3D'https://build.example.com/users/") }
       end
     end
+
+    context 'when the subscriber has no email' do
+      let(:group) { create(:group, email: nil) }
+      let(:empty_event) { nil }
+      let(:subscribers) { [group] }
+      subject! { EventMailer.event(subscribers, empty_event).deliver_now }
+
+      it 'does not get delivered' do
+        expect(ActionMailer::Base.deliveries).to be_empty
+      end
+    end
   end
 end
