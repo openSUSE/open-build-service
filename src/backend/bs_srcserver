@@ -6753,6 +6753,15 @@ sub notary_forward {
   return undef;
 }
 
+sub sigstore_forward {
+  my ($cgi, $regrepo, $sig) = @_;
+  my $req = $BSServer::request;
+  die("404 not found\n") unless $req->{'path'} =~ s/\@([^\@\/]+)\/([^\@\/]+)$/\/signatures\/$2\@$1/;
+  die("404 not found\n") unless $regrepo =~ s/\@[^\@\/]+$//;
+  registry_forward($cgi, $regrepo);
+  return undef;
+}
+
 ####################################################################
 
 sub run {
@@ -6957,6 +6966,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
   'GET|HEAD:/registry' => \&registry_version,
+  'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
 
   '/ajaxstatus' => \&getajaxstatus,
   '/serverstatus' => \&BSStdServer::serverstatus,
