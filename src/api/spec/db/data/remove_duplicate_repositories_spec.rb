@@ -2,7 +2,7 @@ require 'rails_helper'
 require Rails.root.join('db/data/20170306084550_remove_duplicate_repositories.rb')
 require Rails.root.join('db/migrate/20170306084558_change_repositories_remote_project_name_to_not_null.rb')
 
-RSpec.describe RemoveDuplicateRepositories, type: :migration do
+RSpec.describe RemoveDuplicateRepositories, type: :migration, skip: true do
   # This migration does not allow NULL values for remote_project_name column
   # We need this migration to not be run to create test data
   # 20170306084558_change_repositories_remote_project_name_to_not_null.rb

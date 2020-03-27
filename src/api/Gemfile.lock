@@ -407,6 +407,8 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    strong_migrations (0.6.2)
+      activerecord (>= 5)
     sync (0.5.0)
     sysexits (1.2.0)
     temple (0.8.2)
@@ -544,6 +546,7 @@ DEPENDENCIES
   simplecov
   single_test
   sprite-factory (>= 1.5.2)
+  strong_migrations
   test-unit
   thinking-sphinx (> 3.1)
   tilt (>= 1.4.1)
