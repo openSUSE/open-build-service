@@ -170,6 +170,9 @@ Debug Options
    This shows all the content of a repository, including all provides
    and requires.
 
+ --dump-repository-state <project> <repository> <architecture>
+   To dump scheduler state of a specific repository
+
  --dump-state <architecture>
 
  --dump-project-from-state <project> <arch>
@@ -526,6 +529,11 @@ sub scan_repo {
   write_event( $project, $repo, $arch, 'scanrepo' );
 }
 
+sub dump_repo {
+  my ($project, $repo, $arch) = @_;
+  write_event( $project, $repo, $arch, 'dumprepo' );
+}
+
 sub wipe_notyet {
   my ($project, $repo, $arch) = @_;
   write_event( $project, $repo, $arch, 'wipenotyet' );
@@ -744,6 +752,12 @@ while (@ARGV) {
       print "projpack:\n";
       print Dumper($schedstate->{'projpacks'}->{$project});
     }
+  } elsif ($arg eq "--dump-repository-state") {
+    die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    dump_repo( $project, $repo, $arch );
   } elsif ($arg eq "--shutdown-scheduler") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
