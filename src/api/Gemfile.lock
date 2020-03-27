@@ -529,7 +529,7 @@ DEPENDENCIES
   peek-mysql2
   pry (>= 0.9.12)
   pry-byebug
-  puma (~> 4.0)
+  puma
   pundit
   rails (~> 6.0)
   rails-assets-airbrake-js-client!
