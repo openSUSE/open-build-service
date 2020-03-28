@@ -68,6 +68,7 @@ use BSNotify;
 use BSUrlmapper;
 use BSRegistryServer;
 use BSRedisnotify;
+use BSConSign;
 
 use BSSolv;
 
@@ -4215,17 +4216,27 @@ sub registry_blob {
 sub registry_sigstore {
   my ($cgi, $regrepo, $sig) = @_;
   my $digest;
-  ($sig, $digest) = split('@', $sig, 2);
-  die("404 NAME_UNKNOWN\n") unless $sig =~ s/^signature-(\d+)$/$1/s;
-  $digest =~ s/=/:/;
+  if ($sig =~ /\@/) {
+    ($sig, $digest) = split('@', $sig, 2);
+    die("404 NAME_UNKNOWN\n") unless $sig =~ s/^signature-(\d+)$/$1/s;
+    $digest =~ s/=/:/;
+  } else {
+    $digest = $sig;
+    $sig = undef;
+  }
   die("400 DIGEST_INVALID\n") unless $digest =~ /^sha256:[0-9a-f]{64}$/s;
   my $repodir = "$registrydir/$regrepo";
   die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
   my $sigs = BSUtil::retrieve("$repodir/:sigs", 1) || {};
   my $d = ($sigs->{'digests'} || {})->{$digest};
-  die("404 NAME_UNKNOWN\n") unless $d;
-  die("404 NAME_UNKNOWN\n") unless $sig >= 1 && @$d >= $sig;
-  BSServer::reply($d->[$sig - 1]->[1], 'Content-Type: application/octet-stream');
+  if (defined($sig)) {
+    die("404 NAME_UNKNOWN\n") unless $d;
+    die("404 NAME_UNKNOWN\n") unless $sig >= 1 && @$d >= $sig;
+    BSServer::reply($d->[$sig - 1]->[1], 'Content-Type: application/octet-stream');
+  } else {
+    my @sigs = map { BSConSign::sig2openshift($digest, $_->[1]) } @{$d || []};
+    BSRegistryServer::reply({ 'signatures' => \@sigs });
+  }
   return undef;
 }
 

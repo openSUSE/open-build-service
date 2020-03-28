@@ -64,12 +64,12 @@ sub sig2openshift {
   my ($digest, $sig) = @_;
   my $id = Digest::MD5::md5_hex($sig);
   my $data = {
-    'version' => 2,
+    'schemaVersion' => 2,
     'type' => 'atomic',
     'name' => "$digest\@$id",
-    'content' => MIME::Base64::encode_base64($sig),
+    'content' => MIME::Base64::encode_base64($sig, ''),
   };
-  return JSON::XS->new->utf8->canonical->encode($data);
+  return $data;
 }
 
 1;

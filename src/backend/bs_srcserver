@@ -6743,7 +6743,7 @@ sub registry_catalog {
 
 sub registry_version {
   my ($cgi) = @_;
-  BSRegistryServer::reply({});
+  BSRegistryServer::reply({}, 'X-Registry-Supports-Signatures: 1');
   return undef;
 }
 
@@ -6962,6 +6962,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&notary_forward,
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_forward,
+  'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
