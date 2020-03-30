@@ -68,6 +68,7 @@ use BSNotify;
 use BSUrlmapper;
 use BSRegistryServer;
 use BSRedisnotify;
+use BSConSign;
 
 use BSSolv;
 
@@ -4212,6 +4213,33 @@ sub registry_blob {
   return undef;
 }
 
+sub registry_sigstore {
+  my ($cgi, $regrepo, $sig) = @_;
+  my $digest;
+  if ($sig =~ /\@/) {
+    ($sig, $digest) = split('@', $sig, 2);
+    die("404 NAME_UNKNOWN\n") unless $sig =~ s/^signature-(\d+)$/$1/s;
+    $digest =~ s/=/:/;
+  } else {
+    $digest = $sig;
+    $sig = undef;
+  }
+  die("400 DIGEST_INVALID\n") unless $digest =~ /^sha256:[0-9a-f]{64}$/s;
+  my $repodir = "$registrydir/$regrepo";
+  die("404 NAME_UNKNOWN\n") unless -f "$repodir/:info";
+  my $sigs = BSUtil::retrieve("$repodir/:sigs", 1) || {};
+  my $d = ($sigs->{'digests'} || {})->{$digest};
+  if (defined($sig)) {
+    die("404 NAME_UNKNOWN\n") unless $d;
+    die("404 NAME_UNKNOWN\n") unless $sig >= 1 && @$d >= $sig;
+    BSServer::reply($d->[$sig - 1]->[1], 'Content-Type: application/octet-stream');
+  } else {
+    my @sigs = map { BSConSign::sig2openshift($digest, $_->[1]) } @{$d || []};
+    BSRegistryServer::reply({ 'signatures' => \@sigs });
+  }
+  return undef;
+}
+
 sub registry_taglist {
   my ($cgi, $regrepo) = @_;
   my $repodir = "$registrydir/$regrepo";
@@ -4388,6 +4416,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$gunprefix:/$...:regrepo/_trust/tuf/$filename' => \&registry_tuf,
   'GET|HEAD:/registry/$...:regrepo/manifests/$manifest:' => \&registry_manifest,
   'GET|HEAD:/registry/$...:regrepo/blobs/$blob:' => \&registry_blob,
+  'GET|HEAD:/registry/$...:regrepo/signatures/$sig:' => \&registry_sigstore,
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_taglist,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_info,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,

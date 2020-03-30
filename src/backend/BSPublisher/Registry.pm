@@ -32,6 +32,7 @@ use BSPublisher::Blobstore;
 use BSContar;
 use BSRPC;
 use BSTUF;
+use BSConSign;
 
 my $registrydir = "$BSConfig::bsdir/registry";
 my $uploaddir = "$BSConfig::bsdir/upload";
@@ -374,6 +375,51 @@ sub update_tuf {
   close($fd) if $fd;
 }
 
+sub update_sigs {
+  my ($prp, $repo, $gun, $imagedigests, $pubkey, $signargs) = @_;
+
+  my $creator = 'OBS';
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my @signcmd;
+  push @signcmd, $BSConfig::sign;
+  push @signcmd, '--project', $projid if $BSConfig::sign_project;
+  push @signcmd, @{$signargs || []};
+  my $signfunc =  sub { BSUtil::xsystem($_[0], @signcmd, '-D', '-h', 'sha256') };
+  my $repodir = "$registrydir/$repo";
+  my $oldsigs = BSUtil::retrieve("$repodir/:sigs", 1) || {};
+  return if !%$oldsigs && !%$imagedigests;
+
+  my $gpgpubkey = BSPGP::unarmor($pubkey);
+  my $pubkey_fp = BSPGP::pk2fingerprint($gpgpubkey);
+  if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
+    $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
+  }
+  my $sigs = { 'pubkey' => $pubkey_fp, 'gun' => $gun, 'creator' => $creator, 'digests' => {} };
+  for my $digest (sort keys %$imagedigests) {
+    my %old = map { $_->[0] => $_->[1] } @{($oldsigs->{'digests'} || {})->{$digest} || []};
+    my @d;
+    for my $tag (sort keys %{$imagedigests->{$digest}}) {
+      if ($old{$tag}) {
+        push @d, [ $tag, $old{$tag} ];
+	next;
+      }
+      print "creating atomic signature for $gun:$tag $digest\n";
+      my $sig = BSConSign::createsig($signfunc, $digest, "$gun:$tag", $creator);
+      push @d, [ $tag, $sig ];
+    }
+    $sigs->{'digests'}->{$digest} = \@d;
+  }
+  if (BSUtil::identical($oldsigs, $sigs)) {
+    print "local signatures: no change.\n";
+    return;
+  }
+  if (%{$sigs->{'digests'}}) {
+    BSUtil::store("$repodir/.sigs.$$", "$repodir/:sigs", $sigs);
+  } else {
+    unlink("$repodir/:sigs");
+  }
+}
+
 sub push_containers {
   my ($prp, $repo, $gun, $multiarch, $tags, $pubkey, $signargs) = @_;
 
@@ -393,6 +439,7 @@ sub push_containers {
   my %knownblobs;
   my %knownmanifests;
   my %knowntags;
+  my %knownimagedigests;
 
   my %info;
 
@@ -418,6 +465,7 @@ sub push_containers {
 	$multiplatforms{$platformstr} = 1;
         push @multimanifests, $multimani;
         push @imginfos, $imginfo;
+        $knownimagedigests{$imginfo->{'distmanifest'}}->{$tag} = 1;
 	next;
       }
 
@@ -523,6 +571,7 @@ sub push_containers {
 	};
       }
       push @imginfos, $imginfo;
+      $knownimagedigests{$imginfo->{'distmanifest'}}->{$tag} = 1;
       # cache result
       $done{$containerinfo} = [ $multimani, $platformstr, $imginfo ];
     }
@@ -578,6 +627,7 @@ sub push_containers {
     unlink("$repodir/:info");
     unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
+    unlink("$repodir/:sigs");
     disownrepo($prp, $repo);
     return $containerdigests;
   }
@@ -599,6 +649,13 @@ sub push_containers {
   } elsif (-e "$repodir/:tuf") {
     unlink("$repodir/:tuf.old");
     unlink("$repodir/:tuf");
+  }
+
+  # write signatures file
+  if ($gun) {
+    update_sigs($prp, $repo, $gun, \%knownimagedigests, $pubkey, $signargs);
+  } elsif (-e "$repodir/:sigs") {
+    unlink("$repodir/:sigs");
   }
 
   # and we're done, return digests
