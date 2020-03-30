@@ -391,10 +391,10 @@ sub update_sigs {
 
   my $gpgpubkey = BSPGP::unarmor($pubkey);
   my $pubkey_fp = BSPGP::pk2fingerprint($gpgpubkey);
-  if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp) {
-    $oldsigs = {};	# fingerprint does not match, do not use old signatures
+  if (($oldsigs->{'pubkey'} || '') ne $pubkey_fp || ($oldsigs->{'gun'} || '') ne $gun || ($oldsigs->{'creator'} || '') ne ($creator || '')) {
+    $oldsigs = {};	# fingerprint/gun/creator mismatch, do not use old signatures
   }
-  my $sigs = { 'pubkey' => $pubkey_fp, 'digests' => {} };
+  my $sigs = { 'pubkey' => $pubkey_fp, 'gun' => $gun, 'creator' => $creator, 'digests' => {} };
   for my $digest (sort keys %$imagedigests) {
     my %old = map { $_->[0] => $_->[1] } @{($oldsigs->{'digests'} || {})->{$digest} || []};
     my @d;
