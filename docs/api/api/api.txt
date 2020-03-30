@@ -450,9 +450,9 @@ DELETE /source/<project>/_pubkey
 XmlResult: status
 
 
-POST /source/<project>
+POST /source/<project>?cmd=$COMMAND
 
-  Multiple commands on processing sources in package. Possible commands are
+Multiple commands on processing sources in package. Possible commands are
   createkey: Generate a new gpg key. If the project already has an own gpg key, the old key is discarded.
   extendkey: Extend the expiration date of gpg keys.
   undelete: undelete the project and all packages existing when the project got removed.
@@ -472,7 +472,7 @@ tained version of this package
   unlock: unlock a locked project
   release: release sources and binaries according to release target specification
 
-Parameters:
+Additional Parameters:
   noaccess: the new created project will be read protected
   repository: set_flag for given repository or release just this repository (optional)
   arch: set_flag for given arch (optional)
@@ -491,6 +491,8 @@ Parameters:
   noservice: do not run source services
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string. Note: this modifies only the filename.
+
+XmlResult: status
 
 === Packages
 
