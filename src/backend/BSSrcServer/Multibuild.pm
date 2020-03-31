@@ -188,8 +188,9 @@ sub addmultibuildpackages {
     my @mbp = map {"$packid:$_"} @{$mb->{'flavor'} || $mb->{'package'} || []};
     push @packages, @mbp;
     if ($origins) {
+      my $origin = defined($origins->{$packid}) ? $origins->{$packid} : $projid;
       for (@mbp) {
-	$origins->{$_} = $projid unless defined $origins->{$_};
+	$origins->{$_} = $origin unless defined $origins->{$_};
       }
     }
   }
