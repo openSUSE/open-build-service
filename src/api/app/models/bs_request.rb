@@ -726,7 +726,7 @@ class BsRequest < ApplicationRecord
       if new_request_state == :new
         self.comment = 'All reviewers accepted request'
         save!
-        Event::RequestReviewsDone.create(notify_parameters)
+        Event::RequestReviewsDone.create(event_parameters)
         HistoryElement::RequestAllReviewsApproved.create(history_parameters)
         # pre-approved requests can be processed
         BsRequestAutoAcceptJob.perform_later(id) if approver
@@ -779,7 +779,7 @@ class BsRequest < ApplicationRecord
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
       HistoryElement::RequestReviewAdded.create(history_params)
-      newreview.create_event(notify_parameters)
+      newreview.create_event(event_parameters)
     end
   end
 
@@ -828,7 +828,7 @@ class BsRequest < ApplicationRecord
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
-    Event::RequestStatechange.create(notify_parameters)
+    Event::RequestStatechange.create(event_parameters)
   end
 
   def accept_staged_request
@@ -839,23 +839,24 @@ class BsRequest < ApplicationRecord
     self.staging_project_id = nil
   end
 
-  def notify_parameters(ret = {})
-    ret[:id] = id
-    ret[:number] = number
-    ret[:description] = description
-    ret[:state] = state
-    ret[:oldstate] = state_was if state_changed?
-    ret[:who] = commenter if commenter.present?
-    ret[:when] = updated_when.strftime('%Y-%m-%dT%H:%M:%S')
-    ret[:comment] = comment
-    ret[:author] = creator
+  def event_parameters
+    params = { id: id,
+               number: number,
+               description: description,
+               state: state,
+               when: updated_when.strftime('%Y-%m-%dT%H:%M:%S'),
+               comment: comment,
+               author: creator }
+
+    params[:oldstate] = state_was if state_changed?
+    params[:who] = commenter if commenter.present?
 
     # Use a nested data structure to support multiple actions in one request
-    ret[:actions] = []
+    params[:actions] = []
     bs_request_actions[0..ACTION_NOTIFY_LIMIT].each do |a|
-      ret[:actions] << a.notify_params
+      params[:actions] << a.notify_params
     end
-    ret
+    params
   end
 
   def auto_accept
@@ -926,7 +927,7 @@ class BsRequest < ApplicationRecord
   end
 
   def notify
-    notify = notify_parameters
+    notify = event_parameters
     Event::RequestCreate.create(notify)
 
     reviews.each do |review|
@@ -1065,11 +1066,6 @@ class BsRequest < ApplicationRecord
 
   def required_checks
     target_project_objects.pluck(:required_checks).flatten.uniq
-  end
-
-  # TODO: rename the 'notify_parameters' method instead of wrapping it like this.
-  def event_parameters
-    notify_parameters
   end
 
   private

@@ -113,7 +113,7 @@ class RequestController < ApplicationController
 
     BsRequest.transaction do
       oldrequest = BsRequest.find_by_number!(params[:id])
-      notify = oldrequest.notify_parameters
+      notify = oldrequest.event_parameters
       oldrequest.destroy
 
       req = BsRequest.new_from_xml(body)
@@ -131,7 +131,7 @@ class RequestController < ApplicationController
   # DELETE /request/:id
   def destroy
     request = BsRequest.find_by_number!(params[:id])
-    notify = request.notify_parameters
+    notify = request.event_parameters
     request.destroy # throws us out of here if failing
     notify[:who] = User.session!.login
     Event::RequestDelete.create(notify)
