@@ -21,6 +21,9 @@ class EventMailer < ActionMailer::Base
     subscribers = subscribers.to_a
     return if subscribers.empty?
 
+    recipients = subscribers.map(&:display_name).reject(&:blank?)
+    return if recipients.empty?
+
     set_headers
     begin
       locals = { event: e.expanded_payload }
@@ -33,7 +36,6 @@ class EventMailer < ActionMailer::Base
 
     template_name = e.template_name
     orig = e.originator
-    tos = subscribers.map(&:display_name)
 
     if orig
       orig = orig.display_name
@@ -41,7 +43,7 @@ class EventMailer < ActionMailer::Base
       orig = mail_sender
     end
 
-    mail(to: tos.sort,
+    mail(to: recipients.sort,
          subject: e.subject,
          from: orig,
          date: e.created_at) do |format|
