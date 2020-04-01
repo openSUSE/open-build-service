@@ -13,6 +13,7 @@ body.responsive-ux {
   @import 'responsive_ux/tabs';
 
   .build-results .sticky-top { top: $top-bar-height; }
+  #log-space-wrapper #log-info.position-sticky { top: $top-bar-height; }
   #notifications-filter-desktop {
     strong { cursor: pointer; }
     .collapse {
