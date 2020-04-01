@@ -32,7 +32,7 @@
                   .text-nowrap
                     %span.badge.badge-secondary= notification.notification_badge
                     %small.text-muted= time_ago_in_words(notification.created_at)
-                  = link_to(n.title, notification.link_to_notification_target)
+                  = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
                 - unless params[:type] == 'done'
                   .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
                     = link_to(user_notification_path(user_login: User.session, id: notification),
