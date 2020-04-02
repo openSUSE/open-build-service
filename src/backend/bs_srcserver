@@ -5097,8 +5097,8 @@ sub search_published_binary_id {
     $binarydb = BSSrcServer::SQLite::opendb($extrepodb, 'binary');
   } else {
     $binarydb = BSDB::opendb($extrepodb, 'binary');
-    $binarydb->{'allkeyspath'} = 'name';
   }
+  $binarydb->{'allkeyspath'} = sub {die("413 refusing to get all keys\n")};
   $binarydb->{'noindex'} = {'version' => 1, 'release' => 1, 'versrel' => 1, 'arch' => 1, 'project' => 1, 'repository' => 1, 'package' => 1, 'type' => 1, 'path/project' => 1, 'path/repository' => 1, 'baseproject' => 1};
   $binarydb->{'indexfunc'} = {'project' => \&published_binary_projectindexfunc };
   $binarydb->{'fetch'} = \&binary_key_to_data;
