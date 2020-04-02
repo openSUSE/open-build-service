@@ -168,9 +168,9 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_role_request
-    request = nil
+    required_parameters :project
+    request_type = params['role'] == 'bugowner' ? :set_bugowner : :add_role
     begin
-      request_type = params['role'] == 'bugowner' ? :set_bugowner : :add_role
       request = BsRequest.create!(
         description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(request_type))]
       )
@@ -183,7 +183,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_bugowner_request
-    required_parameters :project
     request = nil
     begin
       request = BsRequest.create!(

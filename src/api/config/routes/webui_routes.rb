@@ -265,7 +265,7 @@ OBSApi::Application.routes.draw do
       get 'request/diff/:number' => :diff
       get 'request/list_small' => :list_small, as: 'request_list_small'
       post 'request/delete_request/:project' => :delete_request, constraints: cons, as: 'delete_request'
-      post 'request/add_role_request/:project' => :add_role_request, constraints: cons, as: 'add_role_request'
+      post 'request/add_role_request(/:project)' => :add_role_request, constraints: cons, as: 'add_role_request'
       post 'request/set_bugowner_request' => :set_bugowner_request
       post 'request/change_devel_request/:project/:package' => :change_devel_request, constraints: cons, as: 'change_devel_request'
     end

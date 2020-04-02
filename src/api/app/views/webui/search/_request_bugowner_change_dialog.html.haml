@@ -1,7 +1,7 @@
 .modal.fade#request-bugowner-change-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'request-bugowner-change-modal-label', hidden: true } }
   .modal-dialog.modal-dialog-centered{ role: 'document' }
     .modal-content
-      = form_tag(request_set_bugowner_request_path, method: :post) do
+      = form_tag(add_role_request_path, method: :post) do
         .modal-header
           %h5.modal-title#request-bugowner-change-modal-label Submit Request to Change Bugowner
         .modal-body
@@ -32,6 +32,7 @@
                   = check_box_tag('project', project, true, class: 'custom-control-input')
                   = label_tag(project, tag, class: 'custom-control-label')
                 = hidden_field_tag('package', package)
+              = hidden_field_tag('role', 'bugowner')
           .form-group
             = label_tag(:description, 'Description:')
             %abbr.text-danger{ title: 'required' } *
