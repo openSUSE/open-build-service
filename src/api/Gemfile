@@ -210,8 +210,6 @@ group :assets do
   gem 'bootstrap'
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
-  # assets for formatting dates
-  gem 'momentjs-rails'
   # for catching javascript exceptions
   source 'https://rails-assets.org' do
     gem 'rails-assets-airbrake-js-client'

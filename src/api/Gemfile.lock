@@ -241,8 +241,6 @@ GEM
       minitest (>= 5.0)
       ruby-progressbar
     mocha (1.11.2)
-    momentjs-rails (2.20.1)
-      railties (>= 3.1)
     mousetrap-rails (1.4.6)
     mysql2 (0.5.3)
     nio4r (2.5.2)
@@ -508,7 +506,6 @@ DEPENDENCIES
   minitest-fail-fast
   minitest-reporters
   mocha (> 0.13.0)
-  momentjs-rails
   mousetrap-rails
   mysql2
   nokogiri

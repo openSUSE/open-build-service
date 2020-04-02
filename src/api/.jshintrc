@@ -8,7 +8,6 @@
     "$" :        false,
     "document" : false,
     "editors" :  false, // Set by codemirror
-    "moment" :   false, // Defined by Moment.js
     "Option" :   false, // Constructor for creating an HTMLOptionElement.
     "ui" :       false,
     "window" :   false,
