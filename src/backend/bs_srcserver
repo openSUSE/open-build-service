@@ -771,13 +771,15 @@ sub findpackages {
       $origins->{$_} = $projid unless defined $origins->{$_};
     }
   }
-  @packids = BSSrcServer::Multibuild::addmultibuildpackages($projid, $origins, @packids) unless $deleted;
 
   # handle project links (but not if deleted)
   if ($proj && $proj->{'link'} && !$noexpand && !$deleted) {
     push @packids, BSSrcServer::Projlink::findpackages_projlink($projid, $proj, $nonfatal, $origins);
     @packids = sort(BSUtil::unify(@packids));
   }
+
+  # add multibuild packages
+  @packids = BSSrcServer::Multibuild::addmultibuildpackages($projid, $origins, @packids) unless $deleted;
 
   return @packids;
 }

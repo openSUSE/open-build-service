@@ -136,6 +136,8 @@ sub findpackages_projlink {
       unshift @todo, map {$_->{'project'}} @$llink if $llink;
     }
     @lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids if $packids{'_product'};
+    # strip out multibuild packages
+    @lpackids = grep {!/(?<!^_product)(?<!^_patchinfo):./} @lpackids;
     $packids{$_} = 1 for @lpackids;
     if ($origins && $lorigins) {
       for (@lpackids) {
