@@ -440,8 +440,9 @@ sub push_containers {
       die("layer number mismatch\n") if @layers != @{$config_layers || []};
 
       # see if a already have this arch/os combination
+      my $variant = $config->{'variant'} || $containerinfo->{'govariant'};
       my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
-      $platformstr .= "variant: $config->{'variant'}" if $config->{'variant'};
+      $platformstr .= " variant:$variant" if $variant;
       if ($multiplatforms{$platformstr}) {
 	print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
 	close $tarfd if $tarfd;
@@ -498,7 +499,7 @@ sub push_containers {
 	'digest' => $mani_id,
 	'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
       };
-      $multimani->{'platform'}->{'variant'} = $config->{'variant'} if $config->{'variant'};
+      $multimani->{'platform'}->{'variant'} = $variant if $variant;
       push @multimanifests, $multimani;
 
       my $imginfo = {
@@ -507,7 +508,7 @@ sub push_containers {
         'goos' => $config->{'os'},
 	'distmanifest' => $mani_id,
       };
-      $imginfo->{'govariant'} = $containerinfo->{'govariant'} if $containerinfo->{'govariant'};
+      $imginfo->{'govariant'} = $variant if $variant;
       $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
       $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
       $imginfo->{'buildtime'} = $containerinfo->{'buildtime'} if $containerinfo->{'buildtime'};
