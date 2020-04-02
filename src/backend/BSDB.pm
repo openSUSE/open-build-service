@@ -181,6 +181,7 @@ sub keys {
     return @$lkeys if $lkeys;
     $path = $db->{'allkeyspath'};
     return $db->rawkeys() unless defined $path;
+    return $path->($db) if ref($path) eq 'CODE';
     if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
       return $db->{'indexfunc'}->{$path}->($db);
     }

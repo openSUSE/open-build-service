@@ -56,16 +56,15 @@ if ($table eq 'linkinfo') {
     $db = BSSrcServer::SQLite::opendb($sourcedb, $table);
   } else {
     $db = BSDB::opendb($sourcedb, $table);
+    $db->{'allkeyspath'} = 'project';
   }
-  $db->{'allkeyspath'} = 'project';
 } elsif ($table eq 'binary' || $table eq 'pattern' || $table eq 'repoinfo') {
   if ($BSConfig::published_db_sqlite) {
     $db = BSSrcServer::SQLite::opendb($extrepodb, $table);
   } else {
     $db = BSDB::opendb($extrepodb, $table);
+    $db->{'allkeyspath'} = 'name' if $table eq 'binary';
   }
-  $db->{'allkeyspath'} = 'name';
-  $db->{'allkeyspath'} = 'project' if $table eq 'repoinfo';
 } else {
   die("unknown database table $table\n");
 }
@@ -213,22 +212,39 @@ if ($cmd eq 'convert') {
   }
   $ndb->asyncmode();
 
+  my @bad;
   for my $prp (@todo) {
     my $prp_ext = $prp;
     $prp_ext =~ s/:/:\//g;
 
     if ($table eq 'linkinfo') {
       my ($projid, $packid) = split('/', $prp, 2);
-      my $linkinfo = $db->fetch($prp) || die;
+      my $linkinfo = $db->fetch($prp);
+      if (!$linkinfo) {
+	push @bad, $prp;
+	warn("could not fetch $bad[-1]\n");
+	next;
+      }
       $ndb->store_linkinfo($projid, $packid, $linkinfo);
     } elsif ($table eq 'pattern') {
       my $patterninfo = {};
       for my $path (sort keys %{$todo_pattern{$prp}}) {
-	$patterninfo->{$path} = $db->fetch("$prp_ext/$path") || die;
+	my $pi = $db->fetch("$prp_ext/$path");
+	if (!$pi) {
+	  push @bad, "$prp_ext/$path";
+	  warn("could not fetch $bad[-1]\n");
+	  next;
+	}
+	$patterninfo->{$path} = $pi;
       }
       $ndb->updatedb_patterninfo($prp, $patterninfo);
     } elsif ($table eq 'binary') {
-      my $repoinfo = $db->fetch($prp) || die;
+      my $repoinfo = $db->fetch($prp);
+      if (!$repoinfo) {
+	push @bad, $prp;
+	warn("could not fetch $bad[-1]\n");
+	next;
+      }
       $ndb->updatedb_repoinfo($prp, $repoinfo);
     }
 
@@ -236,6 +252,10 @@ if ($cmd eq 'convert') {
     print "$done/$todo\n" if $done % 10 == 0;
   }
   print "$todo/$todo\n";
+  if (@bad) {
+    print "WARNING: could not fetch the following entries:\n";
+    print "  - $_\n" for @bad;
+  }
   exit(0);
 }
 
