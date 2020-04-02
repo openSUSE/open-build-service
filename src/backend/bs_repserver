@@ -2524,8 +2524,12 @@ sub copybuild {
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
 	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
-	$nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
-	$nbin =~ s/-Build[\d.]+\./$setrelease./; # kiwi appliance builds
+        # we must ensure to run only one of the following, because people
+        # overwrite -BuildX.Y part with -BuildV.W (using not matching numbers)
+        # but this must not lead to double matches
+        # kiwi product || appliance
+        $nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
+           $nbin =~ s/-Build[\d.]+\./$setrelease./;
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }
       $renamed{$bin} = $nbin if $bin ne $nbin;
