@@ -284,6 +284,10 @@ our $publish_containers = [
    '.*'             => ['local'],
 ];
 
+# enable this to announce the X-Registry-Supports-Signatures extension
+# (this needs a proxy entry for /extensions/v2 in the web server config)
+our $local_registry_signatures_extension = 1;
+
 
 # special options to use for starting containers in run-service-containerized
 # our $docker_custom_opt = [];

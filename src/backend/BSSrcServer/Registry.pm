@@ -61,6 +61,14 @@ sub catalog {
   return sort keys %$registries;
 }
 
+sub rootinfo {
+  my $registries = BSUtil::retrieve("$registrydir/:repos", 1) || {};
+  my $info = {
+    'owners' => $registries,
+  };
+  return $info;
+}
+
 sub regrepo2reposerver {
   my ($repo) = @_;
   my $registries = BSUtil::retrieve("$registrydir/:repos", 1) || {};

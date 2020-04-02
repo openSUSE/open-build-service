@@ -6743,9 +6743,18 @@ sub registry_catalog {
   return undef;
 }
 
+sub registry_rootinfo {
+  my ($cgi) = @_;
+  my $rootinfo = BSSrcServer::Registry::rootinfo();
+  BSRegistryServer::reply($rootinfo);
+  return undef;
+}
+
 sub registry_version {
   my ($cgi) = @_;
-  BSRegistryServer::reply({}, 'X-Registry-Supports-Signatures: 1');
+  my @hdrs;
+  push @hdrs, 'X-Registry-Supports-Signatures: 1' if $BSConfig::local_registry_signatures_extension;
+  BSRegistryServer::reply({}, @hdrs);
   return undef;
 }
 
@@ -6968,6 +6977,7 @@ my $dispatches = [
   'GET|HEAD:/registry/$...:regrepo/tags/list' => \&registry_forward,
   'GET|HEAD:/registry/$...:regrepo/info.json' => \&registry_forward,
   'GET|HEAD:/registry/_catalog' => \&registry_catalog,
+  'GET|HEAD:/registry/info.json' => \&registry_rootinfo,
   'GET|HEAD:/registry' => \&registry_version,
   'GET|HEAD:/sigstore/$...:regrepo/$sig:' => \&sigstore_forward,
 
