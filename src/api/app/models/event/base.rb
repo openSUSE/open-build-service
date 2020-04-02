@@ -260,6 +260,13 @@ module Event
       # no default implementation
     end
 
+    def parameters_for_notification
+      { event_type: eventtype,
+        event_payload: payload,
+        notifiable_id: payload['id'],
+        title: subject_to_title }
+    end
+
     private
 
     def message_bus_routing_key
@@ -315,6 +322,11 @@ module Event
         receivers.concat(obj_roles(obj.develpackage, role))
       end
       receivers
+    end
+
+    def subject_to_title
+      return subject if subject.size <= 255
+      subject.slice(0, 252).concat('...')
     end
   end
 end

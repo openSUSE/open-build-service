@@ -20,6 +20,10 @@ module Event
       payload_with_diff
     end
 
+    def parameters_for_notification
+      super.merge(notifiable_type: 'BsRequest')
+    end
+
     private
 
     def metric_fields

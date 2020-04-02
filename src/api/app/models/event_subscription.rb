@@ -67,6 +67,11 @@ class EventSubscription < ApplicationRecord
   def enabled?
     !disabled?
   end
+
+  def parameters_for_notification
+    { subscriber: subscriber,
+      subscription_receiver_role: receiver_role }
+  end
 end
 
 # == Schema Information

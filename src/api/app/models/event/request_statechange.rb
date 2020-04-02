@@ -9,6 +9,12 @@ module Event
       "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
     end
 
+    def parameters_for_notification
+      super.merge({ notifiable_type: 'BsRequest',
+                    bs_request_state: payload['state'],
+                    bs_request_oldstate: payload['oldstate'] })
+    end
+
     private
 
     def metric_tags

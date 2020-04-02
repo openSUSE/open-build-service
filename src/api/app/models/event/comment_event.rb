@@ -28,5 +28,9 @@ module Event
       h['X-OBS-Request-Commenter'] = originator.login
       h
     end
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Comment')
+    end
   end
 end
