@@ -77,8 +77,6 @@ gem 'addressable'
 gem 'builder'
 # to write the rails metrics directly into InfluxDB.
 gem 'influxdb-rails', '1.0.0'
-# for client side time ago
-gem 'rails-timeago', '~> 2.0'
 # for copying objects with their relations
 gem 'deep_cloneable', '~> 3.0.0'
 # Server-side datatables
@@ -198,8 +196,6 @@ group :assets do
   gem 'sassc-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
-  # assets for jQuery tokeninput
-  gem 'rails_tokeninput', '>= 1.6.1.rc1'
   # to create our sprite images/stylesheets
   gem 'sprite-factory', '>= 1.5.2'
   # to read and write PNG images
@@ -212,8 +208,6 @@ group :assets do
   gem 'bootstrap'
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
-  # assets for formatting dates
-  gem 'momentjs-rails'
   # for catching javascript exceptions
   source 'https://rails-assets.org' do
     gem 'rails-assets-airbrake-js-client'

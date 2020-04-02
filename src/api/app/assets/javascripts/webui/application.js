@@ -50,7 +50,6 @@
 //= require webui/collapsible_text
 //= require webui/patchinfo.js
 //= require webui/image_templates.js
-//= require rails-timeago
 //= require webui/kiwi_editor.js
 //= require webui/monitor.js
 //= require webui/airbrake-js
