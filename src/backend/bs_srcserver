@@ -6745,7 +6745,9 @@ sub registry_catalog {
 
 sub registry_version {
   my ($cgi) = @_;
-  BSRegistryServer::reply({}, 'X-Registry-Supports-Signatures: 1');
+  my @hdrs;
+  push @hdrs, 'X-Registry-Supports-Signatures: 1' if $BSConfig::local_registry_signatures_extension;
+  BSRegistryServer::reply({}, @hdrs);
   return undef;
 }
 
