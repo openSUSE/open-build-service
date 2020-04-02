@@ -569,11 +569,34 @@ sub rawvalues {
   return sort(@$ary);
 }
 
+sub allkeys {
+  my ($db) = @_;
+
+  my $table = $db->{'table'};
+  my $h = $db->{'sqlite'} || connectdb($db);
+  if ($table eq 'repoinfo') {
+    my $ary = $h->selectcol_arrayref("SELECT repoinfo.path FROM $table") || die($h->errstr);
+    return sort @$ary;
+  }
+  my $sh;
+  if ($table eq 'linkinfo') {
+    $sh = dbdo_bind($h, "SELECT sourceproject,sourcepackage FROM $table");
+  } else {
+    $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo");
+  }
+  my ($col1, $col2);
+  $sh->bind_columns(\$col1, \$col2);
+  my @res;
+  push @res, "$col1/$col2" while $sh->fetch();
+  die($sh->errstr) if $sh->err();
+  return sort(@res);
+}
+
 sub rawkeys {
   my ($db, $path, $value) = @_;
 
   my $table = $db->{'table'};
-  die("413 refusing to get all keys\n") unless defined $path;
+  return allkeys($db) unless defined $path;
   die("unsupported path for $table table: $path\n") unless $db->{'sqlite_cols'}->{$path};
 
   # get all keys for a table column
