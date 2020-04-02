@@ -1401,6 +1401,10 @@ class Package < ApplicationRecord
     PackageBuildReason.new(data)
   end
 
+  def event_parameters
+    { project: project.name, package: name }
+  end
+
   private
 
   def extract_kiwi_element(element)

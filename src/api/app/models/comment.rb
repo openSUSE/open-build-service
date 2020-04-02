@@ -12,7 +12,7 @@ class Comment < ApplicationRecord
 
   validate :validate_parent_id
 
-  after_create :create_notification
+  after_create :create_event
   after_destroy :delete_parent_if_unused
 
   has_many :children, dependent: :destroy, class_name: 'Comment', foreign_key: 'parent_id'
@@ -37,30 +37,23 @@ class Comment < ApplicationRecord
     end
   end
 
+  def event_parameters
+    commentable.event_parameters.merge!({ id: id,
+                                          commenter: user.login,
+                                          comment_body: body,
+                                          commenters: involved_users })
+  end
+
   private
 
-  def create_notification(params = {})
-    params[:id] = id
-    params[:commenter] = user.login
-    params[:comment_body] = body
-    params[:commenters] = involved_users
-
+  def create_event
     case commentable_type
     when 'Package'
-      params[:package] = commentable.name
-      params[:project] = commentable.project.name
-      # call the action
-      Event::CommentForPackage.create(params)
+      Event::CommentForPackage.create(event_parameters)
     when 'Project'
-      params[:project] = commentable.name
-      # call the action
-      Event::CommentForProject.create(params)
+      Event::CommentForProject.create(event_parameters)
     when 'BsRequest'
-      params = commentable.notify_parameters(params)
-      # params[:id] got overwritten with notify_parameters. We need to assign it again
-      params[:id] = id
-      # call the action
-      Event::CommentForRequest.create(params)
+      Event::CommentForRequest.create(event_parameters)
     end
   end
 

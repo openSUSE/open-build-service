@@ -203,14 +203,12 @@ class Review < ApplicationRecord
     objs.map { |obj| { "#{obj.class.to_s.downcase}_id" => obj.id } }.uniq
   end
 
-  def create_notification(params = {})
+  def event_parameters(params = {})
     params = params.merge(_get_attributes)
     params[:id] = id
     params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
-
-    # send email later
-    Event::ReviewWanted.create(params)
+    params
   end
 
   def reviewable_by?(opts)
@@ -249,6 +247,13 @@ class Review < ApplicationRecord
     return user.login == by_user if by_user
     return user.is_in_group?(by_group) if by_group
     matches_maintainers?(user)
+  end
+
+  def create_event(params = {})
+    params = event_parameters(params)
+
+    # send email later
+    Event::ReviewWanted.create(params)
   end
 
   private
