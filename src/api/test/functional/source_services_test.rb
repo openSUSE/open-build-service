@@ -67,6 +67,9 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   end
 
   def test_run_source_service
+    # FIXME: https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
     login_tom
     put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success

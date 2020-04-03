@@ -27,8 +27,8 @@ record_6:
   repository_id: 82
   position: 1
 UseRemoteInstance_pop_path:
-  parent_id: BaseDistro_repo
-  repository_id: UseRemoteInstance_pop
+  repository: BaseDistro_repo
+  link: UseRemoteInstance_pop
   position: 1
 kde4_repo:
   parent_id: 98

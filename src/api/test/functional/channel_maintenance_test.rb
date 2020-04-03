@@ -22,6 +22,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
   # And it is doing a following up update, based on released updates
   #
   def test_large_channel_test
+    # FIXME: https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
+
     login_king
     put '/source/BaseDistro3/pack2/file', params: 'NOOP'
     assert_response :success
