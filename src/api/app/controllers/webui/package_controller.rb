@@ -8,13 +8,13 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
+                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :save_meta, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
+                                         :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :files, :users,
                                          :binary_download]
 
   before_action :validate_xml, only: [:save_meta]
@@ -25,7 +25,7 @@ class Webui::PackageController < Webui::WebuiController
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :dependency, :branch_diff_info, :binary, :binaries,
                                          :users, :requests, :statistics, :commit, :revisions, :rdiff, :view_file, :live_build_log,
-                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
+                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :files]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
@@ -780,10 +780,6 @@ class Webui::PackageController < Webui::WebuiController
     render partial: 'rpmlint_log'
   rescue Backend::NotFoundError
     render plain: 'No rpmlint log'
-  end
-
-  def meta
-    @meta = @package.render_xml
   end
 
   def save_meta

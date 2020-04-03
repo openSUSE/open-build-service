@@ -89,7 +89,6 @@ OBSApi::Application.routes.draw do
         get 'package/buildresult' => :buildresult, constraints: cons, as: 'package_buildresult'
         get 'package/rpmlint_result' => :rpmlint_result, constraints: cons, as: 'rpmlint_result'
         get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
-        get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
         post 'package/save_meta/:project/:package' => :save_meta, constraints: cons, as: 'package_save_meta'
         # For backward compatibility
         get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
@@ -98,6 +97,9 @@ OBSApi::Application.routes.draw do
         # For backward compatibility
         get 'package/files/:project/:package' => :show, constraints: cons
       end
+    end
+    controller 'webui/packages/meta' do
+      get 'package/meta/:project/:package' => :show, constraints: cons, as: 'package_meta'
     end
 
     resources :packages, only: [], param: :name do
