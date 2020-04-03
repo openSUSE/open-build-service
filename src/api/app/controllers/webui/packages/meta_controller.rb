@@ -3,7 +3,7 @@ module Webui
     class MetaController < WebuiController
       before_action :set_project
       before_action :require_package
-      before_action :validate_xml, only: :update
+      before_action :validate_meta, only: [:update], if: -> { params[:meta] }
       after_action :verify_authorized, only: :update
 
       def show
@@ -11,46 +11,30 @@ module Webui
       end
 
       def update
-        errors = []
-
         authorize @package, :save_meta_update?
+        updater = ::MetaControllerService::PackageUpdater.new(project: @project, package: @package, request_data: @request_data).call
 
-        if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-          errors << 'admin rights are required to raise the protection level of a package'
-        end
-
-        if @meta_xml['project'] && @meta_xml['project'] != @project.name
-          errors << 'project name in xml data does not match resource path component'
-        end
-
-        if @meta_xml['name'] && @meta_xml['name'] != @package.name
-          errors << 'package name in xml data does not match resource path component'
-        end
-
-        if errors.empty?
-          begin
-            @package.update_from_xml(@meta_xml)
-            flash.now[:success] = 'The Meta file has been successfully saved.'
-            status = 200
-          rescue Backend::Error, NotFoundError => e
-            flash.now[:error] = "Error while saving the Meta file: #{e}."
-            status = 400
-          end
-        else
-          flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-          status = 400
-        end
+        status = if updater.valid?
+                   flash.now[:success] = 'Config successfully saved!'
+                   200
+                 else
+                   flash.now[:error] = updater.errors
+                   400
+                 end
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
 
       private
 
-      def validate_xml
-        Suse::Validator.validate('package', params[:meta])
-        @meta_xml = Xmlhash.parse(params[:meta])
-      rescue Suse::ValidationError => e
-        flash.now[:error] = "Error while saving the Meta file: #{e}."
-        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      def validate_meta
+        meta_validator = ::MetaControllerService::MetaXMLValidator.new('package', params)
+        meta_validator.call
+        if meta_validator.errors?
+          flash.now[:error] = meta_validator.errors
+          render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+        else
+          @request_data = meta_validator.request_data
+        end
       end
     end
   end

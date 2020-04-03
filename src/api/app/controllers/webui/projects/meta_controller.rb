@@ -26,7 +26,7 @@ module Webui
       private
 
       def validate_meta
-        meta_validator = ::MetaControllerService::MetaXMLValidator.new(params)
+        meta_validator = ::MetaControllerService::MetaXMLValidator.new('project', params)
         meta_validator.call
         if meta_validator.errors?
           flash.now[:error] = meta_validator.errors
