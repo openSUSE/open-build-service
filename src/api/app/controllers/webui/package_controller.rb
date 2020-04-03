@@ -8,16 +8,14 @@ class Webui::PackageController < Webui::WebuiController
   before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
-                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :save_meta, :files,
+                                     :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
+                                         :branch_diff_info, :rdiff, :save, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :files, :users,
                                          :binary_download]
-
-  before_action :validate_xml, only: [:save_meta]
 
   before_action :require_repository, only: [:binary, :binary_download]
   before_action :require_architecture, only: [:binary, :binary_download]
@@ -35,7 +33,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
-  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save, :abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -782,39 +780,6 @@ class Webui::PackageController < Webui::WebuiController
     render plain: 'No rpmlint log'
   end
 
-  def save_meta
-    errors = []
-
-    authorize @package, :save_meta_update?
-
-    if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-      errors << 'admin rights are required to raise the protection level of a package'
-    end
-
-    if @meta_xml['project'] && @meta_xml['project'] != @project.name
-      errors << 'project name in xml data does not match resource path component'
-    end
-
-    if @meta_xml['name'] && @meta_xml['name'] != @package.name
-      errors << 'package name in xml data does not match resource path component'
-    end
-
-    if errors.empty?
-      begin
-        @package.update_from_xml(@meta_xml)
-        flash.now[:success] = 'The Meta file has been successfully saved.'
-        status = 200
-      rescue Backend::Error, NotFoundError => e
-        flash.now[:error] = "Error while saving the Meta file: #{e}."
-        status = 400
-      end
-    else
-      flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
-      status = 400
-    end
-    render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
-  end
-
   def binary_download
     package_name = params[:package]
     architecture = Architecture.find_by_name(params[:arch]).name
@@ -835,14 +800,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   private
-
-  def validate_xml
-    Suse::Validator.validate('package', params[:meta])
-    @meta_xml = Xmlhash.parse(params[:meta])
-  rescue Suse::ValidationError => e
-    flash.now[:error] = "Error while saving the Meta file: #{e}."
-    render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
-  end
 
   def package_files(rev = nil, expand = nil)
     query = {}
