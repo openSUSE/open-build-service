@@ -60,11 +60,13 @@ end
 
 def load_dump
   options = YAML.load_file(@options_path)
-  server = options['backup_server']
-  username = options['backup_user']
-  location = options['backup_location']
-  filename = options['backup_filename']
-  port = options['backup_port']
+  environment = @params[:environment]
+
+  server = options[environment]['backup_server']
+  username = options[environment]['backup_user']
+  location = options[environment]['backup_location']
+  filename = options[environment]['backup_filename']
+  port = options[environment]['backup_port']
 
   if !server || !username || !location || !filename
     abort('Please specify at least backup_server, backup_user, backup_location and backup_filename in your options.yml')
@@ -83,7 +85,7 @@ def import_dump
   host = config[environment]['host']
   username = config[environment]['username']
   password = config[environment]['password']
-  filename = @params[:path] || options['backup_filename']
+  filename = @params[:path] || options[environment]['backup_filename']
 
   cmds = ["bzcat #{File.join(@data_path, filename)}"]
   unless TABLES_TO_REMOVE.empty?
