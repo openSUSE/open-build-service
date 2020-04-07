@@ -292,7 +292,7 @@ function prepare_database_setup {
   for cmd in $RAKE_COMMANDS
   do
     logline " - Doing 'rails $cmd'"
-    RAILS_ENV=production bin/rails $cmd >> $apidir/log/db_migrate.log
+    RAILS_ENV=production SAFETY_ASSURED=1 bin/rails $cmd >> $apidir/log/db_migrate.log 2>&1
     if [[ $? > 0 ]];then
       (>&2 echo "Command $cmd FAILED")
       exit 1
