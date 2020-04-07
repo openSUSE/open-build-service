@@ -5,6 +5,7 @@ require:
   - rubocop-rails
 
 AllCops:
+  NewCops: enable
   UseCache: true
   CacheRootDirectory: src/api/tmp/rubocop_cache_root_dir
   MaxFilesInCache: 2000
