@@ -3097,6 +3097,7 @@ sub dobuild {
   my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   writestr("$buildroot/.build.config", undef, $config);
 
+  my $bconf;
   if ($deltamode) {
     # replace @mopt@ in specfile
     my $spec = readstr("$srcdir/deltagen.spec");
@@ -3105,7 +3106,7 @@ sub dobuild {
       $mopt = $BSConfig::deltagen_mopt if defined $BSConfig::deltagen_mopt;
       importbuild() unless defined &Build::queryhdrmd5;
       eval {
-	my $bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $config) ]);
+	$bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $config) ]);
 	for (@{$bconf->{'repotype'}}) {
 	  $mopt = $1 eq '' ? undef : $1 if /^deltagen-mopt:(\d*)/;
 	}
@@ -3116,6 +3117,15 @@ sub dobuild {
       writestr("$srcdir/deltagen.spec", undef, $spec);
     }
   }
+  $bconf = $bconf || Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
+
+  my $useccache;
+  if (exists $bconf->{'buildflags:useccache'}) {
+      if (grep /^useccache:\Q$packid\E$/, @{$bconf->{'buildflags'} || []}) {
+        $useccache = 1;
+    }
+  }
+
 
   my $release = $buildinfo->{'release'};
   #FIXME2.6: drop the following line
@@ -3219,6 +3229,7 @@ sub dobuild {
   push @args, '--debug' if $buildinfo->{'debuginfo'};
   push @args, '--arch', $arch;
   push @args, '--jobs', $jobs if $jobs;
+  push @args, '--ccache' if $useccache && $oldpkgdir;
   push @args, '--threads', $threads if $threads;
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
