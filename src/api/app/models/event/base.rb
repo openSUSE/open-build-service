@@ -264,6 +264,8 @@ module Event
       { event_type: eventtype,
         event_payload: payload,
         notifiable_id: payload['id'],
+        created_at: payload['when'].to_datetime,
+        updated_at: payload['when'].to_datetime,
         title: subject_to_title }
     end
 

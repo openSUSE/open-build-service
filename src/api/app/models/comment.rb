@@ -41,7 +41,8 @@ class Comment < ApplicationRecord
     commentable.event_parameters.merge!({ id: id,
                                           commenter: user.login,
                                           comment_body: body,
-                                          commenters: involved_users })
+                                          commenters: involved_users,
+                                          when: updated_at.strftime('%Y-%m-%dT%H:%M:%S') })
   end
 
   private
