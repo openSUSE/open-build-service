@@ -10,7 +10,6 @@
         .row.list-group-flush
           = user_notification_link('Inbox', 'inbox', filter: params[:type])
           = user_notification_link('Done', 'done', filter: params[:type])
-          = user_notification_link('All Requests', 'all-requests', filter: params[:type])
         .row.list-group-flush.mt-5
           %h5.ml-3 Filter
           = user_notification_link('Reviews', 'reviews', filter: params[:type])
@@ -20,21 +19,17 @@
   .col-md-8.col-lg-9#notifications-list
     .card
       .card-body
-        - if params[:type] == 'all-requests'
-          = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session!),
-                    page_length: 10 })
-        - else
-          .list-group.list-group-flush
-            - @notifications.each do |n|
-              - notification = NotificationPresenter.new(n)
-              .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
-                .content
-                  .text-nowrap
-                    %span.badge.badge-secondary= notification.notification_badge
-                    %small.text-muted= time_ago_in_words(notification.created_at)
-                  = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
-                - unless params[:type] == 'done'
-                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                    = link_to(user_notification_path(user_login: User.session, id: notification),
-                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Done') do
-                      %i.fas.fa-check
+        .list-group.list-group-flush
+          - @notifications.each do |n|
+            - notification = NotificationPresenter.new(n)
+            .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+              .content
+                .text-nowrap
+                  %span.badge.badge-secondary= notification.notification_badge
+                  %small.text-muted= time_ago_in_words(notification.created_at)
+                = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
+              - unless params[:type] == 'done'
+                .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                  = link_to(user_notification_path(user_login: User.session, id: notification),
+                                    method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Done') do
+                    %i.fas.fa-check

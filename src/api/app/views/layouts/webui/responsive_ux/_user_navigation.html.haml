@@ -9,6 +9,10 @@
         = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light mr-2')
         Profile
     %li.nav-item
+      = link_to(my_tasks_path, class: 'nav-link', alt: 'Tasks') do
+        %i.fas.fa-tasks.fa-lg.mr-2
+        Tasks
+    %li.nav-item
       - if User.session!.home_project
         = link_to(project_show_path(User.session!.home_project), class: 'nav-link') do
           %i.fas.fa-cubes.fa-lg.mr-2
