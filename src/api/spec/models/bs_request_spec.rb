@@ -300,13 +300,13 @@ RSpec.describe BsRequest, vcr: true do
     RSpec.shared_examples "the subject's cache is reset when it's request changes" do
       before do
         Timecop.travel(1.minute)
-        @cache_key = user.cache_key
+        @cache_version = user.cache_version
         request.state = :review
         request.save
         user.reload
       end
 
-      it { expect(user.cache_key).not_to eq(@cache_key) }
+      it { expect(user.cache_version).not_to eq(@cache_version) }
     end
 
     context 'creator of bs_request' do
@@ -694,8 +694,8 @@ RSpec.describe BsRequest, vcr: true do
         'state' => 'new',
         'request_type' => 'submit',
         'priority' => 'moderate',
-        'created_at' => submit_request.created_at,
-        'updated_at' => submit_request.updated_at,
+        'created_at' => submit_request.created_at.as_json,
+        'updated_at' => submit_request.updated_at.as_json,
         'superseded_by' => delete_request.id,
         'superseded_by_id' => delete_request.id
       )

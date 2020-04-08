@@ -8,6 +8,9 @@ class ProductTests < ActionDispatch::IntegrationTest
   def setup
     Backend::Test.start(wait_for_scheduler: true)
     reset_auth
+    # FIXME: https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
   end
 
   def _simple_product_file_calls(prefix)

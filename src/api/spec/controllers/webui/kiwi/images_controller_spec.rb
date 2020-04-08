@@ -151,7 +151,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
     context 'json' do
       subject { get :show, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id } }
 
-      it { expect(subject.content_type).to eq('application/json') }
+      it { expect(subject.media_type).to eq('application/json') }
       it { expect(subject).to have_http_status(:success) }
     end
 
@@ -346,7 +346,7 @@ RSpec.describe Webui::Kiwi::ImagesController, type: :controller, vcr: true do
       get :autocomplete_binaries, params: { format: :json, id: kiwi_image_with_package_with_kiwi_file.id, term: term }
     end
 
-    it { expect(subject.content_type).to eq('application/json') }
+    it { expect(subject.media_type).to eq('application/json') }
     it { expect(subject).to have_http_status(:success) }
 
     it do
