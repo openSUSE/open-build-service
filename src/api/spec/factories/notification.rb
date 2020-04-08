@@ -14,7 +14,7 @@ FactoryBot.define do
     end
 
     trait :request_created do
-      event_type { 'Event::RequestCreated' }
+      event_type { 'Event::RequestCreate' }
       association :notifiable, factory: :bs_request_with_submit_action
     end
 

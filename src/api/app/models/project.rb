@@ -1488,6 +1488,10 @@ class Project < ApplicationRecord
     Nokogiri::XML(Backend::Api::BuildResults::Status.version_releases(name))
   end
 
+  def event_parameters
+    { project: name }
+  end
+
   private
 
   def bsrequest_repos_map(project)

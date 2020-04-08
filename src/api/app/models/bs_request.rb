@@ -779,7 +779,7 @@ class BsRequest < ApplicationRecord
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
       HistoryElement::RequestReviewAdded.create(history_params)
-      newreview.create_notification(notify_parameters)
+      newreview.create_event(notify_parameters)
     end
   end
 
@@ -930,7 +930,7 @@ class BsRequest < ApplicationRecord
     Event::RequestCreate.create(notify)
 
     reviews.each do |review|
-      review.create_notification(notify)
+      review.create_event(notify)
     end
   end
 
@@ -1065,6 +1065,11 @@ class BsRequest < ApplicationRecord
 
   def required_checks
     target_project_objects.pluck(:required_checks).flatten.uniq
+  end
+
+  # TODO: rename the 'notify_parameters' method instead of wrapping it like this.
+  def event_parameters
+    notify_parameters
   end
 
   private

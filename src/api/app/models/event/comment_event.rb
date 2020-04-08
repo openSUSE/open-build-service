@@ -2,7 +2,7 @@ module Event
   module CommentEvent
     def self.included(base)
       base.class_eval do
-        payload_keys :id, :commenters, :commenter, :comment_body, :comment_title
+        payload_keys :id, :commenters, :commenter, :comment_body, :comment_title, :when
         receiver_roles :commenter
         shortenable_key :comment_body
       end
@@ -27,6 +27,10 @@ module Event
       h = super
       h['X-OBS-Request-Commenter'] = originator.login
       h
+    end
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Comment')
     end
   end
 end

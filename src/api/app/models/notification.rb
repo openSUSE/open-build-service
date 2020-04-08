@@ -3,6 +3,8 @@ class Notification < ApplicationRecord
   belongs_to :notifiable, polymorphic: true
 
   scope :with_notifiable, -> { where.not(notifiable_id: nil, notifiable_type: nil) }
+  scope :without_notifiable, -> { where(notifiable_id: nil, notifiable_type: nil) }
+
   scope :for_subscribed_user, lambda { |user|
     where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
           user, user.groups.map(&:id))

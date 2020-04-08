@@ -22,6 +22,10 @@ module Event
       User.where(id: payload['reviewers'].map { |r| r['user_id'] }) +
         Group.where(id: payload['reviewers'].map { |r| r['group_id'] })
     end
+
+    def parameters_for_notification
+      super.merge(notifiable_type: 'Review')
+    end
   end
 end
 
