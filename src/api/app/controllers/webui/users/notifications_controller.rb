@@ -1,10 +1,20 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
-  before_action :require_login
   MAX_PER_PAGE = 300
+  VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread'].freeze
+
+  before_action :require_login
+  before_action :check_param_type, :check_param_project, only: :index
 
   def index
     notifications_for_subscribed_user = NotificationsFinder.new.for_subscribed_user
-    @notifications = NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
+
+    @projects = NotificationProjects.new(NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type('unread')).call
+
+    @notifications = if params[:project]
+                       NotificationsFinder.new(notifications_for_subscribed_user).for_project_name(params[:project])
+                     else
+                       NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
+                     end
     @notifications = params['show_all'] ? show_all : @notifications.page(params[:page])
   end
 
@@ -21,6 +31,20 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   private
+
+  def check_param_type
+    return if params[:type].nil? || VALID_NOTIFICATION_TYPES.include?(params[:type])
+
+    flash[:error] = 'Filter not valid.'
+    redirect_to my_notifications_path
+  end
+
+  def check_param_project
+    return unless params[:project] == ''
+
+    flash[:error] = 'Filter not valid.'
+    redirect_to my_notifications_path
+  end
 
   def show_all
     total = @notifications.size

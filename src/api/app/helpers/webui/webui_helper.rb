@@ -402,10 +402,22 @@ module Webui::WebuiHelper
     end
   end
 
-  def user_notification_link(link_text, new_filter, filter: 'inbox')
+  def user_notification_link(link_text, filter_item)
     css_class = 'list-group-item list-group-item-action'
-    css_class += ' active' if new_filter == filter || (filter.nil? && new_filter == 'inbox')
-    link_to(link_text, my_notifications_path(type: new_filter), class: css_class)
+    css_class += ' active' if notification_filter_active?(filter_item)
+    link_to(link_text, my_notifications_path(type: filter_item[:type], project: filter_item[:project]), class: css_class)
+  end
+
+  private
+
+  def notification_filter_active?(filter_item)
+    if params[:project].present?
+      filter_item[:project].try(:name) == params[:project]
+    elsif params[:type].present?
+      filter_item[:type] == params[:type]
+    else
+      filter_item[:type] == 'unread'
+    end
   end
 end
 

@@ -13,13 +13,17 @@
 
       .card-body.collapse#filters
         .row.list-group-flush
-          = user_notification_link('Unread', 'unread', filter: params[:type])
-          = user_notification_link('Read', 'read', filter: params[:type])
+          = user_notification_link('Unread', type: 'unread')
+          = user_notification_link('Read', type: 'read')
         .row.list-group-flush.mt-5
           %h5.ml-3 Filter
-          = user_notification_link('Reviews', 'reviews', filter: params[:type])
-          = user_notification_link('Comments', 'comments', filter: params[:type])
-          = user_notification_link('Requests', 'requests', filter: params[:type])
+          = user_notification_link('Reviews', type: 'reviews')
+          = user_notification_link('Comments', type: 'comments')
+          = user_notification_link('Requests', type: 'requests')
+        .row.list-group-flush.mt-5
+          %h5.ml-3 Projects
+          - project_list(@projects).each do |project_name, notification_number|
+            = user_notification_link("#{project_name} (#{notification_number})", project: project_name)
 
   .col-md-8.col-lg-9#notifications-list
     .card
