@@ -710,7 +710,6 @@ sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' %{__obs_api_prefix}/config/
 touch %{__obs_api_prefix}/log/production.log
 chown %{apache_user}:%{apache_group} %{__obs_api_prefix}/log/production.log
 
-%restart_on_update memcached
 %service_add_post %{obs_api_support_scripts}
 # We need to touch the last_deploy file in the post hook
 # to update the timestamp which we use to display the
@@ -732,6 +731,7 @@ fi
 %postun -n obs-api
 %service_del_postun %{obs_api_support_scripts}
 %service_del_postun -r apache2
+%restart_on_update memcached
 
 %files
 %defattr(-,root,root)
