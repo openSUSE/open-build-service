@@ -802,12 +802,17 @@ class User < ApplicationRecord
     to_s
   end
 
+  # TODO: Remove once responsive_ux is out of beta
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key}") do
       declined_requests.count +
         incoming_requests.count +
         involved_reviews.count
     end
+  end
+
+  def unread_notifications
+    notifications.not_marked_as_done.size
   end
 
   def watched_project_names
