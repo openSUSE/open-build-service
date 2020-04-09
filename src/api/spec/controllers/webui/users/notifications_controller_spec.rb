@@ -82,13 +82,14 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'state_changes'" do
-      let(:params) { default_params.merge(type: 'state_changes') }
+    context "when param type is 'requests'" do
+      let(:params) { default_params.merge(type: 'requests') }
 
       it_behaves_like 'returning success'
 
-      it "sets @notifications to all undelivered notifications of 'state changes' type" do
-        expect(assigns[:notifications]).to include(state_change_notification.reload)
+      it "sets @notifications to all undelivered notifications of 'requests' type" do
+        expect(assigns[:notifications]).to include(state_change_notification.reload,
+                                                   creation_notification.reload)
       end
     end
   end
