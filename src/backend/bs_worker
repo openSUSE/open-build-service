@@ -2547,7 +2547,7 @@ sub getbinaries {
 }
 
 sub getoldpackages {
-  my ($buildinfo, $odir) = @_;
+  my ($buildinfo, $odir, $useccache) = @_;
 
   # get old package build for compare and diffing tools
   mkdir_p($odir) || die("mkdir_p $odir: $!\n");
@@ -2558,7 +2558,7 @@ sub getoldpackages {
       'directory' => $odir,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, 'view=cpio', 'noajax=1', 'noimport=1');
+    }, undef, 'view=cpio', 'noajax=1', 'noimport=1', "withccache=$useccache");
   };
   die("getoldpackages: $@") if $@;
   rmdir($odir);	# if not needed
@@ -3075,7 +3075,24 @@ sub dobuild {
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 
-  getoldpackages($buildinfo, $oldpkgdir) if $oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage';
+  my @configpath;
+  if ($kiwimode) {
+    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []};
+    unshift @configpath, "path=$projid/$repoid" unless @configpath && $configpath[0] eq "path=$projid/$repoid";
+  }
+  my $server = $buildinfo->{'srcserver'} || $srcserver;
+  my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  writestr("$buildroot/.build.config", undef, $config);
+
+
+  my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
+  my $useccache=0;
+  if (exists $bconf->{'buildflags:useccache'}) {
+      if (grep {$_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+        $useccache = 1;
+    }
+  }
+  getoldpackages($buildinfo, $oldpkgdir, $useccache) if $oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage';
 
   $stats->{'times'}->{'download'}->{'time'}->{'unit'} = "s";
   $stats->{'times'}->{'download'}->{'time'}->{'_content'} = (time() - $downloadstarttime);
@@ -3088,16 +3105,6 @@ sub dobuild {
   $stats->{'download'}->{'preinstallimage'} = $preinstallimagedata->{'imagename'} if $preinstallimagedata->{'imagename'};
   ####### end of download phase
 
-  my @configpath;
-  if ($kiwimode) {
-    @configpath = map {"path=$_->{'project'}/$_->{'repository'}"} @{$buildinfo->{'syspath'} || $buildinfo->{'path'} || []};
-    unshift @configpath, "path=$projid/$repoid" unless @configpath && $configpath[0] eq "path=$projid/$repoid";
-  }
-  my $server = $buildinfo->{'srcserver'} || $srcserver;
-  my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
-  writestr("$buildroot/.build.config", undef, $config);
-
-  my $bconf;
   if ($deltamode) {
     # replace @mopt@ in specfile
     my $spec = readstr("$srcdir/deltagen.spec");
@@ -3117,15 +3124,6 @@ sub dobuild {
       writestr("$srcdir/deltagen.spec", undef, $spec);
     }
   }
-  $bconf = $bconf || Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
-
-  my $useccache;
-  if (exists $bconf->{'buildflags:useccache'}) {
-      if (grep /^useccache:\Q$packid\E$/, @{$bconf->{'buildflags'} || []}) {
-        $useccache = 1;
-    }
-  }
-
 
   my $release = $buildinfo->{'release'};
   #FIXME2.6: drop the following line

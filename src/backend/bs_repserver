@@ -1010,6 +1010,7 @@ sub getbinarylist {
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
@@ -1035,6 +1036,7 @@ sub getbinarylist {
     my @bins = grep {/\.rpm$/ && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
     for my $bin (sort @bins) {
       next if %binaries && !$binaries{$_};
       my ($lead, $sighdr, $hdr, $hdrmd5);
@@ -1066,6 +1068,7 @@ sub getbinarylist {
     my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
     for my $bin (sort @bins) {
       next if %binaries && !$binaries{$bin};
       if ($bin =~ /\.rpm$/) {
@@ -1107,6 +1110,7 @@ sub getbinarylist {
   @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
   @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
   @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+  @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
   my %md5sums;
   if ($cgi->{'withmd5'}) {
     if (-s "$reporoot/$prp/$arch/$packid/.checksums") {
@@ -4362,7 +4366,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module*' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repositorybuild/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
@@ -4449,7 +4453,7 @@ my $dispatches_ajax = [
   '/' => \&hello,
   '/ajaxstatus' => \&getajaxstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num? view:?' => \&getlogfile,
-  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool? module*' => \&getbinarylist,
+  '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool? module* withccache:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module*' => \&getbinaries,
