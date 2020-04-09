@@ -91,15 +91,6 @@ RSpec.describe Webui::Users::NotificationsController do
         expect(assigns[:notifications]).to include(state_change_notification.reload)
       end
     end
-
-    context 'when user uses user_login param of different user in the path' do
-      let(:params) { default_params.merge(user_login: other_user.login) }
-
-      it 'flashes error and redirects to root_path' do
-        expect(flash[:error]).to eq("You are not authorized to access the notifications of #{other_user.login}")
-        expect(response).to redirect_to(root_path)
-      end
-    end
   end
 
   describe 'PUT #update' do
@@ -120,22 +111,6 @@ RSpec.describe Webui::Users::NotificationsController do
 
       it 'sets the notification as delivered' do
         expect(state_change_notification.reload.delivered).to be true
-      end
-    end
-
-    context "when the user upddates other user's notifications" do
-      let(:user_to_log_in) { other_user }
-
-      it 'redirects to the root path' do
-        expect(response).to redirect_to(root_path)
-      end
-
-      it 'flashes an error message' do
-        expect(flash[:error]).to eql('Sorry, you are not authorized to update this Notification::RssFeedItem.')
-      end
-
-      it 'does not set the notification as delivered' do
-        expect(state_change_notification.reload.delivered).to be false
       end
     end
   end
