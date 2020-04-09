@@ -276,7 +276,6 @@ OBSApi::Application.routes.draw do
 
     resources :users, controller: 'webui/users', param: :login, constraints: cons do
       resources :requests, only: [:index], controller: 'webui/users/bs_requests'
-      resources :notifications, only: [:index, :update], controller: 'webui/users/notifications'
       collection do
         get 'autocomplete'
         get 'tokens'
@@ -288,6 +287,8 @@ OBSApi::Application.routes.draw do
 
     scope :my do
       resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
+
+      resources :notifications, only: [:index, :update], controller: 'webui/users/notifications', as: :my_notifications
 
       resources :subscriptions, only: [:index], controller: 'webui/users/subscriptions', as: :my_subscriptions do
         collection do
