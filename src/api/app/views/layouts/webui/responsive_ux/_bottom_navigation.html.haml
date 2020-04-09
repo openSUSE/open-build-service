@@ -9,6 +9,8 @@
       %li.nav-item.border-left.border-gray-500
         = link_to(user_notifications_path(User.session), class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
           %i.fas.fa-bell
+          - unless User.session.unread_notifications.zero?
+            %span.badge.badge-primary= User.session.unread_notifications
           .small Notifications
       - if content_for?(:actions)
         %li.nav-item.border-left.border-gray-500

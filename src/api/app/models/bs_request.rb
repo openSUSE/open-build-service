@@ -1171,6 +1171,7 @@ class BsRequest < ApplicationRecord
     review_comment
   end
 
+  # TODO: Remove once responsive_ux is out of beta
   def update_cache
     target_package_ids = bs_request_actions.with_target_package.pluck(:target_package_id)
     target_project_ids = bs_request_actions.with_target_project.pluck(:target_project_id)
