@@ -10,6 +10,7 @@ class Notification < ApplicationRecord
           user, user.groups.map(&:id))
   }
   scope :not_marked_as_done, -> { where(delivered: false) }
+  default_scope -> { order(created_at: :desc) }
 
   serialize :event_payload, JSON
 
