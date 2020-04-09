@@ -28,7 +28,7 @@ Thor wrote in project home:Iggy:
 Comment Body
 
 -- 
-Configure notifications at http://localhost/my/notifications
+Configure notifications at http://localhost/my/subscriptions
 Open Build Service (http://localhost/)
 
 Content-Type: text/html;
@@ -48,7 +48,7 @@ wrote in project home:Iggy:
 <br>
 --
 <br>
-Configure notifications at <a href="http://localhost/my/notifications">http://localhost/my/notifications</a>
+Configure notifications at <a href="http://localhost/my/subscriptions">http://localhost/my/subscriptions</a>
 <br>
 Open Build Service
 (<a href="http://localhost/">http://localhost/</a>)
