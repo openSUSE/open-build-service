@@ -19,17 +19,27 @@
   .col-md-8.col-lg-9#notifications-list
     .card
       .card-body
-        .list-group.list-group-flush
-          - @notifications.each do |n|
-            - notification = NotificationPresenter.new(n)
-            .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
-              .content
-                .text-nowrap
-                  %span.badge.badge-secondary= notification.notification_badge
-                  %small.text-muted= time_ago_in_words(notification.created_at)
-                = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
-              - unless params[:type] == 'done'
-                .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                  = link_to(user_notification_path(user_login: User.session, id: notification),
-                                    method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Done') do
-                    %i.fas.fa-check
+        - if @notifications.empty?
+          %p
+            - case params[:type]
+            - when 'reviews', 'comments', 'state_changes'
+              There are no notifications for this filter
+            - when 'done'
+              Mark notifications as "Done" and they'll appear here
+            - else
+              There are no notifications, but there's a world of opportunities!
+        - else
+          .list-group.list-group-flush
+            - @notifications.each do |n|
+              - notification = NotificationPresenter.new(n)
+              .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+                .content
+                  .text-nowrap
+                    %span.badge.badge-secondary= notification.notification_badge
+                    %small.text-muted= time_ago_in_words(notification.created_at)
+                  = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
+                - unless params[:type] == 'done'
+                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                    = link_to(user_notification_path(user_login: User.session, id: notification),
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Done"') do
+                      %i.fas.fa-check
