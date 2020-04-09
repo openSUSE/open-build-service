@@ -10,7 +10,7 @@
             %i.fas.fa-bookmark
             .small Watchlist
         .toggler.text-center.justify-content-center
-          = link_to(user_notifications_path(User.session), class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
+          = link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
             %i.fas.fa-bell
             .small Notifications
         - if content_for?(:actions)

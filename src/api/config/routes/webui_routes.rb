@@ -276,7 +276,6 @@ OBSApi::Application.routes.draw do
 
     resources :users, controller: 'webui/users', param: :login, constraints: cons do
       resources :requests, only: [:index], controller: 'webui/users/bs_requests'
-      resources :notifications, only: [:index, :update], controller: 'webui/users/notifications'
       collection do
         get 'autocomplete'
         get 'tokens'
@@ -288,8 +287,16 @@ OBSApi::Application.routes.draw do
 
     scope :my do
       resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
-      get 'notifications' => :index,  controller: 'webui/users/subscriptions', as: :my_notifications
-      put 'notifications' => :update, controller: 'webui/users/subscriptions'
+
+      resources :notifications, only: [:index, :update], controller: 'webui/users/notifications', as: :my_notifications
+
+      resources :subscriptions, only: [:index], controller: 'webui/users/subscriptions', as: :my_subscriptions do
+        collection do
+          put 'update'
+          get 'update'
+        end
+      end
+
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       # To accept announcements as user
       post 'announcements/:id' => :create, controller: 'webui/users/announcements', as: :my_announcements

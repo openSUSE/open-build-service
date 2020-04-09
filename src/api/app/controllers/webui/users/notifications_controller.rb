@@ -1,6 +1,5 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :require_login
-  before_action :my_page?, except: [:update]
 
   def index
     notification_type = params[:type]
@@ -28,7 +27,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def update
-    notification = Notification.find(params[:id])
+    notification = User.session.notifications.find(params[:id])
     authorize notification, policy_class: NotificationPolicy
 
     if notification.update(delivered: true)
@@ -37,13 +36,5 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       flash[:error] = "Couldn't mark the notification as done"
     end
     redirect_back(fallback_location: root_path)
-  end
-
-  private
-
-  def my_page?
-    return true if params[:user_login] == User.session.login
-    flash[:error] = "You are not authorized to access the notifications of #{params[:user_login]}"
-    redirect_to(root_path)
   end
 end
