@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>East of Eden</title>
-          <description>Nisi ipsum ipsam tempora.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Omnis eos quibusdam voluptatibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '158'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>East of Eden</title>
-          <description>Nisi ipsum ipsam tempora.</description>
+          <title>The Lathe of Heaven</title>
+          <description>Omnis eos quibusdam voluptatibus.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
+recorded_with: VCR 5.1.0

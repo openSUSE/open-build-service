@@ -39,17 +39,17 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_15
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Behold the Man</title>
-          <description>Sit iusto vero magnam.</description>
+          <title>Fear and Trembling</title>
+          <description>Fuga corrupti et unde.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '142'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Behold the Man</title>
-          <description>Sit iusto vero magnam.</description>
+          <title>Fear and Trembling</title>
+          <description>Fuga corrupti et unde.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
+recorded_with: VCR 5.1.0

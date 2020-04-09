@@ -39,17 +39,17 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Dolorem sunt ut itaque.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Quas laudantium officiis autem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,53 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '186'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Everything is Illuminated</title>
-          <description>Dolorem sunt ut itaque.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Quas laudantium officiis autem.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>My Test package Updated via Webui</title>
-          <description/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '139'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>My Test package Updated via Webui</title>
-          <description></description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:12 GMT
+recorded_with: VCR 5.1.0

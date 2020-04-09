@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:30 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Waste Land</title>
-          <description>Aliquid dolorem commodi culpa.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Possimus sint qui unde.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Waste Land</title>
-          <description>Aliquid dolorem commodi culpa.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Possimus sint qui unde.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:30 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:14 GMT
+recorded_with: VCR 5.1.0

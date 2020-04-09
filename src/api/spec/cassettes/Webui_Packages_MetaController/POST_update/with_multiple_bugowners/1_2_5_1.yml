@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Lathe of Heaven</title>
-          <description>Distinctio ad quia corrupti.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Pariatur facilis qui officiis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,26 +70,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Lathe of Heaven</title>
-          <description>Distinctio ad quia corrupti.</description>
+          <title>Taming a Sea Horse</title>
+          <description>Pariatur facilis qui officiis.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
+    uri: http://backend:5352/source/home:admin/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>My Test package Updated via Webui</title>
+        <project name="home:admin">
+          <title/>
           <description/>
-        </package>
+          <person userid="admin" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -109,14 +110,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '139'
+      - '132'
     body:
       encoding: UTF-8
       string: |
-        <package name="my_package" project="home:tom">
-          <title>My Test package Updated via Webui</title>
+        <project name="home:admin">
+          <title></title>
           <description></description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:29 GMT
-recorded_with: VCR 5.0.0
+          <person userid="admin" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Thu, 09 Apr 2020 09:26:14 GMT
+recorded_with: VCR 5.1.0
