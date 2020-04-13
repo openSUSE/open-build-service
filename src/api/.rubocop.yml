@@ -16,6 +16,15 @@ AllCops:
     - 'files/*'
     - 'db/data_schema.rb'
 
+#################### Lint ###########################
+
+# New cops added between major versions need to be enabled manually.
+# https://docs.rubocop.org/en/stable/versioning/#pending-cops
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
+
 #################### Style ###########################
 
 # We need to allow some variables related to rabbiMQ.
