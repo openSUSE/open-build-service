@@ -7,18 +7,20 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       visit path
 
       expect(page).to have_content(title)
-      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.form-inline')
-      ['Maintainer', 'Bugowner', 'Reader', 'Watching the project'].each do |label|
-        notification_field.check(label, allow_label_click: true)
+      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.list-group')
+      ['maintainer', 'bugowner', 'reader', 'watcher'].each do |role|
+        subscription_by_role = notification_field.find(".#{role}")
+        subscription_by_role.check('email', allow_label_click: true)
         expect(page).to have_css('#flash', text: 'Notifications settings updated')
         find('#flash button[data-dismiss]').click
       end
 
       visit path
 
-      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.form-inline')
-      ['Maintainer', 'Bugowner', 'Reader', 'Watching the project'].each do |label|
-        expect(notification_field.find_field(label, visible: false)).to be_checked
+      notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.list-group')
+      ['maintainer', 'bugowner', 'reader', 'watcher'].each do |role|
+        subscription_by_role = notification_field.find(".#{role}")
+        expect(subscription_by_role.find_field('email', visible: false)).to be_checked
       end
     end
   end
