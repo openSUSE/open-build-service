@@ -40,6 +40,6 @@
                   = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
                 - unless params[:type] == 'done'
                   .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                    = link_to(user_notification_path(user_login: User.session, id: notification),
+                    = link_to(my_notification_path(id: notification),
                                       method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Done"') do
                       %i.fas.fa-check
