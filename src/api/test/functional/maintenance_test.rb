@@ -1413,7 +1413,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal ['dirkmueller@example.com', 'fred@feuerstein.de', 'test_group@testsuite.org'], email.to.sort
 
     EventSubscription.create(eventtype: 'Event::CommentForRequest', receiver_role: :source_maintainer,
-                             user: users(:maintenance_assi), channel: :instant_email)
+                             user: users(:maintenance_assi), channel: :instant_email, enabled: true)
 
     # now leave another comment and hope the assi gets it too
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do

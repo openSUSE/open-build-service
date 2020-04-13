@@ -15,7 +15,9 @@ class EventSubscription < ApplicationRecord
 
   enum channel: {
     disabled: 0,
-    instant_email: 1
+    instant_email: 1,
+    web: 2,
+    rss: 3
   }
 
   belongs_to :user, inverse_of: :event_subscriptions
@@ -62,10 +64,6 @@ class EventSubscription < ApplicationRecord
 
   def receiver_role
     self[:receiver_role].to_sym
-  end
-
-  def enabled?
-    !disabled?
   end
 
   def parameters_for_notification
