@@ -72,6 +72,9 @@ OBSApi::Application.configure do
     Bullet.console = true
     Bullet.add_footer = true
   end
+
+  # Allow all hosts through the ActionDispatch::HostAuthorization middleware
+  config.hosts.clear
 end
 
 CONFIG['extended_backend_log'] = true
