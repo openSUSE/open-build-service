@@ -19,7 +19,7 @@
           %h5.ml-3 Filter
           = user_notification_link('Reviews', 'reviews', filter: params[:type])
           = user_notification_link('Comments', 'comments', filter: params[:type])
-          = user_notification_link('State changes', 'state_changes', filter: params[:type])
+          = user_notification_link('Requests', 'requests', filter: params[:type])
 
   .col-md-8.col-lg-9#notifications-list
     .card
@@ -27,7 +27,7 @@
         - if @notifications.empty?
           %p
             - case params[:type]
-            - when 'reviews', 'comments', 'state_changes'
+            - when 'reviews', 'comments', 'requests'
               There are no notifications for this filter
             - when 'done'
               Mark notifications as "Done" and they'll appear here

@@ -15,10 +15,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       @notifications = Notification.with_notifiable.not_marked_as_done
                                    .where(notifiable_type: 'Comment')
                                    .for_subscribed_user(User.session)
-    when 'state_changes'
+    when 'requests'
       @notifications = Notification.with_notifiable.not_marked_as_done
                                    .where(notifiable_type: 'BsRequest')
-                                   .where.not(bs_request_oldstate: nil)
                                    .for_subscribed_user(User.session)
     else
       @notifications = Notification.with_notifiable.not_marked_as_done
