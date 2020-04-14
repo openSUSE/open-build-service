@@ -293,7 +293,6 @@ OBSApi::Application.routes.draw do
       resources :subscriptions, only: [:index], controller: 'webui/users/subscriptions', as: :my_subscriptions do
         collection do
           put 'update'
-          get 'update'
         end
       end
 
