@@ -18,7 +18,8 @@
     %h4.card-title Events
     %p Choose from which events you want to get an email
     #subscriptions-form
-      = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: my_subscriptions_path, subscriptions_form: @subscriptions_form }
+      = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: update_my_subscriptions_path,
+                                                                            subscriptions_form: @subscriptions_form }
 
 .card.mt-3
   .card-body
