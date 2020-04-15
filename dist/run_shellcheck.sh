@@ -11,6 +11,7 @@ DIRECTORIES=$(printf "../%s " "${DIRECTORIES_ARRAY[@]}")
 # shellcheck disable=SC2086
 find $DIRECTORIES \
   -name run_shellcheck.sh \
+    -o -name 0000-check_users_and_group.ts \
   -type f -exec sh -c "head -n 1 {} | grep -Eq '^#!(.*/|.*env +)(sh|bash)'" \; -print |
   while IFS="" read -r file
   do

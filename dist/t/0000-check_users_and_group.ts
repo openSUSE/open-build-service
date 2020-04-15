@@ -1,20 +1,20 @@
 #!/bin/bash
 
-export BASH_TAP_ROOT=$(dirname $0)
+BASH_TAP_ROOT=$(dirname "$0")
 
 
-. $(dirname $0)/bash-tap-bootstrap
+# shellcheck disable=SC1090
+. "$BASH_TAP_ROOT"/bash-tap-bootstrap
 
 
 plan tests 3
 
 
-for group in obsrun;do
-  result_group=$(getent group $group | cut -f1 -d:)
-  is "$result_group" "$group" "Checking group $group"
-done
+group='obsrun'
+result_group=$(getent group $group | cut -f1 -d:)
+is "$result_group" "$group" "Checking group $group"
 
-for user in obsrun obsservicerun;do
+for user in obsrun obsservicerun; do
   result_user=$(getent passwd $user | cut -f1 -d:)
   is "$result_user" "$user" "Checking user $user"
 done
