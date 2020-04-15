@@ -70,6 +70,10 @@ class EventSubscription < ApplicationRecord
     { subscriber: subscriber,
       subscription_receiver_role: receiver_role }
   end
+
+  def self.without_channel_disabled
+    channels.keys.reject { |channel| channel == 'disabled' }
+  end
 end
 
 # == Schema Information
