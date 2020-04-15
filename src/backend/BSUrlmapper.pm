@@ -33,18 +33,23 @@ sub urlmapper {
   my ($url, $cache) = @_;
   $url =~ s/\/+$//;
   return undef if $url eq '';
+  $url =~ s/^https:/http:/;
   $cache ||= $urlmapcache;
   if (!exists $cache->{''}) {
     $cache->{''} = undef;
     for my $prp (sort keys %{$BSConfig::prp_ext_map || {}}) {
       my $u = $BSConfig::prp_ext_map->{$prp};
       $u =~ s/\/+$//;
+      $u =~ s/^https:/http:/;
       $cache->{$u} = $prp;
     }
   }
   my $prp = $cache->{$url};
   return $prp if $prp;
-  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
+  my $repodownload = $BSConfig::repodownload;
+  return undef unless $repodownload;
+  $repodownload =~ s/^https:/http:/;
+  if ($url =~ /^\Q$repodownload\E\/(.+\/.+)/) {
     my $path = $1;
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     my @p = split('/', $path); 
