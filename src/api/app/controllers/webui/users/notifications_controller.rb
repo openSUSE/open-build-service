@@ -3,8 +3,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def index
     notifications_for_subscribed_user = NotificationsFinder.new.for_subscribed_user
-
     @notifications = NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
+    @notifications = @notifications.page(params[:page])
   end
 
   def update
