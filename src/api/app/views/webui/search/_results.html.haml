@@ -23,4 +23,4 @@
           - desc.split(/\n/).each do |line|
             = highlight(line, search_text, highlighter: '<b>\1</b>')
   - if per_page
-    = paginate results
+    = paginate results, views_prefix: 'webui'
