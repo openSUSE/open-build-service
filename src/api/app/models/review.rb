@@ -221,7 +221,7 @@ class Review < ApplicationRecord
     self.state = new_state
     self.reviewer = User.session!.login
     save!
-    Event::ReviewChanged.create(bs_request.notify_parameters)
+    Event::ReviewChanged.create(bs_request.event_parameters)
 
     arguments = { review: self, comment: comment, user: User.session! }
     if new_state == :accepted

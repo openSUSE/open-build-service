@@ -58,6 +58,6 @@ Such requests get not created for projects with open requests or if you remove t
                                        <accept_at>' + @cleanup_time.to_s + '</accept_at>
                                      </request>')
     req.save!
-    Event::RequestCreate.create(req.notify_parameters)
+    Event::RequestCreate.create(req.event_parameters)
   end
 end
