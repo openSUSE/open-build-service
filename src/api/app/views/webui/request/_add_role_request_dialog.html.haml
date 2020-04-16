@@ -32,8 +32,8 @@
               = label_tag(:target_project, 'In target project:')
               = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
           .form-group
-            = label_tag(:description, 'Description:')
-            = text_area_tag(:description, '', row: 3, class: 'form-control')
+            = label_tag(:add_role_description, 'Description:')
+            = text_area_tag(:add_role_description, '', row: 3, class: 'form-control')
           .modal-footer
             = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }
 

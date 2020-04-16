@@ -151,7 +151,7 @@ class Webui::RequestController < Webui::WebuiController
     request = nil
     begin
       request = BsRequest.create!(
-        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
+        description: params[:delete_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
       )
       request_link = ActionController::Base.helpers.link_to("delete request #{request.number}", request_show_path(request.number))
       flash[:success] = "Created #{request_link}"
@@ -171,7 +171,7 @@ class Webui::RequestController < Webui::WebuiController
     request = nil
     begin
       request = BsRequest.create!(
-        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
+        description: params[:add_role_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
       )
     rescue APIError => e
       flash[:error] = e.message
@@ -200,7 +200,7 @@ class Webui::RequestController < Webui::WebuiController
     request = nil
     begin
       request = BsRequest.create!(
-        description: params[:description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:change_devel))]
+        description: params[:change_devel_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:change_devel))]
       )
     rescue BsRequestAction::UnknownProject,
            Package::UnknownObjectError,
