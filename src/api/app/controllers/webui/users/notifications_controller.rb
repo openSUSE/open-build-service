@@ -2,27 +2,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :require_login
 
   def index
-    notification_type = params[:type]
-    case notification_type
-    when 'read'
-      @notifications = Notification.with_notifiable.where(delivered: true)
-                                   .for_subscribed_user(User.session)
-    when 'reviews'
-      @notifications = Notification.with_notifiable.unread
-                                   .where(notifiable_type: 'Review')
-                                   .for_subscribed_user(User.session)
-    when 'comments'
-      @notifications = Notification.with_notifiable.unread
-                                   .where(notifiable_type: 'Comment')
-                                   .for_subscribed_user(User.session)
-    when 'requests'
-      @notifications = Notification.with_notifiable.unread
-                                   .where(notifiable_type: 'BsRequest')
-                                   .for_subscribed_user(User.session)
-    else
-      @notifications = Notification.with_notifiable.unread
-                                   .for_subscribed_user(User.session)
-    end
+    notifications_for_subscribed_user = NotificationsFinder.new.for_subscribed_user
+
+    @notifications = NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
   end
 
   def update
