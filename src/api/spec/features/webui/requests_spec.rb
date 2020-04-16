@@ -59,15 +59,93 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     end
   end
 
-  context 'for role addition' do
+  context 'for role addition group' do
+    describe 'for projects' do
+      let(:roleaddition_group) { create(:group) }
+      it 'can be submitted' do
+        login submitter
+        visit project_show_path(project: target_project)
+        click_link 'Request Role Addition'
+        find(:id, 'role').select('Bugowner')
+        find(:id, 'role_type').select('Group')
+
+        fill_in 'group', with: roleaddition_group.title
+        find(:xpath, './/li/div').click
+
+        fill_in 'description', with: 'I can fix bugs too.'
+        expect { click_button('Create') }.to change(BsRequest, :count).by(1)
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group} to get the role bugowner for project #{target_project}")
+        expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
+        expect(page).to have_text('In state new')
+      end
+
+      it 'can be accepted' do
+        bs_request.bs_request_actions.delete_all
+        create(:bs_request_action_add_bugowner_role, target_project: target_project,
+                                                     person_name: submitter,
+                                                     bs_request_id: bs_request.id)
+        login receiver
+        visit request_show_path(bs_request)
+        click_button 'Accept'
+
+        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
+    end
+
+    describe 'for packages' do
+      let(:roleaddition_group) { create(:group) }
+      let(:bs_request) do
+        create(:add_maintainer_request, target_package: target_package,
+                                        description: 'a long text - ' * 200,
+                                        creator: submitter,
+                                        person_name: submitter)
+      end
+      it 'can be submitted' do
+        login submitter
+        visit package_show_path(project: target_project, package: target_package)
+        click_link 'Request Role Addition'
+        within('#add-role-modal') do
+          find(:id, 'role').select('Maintainer')
+          find(:id, 'role_type').select('Group')
+          fill_in 'group', with: roleaddition_group.title
+          find(:xpath, './/li/div').click
+
+          fill_in 'description', with: 'I can produce bugs too.'
+          expect { click_button('Create') }.to change(BsRequest, :count).by(1)
+        end
+
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group.title} to get the role maintainer " \
+                                  "for package #{target_project} / #{target_package}")
+
+        expect(page).to have_css('#description-text', text: 'I can produce bugs too.')
+        expect(page).to have_text('In state new')
+      end
+
+      it 'can be accepted' do
+        login receiver
+        visit request_show_path(bs_request)
+        click_button 'Accept'
+
+        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
+    end
+  end
+
+  context 'for role addition user' do
     describe 'for projects' do
       it 'can be submitted' do
         login submitter
         visit project_show_path(project: target_project)
-        click_link('Request Role Addition')
+        click_link 'Request Role Addition'
         find(:id, 'role').select('Bugowner')
-        fill_in 'description', with: 'I can fix bugs too.'
+        find(:id, 'role_type').select('User')
 
+        fill_in 'user', with: "#{submitter.login}"
+        find(:xpath, './/li/div').click
+
+        fill_in 'description', with: 'I can fix bugs too.'
         expect { click_button('Create') }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
@@ -98,9 +176,14 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
-        click_link 'Request role addition'
+        click_link 'Request Role Addition'
         within('#add-role-modal') do
           find(:id, 'role').select('Maintainer')
+          find(:id, 'role_type').select('User')
+
+          fill_in 'user', with: "#{submitter.login}"
+          find(:xpath, './/li/div').click
+
           fill_in 'description', with: 'I can produce bugs too.'
           expect { click_button('Create') }.to change(BsRequest, :count).by(1)
         end

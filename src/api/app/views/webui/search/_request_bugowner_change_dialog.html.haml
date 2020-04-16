@@ -41,4 +41,4 @@
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }
 
 - content_for :ready_function do
-  requestAddReviewAutocomplete();
+  requestAddAutocomplete('#review_type');
