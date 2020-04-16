@@ -9,7 +9,7 @@ class Notification < ApplicationRecord
     where("(subscriber_type = 'User' AND subscriber_id = ?) OR (subscriber_type = 'Group' AND subscriber_id IN (?))",
           user, user.groups.map(&:id))
   }
-  scope :not_marked_as_done, -> { where(delivered: false) }
+  scope :unread, -> { where(delivered: false) }
   default_scope -> { order(created_at: :desc) }
 
   serialize :event_payload, JSON
@@ -34,5 +34,9 @@ class Notification < ApplicationRecord
 
   def template_name
     event_type.gsub('Event::', '').underscore
+  end
+
+  def unread?
+    !delivered?
   end
 end

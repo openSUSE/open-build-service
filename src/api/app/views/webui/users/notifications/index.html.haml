@@ -13,8 +13,8 @@
 
       .card-body.collapse#filters
         .row.list-group-flush
-          = user_notification_link('Inbox', 'inbox', filter: params[:type])
-          = user_notification_link('Done', 'done', filter: params[:type])
+          = user_notification_link('Unread', 'unread', filter: params[:type])
+          = user_notification_link('Read', 'read', filter: params[:type])
         .row.list-group-flush.mt-5
           %h5.ml-3 Filter
           = user_notification_link('Reviews', 'reviews', filter: params[:type])
@@ -43,8 +43,13 @@
                     %span.badge.badge-secondary= notification.notification_badge
                     %small.text-muted= time_ago_in_words(notification.created_at)
                   = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
-                - unless params[:type] == 'done'
+                - unless params[:type] == 'read'
                   .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
                     = link_to(my_notification_path(id: notification),
-                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Done"') do
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Read"') do
                       %i.fas.fa-check
+                - unless notification.unread?
+                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                    = link_to(my_notification_path(id: notification),
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Unread"') do
+                      %i.fas.fa-undo

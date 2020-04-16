@@ -10,7 +10,7 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:comment_for_project_notification) { create(:notification, :comment_for_project, subscriber: user) }
   let(:comment_for_package_notification) { create(:notification, :comment_for_package, subscriber: user) }
   let(:comment_for_request_notification) { create(:notification, :comment_for_request, subscriber: user) }
-  let(:done_notification) { create(:notification, :request_state_change, subscriber: user, delivered: true) }
+  let(:read_notification) { create(:notification, :request_state_change, subscriber: user, delivered: true) }
   let(:notifications_for_other_users) { create(:notification, :request_state_change, subscriber: other_user) }
 
   shared_examples 'returning success' do
@@ -50,13 +50,13 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'done'" do
-      let(:params) { default_params.merge(type: 'done') }
+    context "when param type is 'read'" do
+      let(:params) { default_params.merge(type: 'read') }
 
       it_behaves_like 'returning success'
 
       it 'sets @notifications to all delivered notifications regardless of type' do
-        expect(assigns[:notifications]).to include(done_notification)
+        expect(assigns[:notifications]).to include(read_notification)
       end
     end
 
@@ -95,11 +95,11 @@ RSpec.describe Webui::Users::NotificationsController do
   end
 
   describe 'PUT #update' do
-    subject! do
-      put :update, params: { id: state_change_notification.id, user_login: user_to_log_in.login }
-    end
+    context 'when a user marks one of his unread notifications as read' do
+      subject! do
+        put :update, params: { id: state_change_notification.id, user_login: user_to_log_in.login }
+      end
 
-    context 'when the user updates its own notifications' do
       let(:user_to_log_in) { user }
 
       it 'redirects back' do
@@ -107,11 +107,32 @@ RSpec.describe Webui::Users::NotificationsController do
       end
 
       it 'flashes a success message' do
-        expect(flash[:success]).to eql('Successfully marked the notification as done')
+        expect(flash[:success]).to eql('Successfully marked the notification as read')
       end
 
       it 'sets the notification as delivered' do
         expect(state_change_notification.reload.delivered).to be true
+      end
+    end
+
+    context 'when a user marks one of his read notifications as unread' do
+      subject! do
+        put :update, params: { id: read_notification.id, user_login: user_to_log_in.login }
+      end
+
+      let(:read_notification) { create(:notification, :request_state_change, subscriber: user, delivered: true) }
+      let(:user_to_log_in) { user }
+
+      it 'redirects back' do
+        expect(response).to redirect_to(root_path)
+      end
+
+      it 'flashes a success message' do
+        expect(flash[:success]).to eql('Successfully marked the notification as unread')
+      end
+
+      it 'sets the notification as not delivered' do
+        expect(read_notification.reload.delivered).to be false
       end
     end
   end
