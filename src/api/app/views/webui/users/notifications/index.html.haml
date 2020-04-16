@@ -34,7 +34,11 @@
             - else
               There are no notifications, but there's a world of opportunities!
         - else
-          .list-group.list-group-flush
+          .text-center
+            %span.ml-3= page_entries_info @notifications, entry_name: 'notification'
+            = link_to_all unless @notifications.total_pages == 1 && params['show_all'].nil?
+
+          .list-group.list-group-flush.mt-3
             - @notifications.each do |n|
               - notification = NotificationPresenter.new(n)
               .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
@@ -53,3 +57,5 @@
                     = link_to(my_notification_path(id: notification),
                                       method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Unread"') do
                       %i.fas.fa-undo
+
+          = paginate @notifications, views_prefix: 'webui', window: 2
