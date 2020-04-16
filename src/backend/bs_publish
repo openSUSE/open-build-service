@@ -1089,7 +1089,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-Build(?:\d\d\d\d+|\d+\.\d+)(-Media\d?)(\.iso?(\.sha256(?:\.asc)?)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
-      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256(?:\.asc)?)?)$/s) {
+      } elsif (/^(.*\.(?:$binarchs)?)-([^-]+)?(-.*?)?-([^-]+)(\.(raw\.install\.raw\.xz|raw\.xz|tar\.xz|box|json|install\.iso|install\.tar|tbz|tgz|vmx|vmdk|vmdk\.xz|vhdx|vhdx\.xz|vdi|vdi\.xz|vhdfixed\.xz|iso|phar|qcow2|qcow2\.xz|ova|ova\.xz|cpio\.tar\.bz2)?(?:\.sha256(?:\.asc)?)?)$/s) {
         # kiwi appliance
         my $profile = $3 || "";
         $link = "$1$profile$5";
