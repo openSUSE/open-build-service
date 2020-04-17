@@ -170,6 +170,59 @@ namespace :dev do
     end
   end
 
+  # Run this task with: rails "dev:notifications:data[3]"
+  # replacing 3 with any number to indicate how many times you want this code to be executed.
+  namespace :notifications do
+    task :data, [:repetitions] => :environment do |_t, args|
+      unless Rails.env.development?
+        puts "You are running this rake task in #{Rails.env} environment."
+        puts 'Please only run this task with RAILS_ENV=development'
+        puts 'otherwise it will destroy your database data.'
+        return
+      end
+
+      args.with_defaults(repetitions: 1)
+      repetitions = args.repetitions.to_i
+      require 'factory_bot'
+      include FactoryBot::Syntax::Methods
+
+      admin = User.where(login: 'Admin').first
+      home_admin = admin.home_project
+      unless home_admin
+        home_admin = create(:project, name: admin.home_project_name)
+        create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
+      end
+      requestor = User.where(login: 'Requestor').first || create(:confirmed_user, login: 'Requestor')
+      User.session = requestor
+      requestor_project = create(:project, name: "requestor_project_#{Faker::Lorem.word}")
+
+      repetitions.times do
+        admin_package = create(:package_with_file, name: Faker::Lorem.word, project: home_admin, file_content: 'from admin home')
+        requestor_package = create(:package_with_file, name: admin_package.name, project: requestor_project, file_content: 'from requestor branch')
+
+        # Will create a notification (RequestCreate event) for this request.
+        request = create(
+          :bs_request_with_submit_action,
+          creator: requestor,
+          target_project: home_admin,
+          target_package: admin_package,
+          source_project: requestor_project,
+          source_package: requestor_package
+        )
+
+        # Will create a notification (ReviewWanted event) for this review.
+        request.addreview(by_user: admin)
+
+        # Will create a notification (CommentForRequest event) for this comment.
+        create(:comment_request, commentable: request, user: requestor)
+        # Will create a notification (CommentForProject event) for this comment.
+        create(:comment_project, commentable: home_admin, user: requestor)
+        # Will create a notification (CommentForPackage event) for this comment.
+        create(:comment_package, commentable: admin_package, user: requestor)
+      end
+    end
+  end
+
   namespace :development_testdata do
     task create: :environment do
       unless Rails.env.development?
