@@ -345,13 +345,13 @@ RSpec.describe Review do
     RSpec.shared_examples "the subject's cache is reset when it's review changes" do
       before do
         Timecop.travel(1.minute)
-        @cache_version = subject.cache_version
+        @cache_key = subject.cache_key
         review.state = :accepted
         review.save
         subject.reload
       end
 
-      it { expect(subject.cache_version).not_to eq(@cache_version) }
+      it { expect(subject.cache_key).not_to eq(@cache_key) }
     end
 
     context 'by_user' do
