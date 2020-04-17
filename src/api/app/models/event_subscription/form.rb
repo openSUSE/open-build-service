@@ -7,24 +7,27 @@ class EventSubscription
     end
 
     def subscriptions_by_event
-      GenerateHashForSubscriber.new(subscriber).query
+      event_classes = Event::Base.notification_events
+      event_classes.map { |event_class| EventSubscription::ForEventForm.new(event_class, subscriber).call }
     end
 
     def update!(subscriptions_params)
       subscriptions_params.each do |_i, subscription_params|
         subscription = find_or_initialize_subscription(
           subscription_params[:eventtype],
-          subscription_params[:receiver_role]
+          subscription_params[:receiver_role],
+          subscription_params[:channel]
         )
-        subscription.channel = subscription_params[:channel] || 'disabled'
+
+        subscription.enabled = subscription_params[:enabled].present?
         subscription.save!
       end
     end
 
     private
 
-    def find_or_initialize_subscription(eventtype, receiver_role)
-      opts = { eventtype: eventtype, receiver_role: receiver_role }
+    def find_or_initialize_subscription(eventtype, receiver_role, channel)
+      opts = { eventtype: eventtype, receiver_role: receiver_role, channel: channel }
 
       if subscriber.is_a?(User)
         opts[:user] = subscriber
