@@ -57,6 +57,7 @@ sub new {
 
 sub expand {
   shift;
+  push @_, '--ignoreignore--';
   goto &Build::get_deps;
 }
 
