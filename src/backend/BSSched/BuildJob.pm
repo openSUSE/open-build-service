@@ -1037,7 +1037,7 @@ sub create {
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @{$genbuildreqs->[1]} if $genbuildreqs;
   unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
-  push @bdeps, '--ignoreignore--' if @sysdeps;
+  push @bdeps, '--ignoreignore--' if @sysdeps || $buildtype eq 'simpleimage';
 
   if ($kiwimode || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
