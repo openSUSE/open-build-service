@@ -81,7 +81,7 @@ RSpec.describe RegenerateNotifications, type: :migration do
         # Checks the Notification's attributes have correct values:
         expect(notification.event_payload['number']).to eq(declined_bs_request.number)
         expect(notification.notifiable).to eq(declined_bs_request)
-        expect(notification.title).to eq("Request #{declined_bs_request.number} changed to declined (submit #{project}/#{package})")
+        expect(notification.title).to eq("Request #{declined_bs_request.number} changed from new to declined (submit #{project}/#{package})")
         expect(notification.created_at.to_s).to eq(declined_bs_request.updated_when.to_s)
         expect(notification.updated_at.to_s).to eq(declined_bs_request.updated_when.to_s)
         expect(notification.bs_request_oldstate).to eq('new')

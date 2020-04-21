@@ -99,7 +99,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
       email = m if m.to.include?('Iggy@pop.org')
     end
 
-    assert_equal "Request #{myid} changed to declined (set_bugowner home:tom)", email.subject
+    assert_equal "Request #{myid} changed from new to declined (set_bugowner home:tom)", email.subject
     verify_email('tom_declined', myid, email)
   end
 
