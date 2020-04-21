@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="package_test_user" role="maintainer" />
         </project>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -78,7 +78,7 @@ http_interactions:
           <title>The Road Less Traveled</title>
           <description>Vel sunt qui numquam.</description>
         </package>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -117,7 +117,7 @@ http_interactions:
           <title>The Road Less Traveled</title>
           <description>Vel sunt qui numquam.</description>
         </package>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -156,7 +156,7 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -196,7 +196,7 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -237,7 +237,7 @@ http_interactions:
           <description></description>
           <person userid="other_package_test_user" role="maintainer" />
         </project>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -276,7 +276,7 @@ http_interactions:
           <title>If I Forget Thee Jerusalem</title>
           <description>Nulla quae qui magni.</description>
         </package>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -315,7 +315,7 @@ http_interactions:
           <title>If I Forget Thee Jerusalem</title>
           <description>Nulla quae qui magni.</description>
         </package>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -354,7 +354,7 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: put
@@ -394,7 +394,7 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:03 GMT
 - request:
     method: post
@@ -430,6 +430,72 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-    http_version: 
+    http_version: null
   recorded_at: Thu, 30 Aug 2018 16:33:05 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: get
+    uri: http://backend:5352/published/home:package_test_user/package_test_repository
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '25'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <directory>
+        </directory>
+    http_version: null
+  recorded_at: Wed, 29 Apr 2020 08:42:20 GMT
+- request:
+    method: get
+    uri: http://backend:5352/published/home:package_test_user/package_test_repository
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '25'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <directory>
+        </directory>
+    http_version: null
+  recorded_at: Wed, 29 Apr 2020 08:42:20 GMT
+recorded_with: VCR 5.1.0

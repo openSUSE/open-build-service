@@ -1,14 +1,12 @@
 - @pagetitle = "Repository State of #{@project.name}"
 - @metarobots = 'noindex'
-/ this page will also get other repository informations like jobhistory
 .card
   = render(partial: 'webui/project/tabs', locals: { project: @project })
   .card-body
     %h3
       State of Repository #{@repository} for #{@project}
     %p
-      = render partial: 'webui/shared/download_repository_link',
-      locals: { project: @project, repository: @repository, download_url: @configuration['download_url'] }
+      = render partial: 'webui/shared/download_repository_link', locals: { presenter: @state_presenter }
     %h4 Build Dependency Cycles
     - @repository.architectures.each do |arch|
       - cycles = @repository.cycles(arch.name)

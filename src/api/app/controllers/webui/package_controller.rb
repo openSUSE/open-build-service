@@ -192,6 +192,7 @@ class Webui::PackageController < Webui::WebuiController
   def binaries
     @repository = params[:repository]
     @package_name = params[:package]
+    @state_presenter = Repositories::StatePresenter.new(@project, @repository, @configuration)
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
     if results_from_backend.empty?
