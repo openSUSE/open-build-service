@@ -31,11 +31,21 @@ class NotificationCreator
     # TODO: Replace by Notification when we remove Notification::RssFeedItem class
     notification = Notification::RssFeedItem.find_or_create_by!(params) # avoid duplication
     notification.update("#{channel}": true)
+    notification.projects << NotifiedProjects.new(notification).call
   end
 
   def create_notification?(subscriber, channel)
     return false if subscriber && subscriber.away?
     return false if channel == :rss && !subscriber.try(:rss_token)
+    return false unless notifiable_exists?
     true
+  end
+
+  def notifiable_exists?
+    # We need this check because the notification is created in a delayed job.
+    # So the notifiable object could have been removed in the meantime.
+    notifiable_type = @event.parameters_for_notification[:notifiable_type]
+    notifiable_id = @event.parameters_for_notification[:notifiable_id]
+    notifiable_type.constantize.exists?(notifiable_id)
   end
 end
