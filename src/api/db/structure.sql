@@ -856,6 +856,16 @@ CREATE TABLE `notifications` (
   KEY `index_notifications_on_notifiable_type_and_notifiable_id` (`notifiable_type`,`notifiable_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE `notified_projects` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `notification_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `created_at` datetime(6) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `index_notified_projects_on_notification_id_and_project_id` (`notification_id`,`project_id`),
+  KEY `index_notified_projects_on_notification_id` (`notification_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE `package_issues` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL,
@@ -1495,6 +1505,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200317120346'),
 ('20200318123203'),
 ('20200402141344'),
+('20200421115317'),
 ('20200423160517');
 
 
