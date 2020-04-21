@@ -24,7 +24,7 @@
                 = label_tag(:target_project, 'In target project:')
                 = text_field_tag(:target_project, project, disabled: true, class: 'form-control')
           .form-group
-            = label_tag(:description, 'Please explain why:')
-            = text_area_tag(:description, '', row: 3, class: 'form-control', required: true)
+            = label_tag(:delete_description, 'Please explain why:')
+            = text_area_tag(:delete_description, '', row: 3, class: 'form-control', required: true)
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }

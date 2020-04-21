@@ -254,7 +254,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
     within('#delete-request-modal') do
-      fill_in('description', with: 'Hey, why not?')
+      fill_in('delete_description', with: 'Hey, why not?')
       click_button('Create')
     end
 
@@ -271,7 +271,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
 
     within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
-      fill_in('description', with: 'Hey, why not?')
+      fill_in('change_devel_description', with: 'Hey, why not?')
       click_button('Create')
     end
 

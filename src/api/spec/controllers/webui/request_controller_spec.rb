@@ -202,7 +202,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context 'a valid request' do
       before do
-        post :delete_request, params: { project: target_project, package: target_package, description: 'delete it!' }
+        post :delete_request, params: { project: target_project, package: target_package, delete_description: 'delete it!' }
       end
 
       subject do
@@ -405,7 +405,7 @@ RSpec.describe Webui::RequestController, vcr: true do
         login(submitter)
         post :change_devel_request, params: {
           project: target_project.name, package: target_package.name,
-          devel_project: source_project.name, devel_package: source_package.name, description: 'change it!'
+          devel_project: source_project.name, devel_package: source_package.name, change_devel_description: 'change it!'
         }
       end
 
