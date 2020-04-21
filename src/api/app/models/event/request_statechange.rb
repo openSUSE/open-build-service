@@ -6,7 +6,7 @@ module Event
     receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer, :source_watcher, :target_watcher
 
     def subject
-      "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
+      "Request #{payload['number']} changed from #{payload['oldstate']} to #{payload['state']} (#{actions_summary})"
     end
 
     def parameters_for_notification

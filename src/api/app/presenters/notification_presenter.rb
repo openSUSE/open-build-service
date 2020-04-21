@@ -33,4 +33,18 @@ class NotificationPresenter < SimpleDelegator
       'Comment'
     end
   end
+
+  def excerpt
+    text =  case @model.notifiable_type
+            when 'Request'
+              @model.notifiable.description
+            when 'Review'
+              @model.notifiable.reason
+            when 'Comment'
+              @model.notifiable.body
+            else
+              ''
+            end
+    text.to_s.truncate(100)
+  end
 end
