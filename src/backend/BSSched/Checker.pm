@@ -304,6 +304,15 @@ sub setup {
   BSSolv::setgenmetaalgo($genmetaalgo) if $gctx->{'maxgenmetaalgo'};
   $ctx->{'genmetaalgo'} = $genmetaalgo;
 
+  # check for package blacklist
+  if (exists $bconf->{'buildflags:excludebuild'}) {
+    my %excludebuild;
+    for (@{$bconf->{'buildflags'} || []}) {
+      $excludebuild{$1} = 1 if /^excludebuild:(.*)$/s;
+    }
+    $ctx->{'excludebuild'} = \%excludebuild if %excludebuild;
+  }
+
   # check for package whitelist
   if (exists $bconf->{'buildflags:onlybuild'}) {
     my %onlybuild;
@@ -362,8 +371,11 @@ sub wipeobsolete {
 	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	my $info = $info{$repoid};
 	$reason = 'excluded' if $info && ($info->{'error'} || '') eq 'excluded';
+	my $releasename = $pdata->{'releasename'} || $packid;
+	if ($ctx->{'excludebuild'}) {
+	    $reason = 'excluded' if $ctx->{'excludebuild'}->{$packid} || $ctx->{'excludebuild'}->{$releasename};
+        }
 	if ($ctx->{'onlybuild'}) {
-	  my $releasename = $pdata->{'releasename'} || $packid;
 	  $reason = 'excluded' unless $ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename};
 	}
 	next unless $reason;
@@ -565,8 +577,14 @@ sub expandandsort {
       $pdeps{$packid} = [];
       next;
     }
+    my $releasename = $pdata->{'releasename'} || $packid;
+    if ($ctx->{'excludebuild'}) {
+      if ($ctx->{'excludebuild'}->{$packid} || $ctx->{'excludebuild'}->{$releasename}) {
+        $pdeps{$packid} = [];
+        next;
+      }
+    }
     if ($ctx->{'onlybuild'}) {
-      my $releasename = $pdata->{'releasename'} || $packid;
       if (!($ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename})) {
         $pdeps{$packid} = [];
         next;
@@ -846,9 +864,16 @@ sub checkpkgs {
       }
     }
 
-    # check if this package is excluded by prjconf whitelist
+    # check if this package is excluded by prjconf white and blacklist
+    my $releasename = $pdata->{'releasename'} || $packid;
+    if ($ctx->{'excludebuild'}) {
+      if ($ctx->{'excludebuild'}->{$packid} || $ctx->{'excludebuild'}->{$releasename}) {
+        $packstatus{$packid} = 'excluded';
+        $packerror{$packid} = 'package blacklist';
+        next;
+      }
+    }
     if ($ctx->{'onlybuild'}) {
-      my $releasename = $pdata->{'releasename'} || $packid;
       if (!($ctx->{'onlybuild'}->{$packid} || $ctx->{'onlybuild'}->{$releasename})) {
 	$packstatus{$packid} = 'excluded';
 	$packerror{$packid} = 'package whitelist';
