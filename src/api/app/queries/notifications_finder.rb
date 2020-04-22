@@ -24,7 +24,7 @@ class NotificationsFinder
                     user, user.groups.map(&:id))
   end
 
-  def for_notifiable_type(type = '')
+  def for_notifiable_type(type = 'unread')
     notifications = self.class.new(with_notifiable)
 
     case type
@@ -39,6 +39,10 @@ class NotificationsFinder
     else
       notifications.unread
     end
+  end
+
+  def for_project_name(project_name)
+    unread.joins(:projects).where(projects: { name: project_name })
   end
 
   def stale
