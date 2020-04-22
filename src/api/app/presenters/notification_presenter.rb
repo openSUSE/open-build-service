@@ -9,9 +9,9 @@ class NotificationPresenter < SimpleDelegator
     when 'Event::RequestStatechange', 'Event::RequestCreate'
       Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number)
     when 'Event::ReviewWanted'
-      Rails.application.routes.url_helpers.request_show_path(@model.event_payload['number'])
+      Rails.application.routes.url_helpers.request_show_path(@model.notifiable.bs_request.number)
     when 'Event::CommentForRequest'
-      Rails.application.routes.url_helpers.request_show_path(@model.event_payload['number'], anchor: "comment-#{@model.notifiable_id}")
+      Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, anchor: "comment-#{@model.notifiable_id}")
     when 'Event::CommentForProject'
       Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, anchor: "comment-#{@model.notifiable_id}")
     when 'Event::CommentForPackage'
