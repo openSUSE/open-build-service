@@ -362,8 +362,8 @@ RSpec.describe User do
   end
 
   describe '#combined_rss_feed_items' do
-    let(:max_items_per_user) { Notification::RssFeedItem::MAX_ITEMS_PER_USER }
-    let(:max_items_per_group) { Notification::RssFeedItem::MAX_ITEMS_PER_GROUP }
+    let(:max_items_per_user) { Notification::MAX_RSS_ITEMS_PER_USER }
+    let(:max_items_per_group) { Notification::MAX_RSS_ITEMS_PER_GROUP }
     let(:group) { create(:group) }
     let!(:groups_user) { create(:groups_user, user: confirmed_user, group: group) }
 

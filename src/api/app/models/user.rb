@@ -61,6 +61,7 @@ class User < ApplicationRecord
   has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
   has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
 
+  # TODO: Remove with Notification::RssFeedItem
   has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
   has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
 
@@ -812,7 +813,7 @@ class User < ApplicationRecord
   end
 
   def unread_notifications
-    NotificationsFinder.new(notifications).unread.size
+    NotificationsFinder.new(notifications.for_web).unread.size
   end
 
   def watched_project_names
@@ -860,9 +861,9 @@ class User < ApplicationRecord
   end
 
   def combined_rss_feed_items
-    Notification::RssFeedItem.where(subscriber: self).or(
-      Notification::RssFeedItem.where(subscriber: groups)
-    ).order(created_at: :desc, id: :desc).limit(Notification::RssFeedItem::MAX_ITEMS_PER_USER)
+    Notification.for_rss.where(subscriber: self).or(
+      Notification.for_rss.where(subscriber: groups)
+    ).order(created_at: :desc, id: :desc).limit(Notification::MAX_RSS_ITEMS_PER_USER)
   end
 
   def mark_login!

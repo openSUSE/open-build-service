@@ -1,4 +1,7 @@
 class Notification < ApplicationRecord
+  MAX_RSS_ITEMS_PER_USER = 10
+  MAX_RSS_ITEMS_PER_GROUP = 10
+
   belongs_to :subscriber, polymorphic: true
   belongs_to :notifiable, polymorphic: true
 
@@ -6,6 +9,9 @@ class Notification < ApplicationRecord
   has_many :projects, through: :notified_projects
 
   serialize :event_payload, JSON
+
+  scope :for_web, -> { where(web: true) }
+  scope :for_rss, -> { where(rss: true) }
 
   def event
     @event ||= event_type.constantize.new(event_payload)

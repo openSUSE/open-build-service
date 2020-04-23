@@ -28,6 +28,7 @@ class NotificationCreator
   def create_notification_per_subscription(subscription, channel)
     return unless create_notification?(subscription.subscriber, channel)
     params = subscription.parameters_for_notification.merge!(@event.parameters_for_notification)
+    # TODO: Replace by Notification when we remove Notification::RssFeedItem class
     notification = Notification::RssFeedItem.find_or_create_by!(params) # avoid duplication
     notification.update("#{channel}": true)
   end
