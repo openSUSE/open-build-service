@@ -5,6 +5,7 @@ require:
 inherit_from: .rubocop_todo.yml
 
 AllCops:
+  NewCops: enable
   UseCache: true
   CacheRootDirectory: tmp/rubocop_cache_rails_dir
   MaxFilesInCache: 4000
