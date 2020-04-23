@@ -6,7 +6,7 @@ class EventSubscription
       @event = event
     end
 
-    def subscriptions
+    def subscriptions(channel = :instant_email)
       receivers_and_subscriptions = {}
 
       event.class.receiver_roles.flat_map do |receiver_role|
@@ -14,8 +14,9 @@ class EventSubscription
         receivers = event.send("#{receiver_role}s")
         receivers = filter_and_convert_groups_without_emails_to_users(receivers)
 
+        options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
-        default_subscription = EventSubscription.defaults.find_by(eventtype: event.eventtype, receiver_role: receiver_role)
+        default_subscription = EventSubscription.defaults.find_by(options)
 
         receivers.each do |receiver|
           # Prevent multiple enabled subscriptions for the same subscriber & eventtype
@@ -23,7 +24,7 @@ class EventSubscription
           next if receivers_and_subscriptions[receiver].present? || receiver == event.originator
 
           # Try to find the subscription for this receiver
-          receiver_subscription = EventSubscription.for_subscriber(receiver).find_by(eventtype: event.eventtype, receiver_role: receiver_role)
+          receiver_subscription = EventSubscription.for_subscriber(receiver).find_by(options)
 
           if receiver_subscription.present?
             # Use the receiver's subscription if it exists
