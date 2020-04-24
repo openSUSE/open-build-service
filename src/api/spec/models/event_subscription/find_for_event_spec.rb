@@ -25,7 +25,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'which is disabled' do
       let!(:subscription) do
-        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, channel: 'disabled')
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -50,7 +50,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'and a default maintainer subscription is disabled' do
       let!(:default_subscription) do
-        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, channel: 'disabled')
+        create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -77,7 +77,7 @@ RSpec.shared_context 'it returns subscriptions for an event' do
 
     context 'and the maintainer subscription is disabled' do
       let!(:subscription) do
-        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, channel: 'disabled')
+        create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: maintainer, enabled: false)
       end
 
       it 'does not include that user/group' do
@@ -243,7 +243,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
           context 'which is disabled' do
             let!(:subscription) do
-              create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: user, channel: 'disabled')
+              create(:event_subscription_comment_for_project_without_subscriber, receiver_role: 'maintainer', subscriber: user, enabled: false)
             end
 
             it 'does not include that user/group' do
@@ -265,7 +265,7 @@ RSpec.describe EventSubscription::FindForEvent do
 
           context 'and a default maintainer subscription is disabled' do
             let!(:default_subscription) do
-              create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, channel: 'disabled')
+              create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: nil, enabled: false)
             end
 
             it 'does not include that user/group' do
