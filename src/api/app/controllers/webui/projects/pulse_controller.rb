@@ -3,7 +3,7 @@ module Webui
     class PulseController < WebuiController
       before_action :set_project
       before_action :set_range
-      before_action :set_pulse, if: -> { request.xhr? }
+      before_action :set_pulse
 
       def show
         @pulse = @project.project_log_entries.page(params[:page])
