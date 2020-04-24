@@ -1,15 +1,20 @@
 module Webui
   module Projects
     class PulseController < WebuiController
+      before_action :forbid_bot_access
       before_action :set_project
       before_action :set_range
-      before_action :set_pulse, if: -> { request.xhr? }
+      before_action :set_pulse
 
       def show
         @pulse = @project.project_log_entries.page(params[:page])
       end
 
       private
+
+      def forbid_bot_access
+        return head :forbidden if request.bot?
+      end
 
       def set_range
         @range = params[:range] == 'month' ? 'month' : 'week'
