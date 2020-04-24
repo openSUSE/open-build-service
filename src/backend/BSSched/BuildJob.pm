@@ -1038,6 +1038,11 @@ sub create {
   unshift @bdeps, @{$genbuildreqs->[1]} if $genbuildreqs;
   unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps || $buildtype eq 'simpleimage';
+  if ($packid && exists($bconf->{'buildflags:useccache'}) && ($buildtype eq 'arch' || $buildtype eq 'spec' || $buildtype eq 'dsc')) {
+    if (grep {$_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+      push @bdeps, @{$bconf->{'substitute'}->{'build-packages:ccache'} || [ 'ccache' ] };
+    }
+  }
 
   if ($kiwimode || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
