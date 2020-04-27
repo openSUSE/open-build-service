@@ -236,7 +236,7 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'redis', "$rundir/bs_redis");
+BSUtil::restartexit($options, 'redis', "$rundir/bs_redis", "$myeventdir/.ping");
 BSUtil::printlog("starting build service redis forwarder");
 
 my $critlogfile = "$BSConfig::logdir/redis.crit.log";
