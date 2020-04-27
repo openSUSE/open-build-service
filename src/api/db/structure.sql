@@ -518,7 +518,7 @@ CREATE TABLE `event_subscriptions` (
   `updated_at` datetime(6) DEFAULT NULL,
   `group_id` int(11) DEFAULT NULL,
   `channel` int(11) NOT NULL DEFAULT '0',
-  `enabled` tinyint(1) DEFAULT 0,
+  `enabled` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `index_event_subscriptions_on_user_id` (`user_id`) USING BTREE,
   KEY `index_event_subscriptions_on_group_id` (`group_id`)
