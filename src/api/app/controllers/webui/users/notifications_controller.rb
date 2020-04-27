@@ -3,7 +3,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   MAX_PER_PAGE = 300
 
   def index
-    notifications_for_subscribed_user = NotificationsFinder.new.for_subscribed_user
+    notifications_for_subscribed_user = User.session.notifications.for_web
     @notifications = NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
     @notifications = params['show_all'] ? show_all : @notifications.page(params[:page])
   end

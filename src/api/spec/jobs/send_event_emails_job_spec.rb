@@ -20,7 +20,10 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
     context 'with no errors being raised' do
       let!(:subscription1) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user) }
-      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
+      let!(:subscription2) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
+      let!(:subscription3) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group) }
+      let!(:subscription4) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: nil, group: group, channel: :web) }
+      let!(:subscription5) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :web) }
 
       subject! { SendEventEmailsJob.new.perform }
 
@@ -31,28 +34,30 @@ RSpec.describe SendEventEmailsJob, type: :job do
         expect(email.subject).to include('New comment')
       end
 
-      it "creates an rss notification for user's email" do
-        notification = Notification.find_by(subscriber: user)
+      it "not creates an rss notification for user's email if users doesn't have rss token" do
+        expect(Notification.find_by(subscriber: user, rss: true)).to be_nil
+      end
 
-        expect(notification.type).to eq('Notification::RssFeedItem')
+      it "creates an web notification for user's email" do
+        notification = Notification.find_by(subscriber: user, web: true)
+
         expect(notification.event_type).to eq('Event::CommentForProject')
         expect(notification.event_payload['comment_body']).to include('how are things?')
         expect(notification.subscription_receiver_role).to eq('maintainer')
         expect(notification.delivered).to be_falsey
       end
 
-      it "creates an rss notification with the same raw value of the corresponding event's payload" do
-        notification = Notification.find_by(subscriber: user)
+      it "creates an web notification with the same raw value of the corresponding event's payload" do
+        notification = Notification.find_by(subscriber: user, web: true)
         raw_event_payload = Event::Base.first.attributes_before_type_cast['payload']
         raw_notification_payload = notification.attributes_before_type_cast['event_payload']
 
         expect(raw_event_payload).to eq(raw_notification_payload)
       end
 
-      it "creates an rss notification for group's email" do
-        notification = Notification::RssFeedItem.find_by(subscriber: group)
+      it "creates an web notification for group's email" do
+        notification = Notification.find_by(subscriber: group, web: true)
 
-        expect(notification.type).to eq('Notification::RssFeedItem')
         expect(notification.event_type).to eq('Event::CommentForProject')
         expect(notification.event_payload['comment_body']).to include('how are things?')
         expect(notification.subscription_receiver_role).to eq('maintainer')
@@ -61,6 +66,24 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
       it 'only creates two notifications' do
         expect(Notification.count).to eq(2)
+      end
+    end
+
+    context 'when user has rss token' do
+      let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
+      before do
+        user.create_rss_token
+      end
+
+      subject! { SendEventEmailsJob.new.perform }
+
+      it "creates an rss notification for user's email" do
+        notification = Notification.find_by(subscriber: user, rss: true)
+
+        expect(notification.event_type).to eq('Event::CommentForProject')
+        expect(notification.event_payload['comment_body']).to include('how are things?')
+        expect(notification.subscription_receiver_role).to eq('maintainer')
+        expect(notification.delivered).to be_falsey
       end
     end
 

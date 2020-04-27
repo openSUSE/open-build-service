@@ -189,8 +189,8 @@ module Event
       ret
     end
 
-    def subscriptions
-      EventSubscription::FindForEvent.new(self).subscriptions
+    def subscriptions(channel = :instant_email)
+      EventSubscription::FindForEvent.new(self).subscriptions(channel)
     end
 
     def subscribers
@@ -265,7 +265,6 @@ module Event
         event_payload: payload,
         notifiable_id: payload['id'],
         created_at: payload['when'].to_datetime,
-        updated_at: payload['when'].to_datetime,
         title: subject_to_title }
     end
 

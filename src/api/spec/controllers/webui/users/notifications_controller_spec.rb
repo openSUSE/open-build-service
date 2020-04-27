@@ -4,14 +4,14 @@ RSpec.describe Webui::Users::NotificationsController do
   let(:username) { 'reynoldsm' }
   let!(:user) { create(:confirmed_user, login: username) }
   let!(:other_user) { create(:confirmed_user) }
-  let(:state_change_notification) { create(:notification, :request_state_change, subscriber: user) }
-  let(:creation_notification) { create(:notification, :request_created, subscriber: user) }
-  let(:review_notification) { create(:notification, :review_wanted, subscriber: user) }
-  let(:comment_for_project_notification) { create(:notification, :comment_for_project, subscriber: user) }
-  let(:comment_for_package_notification) { create(:notification, :comment_for_package, subscriber: user) }
-  let(:comment_for_request_notification) { create(:notification, :comment_for_request, subscriber: user) }
-  let(:read_notification) { create(:notification, :request_state_change, subscriber: user, delivered: true) }
-  let(:notifications_for_other_users) { create(:notification, :request_state_change, subscriber: other_user) }
+  let(:state_change_notification) { create(:web_notification, :request_state_change, subscriber: user) }
+  let(:creation_notification) { create(:web_notification, :request_created, subscriber: user) }
+  let(:review_notification) { create(:web_notification, :review_wanted, subscriber: user) }
+  let(:comment_for_project_notification) { create(:web_notification, :comment_for_project, subscriber: user) }
+  let(:comment_for_package_notification) { create(:web_notification, :comment_for_package, subscriber: user) }
+  let(:comment_for_request_notification) { create(:web_notification, :comment_for_request, subscriber: user) }
+  let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
+  let(:notifications_for_other_users) { create(:web_notification, :request_state_change, subscriber: other_user) }
 
   shared_examples 'returning success' do
     it 'returns ok status' do
@@ -120,7 +120,7 @@ RSpec.describe Webui::Users::NotificationsController do
         put :update, params: { id: read_notification.id, user_login: user_to_log_in.login }
       end
 
-      let(:read_notification) { create(:notification, :request_state_change, subscriber: user, delivered: true) }
+      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
       let(:user_to_log_in) { user }
 
       it 'redirects back' do

@@ -44,10 +44,15 @@ RSpec.describe RegenerateNotifications, type: :migration do
     end
     let!(:revoked_bs_request) { create(:bs_request, type: 'maintenance_release', state: :revoked) } # This shouldn't regenerate notification
 
+    before do
+      owner.create_rss_token
+    end
+
     subject { RegenerateNotifications.new.up }
 
     context 'for RequestCreate Notifications' do
-      let!(:subscription) { create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner) }
+      let!(:rss_subscription) { create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
+      let!(:web_subscription) { create(:event_subscription_request_created, receiver_role: 'target_maintainer', user: owner, channel: :web) }
 
       before do
         subject
@@ -62,13 +67,14 @@ RSpec.describe RegenerateNotifications, type: :migration do
         expect(notification.notifiable).to eq(new_bs_request)
         # Timestamps compared with .to_s because they have different precision and the values differ slightly.
         expect(notification.created_at.to_s).to eq(new_bs_request.updated_when.to_s)
-        expect(notification.updated_at.to_s).to eq(new_bs_request.updated_when.to_s)
         expect(notification.title).to eq("Request #{new_bs_request.number} created by #{requester} (submit #{project}/#{package})")
+        expect(notification).to be_web
+        expect(notification).to be_rss
       end
     end
 
     context 'for RequesStatechange Notifications' do
-      let!(:subscription) { create(:event_subscription_request_statechange, receiver_role: 'target_maintainer', user: owner) }
+      let!(:subscription) { create(:event_subscription_request_statechange, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
 
       before do
         subject
@@ -83,7 +89,6 @@ RSpec.describe RegenerateNotifications, type: :migration do
         expect(notification.notifiable).to eq(declined_bs_request)
         expect(notification.title).to eq("Request #{declined_bs_request.number} changed from new to declined (submit #{project}/#{package})")
         expect(notification.created_at.to_s).to eq(declined_bs_request.updated_when.to_s)
-        expect(notification.updated_at.to_s).to eq(declined_bs_request.updated_when.to_s)
         expect(notification.bs_request_oldstate).to eq('new')
       end
     end
@@ -101,7 +106,7 @@ RSpec.describe RegenerateNotifications, type: :migration do
       let!(:accepted_review) { create(:review, bs_request: review_request, by_user: owner, state: :accepted) }
 
       context 'with review by user' do
-        let!(:subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: owner) }
+        let!(:subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: owner, channel: :rss) }
         let!(:review) { create(:review, bs_request: review_request, by_user: owner, state: :new, updated_at: 10.days.ago) }
 
         before do
@@ -116,7 +121,6 @@ RSpec.describe RegenerateNotifications, type: :migration do
           expect(notification.event_payload['number']).to eq(review_request.number)
           expect(notification.notifiable).to eq(review)
           expect(notification.created_at.to_s).to eq(review.updated_at.to_s)
-          expect(notification.updated_at.to_s).to eq(review.updated_at.to_s)
           expect(notification.title).to eq("Request #{review_request.number} requires review (submit #{project}/#{package})")
         end
       end
@@ -125,7 +129,8 @@ RSpec.describe RegenerateNotifications, type: :migration do
         let(:reviewer_1) { create(:confirmed_user, login: 'reviewer_1') }
         let(:package_2) { create(:package, name: 'package_2') }
         let!(:relationship) { create(:relationship_package_user, user: reviewer_1, package: package_2) }
-        let!(:subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1) }
+        let!(:web_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :web) }
+        let!(:rss_subscription) { create(:event_subscription_review_wanted, receiver_role: 'reviewer', user: reviewer_1, channel: :rss) }
         let!(:review_by_package) { create(:review, bs_request: review_request, by_project: package_2.project, by_package: package_2, state: :new) }
 
         before do
@@ -140,12 +145,14 @@ RSpec.describe RegenerateNotifications, type: :migration do
           expect(notification.event_payload['number']).to eq(review_request.number)
           expect(notification.notifiable).to eq(review_by_package)
           expect(notification.title).to eq("Request #{review_request.number} requires review (submit #{project}/#{package})")
+          expect(notification).to be_web
+          expect(notification).not_to be_rss
         end
       end
     end
 
     context 'for CommentForRequest Notifications' do
-      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner) }
+      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
       let!(:old_comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, created_at: 4.weeks.ago) }
       let!(:comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, updated_at: 1.week.ago) }
       let!(:comment_for_project) { create(:comment_project, commentable: project, user: requester) } # Shouldn't regenerate notification
@@ -164,13 +171,12 @@ RSpec.describe RegenerateNotifications, type: :migration do
         expect(notification.event_payload['number']).to eq(new_bs_request.number)
         expect(notification.notifiable).to eq(comment_for_request)
         expect(notification.created_at.to_s).to eq(comment_for_request.updated_at.to_s)
-        expect(notification.updated_at.to_s).to eq(comment_for_request.updated_at.to_s)
         expect(notification.title).to eq("Request #{new_bs_request.number} commented by #{requester} (submit #{project}/#{package})")
       end
     end
 
     context 'when running the job after running the data migration' do
-      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner) }
+      let!(:subscription) { create(:event_subscription_comment_for_request, receiver_role: 'target_maintainer', user: owner, channel: :rss) }
       let!(:comment_for_request) { create(:comment_request, commentable: new_bs_request, user: requester, body: 'bla') }
       let(:events) { Event::Base.where(eventtype: 'Event::CommentForRequest') }
       let(:comment_notifications) { Notification.where(notifiable_type: 'Comment') }
