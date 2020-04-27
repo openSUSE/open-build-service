@@ -1,7 +1,7 @@
 CREATE TABLE `announcements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `content` text COLLATE utf8mb4_unicode_ci,
+  `content` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
@@ -27,7 +27,7 @@ CREATE TABLE `ar_internal_metadata` (
 CREATE TABLE `architectures` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `available` tinyint(1) DEFAULT '0',
+  `available` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `arch_name_index` (`name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
@@ -42,7 +42,7 @@ CREATE TABLE `architectures_distributions` (
 CREATE TABLE `attrib_allowed_values` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `attrib_type_id` int(11) NOT NULL,
-  `value` text COLLATE utf8mb4_unicode_ci,
+  `value` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `attrib_type_id` (`attrib_type_id`) USING BTREE,
   CONSTRAINT `attrib_allowed_values_ibfk_1` FOREIGN KEY (`attrib_type_id`) REFERENCES `attrib_types` (`id`)
@@ -113,7 +113,7 @@ CREATE TABLE `attrib_types` (
   `type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `value_count` int(11) DEFAULT NULL,
   `attrib_namespace_id` int(11) NOT NULL,
-  `issue_list` tinyint(1) DEFAULT '0',
+  `issue_list` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_attrib_types_on_attrib_namespace_id_and_name` (`attrib_namespace_id`,`name`) USING BTREE,
   KEY `index_attrib_types_on_name` (`name`) USING BTREE,
@@ -163,7 +163,7 @@ CREATE TABLE `backend_packages` (
   `changesmd5` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `verifymd5` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `expandedmd5` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `error` text COLLATE utf8mb4_unicode_ci,
+  `error` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `maxmtime` datetime DEFAULT NULL,
   PRIMARY KEY (`package_id`),
   KEY `index_backend_packages_on_links_to_id` (`links_to_id`) USING BTREE,
@@ -234,13 +234,13 @@ CREATE TABLE `bs_request_actions` (
   `source_package` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `source_rev` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `sourceupdate` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `updatelink` tinyint(1) DEFAULT '0',
+  `updatelink` tinyint(1) DEFAULT 0,
   `person_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `group_name` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `makeoriginolder` tinyint(1) DEFAULT '0',
+  `makeoriginolder` tinyint(1) DEFAULT 0,
   `target_package_id` int(11) DEFAULT NULL,
   `target_project_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -258,16 +258,16 @@ CREATE TABLE `bs_request_actions` (
 
 CREATE TABLE `bs_request_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `counter` int(11) DEFAULT '1',
+  `counter` int(11) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `bs_requests` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `creator` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `state` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `comment` text COLLATE utf8mb4_unicode_ci,
+  `comment` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `commenter` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `superseded_by` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL,
@@ -331,7 +331,7 @@ CREATE TABLE `channel_targets` (
   `repository_id` int(11) NOT NULL,
   `prefix` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `id_template` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `disabled` tinyint(1) DEFAULT '0',
+  `disabled` tinyint(1) DEFAULT 0,
   `requires_issue` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`) USING BTREE,
@@ -351,8 +351,8 @@ CREATE TABLE `channels` (
 CREATE TABLE `cloud_azure_configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL,
-  `application_id` text CHARACTER SET utf8,
-  `application_key` text CHARACTER SET utf8,
+  `application_id` text CHARACTER SET utf8 DEFAULT NULL,
+  `application_key` text CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
@@ -384,7 +384,7 @@ CREATE TABLE `cloud_user_upload_jobs` (
 
 CREATE TABLE `comments` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `body` text COLLATE utf8mb4_unicode_ci,
+  `body` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `parent_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
@@ -405,7 +405,7 @@ CREATE TABLE `commit_activities` (
   `user_id` int(11) NOT NULL,
   `project` varchar(255) COLLATE utf8_bin NOT NULL,
   `package` varchar(255) COLLATE utf8_bin NOT NULL,
-  `count` int(11) NOT NULL DEFAULT '0',
+  `count` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_activity_day` (`date`,`user_id`,`project`,`package`),
   KEY `index_commit_activities_on_user_id` (`user_id`),
@@ -415,20 +415,20 @@ CREATE TABLE `commit_activities` (
 CREATE TABLE `configurations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '',
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '',
   `registration` enum('allow','confirmation','deny') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'allow',
-  `anonymous` tinyint(1) DEFAULT '1',
-  `default_access_disabled` tinyint(1) DEFAULT '0',
-  `allow_user_to_create_home_project` tinyint(1) DEFAULT '1',
-  `disallow_group_creation` tinyint(1) DEFAULT '0',
-  `change_password` tinyint(1) DEFAULT '1',
-  `hide_private_options` tinyint(1) DEFAULT '0',
-  `gravatar` tinyint(1) DEFAULT '1',
-  `enforce_project_keys` tinyint(1) DEFAULT '0',
-  `download_on_demand` tinyint(1) DEFAULT '1',
+  `anonymous` tinyint(1) DEFAULT 1,
+  `default_access_disabled` tinyint(1) DEFAULT 0,
+  `allow_user_to_create_home_project` tinyint(1) DEFAULT 1,
+  `disallow_group_creation` tinyint(1) DEFAULT 0,
+  `change_password` tinyint(1) DEFAULT 1,
+  `hide_private_options` tinyint(1) DEFAULT 0,
+  `gravatar` tinyint(1) DEFAULT 1,
+  `enforce_project_keys` tinyint(1) DEFAULT 0,
+  `download_on_demand` tinyint(1) DEFAULT 1,
   `download_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `bugzilla_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
@@ -438,8 +438,8 @@ CREATE TABLE `configurations` (
   `obs_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'https://unconfigured.openbuildservice.org',
   `cleanup_after_days` int(11) DEFAULT NULL,
   `admin_email` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
-  `cleanup_empty_projects` tinyint(1) DEFAULT '1',
-  `disable_publish_for_branches` tinyint(1) DEFAULT '1',
+  `cleanup_empty_projects` tinyint(1) DEFAULT 1,
+  `disable_publish_for_branches` tinyint(1) DEFAULT 1,
   `default_tracker` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'bnc',
   `api_url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `unlisted_projects_filter` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT '^home:.+',
@@ -454,10 +454,10 @@ CREATE TABLE `data_migrations` (
 
 CREATE TABLE `delayed_jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `priority` int(11) DEFAULT '0',
-  `attempts` int(11) DEFAULT '0',
-  `handler` mediumtext CHARACTER SET utf8 COLLATE utf8_bin,
-  `last_error` text COLLATE utf8mb4_unicode_ci,
+  `priority` int(11) DEFAULT 0,
+  `attempts` int(11) DEFAULT 0,
+  `handler` mediumtext CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
+  `last_error` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `run_at` datetime DEFAULT NULL,
   `locked_at` datetime DEFAULT NULL,
   `failed_at` datetime DEFAULT NULL,
@@ -503,7 +503,7 @@ CREATE TABLE `download_repositories` (
   `archfilter` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `masterurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `mastersslfingerprint` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `pubkey` text CHARACTER SET utf8,
+  `pubkey` text CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `repository_id` (`repository_id`),
   CONSTRAINT `download_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
@@ -517,7 +517,7 @@ CREATE TABLE `event_subscriptions` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `group_id` int(11) DEFAULT NULL,
-  `channel` int(11) NOT NULL DEFAULT '0',
+  `channel` int(11) NOT NULL DEFAULT 0,
   `enabled` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `index_event_subscriptions_on_user_id` (`user_id`) USING BTREE,
@@ -527,11 +527,11 @@ CREATE TABLE `event_subscriptions` (
 CREATE TABLE `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `eventtype` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `payload` text COLLATE utf8mb4_unicode_ci,
+  `payload` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
-  `undone_jobs` int(11) DEFAULT '0',
-  `mails_sent` tinyint(1) DEFAULT '0',
+  `undone_jobs` int(11) DEFAULT 0,
+  `mails_sent` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`),
   KEY `index_events_on_eventtype` (`eventtype`) USING BTREE,
   KEY `index_events_on_created_at` (`created_at`) USING BTREE,
@@ -601,8 +601,8 @@ CREATE TABLE `groups` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `groups_roles` (
-  `group_id` int(11) NOT NULL DEFAULT '0',
-  `role_id` int(11) NOT NULL DEFAULT '0',
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  `role_id` int(11) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   UNIQUE KEY `groups_roles_all_index` (`group_id`,`role_id`) USING BTREE,
   KEY `role_id` (`role_id`) USING BTREE,
@@ -611,10 +611,10 @@ CREATE TABLE `groups_roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `groups_users` (
-  `group_id` int(11) NOT NULL DEFAULT '0',
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `group_id` int(11) NOT NULL DEFAULT 0,
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
-  `email` tinyint(1) DEFAULT '1',
+  `email` tinyint(1) DEFAULT 1,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   UNIQUE KEY `groups_users_all_index` (`group_id`,`user_id`) USING BTREE,
@@ -630,7 +630,7 @@ CREATE TABLE `history_elements` (
   `created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `description_extension` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `comment` text COLLATE utf8mb4_unicode_ci,
+  `comment` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
@@ -640,7 +640,7 @@ CREATE TABLE `history_elements` (
 CREATE TABLE `incident_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
-  `counter` int(11) DEFAULT '0',
+  `counter` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
@@ -668,7 +668,7 @@ CREATE TABLE `issue_trackers` (
   `password` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `label` text CHARACTER SET utf8 NOT NULL,
   `issues_updated` datetime NOT NULL,
-  `enable_fetch` tinyint(1) DEFAULT '0',
+  `enable_fetch` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
@@ -692,7 +692,7 @@ CREATE TABLE `issues` (
 CREATE TABLE `kiwi_descriptions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `image_id` int(11) DEFAULT NULL,
-  `description_type` int(11) DEFAULT '0',
+  `description_type` int(11) DEFAULT 0,
   `author` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `contact` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `specification` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -708,7 +708,7 @@ CREATE TABLE `kiwi_images` (
   `md5_last_revision` varchar(32) CHARACTER SET utf8 DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
-  `use_project_repositories` tinyint(1) DEFAULT '0',
+  `use_project_repositories` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
@@ -829,7 +829,7 @@ CREATE TABLE `messages` (
   `sent_at` datetime DEFAULT NULL,
   `private` tinyint(1) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
-  `text` text COLLATE utf8mb4_unicode_ci,
+  `text` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `object` (`db_object_id`) USING BTREE,
   KEY `user` (`user_id`) USING BTREE
@@ -841,7 +841,7 @@ CREATE TABLE `notifications` (
   `event_type` varchar(255) CHARACTER SET utf8 NOT NULL,
   `event_payload` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `subscription_receiver_role` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `delivered` tinyint(1) DEFAULT '0',
+  `delivered` tinyint(1) DEFAULT 0,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   `subscriber_type` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -892,14 +892,14 @@ CREATE TABLE `packages` (
   `project_id` int(11) NOT NULL,
   `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `activity_index` float DEFAULT '100',
+  `activity_index` float DEFAULT 100,
   `bcntsynctag` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `develpackage_id` int(11) DEFAULT NULL,
-  `delta` tinyint(1) NOT NULL DEFAULT '1',
+  `delta` tinyint(1) NOT NULL DEFAULT 1,
   `releasename` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `kiwi_image_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -990,7 +990,7 @@ CREATE TABLE `project_log_entries` (
   `bs_request_id` int(11) DEFAULT NULL,
   `datetime` datetime DEFAULT NULL,
   `event_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `additional_info` text COLLATE utf8mb4_unicode_ci,
+  `additional_info` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `project_id` (`project_id`) USING BTREE,
   KEY `index_project_log_entries_on_user_name` (`user_name`) USING BTREE,
@@ -1006,13 +1006,13 @@ CREATE TABLE `projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
   `title` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `description` text COLLATE utf8mb4_unicode_ci,
+  `description` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
-  `delta` tinyint(1) NOT NULL DEFAULT '1',
+  `delta` tinyint(1) NOT NULL DEFAULT 1,
   `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'standard',
   `url` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -1092,7 +1092,7 @@ CREATE TABLE `repositories` (
 CREATE TABLE `repository_architectures` (
   `repository_id` int(11) NOT NULL,
   `architecture_id` int(11) NOT NULL,
-  `position` int(11) NOT NULL DEFAULT '0',
+  `position` int(11) NOT NULL DEFAULT 0,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `required_checks` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1107,7 +1107,7 @@ CREATE TABLE `reviews` (
   `bs_request_id` int(11) DEFAULT NULL,
   `creator` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `reviewer` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
-  `reason` text COLLATE utf8mb4_unicode_ci,
+  `reason` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `state` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `by_user` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `by_group` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1144,7 +1144,7 @@ CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(100) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `parent_id` int(11) DEFAULT NULL,
-  `global` tinyint(1) DEFAULT '0',
+  `global` tinyint(1) DEFAULT 0,
   `created_at` datetime NOT NULL,
   `updated_at` datetime(6) NOT NULL,
   PRIMARY KEY (`id`),
@@ -1153,8 +1153,8 @@ CREATE TABLE `roles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `roles_static_permissions` (
-  `role_id` int(11) NOT NULL DEFAULT '0',
-  `static_permission_id` int(11) NOT NULL DEFAULT '0',
+  `role_id` int(11) NOT NULL DEFAULT 0,
+  `static_permission_id` int(11) NOT NULL DEFAULT 0,
   UNIQUE KEY `roles_static_permissions_all_index` (`static_permission_id`,`role_id`) USING BTREE,
   KEY `role_id` (`role_id`) USING BTREE,
   CONSTRAINT `roles_static_permissions_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`),
@@ -1162,8 +1162,8 @@ CREATE TABLE `roles_static_permissions` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `roles_users` (
-  `user_id` int(11) NOT NULL DEFAULT '0',
-  `role_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
+  `role_id` int(11) NOT NULL DEFAULT 0,
   `created_at` datetime DEFAULT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
@@ -1181,7 +1181,7 @@ CREATE TABLE `schema_migrations` (
 CREATE TABLE `sessions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `session_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
-  `data` text COLLATE utf8mb4_unicode_ci,
+  `data` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1248,7 +1248,7 @@ CREATE TABLE `status_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `message` text COLLATE utf8mb4_unicode_ci,
+  `message` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -1287,13 +1287,13 @@ CREATE TABLE `updateinfo_counters` (
   `day` int(11) DEFAULT NULL,
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
-  `counter` int(11) DEFAULT '0',
+  `counter` int(11) DEFAULT 0,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `token` text CHARACTER SET utf8 NOT NULL,
   `created_at` datetime DEFAULT NULL,
   `expires_at` datetime DEFAULT NULL,
@@ -1308,20 +1308,20 @@ CREATE TABLE `users` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime(6) DEFAULT NULL,
   `last_logged_in_at` datetime DEFAULT NULL,
-  `login_failure_count` int(11) NOT NULL DEFAULT '0',
-  `login` text CHARACTER SET utf8 COLLATE utf8_bin,
+  `login_failure_count` int(11) NOT NULL DEFAULT 0,
+  `login` text CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `email` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `realname` varchar(200) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `password_digest` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `deprecated_password` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `deprecated_password_hash_type` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
   `deprecated_password_salt` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin DEFAULT NULL,
-  `adminnote` text COLLATE utf8mb4_unicode_ci,
+  `adminnote` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `state` enum('unconfirmed','confirmed','locked','deleted','subaccount') CHARACTER SET utf8 COLLATE utf8_bin DEFAULT 'unconfirmed',
   `owner_id` int(11) DEFAULT NULL,
-  `ignore_auth_services` tinyint(1) DEFAULT '0',
-  `in_beta` tinyint(1) DEFAULT '0',
-  `in_rollout` tinyint(1) DEFAULT '1',
+  `ignore_auth_services` tinyint(1) DEFAULT 0,
+  `in_beta` tinyint(1) DEFAULT 0,
+  `in_rollout` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)) USING BTREE,
   KEY `users_password_index` (`deprecated_password`) USING BTREE
@@ -1329,7 +1329,7 @@ CREATE TABLE `users` (
 
 CREATE TABLE `watched_projects` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_id` int(11) NOT NULL DEFAULT 0,
   `project_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `watched_projects_users_fk_1` (`user_id`) USING BTREE,
