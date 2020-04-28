@@ -813,7 +813,7 @@ class User < ApplicationRecord
   end
 
   def unread_notifications
-    NotificationsFinder.new(notifications.for_web).unread.size
+    NotificationsFinder.new(notifications.for_web).unread_with_notifiable.size
   end
 
   def watched_project_names

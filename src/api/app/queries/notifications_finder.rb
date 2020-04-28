@@ -11,6 +11,10 @@ class NotificationsFinder
     @relation.where(delivered: false)
   end
 
+  def unread_with_notifiable
+    self.class.new(unread).with_notifiable
+  end
+
   def with_notifiable
     @relation.where.not(notifiable_id: nil, notifiable_type: nil)
   end
