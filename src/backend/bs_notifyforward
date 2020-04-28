@@ -248,7 +248,7 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($options, 'notifyforward', "$rundir/bs_notifyforward");
+BSUtil::restartexit($options, 'notifyforward', "$rundir/bs_notifyforward", "$myeventdir/.ping");
 BSUtil::printlog("starting build service notifyforward");
 
 mkdir_p($rundir);
