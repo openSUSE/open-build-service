@@ -906,14 +906,22 @@ class Package < ApplicationRecord
 
       origin_package.binary_releases.where(obsolete_time: nil).find_each do |binary_release|
         mc = binary_release.medium_container
-        container_list[mc] = 1 if mc
+        if mc
+          mc_update_project = mc.project.update_instance
+          # pick only one and the highest container.
+          identifier = mc_update_project.name + '/' + mc.name
+          # esp. in maintenance update projects where the name suffix is the counter
+          identifier.gsub!(/\.[^\.]*$/, '') if mc_update_project.is_maintenance_release?
+          next if container_list[identifier] && container_list[identifier].name > mc.name
+          container_list[identifier] = mc
+        end
       end
     end
 
     comment = "add container for #{name}"
     opts[:extend_package_names] = true if project.is_maintenance_incident?
 
-    container_list.keys.each do |container|
+    container_list.values.each do |container|
       container_name = container.name.dup
       container_update_project = container.project.update_instance
       container_name.gsub!(/\.[^.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
