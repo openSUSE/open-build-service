@@ -102,12 +102,13 @@ sub value {
       push @v, $db->keys();
     }
   } else {
-    die("413 search limit reached\n") if $self->{'limit'} && @{$self->{'keys'}} > $self->{'limit'};
+    die("413 search limit reached\n") if $self->{'limit'} && @{$self->{'keys'}} > $self->{'limit'} && !$db->{'cheapfetch'};
     for my $k (@{$self->{'keys'}}) {
       my $v = $db->fetch($k);
       next unless defined $v;
       push @v, selectpath($v, $path);
     }
+    return \@v;
   }
   die("413 search limit reached\n") if $self->{'limit'} && @v > $self->{'limit'};
   return \@v;
@@ -226,7 +227,9 @@ sub boolop {
 	}
       }
       if ($noindex || ($v1->{'keys'} && @values > @{$v1->{'keys'}})) {
-	for my $k (@{$v1->{'keys'} || [ $db->keys() ]}) {
+	my $keys = $v1->{'keys'} || [ $db->keys() ];
+	die("413 search limit reached\n") if !$db->{'cheapfetch'} && $v1->{'limit'} && @$keys > $v1->{'limit'};
+	for my $k (@$keys) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
 	  my $r = grep {$op->($_, $v2)} selectpath($vv, $v1->{'path'});
@@ -292,7 +295,9 @@ sub boolop {
 	}
       }
       if ($noindex || ($v2->{'keys'} && @values > @{$v2->{'keys'}})) {
-	for my $k (@{$v2->{'keys'} || [ $db->keys() ]}) {
+	my $keys = $v2->{'keys'} || [ $db->keys() ];
+	die("413 search limit reached\n") if !$db->{'cheapfetch'} && $v2->{'limit'} && @$keys > $v2->{'limit'};
+	for my $k (@$keys) {
 	  my $vv = $db->fetch($k);
 	  next unless defined $vv;
 	  my $r = grep {$op->($v1, $_)} selectpath($vv, $v2->{'path'});
@@ -305,6 +310,7 @@ sub boolop {
 	  } else {
 	    push @k, $db->keys($v2->{'path'}, $vv, $v2->{'keys'});
 	  }
+	  die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
 	}
       }
     }
