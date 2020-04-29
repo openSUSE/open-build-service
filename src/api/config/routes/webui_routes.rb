@@ -351,7 +351,11 @@ OBSApi::Application.routes.draw do
         get :preview_copy, on: :member
         post :copy, on: :member
       end
-      resources :excluded_requests, controller: 'webui/staging/excluded_requests'
+      resources :excluded_requests, controller: 'webui/staging/excluded_requests' do
+        collection do
+          get :autocomplete
+        end
+      end
     end
   end
 end

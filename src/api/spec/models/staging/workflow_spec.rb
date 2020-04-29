@@ -90,4 +90,15 @@ RSpec.describe Staging::Workflow, type: :model do
       it { expect(subject).to contain_exactly(bs_request_2) }
     end
   end
+
+  describe '#autocomplete' do
+    let!(:bs_request_2) do
+      create(:bs_request_with_submit_action,
+             target_package: target_package,
+             source_package: source_package)
+    end
+    it { expect(staging_workflow.autocomplete(bs_request_2.number)).to include(bs_request_2) }
+    it { expect(staging_workflow.autocomplete(bs_request.number)).not_to include(bs_request_2) }
+    it { expect(staging_workflow.autocomplete(-1)).to be_empty }
+  end
 end

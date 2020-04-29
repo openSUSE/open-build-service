@@ -82,6 +82,10 @@ class Staging::Workflow < ApplicationRecord
     users_hash
   end
 
+  def autocomplete(num)
+    unassigned_requests.where('CAST(bs_requests.number AS CHAR) LIKE ?', "%#{num}%")
+  end
+
   private
 
   def create_staging_projects
