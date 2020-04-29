@@ -1,0 +1,12 @@
+{
+  "RUBY": {
+    "LOC_COMMENT": "Increase the values for LOC/method",
+    "LOC": [30, 45, 70, 100],
+    "TOTAL_LOC_COMMENT": "Increase the namespace value, making it 10x the LOC",
+    "TOTAL_LOC": [300, 450, 700, 1000],
+    "ABC_COMMENT": "Increase in 20% from the defaults",
+    "ABC": [15, 30, 60, 90],
+    "TOO_MANY_FUNCTIONS_COMMENT": "Increase num of allowed methods/classes",
+    "TOO_MANY_FUNCTIONS": [200, 250, 320, 450] 
+  }
+}
