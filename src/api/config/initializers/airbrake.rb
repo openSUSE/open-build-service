@@ -56,6 +56,10 @@ Airbrake.configure do |c|
   # Alternatively, you can integrate with Rails' filter_parameters.
   # Read more: https://goo.gl/gqQ1xS
   # c.blacklist_keys = Rails.application.config.filter_parameters
+
+  # These are airbrake server features that don't work on errbit
+  c.performance_stats = false
+  c.query_stats = false
 end
 
 # A filter that collects request body information. Enable it if you are sure you
