@@ -52,6 +52,14 @@ class Staging::StagingProjectsController < Staging::StagingController
 
     # check general state
     raise StagingProjectNotAcceptable, 'Staging project is not in state acceptable.' unless can_accept?
+
+    # Disabling build for all repositories and architectures.
+    build_flag = @staging_project.flags.find_or_initialize_by(flag: 'build', repo: nil, architecture_id: nil)
+    build_flag.update(status: 'disable')
+
+    # Remove all the build flags enabled by the user.
+    @staging_project.flags.where(flag: 'build', status: 'enable').destroy_all
+
     StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
     render_ok
   end

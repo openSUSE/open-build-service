@@ -309,6 +309,7 @@ RSpec.describe Staging::StagingProjectsController do
       let(:source_project) { create(:project, :as_submission_source, name: 'source_project') }
       let(:target_package) { create(:package, name: 'target_package', project: target_project) }
       let(:source_package) { create(:package, name: 'source_package', project: source_project) }
+      let(:build_flag_disabled) { staging_project.disabled_for?('build', nil, nil) }
       let!(:target_relationship) { create(:relationship, project: target_project, user: user) }
       let!(:staging_relationship) { create(:relationship, project: staging_project, user: staging_owner) }
       let!(:staged_request_1) do
@@ -340,6 +341,11 @@ RSpec.describe Staging::StagingProjectsController do
           expect(StagingProjectAcceptJob).to have_received(:perform_later).with(project_id: staging_project.id, user_login: user.login)
         end
 
+        it 'build flags should be disabled' do
+          subject
+          expect(build_flag_disabled).to be_truthy
+        end
+
         context 'as staging owner' do
           before do
             login staging_owner
@@ -347,6 +353,7 @@ RSpec.describe Staging::StagingProjectsController do
 
           it "can't accept" do
             expect(subject).to have_http_status(403)
+            expect(build_flag_disabled).to be_falsey
           end
         end
       end
