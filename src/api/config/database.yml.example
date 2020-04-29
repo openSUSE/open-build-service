@@ -13,6 +13,7 @@ production:
   password: opensuse
   encoding: utf8mb4
   collation: utf8mb4_unicode_ci
+  reconnect: true
   timeout: 15
   pool: 30
   reconnect: true
