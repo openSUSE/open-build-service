@@ -166,7 +166,7 @@ namespace :dev do
         2.times { |i| request_for_staging(staging_project, maintainer.home_project, "#{staging_project.id}_#{timestamp}_#{i}") }
       end
 
-      puts "**** Created staging workflow project: /staging_workflows/#{staging_workflow.id} ****"
+      puts "**** Created staging workflow project: /staging_workflows/#{staging_workflow.project} ****"
     end
   end
 
