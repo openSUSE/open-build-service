@@ -63,7 +63,7 @@ module StagingProject
         missing_reviews: missing_reviews_for_classified_requests(request, request.not_accepted_reviews)
       }
     end
-    requests.sort_by { |request| request[:package] }
+    requests.sort_by { |request| request_weight(request) }
   end
 
   def untracked_requests
@@ -252,6 +252,17 @@ module StagingProject
       # No need to duplicate reviews
       break extracted
     end
+  end
+
+  def request_weight(request)
+    weight = if request[:state].in?(BsRequest::OBSOLETE_STATES) # obsolete
+               '0'
+             elsif request[:missing_reviews].present? # in review
+               '1'
+             else
+               '2' # ready
+             end
+    [weight, request[:package]]
   end
 end
 # rubocop:enable Metrics/ModuleLength
