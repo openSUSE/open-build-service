@@ -1,5 +1,10 @@
 :ruby
   index ||= ''
+
+  # For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
+  is_staged_request = defined?(bs_request) && !bs_request.staging_project_id.nil?
+  project = bs_request.staging_project.name if is_staged_request
+
   ajax_data = {}
   ajax_data['project'] = h(project) if defined?(project)
   ajax_data['package'] = h(package) if defined?(package)
@@ -25,12 +30,20 @@
                                                               accesskey: 'r', title: 'Refresh Build Results' }
             Refresh
             %i.fas.fa-sync-alt{ id: "build#{index}-reload" }
+        - if is_staged_request
+          %p.font-italic
+            From staging project
+            = link_to(project, project_show_path(project))
         .result
       - if defined?(package)
         .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
           .btn.btn-outline-primary.mb-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
             Refresh
             %i.fas.fa-sync-alt{ id: "rpm#{index}-reload" }
+          - if is_staged_request
+            %p.font-italic
+              From staging project
+              = link_to(project, project_show_path(project))
           .result
 
 :javascript

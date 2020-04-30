@@ -37,7 +37,7 @@
             data: { toggle: 'tab' }, role: 'tab')
   .card-body
     .tab-content
-      = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { request_creator: @bs_request.creator }
+      = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { bs_request: @bs_request }
 .row
   .col-md-8
     .card.mb-3
