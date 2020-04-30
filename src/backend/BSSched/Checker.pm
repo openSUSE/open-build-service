@@ -512,9 +512,11 @@ sub expandandsort {
   my $bconf = $ctx->{'conf'};
   my $repo = $ctx->{'repo'};
   if ($bconf->{'expandflags:preinstallexpand'}) {
-    return ('broken', 'Build::expandpreinstalls does not exist') unless defined &Build::expandpreinstalls;
-    my $err = Build::expandpreinstalls($bconf);
-    return ('broken', "unresolvable $err") if $err;
+    if ($gctx->{'arch'} ne 'local' || !defined($BSConfig::localarch)) {
+      return ('broken', 'Build::expandpreinstalls does not exist') unless defined &Build::expandpreinstalls;
+      my $err = Build::expandpreinstalls($bconf);
+      return ('broken', "unresolvable $err") if $err;
+    }
   }
   my $projpacks = $gctx->{'projpacks'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
