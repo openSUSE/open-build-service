@@ -186,39 +186,53 @@ namespace :dev do
       require 'factory_bot'
       include FactoryBot::Syntax::Methods
 
-      admin = User.where(login: 'Admin').first
-      home_admin = admin.home_project
-      unless home_admin
-        home_admin = create(:project, name: admin.home_project_name)
-        create(:relationship, project: home_admin, user: admin, role: Role.hashed['maintainer'])
-      end
+      # Users
+      admin = User.where(login: 'Admin').first || create(:admin_user, login: 'Admin')
+      subscribe_to_all_notifications(admin)
       requestor = User.where(login: 'Requestor').first || create(:confirmed_user, login: 'Requestor')
       User.session = requestor
-      requestor_project = create(:project, name: "requestor_project_#{Faker::Lorem.word}")
 
-      repetitions.times do
-        admin_package = create(:package_with_file, name: Faker::Lorem.word, project: home_admin, file_content: 'from admin home')
-        requestor_package = create(:package_with_file, name: admin_package.name, project: requestor_project, file_content: 'from requestor branch')
+      # Projects
+      admin_home_project = admin.home_project || create_and_assign_project(admin.home_project, admin)
+      requestor_project = Project.find_by(name: 'requestor_project') || create_and_assign_project('requestor_project', requestor)
+
+      repetitions.times do |repetition|
+        package_name = "package_#{Time.now.to_i}_#{repetition}"
+        admin_package = create(:package_with_file, name: package_name, project: admin_home_project)
+        requestor_package = create(:package_with_file, name: admin_package.name, project: requestor_project)
 
         # Will create a notification (RequestCreate event) for this request.
         request = create(
           :bs_request_with_submit_action,
           creator: requestor,
-          target_project: home_admin,
+          target_project: admin_home_project,
           target_package: admin_package,
           source_project: requestor_project,
           source_package: requestor_package
         )
 
         # Will create a notification (ReviewWanted event) for this review.
-        request.addreview(by_user: admin)
+        request.addreview(by_user: admin, comment: Faker::Lorem.paragraph)
 
         # Will create a notification (CommentForRequest event) for this comment.
         create(:comment_request, commentable: request, user: requestor)
         # Will create a notification (CommentForProject event) for this comment.
-        create(:comment_project, commentable: home_admin, user: requestor)
+        create(:comment_project, commentable: admin_home_project, user: requestor)
         # Will create a notification (CommentForPackage event) for this comment.
         create(:comment_package, commentable: admin_package, user: requestor)
+
+        # Admin requests changes to requestor, so a RequestStatechange notification will appear
+        # as soon as the requestor changes the state of the request.
+        request2 = create(
+          :bs_request_with_submit_action,
+          creator: admin,
+          target_project: requestor_project,
+          target_package: requestor_package,
+          source_project: admin_home_project,
+          source_package: admin_package
+        )
+        # Will create a notification (RequestStatechange event) for this request change.
+        request2.change_state(newstate: ['accepted', 'declined'].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
       end
     end
   end
@@ -399,4 +413,19 @@ def request_for_staging(staging_project, maintainer_project, suffix)
   )
 
   request.reviews.each { |review| review.change_state(:accepted, 'Accepted') }
+end
+
+def create_and_assign_project(project_name, user)
+  create(:project, name: project_name)
+  create(:relationship, project: project_name, user: user, role: Role.hashed['maintainer'])
+end
+
+def subscribe_to_all_notifications(user)
+  create(:event_subscription_request_created, channel: :web, user: user, receiver_role: 'target_maintainer')
+  create(:event_subscription_review_wanted, channel: 'web', user: user, receiver_role: 'reviewer')
+  create(:event_subscription_request_statechange, channel: :web, user: user, receiver_role: 'target_maintainer')
+  create(:event_subscription_request_statechange, channel: :web, user: user, receiver_role: 'source_maintainer')
+  create(:event_subscription_comment_for_project, channel: :web, user: user, receiver_role: 'maintainer')
+  create(:event_subscription_comment_for_package, channel: :web, user: user, receiver_role: 'maintainer')
+  create(:event_subscription_comment_for_request, channel: :web, user: user, receiver_role: 'target_maintainer')
 end
