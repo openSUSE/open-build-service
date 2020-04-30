@@ -19,6 +19,7 @@ package BSRepServer::Checker;
 
 use BSRPC ':https';
 use Build;
+use Build::Rpm;
 
 use strict;
 
@@ -88,6 +89,31 @@ sub setup {
   $ctx->{'conf'} = $bconf;
 }
 
+sub depstotestcaseformat {
+  my ($d) = @_;
+  for my $dep (@$d) {
+    $dep = Build::Rpm::testcaseformat($dep) if $dep =~ /^\(/s;
+  }
+}
+
+sub addldeprepo {
+  my ($pool, $bconf, $ldepfile) = @_;
+  my $data = {};
+  Build::readdeps({ %$bconf }, $data, $ldepfile);
+  # repofromdata expects testcase format, so convert rich dependencies
+  if (defined &Build::Rpm::testcaseformat) {
+    for my $p (values %$data) {
+      for ('requires', 'conflicts', 'recommends', 'supplements') {
+	depstotestcaseformat($p->{$_}) if $p->{$_};
+      }
+    }
+  }
+  delete $data->{'/url'};
+  delete $data->{'/external/'};
+  my $r = $pool->repofromdata('', $data);
+  die("ldepfile repo add failed\n") unless $r;
+}
+
 sub preparepool {
   my ($ctx, $pname, $ldepfile) = @_;
 
@@ -100,20 +126,13 @@ sub preparepool {
   $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
   $ctx->{'pool'} = $pool;
 
-  if ($ldepfile) {
-    my $data = {};
-    Build::readdeps({ %$bconf }, $data, $ldepfile);
-    delete $data->{'/url'};
-    delete $data->{'/external/'};
-    my $r = $ctx->{pool}->repofromdata('', $data);
-    die("ldepfile repo add failed\n") unless $r;
-  }
-
+  addldeprepo($pool, $bconf, $ldepfile) if $ldepfile;
   my $prpsearchpath = $ctx->{'prpsearchpath'};
   for my $rprp (@$prpsearchpath) {
     $ctx->addrepo($pool, $rprp, $myarch);
   }
   $pool->createwhatprovides();
+
   my %dep2src;
   my %dep2pkg;
   my %subpacks;
