@@ -1,4 +1,6 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
+  VALID_STATES_WITH_REQUESTS = [:acceptable, :accepting, :review, :testing, :building, :failed, :unacceptable].freeze
+
   before_action :require_login, except: [:show]
   before_action :set_project, only: [:new, :create]
   before_action :set_workflow_project, except: [:new, :create]
@@ -41,7 +43,8 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
   def show
     @project = @staging_workflow.project
-    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests).reject { |project| project.overall_state == :empty }
+    @staging_projects = @staging_workflow.staging_projects.includes(:staged_requests)
+                                         .select { |project| VALID_STATES_WITH_REQUESTS.include?(project.overall_state) }
                                          .sort_by! { |project| project_weight(project) }
     @unassigned_requests = @staging_workflow.unassigned_requests.first(5)
     @more_unassigned_requests = @staging_workflow.unassigned_requests.count - @unassigned_requests.size
@@ -110,22 +113,20 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
   def project_weight(project)
     weight = case project.overall_state
-             when :acceptable
+             when :accepting
                0
+             when :acceptable
+               10_000
              when :review
-               10_000 - helpers.review_progress(project) * 10
+               20_000 - helpers.review_progress(project) * 10
              when :testing
-               20_000 - helpers.testing_progress(project) * 10
+               30_000 - helpers.testing_progress(project) * 10
              when :building
-               30_000 - helpers.build_progress(project) * 10
+               40_000 - helpers.build_progress(project) * 10
              when :failed
-               40_000
-             when :unacceptable
                50_000
-             when :empty
+             when :unacceptable
                60_000
-             else
-               Rails.logger.error "untracked #{project.overall_state}"
              end
     [weight, project.name]
   end
