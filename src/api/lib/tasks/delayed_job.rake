@@ -29,23 +29,11 @@ task(importrequests: :environment) do
   end
 end
 
-# basic argument check for check_project and fix_project tasks
-task(project_environment: :environment) do
-  unless ENV['project']
-    puts "Please specify the project with 'project=MyProject' on CLI"
-    exit 1
-  end
-end
-
-desc('Check project for consistency now, specify project with: project=MyProject')
-task(check_project: [:environment, :project_environment]) do
-  puts ConsistencyCheckJob.new.check_project(ENV['project'])
-end
+desc('Check project for consitency now, specify project with: project=MyProject')
+task(check_project: :environment) { ConsistencyCheckJob.new.check_project }
 
 desc('Fix inconsitent projects now, specify project with: project=MyProject')
-task(fix_project: [:environment, :project_environment]) do
-  ConsistencyCheckJob.new.fix_project(ENV['project'])
-end
+task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
 
 namespace :jobs do
   desc 'Inject a job to write issue tracker information to backend'
