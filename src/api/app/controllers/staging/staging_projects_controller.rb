@@ -59,6 +59,7 @@ class Staging::StagingProjectsController < Staging::StagingController
 
     # Remove all the build flags enabled by the user.
     @staging_project.flags.where(flag: 'build', status: 'enable').destroy_all
+    @staging_project.store
 
     StagingProjectAcceptJob.perform_later(project_id: @staging_project.id, user_login: User.session!.login)
     render_ok
