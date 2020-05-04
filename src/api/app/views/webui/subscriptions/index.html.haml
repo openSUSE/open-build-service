@@ -7,7 +7,7 @@
     %h3.card-title
       Events
     .card-text#notifications
-      %p Choose default notification settings for events (checked means direct email).
+      %p Configure global default for notification settings and corresponding channels for selected events.
       = render partial: 'subscriptions_form', locals: { path: notifications_path, subscriptions_form: @subscriptions_form }
 
 - content_for :ready_function do

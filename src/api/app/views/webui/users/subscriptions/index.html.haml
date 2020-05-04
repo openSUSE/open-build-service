@@ -16,7 +16,7 @@
             %i.fas.fa-spinner.invisible
   .card-body
     %h4.card-title Events
-    %p Choose from which events you want to get an email
+    %p Choose events you want to get notified about and the corresponding channels.
     #subscriptions-form
       = render partial: 'webui/subscriptions/subscriptions_form', locals: { path: update_my_subscriptions_path,
                                                                             subscriptions_form: @subscriptions_form }

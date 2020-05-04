@@ -35,7 +35,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
 
   context 'update as unprivileged user' do
     it_behaves_like 'updatable' do
-      let(:title) { 'Choose from which events you want to get an email' }
+      let(:title) { 'Choose events you want to get notified about and the corresponding channels.' }
       let(:user) { create(:confirmed_user, login: 'eisendieter') }
       let(:path) { my_subscriptions_path }
     end
