@@ -58,6 +58,7 @@ DELETE /announcements/<id>
 
   Delete an announcement.
 
+XmlBody: none
 XmlResult: status
 
 == Architectures
@@ -103,6 +104,7 @@ DELETE /issue_tracker/<name>
 
   Delete issue tracker.
 
+XmlBody: none
 XmlResult: status
 
 GET /issue_trackers/show_url_for
@@ -209,6 +211,7 @@ DELETE /person/<userid>/token/<id>
 
   Delete a specific authentication token. The <id> is listed in GET call.
 
+XmlBody: none
 XmlResult: status
 
 
@@ -258,6 +261,7 @@ DELETE /group/<group title>
 
   Delete a group.
 
+XmlBody: none
 XmlResult: status
 
 
@@ -328,7 +332,7 @@ Parameters:
          preventing the build and publishing of the other repository.
   comment: comment, optional
 
-
+XmlBody: none
 XmlResult: status
 
 
@@ -380,6 +384,7 @@ Parameters:
 
   comment: comment, optional
 
+XmlBody: none
 XmlResult: status
 
 
@@ -431,6 +436,7 @@ DELETE /source/<project>/_pattern/<patternfile>
 
   Remove pattern
 
+XmlBody: none
 XmlResult: status
 
 
@@ -447,6 +453,7 @@ DELETE /source/<project>/_pubkey
 
   Removes the current gpg key. Has no effect if no key is set.
 
+XmlBody: none
 XmlResult: status
 
 
@@ -573,6 +580,7 @@ Parameters:
 
   comment: comment, optional
 
+XmlBody: none
 XmlResult: status
 
 
@@ -602,6 +610,7 @@ Parameters:
 
   comment: comment, optional
 
+XmlBody: none
 XmlResult: status
 
 
@@ -820,6 +829,7 @@ DELETE /source/<project>/<package>/<filename>
 
   Delete the specified file and commits the changes.
 
+XmlBody: none
 XmlResult: status
 
 Parameters:
@@ -925,6 +935,7 @@ Parameters:
 
   comment: comment, optional
 
+XmlBody: none
 XmlResult: status
 
 
@@ -1050,6 +1061,7 @@ DELETE /attribute/<namespace>/_meta
 
   Delete a attribute namespace and all attributes below
 
+XmlBody: none
 XmlResult: status
 
 
@@ -1073,6 +1085,7 @@ DELETE /attribute/<namespace>/<name>/_meta
 
   Delete a attribute and all its values in projects or packages
 
+XmlBody: none
 XmlResult: status
 
 
@@ -1108,6 +1121,7 @@ DELETE /comment/:id
 
   Delete a comment specified by the comment id
 
+XmlBody: none
 XmlResult: status
 
 
@@ -1910,6 +1924,8 @@ XmlResult: required_checks
 
 DELETE /status_reports/projects/<project>/required_checks/<check>
   Delete a required check
+
+XmlBody: none
 XmlResult: required_checks
 
 === Repositories
@@ -1930,6 +1946,8 @@ XmlResult: required_checks
 
 DELETE /status_reports/repositories/<project>/<repository>/required_checks/<check>
   Delete a required check
+
+XmlBody: none
 XmlResult: required_checks
 
 == Staging
@@ -1953,6 +1971,11 @@ XmlResult: status_ok
 
 DELETE /staging/<staging_workflow_project>/workflow
   Delete a staging workflow associated to a given project.
+
+Parameters:
+  with_staging_projects: deletes all staging projects of the staging workflow
+
+XmlBody: none
 XmlResult: status_ok
 
 GET /staging/<staging_workflow_project>/staging_projects?requests=1&status=1&history=1
@@ -1987,6 +2010,7 @@ XmlResult: status_ok
 
 POST /staging/<staging_workflow_project>/staging_projects
   Create staging projects
+
 XmlBody: create_staging_projects
 XmlResult: status_ok
 
@@ -2016,6 +2040,7 @@ XmlResult: status_ok
 
 DELETE /staging/<project>/excluded_requests
   Stop excluding this request
+
 XmlBody: delete_excluded_requests
 XmlResult: status_ok
 
@@ -2037,6 +2062,7 @@ XmlResult: status_ok
 
 DELETE /staging/<staging_workflow_project>/staged_requests
   Remove requests from the staging projects they are staged in.
+
 XmlBody: remove_staged_requests
 XmlResult: status_ok
 
