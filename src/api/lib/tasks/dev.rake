@@ -193,7 +193,7 @@ namespace :dev do
       User.session = requestor
 
       # Projects
-      admin_home_project = admin.home_project || create_and_assign_project(admin.home_project, admin)
+      admin_home_project = admin.home_project || create_and_assign_project(admin.home_project_name, admin)
       requestor_project = Project.find_by(name: 'requestor_project') || create_and_assign_project('requestor_project', requestor)
 
       repetitions.times do |repetition|
@@ -416,8 +416,9 @@ def request_for_staging(staging_project, maintainer_project, suffix)
 end
 
 def create_and_assign_project(project_name, user)
-  create(:project, name: project_name)
-  create(:relationship, project: project_name, user: user, role: Role.hashed['maintainer'])
+  create(:project, name: project_name).tap do |project|
+    create(:relationship, project: project, user: user, role: Role.hashed['maintainer'])
+  end
 end
 
 def subscribe_to_all_notifications(user)
