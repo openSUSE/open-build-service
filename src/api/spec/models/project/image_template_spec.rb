@@ -83,10 +83,8 @@ RSpec.describe Project do
     end
 
     context 'with two remote instances' do
+      # The AnotherRemoteProject will simply take the request of RemoteInstance defined in the first before filter
       let!(:another_remote_instance) { create(:project, name: 'AnotherRemoteProject', remoteurl: 'http://example.com/public') }
-      before do
-        # The AnotherRemoteProject will simply take the request of RemoteInstance defined in the first before filter
-      end
 
       it { expect(subject.length).to eq(2) }
       it { expect(subject.second.name).to eq('AnotherRemoteProject:Images') }

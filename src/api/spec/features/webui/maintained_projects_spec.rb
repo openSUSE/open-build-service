@@ -27,31 +27,31 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_text('Maintained Projects')
-        expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
-        expect(page).to have_selector('#delete-maintained-project-modal', visible: false)
+        expect(page).to have_selector('#new-maintenance-project-modal', visible: :hidden)
+        expect(page).to have_selector('#delete-maintained-project-modal', visible: :hidden)
       end
 
       scenario 'click on add new project' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
-        expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
+        expect(page).to have_selector('#new-maintenance-project-modal', visible: :hidden)
         click_link('Add Project to Maintain')
 
-        expect(page).to have_selector('#new-maintenance-project-modal', visible: true)
-        expect(page).to have_selector('#delete-maintained-project-modal', visible: false)
+        expect(page).to have_selector('#new-maintenance-project-modal', visible: :visible)
+        expect(page).to have_selector('#delete-maintained-project-modal', visible: :hidden)
       end
 
       scenario 'click on delete project' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
-        expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
+        expect(page).to have_selector('#new-maintenance-project-modal', visible: :hidden)
 
         click_link('Delete Project')
 
-        expect(page).to have_selector('#new-maintenance-project-modal', visible: false)
-        expect(page).to have_selector('#delete-maintained-project-modal', visible: true)
+        expect(page).to have_selector('#new-maintenance-project-modal', visible: :hidden)
+        expect(page).to have_selector('#delete-maintained-project-modal', visible: :visible)
       end
 
       scenario 'delete project' do
