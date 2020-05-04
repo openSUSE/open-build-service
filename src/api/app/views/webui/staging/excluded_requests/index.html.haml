@@ -21,7 +21,7 @@
             Exclude request
 
 - if request_exclusion_policy
-  = render partial: 'create_dialog'
+  = render partial: 'create_dialog', locals: { staging_workflow_project: @staging_workflow.project }
   = render partial: 'delete_dialog'
 
 - content_for :ready_function do

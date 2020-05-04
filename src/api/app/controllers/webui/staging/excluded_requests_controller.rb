@@ -1,11 +1,11 @@
 module Webui
   module Staging
     class ExcludedRequestsController < WebuiController
-      before_action :require_login, except: [:index]
+      before_action :require_login, except: [:index, :autocomplete]
       before_action :set_workflow_project
       before_action :set_staging_workflow
       before_action :set_request_exclusion, only: [:destroy]
-      after_action :verify_authorized, except: [:index]
+      after_action :verify_authorized, except: [:index, :autocomplete]
 
       def index
         respond_to do |format|
@@ -25,12 +25,12 @@ module Webui
 
         request = @staging_workflow.target_of_bs_requests.find_by(number: staging_request_exclusion[:number])
         unless request
-          redirect_back(fallback_location: root_path, error: "Request #{params[:number]} doesn't exist or it doesn't belong to this project")
+          redirect_back(fallback_location: root_path, error: "Request #{staging_request_exclusion[:number]} doesn't exist or it doesn't belong to this project")
           return
         end
         if request.staging_project
           redirect_back(fallback_location: root_path,
-                        error: "Request #{params[:number]} could not be excluded because is staged in: #{request.staging_project}")
+                        error: "Request #{staging_request_exclusion[:number]} could not be excluded because is staged in: #{request.staging_project}")
           return
         end
 
@@ -53,6 +53,11 @@ module Webui
           flash[:error] = "Request #{@request_exclusion.number} couldn't be unexcluded"
         end
         redirect_to excluded_requests_path(@staging_workflow.project)
+      end
+
+      def autocomplete
+        requests = @staging_workflow.autocomplete(params[:term]).pluck(:number).collect(&:to_s) if params[:term]
+        render json: requests || []
       end
 
       private
