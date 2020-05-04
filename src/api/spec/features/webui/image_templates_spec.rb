@@ -30,10 +30,10 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true, vcr: true do
       end
 
       expect(page).to have_text(package1.title)
-      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
-      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: false)
-      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: false)
-      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: :hidden)
 
       expect(page).to have_field('target_package', with: package1)
       within :xpath, "//input[@data-package='#{package2}']/../label" do
@@ -59,10 +59,10 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true, vcr: true do
       end
 
       expect(page).to have_text(package1.title)
-      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: false)
-      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: false)
-      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: false)
-      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: false)
+      expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{package2}']:not(:checked)", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{package3}']:not(:checked)", visible: :hidden)
+      expect(page).to have_selector("input[data-package='#{kiwi_package}']:not(:checked)", visible: :hidden)
 
       expect(page).to have_field('target_package', with: package1)
       within :xpath, "//input[@data-package='#{kiwi_package}']/../label" do
