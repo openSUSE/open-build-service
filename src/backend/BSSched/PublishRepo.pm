@@ -204,7 +204,7 @@ sub prpfinished {
     next if $all{'.preinstallimage'};
     my $debian = grep {/\.dsc$/} @all;
     my $nosourceaccess = $all{'.nosourceaccess'};
-    @all = grep {$_ ne '_ccache.tar.gz' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
+    @all = grep {$_ ne '_ccache.tar' && $_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
     my $taken;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
