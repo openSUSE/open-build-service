@@ -4,7 +4,8 @@
     %h3 State of #{@repository} for #{@project} / #{@package_name}
     %ul.list-inline
       - if @configuration['download_url']
-        = render partial: 'webui/shared/download_repository_link', locals: { presenter: @state_presenter }
+        = render partial: 'webui/shared/download_repository_link',
+          locals: { presenter: Repositories::StatePresenter.new(@project, @repository, @configuration) }
       - if @buildresults.present? && policy(@package).update?
         %li.list-inline-item
           = link_to('#', data: { toggle: 'modal', target: '#delete-all-binaries-modal' }, title: 'Delete all built binaries') do
