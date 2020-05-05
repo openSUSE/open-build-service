@@ -140,7 +140,7 @@ GEM
     dalli (2.7.10)
     data_migrate (6.3.0)
       rails (>= 5.0)
-    database_cleaner (1.8.4)
+    database_cleaner (1.8.5)
     deep_cloneable (3.0.0)
       activerecord (>= 3.1.0, < 7)
     delayed_job (4.1.8)
