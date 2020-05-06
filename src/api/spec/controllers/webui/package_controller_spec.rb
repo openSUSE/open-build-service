@@ -226,50 +226,50 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(response).to have_http_status(:success) }
   end
 
-  describe 'POST #branch' do
+  describe 'POST #create_branch' do
     before do
       login(user)
     end
 
     it 'shows an error if source package does not exist' do
-      post :branch, params: { linked_project: source_project, linked_package: 'does_not_exist' }
+      post :create_branch, params: { linked_project: source_project, linked_package: 'does_not_exist' }
       expect(flash[:error]).to eq('Failed to branch: Package does not exist.')
       expect(response).to redirect_to(root_path)
     end
 
     it 'shows an error if source package parameter not provided' do
-      post :branch, params: { linked_project: source_project }
+      post :create_branch, params: { linked_project: source_project }
       expect(flash[:error]).to eq('Failed to branch: Linked Package parameter missing')
       expect(response).to redirect_to(root_path)
     end
 
     it 'shows an error if source project does not exist' do
-      post :branch, params: { linked_project: 'does_not_exist', linked_package: source_package }
+      post :create_branch, params: { linked_project: 'does_not_exist', linked_package: source_package }
       expect(flash[:error]).to eq('Failed to branch: Package does not exist.')
       expect(response).to redirect_to(root_path)
     end
 
     it 'shows an error if user has no permissions for source project' do
-      post :branch, params: { linked_project: source_project, linked_package: source_package, target_project: 'home:admin:nope' }
+      post :create_branch, params: { linked_project: source_project, linked_package: source_package, target_project: 'home:admin:nope' }
       expect(flash[:error]).to eq('Sorry, you are not authorized to create this Project.')
       expect(response).to redirect_to(root_path)
     end
 
     it 'shows an error if source project parameter not provided' do
-      post :branch, params: { linked_package: source_package }
+      post :create_branch, params: { linked_package: source_package }
       expect(flash[:error]).to eq('Failed to branch: Linked Project parameter missing')
       expect(response).to redirect_to(root_path)
     end
 
     it "shows an error if current revision parameter is provided, but there wasn't any revision before" do
-      post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
+      post :create_branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       expect(flash[:error]).to eq('Package has no source revision yet')
       expect(response).to redirect_to(root_path)
     end
 
     context 'with target package name' do
       before do
-        post :branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
+        post :create_branch, params: { linked_project: source_project, linked_package: source_package, target_package: 'new_package_name' }
       end
 
       it { expect(flash[:success]).to eq('Successfully branched package') }
@@ -294,7 +294,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       before do
         stub_request(:get, url).and_return(body: current_revision)
-        post :branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
+        post :create_branch, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       end
 
       it { expect(flash[:success]).to eq('Successfully branched package') }

@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:16 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -75,11 +75,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:16 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -113,8 +113,8 @@ http_interactions:
       string: |
         <collection>
         </collection>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:16 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -154,8 +154,8 @@ http_interactions:
           <description>This project was created for package my_package via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
@@ -163,8 +163,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -190,11 +190,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=branch&noservice=1&opackage=my_package&oproject=home:tom&user=tom
@@ -229,13 +229,13 @@ http_interactions:
         <revision rev="2" vrev="2">
           <srcmd5>49bd231e56677e1dfd80e906f4f5dbe4</srcmd5>
           <version>unknown</version>
-          <time>1569593777</time>
+          <time>1589195765</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
@@ -243,8 +243,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -270,11 +270,11 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>In a Dry Season</title>
-          <description>Qui et fugiat corporis.</description>
+          <title>The Widening Gyre</title>
+          <description>Tempora minus aut ex.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
@@ -306,10 +306,10 @@ http_interactions:
       string: |
         <directory name="new_package_name" rev="2" vrev="2" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
           <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
-          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1569593776"/>
+          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1588952637"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?view=info
@@ -343,8 +343,8 @@ http_interactions:
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:tom" package="my_package"/>
         </sourceinfo>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
@@ -376,10 +376,10 @@ http_interactions:
       string: |
         <directory name="new_package_name" rev="2" vrev="2" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
           <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
-          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1569593776"/>
+          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1588952637"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -418,8 +418,8 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -458,8 +458,8 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:05 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -505,6 +505,6 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Mon, 11 May 2020 11:16:06 GMT
+recorded_with: VCR 5.1.0

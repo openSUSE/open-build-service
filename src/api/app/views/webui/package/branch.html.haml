@@ -1,0 +1,32 @@
+:ruby
+  @pagetitle = "Branch #{@package}"
+  branch_project = User.session!.branch_project_name(@project)
+
+.row
+  .col
+    .card
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+            %strong Source:
+            %p
+              -# FIXME: get rid of this helper
+              = package_link(@package, short: true)
+            %strong Destination:
+            %p
+              -# FIXME: get rid of this helper
+              = project_or_package_link(project: branch_project, short: true)
+          .col-12.col-md-9.col-xl-6
+            = form_tag({ controller: :package, action: :create_branch }, method: :post) do
+              %details
+                %summary More options
+                .pt-2.pl-2
+                  = hidden_field_tag :linked_project, @project.name
+                  = hidden_field_tag :linked_package, @package.name
+                  = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: true,
+                                                                                  target_project: branch_project,
+                                                                                  package: @package,
+                                                                                  revision: @revision }
+              .pt-4
+                = submit_tag('Accept', class: 'btn btn-primary px-4')

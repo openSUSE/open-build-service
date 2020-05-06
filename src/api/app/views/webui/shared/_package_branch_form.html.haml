@@ -1,10 +1,11 @@
 - if show_project_field
-  %p
-    %strong Change Branch Destination
-  .form-group
-    %label{ for: 'target_project' }
-      %strong Branch project name
-    = text_field_tag 'target_project', target_project, size: 80, maxlength: 200, class: 'form-control'
+  .pt-2
+    %p
+      %strong Change Branch Destination
+    .form-group
+      %label{ for: 'target_project' }
+        %strong Branch project name
+      = text_field_tag 'target_project', target_project, size: 80, maxlength: 200, class: 'form-control'
 .form-group
   %label{ for: 'target_package' }
     %strong Branch package name

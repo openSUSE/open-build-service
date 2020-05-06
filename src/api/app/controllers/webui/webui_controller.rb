@@ -35,7 +35,7 @@ class Webui::WebuiController < ActionController::Base
                     when 'update?' then 'update'
                     when 'edit?' then 'edit'
                     when 'destroy?' then 'delete'
-                    when 'branch?' then 'branch'
+                    when 'create_branch?' then 'create_branch'
                     else exception.try(:query)
     end
     if pundit_action && exception.record

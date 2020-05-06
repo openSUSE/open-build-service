@@ -56,7 +56,7 @@ RSpec.describe PackagePolicy do
   end
 
   context :branch_as_anonymous do
-    permissions :branch? do
+    permissions :create_branch? do
       before do
         skip('it should fail but its passing')
       end
@@ -66,7 +66,7 @@ RSpec.describe PackagePolicy do
   end
 
   context :branch_as_other_user do
-    permissions :branch? do
+    permissions :create_branch? do
       it { expect(subject).to permit(other_user, package) }
     end
   end

@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/ClassLength
 class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include ParsePackageDiff
@@ -15,7 +16,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
-                                         :binary_download]
+                                         :binary_download, :branch]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -376,6 +377,10 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def branch
+    @revision = params[:revision] || @package.rev
+  end
+
+  def create_branch
     params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
     params.fetch(:linked_package) { raise ArgumentError, 'Linked Package parameter missing' }
 
@@ -391,7 +396,7 @@ class Webui::PackageController < Webui::WebuiController
 
       source_project_name = source_package.project.name
       source_package_name = source_package.name
-      authorize source_package, :branch?
+      authorize source_package, :create_branch?
     end
 
     branch_params = {
@@ -1081,3 +1086,4 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
