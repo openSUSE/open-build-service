@@ -1,6 +1,6 @@
 class BackfillNotifiedProjects < ActiveRecord::Migration[6.0]
   def up
-    Notification.where.not(notifiable_id: nil, notifiable_type: nil).find_each do |notification|
+    Notification.where.not(notifiable_id: nil).where.not(notifiable_type: nil).find_each do |notification|
       notification.projects << NotifiedProjects.new(notification).call
     rescue ActiveRecord::RecordNotUnique
       # We don't have to do anything...

@@ -38,7 +38,7 @@ namespace :rollout do
   task non_recently_logged_users: :environment do
     User.all_without_nobody
         .not_staff
-        .where.not(in_rollout: true, last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today)
+        .where.not(in_rollout: true).where.not(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today)
         .in_batches.update_all(in_rollout: true)
   end
 

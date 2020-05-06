@@ -12,7 +12,7 @@ class NotificationsFinder
   end
 
   def with_notifiable
-    @relation.where.not(notifiable_id: nil, notifiable_type: nil)
+    @relation.where.not(notifiable_id: nil).where.not(notifiable_type: nil)
   end
 
   def without_notifiable
