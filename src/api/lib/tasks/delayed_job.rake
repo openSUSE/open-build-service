@@ -29,6 +29,26 @@ task(importrequests: :environment) do
   end
 end
 
+namespace :consistency do
+  # basic argument check for check_project and fix_project tasks
+  task(project_environment: :environment) do
+    unless ENV['project']
+      puts "Please specify the project with 'project=MyProject' on CLI"
+      exit 1
+    end
+  end
+
+  desc('Check project for consistency now, specify project with: project=MyProject')
+  task(check: [:environment, :project_environment]) do
+    puts ConsistencyCheckJob.new.check_project(ENV['project'])
+  end
+
+  desc('Fix inconsitent projects now, specify project with: project=MyProject')
+  task(fix: [:environment, :project_environment]) do
+    ConsistencyCheckJob.new.fix_project(ENV['project'])
+  end
+end
+
 desc('Check project for consitency now, specify project with: project=MyProject')
 task(check_project: :environment) { Old::ConsistencyCheckJob.new.check_project }
 
