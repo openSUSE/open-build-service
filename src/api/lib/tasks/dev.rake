@@ -284,10 +284,9 @@ namespace :dev do
         source_package: ruby_iggy
       )
 
-      test_package = create(:package, name: 'ctris', project: home_admin)
+      test_package = create(:package, name: 'hello_world', project: home_admin)
       backend_url = "/source/#{CGI.escape(home_admin.name)}/#{CGI.escape(test_package.name)}"
-      Backend::Connection.put("#{backend_url}/ctris.spec", File.read('../../dist/t/spec/fixtures/ctris.spec'))
-      Backend::Connection.put("#{backend_url}/ctris-0.42.tar.bz2", File.read('../../dist/t/spec/fixtures/ctris-0.42.tar.bz2'))
+      Backend::Connection.put("#{backend_url}/hello_world.spec", File.read('../../dist/t/spec/fixtures/hello_world.spec'))
 
       leap = create(:project, name: 'openSUSE:Leap:15.0')
       leap_apache = create(:package_with_file, name: 'apache2', project: leap)
