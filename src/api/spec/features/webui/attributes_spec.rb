@@ -40,7 +40,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
         login user
 
         visit index_attribs_path(project: user.home_project_name)
-        click_link('Add a new attribute')
+        click_link('Add Attribute')
         find('select#attrib_attrib_type_id').select('OBS:VeryImportantProject')
         click_button('Add')
         expect(page).to have_content('Sorry, you are not authorized to create this Attrib.')
@@ -64,7 +64,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
           login other_user
 
           visit index_attribs_path(project: user.home_project_name)
-          expect(page).not_to have_content('Add a new attribute')
+          expect(page).not_to have_content('Add Attribute')
         end
       end
 

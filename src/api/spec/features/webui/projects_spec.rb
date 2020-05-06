@@ -219,7 +219,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit project_show_path(project)
 
       click_link('Attributes')
-      click_link('Add a new attribute')
+      click_link('Add Attribute')
       select('OBS:MaintenanceProject')
       click_button('Add')
 
