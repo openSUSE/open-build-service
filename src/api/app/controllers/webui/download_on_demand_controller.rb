@@ -32,7 +32,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
           repository: @download_on_demand.repository,
           architecture: Architecture.find_by_name(permitted_params[:arch])
         ).first_or_create!
-        @download_on_demand.update_attributes!(permitted_params)
+        @download_on_demand.update!(permitted_params)
         @project.store
       end
     rescue ActiveRecord::RecordInvalid => e

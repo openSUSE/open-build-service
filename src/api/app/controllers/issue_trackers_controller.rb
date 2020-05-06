@@ -66,7 +66,7 @@ class IssueTrackersController < ApplicationController
 
       issue_tracker = IssueTracker.find_by_name(params[:id])
       if issue_tracker
-        issue_tracker.update_attributes(attribs)
+        issue_tracker.update(attribs)
       else
         IssueTracker.create(attribs)
       end
