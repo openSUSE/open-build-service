@@ -5,12 +5,12 @@
   content_for(:meta_description, @project.description)
   @pagetitle = "Show #{@project}"
   if flipper_responsive?
-    render partial: 'webui/project/responsive_ux/actions', locals: { bugowners_mail: @bugowner_mail,
-                                                                     project: @project,
-                                                                     packages: @packages,
-                                                                     has_patchinfo: @has_patchinfo,
-                                                                     open_release_requests: @open_release_requests,
-                                                                     release_targets: @releasetargets }
+    render partial: 'webui/project/responsive_ux/show_actions', locals: { bugowners_mail: @bugowner_mail,
+                                                                          project: @project,
+                                                                          packages: @packages,
+                                                                          has_patchinfo: @has_patchinfo,
+                                                                          open_release_requests: @open_release_requests,
+                                                                          release_targets: @releasetargets }
   end
 
 .card.mb-3
