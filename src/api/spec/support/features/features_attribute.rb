@@ -1,7 +1,7 @@
 module FeaturesAttribute
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
-    click_link('Add a new attribute')
+    click_link('Add Attribute')
     expect(page).to have_text('Add Attribute')
     find('select#attrib_attrib_type_id').select("#{attribute_type.attrib_namespace}:#{attribute_type.name}", match: :first)
     click_button('Add')
