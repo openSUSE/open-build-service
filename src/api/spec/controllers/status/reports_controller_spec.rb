@@ -32,7 +32,7 @@ RSpec.describe Status::ReportsController, type: :controller do
       let!(:check) { create(:check, status_report: status_report, name: 'ExampleCI') }
 
       before do
-        repository.update_attributes!(required_checks: ['openQA'])
+        repository.update!(required_checks: ['openQA'])
       end
 
       subject! { get :show, params: { project_name: project.name, repository_name: repository.name, report_uuid: status_report.uuid }, format: :xml }
@@ -50,7 +50,7 @@ RSpec.describe Status::ReportsController, type: :controller do
       let!(:check) { create(:check, status_report: status_report, name: 'ExampleCI') }
 
       before do
-        repository_architecture.update_attributes!(required_checks: ['openQA'])
+        repository_architecture.update!(required_checks: ['openQA'])
       end
 
       subject! do

@@ -291,7 +291,7 @@ RSpec.describe Webui::RequestController, vcr: true do
       end
 
       it 'with invalid transition' do
-        request_with_review.update_attributes(state: 'declined')
+        request_with_review.update(state: 'declined')
         post :modify_review, params: { comment: 'yeah',
                                        review_id: request_with_review.reviews.first,
                                        new_state: 'Approve' }

@@ -27,7 +27,7 @@ RSpec.describe RegenerateNotifications, type: :migration do
                source_package: another_package,
                created_at: 3.days.ago,
                updated_at: 2.days.ago)
-      bs_request_to_decline.update_attributes(state: 'declined')
+      bs_request_to_decline.update(state: 'declined')
       bs_request_to_decline
     end
     let!(:old_declined_bs_request) do
@@ -39,7 +39,7 @@ RSpec.describe RegenerateNotifications, type: :migration do
                target_package: package,
                source_package: another_package,
                created_at: 101.days.ago)
-      bs_request_to_decline.update_attributes(state: 'declined')
+      bs_request_to_decline.update(state: 'declined')
       bs_request_to_decline
     end
     let!(:revoked_bs_request) { create(:bs_request, type: 'maintenance_release', state: :revoked) } # This shouldn't regenerate notification

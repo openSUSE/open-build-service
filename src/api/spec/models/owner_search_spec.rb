@@ -31,7 +31,7 @@ RSpec.describe OwnerSearch do
       # the User.owner is only interesting for locked accounts
       it 'does not respect User.owner' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
-        user.update_attributes(owner: develuser)
+        user.update(owner: develuser)
 
         subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package).first
         expect(subject.users['bugowner']).to eq([user])
@@ -39,7 +39,7 @@ RSpec.describe OwnerSearch do
 
       it 'respects User.state' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
-        user.update_attributes(state: :locked)
+        user.update(state: :locked)
 
         subject = OwnerSearch::Container.new(devel: false, filter: 'bugowner').for(package)
         expect(subject).to eq([])
@@ -68,7 +68,7 @@ RSpec.describe OwnerSearch do
 
       it 'respects User.state' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
-        user.update_attributes(state: :locked)
+        user.update(state: :locked)
 
         subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
@@ -79,12 +79,12 @@ RSpec.describe OwnerSearch do
 
       it 'respects User.owner' do
         create(:relationship_package_user, package: package, user: user, role: Role.find_by_title('bugowner'))
-        user.update_attributes(owner: develuser)
+        user.update(owner: develuser)
 
         subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find
         expect(subject).to eq([])
 
-        develuser.update_attributes(state: :locked)
+        develuser.update(state: :locked)
 
         subject = OwnerSearch::Missing.new(devel: false, filter: 'bugowner').find.first
         expect(subject.rootproject).to eq('home:Iggy')
@@ -95,7 +95,7 @@ RSpec.describe OwnerSearch do
 
     context 'in maintenance projects' do
       let(:project) { Project.find_by(name: 'home:Iggy') }
-      let!(:project_kind) { project.update_attributes(kind: 'maintenance_release') }
+      let!(:project_kind) { project.update(kind: 'maintenance_release') }
       let(:other_user) { create(:confirmed_user, login: 'hans') }
 
       # A package with bugowner develuser
@@ -106,7 +106,7 @@ RSpec.describe OwnerSearch do
       # A local link to package.42 with bugowner other_user
       let(:package) { create(:package, name: 'package', project: project) }
       # FIXME: package link should be a transitive argument to the package factory
-      let!(:package_link) { package.build_backend_package.update_attributes(links_to_id: package_42) }
+      let!(:package_link) { package.build_backend_package.update(links_to_id: package_42) }
       let!(:other_bugowner) { create(:relationship_package_user_as_bugowner, user: other_user, package: package) }
 
       # A patchinfo with bugowner maintenance_user
@@ -130,7 +130,7 @@ RSpec.describe OwnerSearch do
       context 'with owned user' do
         let(:owning) { create(:confirmed_user) }
         before do
-          other_user.update_attributes(owner: owning, state: :subaccount)
+          other_user.update(owner: owning, state: :subaccount)
         end
 
         it 'still returns the owned user as bugowner' do

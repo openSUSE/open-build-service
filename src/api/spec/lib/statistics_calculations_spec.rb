@@ -74,7 +74,7 @@ RSpec.describe StatisticsCalculations do
 
       before do
         # We need to be able to identify the project
-        package_3.project.update_attributes!(name: 'my_project')
+        package_3.project.update!(name: 'my_project')
       end
 
       it { expect(subject.length).to eq(2) }

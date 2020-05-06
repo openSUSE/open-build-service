@@ -103,7 +103,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
 
       let(:path) { "#{CONFIG['source_url']}/source/#{another_source_project}/#{another_source_package}?#{params.to_param}" }
       before do
-        request.update_attributes(superseded_by: superseding_request.number, state: :superseded)
+        request.update(superseded_by: superseding_request.number, state: :superseded)
       end
 
       subject! { BsRequestActionWebuiInfosJob.new.perform(superseding_request_action) }
