@@ -1,0 +1,48 @@
+- if flipper_responsive?
+  .card.mb-3
+    = render partial: 'webui/project/tabs', locals: { project: project }
+    .card-body
+      %h3.pb-2= pagetitle
+      .row.pt-2
+        - repositories.each do |repository|
+          = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
+                      user_can_modify: user_can_modify, available_architectures: available_architectures }
+- else
+  .card.mb-3
+    = render partial: 'webui/project/tabs', locals: { project: project }
+    .card-body
+      %h3.pb-2= pagetitle
+      %ul.list-inline.mb-0
+        - if user_can_modify
+          %li.list-inline-item
+            = link_to(repositories_distributions_path(project: project), class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add from a Distribution
+          %li.list-inline-item
+            = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add from a Project
+        - if User.admin_session?
+          %li.list-inline-item
+            = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
+              %i.fas.fa-plus-circle.text-primary
+              Add DoD Repository
+
+  .card.mb-3
+    .card-header.d-flex.justify-content-between
+      %h5 Repositories for #{project}
+    .card-body
+      .row.pt-2
+        - repositories.each do |repository|
+          = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
+                      user_can_modify: user_can_modify, available_architectures: available_architectures }
+
+.card.mb-3
+  .card-header.d-flex.justify-content-between
+    %h5 Repositories Flags
+  .card-body
+    %p
+      You can configure individual flags for this project here.
+    = render partial: 'webui/shared/repositories',
+             locals: { project: project, package: package, flags: flags,
+                       architectures: architectures, user_can_modify: user_can_modify }
