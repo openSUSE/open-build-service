@@ -30,10 +30,10 @@ task(importrequests: :environment) do
 end
 
 desc('Check project for consitency now, specify project with: project=MyProject')
-task(check_project: :environment) { ConsistencyCheckJob.new.check_project }
+task(check_project: :environment) { Old::ConsistencyCheckJob.new.check_project }
 
 desc('Fix inconsitent projects now, specify project with: project=MyProject')
-task(fix_project: :environment) { ConsistencyCheckJob.new.fix_project }
+task(fix_project: :environment) { Old::ConsistencyCheckJob.new.fix_project }
 
 namespace :jobs do
   desc 'Inject a job to write issue tracker information to backend'
