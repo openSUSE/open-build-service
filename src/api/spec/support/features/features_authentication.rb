@@ -7,7 +7,7 @@ module FeaturesAuthentication
       fill_in 'password', with: password
       click_button 'Log In'
     end
-    expect(page).to have_link 'link-to-user-home'
+    expect(page).to have_link 'link-to-user-home', visible: false
     User.session = user
   end
 
