@@ -5,13 +5,13 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::ManageRelationships
   include BuildLogSupport
 
-  before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
-  before_action :require_package, only: [:show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
+  before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
@@ -40,6 +40,32 @@ class Webui::PackageController < Webui::WebuiController
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
+  end
+
+  def edit
+    authorize @package, :update?
+    respond_to do |format|
+      format.js
+    end
+  end
+
+  def update
+    authorize @package, :update?
+    respond_to do |format|
+      if @package.update(package_details_params)
+        format.html do
+          flash[:success] = 'Package was successfully updated.'
+          redirect_to package_show_path(@package)
+        end
+        format.js { flash.now[:success] = 'Package was successfully updated.' }
+      else
+        format.html do
+          flash[:error] = 'Failed to update package'
+          redirect_to package_show_path(@package)
+        end
+        format.js
+      end
+    end
   end
 
   def show
@@ -80,6 +106,12 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
     @services = @files.any? { |file| file[:name] == '_service' }
+
+    respond_to do |format|
+      format.html
+      format.js
+      format.json { render template: 'webui/package/show.html.haml' }
+    end
   end
 
   def main_object
@@ -847,6 +879,19 @@ class Webui::PackageController < Webui::WebuiController
 
   def package_params
     params.require(:package).permit(:name, :title, :description)
+  end
+
+  def package_details_params
+    # We use :package_details instead of the canonical :package param key
+    # because :package is already used in the Webui::WebuiController#require_package
+    # filter.
+    # TODO: rename the usage of :package in #require_package to :package_name to unlock
+    # the proper use of defaults.
+    params
+      .require(:package_details)
+      .permit(:title,
+              :description,
+              :url)
   end
 
   def validate_xml

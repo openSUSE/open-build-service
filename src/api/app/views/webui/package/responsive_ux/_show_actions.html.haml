@@ -8,7 +8,7 @@
       = render partial: 'webui/package/responsive_ux/show_actions/submit_package', locals: { package: package, project: project,
                                                                                              revision: revision }
     - if User.possibly_nobody.can_modify?(package)
-      = render partial: 'webui/package/responsive_ux/show_actions/edit_description'
+      = render partial: 'webui/package/responsive_ux/actions/edit_package', locals: { project: project, package: package }
       = render partial: 'webui/package/responsive_ux/show_actions/delete_package'
 
       - if package.kiwi_image? && policy(package).update?

@@ -1,0 +1,10 @@
+.basic-info.mb-3{ class: flipper_responsive? ? 'in-place-editing' : '' }
+  %h3#package-title
+    = package.title.presence || package.name
+  - if package.url.present?
+    = link_to(package.url, package.url, class: 'mb-3 d-block')
+  #description-text
+    - if package.description.blank?
+      %i No description set
+    - else
+      = render partial: 'webui/shared/collapsible_text', locals: { text: package.description }

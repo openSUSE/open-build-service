@@ -196,6 +196,8 @@ Metrics/BlockNesting:
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
   Max: 885
+  Exclude:
+    - 'app/controllers/webui/package_controller.rb'
 
 # Offense count: 222
 # Configuration parameters: IgnoredMethods.
