@@ -923,7 +923,7 @@ sub logcritical {
   warn($@) if $@;
 }
 
-sub diecritcal {
+sub diecritical {
   my ($msg) = @_;
   chomp $msg;
   logcritical($msg);
