@@ -76,8 +76,8 @@ sub init_publisheddb {
   my %t = map {$_ => 1} list_tables($h);
   if (!$t{'repoinfo'} || !$t{'binary'} || !$t{'pattern'}) {
     # need to create our tables. abort if there is an old database
-    BSUtil::diecritcal("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
-    BSUtil::diecritcal("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'repoinfo'};
+    BSUtil::diecritical("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
+    BSUtil::diecritical("Please convert the published binary database to sqlite first") if $onlytable && $onlytable eq 'pattern' && !$t{'repoinfo'};
     dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS repoinfo(
   id INTEGER PRIMARY KEY,
@@ -128,7 +128,7 @@ sub init_sourcedb {
   my $h = $db->{'sqlite'} || connectdb($db);
   my %t = map {$_ => 1} list_tables($h);
   if (!$t{'linkinfo'}) {
-    BSUtil::diecritcal("Please convert the source database to sqlite first") if $sourcedb && -d $sourcedb;
+    BSUtil::diecritical("Please convert the source database to sqlite first") if $sourcedb && -d $sourcedb;
     dbdo($h, <<'EOS');
 CREATE TABLE IF NOT EXISTS linkinfo(
   sourceproject TEXT,
