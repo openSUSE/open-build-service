@@ -3902,8 +3902,8 @@ if ($buildinfo->{'followupfile'}) {
       next unless -s "$buildsrcdir/$f";
       BSUtil::cp("$buildsrcdir/$f", "$buildroot/.build.packages/OTHER/$f");
     }
-    if (-e "$buildsrcdir/_ccache.tar.gz") {
-      link_or_copy("$buildsrcdir/_ccache.tar.gz", "$buildroot/.build.packages/OTHER/_ccache.tar.gz") || die("ccache.tar.gz link_or_copy failed")
+    if (-e "$buildsrcdir/_ccache.tar") {
+      link_or_copy("$buildsrcdir/_ccache.tar", "$buildroot/.build.packages/OTHER/_ccache.tar") || die("_ccache.tar link_or_copy failed")
     }
   }
   # delete follow-up srcrpm

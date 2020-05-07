@@ -1010,7 +1010,7 @@ sub getbinarylist {
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
+    @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       if (/\.tar$/ && ! -e "$reporoot/$prp/$arch/$packid/$_") {
@@ -1036,7 +1036,7 @@ sub getbinarylist {
     my @bins = grep {/\.rpm$/ && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
+    @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
     for my $bin (sort @bins) {
       next if %binaries && !$binaries{$_};
       my ($lead, $sighdr, $hdr, $hdrmd5);
@@ -1068,7 +1068,7 @@ sub getbinarylist {
     my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
     @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-    @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
+    @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
     for my $bin (sort @bins) {
       next if %binaries && !$binaries{$bin};
       if ($bin =~ /\.rpm$/) {
@@ -1110,7 +1110,7 @@ sub getbinarylist {
   @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
   @bins = BSRepServer::Containertar::add_containers(@bins) if grep {/\.containerinfo$/} @bins;
   @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
-  @bins = grep {$_ ne "_ccache.tar.gz"} @bins unless $cgi->{'withccache'};
+  @bins = grep {$_ ne "_ccache.tar"} @bins unless $cgi->{'withccache'};
   my %md5sums;
   if ($cgi->{'withmd5'}) {
     if (-s "$reporoot/$prp/$arch/$packid/.checksums") {
