@@ -28,7 +28,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
 
     visit package_show_path(project: update_project, package: package)
 
-    click_link('Branch package')
+    click_menu_link('Actions', 'Branch package')
     sleep 1 # Needed to avoid a flickering test.
     expect(page).to have_text('Source')
 
@@ -45,7 +45,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     #####################################
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    click_link('Submit as Update')
+    click_menu_link('Actions', 'Submit as Update')
     # we need this find to wait for the dialog to appear
     expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
     fill_in('description', with: 'I want the update')
@@ -106,7 +106,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     login(user)
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    click_link('Submit as Update')
+    click_menu_link('Actions', 'Submit as Update')
     # we need this find to wait for the dialog to appear
     expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
     fill_in('description', with: 'I have a additional fix')
