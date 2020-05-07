@@ -11,7 +11,7 @@ RSpec.describe Staging::ProjectDecorator do
 
   context 'when the project has a title' do
     before do
-      staging_project.update_attributes(title: 'A')
+      staging_project.update(title: 'A')
     end
 
     it 'returns the title' do

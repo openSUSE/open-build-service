@@ -30,14 +30,14 @@ RSpec.describe Webui::WebuiController do
 
   describe 'GET index as nobody' do
     it 'is allowed when Configuration.anonymous is true' do
-      Configuration.update_attributes(anonymous: true)
+      Configuration.update(anonymous: true)
 
       get :index
       expect(response).to have_http_status(:success)
     end
 
     it 'is not allowed when Configuration.anonymous is false' do
-      Configuration.update_attributes(anonymous: false)
+      Configuration.update(anonymous: false)
 
       get :index
       expect(response).to redirect_to(root_path)
@@ -47,12 +47,12 @@ RSpec.describe Webui::WebuiController do
   describe 'GET index as a user' do
     it 'is always allowed' do
       login(create(:confirmed_user))
-      Configuration.update_attributes(anonymous: true)
+      Configuration.update(anonymous: true)
 
       get :index
       expect(response).to have_http_status(:success)
 
-      Configuration.update_attributes(anonymous: false)
+      Configuration.update(anonymous: false)
 
       get :index
       expect(response).to have_http_status(:success)

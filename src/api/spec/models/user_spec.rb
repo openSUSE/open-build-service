@@ -467,7 +467,7 @@ RSpec.describe User do
 
   describe '.mark_login!' do
     before do
-      user.update_attributes!(login_failure_count: 7, last_logged_in_at: Time.zone.yesterday)
+      user.update!(login_failure_count: 7, last_logged_in_at: Time.zone.yesterday)
       user.mark_login!
     end
 

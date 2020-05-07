@@ -117,7 +117,7 @@ FactoryBot.define do
       state = evaluator.state
       state ||= :review if evaluator.reviews.present?
       if state
-        request.update_attributes(state: state)
+        request.update(state: state)
         request.reload
       end
     end

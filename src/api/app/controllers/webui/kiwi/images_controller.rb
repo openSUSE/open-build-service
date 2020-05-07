@@ -69,7 +69,7 @@ module Webui
         ::Kiwi::Image.transaction do
           cleanup_non_project_repositories!
 
-          @image.update_attributes!(image_params) unless params[:kiwi_image].empty?
+          @image.update!(image_params) unless params[:kiwi_image].empty?
           @image.write_to_backend
         end
         redirect_to action: :edit

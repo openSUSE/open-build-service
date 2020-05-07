@@ -337,7 +337,7 @@ class User < ApplicationRecord
     # the password to a bcrypt one
     if deprecated_password
       if deprecated_password_equals?(unencrypted_password)
-        update_attributes(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
+        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
         return self
       end
 
@@ -867,11 +867,11 @@ class User < ApplicationRecord
   end
 
   def mark_login!
-    update_attributes(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+    update(last_logged_in_at: Time.zone.today, login_failure_count: 0)
   end
 
   def count_login_failure
-    update_attributes(login_failure_count: login_failure_count + 1)
+    update(login_failure_count: login_failure_count + 1)
   end
 
   def proxy_realname(env)

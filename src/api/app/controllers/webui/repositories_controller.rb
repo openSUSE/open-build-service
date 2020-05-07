@@ -195,7 +195,7 @@ class Webui::RepositoriesController < Webui::WebuiController
       @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
     elsif %r{^set-(?<status>disable|enable)$} =~ params[:command]
       flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
-      flag.update_attributes(status: status)
+      flag.update(status: status)
     end
     @main_object.store
   end

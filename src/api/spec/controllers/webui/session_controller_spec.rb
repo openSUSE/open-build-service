@@ -150,7 +150,7 @@ RSpec.describe Webui::SessionController do
       end
 
       it 'updates last_logged_in_at' do
-        user.update_attributes(last_logged_in_at: nil)
+        user.update(last_logged_in_at: nil)
 
         get :new
         expect(user.reload.last_logged_in_at).to eq(Time.zone.today)

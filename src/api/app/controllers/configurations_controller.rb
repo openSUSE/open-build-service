@@ -59,7 +59,7 @@ class ConfigurationsController < ApplicationController
       attribs[key] = value
     end
 
-    ret = @configuration.update_attributes(attribs)
+    ret = @configuration.update(attribs)
     if ret
       @configuration.save!
       head :ok
