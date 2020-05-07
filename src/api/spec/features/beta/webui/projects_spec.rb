@@ -28,7 +28,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     login user
     visit project_show_path(project: project)
 
-    click_on('Edit Project')
+    click_menu_link('Actions', 'Edit Project')
     expect(page).to have_text("Edit Project #{project}")
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
@@ -46,7 +46,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project: user.home_project)
-      click_link('Create Package')
+      click_menu_link('Actions', 'Create Package')
       expect(page).to have_text("Create Package for #{user.home_project_name}")
     end
 
@@ -100,7 +100,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'as admin' do
       login admin_user
       visit project_show_path(project: global_project)
-      click_link('Create Package')
+      click_menu_link('Actions', 'Create Package')
 
       fill_in 'name', with: 'coolstuff'
       click_button('Create')
@@ -117,7 +117,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_link('Subprojects')
 
       expect(page).to have_text('This project has no subprojects')
-      click_link('Create Subproject')
+      click_menu_link('Actions', 'Create Subproject')
       fill_in 'project_name', with: 'coolstuff'
       click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
@@ -137,7 +137,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     end
 
     scenario 'unlock' do
-      click_link('Unlock Project')
+      click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content('Successfully unlocked project')
@@ -149,7 +149,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     scenario 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
-      click_link('Unlock Project')
+      click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content("Project can't be unlocked")
@@ -166,7 +166,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project)
-      click_link('Branch Existing Package')
+      click_menu_link('Actions', 'Branch Existing Package')
     end
 
     scenario 'an existing package' do
@@ -219,7 +219,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit project_show_path(project)
 
       click_link('Attributes')
-      click_link('Add a new attribute')
+      click_menu_link('Actions', 'Add Attribute')
       select('OBS:MaintenanceProject')
       click_button('Add')
 
