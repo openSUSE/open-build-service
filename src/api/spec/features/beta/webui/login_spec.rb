@@ -7,18 +7,14 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login with home project shows a link to it' do
     login user
-    within('#personal-navigation') do
-      expect(page).to have_link('Home Project')
-    end
+    expect(page).to have_link('Your Home Project', visible: false)
   end
 
   scenario 'login without home project shows a link to create it' do
     login admin
     user.home_project.destroy
     login user
-    within('#personal-navigation') do
-      expect(page).to have_link('Create Home')
-    end
+    expect(page).to have_link('Create Your Home Project', visible: false)
   end
 
   scenario 'login via login page' do
@@ -30,34 +26,34 @@ RSpec.feature 'Login', type: :feature, js: true do
       click_button('Log In')
     end
 
-    expect(find('#link-to-user-home').text).to eq(user.login)
+    expect(page).to have_link('Profile', visible: false)
   end
 
   scenario 'login via widget' do
     visit root_path
-    within('#login-form-dropdown') do
+    within('#navigation') do
       click_link('Log In')
+
+      within('#log-in-modal') do
+        fill_in 'username', with: user.login
+        fill_in 'password', with: 'buildservice'
+        click_button('Log In')
+      end
     end
 
-    within('div#login-form') do
-      fill_in 'username', with: user.login
-      fill_in 'password', with: 'buildservice'
-      click_button('Log In')
-    end
-
-    expect(page).to have_css('#link-to-user-home', text: user.login)
+    expect(page).to have_link('Your Home Project', visible: false)
   end
 
   scenario 'login with wrong data' do
     visit root_path
-    within('#login-form-dropdown') do
+    within('#navigation') do
       click_link('Log In')
-    end
 
-    within('#login-form') do
-      fill_in 'username', with: user.login
-      fill_in 'password', with: 'foo'
-      click_button 'Log In'
+      within('#log-in-modal') do
+        fill_in 'username', with: user.login
+        fill_in 'password', with: 'foo'
+        click_button('Log In')
+      end
     end
 
     expect(page).to have_content('Authentication failed')
@@ -66,9 +62,7 @@ RSpec.feature 'Login', type: :feature, js: true do
   scenario 'logout' do
     login(user)
 
-    within('#personal-navigation') do
-      click_link('Logout')
-    end
+    click_menu_link('Places', 'Logout')
 
     expect(page).not_to have_css('a#link-to-user-home')
     expect(page).to have_link('Log')
@@ -105,8 +99,8 @@ RSpec.feature 'Login', type: :feature, js: true do
         click_button('Log In')
       end
 
-      expect(find('#link-to-user-home').text).to eq('tux')
-      expect(page).to have_content('Logout')
+      expect(page).to have_link('Profile', visible: false)
+      expect(page).to have_link('Logout', visible: false)
     end
   end
 end
