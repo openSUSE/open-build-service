@@ -18,7 +18,7 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
 
     scenario 'add DoD repositories' do
       visit(project_repositories_path(project: admin_user.home_project_name))
-      click_link('Add DoD Repository')
+      click_menu_link('Actions', 'Add DoD Repository')
       fill_in('Repository name', with: 'My DoD repository')
       select('i586', from: 'Architecture')
       select('rpmmd', from: 'Type')
@@ -197,7 +197,7 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
     scenario 'add repository from project' do
       visit(project_repositories_path(project: admin_user.home_project))
 
-      click_link('Add from a Project')
+      click_menu_link('Actions', 'Add from a Project')
       fill_in('target_project', with: repository.project)
       # Select the first autocomplete result
       find('.ui-menu-item-wrapper', match: :first).click
