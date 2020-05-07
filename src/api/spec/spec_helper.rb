@@ -65,6 +65,12 @@ RSpec.configure do |config|
     metadata[:vcr] = true
   end
 
+  # Tag all groups and examples in the spec/features directory with
+  # :beta => :true
+  config.define_derived_metadata(file_path: %r{/spec/features/beta/}) do |metadata|
+    metadata[:beta] = true
+  end
+
   # Seed global randomization in this process using the `--seed` CLI option.
   # Setting this allows you to use `--seed` to deterministically reproduce
   # test failures related to randomization by passing the same `--seed` value

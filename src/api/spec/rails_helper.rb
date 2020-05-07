@@ -82,3 +82,6 @@ require 'support/rabbitmq'
 
 # support thinking_sphinx
 require 'support/thinking_sphinx'
+
+# support beta
+require 'support/beta'
