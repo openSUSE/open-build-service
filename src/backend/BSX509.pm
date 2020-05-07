@@ -52,6 +52,8 @@ our $oid_basic_constraints	= BSASN1::pack_obj_id(2, 5, 29, 19);
 our $oid_authority_key_identifier	= BSASN1::pack_obj_id(2, 5, 29, 35);
 our $oid_ext_key_usage		= BSASN1::pack_obj_id(2, 5, 29, 37);
 our $oid_code_signing		= BSASN1::pack_obj_id(1, 3, 6, 1, 5, 5, 7, 3, 3);
+our $oid_ed25519		= BSASN1::pack_obj_id(1, 3, 101, 112);
+our $oid_ed448			= BSASN1::pack_obj_id(1, 3, 101, 113);
 
 # certificate keyusage bits
 our $key_usage_digital_signature	= 0;
@@ -232,6 +234,10 @@ sub pubkey2keydata {
     $algo = 'dsa';
   } elsif ($algooid eq $oid_id_ec_public_key) {
     $algo = 'ecdsa';
+  } elsif ($algooid eq $oid_ed25519) {
+    $algo = 'ed25519';
+  } elsif ($algooid eq $oid_ed448) {
+    $algo = 'ed448';
   } else {
     die("unknown pubkey algorithm\n");
   }
@@ -259,6 +265,9 @@ sub pubkey2keydata {
 	$nbits = (length($bits) - 1) / 2 * 8;
       }
     }
+    $res->{'point'} = $bits;
+  } elsif ($algo eq 'ed25519' || $algo eq 'ed448') {
+    $res->{'keysize'} = length($bits) * 8;
     $res->{'point'} = $bits;
   }
   $res->{'mpis'} = \@mpis if @mpis;
