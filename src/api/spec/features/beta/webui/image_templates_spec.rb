@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'ImageTemplates', type: :feature, js: true, vcr: true do
+RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true, vcr: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   context 'branching' do
@@ -24,10 +24,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true, vcr: true do
       expect(page).to have_css('input[type=submit][disabled]')
 
       login(user)
-      visit root_path
-      within('#proceed-list') do
-        click_link('New Image', match: :first)
-      end
+      visit project_show_path(user.home_project)
+      click_menu_link('Actions', 'New Image')
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)
@@ -53,10 +51,8 @@ RSpec.feature 'ImageTemplates', type: :feature, js: true, vcr: true do
       expect(page).to have_css('input[type=submit][disabled]')
 
       login(user)
-      visit root_path
-      within('#proceed-list') do
-        click_link('New Image', match: :first)
-      end
+      visit project_show_path(user.home_project)
+      click_menu_link('Actions', 'New Image')
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)
