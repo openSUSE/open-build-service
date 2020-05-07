@@ -65,7 +65,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit project_show_path(project: target_project)
-        click_link 'Request Role Addition'
+        click_menu_link('Actions', 'Request Role Addition')
         find(:id, 'role').select('Bugowner')
         find(:id, 'role_type').select('Group')
 
@@ -102,7 +102,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
-        click_link 'Request Role Addition'
+        click_menu_link('Actions', 'Request Role Addition')
         within('#add-role-modal') do
           find(:id, 'role').select('Maintainer')
           find(:id, 'role_type').select('Group')
@@ -133,7 +133,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit project_show_path(project: target_project)
-        click_link 'Request Role Addition'
+        click_menu_link('Actions', 'Request Role Addition')
         find(:id, 'role').select('Bugowner')
         find(:id, 'role_type').select('User')
         fill_in 'user', with: "#{submitter.login}"
@@ -168,7 +168,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
-        click_link 'Request Role Addition'
+        click_menu_link('Actions', 'Request Role Addition')
         within('#add-role-modal') do
           find(:id, 'role').select('Maintainer')
           find(:id, 'role_type').select('User')
