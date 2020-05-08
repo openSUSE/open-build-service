@@ -6,8 +6,7 @@
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
   .list-group
-    - @status_messages.each do |message|
-      = render partial: 'status_message', locals: { message: message }
+    = render partial: 'status_message', collection: status_messages
     - if User.admin_session?
       - unless flipper_responsive?
         .card-footer
