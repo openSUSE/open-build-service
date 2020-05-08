@@ -31,5 +31,5 @@
         .card-body
           = render partial: 'webui/shared/sign_up', locals: { submit_btn_text: 'Sign Up' }
     - if @status_messages.present? || User.admin_session?
-      = render partial: 'status_messages'
+      = render partial: 'status_messages', locals: { status_messages: @status_messages }
     = render(partial: 'latest_updates') if @latest_updates && (::Configuration.anonymous || User.session)

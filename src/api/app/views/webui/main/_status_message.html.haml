@@ -1,15 +1,15 @@
 .list-group-item.list-group-item-integrated.border-left-0.border-right-0
   .row
     .col-1
-      %i.fa.fa-lg{ icon_for_status(message) }
+      %i.fa.fa-lg{ icon_for_status(status_message) }
     .col
-      = user_with_realname_and_icon(message.user, short: true)
+      = user_with_realname_and_icon(status_message.user, short: true)
       wrote
       %u
-        #{time_ago_in_words(message.created_at)} ago
+        #{time_ago_in_words(status_message.created_at)} ago
       - if User.admin_session?
         .float-right
-          = link_to(status_message_path(message), method: :delete, title: 'Remove status message') do
+          = link_to(status_message_path(status_message), method: :delete, title: 'Remove status message') do
             %i.fas.fa-times-circle.text-danger
       .mt-2.mb-0
-        = render_as_markdown(message.message)
+        = render_as_markdown(status_message.message)
