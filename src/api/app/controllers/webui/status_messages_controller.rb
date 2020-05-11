@@ -3,8 +3,13 @@ class Webui::StatusMessagesController < Webui::WebuiController
   before_action :require_admin, only: [:destroy, :create]
 
   def create
-    # TODO: make use of permissions.status_message_create
-    status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.session!)
+    status_message = if params[:severity].to_sym == :announcement
+                       Announcement.new(message: params[:message])
+                     else
+                       # TODO: make use of permissions.status_message_create
+                       StatusMessage.new(message: params[:message], severity: params[:severity],
+                                         user: User.session!)
+                     end
 
     if status_message.save
       flash[:success] = 'Status message was successfully created.'

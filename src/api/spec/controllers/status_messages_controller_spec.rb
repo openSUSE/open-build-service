@@ -42,7 +42,7 @@ RSpec.describe StatusMessagesController do
     let(:request_xml) do
       <<~XML
         <status_messages>
-          <message severity="1">New message was sent!</message>
+          <message severity="information">New message was sent!</message>
         </status_messages>
       XML
     end
