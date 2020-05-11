@@ -85,9 +85,7 @@
       = render partial: 'create_package_modal', locals: { project: @project }
       = render partial: 'new_package_branch_modal', locals: { project: @project, remote_projects: @remote_projects }
 
-    - if can_be_released?(@project, @packages, @open_release_requests, @has_patchinfo)
-      = render partial: 'project_release_request_dialog', locals: { project: @project }
-    - elsif !@project.is_maintenance?
+    - if !can_be_released?(@project, @packages, @open_release_requests, @has_patchinfo) && !@project.is_maintenance?
       = render partial: 'project_submit_update_dialog', locals: { project: @project, release_targets: @releasetargets }
   - elsif !@project.is_locked?
     = render partial: 'webui/request/add_role_request_dialog', locals: { project: @project }

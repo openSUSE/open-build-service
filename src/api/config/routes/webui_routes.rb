@@ -184,6 +184,7 @@ OBSApi::Application.routes.draw do
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
+      get 'project/release_request/(:project)' => :release_request, constraints: cons, as: :project_release_request
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/:project' => :show, constraints: cons, as: 'project_show'
       get 'project/buildresult' => :buildresult, constraints: cons, as: 'project_buildresult'
