@@ -3,12 +3,13 @@ Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
 Capybara.server = :puma, { Silent: true }
 Capybara.disable_animation = true
+Capybara.javascript_driver = :desktop
 
 # we use RSPEC_HOST as trigger to use remote selenium
 if ENV['RSPEC_HOST'].blank?
   Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
 
-  Capybara.register_driver :selenium_chrome_headless do |app|
+  Capybara.register_driver :desktop do |app|
     Capybara::Selenium::Driver.load_selenium
     browser_options = ::Selenium::WebDriver::Chrome::Options.new
     browser_options.args << '--headless'
@@ -17,16 +18,23 @@ if ENV['RSPEC_HOST'].blank?
     Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
   end
 
-  Capybara.javascript_driver = :selenium_chrome_headless
+  Capybara.register_driver :mobile do |app|
+    Capybara::Selenium::Driver.load_selenium
+    browser_options = ::Selenium::WebDriver::Chrome::Options.new
+    browser_options.args << '--headless'
+    browser_options.args << '--no-sandbox' # to run in docker
+    browser_options.add_emulation(device_metrics: { width: 320, height: 568, pixelRatio: 1, touch: true })
+    Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+  end
 else
-  caps = Selenium::WebDriver::Remote::Capabilities.chrome(
-    'goog:chromeOptions' => {
-      'args' => ['--no-sandbox', '--start-maximized']
-    },
-    browserName: 'chrome'
-  )
+  Capybara.register_driver :desktop do |app|
+    caps = Selenium::WebDriver::Remote::Capabilities.chrome(
+      'goog:chromeOptions' => {
+        'args' => ['--no-sandbox', '--start-maximized']
+      },
+      browserName: 'chrome'
+    )
 
-  Capybara.register_driver :chrome do |app|
     Capybara::Selenium::Driver.new(
       app,
       browser: :remote,
@@ -34,13 +42,29 @@ else
       desired_capabilities: caps
     )
   end
+
+  Capybara.register_driver :mobile do |app|
+    caps = Selenium::WebDriver::Remote::Capabilities.chrome(
+      'goog:chromeOptions' => {
+        'args' => ['--no-sandbox'],
+        mobileEmulation: { deviceMetrics: { width: 320, height: 568, pixelRatio: 1, touch: true } }
+      }
+    )
+
+    Capybara::Selenium::Driver.new(
+      app,
+      browser: :remote,
+      url: 'http://selenium:4444/wd/hub',
+      desired_capabilities: caps
+    )
+  end
+
   Capybara.configure do |config|
     config.app_host = "http://#{ENV['RSPEC_HOST']}:3005"
   end
 
   Capybara.server_host = '0.0.0.0'
   Capybara.server_port = 3005
-  Capybara.javascript_driver = :chrome
 end
 
 # Automatically save the page a test fails
