@@ -33,7 +33,7 @@ module AuthenticationProtocolHelper
   end
 
   def sign_up_params
-    return { url: "#{CONFIG['proxy_auth_register_page']}?%22" } if proxy_mode?
+    return { url: CONFIG['proxy_auth_register_page'] } if proxy_mode?
     { url: signup_path }
   end
 
