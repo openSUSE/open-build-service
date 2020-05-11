@@ -214,7 +214,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       login user
       allow(Configuration).to receive(:cleanup_after_days).and_return(14)
       visit package_show_path(project: other_user.home_project, package: other_users_package)
-      click_link('Branch package')
+      click_menu_link('Actions', 'Branch package')
       sleep 1 # Needed to avoid a flickering test. Sometimes the summary is not expanded and its content not visible
     end
 
@@ -250,7 +250,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
   scenario 'requesting package deletion' do
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
-    click_link('Request deletion')
+    click_menu_link('Actions', 'Request deletion')
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
     within('#delete-request-modal') do
@@ -267,7 +267,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
 
-    click_link('Request devel project change')
+    click_menu_link('Actions', 'Request devel project change')
 
     within('#change-devel-request-modal') do
       fill_in('devel_project', with: third_project.name)
@@ -286,7 +286,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
   scenario 'editing a package' do
     login user
     visit package_show_path(package: package, project: user.home_project)
-    click_link('Edit description')
+    click_menu_link('Actions', 'Edit description')
     sleep 1 # FIXME: Needed to avoid a flickering test.
 
     within('#edit-modal') do
