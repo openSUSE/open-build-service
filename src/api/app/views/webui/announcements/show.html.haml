@@ -2,8 +2,7 @@
 
 .card
   .card-body
-    %h2= @announcement.title
-    %p= render_as_markdown(@announcement.content)
+    %p= render_as_markdown(@announcement.message)
     - if User.session && @announcement == @pending_announcement
       = form_tag(my_announcements_path(@announcement), remote: true) do
         = submit_tag 'Got it', class: 'btn btn-primary'

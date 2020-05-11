@@ -1,7 +1,6 @@
 CREATE TABLE `announcements` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `content` text COLLATE utf8mb4_unicode_ci,
+  `message` text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`)
@@ -1509,6 +1508,5 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200402141344'),
 ('20200421115317'),
 ('20200422134122'),
-('20200423160517');
-
-
+('20200423160517'),
+('20200511131709');
