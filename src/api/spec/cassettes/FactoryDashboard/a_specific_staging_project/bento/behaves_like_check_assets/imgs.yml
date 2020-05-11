@@ -1,0 +1,490 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/_meta?user=user_36
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Painted Veil</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '117'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging">
+          <title>The Painted Veil</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/_meta?user=user_37
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>O Pioneers!</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory">
+          <title>O Pioneers!</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging/dashboard/_meta?user=user_38
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>O Jerusalem!</title>
+          <description>Ducimus est perspiciatis culpa.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="dashboard" project="openSUSE:Factory:Staging">
+          <title>O Jerusalem!</title>
+          <description>Ducimus est perspiciatis culpa.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Rings:0-Bootstrap/_meta?user=user_39
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:0-Bootstrap">
+          <title>Nectar in a Sieve</title>
+          <description>Factory ring project</description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:0-Bootstrap">
+          <title>Nectar in a Sieve</title>
+          <description>Factory ring project</description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Rings:1-MinimalX/_meta?user=user_40
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:1-MinimalX">
+          <title>The Last Temptation</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Rings:1-MinimalX">
+          <title>The Last Temptation</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta?user=factory_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Antic Hay</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '95'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Antic Hay</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/package_6/_meta?user=factory_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_6">
+          <title>The Sun Also Rises</title>
+          <description>Ea nobis laborum quis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_6" project="project_6">
+          <title>The Sun Also Rises</title>
+          <description>Ea nobis laborum quis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_project/_attribute?meta=1&user=factory_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '175'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8">
+          <srcmd5>00bc1b9dd45440b28a11a52cdb74e54f</srcmd5>
+          <time>1567591358</time>
+          <user>factory_admin</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory:Staging:A/_meta?user=factory_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Postern of Fate</title>
+          <description>        requests:
+                  - { author: factory_admin, id: 31337, package: package_6, type: submit }
+        </description>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '219'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="openSUSE:Factory:Staging:A">
+          <title>Postern of Fate</title>
+          <description>        requests:
+                  - { author: factory_admin, id: 31337, package: package_6, type: submit }
+        </description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/openSUSE:Factory/target_package/_meta?user=factory_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Fair Stood the Wind for France</title>
+          <description>Repellendus dolores facere quidem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="openSUSE:Factory">
+          <title>Fair Stood the Wind for France</title>
+          <description>Repellendus dolores facere quidem.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/openSUSE:Factory:Staging:A/_result?code=unresolvable
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:38 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/_workerstatus
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1344'
+    body:
+      encoding: UTF-8
+      string: |
+        <workerstatus clients="2">
+          <idle workerid="3b5d2462bdf1:1" hostarch="x86_64"/>
+          <idle workerid="3b5d2462bdf1:2" hostarch="x86_64"/>
+          <waiting arch="i586" jobs="0"/>
+          <waiting arch="x86_64" jobs="0"/>
+          <blocked arch="i586" jobs="0"/>
+          <blocked arch="x86_64" jobs="0"/>
+          <buildavg arch="i586" buildavg="1200"/>
+          <buildavg arch="x86_64" buildavg="1200"/>
+          <partition>
+            <daemon type="srcserver" state="running" starttime="1567520785"/>
+            <daemon type="servicedispatch" state="running" starttime="1567520790"/>
+            <daemon type="service" state="running" starttime="1567520790"/>
+            <daemon type="clouduploadserver" state="running" starttime="1567520790"/>
+            <daemon type="clouduploadworker" state="running" starttime="1567520790"/>
+            <daemon type="scheduler" arch="i586" state="running" starttime="1567520790">
+              <queue high="0" med="0" low="5" next="0"/>
+            </daemon>
+            <daemon type="scheduler" arch="x86_64" state="running" starttime="1567520790">
+              <queue high="0" med="0" low="5" next="0"/>
+            </daemon>
+            <daemon type="repserver" state="running" starttime="1567520788"/>
+            <daemon type="dispatcher" state="running" starttime="1567520790"/>
+            <daemon type="publisher" state="running" starttime="1567520790"/>
+            <daemon type="signer" state="running" starttime="1567520791"/>
+          </partition>
+        </workerstatus>
+    http_version: 
+  recorded_at: Wed, 04 Sep 2019 10:02:39 GMT
+recorded_with: VCR 5.0.0

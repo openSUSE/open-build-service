@@ -1,0 +1,68 @@
+:ruby
+  index ||= ''
+  project ||= nil
+  package ||= nil
+  bs_request ||= nil
+  buildable = package || project
+
+- if buildable
+  :ruby
+    # For a request staged in a staging project, we display the Build Results / RPM Lint from the staging project instead
+    is_staged_request = bs_request && !bs_request.staging_project_id.nil?
+    project = bs_request.staging_project.name if is_staged_request
+
+    ajax_data = {}
+    ajax_data['project'] = h(project) if project
+    ajax_data['package'] = h(package) if package
+    ajax_data['index'] = h(index) if index
+
+  .card
+    .bg-light{ id: "buildresult#{index}-urls", data: { buildresult_url: package ? package_buildresult_path : project_buildresult_path } }
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap{ id: "buildresult#{index}-box", role: 'tablist', data: ajax_data }
+        %li.nav-item
+          = link_to("#build#{index}", id: "build#{index}-tab", class: 'nav-link active text-nowrap',
+            data: { toggle: 'tab' }, role: 'tab', aria: { controls: "build#{index}", selected: true }) do
+            Build Results
+        - if package
+          %li.nav-item
+            = link_to("#rpm#{index}", id: "rpm#{index}-tab", class: 'nav-link text-nowrap', data: { toggle: 'tab' },
+              role: 'tab', aria: { controls: "rpm#{index}", selected: false }) do
+              RPM Lint
+    .card-body
+      .tab-content
+        .tab-pane.fade.show.active{ id: "build#{index}", role: 'tabpanel', aria: { labelledby: "build#{index}-tab" } }
+          .sticky-top.py-2.bg-white.border-bottom.border-light.clearfix
+            .btn.btn-outline-primary.build-refresh.float-right{ onclick: "updateBuildResult('#{index}')",
+                                                                accesskey: 'r', title: 'Refresh Build Results' }
+              Refresh
+              %i.fas.fa-sync-alt{ id: "build#{index}-reload" }
+          - if is_staged_request
+            %p.font-italic
+              From staging project
+              = link_to(project, project_show_path(project))
+          .result
+        - if package
+          .tab-pane.fade{ id: "rpm#{index}", role: 'tabpanel', aria: { labelledby: "rpm#{index}-tab" } }
+            .btn.btn-outline-primary.mb-2{ onclick: "updateRpmlintResult('#{index}')", title: 'Refresh Rpmlint Results' }
+              Refresh
+              %i.fas.fa-sync-alt{ id: "rpm#{index}-reload" }
+            - if is_staged_request
+              %p.font-italic
+                From staging project
+                = link_to(project, project_show_path(project))
+            .result
+
+  :javascript
+    updateBuildResult('#{index}');
+    if ($('#rpm#{index}').length === 1) updateRpmlintResult('#{index}');
+- else
+  .card
+    .bg-light
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap
+        %li.nav-item
+          = link_to('Build Results', "#build#{index}", class: 'nav-link active text-nowrap')
+    .card-body
+      .tab-content
+        .tab-pane.fade.show.active
+          .result
+            %i No build results available

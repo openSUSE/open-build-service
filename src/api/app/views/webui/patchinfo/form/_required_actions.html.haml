@@ -1,0 +1,11 @@
+.form-group.col-md-6
+  = form.label(:required_actions, 'Required Actions')
+  .custom-control.custom-checkbox
+    = form.check_box(:zypp_restart_needed, class: 'custom-control-input')
+    = form.label(:zypp_restart_needed, 'Package manager restart suggested', class: 'custom-control-label')
+  .custom-control.custom-checkbox
+    = form.check_box(:relogin_needed, class: 'custom-control-input')
+    = form.label(:relogin_needed, 'Relogin suggested', class: 'custom-control-label')
+  .custom-control.custom-checkbox
+    = form.check_box(:reboot_needed, class: 'custom-control-input')
+    = form.label(:reboot_needed, 'Reboot suggested', class: 'custom-control-label')

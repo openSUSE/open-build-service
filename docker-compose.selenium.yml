@@ -1,0 +1,14 @@
+version: "2.1"
+services:
+  frontend:
+    depends_on:
+      - selenium
+    environment:
+      RSPEC_HOST: frontend
+  selenium:
+    image: selenium/standalone-chrome-debug
+    environment:
+      VNC_NO_PASSWORD: 1
+    ports:
+      - 5900:5900
+

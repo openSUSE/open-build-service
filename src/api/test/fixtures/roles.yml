@@ -1,28 +1,21 @@
 Admin:
-  id: 1
   title: Admin
   global: 1
 User:
-  id: 2
   title: User
   global: 1
 bugowner:
-  id: 4
   title: bugowner
   global: 0
 downloader:
-  id: 5
   title: downloader
   global: 0
 maintainer:
-  id: 3
   title: maintainer
   global: 0
 reader:
-  id: 7
   title: reader
   global: 0
 reviewer:
-  id: 6
   title: reviewer
   global: 0

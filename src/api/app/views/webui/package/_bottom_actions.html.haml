@@ -1,0 +1,30 @@
+-# FIXME: Refactor this file
+%ul.list-inline.mb-0
+  - if bugowners_mail.present? && configuration['bugzilla_url']
+    = render partial: 'webui/package/bottom_actions/bugzilla_owner', locals: { bugowners_mail: bugowners_mail,
+                                                                package_name: package.name, project_name: project.name }
+  - if User.session
+    - if current_rev && is_working
+      = render partial: 'webui/package/bottom_actions/branch_package'
+      = render partial: 'webui/package/bottom_actions/submit_package', locals: { package: package, project: project,
+                                                                   revision: revision }
+    - if User.possibly_nobody.can_modify?(package)
+      = render partial: 'webui/package/bottom_actions/edit_description'
+      = render partial: 'webui/package/bottom_actions/delete_package'
+
+      - if package.kiwi_image? && policy(package).update?
+        = render partial: 'webui/package/bottom_actions/view_kiwi', locals: { package_id: package.id }
+
+      - if package.kiwi_image?
+        = render partial: 'webui/package/bottom_actions/cloud_upload', locals: { cloud_upload_index_path: cloud_upload_index_path }
+
+      - if services.present?
+        = render partial: 'webui/package/bottom_actions/trigger_services', locals: { package: package, project: project }
+
+    - else
+      = render partial: 'webui/package/bottom_actions/request_role_addition'
+      = render partial: 'webui/package/bottom_actions/request_deletion'
+
+      //TODO: only users w/o rights should see this, maintainers should get a different dialog:
+    - if package.develpackage
+      = render partial: 'webui/package/bottom_actions/request_devel_project_change', locals: { package: package, project: project }

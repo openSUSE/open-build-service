@@ -1,0 +1,40 @@
+<staging_projects>
+  <staging_project name="home:user_2:Staging:A" state="empty">
+    <staged_requests count="0"/>
+    <untracked_requests count="0"/>
+    <requests_to_review count="0"/>
+    <obsolete_requests count="0"/>
+    <missing_reviews count="0"/>
+    <broken_package count="0"/>
+    <checks count="0"/>
+    <missing_checks count="0"/>
+  </staging_project>
+  <staging_project name="home:user_2:Staging:B" state="unacceptable">
+    <staged_requests count="1">
+      <entry id="3" creator="user_1" state="new" package="ctris"/>
+    </staged_requests>
+    <untracked_requests count="1">
+      <entry id="4" creator="user_1" state="review" package="ctris"/>
+    </untracked_requests>
+    <requests_to_review count="1">
+      <entry id="5" creator="user_1" state="review" package="ctris"/>
+    </requests_to_review>
+    <obsolete_requests count="0"/>
+    <missing_reviews count="1">
+      <entry id="6" creator="by_group" state="new" package="ctris"/>
+    </missing_reviews>
+    <broken_packages count="1">
+      <entry package="ctris" project="home:user_1"/>
+    </broken_packages>
+    <checks count="1">
+      <check name="unit tests" required="false">
+        <url>https://ci.example.com/jobs/12345</url>
+        <short_description>Unit tests running on Example CI</short_description>
+        <state>success</state>
+      </check>
+    </checks>
+    <missing_checks count="1">
+      <missing_check name="ci" state="pending" required="true"/>
+    </missing_checks>
+  </staging_project>
+</staging_projects>

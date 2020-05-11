@@ -1,0 +1,469 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_15/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title/>
+          <description/>
+          <person userid="user_15" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_15">
+          <title></title>
+          <description></description>
+          <person userid="user_15" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_16/_meta?user=user_16
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_16">
+          <title/>
+          <description/>
+          <person userid="user_16" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_16">
+          <title></title>
+          <description></description>
+          <person userid="user_16" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Tiger! Tiger!</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Tiger! Tiger!</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_config
+    body:
+      encoding: UTF-8
+      string: Porro est ut provident blanditiis. Temporibus maxime repellendus quia.
+        Nisi dolore magni corporis impedit.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:10:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_7/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title/>
+          <description/>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title></title>
+          <description></description>
+          <person userid="user_7" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_8/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title/>
+          <description/>
+          <person userid="user_8" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_8">
+          <title></title>
+          <description></description>
+          <person userid="user_8" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>This Side of Paradise</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>This Side of Paradise</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_config
+    body:
+      encoding: UTF-8
+      string: Est in est delectus. Veritatis impedit sed nihil excepturi tempore sapiente
+        esse. Illo natus cum repellendus eaque.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:11:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_13/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_13">
+          <title/>
+          <description/>
+          <person userid="user_13" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_13">
+          <title></title>
+          <description></description>
+          <person userid="user_13" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_14/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_14">
+          <title/>
+          <description/>
+          <person userid="user_14" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '137'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_14">
+          <title></title>
+          <description></description>
+          <person userid="user_14" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Arms and the Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Arms and the Man</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Cum nam iure repellat aut perspiciatis numquam. Eum reprehenderit eveniet
+        illo doloremque. Aliquid tempora ut aut aut repellat. Exercitationem eos tempore
+        voluptatem consequatur.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 11 Aug 2017 11:13:23 GMT
+recorded_with: VCR 3.0.3

@@ -1,0 +1,24 @@
+
+<worker hostarch="x86_64" workerid="large">
+  <buildarch>x86_64</buildarch>
+  <hostlabel>large_label</hostlabel>
+  <hostlabel>more_junk_label</hostlabel>
+  <sandbox>kvm</sandbox>
+
+  <linux>
+      <version>9.0</version>
+      <flavor>default</flavor>
+  </linux>
+
+  <hardware>
+    <cpu>
+      <flag>mmx</flag>
+    </cpu>
+    <nativeonly/>
+    <processors>32</processors>
+    <memory>6400</memory>
+    <swap>51200</swap>
+    <disk>204800</disk>
+  </hardware>
+</worker>
+

@@ -1,0 +1,71 @@
+!!!
+%html{ lang: 'en' }
+  %head
+    %meta{ content: 'charset=utf-8' }/
+    %meta{ name: 'viewport', content: 'width=device-width, initial-scale=1, shrink-to-fit=no' }
+    - if @metarobots
+      %meta{ content: @metarobots, name: 'robots' }/
+    = favicon_link_tag
+    %title
+      = "#{@pagetitle} - " if @pagetitle
+      = home_title
+    %meta{ property: 'og:title', content: meta_title }
+    %meta{ property: 'og:site_name', content: home_title }
+    %meta{ property: 'og:type', content: 'website' }
+    %meta{ property: 'og:url', content: request.original_url }
+    %meta{ property: 'og:image', content: meta_image }
+    - if meta_description
+      %meta{ property: 'og:description', content: meta_description }
+
+    - if CONFIG['errbit_javascript_api_key'] && CONFIG['errbit_javascript_host']
+      %meta{ property: 'errbit:key', content: CONFIG['errbit_javascript_api_key'] }
+      %meta{ property: 'errbit:host', content: CONFIG['errbit_javascript_host'] }
+
+    = stylesheet_link_tag 'webui/application'
+    = javascript_include_tag 'webui/application'
+
+    = yield :content_for_head
+    - if content_for?(:head_style)
+      %style{ type: 'text/css' }
+        = yield :head_style
+    = javascript_tag do
+      = yield :head_javascript
+      var _paq = _paq || [];
+      $(function() { #{yield :ready_function} });
+
+    = auto_discovery_link_tag(:rss, news_feed_path(format: 'rss'), title: 'News')
+    = csrf_meta_tag
+    - if User.possibly_nobody.rss_token
+      = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), title: 'Notifications')
+    = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
+  %body.d-flex.flex-column{ class: "#{'responsive-ux' if flipper_responsive?}" }
+    = render 'peek/bar'
+    #navigation
+      = render partial: "layouts/#{responsive_namespace}/navigation"
+    - unless flipper_responsive?
+      .w-100.m-2
+    .container-xxl
+      .row
+        .col
+          = render partial: 'layouts/webui/breadcrumbs'
+        - unless flipper_responsive?
+          .col-auto.ml-auto#personal-navigation
+            = render partial: 'layouts/webui/personal_navigation'
+
+    .container-xxl.sticky-top.flash-and-announcement.text-word-break-all
+      - unless @hide_announcement_notification
+        #announcement= render partial: 'layouts/webui/announcement', locals: { pending_announcement: @pending_announcement }
+      #flash= render partial: 'layouts/webui/flash', object: flash
+    .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
+
+    .container-xxl.flex-grow#content
+      = yield
+    - if flipper_responsive?
+      .container-fluid.py-4.mt-4#sponsor
+        .container-xxl
+          = render partial: "layouts/#{responsive_namespace}/sponsors"
+    .container-fluid.py-4.bg-dark#footer
+      .container-xxl
+        = render partial: "layouts/#{responsive_namespace}/footer"
+    - if flipper_responsive? && !current_page?(signup_path) && !current_page?(new_session_path)
+      = render partial: "layouts/#{responsive_namespace}/bottom_navigation"

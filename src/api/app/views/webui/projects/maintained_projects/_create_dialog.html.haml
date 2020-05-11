@@ -1,0 +1,19 @@
+.modal.fade#new-maintenance-project-modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'new-maintenance-project-modal', hidden: true } }
+  .modal-dialog.modal-lg{ role: 'document' }
+    .modal-content
+      = form_tag nil, method: :create do
+        .modal-header
+          %h5.modal-title#new-maintenance-project-modal-label
+            Add maintained project to #{project_name}
+        .modal-body
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'maintained_project', label: 'Project to be maintained:',
+                                                                   data: { source: autocomplete_projects_path } }
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Add' }
+
+= content_for :ready_function do
+  :plain
+    $('#new-maintenance-project-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('form').attr('action', link.data('action'));
+    });

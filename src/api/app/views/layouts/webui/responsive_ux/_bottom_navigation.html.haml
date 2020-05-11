@@ -1,0 +1,32 @@
+.footer-separator.d-block.d-md-none
+%nav.navbar.fixed-bottom.navbar-dark.bg-dark.border-top.border-gray-500.d-block.d-md-none.p-0#bottom-navigation
+  %ul.nav.justify-content-center.w-100.nav-justified
+    - if User.session
+      %li.nav-item
+        = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+          %i.fas.fa-bookmark
+          .small Watchlist
+      %li.nav-item.border-left.border-gray-500
+        = link_to(my_notifications_path, class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
+          %i.fas.fa-bell
+          - unless User.session.unread_notifications.zero?
+            %span.badge.badge-primary.align-text-top= User.session.unread_notifications
+          .small Notifications
+      - if content_for?(:actions)
+        %li.nav-item.border-left.border-gray-500
+          = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Actions', data: { toggle: 'actions' }) do
+            %i.fas.fa-ellipsis-v
+            .small Actions
+    - else
+      - unless kerberos_mode? || !can_sign_up?
+        %li.nav-item.border-right.border-gray-500
+          = sign_up_link(css_class: 'nav-link px-1 py-2 text-light')
+      %li.nav-item
+        = log_in_link(css_class: 'nav-link px-1 py-2 text-light')
+    %li.nav-item.border-left.border-gray-500
+      = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Places', data: { toggle: 'offcanvas' }) do
+        %i.fas.fa-bars
+        .small Places
+
+- if User.session
+  = render partial: "layouts/#{responsive_namespace}/watchlist"

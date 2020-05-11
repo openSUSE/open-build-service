@@ -1,0 +1,85 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:king/_meta?user=king
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:king">
+          <title/>
+          <description/>
+          <person userid="king" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:king">
+          <title></title>
+          <description></description>
+          <person userid="king" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Dec 2018 14:12:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:eisendieter/_meta?user=eisendieter
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:eisendieter">
+          <title/>
+          <description/>
+          <person userid="eisendieter" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '145'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:eisendieter">
+          <title></title>
+          <description></description>
+          <person userid="eisendieter" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 06 Dec 2018 14:12:32 GMT
+recorded_with: VCR 4.0.0

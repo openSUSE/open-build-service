@@ -1,0 +1,32 @@
+%table.responsive.table.table-sm.table-bordered.table-hover.w-100#open-patchinfos-table{ title: 'Running Maintenance Updates' }
+  %thead
+    %tr
+      %th Project
+      %th Package
+      %th Issues
+      %th Actions
+  %tbody
+    - involved_patchinfos.each do |patchinfo|
+      %tr
+        - shortened_prj, shortened_pkg = elide_two(patchinfo[:package][:project], patchinfo[:package][:name], 60)
+        %td= link_to(shortened_prj, project_show_path(patchinfo[:package][:project]))
+        %td= link_to(shortened_pkg, package_show_path(patchinfo[:package][:project], patchinfo[:package][:name]))
+        %td
+          - size = patchinfo[:issues].size
+          - patchinfo[:issues].each_with_index do |item, index|
+            = succeed "#{',' if index < size - 1}" do
+              = link_to item[:label], item[:url], title: item[:summary]
+        %td
+          = link_to(project_monitor_path(patchinfo[:package][:project], pkgname: patchinfo[:package][:name])) do
+            %i.fas.fa-heartbeat.text-danger{ title: 'Monitor' }
+
+= javascript_tag do
+  :plain
+    $(function() {
+      $('#open-patchinfos-table').dataTable({
+        iDisplayLength: 10,
+        stateSave: true,
+        stateDuration: #{2.days}
+      });
+    });
+

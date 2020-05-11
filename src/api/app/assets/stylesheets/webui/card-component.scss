@@ -1,0 +1,25 @@
+.card {
+  .card-header {
+    &.d-flex.justify-content-between {
+      h5 { @extend .mb-0 }
+    }
+  }
+  .card-body {
+    h1, h2, h3, h4, h5, h6 {
+      color: $primary;
+    }
+
+    .description {
+      max-width: $seventy-five-chars;
+    }
+
+    #proceed-list {
+      max-width: $seventy-five-chars;
+    }
+  }
+
+  .nav-tabs .nav-link.active {
+    background-color: $card-bg;
+    border-bottom-color: $card-bg;
+  }
+}

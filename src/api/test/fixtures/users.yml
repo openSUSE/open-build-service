@@ -1,308 +1,248 @@
 Admin:
-  id: 280
   created_at: 2012-01-17 09:54:31.000000000 Z
   updated_at: 2012-01-17 09:54:31.000000000 Z
-  last_logged_in_at: 2012-01-17 09:54:31.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: Admin
   email: root@localhost
   realname: OBS Instance Superuser
-  password: f2eb735aacb365155a6d0076434b73e9
-  password_hash_type: md5
-  password_salt: 6H2zF0vSjj
-  password_crypted: osQq6OKjF0f8I
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 Iggy:
-  id: 267
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: Iggy
   email: Iggy@pop.org
   realname: Iggy Pop
-  password: 6a204bd89f3c8348afd5c77c717a097a
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 _nobody_:
-  id: 5
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: _nobody_
   email: nobody@localhost
   realname: Anonymous User
-  password: e10adc3949ba59abbe56e057f20f883e
-  password_hash_type: md5
-  password_salt: ''
-  state: 3
+  password_digest: $2a$10$Xi1VnoTy352Zj78Qp9Hix.HzKtpGTz9nXq2/6eDF9tRIr4bTwAtkO
+  state: "locked"
 adrian:
-  id: 42
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: Johnny Thunders
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 adrian_downloader:
-  id: 44
   created_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   updated_at: 2011-07-29 14:00:21.000000000 Z
   login_failure_count: 0
   login: adrian_downloader
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user has access to binary files only
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 adrian_nobody:
-  id: 45
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian_nobody
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user exists, but has no permissions
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 adrian_reader:
-  id: 43
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: adrian_reader
-  email: adrian@suse.de
+  email: adrian@example.com
   realname: user has access to sources (and binaries ?)
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 binary_homer:
-  id: 47
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: binary_homer
   email: homer@nospam.net
   realname: user is maintainer in binary protected project (binarydownload)
-  password: dfa8327f5bfa4c672a04f9b38e348a70
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
+deleted:
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
+  login_failure_count: 0
+  login: deleted
+  email: test@example.com
+  realname: ''
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "deleted"
+dmayr:
+  created_at: 2012-01-16 13:36:00.000000000 Z
+  updated_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
+  login_failure_count: 0
+  login: dmayr
+  email: test@example.com
+  realname: ''
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 fred:
-  id: 1
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: fred
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 fredlibs:
-  id: 4
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: fredlibs
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 hidden_homer:
-  id: 46
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: hidden_homer
   email: homer@nospam.net
   realname: user is maintainer in hidden project
-  password: dfa8327f5bfa4c672a04f9b38e348a70
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 king:
-  id: 2
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: king
   email: king@all-the-kings.org
   realname: The King
-  password: e5e7105d5c05d9c0cc5944ff1341b533
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$.cJH/mzFxmng1Z32zqR1juRBcIceF94GN5CynZrwrQgSRTXsqYyZe
+  state: "confirmed"
+maintenance_assi:
+  created_at: 2014-04-07 06:51:18.000000000 Z
+  updated_at: 2014-04-07 06:51:18.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
+  login_failure_count: 0
+  login: maintenance_assi
+  email: homer@nospam.net
+  realname: Maintenance Slave
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 maintenance_coord:
-  id: 172
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: maintenance_coord
-  email: dirkmueller@suse.de
+  email: dirkmueller@example.com
   realname: our hero
-  password: 62cd275989e78ee56a81f0265a87562e
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 sourceaccess_homer:
-  id: 49
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: sourceaccess_homer
   email: homer@nospam.net
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
-  password: dfa8327f5bfa4c672a04f9b38e348a70
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 tom:
-  id: 3
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: tom
-  email: tschmidt@suse.de
+  email: tschmidt@example.com
   realname: Thor
-  password: 5c7686c0284e0875b26de99c1008e998
-  password_hash_type: md5
-  password_salt: ''
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user1:
-  id: 268
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user1
-  email: test@example.com
+  email: user1@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user2:
-  id: 269
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user2
-  email: test@example.com
+  email: user2@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user3:
-  id: 270
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user3
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user4:
-  id: 271
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user4
-  email: test@example.com
+  email: user4@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user5:
-  id: 272
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user5
-  email: test@example.com
+  email: user5@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "confirmed"
 user6:
-  id: 273
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
+  last_logged_in_at: <%= 2.days.ago %>
   login_failure_count: 0
   login: user6
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
   state: 2
-user7:
-  id: 274
+unconfirmed_user:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
   login_failure_count: 0
-  login: user7
+  login: unconfirmed_user
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
-user8:
-  id: 275
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: user8
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
-user9:
-  id: 276
-  created_at: 2012-01-16 13:36:00.000000000 Z
-  updated_at: 2012-01-16 13:36:00.000000000 Z
-  last_logged_in_at: 2012-01-16 13:36:00.000000000 Z
-  login_failure_count: 0
-  login: user9
-  email: test@example.com
-  realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
-  password_hash_type: md5
-  password_salt: Vibb8QsN4I
-  password_crypted: osEJSjdDGtlBY
-  state: 2
+  password_digest: $2a$10$kvnsKtwOAqKeBYpaDhzQfOTZ7BuSjShOvnwqp4tFRLk1YUwLAH6la
+  state: "unconfirmed"

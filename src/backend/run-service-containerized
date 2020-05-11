@@ -1,0 +1,240 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+
+use File::Path qw/make_path/;
+use File::Temp;
+use File::Find;
+use File::Basename;
+
+use POSIX qw/strftime/;
+use Data::Dumper;
+use Getopt::Long;
+use Digest::SHA qw/sha256_hex/;
+
+BEGIN {unshift @::INC, '/usr/lib/obs/server'}
+
+use BSConfiguration;
+
+our $LFH;
+
+sub printlog {
+  my $t = strftime("[%Y-%m-%d %H:%M:%S]", localtime);
+  print $LFH "$t - @_\n";
+}
+
+sub create_dir {
+  if (-d $_[0]) {
+    printlog("Directory $_[0] already exists");
+  } else {
+    printlog("Creating directory $_[0]");
+    make_path($_[0]);
+  }
+}
+
+my $DOCKER_IMAGE      = $BSConfig::docker_image || 'obs-source-service';
+my @DOCKER_CUSTOM_OPT = (defined $BSConfig::docker_custom_opt && ! ref $BSConfig::docker_custom_opt)
+                         ? split(/\s+/, $BSConfig::docker_custom_opt)
+			 : @{$BSConfig::docker_custom_opt || []};
+my $SERVICES_DIR      = $BSConfig::servicetempdir;
+my $OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL = $BSConfig::gems_mirror;
+my $SSH_CMD           = "";
+my $WITH_NET          = 0;
+my $LOGDIR            = "/srv/obs/service/log/";
+my $LOGFILE           = "$LOGDIR/cservice.log";
+my $SCM_COMMAND       = 0;
+my $COMMAND           = shift @ARGV || die "No command given!\n";
+my $RETURN            = 0;
+my @LINK;
+
+(-d $LOGDIR ) || make_path($LOGDIR);
+open($LFH, ">>", $LOGFILE);
+
+printlog("$0 called");
+printlog("$COMMAND called");
+printlog("ARGV  - @ARGV");
+printlog("Running in debug mode") if $ENV{DOCKER_DEBUG};
+
+if ($COMMAND  =~ /\/(download_url|download_src_package|update_source|download_files|generator_pom|snapcraft|kiwi_import|appimage)$/) {
+  $WITH_NET =1;
+} elsif ($COMMAND  =~ /\/bundle_gems$/) {
+  @LINK = ("--link", "$BSConfig::geminabox_container:$BSConfig::geminabox_container") if $BSConfig::geminabox_container;
+  $WITH_NET  = 1;
+} elsif ($COMMAND  =~ /\/(tar_scm|obs_scm)$/) {
+  $SCM_COMMAND=1;
+  $WITH_NET=1
+}
+
+my $PARAM_SCM;
+my $PARAM_URL;
+my $OUTDIR;
+my @ARGS;
+
+while (my $arg = shift @ARGV) {
+  if ($arg =~ /^--scm(?:=(.+))?$/) {
+     $PARAM_SCM =  ($1) ? $2 : $ARGV[0];
+  }
+  if ($arg =~ /^--url(?:=(.+))?$/) {
+     $PARAM_URL =  ($1) ? $2 : $ARGV[0];
+  }
+  if ($arg =~ /^--outdir$/) {
+     $OUTDIR = shift @ARGV;
+  } else {
+    $arg =~ s/'/\\\'/g;
+    my $opt = shift @ARGV;
+    $opt =~ s/'/\'/g;
+    $COMMAND = "$COMMAND '$arg' '$opt'";
+  }
+}
+
+die "ERROR: no outdir given!\n" unless $OUTDIR;
+
+my $MOUNTDIR = dirname($OUTDIR);
+create_dir("$MOUNTDIR/var/cache/obs/");
+
+my $tmp = File::Temp::tempdir("$MOUNTDIR/var/cache/obs/XXXXXXXX");
+$tmp =~ s#.*/##;
+my $CONTAINER_ID = "src-service-$tmp";
+
+my $INNERBASEDIR   = "/var/cache/obs/$tmp";
+my $INNEROUTDIR    = "$INNERBASEDIR/out";
+my $INNERSRCDIR    = "$INNERBASEDIR/src";
+my $INNERSCRIPTDIR = "$INNERBASEDIR/scripts";
+my $INNERSCRIPT    = "$INNERSCRIPTDIR/inner.sh";
+my $INNERHOMEDIR   = "$INNERBASEDIR/home";
+my $INNERSCMCACHE  = "";
+
+
+my $OUTEROUTDIR    = "$MOUNTDIR/out";
+my $OUTERSRCDIR    = "$MOUNTDIR/src";
+my $OUTERHOMEDIR   = "$MOUNTDIR/home";
+my $OUTERSCMCACHE  = "";
+
+create_dir($OUTEROUTDIR);
+create_dir($OUTERSRCDIR);
+create_dir("$MOUNTDIR$INNERSCRIPTDIR");
+create_dir($OUTERHOMEDIR);
+
+# Create inner.sh which is just a wrapper for
+# su nobody -s inner.sh.command
+printlog("Creating INNERSCRIPT '$MOUNTDIR$INNERSCRIPT'");
+my $OBS_SERVICE_APIURL = $BSConfig::api_url || '';
+my $OBS_SERVICE_DAEMON = $ENV{OBS_SERVICE_DAEMON} || "";
+
+open(my $fhi, '>', "$MOUNTDIR$INNERSCRIPT") || die "Could not open '$MOUNTDIR$INNERSCRIPT': $!\n";
+print $fhi "#!/bin/bash
+export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\"
+export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL\"
+export OBS_SERVICE_DAEMON=\"$OBS_SERVICE_DAEMON\"
+cd $INNERSRCDIR
+$INNERSCRIPT.command
+";
+close $fhi;
+chmod 0755, "$MOUNTDIR$INNERSCRIPT";
+
+# default volumes
+my @DOCKER_VOLUMES = (
+  "-v", "$OUTEROUTDIR:$INNEROUTDIR",
+  "-v", "$OUTERSRCDIR:$INNERSRCDIR",
+  "-v", "$OUTERHOMEDIR:$INNERHOMEDIR",
+  "-v", "$MOUNTDIR$INNERSCRIPTDIR:$INNERSCRIPTDIR:ro",
+);
+
+# calculate CACHEDIRECTORY in case of obs_scm/tar_scm
+my $CACHEDIRECTORY="";
+if ($SCM_COMMAND) {
+  my $URL_HASH = sha256_hex($PARAM_URL);
+  $OUTERSCMCACHE="$SERVICES_DIR/scm-cache/$PARAM_SCM/$URL_HASH";
+  $INNERSCMCACHE="$INNERBASEDIR/scm-cache";
+  create_dir($OUTERSCMCACHE);
+  push @DOCKER_VOLUMES, "-v", "$OUTERSCMCACHE:$INNERSCMCACHE";
+  $CACHEDIRECTORY="export CACHEDIRECTORY='$INNERSCMCACHE' ";
+}
+
+# calculate docker network options
+my $DOCKER_OPTS_NET;
+if ($WITH_NET) {
+  printlog("Using docker with network");
+  $DOCKER_OPTS_NET="--net=bridge";
+} else {
+  printlog("Using docker without network");
+  $DOCKER_OPTS_NET="--net=none"
+}
+
+# Create inner.sh.command
+# dirname /srv/obs/service/11875/out/
+printlog("Creating INNERSCRIPT.command '$MOUNTDIR/${INNERSCRIPT}.command'");
+my $FULL_COMMAND = "$COMMAND --outdir $INNEROUTDIR";
+printlog("FULL_COMMAND: $FULL_COMMAND");
+
+open(my $fhc, '>', "$MOUNTDIR$INNERSCRIPT.command") || die "Could not open '$MOUNTDIR$INNERSCRIPT.command': $!\n";
+print $fhc "#!/bin/bash
+set -x
+export HOME='$INNERHOMEDIR'
+$CACHEDIRECTORY# placeholder for CACHEDIRECTORY
+echo \"Running $FULL_COMMAND\"
+$FULL_COMMAND
+";
+close $fhc;
+chmod 0755, "$MOUNTDIR$INNERSCRIPT.command";
+
+my @DOCKER_CMD = (
+  "docker", "run", "-u", "2:2", "--rm", "--name", $CONTAINER_ID,
+  @DOCKER_CUSTOM_OPT, @DOCKER_VOLUMES, $DOCKER_OPTS_NET, @LINK,
+  $DOCKER_IMAGE, $INNERSCRIPT,
+);
+
+printlog("DOCKER_RUN_CMD: '@DOCKER_CMD'");
+
+# fork process and redirect process STDOUT to PIPE
+my $pid = open(PIPE, "-|");
+if (!$pid) {
+  # Redirect STDERR of child to STDOUT of child (ends up in PIPE)
+  open STDERR, ">&STDOUT";
+  # exec docker command (child process will be "replaced") or die,
+  # if spawning of docker fails, to ensure that the child process
+  # doesn`t continue to run parent code
+  exec(@DOCKER_CMD) || die "Failed to exec '@DOCKER_CMD'\n";
+}
+
+# wait for child in parent and ensure that $? is set properly to
+# the exit code of the child process (exec)
+waitpid $pid, 0;
+
+
+if (!$?) {
+  if (-d "$MOUNTDIR$INNEROUTDIR") {
+    my @files;
+    find(sub { if ($_ ne '.' && -f $_) { push @files, $File::Find::name }}, "$MOUNTDIR$INNEROUTDIR");
+    if (@files) {
+      for my $f (glob "_service:*") {
+        unlink $f if ! -f "$MOUNTDIR$INNERSRCDIR/$f"
+      }
+    }
+  }
+} else {
+  # read the combined output (stdout, stderr) of the child process
+  # only in case of error
+  my @CMD_OUT = <PIPE>;
+  my $RET_ERR=($?>>8);
+  $RETURN = ( $RET_ERR >= 125 && $RET_ERR <= 127) ? 3 : 2;
+  printlog(@CMD_OUT);
+  print "@CMD_OUT";
+}
+
+if ($ENV{DOCKER_DEBUG}) {
+  printlog("DEBUG_DOCKER is set. Skipping cleanup");
+} else {
+  printlog("Starting cleanup");
+  rmdir  "$MOUNTDIR$INNERSRCDIR";
+  rmdir  "$MOUNTDIR$INNEROUTDIR";
+  unlink "$MOUNTDIR$INNERSCRIPT.command";
+  unlink "$MOUNTDIR$INNERSCRIPT";
+  rmdir  "$MOUNTDIR$INNERSCRIPTDIR";
+  rmdir  $MOUNTDIR;
+  system("docker inspect $CONTAINER_ID > /dev/null 2>&1");
+  system("docker", "rm", "--force", "--volumes", $CONTAINER_ID) unless $?;
+}
+
+exit $RETURN;

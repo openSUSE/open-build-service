@@ -1,0 +1,82 @@
+inherit_from: .rubocop_todo.yml
+
+require:
+  - rubocop-performance
+  - rubocop-rails
+
+AllCops:
+  NewCops: enable
+  UseCache: true
+  CacheRootDirectory: src/api/tmp/rubocop_cache_root_dir
+  MaxFilesInCache: 2000
+  Exclude:
+    - 'src/api/**/*'
+    - 'docs/api/restility/**/*'
+    - 'src/backend/**/*'
+    # These files are RPM spec files
+    - 'dist/*.spec'
+    - 'dist/t/spec/fixtures/hello_world.spec'
+
+#################### Layout ###########################
+
+Layout/HashAlignment:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
+# We decide disable this cop because we can't reach an agreement
+Layout/DotPosition:
+  Enabled: false
+
+Layout/EndAlignment:
+  EnforcedStyleAlignWith: variable
+
+#################### Lint ###########################
+
+# New cops added between major versions need to be enabled manually.
+# https://docs.rubocop.org/en/stable/versioning/#pending-cops
+Lint/RaiseException:
+  Enabled: true
+Lint/StructNewOverride:
+  Enabled: true
+
+#################### Style ###########################
+
+Style/Alias:
+  EnforcedStyle: 'prefer_alias_method'
+
+Style/CommandLiteral:
+  EnforcedStyle: percent_x
+
+Style/Documentation:
+  Enabled: false
+
+Style/RedundantReturn:
+  Enabled: false
+
+Style/SymbolArray:
+  EnforcedStyle: brackets
+
+Style/WordArray:
+  EnforcedStyle: brackets
+
+# At the moment, the default configuration of the previous cops are pending
+# and, the autocorrect are unsafe. So for now, we will disable them.
+Style/HashEachMethods:
+  Enabled: false
+Style/HashTransformKeys:
+  Enabled: false
+Style/HashTransformValues:
+  Enabled: false
+
+##################### Metrics ##################################
+
+Metrics/ClassLength:
+  Severity: refactor
+
+Layout/LineLength:
+  Max: 150
+  IgnoredPatterns: ['\A#']
+
+Metrics/ModuleLength:
+  Severity: refactor

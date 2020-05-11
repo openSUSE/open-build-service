@@ -1,0 +1,23 @@
+ul.nav.nav-tabs li.nav-item {
+  & a {
+    color: $link-color;
+
+    &:hover {
+      color: $link-hover-color;
+    }
+
+    &.dropdown-item.active,
+    &.dropdown-item:active {
+      color: $white;
+
+      span.badge {
+        color: $link-hover-color;
+        background-color: $white;
+      }
+    }
+  }
+
+  .dropdown-menu {
+    z-index: 1050;
+  }
+}

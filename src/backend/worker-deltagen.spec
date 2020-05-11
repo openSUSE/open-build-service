@@ -14,10 +14,12 @@ mkdir -p "$odir"
 
 # check if makedeltarpm supports the '-m' option
 mopt=
-case `makedeltarpm -m 512 /dev/null /dev/null /dev/null 2>&1` in
+if test -n "@mopt@" ; then
+case `makedeltarpm -m @mopt@ /dev/null /dev/null /dev/null 2>&1` in
   *invalid\ option*) ;;
-  *) mopt="-m 512" ;;
+  *) mopt="-m @mopt@" ;;
 esac
+fi
 
 for i in *.old ; do
   if ! test -e "$i"; then
@@ -25,6 +27,7 @@ for i in *.old ; do
   fi
   i="${i%.old}"
   rm -f "$odir/$i.drpm" "$odir/$i.out" "$odir/$i.seq" "$odir/$i.dseq"
+  cat "$i.info"
   if makedeltarpm $mopt -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" >"$i.err" 2>&1 ; then
     rm -f "$odir/$i.err"
     newsize=$(stat -c %s "$i.new")

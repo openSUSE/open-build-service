@@ -1,0 +1,12 @@
+- @pagetitle = 'Please Log In'
+
+.card
+  .card-body#loginform
+    .col-lg-6.pl-0
+      - if kerberos_mode?
+        %h3 Kerberos authentication required
+        %p You are seeing this page, because you are not authenticated in the kerberos realm ('#{CONFIG['kerberos_realm']}').
+        %p Please ensure you have a valid ticket and try again.
+      - else
+        %h3= @pagetitle
+        = render partial: 'form', locals: { with_sign_up: true, with_redirect: true }

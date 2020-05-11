@@ -1,0 +1,22 @@
+- if request.present?
+  %p
+    The previous request
+    = link_to(request['id'], request_show_path(project, package, request['id']))
+    was declined #{fuzzy_time_string(request['when'])} by
+    = user_with_realname_and_icon(request['decliner'], short: true)
+    with the following message:
+    %pre= request['comment']
+- if submit_message && show_link
+  %ul.list-inline
+    %li.list-inline-item
+      = link_to('#',
+          class: 'nav-link',
+          data: { toggle: 'modal',
+                  target: '#submit-request-modal',
+                  url: package_branch_diff_info_path(project.name, package.name) }) do
+        %i.fas.fa-share-square.text-warning
+        = submit_message
+
+  = render partial: 'submit_request_dialog', locals: { project: project, package: package, revision: revision,
+                                                       target_project: target_project, target_package: target_package,
+                                                       description: '', cleanup_source: false }

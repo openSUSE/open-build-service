@@ -1,0 +1,7 @@
+%ul.nav.nav-pills.justify-content-end
+  - if User.session
+    = render partial: 'layouts/webui/logged_in_user_navigation'
+  - elsif kerberos_mode?
+    = link_to 'Log In', new_session_path
+  - else
+    = render partial: 'layouts/webui/login_form'

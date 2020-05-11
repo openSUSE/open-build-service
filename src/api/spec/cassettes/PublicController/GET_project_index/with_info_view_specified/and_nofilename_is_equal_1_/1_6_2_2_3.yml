@@ -1,0 +1,111 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '131'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="public_controller_project">
+          <title>The Public Controller Project</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/public_controller_project/_config
+    body:
+      encoding: UTF-8
+      string: Recusandae commodi omnis sapiente. Vero quaerat ipsam. Est deserunt
+        iste blanditiis aut quisquam corporis nobis. Exercitationem ad vero. Animi
+        consequatur quaerat perferendis velit non aperiam qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:35 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project?nofilename=1&view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '194'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfolist>
+          <sourceinfo package="public_controller_package" rev="36" vrev="36" srcmd5="324bb6688e987cf8fa9d0877ff977f83" verifymd5="324bb6688e987cf8fa9d0877ff977f83" />
+        </sourceinfolist>
+    http_version: 
+  recorded_at: Thu, 13 Oct 2016 08:34:35 GMT
+recorded_with: VCR 3.0.3

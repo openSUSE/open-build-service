@@ -1,0 +1,8 @@
+<jobhistlist>
+  <jobhist package='fakepackage' rev='1' srcmd5='2ac8bd685591b40e412ee99b182f94c2' versrel='7-3' bcnt='1' readytime='1492687344'
+           starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
+           hostarch='x86_64' reason='new build' verifymd5='2ac8bd685591b40e412ee99b182f94c2'/>
+  <jobhist package='fakepackage' rev='2' srcmd5='597d297d19621de7db926d36d27d4331' versrel='7-3' bcnt='1' readytime='1492687344'
+           starttime='1492687470' endtime='1492687507' code='succeed' uri='http://127.0.0.1:41355' workerid='vagrant-openSUSE-Leap:1'
+           hostarch='x86_64' reason='source change' verifymd5='597d297d19621de7db926d36d27d4331'/>
+</jobhistlist>

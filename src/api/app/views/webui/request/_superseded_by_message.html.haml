@@ -1,0 +1,24 @@
+- if superseding.present? && superseded_by.nil? && diff_to_superseded.nil?
+  .alert.alert-secondary{ role: 'alert' }
+    %i.fa.fa-info-circle.text-info
+    This request supersedes:
+    - superseding.each do |bs_request|
+      = link_to("request #{bs_request.number}", request_show_path(number: bs_request.number))
+      = surround('(', ")#{', ' unless bs_request == superseding.last}") do
+        = link_to('Show diff', request_show_path(number: bs_request.superseded_by, diff_to_superseded: bs_request.number))
+- if superseded_by.present?
+  .alert.alert-secondary{ role: 'alert' }
+    %i.fa.fa-info-circle.text-info
+    This request is superseded by
+    = link_to("request #{superseded_by}", request_show_path(number: superseded_by))
+    = surround('(', ')') do
+      = link_to('Show diff', request_show_path(number: superseded_by, diff_to_superseded: number))
+- if diff_to_superseded
+  .alert.alert-secondary{ role: 'alert' }
+    %i.fa.fa-info-circle.text-info
+    You're not reviewing the full diff of
+    = link_to("request #{number}", request_show_path(number: number))
+    , but the diff to the superseded
+    = link_to("request #{diff_to_superseded.number}", request_show_path(number: diff_to_superseded))
+    = surround('(', ')') do
+      = link_to('Show full diff', request_show_path(number: number))

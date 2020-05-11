@@ -1,0 +1,16 @@
+- actual_group = staging_workflow.managers_group ? staging_workflow.managers_group.title : 'None assigned'
+.modal.fade#staging-managers-group-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'staging-managers-group-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(staging_workflow_path(staging_workflow), method: :put) do
+        .modal-header
+          %h5.modal-title#staging-managers-group-modal-label Assign other group
+        .modal-body
+          .mb-4
+            Assigned group is:
+            %strong= actual_group
+
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'managers_title', label: 'Replace the group with:',
+                                                                   data: { source: autocomplete_groups_path } }
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

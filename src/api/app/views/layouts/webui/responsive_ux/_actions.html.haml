@@ -1,0 +1,9 @@
+.navbar-collapse.actions-collapse.navbar-dark
+  .navbar-nav
+    .nav.justify-content-end.py-2
+      %button.navbar-toggler{ 'type': 'button', 'data-toggle': 'actions', aria: { expanded: 'false', label: 'Toggle actions' } }
+        %i.fas.fa-times
+  .h5.pt-2
+    Actions on this page
+  %ul.navbar-nav.ml-auto.pt-0.text-nowrap.menu-options
+    = yield :actions

@@ -1,0 +1,32 @@
+.modal.fade#new-package-branch-modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'new-package-branch-modal-label', hidden: true } }
+  .modal-dialog.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#new-package-branch-modal-label
+          Add New Package Branch to #{project.name}
+      .modal-body.ui-front
+        %p
+          By branching a package from another project you add the package and its files
+          to your project in a transparent way. Changes of the files in the original
+          project will also change the files in the branched package in your project.
+        %p
+          You can add patches to the branched package without affecting the original
+          package.
+        - unless remote_projects.empty?
+          %p
+            Branches also work across interconnected OBS instances. This OBS has
+            #{pluralize(remote_projects.count, 'interconnect.', plural: 'interconnects.')}
+          %ul.list-inline
+            - @remote_projects.each do |_id, name, title|
+              %li.list-inline-item
+                = link_to("#{name}: #{title}", project_show_path(project: name))
+        = form_tag(package_branch_path) do
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
+                                                                   data: { source: autocomplete_projects_path } }
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name',
+                                                                   data: { source: autocomplete_packages_path } }
+          = hidden_field_tag 'target_project', project
+          = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: false, target_project: project,
+                                                                          package: nil, revision: nil }
+          .modal-footer
+            = render partial: 'webui/shared/dialog_action_buttons'

@@ -1,0 +1,232 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use XML::Structured ':bytes';
+use Data::Dumper;
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSConfiguration;
+use BSUtil;
+use BSStdRunner;
+use BSRunner;
+use BSXML;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+my $jobdir = "$BSConfig::bsdir/cloudupload";
+my $eventdir = "$BSConfig::bsdir/events";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $maxchild = 4;
+$maxchild = $BSConfig::clouduploadworker_maxchild if defined $BSConfig::clouduploadworker_maxchild;
+
+my $myeventdir = "$eventdir/clouduploadworker";
+my $jobdonedir = "$jobdir/done";
+
+sub lsjobs {
+  return sort {$a <=> $b} grep {/^\d+$/} ls($jobdir);
+}
+
+sub reap {
+  my ($chld, $chld_user) = @_;
+  my $pid;
+  while (($pid = waitpid(-1, POSIX::WNOHANG)) > 0) {
+    my $user = delete $chld->{$pid};
+    delete $chld_user->{$user}->{$pid} if $chld_user->{$user};
+  }
+}
+
+sub archivejob {
+  my ($jobid, $job) = @_; 
+  mkdir_p($jobdonedir);
+  rename("$jobdir/$jobid.log", "$jobdonedir/$jobid.log");
+  writexml("$jobdonedir/.$jobid$$", "$jobdonedir/$jobid", $job, $BSXML::clouduploadjob);
+  unlink("$jobdir/$jobid.log");
+  unlink("$jobdir/$jobid.data");
+  unlink("$jobdir/$jobid.file");
+  unlink("$jobdir/$jobid.result");
+  BSUtil::cleandir("$jobdir/$jobid.dir");
+  rmdir("$jobdir/$jobid.dir");
+  unlink("$jobdir/$jobid");
+}
+
+sub startupload {
+  my ($job, $logfp) = @_;
+  my $jobid = $job->{'name'};
+  my $pid;
+  BSUtil::printlog("uploading job $job->{'name'} [$job->{'user'}, $job->{'target'}]\n");
+  if (!($pid = xfork())) {
+    if (-e "$jobdir/$jobid.dir") {
+      BSUtil::cleandir("$jobdir/$jobid.dir");
+      rmdir("$jobdir/$jobid.dir");
+      rename("$jobdir/$jobid.dir", "$jobdir/$jobid.dir.gone$$") if -e "$jobdir/$jobid.dir";
+    }
+    mkdir_p("$jobdir/$jobid.dir");
+    chdir("$jobdir/$jobid.dir") || die("chdir $jobdir/$jobid.dir: $!\n");
+    my @args = ($job->{'user'}, $job->{'target'}, "$jobdir/$jobid.file", "$jobdir/$jobid.data", $job->{'filename'}, "$jobdir/$jobid.result");
+    print "calling clouduploader @args\n";
+    open(STDIN, '<', '/dev/null') || die("/dev/null: $!\n");
+    open(STDOUT, '>&', $logfp);
+    open(STDERR, '>&STDOUT');
+    close($logfp);
+    exec("clouduploader", @args);
+    die("clouduploader: $!\n");
+  }
+  my $ex = 1;	# assume fail
+  while (1) {
+    if (waitpid($pid, 0)) {
+      $ex = $?;
+      last;
+    }
+    last if $! != POSIX::EINTR;
+  }
+  local *JOBLOCK;
+  $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob, 1);
+  if ($job) {
+    if ($job->{'state'} eq 'uploading') {
+      my $result = readstr("$jobdir/$jobid.result", 1);
+      if ($ex) {
+	$job->{'state'} = 'failed';
+        $result ||= "exit status ".($ex >> 8);
+      } else {
+	$job->{'state'} = 'succeeded';
+      }
+      delete $job->{'details'};
+      $job->{'details'} = $result if defined $result;
+      delete $job->{'pid'};
+      archivejob($jobid, $job);
+    }
+    close JOBLOCK;
+  }
+}
+
+sub checkjob {
+  my ($jobid, $job) = @_;
+  die("wrong job name $job->{'name'}\n") if $job->{'name'} ne $jobid;
+  die("no target\n") unless $job->{'target'};
+  die("no user\n") unless $job->{'user'};
+  die("no target data\n") unless -e "$jobdir/$jobid.data";
+}
+
+sub run {
+  my ($conf) = @_;
+
+  my $ping = $conf->{'ping'};
+  my $maxchild = $conf->{'maxchild'};
+  my $maxchild_user = $conf->{'maxchild_user'};
+  my %chld;
+  my %chld_user;
+  my $pid;
+  while(1) {
+    BSUtil::drainping($ping);
+    reap(\%chld, \%chld_user) if %chld;
+
+    my @jobs = lsjobs();
+
+    my $now = time();
+    my $havedelayed;
+    for my $jobid (@jobs) {
+      last if keys(%chld) >= $maxchild;
+      my $job = readxml("$jobdir/$jobid", $BSXML::clouduploadjob, 1);
+      next unless $job;
+      if ($job->{'due'} && $job->{'due'} > $now) {
+	$havedelayed = 1;
+	next;
+      }
+      if ($job->{'state'} ne 'scheduled' && $job->{'state'} ne 'waiting') {
+	next;
+      }
+      my $user = $job->{'user'};
+      if ($maxchild_user) {
+        if (keys(%{$chld_user{$user} || {}}) >= $maxchild_user) {
+	  $havedelayed = 1;
+	  next;
+	}
+      }
+      
+      # create a new job
+      local *JOBLOCK;
+      $job = BSUtil::lockopenxml(\*JOBLOCK, '<', "$jobdir/$jobid", $BSXML::clouduploadjob, 1);
+      next unless $job;
+      if ($job->{'state'} ne 'scheduled' && $job->{'state'} ne 'waiting') {
+	close JOBBLOCK;
+	next;
+      }
+
+      # make sure job is sane
+      eval { checkjob($jobid, $job) };
+      if ($@) {
+        warn("bad job: $jobid $@\n");
+	close JOBBLOCK;
+	next;
+      }
+
+      # open and lock the log file
+      local *LOGLOCK;
+      my $haveloglock;
+      if (open(LOGLOCK, '>>', "$jobdir/$jobid.log")) {
+	$haveloglock = 1 if flock(LOGLOCK, LOCK_EX | LOCK_NB);
+	close(LOGLOCK) unless $haveloglock;
+      }
+      if (!$haveloglock) {
+	# could not get lock, start a new file
+        unlink("$jobdir/.$jobid.log.$$");
+        BSUtil::lockopen(\*LOGLOCK, '>>', "$jobdir/.$jobid.log.$$");
+        rename("$jobdir/.$jobid.log.$$", "$jobdir/$jobid.log") || die("rename $jobdir/.$jobid.log.$$ $jobdir/$jobid.log: $!\n");
+      }
+
+      if (!($pid = xfork())) {
+	POSIX::setsid() > 0 || die("setsid: $!\n");	# creates new session and process group
+        close JOBLOCK;
+        close($conf->{'runlock'});
+	startupload($job, \*LOGLOCK);
+	BSUtil::ping($ping);	# trigger process reap
+	exit(0);
+      }
+
+      close LOGLOCK;
+      $job->{'pid'} = $pid;
+      $job->{'state'} = 'uploading';
+      writexml("$jobdir/.$jobid$$", "$jobdir/$jobid", $job, $BSXML::clouduploadjob);
+      close JOBLOCK;
+      $chld{$pid} = $user;
+      $chld_user{$user}->{$pid} = undef;
+    }
+    reap(\%chld, \%chld_user) if %chld;
+    
+    for my $fc (sort %{$conf->{'filechecks'} || {}}) {
+      next unless -e $fc;
+      $conf->{'filechecks'}->{$fc}->($conf, $fc);
+    }
+
+    if ($havedelayed) {
+      BSUtil::waitping($ping, 10);
+    } else {
+      if ($conf->{'testmode'} && !%chld) {
+        print "test mode, all jobs processed, exiting...\n";
+        last;
+      }
+      print "waiting for an event...\n";
+      BSUtil::waitping($ping);
+    }
+  }
+}
+
+my $conf = {
+  'eventdir' => $myeventdir,
+  'dispatches' => [],
+  'maxchild' => $maxchild,
+  'maxchild_user' => 2,
+  'run' => \&run,
+};
+
+BSStdRunner::run('bs_clouduploadworker', \@ARGV, $conf);

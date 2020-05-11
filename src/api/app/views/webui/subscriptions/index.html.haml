@@ -1,0 +1,17 @@
+:ruby
+  @pagetitle = 'Notifications'
+
+.card.mb-3
+  = render partial: 'webui/configuration/tabs'
+  .card-body
+    %h3.card-title
+      Events
+    .card-text#notifications
+      %p Configure global default for notification settings and corresponding channels for selected events.
+      = render partial: 'subscriptions_form', locals: { path: notifications_path, subscriptions_form: @subscriptions_form }
+
+- content_for :ready_function do
+  :plain
+    $('#notifications').on('ajax:before ajax:complete', '.custom-control-input', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('fa-spin invisible');
+    });

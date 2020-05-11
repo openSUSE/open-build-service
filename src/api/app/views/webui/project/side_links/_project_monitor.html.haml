@@ -1,0 +1,4 @@
+%li
+  %i.fa.fa-exclamation-circle.text-danger
+  = link_to(project_monitor_path(project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0)) do
+    = pluralize(nr_of_problem_packages, 'build error')

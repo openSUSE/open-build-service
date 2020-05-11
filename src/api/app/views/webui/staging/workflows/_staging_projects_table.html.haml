@@ -1,0 +1,35 @@
+%table.table.table-bordered.table-hover.table-sm.dt-responsive.w-100#staging-projects-datatable
+  %thead
+    %tr.text-center
+      %th Staging Project
+      %th Requests
+      %th Problems
+  %tbody
+    - staging_projects.each do |staging_project|
+      %tr
+        %td.project
+          = render partial: 'overall_state', locals: { staging_workflow: staging_workflow, staging_project: staging_project }
+        %td.requests
+          .request-elements
+            = render partial: 'webui/staging/shared/packages_list', locals: { staging_project: staging_project,
+                                                                              users_hash: users_hash, groups_hash: groups_hash }
+        %td
+          .problem-elements
+            = render partial: 'problems', locals: { staging_project: staging_project }
+
+- content_for :ready_function do
+  :plain
+    $('#staging-projects-datatable').DataTable({
+      responsive: true,
+      paging: false,
+      ordering: false,
+      searching: false,
+      info: false,
+      stateSave: true,
+      stateDuration: #{2.days},
+      columnDefs: [
+        { width: null, targets: 0 },
+        { width: '75%', targets: 1 },
+        { width: '25%', targets: 2 },
+      ]
+    });

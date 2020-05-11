@@ -1,0 +1,14 @@
+a {
+  &:hover {
+    i.fa, i.fas, i.fal {
+      filter: brightness(0.7);
+    }
+  }
+}
+
+a.btn {
+  &.btn-outline-danger { @extend .btn-outline-danger; }
+  &.btn-outline-warning { @extend .btn-outline-warning; }
+  &.btn-outline-primary { @extend .btn-outline-primary; }
+  &.btn-outline-secondary { @extend .btn-outline-secondary; }
+}

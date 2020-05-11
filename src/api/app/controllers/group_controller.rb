@@ -1,88 +1,85 @@
-
 class GroupController < ApplicationController
+  include ValidationHelper
 
-  validate_action :groupinfo => {:method => :get, :response => :group}
-  validate_action :groupinfo => {:method => :put, :request => :group, :response => :status}
-  validate_action :groupinfo => {:method => :delete, :response => :status}
+  validate_action groupinfo: { method: :get, response: :group }
+  validate_action groupinfo: { method: :put, request: :group, response: :status }
+  validate_action groupinfo: { method: :delete, response: :status }
+
+  # raise an exception if authorize has not yet been called.
+  after_action :verify_authorized, except: [:index, :show]
+
+  rescue_from Pundit::NotAuthorizedError do |exception|
+    pundit_action = case exception.query.to_s
+                    when 'index?' then 'list'
+                    when 'show?' then 'view'
+                    when 'create?' then 'create'
+                    when 'new?' then 'create'
+                    when 'update?' then 'update'
+                    when 'destroy?' then 'delete'
+                    else exception.query
+    end
+
+    render_error status: 403, errorcode: "No permission to #{pundit_action} group"
+  end
 
   def index
-    valid_http_methods :get
-
     if params[:login]
       user = User.find_by_login!(params[:login])
-      list = user.groups
+      @list = user.groups
     else
-      list = Group.all
+      @list = Group.all
     end
-    if params[:prefix]
-      list = list.find_all {|group| group.title.match(/^#{params[:prefix]}/)}
-    end
-
-    builder = Builder::XmlMarkup.new(:indent => 2)
-    xml = builder.directory(:count => list.length) do |dir|
-      list.each {|group| dir.entry(:name => group.title)}
-    end
-    render :text => xml, :content_type => "text/xml"
+    @list = @list.where('title LIKE ?', "#{params[:prefix]}%") if params[:prefix].present?
   end
 
-  # generic function to handle all group related tasks
-  # GET for showing the group
   # DELETE for removing it
-  # PUT for rewriting it completely including defined user list.
-  # POST for editing it, adding or remove users
-  def group
-    valid_http_methods :get, :put, :delete, :post
-    required_parameters :title
-
-    if !@http_user
-      logger.debug "No user logged in, permission to groupinfo denied"
-      render_error :status => 401, :errorcode => "unknown_user"
-      return
-    end
-
-    unless request.get? or @http_user.is_admin?
-      render_error :status => 403, :errorcode => "group_modification_not_permitted", :message => "Requires admin privileges" 
-      return
-    end
-
-    if request.delete?
-      group = Group.get_by_title(URI.unescape(params[:title]))
-      group.destroy
-      render_ok
-      return
-
-    elsif request.put?
-
-      group = Group.find_by_title(params[:title])
-      if group.nil?
-        group = Group.create(:title => params[:title])
-      end
-      group.update_from_xml(Xmlhash.parse(request.body.read))
-      group.save!
-
-      render_ok
-      return
-    elsif request.post?
-      group = Group.get_by_title(URI.unescape(params[:title]))
-
-      if params[:cmd] == "add_user"
-        user = User.find_by_login!(params[:userid])
-        group.add_user user
-      elsif params[:cmd] == "remove_user"
-        user = User.find_by_login!(params[:userid])
-        group.remove_user user
-      else
-        render_error :status => 400, :errorcode => "unknown_command", :message => "cmd must be set to add_user or remove_user" 
-        return
-      end
-
-      render_ok
-      return
-    end
-
-    # GET ...
-    group = Group.get_by_title(URI.unescape(params[:title]))
-    render :text => group.render_axml, :content_type => 'text/xml'
+  def delete
+    group = Group.find_by_title!(params[:title])
+    authorize group, :destroy?
+    group.destroy
+    render_ok
   end
 
+  # GET for showing the group
+  def show
+    @group = Group.find_by_title!(params[:title])
+  end
+
+  # PUT for rewriting it completely including defined user list.
+  def update
+    group = Group.find_by_title(params[:title])
+    if group.nil?
+      authorize Group, :create?
+      group = Group.create(title: params[:title])
+    end
+    authorize group, :update?
+
+    xmlhash = Xmlhash.parse(request.raw_post)
+    raise InvalidParameterError, 'group name from path and xml mismatch' unless group.title == xmlhash.value('title')
+
+    group.update_from_xml(xmlhash)
+    group.save!
+
+    render_ok
+  end
+
+  # POST for editing it, adding or remove users
+  def command
+    group = Group.find_by_title!(URI.unescape(params[:title]))
+    authorize group, :update?
+
+    user = User.find_by_login!(params[:userid]) if params[:userid]
+
+    if params[:cmd] == 'add_user'
+      group.add_user(user)
+    elsif params[:cmd] == 'remove_user'
+      group.remove_user(user)
+    elsif params[:cmd] == 'set_email'
+      group.set_email(params[:email])
+    else
+      raise UnknownCommandError, 'cmd must be set to add_user or remove_user'
+    end
+
+    render_ok
+  end
 end

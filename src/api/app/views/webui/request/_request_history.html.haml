@@ -1,0 +1,13 @@
+.media
+  - user = User.find_by_login(bs_request.creator)
+  = image_tag_for(user, size: 38, custom_class: 'mr-3')
+  .media-body
+    %p
+      = link_to(user, user_path(user))
+      created request
+      = link_to('#request-creation', title: l(bs_request.created_at.utc), name: 'request-creation') do
+        #{time_ago_in_words(bs_request.created_at)} ago
+
+    = render partial: 'webui/shared/collapsible_text', locals: { text: bs_request.description }
+
+= render partial: 'request_history_element', collection: history, as: :element

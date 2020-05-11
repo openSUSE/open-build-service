@@ -1,0 +1,16 @@
+#comments {
+  .media .media-body {
+    @extend .text-break;
+
+    p:not(:first-child) {
+      max-width: $seventy-five-chars;
+    }
+
+    pre {
+      @extend .p-2;
+      @extend .bg-light;
+      @extend .text-pre-wrap;
+    }
+    code { line-height: 1.5rem; }
+  }
+}

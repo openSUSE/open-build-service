@@ -1,0 +1,25 @@
+- @pagetitle = 'Choose your Cloud'
+.card
+  .card-body
+    %h2 Choose your Cloud
+    .cloud-buttons.d-flex.flex-wrap.justify-content-center.mt-3
+      .p-2.text-center
+        - if @user_ec2_configured
+          = link_to('Amazon EC2', new_cloud_ec2_upload_path(project: params[:project],
+                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                    class: 'btn btn-lg btn-outline-secondary', title: 'Upload to Amazon EC2')
+        - else
+          %button.btn.btn-lg.btn-outline-secondary{ type: 'button', disabled: true } Amazon EC2
+          %p.small.text-danger
+            Configure your credentials
+            = link_to('here', cloud_ec2_configuration_path, title: 'Configure the credentials for your Amazon EC2')
+      .p-2.text-center
+        - if @user_azure_configured
+          = link_to('Microsoft Azure', new_cloud_azure_upload_path(project: params[:project],
+                    package: @package, repository: params[:repository], arch: params[:arch], filename: params[:filename]),
+                    class: 'btn btn-lg btn-outline-secondary', title: 'Upload to Microsoft Azure')
+        - else
+          %button.btn.btn-lg.btn-outline-secondary{ type: 'button', disabled: true } Microsoft Azure
+          %p.small.text-danger
+            Configure your credentials
+            = link_to('here', cloud_azure_configuration_path, title: 'Configure the credentials for your Microsoft Azure')

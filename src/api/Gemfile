@@ -1,35 +1,211 @@
 # Edit this Gemfile to bundle your application's dependencies.
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
-source 'http://rubygems.org'
+source 'https://rubygems.org'
 
-# do not use rails but only a subset for API, we don't render any kind of HTML
-gem 'rails-api'
-gem 'activerecord', '~>3.2.9'
-gem 'actionmailer'
+gem 'rails', '~> 6.0'
 
+# as our database
 gem 'mysql2'
-gem 'daemons'
-gem 'nokogiri', '~>1.5.0'
-gem 'delayed_job', '>3.0'
-gem 'delayed_job_active_record'
-gem 'hoptoad_notifier', "~> 2.3"
-gem 'yajl-ruby'
-gem 'rdoc'
-gem 'xmlhash', '>=1.3.5'
-gem 'fast_xs'
-gem 'memcache-client', :require => false
-gem 'rake', '~>0.9.2'
+# for XML handling
+gem 'nokogiri'
+# for delayed tasks
+gem 'delayed_job_active_record', '>= 4.0.0'
+# to fill errbit
+gem 'airbrake'
+gem 'airbrake-ruby'
+# as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
+gem 'yajl-ruby', require: 'yajl/json_gem'
+# to search the database
+gem 'thinking-sphinx', '> 3.1'
+# to paginate search results
+gem 'kaminari'
+# for abstract HTML
+gem 'haml'
+# streamline HAML's integration in Rails
+gem 'haml-rails'
+# to avoid tilt downgrade
+gem 'tilt', '>= 1.4.1'
+# to use markdown in the comment system
+gem 'redcarpet'
+# for nested attribute forms
+gem 'cocoon'
+# for activerecord lists. Used for AttribValues
+gem 'acts_as_list'
+# to parse a XML string into a ruby hash
+gem 'xmlhash', '>=1.3.6'
+# to escape HTML (FIXME: do we still use this?)
+gem 'escape_utils'
+# to sanitize HTML/CSS
+gem 'sanitize'
+# as authorization system
+gem 'pundit'
+# for password hashing
+gem 'bcrypt'
+# for threaded comments
+gem 'acts_as_tree'
+# js plotting (OBS monitor)
+gem 'flot-rails'
+# colorize for scripts
+gem 'colorize', require: false
+# XML Serialization got moved here
+gem 'activemodel-serializers-xml'
+# Spider Identification
+gem 'voight_kampff'
+# support coffeescript
+gem 'coffee-rails'
+# bind keyboard shortcuts to actions
+gem 'mousetrap-rails'
+# for issue tracker communication
+gem 'xmlrpc'
+# Multiple feature switch
+gem 'flipper'
+gem 'flipper-active_record'
+# for profiling
+gem 'peek'
+gem 'peek-dalli'
+gem 'peek-host'
+gem 'peek-mysql2'
+# for kerberos authentication
+gem 'gssapi', require: false
+# for sending events to rabbitmq
+gem 'bunny'
+# for making changes to existing data
+gem 'data_migrate'
+# for URI encoding
+gem 'addressable'
+# for XML builder
+gem 'builder'
+# to write the rails metrics directly into InfluxDB.
+gem 'influxdb-rails', '1.0.0'
+# for copying objects with their relations
+gem 'deep_cloneable', '~> 3.0.0'
+# Server-side datatables
+gem 'ajax-datatables-rails'
+# Add syntax highlight in ruby
+gem 'coderay'
+# required by rails
+gem 'bigdecimal'
+# Catch unsafe migrations in development
+gem 'strong_migrations'
 
-group :test do
-  gem 'database_cleaner'
-  gem 'ci_reporter'
-  gem 'simplecov-rcov', :require => false
-  gem 'minitest'
-  gem 'faker'
-  gem 'timecop'
-  gem 'webmock', '>= 1.9.0'
+group :development, :production do
+  # to have the delayed job daemon
+  gem 'daemons'
+  # as memcache client
+  gem 'dalli'
+  # to document ruby code
+  gem 'rdoc'
+  # to not rely on cron+rake
+  gem 'clockwork', '>= 0.7'
+  # as interface to LDAP
+  gem 'ruby-ldap', require: false
+  # to have better logs
+  gem 'lograge'
 end
 
-group :development do
-  gem 'pry', '>= 0.9.8.4'
+group :production do
+  # if you have an account, it can be configured by
+  # placing a config/newrelic.yml
+  # be aware about the non-OSS license
+  #  gem 'newrelic_rpm'
+end
+
+# Gems used only for testing the application and not required in production environments by default.
+group :test do
+  # as testing frameworks
+  gem 'minitest'
+  gem 'test-unit'
+  # to ensure a clean state for testing
+  gem 'database_cleaner', '>= 1.0.1'
+  # for test coverage reports
+  gem 'codecov', require: false
+  gem 'simplecov', require: false
+  # for failing fast
+  gem 'minitest-fail-fast'
+  # for spec like reporting
+  gem 'minitest-reporters'
+  # for integration testing
+  gem 'capybara'
+  # for rspec like matchers
+  gem 'capybara_minitest_spec'
+  # to freeze time
+  gem 'timecop'
+  # to fake backend replies
+  gem 'webmock', '>= 2.3.0'
+  # for mocking and stubbing
+  gem 'mocha', '> 0.13.0', require: false
+  # for testing common Rails functionality with simple one-liners
+  gem 'shoulda-matchers', '~> 4.0'
+  # assigns has been extracted to a gem
+  gem 'rails-controller-testing'
+  # To generate random data
+  gem 'rantly'
+  # for test analysis in CircleCI
+  gem 'coveralls'
+  gem 'minitest-ci'
+  gem 'rspec_junit_formatter'
+  # to test rabbitmq support
+  gem 'bunny-mock'
+end
+
+group :development, :test do
+  gem 'rspec'
+  # as testing framework
+  gem 'rspec-rails'
+  # for fixtures
+  gem 'factory_bot_rails'
+  # for mocking the backend
+  gem 'vcr'
+  # as alternative to the standard IRB shell
+  gem 'pry', '>= 0.9.12'
+  # add step-by-step debugging and stack navigation capabilities to pry
+  gem 'pry-byebug'
+  # for style checks
+  gem 'rubocop', require: false
+  # for rails style checks
+  gem 'rubocop-rails', require: false
+  # for rspec style checks
+  gem 'rubocop-rspec', require: false
+  # for performance checks
+  gem 'rubocop-performance'
+  # integrates with RuboCop to analyse HAML files
+  gem 'haml_lint'
+  # to generate random long strings
+  gem 'faker'
+  # to launch browser in test
+  gem 'launchy'
+  # for calling single testd
+  gem 'single_test'
+  # to find n+1 queries
+  gem 'bullet'
+  # Use Puma as the app server
+  gem 'puma'
+  # to drive headless chrome
+  gem 'selenium-webdriver'
+  # scan for security vulnerability (circleci only, do not touch)
+  # BRAKEMAN
+end
+
+# Gems used only for assets and not required in production environments by default.
+group :assets do
+  # for minifying CSS
+  gem 'cssmin', '>= 1.0.2'
+  # for minifying JavaScript
+  gem 'uglifier', '>= 1.2.2'
+  # to use sass in the asset pipeline
+  gem 'sassc-rails'
+  # assets for jQuery DataTables
+  gem 'jquery-datatables'
+  # to create our sprite images/stylesheets
+  gem 'sprite-factory', '>= 1.5.2'
+  # to read and write PNG images
+  gem 'chunky_png'
+  # assets for jQuery and jQuery-ujs
+  gem 'jquery-rails'
+  # assets for jQuery-ui
+  gem 'jquery-ui-rails', '~> 4.2.1'
+  # assets for the bootstrap front-end framework
+  gem 'bootstrap'
+  # assets for font-awesome vector icons
+  gem 'font-awesome-sass'
 end

@@ -1,0 +1,63 @@
+domain_name: obs-server-tumbleweed
+default_job: tumbleweed
+
+jobs:
+ tumbleweed:
+  -
+    use_module: Kanku::Handler::SetJobContext
+    options:
+      login_user: root
+      login_pass: kankudai
+  -
+    use_module: Kanku::Handler::OBSCheck
+    options:
+      api_url: https://api.opensuse.org/public/
+      project: devel:kanku:images
+      package: openSUSE-Tumbleweed-JeOS:ext4
+      repository: images_tumbleweed
+      preferred_extension: qcow2
+  -
+    use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::CreateDomain
+    options:
+      memory: 4G
+      vcpu: 2
+      use_9p: 1
+      management_interface: eth0
+  -
+    use_module: Kanku::Handler::PrepareSSH
+  -
+    use_module: Kanku::Handler::WaitForSystemd
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaSSH
+    options:
+      commands:
+        - zypper ar https://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_Factory/OBS:Server:Unstable.repo
+        - zypper -n --gpg-auto-import-keys ref -s
+        - zypper -n install perl ruby2.5-rubygem-bundler zlib-devel ruby-devel ruby2.5-devel rsync bsdtar less git patch openldap2-devel libxml2-devel libmysqld-devel gcc make gcc-c++ libxslt-devel cyrus-sasl-devel nodejs-common obs-api-deps
+        - rsync -av /tmp/kanku/ /root/open-build-service
+        - zypper -n install obs-server obs-api obs-worker obs-signd obs-service-tar_scm obs-service-obs_scm obs-service-set_version obs-service-tar
+        - perl -p -i -e 's/^OBS_API_AUTOSETUP=.*/OBS_API_AUTOSETUP="yes"/' /etc/sysconfig/obs-server || exit 1
+        - perl -p -i -e 's/^OBS_STORAGE_AUTOSETUP=.*/OBS_STORAGE_AUTOSETUP="yes"/' /etc/sysconfig/obs-server || exit 1
+        - perl -p -i -e 's/OBS_USE_SLP="yes"/OBS_USE_SLP="no"/' /etc/sysconfig/obs-server
+        - perl -p -i -e "s/^\s*OBS_WORKER_INSTANCES=.*/OBS_WORKER_INSTANCES=1/" /etc/sysconfig/obs-server
+        - systemctl start obsstoragesetup || exit 1
+        - systemctl start obsrepserver
+        - /usr/lib/obs/server/setup-appliance.sh --non-interactive > /tmp/setup-appliance.log 2>&1
+        - for i in worker dispatcher deltastore repserver service servicedispatch srcserver signer signd;do systemctl restart obs$i ;done
+        - zypper -n in perl-Devel-Cover osc perl-Test-Most
+        - echo -en "[client]\nuser = root\npassword = opensuse\n" > /root/.my.cnf
+  -
+    use_module: Kanku::Handler::Reboot
+  -
+    use_module: Kanku::Handler::WaitForSystemd
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaSSH
+    options:
+      username: root
+      commands:
+        - cp -av /tmp/kanku/ .
+        - make -C /root/kanku/dist test_system
+        - PERL5LIB=/usr/lib/build/ make -C /root/kanku/src/backend test_unit
+        - make -C /root/kanku/dist/t/osc test_system

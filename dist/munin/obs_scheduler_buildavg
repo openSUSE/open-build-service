@@ -1,0 +1,22 @@
+#!/bin/sh
+
+sched=`grep arch /srv/obs/configuration.xml |sed -e 's/<[^>]*>//g'`
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Scheduler: Average Build Time
+graph_vlabel Build time (seconds)
+graph_category obs
+EOM
+for i in $sched; do
+ echo "sched_"$i"_buildavg.label" "sched_"$i"_buildavg"
+ echo "sched_"$i"_buildavg.type GAUGE" 
+done
+       exit 0;;
+esac
+
+for i in $sched; do
+ val=`grep 'buildavg' /srv/obs/info/schedulerinfo.$i | sed 's/[^0-9.]*//g'`
+ echo "sched_"$i"_buildavg.value $val"
+done

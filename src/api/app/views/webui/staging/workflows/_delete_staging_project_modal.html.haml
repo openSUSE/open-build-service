@@ -1,0 +1,17 @@
+.modal.fade{ id: "confirm-modal-#{staging_project.id}", tabindex: -1, role: 'dialog',
+             aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(staging_workflow_staging_project_path(workflow_project: staging_workflow.project,
+                                                       project_name: staging_project), method: :delete) do
+        .modal-header
+          %h5.modal-title Delete Staging Projects?
+        .modal-body
+          %p
+            Please confirm that you want to delete
+            %strong= staging_project
+
+        .modal-footer
+          %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            Cancel
+          = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')

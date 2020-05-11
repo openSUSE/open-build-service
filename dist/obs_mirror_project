@@ -1,137 +1,290 @@
 #!/usr/bin/ruby
 
-# This script mirrors a base distribution from the opensuse.org 
-# Build Service. You can use it to create initial base projects
-# in your build service to build for.
+# This script mirrors a base distribution from the opensuse.org Build Service.
+# You can use it to create initial base projects in your build service to build for.
 #
-# This script does mirror only build packages, not the sources. 
-# Yes, it is just a fast hack for now, please submit cleanups :)
+# This script does mirror only build packages, not the sources.
 #
-# Missing: * switch off building of mirror projects
-#            (baserepos are disabled anyway by default)
-#          * mirroring of package meta data, needed to build packages
-#          * use mirrors by default for downloading
 
-if ARGV.length < 3 || ARGV.length > 5
-  puts "\
-Call this script with <project> <repository> <architecture> [-v] arguments.
-To mirror openSUSE 10.2 as base distro, please call:
+require 'optparse'
 
-  obs_mirror_project openSUSE:10.2 standard i586
+# This hash will hold all of the options
+# parsed from the command-line by OptionParser.
+options = {}
 
+optparse = OptionParser.new do |opts|
+  # Set a banner, displayed at the top of the help screen.
+  opts.banner = "-------------------------------------------------------------------------------------------
+Usage: obs_mirror_project.rb -p PROJECT -r REPOSITORY
+                            [-a ARCHITECTURE] [-d DESTINATION] [-A APIURL] [-t] [-v]
+
+Example: (mirror openSUSE 13.1 as base distro)
+obs_mirror_project -p openSUSE:13.1 -r standard -a i586,x86_64
+-------------------------------------------------------------------------------------------
+Options help:
 "
+
+  # Define the options, and what they do
+  options[:proj] = ""
+  opts.on('-p', '--proj PROJECT',
+          "Project Name:      eg. openSUSE:13.1,Ubuntu:14.04,etc.") do |f|
+    options[:proj] = f
+  end
+
+  options[:repo] = ""
+  opts.on('-r', '--repo REPOSITORY',
+          "Repository Name:   eg. standard,qemu,etc.") do |f|
+    options[:repo] = f
+  end
+
+  options[:arch] = ""
+  opts.on('-a', '--arch Architecture',
+          "Architecture Name: eg. i586,x86_64,etc.") do |f|
+    options[:arch] = f
+  end
+
+  options[:dest] = ""
+  opts.on('-d', '--dest DESTINATION',
+          "Destination Path:  eg. /obs          Default: PWD (current working directory)") do |f|
+    options[:dest] = f
+  end
+
+  options[:apiurl] = ""
+  opts.on('-A', '--api APIURL',
+          "OSC API URL:                         Default: https://api.opensuse.org") do |f|
+    options[:apiurl] = f
+  end
+
+  options[:trialrun] = false
+  opts.on('-t', '--trialrun', "Trial run: not executing actions") do
+    options[:trialrun] = true
+  end
+
+  options[:verbose] = false
+  opts.on('-v', '--verbose', "Verbose") do
+    options[:verbose] = true
+  end
+
+  # This displays the help screen, all programs are
+  # assumed to have this option.
+  opts.on('-h', '--help', 'Display this screen') do
+    puts opts
+    exit
+  end
+end
+
+# Parse the command-line. Remember there are two forms of the parse method:
+# 1. 'parse' method simply parses ARGV,
+# 2.  'parse!' method parses ARGV and removes any options found there,
+#     as well as any parameters for the options.
+#     What's left is the list of files to resize.
+optparse.parse!
+proj = options[:proj]
+repo = options[:repo]
+arch = options[:arch]
+dest = !options[:dest].empty? ? options[:dest] : Dir.pwd
+apiurl = !options[:apiurl].empty? ? options[:apiurl] : "https://api.opensuse.org"
+trialrun = options[:trialrun]
+verbose = options[:verbose]
+
+if verbose
+  puts Options: options
+  puts ARGC: ARGV
+  puts proj: proj
+  puts repo: repo
+  puts arch: arch
+  puts dest: dest
+  puts apiurl: apiurl
+  puts trialrun: trialrun
+  puts verbose: verbose
+end
+
+puts "
+#####################
+# Data Verification #
+#####################"
+# proj and repo are mandatory
+if proj.empty? || repo.empty? || arch.empty?
+  puts "ERROR! Miss mandatory options: '-p' or '-r' or '-a'"
+  puts "Options: #{options}"
+  puts optparse.help
   exit(1)
 end
 
-project=ARGV[0]
-repository=ARGV[1]
-architecture=ARGV[2]
-verbose=false
-verbose=1 if ARGV[3] == "-v"
+# verify apiurl
+if verbose
+  puts "\nVerify API URL '#{apiurl}':
+  osc -A #{apiurl} api -m GET /about > /dev/null"
+end
+if !system("osc -A #{apiurl} api -m GET /about > /dev/null")
+  puts "Verify API URL '#{apiurl}': failed"
+  exit(1)
+else
+  puts "Verify API URL '#{apiurl}': ok"
+end
 
-rootdir="/srv/obs/" # package default
-ownership="obsrun"
+# verify proj
+if verbose
+  puts "\nVerify proj '#{proj}':
+  osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null"
+end
+if !system("osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null")
+  puts "Verify proj '#{proj}': failed"
+  exit(1)
+else
+  puts "Verify proj '#{proj}': ok"
+end
 
-projectdir = rootdir + "/projects/" 
+# verify repo
+if verbose
+  puts "\nVerify repo '#{repo}':
+  osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null"
+end
+if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null")
+  puts "Verify repo '#{repo}': failed"
+  exit(1)
+else
+  puts "Verify repo '#{repo}': ok"
+end
 
-destinationdir = rootdir + "build/" + project + "/" + repository + "/" + architecture + "/:full/"
-puts "Destination dir: #{destinationdir}\n" if verbose
-downloadurl = "http://download.opensuse.org/repositories/" + project + "/" + repository
-puts "Download URL: #{downloadurl}\n" if verbose
+# verify arch
+if verbose
+  puts "\nVerify arch '#{arch}':
+  osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null"
+end
+if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null")
+  puts "Verify arch '#{arch}': failed"
+  exit(1)
+else
+  puts "Verify arch '#{arch}': ok"
+end
 
+# method for verify directory
+def directory_verify(path, name, verbose, trialrun)
+  puts "\nVerify #{name} directory '#{path}':" if verbose
+  if !FileTest.directory?("#{path}")
+    puts "Creating #{name} directory: #{path}"
+    system("mkdir -p #{path}") if !trialrun
+  end
+  if FileTest.directory?("#{path}") && FileTest.writable?("#{path}")
+    puts "Verify #{name} directory '#{path}': ok"
+  else
+    puts "Verify #{name} directory '#{path}': failed"
+    exit(1) if !trialrun
+  end
+  return
+end
+
+# verify dest dir
+directory_verify("#{dest}", "dest", verbose, trialrun)
+
+# verify project dir
+directory_verify("#{dest}/projects", "projects", verbose, trialrun)
+
+# verify :full dir
+directory_verify("#{dest}/build/#{proj}/#{repo}/#{arch}/:full", ":full", verbose, trialrun)
+
+puts "
+################
+# Project meta #
+################"
+# retrieve project meta and configuration data
+if verbose
+  puts "\nRetrieve project meta data:
+  osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml"
+end
+if !trialrun
+  system("
+  osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml")
+end
+
+if verbose
+  puts "\nRetrieve project configuration data:
+  osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf"
+end
+if !trialrun
+  system("
+  osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf")
+end
+
+puts "
+####################
+# Project binaries #
+####################"
 require 'rexml/document'
 include REXML
 
-# prepare project
-puts "Creating directories: #{destinationdir} #{projectdir}\n" if verbose
-system("mkdir -p #{destinationdir} #{projectdir}")
+# retrieve full binary lists
+if !trialrun
+  puts "\nRetrieve full binary list:
+osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst"
+  system("
+osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst")
+end
 
-# create meta data
-puts "Creating project meta data: osc meta prj #{project} > #{projectdir}/#{project}.xml\n" if verbose
-system("osc meta prj #{project} > #{projectdir}/#{project}.xml")
-puts "Creating project configuration data: osc meta prjconf #{project} > #{projectdir}/#{project}.conf\n" if verbose
-system("osc meta prjconf #{project} > #{projectdir}/#{project}.conf")
+# open full binary list file
+if File.file?("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst")
+  puts "\nOpen full binary list file:
+File::open(\"#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst\", \"r\")"
+  process = File.open("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst", "r")
+else
+  puts "\nOpen full binary list file:
+File::popen(\"osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names\", \"r\")"
+  process = File.popen("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names", "r")
+end
 
-# download all binary packages
-puts "Downloading: osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository\n" if verbose
+# process full binary list file
+puts ""
+filelist = Document.new(process)
+filelist.elements.each("binarylist/binary") do |binary|
+  fname  = binary.attributes["filename"]
+  fsize  = binary.attributes["size"]
+  fmtime = binary.attributes["mtime"]
+  puts "Process: #{fname} (#{fsize})"
 
-process = File::popen("osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository", "r")
-filelist = Document.new process
-filelist.elements.each("binarylist/binary") { |binary| 
-  fname = binary.attributes["filename"];
+  # skip src, nosrc, debuginfo, and debugsource packages
+  if fname[-7..-1] == "src.rpm" || fname.include?("-debuginfo") || fname.include?("-debugsource")
+    puts "  skip debug: #{fname}"
+    next
+  end
 
-  # skip src and nosrc rpms
-  inform_user_about_hacky_reget=false
-  unless fname[-7..-1] == "src.rpm"
-    # skip debuginfo and debugsource packages
-    if fname.include? "-debuginfo" or fname.include? "-debugsource"
-      puts "Debug package #{fname} - skip."
+  # check for existing files
+  if File.file?("#{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}")
+    puts "  #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname} already exists!"
+
+    tsize = File.size?("#{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}")
+    puts "  size from existing target: #{tsize}" if verbose
+    puts "  size from original source: #{fsize}" if verbose
+
+    if tsize.to_i == fsize.to_i
+      puts "  skip download: size identical"
       next
-    end
-
-    if File.file?("#{destinationdir}/#{fname}")
-
-      puts "package #{destinationdir}/#{fname} already exists."
-      inform_user_about_hacky_reget=true
-
-      next
-
-      # TODO: maybe get server side file size or md5 hash or both into
-      # _repository, then test if file size matches?  Or maybe even
-      # have reget, resuming at file size, then check md5?
-
-      # Checking the integrity of the file, removing it if it's broken
-      # to refetch it from the server like this takes aaages, no fun.
-
-      #if system("rpm --checksig #{destinationdir}/#{fname}")
-      #  next
-      #else
-      #  puts "Removing broken download #{destinationdir}/#{fname}"
-      #  File.unlink("#{destinationdir}/#{fname}")
-      #end
-
-    end
-    if verbose
-      puts "Downloading: osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname}"
     else
-      print "Download " + fname + "\n"
-    end
-    # FIXME: we can not use the mirrors atm, since the full expanded package name is unknown
-    #    unless system("wget -q -N -O #{destinationdir}/#{fname} #{downloadurl}/#{archdir}/#{fname}")
-    # fallback to api download
-    #      print "failed, try via api for #{fname} \n"
-    
-    unless system("osc api -m GET https://api.opensuse.org/build/#{project}/#{repository}/#{architecture}/_repository/#{fname} > #{destinationdir}/#{fname}")
-      print "Unable to download #{fname} from mirror AND api\n"
-      exit(1)
+      puts "  remove: size differnt"
+      puts "  remove: #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}"
+      File.delete("#{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}") if !trialrun
     end
   end
 
-  if inform_user_about_hacky_reget
-    puts "\
+  cmd = "osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository/#{fname} > #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}"
 
-I skipped the download of packages that already exist.  I did not
-check wether those files were correctly or completely downloaded
-before.
-
-When you restart the scheduler it will tell you about broken packages
-in its log file in /srv/obs/log/ .  Simply remove the broken package
-and re-run this script to update the broken file.
-
-The paranoid may run rpm --checksig, like this:
-  rpm --checksig #{destinationdir}/*.rpm
-
-"
+  if verbose
+    puts "  download:
+    #{cmd}"
   end
-}
+  if trialrun
+    puts "  trialrun: skip download"
+    next
+  end
 
-# fix ownership in case this script did run as root
-puts "Changing ownerchip: chown -R #{ownership} #{rootdir}/build #{projectdir}" if verbose
-system("chown -R #{ownership} #{rootdir}/build #{projectdir}")
+  # re-try download 3 times
+  (0..2).each do |i|
+    if system(cmd)
+      puts "  success: download finished" if verbose
+      break
+    end
 
-puts "\
-Mirroring succeeded :)
-Please restart the scheduler to rescan your projects:
-
-  rcobsscheduler restart"
-
+    puts "  retry #{i}: download failure" if verbose
+    puts "  failure: download failure" if i == 2
+  end
+end

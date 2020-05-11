@@ -1,0 +1,74 @@
+// Bootstrap theme for CodeMirror
+.cm-s-bootstrap {
+  &.CodeMirror {
+    font-family: $font-family-monospace, monospace;
+    background: $card-bg;
+    color: $body-color;
+    line-height: 1.2;
+  }
+
+  .cm-header {color: $blue;}
+  .cm-quote {color: $green;}
+
+  .cm-keyword {color: $pink;}
+  .cm-atom {color: $indigo;}
+  .cm-number {color: $teal;}
+  .cm-def {color: $blue;}
+  .cm-variable,
+  .cm-punctuation,
+  .cm-property,
+  .cm-operator {color: $body-color;}
+  .cm-variable-2 {color: $blue;}
+  .cm-variable-3, .cm-type {color: $teal;}
+  .cm-comment {color: $orange;}
+  .cm-string {color: $danger;}
+  .cm-string-2 {color: $orange;}
+  .cm-meta {color: $text-muted;}
+  .cm-qualifier {color: $text-muted;}
+  .cm-builtin {color: $purple;}
+  .cm-bracket {color: $warning;}
+  .cm-tag {color: $success;}
+  .cm-attribute {color: $blue;}
+  .cm-hr {color: $secondary;}
+  .cm-link {color: $link-color;}
+  .cm-tab {
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAMCAYAAAAkuj5RAAAAAXNSR0IArs4c6QAAAGFJREFUSMft1LsRQFAQheHPowAKoACx3IgEKtaEHujDjORSgWTH/ZOdnZOcM/sgk/kFFWY0qV8foQwS4MKBCS3qR6ixBJvElOobYAtivseIE120FaowJPN75GMu8j/LfMwNjh4HUpwg4LUAAAAASUVORK5CYII=);
+    background-position: right;
+    background-repeat: no-repeat;
+  }
+
+  .cm-error {color: $danger;}
+
+  .cm-negative {
+    color: $danger;
+  }
+
+  .CodeMirror-negative-line {
+    background: rgba($danger, 0.1);
+  }
+  .cm-positive {
+    color: $success;
+  }
+
+  .CodeMirror-positive-line {
+    background: rgba($success, 0.1);
+  }
+
+  .CodeMirror-gutters {
+    // Prevent gutters from being opatique by adding background to foreground colors to create non-opatique version of cap color
+    background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+    border-right: $card-border-width solid $card-border-color;
+  }
+  .CodeMirror-guttermarker { color: $text-muted; }
+  .CodeMirror-guttermarker-subtle { color: $text-muted; }
+  .CodeMirror-linenumber { color: $text-muted; }
+  div.CodeMirror-selected {
+    background: $primary;
+    opacity: 0.2;
+  }
+
+  // Don't display cursor if not editable view
+  .CodeMirror-cursor { border-left: 0px; }
+}
+
+.editable .cm-s-bootstrap .CodeMirror-cursor { border-left: 1px solid $body-color; }

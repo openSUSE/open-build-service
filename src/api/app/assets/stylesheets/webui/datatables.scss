@@ -1,0 +1,34 @@
+@import 'datatables/dataTables.bootstrap4';
+@import 'datatables/extensions/Responsive/responsive.bootstrap4';
+@import 'datatables/extensions/FixedColumns/fixedColumns.bootstrap4';
+
+table.table-fixed {
+  table-layout: fixed
+}
+
+// TODO: Delete when bug is fixed: https://github.com/mkhairi/jquery-datatables/issues/17
+table.dataTable.table-sm {
+  min-width: 100%;
+
+ .sorting:before,
+ .sorting_asc:before,
+ .sorting_desc:before {
+    top: initial;
+    right: 1em;
+    bottom: 0.3em;
+  }
+
+  td {
+    white-space: normal !important;
+    @extend .text-break;
+  }
+}
+
+.table-hover tbody tr:hover {
+  background-color: $gray-300;
+}
+
+#projects-datatable_wrapper .dataTables_paginate {
+  @extend .d-flex;
+  @extend .justify-content-center;
+}

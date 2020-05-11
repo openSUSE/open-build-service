@@ -1,21 +1,24 @@
-require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
+require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
-class AboutControllerTest < ActionController::IntegrationTest 
-
-  def setup
-    prepare_request_valid_user
-  end
- 
+class AboutControllerTest < ActionDispatch::IntegrationTest
   def test_about
-    get "/about"
+    prepare_request_valid_user
+    get '/about'
     assert_response :success
-    assert_xml_tag( :tag => "about", :descendant => { :tag => "revision" } )
+    assert_xml_tag(tag: 'about', descendant: { tag: 'revision' })
+  end
+
+  def test_about_anonymous
+    reset_auth
+    get '/about'
+    assert_response :success
+    assert_xml_tag(tag: 'about', descendant: { tag: 'revision' })
   end
 
   def test_application_controller
-    get "/about?user[asd]=yxc"
+    prepare_request_valid_user
+    get '/about?user[asd]=yxc'
     assert_response 400
-    assert_xml_tag( :tag => "status", :attributes => { :code => "invalid_parameter" } )
+    assert_xml_tag(tag: 'status', attributes: { code: 'invalid_parameter' })
   end
-
 end

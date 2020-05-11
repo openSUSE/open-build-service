@@ -1,0 +1,49 @@
+#pulse {
+  .request-state-new {
+    color: $blue;
+  }
+
+  .request-state-review {
+    color: $yellow;
+  }
+
+  .request-state-accepted {
+    color: $green;
+  }
+
+  .request-state-declined {
+    color: $red;
+  }
+
+  .request-state-revoked {
+    color: $dark;
+  }
+
+  .request-state-superseded {
+    color: $orange;
+  }
+
+  .progress-state-new {
+    background-color: $blue;
+  }
+
+  .progress-state-review {
+    background-color: $yellow;
+  }
+
+  .progress-state-accepted {
+    background-color: $green;
+  }
+
+  .progress-state-declined {
+    background-color: $red;
+  }
+
+  .progress-state-revoked {
+    background-color: $dark;
+  }
+
+  .progress-state-superseded {
+    background-color: $orange;
+  }
+}

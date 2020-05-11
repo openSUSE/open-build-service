@@ -1,0 +1,17 @@
+- content_for :actions do
+  - if user_can_modify
+    %li.nav-item
+      = link_to(repositories_distributions_path(project: project), class: 'nav-link') do
+        %i.fas.fa-plus-circle.fa-lg.mr-2
+        Add from a Distribution
+
+    %li.nav-item
+      = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
+        %i.fas.fa-plus-circle.fa-lg.mr-2
+        Add from a Project
+
+  - if User.admin_session?
+    %li.nav-item
+      = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
+        %i.fas.fa-plus-circle.fa-lg.mr-2
+        Add DoD Repository

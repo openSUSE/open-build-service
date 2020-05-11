@@ -1,0 +1,6 @@
+%p
+  Visit #{link_to(nil, request_show_url(event['number'], only_path: false, host: @host))}
+%p
+  = event['commenter'].realname
+  wrote in request #{event['number']}:
+%div= render_as_markdown(event['comment_body'])

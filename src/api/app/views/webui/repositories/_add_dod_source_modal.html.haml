@@ -1,0 +1,5 @@
+.modal.fade{ id: "add-dod-source-modal-#{repository.id}", tabindex: -1, role: 'dialog', aria: { labelledby: 'add-dod-source-label', hidden: 'true' } }
+  = render partial: 'dod_source_fields', locals: { download_on_demand: download_on_demand,
+                                                   project: project,
+                                                   available_architectures: available_architectures,
+                                                   title: "Add Download on Demand for #{repository.name}" }

@@ -1,0 +1,6 @@
+- if project_changes.any?
+  And the project setup has been changed
+  %b
+    #{pluralize(project_changes.count, 'time')}.
+- else
+  And no one touched the project setup.

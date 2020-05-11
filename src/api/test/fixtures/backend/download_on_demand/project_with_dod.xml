@@ -1,0 +1,14 @@
+<project name='home:user5'>
+<title>User5 Home Project</title>
+<description/>
+<person userid='user5' role='maintainer'/>
+<repository name='standard'>
+  <download arch='i586' url='http://mola.org2' repotype='rpmmd'>
+    <archfilter>i586, noarch</archfilter>
+    <master url='http://opensuse.org' sslfingerprint='asdfasd'/>
+    <pubkey>3jnlkdsjfoisdjf0932juro2ikjfdslñkfj</pubkey>
+  </download>
+  <arch>i586</arch>
+  <arch>x86_64</arch>
+</repository>
+</project>

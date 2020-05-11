@@ -50,7 +50,7 @@ my %todo = (
 die("Usage: bs_mkarchrepo <reponame> <dir>\n") unless @ARGV == 2;
 my $reponame = $ARGV[0];
 my $dir = $ARGV[1];
-my @pkgs = grep {/\.pkg\.tar\.(?:gz|xz)$/} ls($dir);
+my @pkgs = grep {/\.pkg\.tar\.(?:gz|xz|zst)$/} ls($dir);
 
 my $rdir = "$dir/$reponame.db";
 mkdir_p($rdir);
@@ -90,7 +90,7 @@ for my $pkg (@pkgs) {
   my $sig = readstr("$dir/$pkg.sig", 1);
   if ($sig && length($sig) <= 16384) {
     $sig = encode_base64($sig, '');
-    $vars->{'pgpsig'} = $sig =~ /(.{1,64})/g;
+    $vars->{'pgpsig'} = [ $sig ];
   }
   
   my $d = "$vars->{'pkgname'}->[0]-$vars->{'pkgver'}->[0]";

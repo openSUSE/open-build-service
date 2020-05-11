@@ -1,56 +1,59 @@
 # Specifies own namespaces of attributes
+class AttribNamespace < ApplicationRecord
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  has_many :attrib_types, dependent: :destroy
+  has_many :attrib_namespace_modifiable_bies, class_name: 'AttribNamespaceModifiableBy', dependent: :delete_all
 
-class AttribNamespace < ActiveRecord::Base
-  has_many :attrib_types, :dependent => :destroy
-  has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', :dependent => :destroy
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+  validates :name, presence: true
+  validates_associated :attrib_types
 
-  attr_accessible :name
-
-  class << self
-    def list_all
-      AttribNamespace.select("id,name").all
-    end
+  #### Class methods using self. (public and then private)
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
+  def to_s
+    name
   end
 
   def update_from_xml(node)
-    self.transaction do
-      self.attrib_namespace_modifiable_bies.delete_all
+    transaction do
+      attrib_namespace_modifiable_bies.delete_all
       # store permission settings
-      node.elements.each("modifiable_by") do |m|
-          if not m.attributes["user"] and not m.attributes["group"]
-            raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
-          end
-          p={}
-          if m.attributes["user"]
-            p[:user] = User.get_by_login(m.attributes["user"])
-          end
-          if m.attributes["group"]
-            p[:group] = Group.get_by_title(m.attributes["group"])
-          end
-          self.attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(p)
-      end
-      self.save
+      node.elements('modifiable_by') { |element| create_one_rule(element) }
+      save
     end
   end
 
-  def render_axml
-    builder = Nokogiri::XML::Builder.new
-    abies = attrib_namespace_modifiable_bies.includes([:user, :group]).all
-    if abies.length > 0
-      builder.namespace(:name => self.name) do |an|
-         abies.each do |mod_rule|
-           p={}
-           p[:user] = mod_rule.user.login if mod_rule.user
-           p[:group] = mod_rule.group.title if mod_rule.group
-           an.modifiable_by(p)
-         end
-      end
-    else
-      builder.namespace(:name => self.name)
+  private
+
+  def create_one_rule(node)
+    if !node['user'] && !node['group']
+      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
     end
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-    :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-      Nokogiri::XML::Node::SaveOptions::FORMAT
+    new_rule = {}
+    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
+    attrib_namespace_modifiable_bies << AttribNamespaceModifiableBy.new(new_rule)
   end
 
+  #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: attrib_namespaces
+#
+#  id   :integer          not null, primary key
+#  name :string(255)      indexed
+#
+# Indexes
+#
+#  index_attrib_namespaces_on_name  (name)
+#

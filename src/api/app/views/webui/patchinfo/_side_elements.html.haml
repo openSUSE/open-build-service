@@ -1,0 +1,31 @@
+%ul.list-unstyled
+  - if patchinfo.block
+    %li
+      .blocked-release
+        %i.fas.fa-info-circle.text-info
+        .block-reason
+          %span Release is blocked
+          - if patchinfo.block_reason.present?
+            %span.d-block.mb-2.text-muted= patchinfo.block_reason
+
+  - if packager
+    %li
+      %i.fas.fa-info-circle.text-info
+      %span Submitted by
+      %span= user_with_realname_and_icon(packager)
+  - if patchinfo.version
+    %li
+      %i.fas.fa-info-circle.text-info
+      %span Version #{patchinfo.version}
+  - if patchinfo.relogin_needed
+    %li
+      %i.fas.fa-exclamation-triangle.text-warning
+      %span Relogin is suggested
+  - if patchinfo.reboot_needed
+    %li
+      %i.fas.fa-exclamation-triangle.text-warning
+      %span Reboot is suggested
+  - if patchinfo.zypp_restart_needed
+    %li
+      %i.fas.fa-exclamation-triangle.text-warning
+      %span Restart package-manager is suggested

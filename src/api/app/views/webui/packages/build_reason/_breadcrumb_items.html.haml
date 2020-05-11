@@ -1,0 +1,7 @@
+= render partial: 'webui/project/breadcrumb_items'
+%li.breadcrumb-item
+  = link_to @package, package_show_path(@project, @package)
+%li.breadcrumb-item
+  = link_to 'Repositoy state', package_binaries_path(@project, @package, @repository.name)
+%li.breadcrumb-item.active{ 'aria-current' => 'page' }
+  Build Reason

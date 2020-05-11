@@ -1,0 +1,271 @@
+version: 2.0
+
+images:
+  - &common_frontend_config
+    user: frontend
+    environment:
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+
+  - &mariadb
+    image: registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/mariadb:latest
+    command: |
+      /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
+    name: db
+
+  - &backend registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/backend:latest
+
+  - &frontend_backend
+    image: registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/frontend-backend:latest
+    <<: *common_frontend_config
+    environment:
+      EAGER_LOAD: 1
+
+  - &frontend_base
+    image: registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/frontend-base:latest
+    <<: *common_frontend_config
+
+aliases:
+  - &install_dependencies
+    name: install dependencies
+    command: |
+      cd ./src/api && bundle install --jobs=4 --retry=3
+
+  - &wait_for_database
+    name: Wait for DB
+    command: mysqladmin ping -h db
+
+  - &init_git_submodule
+    name: Init submodule
+    command: git submodule update --init --recursive --remote
+
+  - &create_test_db
+    name: Create database
+    command: cd src/api; bundle exec rake db:create db:setup RAILS_ENV=test
+
+  - &bootstrap_old_test_suite
+    name: Setup application
+    command: cd src/api; bundle exec rake dev:bootstrap[old_test_suite] RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+
+  - &store_minitest_artefacts
+    store_artifacts:
+      path: ./src/api/log/
+      destination: minitest
+
+  - &install_circle_cli
+    name: Install CircleCI command line
+    command: |
+      curl -o circleci https://circle-downloads.s3.amazonaws.com/releases/build_agent_wrapper/circleci
+      chmod +x circleci
+
+jobs:
+  checkout_code:
+    docker:
+      - <<: *frontend_base
+    steps:
+      - checkout
+      - run: *install_dependencies
+      - run: *install_circle_cli
+      - restore_cache:
+          key: v4-lint
+      - run:
+          name: Install jshint
+          command: sudo npm install -g jshint
+      - run:
+          name: Run linters
+          command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
+      - save_cache:
+          key: v4-lint-{{ epoch }}
+          paths:
+            - src/api/tmp/rubocop_cache_root_dir
+            - src/api/tmp/rubocop_cache_rails_dir
+      - run: rm -rf src/api/tmp/rubocop*
+      - run:
+          name: Setup application
+          command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+
+  rspec:
+    parallelism: 4
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *wait_for_database
+      - run: *create_test_db
+      - run: mkdir /home/frontend/rspec
+      - run:
+          name: Run rspec
+          command: |
+            cd src/api
+            pickfile=log/pick.$CIRCLE_NODE_INDEX.list
+
+            # single out db specs
+            circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/db/' > spec.list
+            circleci tests split --total $CIRCLE_NODE_TOTAL --split-by=timings < spec.list > $pickfile
+
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
+
+            # run DB tests at the end of node 0
+            # see https://github.com/openSUSE/open-build-service/issues/4959
+            if test "$CIRCLE_NODE_INDEX" = 0; then
+              echo "Running migration tests"
+              # simulating parallel tests - otherwise one rspec call overwrites the previous
+              export TEST_ENV_NUMBER=2
+              export PARALLEL_TEST_GROUPS="RSpec"
+              bundle exec rspec --format progress --format RspecJunitFormatter \
+                -o /home/frontend/rspec/rspec.db.xml $(circleci tests glob 'spec/db/**/*_spec.rb')
+            fi
+            mkdir coverage_results
+            cp -R coverage/.resultset.json coverage_results/resultset-rspec-${CIRCLE_NODE_INDEX}.json
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/api/coverage_results
+      - store_artifacts:
+          path: ./src/api/log
+          destination: rspec
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
+      - store_test_results:
+          path: /home/frontend/rspec
+
+  minitest:
+    parallelism: 2
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *wait_for_database
+      - run: *bootstrap_old_test_suite
+      - run: mkdir /home/frontend/minitest
+      - run:
+          name: Run minitest
+          environment:
+            DO_COVERAGE: 1
+            TESTOPTS: "--ci-dir=/home/frontend/minitest"
+          command: |
+            cd src/api
+            case $CIRCLE_NODE_INDEX in
+              0)
+                bundle exec rake dev:lint:db RAILS_ENV=test
+                bundle exec rake test:api:group1
+                ;;
+              1)
+                bundle exec rake test:api:group2
+                ;;
+            esac
+            mkdir coverage_results
+            cp -R coverage/.resultset.json coverage_results/resultset-minitest-${CIRCLE_NODE_INDEX}.json
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/api/coverage_results
+      - store_test_results:
+          path: /home/frontend/minitest
+      - <<: *store_minitest_artefacts
+
+  spider:
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *wait_for_database
+      - run: *bootstrap_old_test_suite
+      - run:
+          name: Run spider
+          command: |
+            cd src/api
+            bundle exec rake test:spider
+      - <<: *store_minitest_artefacts
+
+  backend_test:
+    docker:
+      - image: *backend
+    working_directory: /home/frontend/project
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *init_git_submodule
+      - run:
+          name: backend
+          command: make -C src/backend test
+
+  coverage:
+    docker:
+      - <<: *frontend_base
+
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run:
+          name: Merge and check coverage
+          command: |
+            cd src/api
+            export COVERALLS_REPO_TOKEN=HWLJwfiFsKPGEOzfgllO3pP3rqV540Qt3
+            bundle exec rake ci:simplecov_ci_merge
+      - store_artifacts:
+          path: src/api/coverage
+          destination: coverage
+      - store_artifacts:
+          path: src/api/coverage_results
+          destination: raw_coverage
+
+  brakeman:
+    docker:
+      - <<: *frontend_base
+
+    steps:
+      - attach_workspace:
+         at: .
+      - run:
+          name: Patch brakeman in
+          command: |
+            sed -i -e 's,# BRAKEMAN,gem "brakeman",' src/api/Gemfile
+      - run: *install_dependencies
+      - run:
+          name: Run brakeman
+          command: |
+            cd src/api
+            brakeman .
+
+
+workflows:
+  version: 2
+  test_all:
+    jobs:
+      - checkout_code
+      - backend_test:
+          requires:
+            - checkout_code
+      - rspec:
+          requires:
+            - checkout_code
+      - minitest:
+          requires:
+            - checkout_code
+      - spider:
+          requires:
+            - checkout_code
+      - coverage:
+          requires:
+            - rspec
+            - minitest
+      - brakeman:
+          requires:
+            - checkout_code

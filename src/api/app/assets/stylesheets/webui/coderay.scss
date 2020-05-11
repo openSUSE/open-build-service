@@ -1,0 +1,93 @@
+.CodeRay, .CodeRay .change {
+  background: $card-bg;
+  color: $body-color;
+}
+.CodeRay pre { margin: 0 }
+span.CodeRay { white-space: pre }
+
+.CodeRay .line-numbers {
+  display: inline-block;
+  background: opacify( mix( $card-bg, opacify( $card-cap-bg, 1 ), ( 1 - alpha( $card-cap-bg ) ) * 100% ), 1 );
+  border-right: $card-border-width solid $card-border-color;
+}
+
+.CodeRay .line-numbers pre {
+  word-break: normal;
+}
+.CodeRay .line-numbers a {
+  color: $text-muted;
+  text-decoration: none;
+  display: inline-block;
+  padding: 0 0.25rem;
+}
+.CodeRay .line-numbers a:target {
+  background-color: rgba($warning, 0.3);
+  color: $body-color;
+}
+
+.CodeRay .line, .CodeRay .code { width: 100% }
+.CodeRay .line { padding-left: 0.25rem }
+
+.CodeRay .debug { color: $card-bg; background: $blue }
+
+.CodeRay .done, .CodeRay .comment, .CodeRay .escape,
+.CodeRay .inline-delimiter { color: $text-muted }
+
+.CodeRay .delimiter, .CodeRay .inline { color: $body-color }
+
+.CodeRay .binary .char, .CodeRay .binary .delimiter,
+.CodeRay .map .content, .CodeRay .map .delimiter, .CodeRay .octal,
+.CodeRay .regexp .content, .CodeRay .head .head { color: $purple }
+
+.CodeRay .comment .char, .CodeRay .comment .delimiter,
+.CodeRay .done, .CodeRay .preprocessor { color: $dark }
+
+.CodeRay .char, .CodeRay .char .content, .CodeRay .attribute-value,
+.CodeRay .char .delimiter, .CodeRay .docstring,
+.CodeRay .entity, .CodeRay .string, .CodeRay .string .content,
+.CodeRay .global-variable, .CodeRay .imaginary, .CodeRay .important,
+.CodeRay .label, .CodeRay .local-variable,
+.CodeRay .string .delimiter, .CodeRay .line-numbers .highlighted,
+.CodeRay .line-numbers .highlighted a { color: $red }
+
+.CodeRay .error, .CodeRay .exception,
+.CodeRay .string .modifier { color: $danger }
+
+.CodeRay .annotation, .CodeRay .function, .CodeRay .predefined,
+.CodeRay .predefined-constant, .CodeRay .variable { color: $blue }
+
+.CodeRay .attribute-name, .CodeRay .keyword,
+.CodeRay .regexp .delimiter { color: $pink }
+
+.CodeRay .binary, .CodeRay .binary .char,
+.CodeRay .binary .delimiter, .CodeRay .constant,
+.CodeRay .regexp .modifier, .CodeRay .type { color: $indigo }
+
+.CodeRay .class, .CodeRay .class-variable, .CodeRay .color,
+.CodeRay .definition, .CodeRay .directive, .CodeRay .doctype,
+.CodeRay .float, .CodeRay .function .delimiter, .CodeRay .reserved,
+.CodeRay .shell .delimiter, .CodeRay .tag { color: $green }
+
+.CodeRay .function .content, .CodeRay .hex, .CodeRay .id,
+.CodeRay .instance-variable, .CodeRay .integer, .CodeRay .key .char,
+.CodeRay .pseudo-class, .CodeRay .shell .content { color: $success }
+
+.CodeRay .decorator, .CodeRay .key, .CodeRay .key .delimiter,
+.CodeRay .namespace, .CodeRay .symbol, .CodeRay .symbol .content { color: $yellow }
+
+.CodeRay .string .char, .CodeRay .include, .CodeRay .symbol .delimiter { color: $orange }
+
+.CodeRay .predefined-type, .CodeRay .shell, .CodeRay .value { color: $teal }
+
+.CodeRay .done { text-decoration: line-through }
+
+.CodeRay .insert { background: rgba($success, 0.1); display: inline-block }
+.CodeRay .delete { background: rgba($danger, 0.1); display: inline-block }
+.CodeRay .head { color: $light; background: $dark }
+
+.CodeRay .delete .eyecatcher { background-color: rgba($danger, 0.3) }
+.CodeRay .insert .eyecatcher { background-color: rgba($success, 0.3) }
+
+.CodeRay .insert .insert { color: $success; background: transparent }
+.CodeRay .delete .delete { color: $danger; background: transparent }
+.CodeRay .change .change { color: $body-color }

@@ -1,0 +1,286 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1" kind="maintenance">
+          <title>Nine Coaches Waiting</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '125'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1" kind="maintenance">
+          <title>Nine Coaches Waiting</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_project/_attribute?meta=1&user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="6">
+          <srcmd5>1043307eb379cf76de04c634b79b1fd8</srcmd5>
+          <time>1551452660</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hello_world_project/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hello_world_project" kind="maintenance_incident">
+          <title>Frequent Hearses</title>
+          <description/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '218'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="hello_world_project" kind="maintenance_incident">
+          <title>Frequent Hearses</title>
+          <description></description>
+          <build>
+            <disable />
+          </build>
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hello_world_project/hello_world/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello_world" project="hello_world_project">
+          <title>In Death Ground</title>
+          <description>Autem nam et et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello_world" project="hello_world_project">
+          <title>In Death Ground</title>
+          <description>Autem nam et et.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/hello_world_project/hello_world/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello_world" project="hello_world_project">
+          <title>In Death Ground</title>
+          <description>Autem nam et et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="hello_world" project="hello_world_project">
+          <title>In Death Ground</title>
+          <description>Autem nam et et.</description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:20 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/hello_world_project/hello_world
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '86'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="hello_world" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+    http_version: 
+  recorded_at: Fri, 01 Mar 2019 15:04:20 GMT
+recorded_with: VCR 4.0.0

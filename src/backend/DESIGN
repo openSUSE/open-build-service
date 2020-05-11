@@ -4,9 +4,11 @@ System layout
 
 1) one source server
 
-   maintains the source repository and project/package configurations.
+   Maintains the source repository and project/package configurations.
+   It is the only interface for api stack and it may forward requests to
+   one of the repository servers
 
-2) N repository servers (currently the code supports only N=1)
+2) N repository servers
 
    a repository server provides access to the repositories of
    some projects/packages/architectures. It also maintains the
@@ -20,6 +22,8 @@ System layout
    for starting jobs in the right order, collecting the built
    binary packages and creating the external repository if a
    project's repository is completely built.
+   The schedulers need to run on the same system as the repository
+   servers.
 
 4) M build clients
 

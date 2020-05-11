@@ -1,0 +1,22 @@
+- if User.session
+  .col
+    = link_to(user_path(User.session!), class: 'btn btn-default', title: 'Go to your profile') do
+      %i.fas.fa-user.fa-2x.text-dark
+      %br
+      Profile
+.col
+  = link_to(projects_path, class: 'btn btn-default', title: 'See all projects') do
+    %i.fas.fa-list.fa-2x.text-muted
+    %br
+    All Projects
+- if User.session
+  .col
+    = link_to(new_project_path, namespace: User.session!.home_project_name, class: 'btn btn-default', title: 'Create a project') do
+      %i.fas.fa-plus-square.fa-2x.text-primary
+      %br
+      Create Project
+.col
+  = link_to(image_templates_path, class: 'btn btn-default', title: 'Create a new image') do
+    %i.fas.fa-compact-disc.fa-2x.text-secondary
+    %br
+    New Image

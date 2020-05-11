@@ -1,42 +1,39 @@
-#require "project"
-#require "package"
+# require "project"
+# require "package"
 
 #
 # This is basically only a helper class around permission checking for user model
 #
 
 module Suse
-
   class Permission
-
     def to_s
-      return "OpenSUSE Permissions for user #{@user.login}"
+      "OpenSUSE Permissions for user #{@user.login}"
     end
 
-    def initialize( u )
+    def initialize(u)
       @user = u
       logger.debug "User #{@user.login} initialised"
     end
 
-    def project_change?( project = nil )
+    def project_change?(project = nil)
       # one is project admin if he has the permission Project_Admin or if he
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      return true if @user.has_global_permission?( "global_project_change" )
-
-      if project.kind_of? Project
+      if project.is_a?(Project)
         prj = project
-      elsif project.kind_of? String
-        prj = Project.find_by_name( project )
+      elsif project.is_a?(String)
+        prj = Project.find_by_name(project)
+        # avoid remote projects
+        return false unless prj.is_a?(Project)
       end
 
-      if prj.nil?
-        raise ArgumentError, "unable to find project object for #{project}"
-      end
+      raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
 
-      return true if @user.can_modify_project?( prj )
-      return false
+      return true if @user.has_global_permission?('global_project_change')
+
+      @user.can_modify?(prj)
     end
 
     # args can either be an instance of the respective class (Package, Project),
@@ -45,37 +42,32 @@ module Suse
     # the second arg can be omitted if the first one is a Package object. second
     # arg is needed if first arg is a string
 
-    def package_change?( package, project=nil )
+    def package_change?(package, project = nil)
       logger.debug "User #{@user.login} wants to change the package"
 
       # Get DbPackage object
-      if package.kind_of? Package
+      if package.is_a?(Package)
         pkg = package
       else
         if project.nil?
-          raise RuntimeError, "autofetch of project only works with objects of class Package"
+          raise 'autofetch of project only works with objects of class Package'
         end
 
-        if project.kind_of? String
-           project = project
-        end
-
-        pkg = Package.find_by_project_and_name( project, package )
+        pkg = Package.find_by_project_and_name(project, package)
         if pkg.nil?
           raise ArgumentError, "unable to find package object for #{project} / #{package}"
         end
       end
 
-      return true if @user.can_modify_package?( pkg )
-      return false
+      return true if @user.can_modify?(pkg)
+      false
     end
 
-    def method_missing( perm, *args, &block)
-
+    def method_missing(perm, *_args, &_block)
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user
-        if @user.has_global_permission? perm.to_s
+        if @user.has_global_permission?(perm.to_s)
           logger.debug "User #{@user.login} has permission #{perm}"
           return true
         else
@@ -83,7 +75,7 @@ module Suse
           return false
         end
       else
-        logger.debug "Permission check failed because no user is checked in"
+        logger.debug 'Permission check failed because no user is checked in'
         return false
       end
     end

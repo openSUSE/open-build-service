@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="superkde" created="2005-01-01T00:00:02+01:00" updated="2007-01-19T10:44:45+01:00">
+<project name="superkde">
   <title>SuperKDE</title>
   <description>SuperKDE is a heavily tuned version of KDE.</description>
   <link project="openSUSE:11.2:Update" />

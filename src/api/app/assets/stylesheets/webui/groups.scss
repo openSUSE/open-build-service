@@ -1,0 +1,14 @@
+#group-users {
+  .group-user {
+    width: 19.7rem;
+
+    @include media-breakpoint-up(xl) {
+      width: 21.7rem;
+    }
+
+    @include media-breakpoint-up(xxl) {
+      width: 22.4rem;
+    }
+  }
+}
+

@@ -1,0 +1,23 @@
+%p
+  %b
+    Mentioned Issues (#{issues.length})
+%table
+  %tbody
+    - issues.each do |long_name, issue|
+      - if issue[:owner] && issue[:state]
+        %tr
+          %td
+            = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')
+          %td.nowrap
+            - if issue[:owner]
+              = user_with_realname_and_icon issue[:owner], short: true
+          %td
+            = issue[:state].capitalize if issue[:state]
+      - else
+        %tr.even
+          %td{ colspan: '3' }
+            = link_to(long_name, issue[:url], target: '_blank', rel: 'noopener')
+      - if issue[:summary]
+        %tr.odd
+          %td{ colspan: '3' }
+            = toggle_sliced_text(issue[:summary])

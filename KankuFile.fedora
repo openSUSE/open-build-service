@@ -1,0 +1,49 @@
+domain_name: obs-server
+default_job: fedora
+
+jobs:
+ fedora:
+  -
+    use_module: Kanku::Handler::SetJobContext
+    options:
+      login_user: root
+      login_pass: kankudai
+      vm_template_file: with-graphic.tt2
+  -
+    use_module: Kanku::Handler::OBSCheck
+    options:
+      api_url: https://api.opensuse.org/public/
+      project: devel:kanku:images
+      package: Fedora-31
+      repository: images_fedora_31
+  -
+    use_module: Kanku::Handler::ImageDownload
+  -
+    use_module: Kanku::Handler::CreateDomain
+    options:
+      memory: 4G
+      vcpu: 2
+      use_9p: 1
+      management_interface: lan0
+  -
+    use_module: Kanku::Handler::PrepareSSH
+  -
+    use_module: Kanku::Handler::WaitForSystemd
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaSSH
+    options:
+      commands:
+        - sh -x /tmp/kanku/dist/install_rh.sh
+  -
+    use_module: Kanku::Handler::Reboot
+  -
+    use_module: Kanku::Handler::WaitForSystemd
+  -
+    use_module: Kanku::Handler::ExecuteCommandViaSSH
+    options:
+      username: root
+      commands:
+        - cp -av /tmp/kanku /root/
+        - PERL5LIB=/usr/lib/build make -C /root/kanku/src/backend test_unit
+        - make -C /root/kanku/dist test_system
+        - make -C /root/kanku/dist/t/osc test_system

@@ -1,0 +1,2 @@
+$('td[data-package-name="<%= params[:package] %>"]').
+  html('<%= escape_javascript(render(partial: 'edit_comment_form')) %>');

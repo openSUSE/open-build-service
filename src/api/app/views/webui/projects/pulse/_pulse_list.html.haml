@@ -1,0 +1,93 @@
+.row.mb-3
+  .col-12.col-md-5
+    %p
+      During this period
+      = render partial: 'pulse_list_commits', locals: { commits: commits, updates: updates }
+    %p
+      = render partial: 'pulse_list_builds', locals: { builds: builds }
+      = render partial: 'pulse_list_new', locals: { new_packages: new_packages, deleted_packages: deleted_packages }
+      = render partial: 'pulse_list_changes', locals: { project_changes: project_changes }
+    %p
+      = render partial: 'pulse_list_branches', locals: { branches: branches }
+      = render partial: 'pulse_list_comments', locals: { comments: comments }
+
+  .col-12.col-md-7
+    = render partial: 'pulse_list_requests_box', locals: { project: project,
+                                                           requests: requests,
+                                                           requests_by_percentage: requests_by_percentage,
+                                                           requests_by_state: requests_by_state }
+
+.row
+  .col
+    - package_changes = commits + new_packages + deleted_packages + updates
+    - if package_changes.present?
+      %h5#pulse-packages
+        = link_to('.collapse-package-changes', aria: { controls: 'collapse-package-changes', expanded: 'true' },
+                  'data-toggle' => 'collapse', role: 'button') do
+          Package Changes
+          %small
+            %span.collapser (Hide)
+            %span.expander (Show)
+      %hr
+      .collapse.show.collapse-package-changes
+        %ul.list-unstyled
+          - package_changes.sort_by(&:datetime).reverse_each do |log_entry|
+            %li
+              = render partial: 'pulse_list_entry', locals: { log_entry: log_entry, project: project }
+
+    - if project_changes.present?
+      %h5#pulse-project
+        = link_to('.collapse-project-changes', aria: { controls: 'collapse-project-changes', expanded: 'true' },
+                  'data-toggle' => 'collapse', role: 'button') do
+          Project Changes
+          %small
+            %span.collapser (Hide)
+            %span.expander (Show)
+      %hr
+      .collapse.show.collapse-project-changes
+        %ul.list-unstyled
+          - project_changes.each do |log_entry|
+            %li
+              = render partial: 'pulse_list_entry', locals: { log_entry: log_entry, project: project }
+
+    - if builds.present?
+      %h5#pulse-builds
+        = link_to('.collapse-builds', aria: { controls: 'collapse-builds', expanded: 'true' }, 'data-toggle' => 'collapse', role: 'button') do
+          Builds
+          %small
+            (in the last 24 hours)
+            %span.collapser (Hide)
+            %span.expander (Show)
+      %hr
+      .collapse.show.collapse-builds
+        %ul.list-unstyled
+          - builds.each do |log_entry|
+            %li
+              = render partial: 'pulse_list_entry', locals: { log_entry: log_entry, project: project }
+
+    - collaboration = branches + comments
+    - if collaboration.present?
+      %h5#pulse-collaboration
+        = link_to('.collapse-collaboration', aria: { controls: 'collapse-collaboration', expanded: 'true' },
+                  'data-toggle' => 'collapse', role: 'button') do
+          Collaboration
+          %small
+            %span.collapser (Hide)
+            %span.expander (Show)
+      %hr
+      .collapse.show.collapse-collaboration
+        %ul.list-unstyled
+          - collaboration.sort_by(&:datetime).reverse_each.each do |log_entry|
+            %li
+              = render partial: 'pulse_list_entry', locals: { log_entry: log_entry, project: project }
+
+    - if requests.present?
+      %h5#pulse-requests
+        = link_to('.collapse-requests', aria: { controls: 'collapse-requests', expanded: 'true' }, 'data-toggle' => 'collapse', role: 'button') do
+          Requests
+          %small
+            %span.collapser (Hide)
+            %span.expander (Show)
+      %hr
+      .collapse.show.collapse-requests
+        = render partial: 'pulse_list_requests', locals: { requests: requests }

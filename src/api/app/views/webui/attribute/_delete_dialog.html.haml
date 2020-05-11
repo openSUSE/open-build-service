@@ -1,0 +1,22 @@
+.modal.fade{ id: 'delete-attribute-modal', tabindex: -1, role: 'dialog', aria: { labelledby: 'delete-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete attribute?
+      .modal-body
+        %p
+          Please confirm deletion of attribute
+          %span#fullname
+        = form_tag(nil, method: :delete) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
+- content_for :ready_function do
+  :plain
+    $('#delete-attribute-modal').on('show.bs.modal', function (event) {
+      var link = $(event.relatedTarget);
+      $(this).find('#fullname').text(link.data('fullname'));
+      $(this).find('form').attr('action', link.data('action'));
+    });

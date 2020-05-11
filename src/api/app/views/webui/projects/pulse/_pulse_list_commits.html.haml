@@ -1,0 +1,20 @@
+- if commits.any?
+  - people = commits.group(:user_name).count
+  %b
+    = pluralize(people.count, 'person')
+  added
+  = link_to('#pulse-packages') do
+    = pluralize(commits.count, 'commit')
+  to packages in this project.
+  - if updates.any?
+    Out of those commits,
+    %b
+      = pluralize(updates.count, 'was a', plural: 'were')
+      version #{'update'.pluralize(updates.count)}.
+  - top_committer = commits.group(:user_name).count.max_by { |_, v| v }
+  %span{ title: "with #{pluralize(top_committer.second, 'commit')}" }
+    %b
+      = top_committer.first
+    was the busiest commiter, hooray!
+- else
+  no one committed anything.

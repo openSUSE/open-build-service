@@ -1,0 +1,45 @@
+:ruby
+  @pagetitle = 'Public Projects'
+.card
+  - if important_projects.present?
+    .card-body
+      %h3 Main Projects
+      .table-responsive
+        %table.table.table-sm.table-bordered.table-hover
+          %thead
+            %tr
+              %th Name
+              %th Title
+          %tbody
+            - important_projects.each do |name, title, categories|
+              %tr
+                %td
+                  = link_to(name, project_show_path(project: name))
+                  - categories.each do |category|
+                    = category_badge(category)
+                %td
+                  #{title}
+  .card-body
+    %h3= @pagetitle
+    %ul.list-inline
+      %li.list-inline-item.mr-3
+        = link_to('#', class: 'toggle-projects') do
+          %i.fas.fa-toggle-off.text-primary#toggle-icon
+          %span#toggle-text
+            Include #{::Configuration.unlisted_projects_filter_description}
+      - if User.session
+        %li.list-inline-item
+          = link_to(new_project_path) do
+            %i.fas.fa-plus-circle.text-primary
+            Create Project
+
+    %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
+                                                                                                  all: 'false' } }
+      %thead
+        %tr
+          %th Name
+          %th Title
+      %tbody
+
+- content_for :ready_function do
+  initializeProjectDatatable();

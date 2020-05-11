@@ -14,7 +14,7 @@
 #
 # example:
 # $ osc -A https://api.opensuse.org ls Base:build | obs_project_update https://api.opensuse.org openSUSE:Factory https://api.yourdomain.ext openSUSE:Factory
-# $ echo "kiwi deb" | obs_project_update -u https://api.opensuse.org openSUSE:Tools https://api.yourdomain.ext openSUSE:Tools
+# $ echo "kiwi deb" | obs_project_update -u https://api.opensuse.org OBS:Server:2.4 https://api.yourdomain.ext OBS:Server:2.4
 #
 usage="usage:  $0 {-e | -u} <source obs> <source project> <target obs> <target project> [listfile]"
 

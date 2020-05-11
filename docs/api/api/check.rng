@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="check-element"/>
+  </start>
+
+  <define ns="" name="check-element">
+    <element name="check">
+      <attribute name="name">
+        <data type="string"/>
+      </attribute>
+      <optional>
+        <attribute name="required">
+          <choice>
+            <value>true</value>
+            <value>false</value>
+          </choice>
+        </attribute>
+      </optional>
+      <interleave>
+        <element name="state">
+          <!-- The state of the check -->
+          <choice>
+            <value>pending</value>
+            <value>error</value>
+            <value>failure</value>
+            <value>success</value>
+          </choice>
+        </element>
+        <optional>
+          <element name="short_description">
+            <!--  -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="url">
+            <!--  -->
+            <data type="anyURI"/>
+          </element>
+        </optional>
+      </interleave>
+    </element>
+  </define>
+</grammar>

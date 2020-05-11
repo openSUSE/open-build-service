@@ -1,0 +1,404 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>An Instant In The Wind</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>An Instant In The Wind</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Hic corporis beatae accusamus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '174'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="Apache">
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Hic corporis beatae accusamus.</description>
+        </package>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>7c4fdaed1748a8e72e84c2141a00f19d</srcmd5>
+          <version>unknown</version>
+          <time>1582666982</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Painted Veil</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo:Apache">
+          <title>The Painted Veil</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Endless Night</title>
+          <description>Aut facilis tenetur non.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_changes_file" project="home:foo:Apache">
+          <title>Endless Night</title>
+          <description>Aut facilis tenetur non.</description>
+        </package>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>9c27361fde427cceae53644e1a00c374</srcmd5>
+          <version>unknown</version>
+          <time>1582666982</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '238'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_changes_file" rev="2" vrev="2" srcmd5="9c27361fde427cceae53644e1a00c374">
+          <entry name="package_with_changes_file.changes" md5="87b40d4b8cb98f7693786492ecda1339" size="280" mtime="1582666982"/>
+        </directory>
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:foo:Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '280'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Fri Aug 11 16:58:15 UTC 2017 - tom@opensuse.org
+
+        - Testing the submit diff
+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/Apache/package_with_changes_file/package_with_changes_file.changes
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '136'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |+
+        -------------------------------------------------------------------
+        Wed Aug  2 14:59:15 UTC 2017 - iggy@opensuse.org
+
+        - Temporary hack
+
+    http_version: null
+  recorded_at: Tue, 25 Feb 2020 21:43:03 GMT
+recorded_with: VCR 5.1.0

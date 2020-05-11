@@ -1,0 +1,152 @@
+#
+# Open Build Service 2.10
+#
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium which installs OBS on hard disk now.
+
+dist/README.UPDATERS file has information for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+Generic:
+ * replaced sysv init scripts with systemd files
+ * Add binary release tracking data for containers.
+ * Add support to collect performance metrics with InfluxDB
+ * Amazon EC2/ Microsoft Azure cloud upload support
+ * Text fields are stored as 4 byte UTF-8 which allows to use emojis. To use this
+   feature, switch database.yml to utf8mb4 encoding
+ * Added `beta` environment in 'config/feature.yml' to toggle features in the beta program.
+ * Bugowners of a project/package now receive notifications about new comments
+ * Request pre-approval support. Requests will be accepted when last review gets accepted.
+ * Support webhooks from gitlab
+ * Send requests creation to rabbitmq bus
+ * Admins can write Terms of Services, via the API, and they will be shown in the WebUI to
+   users unless they acknowledge them.
+
+User Interface:
+ * Improved UI/UX for package live build log (hints & start/stop loading)
+ * Do not show excluded entries in package build results by default.
+ * Refactored the view of the binaries page that before was just a list of links that
+   pointed to the details page. Now you can download the files and upload images to
+   the cloud directly from here.
+ * Limit results for autocompletion queries to 50
+ * Include all results for autocompletion that match with the search string.
+ * Hide disabled repositories by default
+ * Excluded entries in package build results are not shown by default anymore.
+ * Use full author identities in generating changes entries
+ * Request descriptions are now mandatory to avoiding unnecessary requets
+
+Backend & build support:
+ * new publisher features
+   - vagrant box publishing
+   - zchunk compressed files in rpm-md metadata
+
+ * binary tracking improvements
+   - tracking of appliances and containers
+
+ * container improvements
+   - support multi-arch container manifest generation
+   - kiwi profile handling
+   - improved parsing of Dockerfiles
+   - new OBS-AddTag and OBS-Imagerepo directives
+   - take container with the highest version/release if there is a
+     conflict over a tag
+   - disk space savings with container layer deduplication
+   - integrated container registry
+
+ * speed improvements
+   - faster repository publishing and product generation
+   - incremental project updates in the scheduler
+   - reducred interconnect load due to a lastevents proxy
+
+ * odds and ends
+   - obs-build: shell support in KVM
+   - prjconf package exclude feature ("onlybuild")
+   - sysrq and core dump support for KVM builds
+   - support rpm's new '^' separator in version comparison
+   - milestone numbering support in release handling
+
+Shipment:
+ * Require system gems (rake and rack) in api-deps package
+
+Bugfixes:
+  * Binary view now shows correct data for multibuild packages
+  * Source diffs with mixed encoding were causing failures when processing notification
+    mails. This is fixed now.
+  * Improved explanatory text for role changes on request review page.
+  * Rails security update was patched (CVE-2019-5419).
+  * Added upper-limit to range to avoid long running queries in Webui::MonitorController.
+  * In WebUI, only admins are allowed to create DoD repositories.
+  * In WebUI, only admins are allowed to create sourceaccess/access repositories flags.
+  * Added missing authorization to move repository path in Webui::ProjectController.
+  * Require sourceaccess by default in `require_package`.
+
+
+Intentional changes:
+====================
+
+  * always run services on expanded link sources
+
+  * The format of the OBS options.yml is now distinguishing between Rails environments.
+    You can convert your old configuration by running:
+      (cd /srv/www/obs/api/; rake migrate_options_yml)
+
+  * OBS is now using the lograge gem to generate production logs. We are now logging (in one line per request):
+    * Timestamp
+    * Request: Method + Controller + Action + Path + Params
+    * Response status
+    * Duration: Overall / View / DB
+    * Remote IP
+    * User login
+
+  You can see an example of the output here:
+    ```
+    method=POST path=/comments format=js controller=Webui::CommentsController action=create status=200 duration=1436.57 view=77.25 db=13.92 params={"utf8"=>"✓", "commentable_type"=>"Project", "commentable_id"=>"1", "comment"=>{"body"=>"hola que tal"}, "commit"=>"Add comment"} host=127.0.0.1 time=2018-05-14 15:59:03 +0000 user=Admin
+    ```
+
+ * In previous releases it was possible to delete attributes through
+   /source/<project>/_attribute/?namespace=OBS&name=VeryImportantProject (or similiar
+   for packages). You need to follow the documentation now and the proper
+   route is /source/<project>/_attribute/OBS:VeryImportantProject
+
+ * GET '/attribute/:attribute' route responded with a 400 when the attribute type
+   did not exist. It now returns a 404 status.
+
+ * GET '/source/<project>/_attribute' allowed to filter by namespace. This was never
+   documented and was removed now. '/_attribute' will return all attributes, while
+   '/_attribute/:attribute' keeps returning only the given attribute (as documented)
+
+  * The 'commenter' and 'commenters' payload of Comment events used to contain user ids.
+    They now contain the user login name instead.
+    Run the data migrations to convert events in the old format:
+    'rails data:migrate RAILS_ENV=production'
+
+  * Messages (for projects/packages) deprecated. The API routes
+    below /message/ are deprecated and will be removed in the next
+    version.
+
+  * Deprecated Ratings. The following API routes are deprecated and will be removed
+    in the next version:
+    - GET /statistics/highest_rated?limit=<limit>
+    - GET /statistics/rating/<project>/<package>
+    - PUT /statistics/rating/<project>/<package>
+
+  * Project and package release operations used to return a 403 permission
+    error also on configuration errors. This is a 404 now:
+    - POST /source/<project>?cmd=release
+    - POST /source/<project>/<package>?cmd=release
+
+  * Public route dropped for reading patchinfo
+    - GET 'patchinfo/read_patchinfo'

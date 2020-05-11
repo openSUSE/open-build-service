@@ -38,15 +38,6 @@ sub opendb {
   return bless $db;
 }
 
-sub fetch {
-  my ($db, $key) = @_;
-  if ($db->{'fetch'}) {
-    return $db->{'fetch'}->($db, $key);
-  }
-  my @v = BSDBIndex::getvalues($db, $db->{'table'}, $key);
-  return $v[0];
-}
-
 sub torel {
   my ($path, $key, $v, $rel) = @_;
   return unless defined $v;
@@ -143,6 +134,12 @@ sub store {
 # Search functions
 #
 
+sub fetch {
+  my ($db, $key) = @_;
+  return $db->{'fetch'}->($db, $key) if $db->{'fetch'};
+  return $db->rawfetch($key);
+}
+
 sub selectpath {
   my ($v, $path) = @_; 
   $v = [ $v ] unless ref($v) eq 'ARRAY';
@@ -162,9 +159,9 @@ sub selectpath {
 }
 
 sub values {
-  my ($db, $path, $lkeys) = @_;
+  my ($db, $path, $lkeys, $hint, $hintval) = @_;
   if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
-    return $db->{'indexfunc'}->{$path}->($db, $path, undef, $lkeys);
+    return $db->{'indexfunc'}->{$path}->($db, $path, undef, $lkeys, $hint, $hintval);
   }
   if (($db->{'noindex'} && $db->{'noindex'}->{$path}) || $db->{'noindexatall'} || ($lkeys && $db->{'cheapfetch'})) {
     $lkeys = [ $db->keys() ] unless $lkeys;
@@ -175,7 +172,7 @@ sub values {
     my %v = map {$_ => 1} @v;
     return sort keys %v;
   }
-  return BSDBIndex::getkeys($db, "$db->{'index'}$path");
+  return $db->rawvalues($path, $hint, $hintval);
 }
 
 sub keys {
@@ -183,11 +180,12 @@ sub keys {
   if (!defined($path)) {
     return @$lkeys if $lkeys;
     $path = $db->{'allkeyspath'};
-    return BSDBIndex::getkeys($db, $db->{'table'}) unless defined $path;
+    return $db->rawkeys() unless defined $path;
+    return $path->($db) if ref($path) eq 'CODE';
     if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
       return $db->{'indexfunc'}->{$path}->($db);
     }
-    return map {BSDBIndex::getvalues($db, "$db->{'index'}$path", $_)} BSDBIndex::getkeys($db, "$db->{'index'}$path");
+    return map {$db->keys($path, $_)} $db->values($path);
   }
   if ($db->{'indexfunc'} && $db->{'indexfunc'}->{$path}) {
     return $db->{'indexfunc'}->{$path}->($db, $path, $value, $lkeys);
@@ -201,7 +199,25 @@ sub keys {
     }
     return @k;
   }
+  return $db->rawkeys($path, $value);
+}
+
+# raw versions that ignore the indexfunc/noindex/fetch values
+sub rawvalues {
+  my ($db, $path) = @_;
+  return BSDBIndex::getkeys($db, "$db->{'index'}$path");
+}
+
+sub rawkeys {
+  my ($db, $path, $value) = @_;
+  return BSDBIndex::getkeys($db, $db->{'table'}) unless defined $path;
   return BSDBIndex::getvalues($db, "$db->{'index'}$path", $value);
+}
+
+sub rawfetch {
+  my ($db, $key) = @_;
+  my @v = BSDBIndex::getvalues($db, $db->{'table'}, $key);
+  return $v[0];
 }
 
 1;

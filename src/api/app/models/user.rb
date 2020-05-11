@@ -1,151 +1,321 @@
 require 'kconv'
+require_dependency 'api_error'
 
-class User < ActiveRecord::Base
-  has_many :taggings, :dependent => :destroy
-  has_many :tags, :through => :taggings
+class UserBasicStrategy
+  def is_in_group?(user, group)
+    user.groups_users.where(group_id: group.id).exists?
+  end
 
-  has_many :watched_projects, :foreign_key => 'bs_user_id', :dependent => :destroy
-  has_many :groups_users, :foreign_key => 'user_id'
-  has_many :roles_users, :foreign_key => 'user_id'
-  has_many :project_user_role_relationships, :foreign_key => 'bs_user_id'
-  has_many :package_user_role_relationships, :foreign_key => 'bs_user_id'
+  def local_role_check(_role, _object)
+    false # all is checked, nothing remote
+  end
 
+  def local_permission_check(_roles, _object)
+    false # all is checked, nothing remote
+  end
+
+  def groups(user)
+    user.groups
+  end
+end
+
+class User < ApplicationRecord
+  include CanRenderModel
+
+  # Keep in sync with states defined in db/structure.sql
+  STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
+  NOBODY_LOGIN = '_nobody_'.freeze
+
+  # disable validations because there can be users which don't have a bcrypt
+  # password yet. this is for backwards compatibility
+  has_secure_password validations: false
+
+  has_many :watched_projects, dependent: :destroy, inverse_of: :user
+  has_many :groups_users, inverse_of: :user
+  has_many :roles_users, inverse_of: :user
+  has_many :relationships, inverse_of: :user, dependent: :destroy
+
+  has_many :comments, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
+  has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
+  has_one :rss_token, class_name: 'Token::Rss', dependent: :destroy
 
-  @@ldap_search_con = nil
-  
+  has_many :reviews, dependent: :nullify
+
+  has_many :event_subscriptions, inverse_of: :user
+
+  belongs_to :owner, class_name: 'User'
+  has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
+
+  has_many :requests_created, foreign_key: 'creator', primary_key: :login, class_name: 'BsRequest'
+
   # users have a n:m relation to group
-  has_and_belongs_to_many :groups, :uniq => true
+  has_and_belongs_to_many :groups, -> { distinct }
   # users have a n:m relation to roles
-  has_and_belongs_to_many :roles, :uniq => true
+  has_and_belongs_to_many :roles, -> { distinct }
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
-  # We don't want to assign things to roles and groups in bulk assigns.
-  #attr_protected :roles, :groups, :created_at, :updated_at, :last_logged_in_at, :login_failure_count, :password_hash_type
-  # NOTE: Can't mix attr_protected and attr_accessible, but we set the latter to nil by default since
-  # git commit 107d7a612. Thus we have to explicitly list the allowed attributes:
-  attr_accessible :login, :email, :realname, :password, :password_confirmation, :state
+  has_one :ec2_configuration, class_name: 'Cloud::Ec2::Configuration', dependent: :destroy
+  has_one :azure_configuration, class_name: 'Cloud::Azure::Configuration', dependent: :destroy
+  has_many :upload_jobs, class_name: 'Cloud::User::UploadJob', dependent: :destroy
 
-  # This method returns an array with the names of all available
-  # password hash types supported by this User class.
-  def self.password_hash_types
-    default_password_hash_types
+  # TODO: Remove with Notification::RssFeedItem
+  has_many :rss_feed_items, -> { order(created_at: :desc) }, class_name: 'Notification::RssFeedItem', as: :subscriber, dependent: :destroy
+  has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
+
+  has_and_belongs_to_many :announcements
+  has_many :commit_activities
+
+  scope :confirmed, -> { where(state: 'confirmed') }
+  scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
+  scope :not_deleted, -> { where.not(state: 'deleted') }
+  scope :not_locked, -> { where.not(state: 'locked') }
+  scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
+  scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
+  scope :staff, -> { joins(:roles).where('roles.title = ?', 'Staff') }
+  scope :not_staff, -> { where.not(id: User.staff.pluck(:id)) }
+
+  scope :in_beta, -> { where(in_beta: true) }
+  scope :in_rollout, -> { where(in_rollout: true) }
+
+  scope :list, lambda {
+    all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
+  }
+
+  scope :recently_seen, -> { where('last_logged_in_at > ?', 3.months.ago) }
+
+  validates :login, :state, presence: { message: 'must be given' }
+
+  validates :login,
+            uniqueness: { message: 'is the name of an already existing user' }
+
+  validates :login,
+            format: { with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      message: 'must not contain invalid characters' }
+  validates :login,
+            length: { in: 2..100, allow_nil: true,
+                      too_long: 'must have less than 100 characters',
+                      too_short: 'must have more than two characters' }
+
+  validates :state, inclusion: { in: STATES }
+
+  validate :validate_state
+
+  # We want a valid email address. Note that the checking done here is very
+  # rough. Email adresses are hard to validate now domain names may include
+  # language specific characters and user names can be about anything anyway.
+  # However, this is not *so* bad since users have to answer on their email
+  # to confirm their registration.
+  validates :email,
+            format: { with: %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      message: 'must be a valid email address',
+                      allow_blank: true }
+
+  # we disabled has_secure_password's validations. therefore we need to do manual validations
+  validate :password_validation
+  validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
+  validates :password, confirmation: true, allow_blank: true
+
+  after_create :create_home_project, :track_create
+  before_save :send_metric_for_beta_change, if: :in_beta_changed?
+
+  alias flipper_id id
+
+  def track_create
+    RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
   end
 
-  # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set 
-  # (@new_password) and the login failure count to 
-  # unconfirmed/false/0 when it has not been set yet.
-  before_validation(:on => :create) do
+  def create_home_project
+    # avoid errors during seeding
+    return if login.in?([NOBODY_LOGIN, 'Admin'])
+    # may be disabled via Configuration setting
+    return unless can_create_project?(home_project_name)
+    # find or create the project
+    project = Project.find_by(name: home_project_name)
+    return if project
 
-    self.state = User.states['unconfirmed'] if self.state.nil? 
-    self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
-
-    @new_password = false if @new_password.nil?
-    @new_hash_type = false if @new_hash_type.nil?
-
-    self.login_failure_count = 0 if self.login_failure_count.nil?
+    project = Project.create!(name: home_project_name)
+    project.commit_user = self
+    # make the user maintainer
+    project.relationships.create!(user: self, role: Role.find_by_title('maintainer'))
+    project.store
+    @home_project = project
   end
 
-  # Set the last login time etc. when the record is created at first.
-  def before_create
-    self.last_logged_in_at = Time.now
+  # Inform ActiveModel::Dirty that changes are persistent now
+  after_save :changes_applied
+
+  # When a record object is initialized, we set the state and the login failure
+  # count to unconfirmed/0 when it has not been set yet.
+  before_validation(on: :create) do
+    self.state ||= 'unconfirmed'
+
+    # Set the last login time etc. when the record is created at first.
+    self.last_logged_in_at = Time.zone.today
+
+    self.login_failure_count = 0 if login_failure_count.nil?
   end
 
-  # Override the accessor for the "password_hash_type" property so it sets
-  # the "@new_hash_type" private property to signal that the password's
-  # hash method has been changed. Changing the password hash type is only
-  # possible if a new password has been provided.
-  def password_hash_type=(value)
-    write_attribute(:password_hash_type, value)
-    @new_hash_type = true
+  def self.autocomplete_token(prefix = '')
+    autocomplete_login(prefix).collect { |user| { name: user } }
   end
 
-  # After saving, we want to set the "@new_hash_type" value set to false
-  # again.
-  after_save '@new_hash_type = false'
-
-  # Add accessors for "new_password" property. This boolean property is set 
-  # to true when the password has been set and validation on this password is
-  # required.
-  attr_accessor :new_password
-
-  # Generate accessors for the password confirmation property.
-  attr_accessor :password_confirmation
-
-  # Overriding the default accessor to update @new_password on setting this
-  # property.
-  def password=(value)
-    write_attribute(:password, value)
-    @new_password = true
-  end
-  
-  # Returns true if the password has been set after the User has been loaded
-  # from the database and false otherwise
-  def new_password?
-    @new_password == true
+  def self.autocomplete_login(prefix = '')
+    with_login_prefix(prefix).not_deleted.not_locked.limit(50).order(:login).pluck(:login)
   end
 
-  # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need 
-  # password_confirmation - which should really only be used when data
-  # comes from forms. 
-  #
-  # A ussage example:
-  #
-  #   user = User.find(1)
-  #   user.update_password "n1C3s3cUreP4sSw0rD"
-  #   user.save
-  #
-  def update_password(pass)
-    self.password_crypted = hash_string(pass).crypt("os")
-    self.password_confirmation = hash_string(pass)
-    self.password = hash_string(pass)
+  # the default state of a user based on the api configuration
+  def self.default_user_state
+    ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
   end
 
-  # After saving the object into the database, the password is not new any more.
-  after_save '@new_password = false'
+  def self.create_user_with_fake_pw!(attributes = {})
+    create!(attributes.merge(password: SecureRandom.base64(48)))
+  end
 
-  # This method returns all groups assigned to the given user via ldap - including
-  # the ones he gets by being assigned through group inheritance.
-  def all_groups_ldap(group_ldap)
-    result = Array.new
-    for group in group_ldap
-      result << group.ancestors_and_self
+  def self.create_ldap_user(attributes = {})
+    user = create_user_with_fake_pw!(attributes.merge(state: default_user_state, adminnote: 'User created via LDAP'))
+
+    return user if user.errors.empty?
+
+    logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
+    return
+  end
+
+  # This static method tries to find a user with the given login and password
+  # in the database. Returns the user or nil if he could not be found
+  def self.find_with_credentials(login, password)
+    if CONFIG['ldap_mode'] == :on
+      return find_with_credentials_via_ldap(login, password)
     end
 
-    result.flatten!
-    result.uniq!
+    user = find_by_login(login)
+    user.try(:authenticate_via_password, password)
+  end
 
-    return result
+  def self.find_with_credentials_via_ldap(login, password)
+    user = find_by_login(login)
+    ldap_info = nil
+
+    return user.authenticate_via_password(password) if user.try(:ignore_auth_services?)
+
+    if CONFIG['ldap_mode'] == :on
+      begin
+        require 'ldap'
+        logger.debug("Using LDAP to find #{login}")
+        ldap_info = UserLdapStrategy.find_with_ldap(login, password)
+      rescue LoadError
+        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+      rescue
+        logger.debug "#{login} not found in LDAP."
+      end
+    end
+
+    return unless ldap_info
+
+    # We've found an ldap authenticated user - find or create an OBS userDB entry.
+    if user
+      # Check for ldap updates
+      user.assign_attributes(email: ldap_info[0], realname: ldap_info[1])
+      user.save if user.changed?
+    else
+      logger.debug('No user found in database, creating')
+      logger.debug("Email: #{ldap_info[0]}")
+      logger.debug("Name : #{ldap_info[1]}")
+
+      user = create_ldap_user(login: login, email: ldap_info[0], realname: ldap_info[1])
+    end
+
+    user.mark_login!
+    user
+  end
+
+  # Currently logged in user or nobody user if there is no user logged in.
+  # Use this to check permissions, but don't treat it as logged in user. Check
+  # is_nobody? on the returned object
+  def self.possibly_nobody
+    current || nobody
+  end
+
+  # Currently logged in user. Will thrown an exception if no user is logged in.
+  # So the controller needs to require login if using this (or models using it)
+  def self.session!
+    raise ArgumentError, 'Requiring user, but found nobody' unless session
+    current
+  end
+
+  # Currently logged in user or nil
+  def self.session
+    current if current && !current.is_nobody?
+  end
+
+  def self.admin_session?
+    current && current.is_admin?
+  end
+
+  # set the user as current session user (should be real user)
+  def self.session=(user)
+    Thread.current[:user] = user
+  end
+
+  def self.get_default_admin
+    admin = CONFIG['default_admin'] || 'Admin'
+    user = User.find_by_login(admin)
+    raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
+    user
+  end
+
+  def self.find_nobody!
+    User.create_with(email: 'nobody@localhost',
+                     realname: 'Anonymous User',
+                     state: 'locked',
+                     password: '123456').find_or_create_by(login: NOBODY_LOGIN)
+  end
+
+  def self.find_by_login!(login)
+    user = not_deleted.find_by(login: login)
+    return user if user
+    raise NotFoundError, "Couldn't find User with login = #{login}"
+  end
+
+  # some users have last_logged_in_at empty
+  def last_logged_in_at
+    self[:last_logged_in_at] || created_at
+  end
+
+  def away?
+    last_logged_in_at < 3.months.ago
+  end
+
+  def authenticate_via_password(password)
+    if authenticate(password)
+      mark_login!
+      self
+    else
+      count_login_failure
+      nil
+    end
+  end
+
+  def validate_state
+    # check that the state transition is valid
+    errors.add(:state, 'must be a valid new state from the current state') unless state_transition_allowed?(state_was, state)
   end
 
   # This method returns true if the user is assigned the role with one of the
   # role titles given as parameters. False otherwise.
   def has_role?(*role_titles)
-    obj = all_roles.detect do |role| 
+    obj = all_roles.detect do |role|
       role_titles.include?(role.title)
     end
-    
-    return !obj.nil?
+
+    !obj.nil?
   end
 
-  # This method returns a list of all the StaticPermission entities that
-  # have been assigned to this user through his roles.
-  def all_static_permissions
-    permissions = Array.new
-
-    all_roles.each do |role|
-      permissions.concat(role.static_permissions)
-    end
-
-    return permissions
-  end
-
-  # This method creates a new registration token for the current user. Raises 
-  # a MultipleRegistrationTokens Exception if the user already has a 
+  # This method creates a new registration token for the current user. Raises
+  # a MultipleRegistrationTokens Exception if the user already has a
   # registration token assigned to him.
   #
   # Use this method instead of creating user_registration objects directly!
@@ -156,708 +326,31 @@ class User < ActiveRecord::Base
     self.user_registration = token
   end
 
-  # This method expects the token for the current user. If the token is
-  # correct, the user's state will be set to "confirmed" and the associated
-  # "user_registration" record will be removed.
-  # Returns "true" on success and "false" on failure/or the user is already
-  # confirmed and/or has no "user_registration" record.
-  def confirm_registration(token)
-    return false if self.user_registration.nil?
-    return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, User.states['confirmed'])
-
-    self.state = User.states['confirmed']
-    self.save!
-    user_registration.destroy
-
-    return true
-  end
-
-  # Returns the default state of new User objects.
-  def self.default_state
-    User.states['unconfirmed']
-  end
-
-  # Returns true when users with the given state may log in. False otherwise.
-  # The given parameter must be an integer.
-  def self.state_allows_login?(state)
-    [ User.states['confirmed'], User.states['retrieved_password'] ].include?(state)
-  end
-
-  # Overwrite the state setting so it backs up the initial state from
-  # the database.
-  def state=(value)
-    @old_state = state if @old_state.nil?
-    write_attribute(:state, value)
-  end
-
-  # Overriding this method to make "login" visible as "User name". This is called in
-  # forms to create error messages.
-  def human_attribute_name (attr)
-    return case attr
-           when 'login' then 'User name'
-           else attr.humanize
-           end
-  end
-
-  # This static method removes all users with state "unconfirmed" and expired
-  # registration tokens.
-  def self.purge_users_with_expired_registration
-    registrations = UserRegistration.find :all,
-    :conditions => [ 'expires_at < ?', Time.now.ago(2.days) ]
-    registrations.each do |registration|
-      registration.user.destroy
-    end
-  end
-
-  # This static method tries to find a user with the given login and password
-  # in the database. Returns the user or nil if he could not be found
-  def self.find_with_credentials(login, password)
-    # Find user
-    user = User.find :first,
-    :conditions => [ 'login = ?', login ]
-
-    # If the user could be found and the passwords equal then return the user
-    if not user.nil? and user.password_equals? password
-      if user.login_failure_count > 0
-        user.login_failure_count = 0
-        self.execute_without_timestamps { user.save! }
-      end
-
-      return user
-    end
-
-    # Otherwise increase the login count - if the user could be found - and return nil
-    if not user.nil?
-      user.login_failure_count = user.login_failure_count + 1
-      self.execute_without_timestamps { user.save! }
-    end
-
-    return nil
-  end
-
-  # This static method tries to update the entry with the given info in the 
-  # active directory server.  Return the error msg if any error occurred
-  def self.update_entry_ldap(login, newlogin, newemail, newpassword)
-    logger.debug( " Modifying #{login} to #{newlogin} #{newemail} using ldap" )
-    
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      logger.debug( "User not found in ldap" )
-      return "User not found in ldap"
-    end
-
-    # Update mail/password info
-    entry = [
-             LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_mail_attr'],[newemail]),
-            ]
-    if newpassword
-      case CONFIG['ldap_auth_mech']
-      when :cleartext then
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_auth_attr'],[newpassword])
-      when :md5 then
-        require 'digest/md5'
-        require 'base64'
-        entry << LDAP.mod(LDAP::LDAP_MOD_REPLACE,CONFIG['ldap_auth_attr'],["{MD5}"+Base64.b64encode(Digest::MD5.digest(newpassword)).chomp])
-      end
-    end
-    begin
-      ldap_con.modify(dn, entry)
-    rescue LDAP::ResultError
-      logger.debug("Error #{ldap_con.err} for #{login} mail/password changing")
-      return "Failed to update entry for #{login}: error #{ldap_con.err}"
-    end
-
-    # Update the dn name if it is changed
-    if not login == newlogin
-      begin
-        ldap_con.modrdn(dn,"#{CONFIG['ldap_name_attr']}=#{newlogin}", true)
-      rescue LDAP::ResultError
-        logger.debug("Error #{ldap_con.err} for #{login} dn name changing")
-        return "Failed to update dn name for #{login}: error #{ldap_con.err}"
-      end
-    end
-
-    return
-  end
-
-  # This static method tries to add the new entry with the given name/password/mail info in the 
-  # active directory server.  Return the error msg if any error occurred
-  def self.new_entry_ldap(login, password, mail)
-    require 'ldap'
-    logger.debug( "Add new entry for #{login} using ldap" )
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return "Unable to connect to LDAP server"
-    end
-    case CONFIG['ldap_auth_mech']
-    when :cleartext then
-      ldap_password = password
-    when :md5 then
-      require 'digest/md5'
-      require 'base64'
-      ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
-    end
-    entry = [
-             LDAP.mod(LDAP::LDAP_MOD_ADD,'objectclass',CONFIG['ldap_object_class']),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_name_attr'],[login]),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_auth_attr'],[ldap_password]),
-             LDAP.mod(LDAP::LDAP_MOD_ADD,CONFIG['ldap_mail_attr'],[mail]),       
-            ]
-    # Added required sn attr
-    if defined?( CONFIG['ldap_sn_attr_required'] ) && CONFIG['ldap_sn_attr_required'] == :on
-      entry << LDAP.mod(LDAP::LDAP_MOD_ADD,'sn',[login])
-    end
-
-    begin
-      ldap_con.add("#{CONFIG['ldap_name_attr']}=#{login},#{CONFIG['ldap_entry_base']}", entry)
-    rescue LDAP::ResultError
-      logger.debug("Error #{ldap_con.err} for #{login}")
-      return "Failed to add a new entry for #{login}: error #{ldap_con.err}"
-    end
-    return
-  end
-
-  # This static method tries to delete the entry with the given login in the 
-  # active directory server.  Return the error msg if any error occurred
-  def self.delete_entry_ldap(login)
-    logger.debug( "Deleting #{login} using ldap" )
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      logger.debug( "User not found in ldap" )
-      return "User not found in ldap"
-    end
-    begin
-      ldap_con.delete(dn)
-    rescue LDAP::ResultError
-      logger.debug( "Failed to delete: error #{ldap_con.err} for #{login}" )
-      return "Failed to delete the entry #{login}: error #{ldap_con.err}"
-    end
-    return
-  end
-
-  # Check if ldap group support is enabled?
-  def self.ldapgroup_enabled?
-    return CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-  end
-
-  # This static method tries to find a group with the given gorup_title to check whether the group is in the LDAP server.
-  def self.find_group_with_ldap(group)
-    if defined?( CONFIG['ldap_group_objectclass_attr'] )
-      filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))"
-    else
-      filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
-    end
-    result = search_ldap(CONFIG['ldap_group_search_base'], filter)
-    if result.nil? 
-      logger.debug( "Fail to find group: #{group} in LDAP" )
-      return false
-    else
-      logger.debug( "group dn: #{result[0]}" )
-      return true
-    end
-  end
-
-  # This static method performs the search with the given search_base, filter
-  def self.search_ldap(search_base, filter, required_attr = nil)
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return nil
-    end
-    logger.debug( "Search: #{filter}" )
-    result = Array.new
-    ldap_con.search( search_base, LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
-      result << entry.dn
-      result << entry.attrs
-      if required_attr and entry.attrs.include?(required_attr)
-        result << entry.vals(required_attr)
-      end
-    end
-    if result.empty?
-      return nil
-    else
-      return result
-    end
-  end
-  
-  # This static method performs the search with the given grouplist, user to return the groups that the user in 
-  def self.render_grouplist_ldap(grouplist, user = nil)
-    result = Array.new
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return result
-    end
-
-    if not user.nil?
-      # search user
-      if defined?( CONFIG['ldap_user_filter'] )
-        filter = "(&(#{LCONFIG['dap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
-      else
-        filter = "(#{LCONFIG['dap_search_attr']}=#{user})"
-      end
-      user_dn = String.new
-      user_memberof_attr = String.new
-      ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
-        user_dn = entry.dn
-        if defined?( CONFIG['ldap_user_memberof_attr'] ) && entry.attrs.include?( CONFIG['ldap_user_memberof_attr'] )
-          user_memberof_attr=entry.vals(CONFIG['ldap_user_memberof_attr'])
-        end            
-      end
-      if user_dn.empty?
-        logger.debug( "Failed to find #{user} in ldap" )
-        return result
-      end
-      logger.debug( "User dn: #{user_dn} user_memberof_attr: #{user_memberof_attr}" )
-    end
-
-    group_dn = String.new
-    group_member_attr = String.new
-    grouplist.each do |eachgroup|
-      if eachgroup.kind_of? String
-        group = eachgroup
-      end
-      if eachgroup.kind_of? Group
-        group = eachgroup.title
-      end
-
-      unless group.kind_of? String
-        raise ArgumentError, "illegal parameter type to user#render_grouplist_ldap?: #{eachgroup.class.name}"
-      end
-
-      # search group
-      if defined?( CONFIG['ldap_group_objectclass_attr'] )
-        filter = "(&(#{CONFIG['ldap_group_title_attr']}=#{group})(objectclass=#{CONFIG['ldap_group_objectclass_attr']}))" 
-      else
-        filter = "(#{CONFIG['ldap_group_title_attr']}=#{group})"
-      end
-      
-      # clean group_dn, group_member_attr
-      group_dn = ""
-      group_member_attr = ""
-      logger.debug( "Search group: #{filter}" )         
-      ldap_con.search( CONFIG['ldap_group_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter ) do |entry|
-        group_dn = entry.dn
-        if defined?( CONFIG['ldap_group_member_attr'] ) && entry.attrs.include?(CONFIG['ldap_group_member_attr'])
-          group_member_attr = entry.vals(CONFIG['ldap_group_member_attr'])
-        end
-      end
-      if group_dn.empty?
-        logger.debug( "Failed to find #{group} in ldap" )
-        next
-      end
-      
-      if user.nil?
-        result << eachgroup
-        next
-      end
-
-      # user memberof attr exist?
-      if user_memberof_attr and user_memberof_attr.include?(group_dn)
-        result << eachgroup
-        logger.debug( "#{user} is in #{group}" )
-        next
-      end
-      # group member attr exist?
-      if group_member_attr and group_member_attr.include?(user_dn)
-        result << eachgroup
-        logger.debug( "#{user} is in #{group}" )
-        next
-      end
-      logger.debug("#{user} is not in #{group}")
-    end
-
-    return result
-  end
-
-  # This static method tries to update the password with the given login in the 
-  # active directory server.  Return the error msg if any error occurred
-  def self.change_password_ldap(login, password)
-    if @@ldap_search_con.nil?
-      @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-    end
-    ldap_con = @@ldap_search_con
-    if ldap_con.nil?
-      logger.debug( "Unable to connect to LDAP server" )
-      return "Unable to connect to LDAP server"
-    end
-    user_filter = "(#{LCONFIG['dap_search_attr']}=#{login})"
-    dn = String.new
-    ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-      dn = entry.dn
-    end
-    if dn.empty?
-      logger.debug( "User not found in ldap" )
-      return "User not found in ldap"
-    end
-
-    case CONFIG['ldap_auth_mech']
-    when :cleartext then
-      ldap_password = password
-    when :md5 then
-      require 'digest/md5'
-      require 'base64'
-      ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
-    end
-    entry = [
-             LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password]),
-            ]
-    begin
-      ldap_con.modify(dn, entry)
-    rescue LDAP::ResultError
-      logger.debug("Error #{ldap_con.err} for #{login}")
-      return "#{ldap_con.err}"
-    end
-
-    return
-  end
-
-
-  # This static method tries to find a user with the given login and
-  # password in the active directory server.  Returns nil unless 
-  # credentials are correctly found using LDAP.
-  def self.find_with_ldap(login, password)
-    logger.debug( "Looking for #{login} using ldap" )
-    ldap_info = Array.new
-    # use cache to check the password firstly
-    key="ldap_cache_userpasswd:" + login
-    require 'digest/md5'
-    if Rails.cache.exist?(key)
-      ar = Rails.cache.read(key)
-      if ar[0] == Digest::MD5.digest(password)
-        ldap_info[0] = ar[1]
-        ldap_info[1] = ar[2]
-        logger.debug("login success for checking with ldap cache")
-        return ldap_info
-      end 
-    end
-
-    # When the server closes the connection, @@ldap_search_con.nil? doesn't catch it
-    # @@ldap_search_con.bound? doesn't catch it as well. So when an error occurs, we
-    # simply it try it a seccond time, which forces the ldap connection to
-    # reinitialize (@@ldap_search_con is unbound and nil).
-    ldap_first_try = true
-    dn = String.new
-    ldap_password = String.new
-    user_filter = String.new
-    1.times do
-      if @@ldap_search_con.nil?
-        @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth'])
-      end
-      ldap_con = @@ldap_search_con
-      if ldap_con.nil?
-        logger.debug( "Unable to connect to LDAP server" )
-        return nil
-      end
-
-      if defined?( CONFIG['ldap_user_filter'] )
-        user_filter = "(&(#{CONFIG['dap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
-      else
-        user_filter = "(#{CONFIG['dap_search_attr']}=#{login})"
-      end
-      logger.debug( "Search for #{user_filter}" )
-      begin
-        ldap_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter ) do |entry|
-          dn = entry.dn
-          ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-          if defined?( CONFIG['ldap_authenticate'] ) && CONFIG['ldap_authenticate'] == :local
-            if entry[CONFIG['ldap_auth_attr']] then
-              ldap_password = entry[CONFIG['ldap_auth_attr']][0]
-              logger.debug( "Get auth_attr:#{ldap_password}" )
-            else
-              logger.debug( "Failed to get attr:#{CONFIG['ldap_auth_attr']}" )
-            end
-          end
-        end
-      rescue
-        logger.debug( "Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}" )
-        @@ldap_search_con.unbind()
-        @@ldap_search_con = nil
-        if ldap_fist_try
-          ldap_first_try = false
-          redo
-        end
-        return nil
-      end
-    end
-    if dn.empty?
-      logger.debug( "User not found in ldap" )
-      return nil
-    end
-    # Attempt to authenticate user
-    case CONFIG['ldap_authenticate']
-    when :local then
-      authenticated = false
-      case CONFIG['ldap_auth_mech']
-      when :cleartext then
-        if ldap_password == password then
-          authenticated = true
-        end
-      when :md5 then
-        require 'digest/md5'
-        require 'base64'
-        if ldap_password == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
-          authenticated = true
-        end
-      end
-      if authenticated == true
-        ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-        ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
-      end
-    when :ldap then
-      # Don't match the passwd locally, try to bind to the ldap server
-      user_con= initialize_ldap_con(dn,password)
-      if user_con.nil?
-        logger.debug( "Unable to connect to LDAP server as #{dn} using credentials supplied" )
-      else
-        # Redo the search as the user for situations where the anon search may not be able to see attributes
-        user_con.search( CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE,  user_filter ) do |entry|
-          if entry[CONFIG['ldap_mail_attr']] then 
-            ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-          end
-          if entry[CONFIG['ldap_name_attr']] then
-            ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
-          else
-            ldap_info[1] = login
-          end
-        end
-        user_con.unbind()
-      end
-    end
-    Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
-    logger.debug( "login success for checking with ldap server" )
-    ldap_info
-  end
-
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
-  def password_equals?(value)
-    return hash_string(value) == self.password
+  def deprecated_password_equals?(value)
+    hash_string(value) == deprecated_password
   end
 
-  # Sets the last login time and saves the object. Note: Must currently be 
-  # called explicitely!
-  def did_log_in
-    self.last_logged_in_at = DateTime.now
-    self.class.execute_without_timestamps { save }
-  end
-
-  # Returns true if the the state transition from "from" state to "to" state 
-  # is valid. Returns false otherwise. +new_state+ must be the integer value 
-  # of the state as returned by +User.states['state_name']+.
-  #
-  # Note that currently no permission checking is included here; It does not 
-  # matter what permissions the currently logged in user has, only that the
-  # state transition is legal in principle.
-  def state_transition_allowed?(from, to)
-    from = from.to_i
-    to = to.to_i
-
-    return true if from == to # allow keeping state
-
-    return case from
-           when User.states['unconfirmed']
-             true
-           when User.states['confirmed']
-             [ User.states['retrieved_password'], User.states['locked'], User.states['deleted'] ].include?(to)
-           when User.states['locked']
-             [ User.states['confirmed'], User.states['deleted'] ].include?(to)
-           when User.states['deleted']
-             [ User.states['confirmed'] ].include?(to)
-           when User.states['retrieved_password']
-             [ User.states['confirmed'], User.states['locked'], User.states['deleted'] ].include?(to)
-           when 0
-             User.states.value?(to)
-           else
-             false
-           end
-  end
-
-  # Model Validation
-
-  validates_presence_of   :login, :email, :password, :password_hash_type, :state,
-                          :message => 'must be given'
-
-  validates_uniqueness_of :login, 
-                          :message => 'is the name of an already existing user.'
-
-  # Overriding this method to do some more validation: Password equals 
-  # password_confirmation, state an password hash type being in the range
-  # of allowed values.
-  def validate
-    # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, "must be in the list of hash types.") unless User.password_hash_types.include? password_hash_type
-    # check that the state transition is valid
-    errors.add(:state, "must be a valid new state from the current state.") unless state_transition_allowed?(@old_state, state)
-
-    # validate the password
-    if @new_password and not password.nil?
-      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
-    end
-
-    # check that the password hash type has not been set if no new password
-    # has been provided
-    if @new_hash_type and (!@new_password or password.nil?) then
-      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
-    end
-  end
-
-  validates_format_of    :login, 
-                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z}, 
-                         :message => 'must not contain invalid characters.'
-  validates_length_of    :login, 
-                         :in => 2..100, :allow_nil => true,
-                         :too_long => 'must have less than 100 characters.', 
-                         :too_short => 'must have more than two characters.'
-
-  # We want a valid email address. Note that the checking done here is very
-  # rough. Email adresses are hard to validate now domain names may include
-  # language specific characters and user names can be about anything anyway.
-  # However, this is not *so* bad since users have to answer on their email
-  # to confirm their registration.
-  validates_format_of :email, 
-                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      :message => 'must be a valid email address.'
-
-  # We want to validate the format of the password and only allow alphanumeric
-  # and some punctiation characters.
-  # The format must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_format_of when
-  # overriding the password format validation.
-  validates_format_of :password,
-                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
-                      :message => 'must not contain invalid characters.',
-                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
-
-  # We want the password to have between 6 and 64 characters.
-  # The length must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_length_of when
-  # overriding the length format validation.
-  validates_length_of :password,
-                      :within => 6..64,
-                      :too_long => 'must have between 6 and 64 characters.',
-                      :too_short => 'must have between 6 and 64 characters.',
-                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
-
-  class << self
-    def current
-      Thread.current[:user]
-    end
-    
-    def current=(user)
-      Thread.current[:user] = user
-    end
-
-    def nobodyID
-      return Thread.current[:nobody_id] ||= get_by_login("_nobody_").id
-    end
-
-    def get_by_login(login)
-      find_by_login!(login)
-    end
-
-    def find_by_email(email)
-      return where(:email => email).first
-    end
-  end
-
-  # After validation, the password should be encrypted  
-  after_validation(:on => :create) do 
-    if errors.empty? and @new_password and !password.nil?
-      # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack("m")[0..9];
-
-      # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt("os"))
-      #  ^^^^^^
-      
-      # write encrypted password to object property
-      write_attribute(:password, hash_string(password))
-
-      # mark password as "not new" any more
-      @new_password = false
-      self.password_confirmation = nil
-      
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
-    else 
-      logger.debug "Error - skipping to create user #{errors.empty?} #{@new_password.inspect} #{password.inspect}"
-    end
-  end
-
-  def render_axml( watchlist = false )
-    builder = Nokogiri::XML::Builder.new
- 
-    logger.debug "----------------- rendering person #{self.login} ------------------------"
-    builder.person() do |person|
-      person.login( self.login )
-      person.email( self.email )
-      realname = self.realname
-      realname.toutf8
-      person.realname( realname )
-      # FIXME 2.5: turn the state into an enum
-      person.state( User.states.keys[self.state-1] )
-
-      self.roles.global.each do |role|
-        person.globalrole( role.title )
+  def authenticate(unencrypted_password)
+    # for users without a bcrypt password we need an extra check and convert
+    # the password to a bcrypt one
+    if deprecated_password
+      if deprecated_password_equals?(unencrypted_password)
+        update(password: unencrypted_password, deprecated_password: nil, deprecated_password_salt: nil, deprecated_password_hash_type: nil)
+        return self
       end
 
-      # Show the watchlist only to the user for privacy reasons
-      if watchlist
-        person.watchlist() do |wl|
-          self.watched_projects.each do |wp|
-            wl.project( :name => wp.project.name )
-          end
-        end
-      end
+      return false
     end
 
-    return builder.doc.to_xml :indent => 2, :encoding => 'UTF-8',
-                              :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                            Nokogiri::XML::Node::SaveOptions::FORMAT
-
+    # it seems that the user is not using a deprecated password so we use bcrypt's
+    # #authenticate method
+    super
   end
 
   # Returns true if the the state transition from "from" state to "to" state
-  # is valid. Returns false otherwise. +new_state+ must be the integer value
-  # of the state as returned by +User.states['state_name']+.
+  # is valid. Returns false otherwise.
   #
   # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
@@ -868,52 +361,43 @@ class User < ActiveRecord::Base
 
     return true if from == to # allow keeping state
 
-    return case from
-      when User.states['unconfirmed']
-        true
-      when User.states['confirmed']
-        ['retrieved_password','locked','deleted','deleted','ichainrequest'].map{|x| User.states[x]}.include?(to)
-      when User.states['locked']
-        ['confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
-      when User.states['deleted']
-        to == User.states['confirmed']
-      when User.states['ichainrequest']
-        ['locked', 'confirmed', 'deleted'].map{|x| User.states[x]}.include?(to)
-      when 0
-        User.states.value?(to)
-      else
-        false
+    case from
+    when 'unconfirmed'
+      true
+    when 'confirmed'
+      to.in?(['locked', 'deleted'])
+    when 'locked'
+      to.in?(['confirmed', 'deleted'])
+    when 'deleted'
+      to == 'confirmed'
+    else
+      false
     end
   end
 
-  STATES = {
-    'unconfirmed'        => 1,
-    'confirmed'          => 2,
-    'locked'             => 3,
-    'deleted'            => 4,
-    'ichainrequest'      => 5,
-    'retrieved_password' => 6,
-  }
-
-  def self.states
-    STATES
+  def cloud_configurations?
+    ec2_configuration.present? || azure_configuration.present?
   end
 
-  # updates users email address and real name using data transmitted by authentification proxy
-  def update_user_info_from_proxy_env(env)
-    proxy_email = env["HTTP_X_EMAIL"]
-    if not proxy_email.blank? and self.email != proxy_email
-      logger.info "updating email for user #{self.login} from proxy header: old:#{self.email}|new:#{proxy_email}"
-      self.email = proxy_email
-      self.save
-    end
-    if not env['HTTP_X_FIRSTNAME'].blank? and not env['HTTP_X_LASTNAME'].blank?
-      realname = env['HTTP_X_FIRSTNAME'] + " " + env['HTTP_X_LASTNAME']
-      if self.realname != realname
-        self.realname = realname
-        self.save
-      end
-    end
+  def to_axml(_opts = {})
+    render_axml
+  end
+
+  def render_axml(watchlist = false)
+    # CanRenderModel
+    render_xml(watchlist: watchlist)
+  end
+
+  def home_project_name
+    "home:#{login}"
+  end
+
+  def home_project
+    @home_project ||= Project.find_by(name: home_project_name)
+  end
+
+  def branch_project_name(branch)
+    "#{home_project_name}:branches:#{branch}"
   end
 
   #####################
@@ -921,447 +405,589 @@ class User < ActiveRecord::Base
   #####################
 
   def is_admin?
-    if @is_admin.nil?
-      @is_admin = !roles.find_by_title("Admin", :select => "roles.id").nil?
-    end
-    @is_admin
+    return @is_admin unless @is_admin.nil?
+    @is_admin = roles.where(title: 'Admin').exists?
+  end
+
+  def is_staff?
+    return @is_staff unless @is_staff.nil?
+    @is_staff = roles.where(title: 'Staff').exists?
+  end
+
+  def is_nobody?
+    login == NOBODY_LOGIN
+  end
+
+  def is_active?
+    return owner.is_active? if owner
+
+    self.state == 'confirmed'
   end
 
   def is_in_group?(group)
-    if group.nil?
-      return false
-    end
-    if group.kind_of? String
+    case group
+    when String
       group = Group.find_by_title(group)
-      return false unless group
-    end
-    if group.kind_of? Fixnum
+    when Integer
       group = Group.find(group)
-    end
-    unless group.kind_of? Group
+    when Group, nil
+      nil
+    else
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
-    if User.ldapgroup_enabled?
-      return user_in_group_ldap?(self.login, group) 
-    else 
-      return !groups_users.where(group_id: group.id).first.nil?
-    end
+
+    group && lookup_strategy.is_in_group?(self, group)
   end
 
   # This method returns true if the user is granted the permission with one
   # of the given permission titles.
   def has_global_permission?(perm_string)
     logger.debug "has_global_permission? #{perm_string}"
-    self.roles.detect do |role|
-      return true if role.static_permissions.where("static_permissions.title = ?", perm_string).first
+    roles.detect do |role|
+      return true if role.static_permissions.find_by(title: perm_string)
     end
   end
-  
+
+  def can_modify?(object, ignore_lock = nil)
+    case object
+    when Project
+      can_modify_project?(object, ignore_lock)
+    when Package
+      can_modify_package?(object, ignore_lock)
+    when nil
+      false
+    else
+      raise ArgumentError, "Wrong type of object: '#{object.class}' instead of Project or Package."
+    end
+  end
+
   # project is instance of Project
-  def can_modify_project?(project, ignoreLock=nil)
-    unless project.kind_of? Project
+  def can_modify_project?(project, ignore_lock = nil)
+    unless project.is_a?(Project)
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
-    return false if not ignoreLock and project.is_locked?
-    return true if is_admin?
-    return true if has_global_permission? "change_project"
-    return true if has_local_permission? "change_project", project
-    return false
+
+    if project.new_record?
+      # Project.check_write_access(!) should have been used?
+      raise NotFoundError, 'Project is not stored yet'
+    end
+
+    can_modify_project_internal(project, ignore_lock)
   end
 
   # package is instance of Package
-  def can_modify_package?(package, ignoreLock=nil)
+  def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
-    unless package.kind_of? Package
+    unless package.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
     end
-    return false if not ignoreLock and package.is_locked?
+    return false if !ignore_lock && package.is_locked?
     return true if is_admin?
-    return true if has_global_permission? "change_package"
-    return true if has_local_permission? "change_package", package
-    return false
+    return true if has_global_permission?('change_package')
+    return true if has_local_permission?('change_package', package)
+    false
+  end
+
+  def can_modify_user?(user)
+    is_admin? || self == user
   end
 
   # project is instance of Project
-  def can_create_package_in?(project, ignoreLock=nil)
-    unless project.kind_of? Project
+  def can_create_package_in?(project, ignore_lock = nil)
+    unless project.is_a?(Project)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
 
-    return false if not ignoreLock and project.is_locked?
+    return false if !ignore_lock && project.is_locked?
     return true if is_admin?
-    return true if has_global_permission? "create_package"
-    return true if has_local_permission? "create_package", project
-    return false
+    return true if has_global_permission?('create_package')
+    return true if has_local_permission?('create_package', project)
+    false
   end
 
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and CONFIG['allow_user_to_create_home_project'] != "false"
-    return true if /^home:#{self.login}:/.match( project_name ) and CONFIG['allow_user_to_create_home_project'] != "false"
+    return true if project_name == home_project_name && Configuration.allow_user_to_create_home_project
+    return true if /^#{home_project_name}:/ =~ project_name && Configuration.allow_user_to_create_home_project
 
-    return true if has_global_permission? "create_project"
-    p = Project.find_parent_for(project_name)
-    return false if p.nil?
+    return true if has_global_permission?('create_project')
+    parent_project = Project.new(name: project_name).parent
+    return false if parent_project.nil?
     return true  if is_admin?
-    return has_local_permission?( "create_project", p)
+    has_local_permission?('create_project', parent_project)
   end
 
   def can_modify_attribute_definition?(object)
-    return can_create_attribute_definition?(object)
+    can_create_attribute_definition?(object)
   end
+
+  def attribute_modifier_rule_matches?(rule)
+    return false if rule.user && rule.user != self
+    return false if rule.group && !is_in_group?(rule.group)
+    true
+  end
+
   def can_create_attribute_definition?(object)
-    if object.kind_of? AttribType
-      object = object.attrib_namespace
-    end
-    if not object.kind_of? AttribNamespace
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
-    end
-
-    return true  if is_admin?
-
-    abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
-    abies.each do |mod_rule|
-      next if mod_rule.user and mod_rule.user != self
-      next if mod_rule.group and not is_in_group? mod_rule.group
-      return true
-    end
-
-    return false
-  end
-
-  def can_create_attribute_in?(object, opts)
-    if not object.kind_of? Project and not object.kind_of? Package
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
-    end
-    unless opts[:namespace]
-      raise ArgumentError, "no namespace given"
-    end
-    unless opts[:name]
-      raise ArgumentError, "no name given"
-    end
-
-    # find attribute type definition
-    if ( not atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name]) or atype.blank? )
-      raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
+    object = object.attrib_namespace if object.is_a?(AttribType)
+    unless object.is_a?(AttribNamespace)
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
 
     return true if is_admin?
 
-    # check modifiable_by rules
-    abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
-    if abies.length > 0
-      abies.each do |mod_rule|
-        next if mod_rule.user and mod_rule.user != self
-        next if mod_rule.group and not is_in_group? mod_rule.group
-        next if mod_rule.role and not has_local_role?(mod_rule.role, object)
-        return true
-      end
-    else
-      # no rules set for attribute, just check package maintainer rules
-      if object.kind_of? Project
-        return can_modify_project?(object)
-      else
-        return can_modify_package?(object)
-      end
+    abies = object.attrib_namespace_modifiable_bies.includes([:user, :group])
+    abies.any? { |rule| attribute_modifier_rule_matches?(rule) }
+  end
+
+  def attribute_modification_rule_matches?(rule, object)
+    return false unless attribute_modifier_rule_matches?(rule)
+    return false if rule.role && !has_local_role?(rule.role, object)
+    true
+  end
+
+  def can_create_attribute_in?(object, atype)
+    if !object.is_a?(Project) && !object.is_a?(Package)
+      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
     end
-    # never reached
-    return false
+
+    return true if is_admin?
+
+    abies = atype.attrib_type_modifiable_bies.includes([:user, :group, :role])
+    # no rules -> maintainer
+    return can_modify?(object) if abies.empty?
+
+    abies.any? { |rule| attribute_modification_rule_matches?(rule, object) }
   end
 
   def can_download_binaries?(package)
-    return true if is_admin?
-    return true if has_global_permission? "download_binaries"
-    return true if has_local_permission?("download_binaries", package)
-    return false
+    can?(:download_binaries, package)
   end
 
   def can_source_access?(package)
-    return true if is_admin?
-    return true if has_global_permission? "source_access"
-    return true if has_local_permission?("source_access", package)
-    return false
+    can?(:source_access, package)
   end
 
-  def can_access?(parm)
-    return true if is_admin?
-    return true if has_global_permission? "access"
-    return true if has_local_permission?("access", parm)
-    return false
+  def can?(key, package)
+    is_admin? ||
+      has_global_permission?(key.to_s) ||
+      has_local_permission?(key.to_s, package)
   end
 
-  def can_access_downloadbinany?(parm)
-    return true if is_admin?
-    if parm.kind_of? Package
-      return true if can_download_binaries?(parm)
-    end
-    return true if can_access?(parm)
-    return false
-  end
+  def has_local_role?(role, object)
+    if object.is_a?(Package) || object.is_a?(Project)
+      logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
+      rels = object.relationships.where(role_id: role.id, user_id: id)
+      return true if rels.exists?
+      rels = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: role.id)
+      return true if rels.exists?
 
-  def can_access_downloadsrcany?(parm)
-    return true if is_admin?
-    if parm.kind_of? Package
-      return true if can_source_access?(parm)
-    end
-    return true if can_access?(parm)
-    return false
-  end
-
-  def groups_ldap ()
-    logger.debug "List the groups #{self.login} is in"
-    ldapgroups = Array.new
-    # check with LDAP
-    if User.ldapgroup_enabled?
-      grouplist = Group.all
-      begin
-        ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
-      rescue Exception
-        logger.debug "Error occurred in searching user_group in ldap."
-      end
-    end        
-    return ldapgroups
-  end
-
-  def user_in_group_ldap?(user, group)
-    grouplist = []
-    if group.kind_of? String
-      grouplist.push Group.find_by_title(group)
-    else
-      grouplist.push group
+      return true if lookup_strategy.local_role_check(role, object)
     end
 
-    begin      
-      return true unless User.render_grouplist_ldap(grouplist, user).empty?
-    rescue Exception
-      logger.debug "Error occurred in searching user_group in ldap."
-    end
+    return has_local_role?(role, object.project) if object.is_a?(Package)
 
-    return false
-  end
-  
-  def local_permission_check_with_ldap ( group_relationships )
-    group_relationships.each do |r|
-      return false if r.group.nil?
-      #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, r.group) 
-    end
-    logger.debug "Failed with local_permission_check_with_ldap"
-    return false
-  end
-
-
-  def local_role_check_with_ldap (role, object)
-    logger.debug "Checking role with ldap: object #{object.name}, role #{role.title}"
-    case object
-      when Package
-        rels = object.package_group_role_relationships.where(:role_id => role.id).includes(:group)
-      when Project
-        rels = object.project_group_role_relationships.where(:role_id => role.id).includes(:group)
-    end
-    for rel in rels
-      return false if rel.group.nil?
-      #check whether current user is in this group
-      return true if user_in_group_ldap?(self.login, rel.group) 
-    end
-    logger.debug "Failed with local_role_check_with_ldap"
-    return false
-  end
-
-  def has_local_role?( role, object )
-    case object
-      when Package
-        logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
-        rels = object.package_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
-        return true if rels
-	rels = object.package_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
-        return true if rels
-
-        # check with LDAP
-        if User.ldapgroup_enabled?
-          return true if local_role_check_with_ldap(role, object)
-        end
-
-        return has_local_role?(role, object.project)
-      when Project
-        logger.debug "running local role project check: user #{self.login}, project #{object.name}, role '#{role.title}'"
-        rels = object.project_user_role_relationships.where(:role_id => role.id, :bs_user_id => self.id).first
-        return true if rels
-        rels = object.project_group_role_relationships.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where(:role_id => role.id).first
-        return true if rels
-
-        # check with LDAP
-        if User.ldapgroup_enabled?
-          return true if local_role_check_with_ldap(role, object)
-        end
-
-        return false
-    end
-    return false
+    false
   end
 
   # local permission check
   # if context is a package, check permissions in package, then if needed continue with project check
   # if context is a project, check it, then if needed go down through all namespaces until hitting the root
   # return false if none of the checks succeed
-  def has_local_permission?( perm_string, object )
+  def has_local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
-    users = nil
-    groups = nil
     parent = nil
     case object
     when Package
-      logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
-      #check permission for given package
-      users = object.package_user_role_relationships
-      groups = object.package_group_role_relationships
+      logger.debug "running local permission check: user #{login}, package #{object.name}, permission '#{perm_string}'"
+      # check permission for given package
       parent = object.project
     when Project
-      logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
-      #check permission for given project
-      users = object.project_user_role_relationships
-      groups = object.project_group_role_relationships
-      parent = object.find_parent
+      logger.debug "running local permission check: user #{login}, project #{object.name}, permission '#{perm_string}'"
+      # check permission for given project
+      parent = object.parent
     when nil
       return has_global_permission?(perm_string)
     else
       return false
     end
-    rel = users.where(:bs_user_id => self.id).where("role_id in (?)", roles).first
-    return true if rel
-    rel = groups.joins(:groups_users).where(:groups_users => {:user_id => self.id}).where("role_id in (?)", roles).first
-    return true if rel
+    rel = object.relationships.where(user_id: id).where('role_id in (?)', roles)
+    return true if rel.exists?
+    rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where('role_id in (?)', roles)
+    return true if rel.exists?
 
-    # check with LDAP
-    if User.ldapgroup_enabled?
-      return true if local_permission_check_with_ldap(groups.where("role_id in (?)", roles))
-    end
-    
-    if parent 
-      #check permission of parent project
+    return true if lookup_strategy.local_permission_check(roles, object)
+
+    if parent
+      # check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
     end
 
-    return false
+    false
   end
 
-  def involved_projects_ids
-    # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
+  def lock!
+    self.state = 'locked'
+    save!
 
-    ### all projects where user is maintainer
-    projects = ProjectUserRoleRelationship.where(bs_user_id: id, role_id: role.id).select(:db_project_id).all.map {|ur| ur.db_project_id }
-
-    # all projects where user is maintainer via a group
-    projects += ProjectGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_project_id).all.map {|ur| ur.db_project_id } 
-
-    projects.uniq
+    # lock also all home projects to avoid unneccessary builds
+    Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
+      next if prj.is_locked?
+      prj.lock('User account got locked')
+    end
   end
-  protected :involved_projects_ids
-  
+
+  def delete
+    delete!
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
+
+  def delete!
+    # remove user data as much as possible
+    # but we must NOT remove the information that the account did exist
+    # or another user could take over the identity which can open security
+    # issues (other infrastructur and systems using repositories)
+
+    self.email = ''
+    self.realname = ''
+    self.state = 'deleted'
+    save!
+
+    # wipe also all home projects
+    Project.where('name LIKE ?', "#{home_project_name}:%").or(Project.where(name: home_project_name)).each do |project|
+      project.commit_opts = { comment: 'User account got deleted' }
+      project.destroy
+    end
+
+    RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
+    true
+  end
+
   def involved_projects
-    # now filter the projects that are not visible
-    return Project.where(id: involved_projects_ids)
+    Project.for_user(id).or(Project.for_group(group_ids))
   end
 
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
-    # just for maintainer for now.
-    role = Role.rolecache["maintainer"]
-
-    projects = involved_projects_ids
-    projects << -1 if projects.empty?
-
-    # all packages where user is maintainer
-    packages = PackageUserRoleRelationship.where(bs_user_id: id, role_id: role.id).joins(:package).where("packages.db_project_id not in (?)", projects).select(:db_package_id).all.map {|ur| ur.db_package_id}
-
-    # all packages where user is maintainer via a group
-    packages += PackageGroupRoleRelationship.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).select(:db_package_id).all.map {|ur| ur.db_package_id}
-
-    return Package.where(id: packages).where("db_project_id not in (?)", projects)
+    Package.for_user(id).or(Package.for_group(group_ids)).where.not(project: involved_projects)
   end
 
-  protected
-  # This method allows to execute a block while deactivating timestamp
-  # updating.
-  def self.execute_without_timestamps
-    old_state = ActiveRecord::Base.record_timestamps
-    ActiveRecord::Base.record_timestamps = false
+  # list packages owned by this user.
+  def owned_packages
+    owned = []
+    begin
+      OwnerSearch::Owned.new.for(self).each do |owner|
+        owned << [owner.package, owner.project]
+      end
+    rescue APIError # no attribute set
+    end
+    owned
+  end
 
-    yield
+  # lists reviews involving this user
+  def involved_reviews(search = nil)
+    result = BsRequest.by_user_reviews(id).or(
+      BsRequest.by_project_reviews(involved_projects).or(
+        BsRequest.by_package_reviews(involved_packages).or(
+          BsRequest.by_group_reviews(groups)
+        )
+      )
+    ).with_actions_and_reviews.where(state: :review, reviews: { state: :new }).where.not(creator: login)
+    search.present? ? result.do_search(search) : result
+  end
 
-    ActiveRecord::Base.record_timestamps = old_state
+  # list requests involving this user
+  def declined_requests(search = nil)
+    result = requests_created.in_states(:declined).with_actions
+    search.present? ? result.do_search(search) : result
+  end
+
+  # list incoming requests involving this user
+  def incoming_requests(search = nil)
+    result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
+      BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
+    ).with_actions.in_states(:new)
+
+    search.present? ? result.do_search(search) : result
+  end
+
+  # list outgoing requests involving this user
+  def outgoing_requests(search = nil)
+    result = requests_created.in_states([:new, :review]).with_actions
+    search.present? ? result.do_search(search) : result
+  end
+
+  # list of all requests
+  def requests(search = nil)
+    project_ids = involved_projects
+    package_ids = involved_packages
+
+    actions = BsRequestAction.bs_request_ids_of_involved_projects(project_ids).or(
+      BsRequestAction.bs_request_ids_of_involved_packages(package_ids)
+    )
+
+    reviews = Review.bs_request_ids_of_involved_users(id).or(
+      Review.bs_request_ids_of_involved_projects(project_ids).or(
+        Review.bs_request_ids_of_involved_packages(package_ids).or(
+          Review.bs_request_ids_of_involved_groups(groups)
+        )
+      )
+    ).where(state: :new)
+
+    result = BsRequest.where(creator: login).or(
+      BsRequest.where(id: actions).or(
+        BsRequest.where(id: reviews)
+      )
+    ).with_actions
+
+    search.present? ? result.do_search(search) : result
+  end
+
+  # lists running maintenance updates where this user is involved in
+  def involved_patchinfos
+    array = []
+
+    ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.select(:package_id)
+
+    Package.where(id: ids).find_each do |p|
+      hash = { package: { project: p.project.name, name: p.name } }
+      issues = []
+
+      p.issues.each do |is|
+        i = {}
+        i[:name] = is.name
+        i[:tracker] = is.issue_tracker.name
+        i[:label] = is.label
+        i[:url] = is.url
+        i[:summary] = is.summary
+        i[:state] = is.state
+        i[:login] = is.owner.login if is.owner
+        i[:updated_at] = is.updated_at
+        issues << i
+      end
+
+      hash[:issues] = issues
+      array << hash
+    end
+
+    array
+  end
+
+  def user_relevant_packages_for_status
+    role_id = Role.hashed['maintainer'].id
+    # First fetch the project ids
+    projects_ids = involved_projects.select(:id)
+    packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
+    # No maintainers
+    packages = packages.where([
+                                '(relationships.user_id = ?) OR '\
+                                '(relationships.user_id is null AND packages.project_id in (?) )', id, projects_ids
+                              ])
+    packages.pluck(:id)
+  end
+
+  def state
+    return owner.state if owner
+
+    self[:state]
+  end
+
+  def to_s
+    login
+  end
+
+  def to_param
+    to_s
+  end
+
+  # TODO: Remove once responsive_ux is out of beta
+  def tasks
+    Rails.cache.fetch("requests_for_#{cache_key}") do
+      declined_requests.count +
+        incoming_requests.count +
+        involved_reviews.count
+    end
+  end
+
+  def unread_notifications
+    NotificationsFinder.new(notifications.for_web).unread.size
+  end
+
+  def watched_project_names
+    Rails.cache.fetch(['watched_project_names', self]) do
+      Project.where(id: watched_projects.select(:project_id)).order(:name).pluck(:name)
+    end
+  end
+
+  def add_watched_project(name)
+    watched_projects.create(project: Project.find_by_name!(name))
+    clear_watched_projects_cache
+  end
+
+  def remove_watched_project(name)
+    watched_projects.joins(:project).where(projects: { name: name }).delete_all
+    clear_watched_projects_cache
+  end
+
+  # Needed to clear cache even when user's updated_at timestamp did not change,
+  # aka. changes within the same second. Mainly an issue when in our test suite
+  def clear_watched_projects_cache
+    Rails.cache.delete(['watched_project_names', self])
+  end
+
+  def watches?(name)
+    watched_project_names.include?(name)
+  end
+
+  def update_globalroles(global_roles)
+    roles.replace(global_roles + roles.where(global: false))
+  end
+
+  def add_globalrole(global_role)
+    update_globalroles(global_role + roles.global)
+  end
+
+  def display_name
+    address = Mail::Address.new(email)
+    address.display_name = realname
+    address.format
+  end
+
+  def name
+    realname.presence || login
+  end
+
+  def combined_rss_feed_items
+    Notification.for_rss.where(subscriber: self).or(
+      Notification.for_rss.where(subscriber: groups)
+    ).order(created_at: :desc, id: :desc).limit(Notification::MAX_RSS_ITEMS_PER_USER)
+  end
+
+  def mark_login!
+    update(last_logged_in_at: Time.zone.today, login_failure_count: 0)
+  end
+
+  def count_login_failure
+    update(login_failure_count: login_failure_count + 1)
+  end
+
+  def proxy_realname(env)
+    return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
+    env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
+  end
+
+  def update_login_values(env)
+    # updates user's email and real name using data transmitted by authentication proxy
+    self.email = env['HTTP_X_EMAIL'] if env['HTTP_X_EMAIL'].present?
+    self.realname = proxy_realname(env) if proxy_realname(env)
+
+    self.last_logged_in_at = Time.zone.today
+    self.login_failure_count = 0
+
+    if changes.any?
+      if changes.keys.include?('email')
+        logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}"
+      end
+
+      # At this point some login value changed, so a successful log in is tracked
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
+    end
+
+    save
+  end
+
+  def send_metric_for_beta_change
+    channel = (in_beta? ? 'joined_beta' : 'left_beta')
+    RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
+  end
+
+  def run_as
+    before = User.session
+    begin
+      User.session = self
+      yield
+    ensure
+      User.session = before
+    end
   end
 
   private
 
-  # This method returns an array which contains all valid hash types.
-  def self.default_password_hash_types
-    [ 'md5' ]
+  # The currently logged in user (might be nil). It's reset after
+  # every request and normally set during authentification
+  def self.current
+    Thread.current[:user]
+  end
+  private_class_method :current
+
+  def self.nobody
+    Thread.current[:nobody] ||= find_nobody!
+  end
+  private_class_method :nobody
+
+  def password_validation
+    return if password_digest || deprecated_password
+    errors.add(:password, 'can\'t be blank')
+  end
+
+  def can_modify_project_internal(project, ignore_lock)
+    # The ordering is important because of the lock status check
+    return false if !ignore_lock && project.is_locked?
+    return true if is_admin?
+
+    return true if has_global_permission?('change_project')
+    return true if has_local_permission?('change_project', project)
+    return true if project.name == home_project_name # users tend to remove themself, allow to re-add them
+    false
   end
 
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    return case password_hash_type
-           when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
-           end
-  end 
-
-  # this method returns a ldap object using the provided user name
-  # and password
-  def self.initialize_ldap_con(user_name, password)
-    return nil unless defined?( CONFIG['ldap_servers'] )
-    ldap_servers = CONFIG['ldap_servers'].split(":")
-    ping = false
-    server = nil
-    count = 0
-    
-    max_ldap_attempts = defined?( CONFIG['ldap_max_attempts'] ) ? CONFIG['ldap_max_attempts'] : 10
-    
-    while !ping and count < max_ldap_attempts
-      count += 1
-      server = ldap_servers[rand(ldap_servers.length)]
-      # Ruby only contains TCP echo ping.  Use system ping for real ICMP ping.
-      ping = system("ping -c 1 #{server} >/dev/null 2>/dev/null")
+    crypt2index = { 'md5crypt' => 1,
+                    'sha256crypt' => 5 }
+    if deprecated_password_hash_type == 'md5'
+      Digest::MD5.hexdigest(value + deprecated_password_salt)
+    elsif crypt2index.key?(deprecated_password_hash_type)
+      value.crypt("$#{crypt2index[deprecated_password_hash_type]}$#{deprecated_password_salt}$").split('$')[3]
     end
-    
-    if count == max_ldap_attempts
-      logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
-      return nil
-    end
-
-    logger.debug( "Connecting to #{server} as '#{user_name}'" )
-    begin
-      if defined?( CONFIG['ldap_ssl'] ) && CONFIG['ldap_ssl'] == :on
-        port = defined?( CONFIG['ldap_port'] ) ? CONFIG['ldap_port'] : 636
-        conn = LDAP::SSLConn.new( server, port)
-      else
-        port = defined?( CONFIG['ldap_port'] ) ? CONFIG['ldap_port'] : 389
-        # Use LDAP StartTLS. By default start_tls is off.
-        if defined?( CONFIG['ldap_start_tls'] ) && CONFIG['ldap_start_tls'] == :on
-          conn = LDAP::SSLConn.new( server, port, true)
-        else
-          conn = LDAP::Conn.new( server, port)
-        end
-      end
-      conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
-      if defined?( CONFIG['ldap_referrals'] ) && CONFIG['ldap_referrals'] == :off
-        conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF)
-      end
-      conn.bind(user_name, password)
-    rescue LDAP::ResultError
-      if not conn.nil?
-        conn.unbind()
-      end
-      logger.debug( "Not bound:  error #{conn.err} for #{user_name}" )
-      return nil
-    end
-    logger.debug( "Bound as #{user_name}" )
-    return conn
   end
 
+  cattr_accessor :lookup_strategy do
+    if Configuration.ldapgroup_enabled?
+      @@lstrategy = UserLdapStrategy.new
+    else
+      @@lstrategy = UserBasicStrategy.new
+    end
+  end
 end
+
+# == Schema Information
+#
+# Table name: users
+#
+#  id                            :integer          not null, primary key
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  last_logged_in_at             :datetime
+#  login_failure_count           :integer          default(0), not null
+#  login                         :text(65535)      indexed
+#  email                         :string(200)      default(""), not null
+#  realname                      :string(200)      default(""), not null
+#  password_digest               :string(255)
+#  deprecated_password           :string(255)      indexed
+#  deprecated_password_hash_type :string(255)
+#  deprecated_password_salt      :string(255)
+#  adminnote                     :text(65535)
+#  state                         :string(11)       default("unconfirmed")
+#  owner_id                      :integer
+#  ignore_auth_services          :boolean          default(FALSE)
+#
+# Indexes
+#
+#  users_login_index     (login) UNIQUE
+#  users_password_index  (deprecated_password)
+#

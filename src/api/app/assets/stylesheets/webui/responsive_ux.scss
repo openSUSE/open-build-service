@@ -1,0 +1,70 @@
+// Variables
+// TODO: move to app/assets/stylesheets/webui/bootstrap_variables/sizes.scss
+$top-bar-height: 3.5625rem;
+$bottom-bar-height: 3.5rem;
+
+body.responsive-ux {
+  // open space to not overlap top navigation with content
+  padding-top: 3.5rem !important;
+
+  @import 'responsive_ux/layout';
+  @import 'responsive_ux/build-result';
+  @import 'responsive_ux/sponsors';
+  @import 'responsive_ux/tabs';
+
+  .build-results .sticky-top { top: $top-bar-height; }
+  #log-space-wrapper #log-info.position-sticky { top: $top-bar-height; }
+  #notifications-filter-desktop {
+    strong { cursor: pointer; }
+    .collapse {
+      &.show { border-top: 1px solid $gray-300;}
+    }
+  }
+
+}
+
+// FIXME: move to somewhere else?
+
+@include media-breakpoint-up(md) {
+
+  body.responsive-ux {
+    // START LAYOUT
+    .watchlist-collapse, .offcanvas-collapse, .actions-collapse {
+      bottom: 0;
+      width: 23.75rem;
+
+      .navbar-nav {
+        width: 100%;
+        padding-top: 1rem;
+        margin-left: 0 !important;
+        -webkit-box-orient: vertical;
+        flex-direction: column;
+        align-self: flex-start;
+      }
+      .navbar-toggler { display: none; }
+    }
+
+    #footer {
+      .footer-logged { padding-bottom: 0; }
+    }
+    // END LAYOUT
+
+    .build-info .triangle {
+      &.left { left: .25rem; }
+    }
+
+    #notifications-filter-desktop {
+      .collapse { display: block !important; }
+    }
+  }
+}
+
+@include media-breakpoint-between(sm, md) {
+  body.responsive-ux {
+    .build-info .triangle {
+      &.center { margin-left: calc(38% + .75rem); }
+      &.left { left: .5rem; }
+    }
+
+  }
+}

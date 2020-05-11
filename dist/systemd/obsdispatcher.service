@@ -1,0 +1,13 @@
+[Unit]
+Description=OBS job dispatcher daemon
+Requires=obsrepserver.service
+After=network.target obssrcserver.service obsscheduler.service obsrepserver.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_dispatch --logfile dispatcher.log
+ExecStop=/usr/lib/obs/server/bs_dispatch --stop
+ExecReload=/usr/lib/obs/server/bs_dispatch --restart
+
+[Install]
+WantedBy=multi-user.target

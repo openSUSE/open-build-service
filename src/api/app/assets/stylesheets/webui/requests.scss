@@ -1,0 +1,39 @@
+.badge-added {
+  color: $white;
+  background-color: $green;
+}
+
+.badge-deleted {
+  color: $white;
+  background-color: $red;
+}
+
+.badge-changed {
+  color: $white;
+  background-color: $cyan;
+}
+
+.req-description-box {
+  word-break: break-all;
+  white-space: pre-line;
+  font-size: 14px;
+  padding-right: 1em;
+}
+
+.request-flag-new {
+  @extend .text-success;
+}
+
+.request-flag-review {
+  @extend .text-warning;
+}
+
+.request-flag-declined {
+  @extend .text-danger;
+}
+
+#request-history {
+  .media .media-body {
+    @extend .text-break;
+  }
+}

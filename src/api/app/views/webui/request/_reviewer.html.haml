@@ -1,0 +1,13 @@
+- no_icon ||= false
+
+- if review[:by_user]
+  = user_with_realname_and_icon(review[:by_user], short: true, no_icon: no_icon)
+- elsif review[:by_group]
+  = group_with_icon(review[:by_group])
+- elsif review[:by_project]
+  - if review[:by_package]
+    %i.fa.fa-archive.text-warning
+    = link_to("#{review[:by_project]} / #{review[:by_package]}", package_users_path(project: review[:by_project], package: review[:by_package]))
+  - else
+    %i.fa.fa-cubes.text-secondary
+    = link_to(review[:by_project], project_users_path(project: review[:by_project]))

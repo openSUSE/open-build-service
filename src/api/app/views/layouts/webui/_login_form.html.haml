@@ -1,0 +1,12 @@
+- if can_sign_up?
+  %li.nav-item
+    = link_to('Sign Up', sign_up_params[:url], class: 'nav-link')
+%li.nav-item.dropdown#login-form-dropdown
+  = link_to('#', id: 'login-trigger', class: 'nav-link dropdown-toggle', 'data-toggle': 'dropdown') do
+    Log In
+  .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark.top-of-flash{ 'aria-labelledby': 'dropdownMenuButton' }
+    .px-4.py-3#login-form
+      = render partial: 'webui/session/form', locals: { label_css: 'text-light',
+                                                        button_css: 'float-right',
+                                                        with_sign_up: false,
+                                                        with_redirect: false }

@@ -1,0 +1,53 @@
+.patchinfo-category-recommended {
+  color: $green;
+}
+
+.patchinfo-category-security {
+  color: $red;
+}
+
+.patchinfo-category-optional {
+  color: $cyan;
+}
+
+.patchinfo-category-feature {
+  color: $purple;
+}
+
+.patchinfo {
+  .badge {
+    &.badge-rating, &.badge-category, &.badge-blocked {
+      font-size: 50%;
+      color: $white;
+      @extend .align-middle;
+    }
+    &.badge-category {
+      @extend .badge-secondary;
+
+      &.recommended { @extend .badge-success; }
+      &.security { @extend .badge-danger; }
+      &.optional { @extend .badge-info; }
+    }
+    &.badge-rating {
+      &.low { @extend .badge-success; }
+      &.moderate { @extend .badge-warning; }
+      &.important { @extend .badge-danger; }
+      &.critical { @extend .badge-dark; }
+    }
+    &.badge-blocked { @extend .badge-danger; }
+  }
+  .binaries {
+    @extend .h5;
+    @extend .mb-0;
+  }
+
+  .blocked-release {
+    @extend .d-flex;
+    @extend .align-items-start;
+
+    i {
+      line-height: 1.5;
+      @extend .mr-1;
+    }
+  }
+}

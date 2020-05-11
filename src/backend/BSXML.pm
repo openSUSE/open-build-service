@@ -43,12 +43,35 @@ use strict;
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
 
+our $download = [
+    'download' =>
+	'arch',
+	'repotype',
+	'url',
+	[],
+	'archfilter',
+      [ 'master' =>
+	    'url',
+	    'sslfingerprint',
+      ],
+	'pubkey',
+];
+
+# same as download, but with project/repository
+our $doddata = [
+    'doddata' =>
+	'project',
+	'repository',
+	@$download[1 .. $#$download],
+];
+
 our $repo = [
    'repository' => 
 	'name',
 	'rebuild',
 	'block',
 	'linkedbuild',
+      [ $download ],
      [[ 'releasetarget' =>
 	    'project',
 	    'repository',
@@ -58,10 +81,14 @@ our $repo = [
 	    'project',
 	    'repository',
      ]],
-     [ 'hostsystem' =>
+      [ 'hostsystem' =>
 	    'project',
 	    'repository',
-     ],
+      ],
+      [ 'base' =>		# expanded repo only!
+	    'project',
+	    'repository',
+      ],
       [ 'arch' ],
 	'status',
 ];
@@ -88,13 +115,16 @@ our @flags = (
       [ 'access' => @disableenable ],
 );
 
-our $download = [
-    'download' =>
-    'baseurl',
-    'metafile',
-    'mtype',
-    'arch',
-];
+our @roles = (
+     [[ 'person' =>
+            'userid',
+            'role',
+     ]],
+     [[ 'group' =>
+            'groupid',
+            'role',
+     ]],
+);
 
 our $maintenance = [
     'maintenance' =>
@@ -110,52 +140,20 @@ our $proj = [
 	 [],
         'title',
         'description',
+        'url',
+	'config',	# for 'withconfig' option
      [[	'link' =>
 	    'project',
+	    'vrevmode',
      ]],
 	'remoteurl',
 	'remoteproject',
 	'mountproject',
-      [ 'devel', =>
+      [ 'devel' =>
 	    'project',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
-      [ $download ],
+	@roles,
 	$maintenance,
-      [ 'attributes' => 
-         [[ 'namespace' => 
-		'name', 
-	     [[ 'modifiable_by' =>
-		    'user',
-		    'group',
-		    'role',
-             ]],
-         ]],
-         [[ 'definition' => 
-		'name', 
-		'namespace', 
-		[],
-		'count',
-              [ 'default' =>
-		  [ 'value' ],
-              ],
-              [ 'allowed' =>
-		  [ 'value' ],
-              ],
-             [[ 'modifiable_by' =>
-		    'user',
-		    'group',
-		    'role',
-             ]],
-         ]],
-      ],
 	@flags,
       [ $repo ],
 ];
@@ -167,18 +165,12 @@ our $pack = [
 	[],
         'title',
         'description',
-      [ 'devel', =>
+        'releasename',
+      [ 'devel' =>
 	    'project',
 	    'package',
       ],
-     [[ 'person' =>
-            'role',
-            'userid',
-     ]],
-     [[ 'group' =>
-            'role',
-            'groupid',
-     ]],
+	@roles,
 	@disableenable,
 	@flags,
 	'url',
@@ -193,12 +185,21 @@ our $packinfo = [
 	'error',
 	  [ 'dep' ],
 	  [ 'prereq' ],
-	  [ 'imagetype' ],
-	  [ 'imagearch' ],
+	  [ 'buildtimeservice' ],
+	  [ 'imagetype' ],	# kiwi
+	  [ 'imagearch' ],	# kiwi
+	    'nodbgpkgs',	# kiwi
+	    'nosrcpkgs',	# kiwi
 	 [[ 'path' =>
 		'project',
 		'repository',
-	]],
+		'priority',
+	 ]],
+	 [[ 'containerpath' =>
+		'project',
+		'repository',
+		'priority',
+	 ]],
 	 [[ 'extrasource' =>
 		'project',
 		'package',
@@ -250,14 +251,47 @@ our $patchinfo = [
 	 ]],
             'category',
             'rating',
+            'name', # optional, old patchinfo name which will become part of incident string
             'summary',
             'description',
+            'message',  # optional pop-up message
             'swampid',	# obsolete
             'packager',
+            'retracted',
             'stopped',
             'zypp_restart_needed',
             'reboot_needed',
             'relogin_needed',
+];
+
+our $channel = [
+    'channel' =>
+      [ 'product' =>
+            'project',
+            'name',
+      ],
+     [[ 'target' =>
+	    'project',
+	    'repository',
+	    'id_template', # optional
+	    'requires_issue', # optional
+            [],
+	    'disabled', # optional
+     ]],
+     [[ 'binaries' =>
+	    'project',
+	    'repository',
+	    'arch',
+	 [[ 'binary' =>
+		'name',
+		'binaryarch',
+		'project',
+		'repository',
+		'package',
+		'arch',
+		'supportstatus',
+	 ]],
+     ]],
 ];
 
 our $projpack = [
@@ -273,14 +307,16 @@ our $projpack = [
 	    'patternmd5',
 	 [[ 'link' =>
 		'project',
+		'vrevmode',
 	 ]],
 	    'remoteurl',
 	    'remoteproject',
 	    @flags,
+	    @roles,
 	  [ $repo ],
-          [ $download ],
 	 [[ 'package' =>
 		'name',
+		'releasename',
 		'rev',
 		'srcmd5',	# commit id
 		'versrel',
@@ -293,23 +329,33 @@ our $projpack = [
 		[ $packinfo ],
 		$aggregatelist,
 		$patchinfo,
+		'channelmd5',
 		@flags,
 		'bcntsynctag',
+		'hasbuildenv',
 	 ]],
 	    'missingpackages',
      ]],
      [[ 'remotemap' =>
 	    'project',
+	    'kind',
 	    'root',
 	    'remoteurl', 
 	    'remoteproject', 
 	    'remoteroot', 
+	    'partition',
 	    'proto',	# project data not included
 	     [],
 	    'config',
+	    @flags,
+	    @roles,
 	  [ $repo ],
 	    'error',
      ]],
+     [[ 'channeldata' => 
+	    'md5',
+	    $channel,
+    ]],
 ];
 
 our $linkinfo = [
@@ -335,6 +381,7 @@ our $serviceinfo = [
 	'code',         # can be "running", "failed", "succeeded"
 	'xsrcmd5',
 	'lsrcmd5',
+	'lxsrcmd5',
         [],
 	'error',        # contains error message (with new lines) in case of error
 ];
@@ -358,12 +405,25 @@ our $dir = [
      [[ 'entry' =>
 	    'name',
 	    'md5',
+            'hash',
 	    'size',
 	    'mtime',
 	    'error',
 	    'id',
 	    'originproject',	# for package listing
+	    'originpackage',	# for package listing
      ]]
+];
+
+our $providedby = [
+    'providedby' =>
+	'name',
+	'epoch',
+	'version',
+	'release',
+	'arch',
+	'project',
+	'repository',
 ];
 
 our $fileinfo = [
@@ -404,15 +464,15 @@ our $fileinfo = [
      ]],
      [[ 'requires_ext' =>
 	    'dep',
-	 [[ 'providedby' =>
-		'name',
-		'epoch',
-		'version',
-		'release',
-		'arch',
-		'project',
-		'repository',
-	 ]],
+	  [ $providedby ],
+     ]],
+     [[ 'recommends_ext' =>
+	    'dep',
+	  [ $providedby ],
+     ]],
+     [[ 'supplements_ext' =>
+	    'dep',
+	  [ $providedby ],
      ]],
 ];
 
@@ -424,11 +484,15 @@ our $sourceinfo = [
 	'srcmd5',
 	'lsrcmd5',
 	'verifymd5',
+	'metamd5',
 	[],
 	'filename',
 	'error',
 	'originproject',
+	'originpackage',
        [ $linked ],
+	'revtime',
+	'changesmd5',
 
 	'name',
 	'version',
@@ -461,6 +525,7 @@ our $buildinfo = [
 	'srcmd5',
 	'verifymd5',
 	'rev',
+	'disturl',
 	'reason',       # just for the explain string of a build reason
 	'needed',       # number of blocked
 	'revtime',	# time of last commit
@@ -474,7 +539,17 @@ our $buildinfo = [
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
       [ 'subpack' ],
-      [ 'imagetype' ],
+      [ 'imagetype' ],	# kiwi
+	'nodbgpkgs',	# kiwi
+	'nosrcpkgs',	# kiwi
+	'genmetaalgo',	# internal
+	'logidlelimit',	# internal
+	'logsizelimit',	# internal
+	'genbuildreqs',	# internal
+      [ 'obsgendiff' =>
+	    'project',
+	    'repository',
+      ],		# internal
       [ 'dep' ],
      [[ 'bdep' =>
 	'name',
@@ -485,15 +560,18 @@ our $buildinfo = [
 	'runscripts',
 	'notmeta',
 	'noinstall',
+	'installonly',
 
 	'epoch',
 	'version',
 	'release',
 	'arch',
+	'hdrmd5',
+
 	'project',
 	'repository',
 	'repoarch',
-	'binary',
+	'binary',	# filename
 	'package',
 	'srcmd5',
      ]],
@@ -501,15 +579,38 @@ our $buildinfo = [
      [[ 'path' =>
 	    'project',
 	    'repository',
-	    'server',
+	    'server',	# internal
+	    'url',	# external
      ]],
      [[ 'syspath' =>
 	    'project',
 	    'repository',
-	    'server',
+	    'server',	# internal
+	    'url',	# external
      ]],
+     [[ 'containerpath' =>
+	    'project',
+	    'repository',
+	    'server',	# internal
+	    'url',	# external
+     ]],
+	'containerannotation',	# temporary hack
 	'expanddebug',
 	'followupfile',	# for two-stage builds
+	'masterdispatched',	# dispatched through a master dispatcher
+	'nounchanged',	# do not check for "unchanged" builds
+      [ 'module' ],	# list of modules to use
+
+      [ 'preinstallimage' =>
+	    'project',
+	    'repository',
+	    'repoarch',
+	    'package',
+	    'filename',
+	    'hdrmd5',
+	  [ 'binary' ],
+	    'url',	# external
+      ],
 ];
 
 our $jobstatus = [
@@ -520,6 +621,7 @@ our $jobstatus = [
 	[],
 	'starttime',
 	'endtime',
+	'lastduration', # optional
 	'workerid',
 	'hostarch',
 
@@ -528,6 +630,7 @@ our $jobstatus = [
 	'arch',		# our architecture
 	'job',		# our jobname
 	'jobid',	# md5 of job info file
+	'attempt',      # number of attempts to build the job
 ];
 
 our $buildreason = [
@@ -548,6 +651,8 @@ our $buildstatus = [
 	'code',
 	'status',	# obsolete, now code
 	'error',	# obsolete, now details
+	'dirty',	# marked for re-scheduling
+	'versrel',	# for withversrel result call
 	[],
 	'details',
 
@@ -556,6 +661,8 @@ our $buildstatus = [
 	'readytime',
 	'starttime',
 	'endtime',
+
+	'buildid',	# some id identifying the build
 
 	'job',		# internal, job when building
 
@@ -586,7 +693,14 @@ our $event = [
 	'arch',
 	'package',
 	'job',
+	'worker',
 	'due',
+	'srcmd5',		# for type=servicedispatch
+	'rev',			# for type=servicedispatch
+	'linksrcmd5',		# for type=servicedispatch
+	'projectservicesmd5',	# for type=servicedispatch
+	'oldsrcmd5',		# for type=servicedispatch
+	'details',              # for type=dispatchdetails
 ];
 
 our $events = [
@@ -617,6 +731,8 @@ our $revision_acceptinfo = [
 	    'osrcmd5',
 	    'xsrcmd5',
 	    'oxsrcmd5',
+	    'oproject',
+	    'opackage',
       ],
 ];
 
@@ -633,6 +749,7 @@ our $buildhist = [
 	    'versrel',
 	    'bcnt',
 	    'time',
+	    'duration',
      ]],
 ];
 
@@ -664,11 +781,20 @@ our $packagebinaryversionlist = [
      ]],
 ];
 
+our $packagebinarychecksums = [
+    'packagebinarychecksums' =>
+     [[ 'binarychecksums' =>
+	    'package',
+	    '_content',
+     ]],
+];
+
 our $worker = [
     'worker' =>
 	'hostarch',
 	'ip',
 	'port',
+	'registerserver',
 	'workerid',
       [ 'buildarch' ],
       [ 'hostlabel' ],
@@ -683,6 +809,8 @@ our $worker = [
           [ 'flag' ],
         ],
         'processors',
+        'jobs',
+        'nativeonly',   # don't allow usage via the helper script
 	'memory',	# in MBytes
 	'swap',		# in MBytes
 	'disk',		# in MBytes
@@ -692,6 +820,8 @@ our $worker = [
 
 	'job',		# set when worker is busy
 	'arch',		# set when worker is busy
+	'jobid',	# set when worker is busy
+	'reposerver',	# set when worker is busy and job was masterdispatched
 ];
 
 our $packstatuslist = [
@@ -761,28 +891,44 @@ our $workerstatus = [
 	    'arch',
 	    'starttime',
      ]],
-     [[ 'waiting', =>
+     [[ 'down' =>
+	    'workerid',
+	    'hostarch',
+     ]],
+     [[ 'dead' =>
+	    'workerid',
+	    'hostarch',
+     ]],
+     [[ 'away' =>
+	    'workerid',
+	    'hostarch',
+     ]],
+     [[ 'waiting' =>
 	    'arch',
 	    'jobs',
      ]],
-     [[ 'blocked', =>
+     [[ 'blocked' =>
 	    'arch',
 	    'jobs',
      ]],
-     [[ 'buildavg', =>
+     [[ 'buildavg' =>
             'arch',
 	    'buildavg',
      ]],
-     [[ 'scheduler' =>
-	    'arch',
-	    'state',
-	    'starttime',
-	  [ 'queue' =>
-		'high',
-		'med',
-		'low',
-		'next',
-	  ],
+     [[ 'partition' =>
+	    'name',
+         [[ 'daemon' =>
+		'type',        # scheduler/dispatcher/signer/publisher/warden
+                'arch',        # scheduler only
+                'state',
+                'starttime',
+              [ 'queue' =>     # scheduler only 
+                    'high',
+                    'med',
+                    'low',
+                    'next',
+              ],
+         ]],
      ]],
 ];
 
@@ -791,6 +937,9 @@ our $workerstate = [
 	'state',
 	'nextstate',	# for exit/restart
 	'jobid',
+	'pid',		# pid of building worker process
+	'logsizelimit',	# maximum size of build log
+	'logidlelimit',	# maximim idle time of build log
 ];
 
 our $jobhistlay = [
@@ -812,6 +961,8 @@ our $jobhistlay = [
 
 our $jobhist = [
     'jobhist' =>
+	'repository',
+	'arch',
 	@$jobhistlay,
 ];
 
@@ -820,53 +971,52 @@ our $jobhistlist = [
       [ $jobhist ],
 ];
 
+our $ajaxjob = [
+    'job' =>
+	'ev',
+	'fd',
+	'starttime',
+	'peer',
+	'request',
+	'state',
+];
+
 our $ajaxstatus = [
     'ajaxstatus' =>
+	'starttime',
+	'ev',
      [[ 'watcher' =>
 	    'filename',
 	    'state',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
      ]],
      [[ 'rpc' =>
 	    'uri',
 	    'state',
 	    'ev',
 	    'fd',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'starttime',
-		'request',
-	 ]],
+	    'starttime',
+	  [ $ajaxjob ],
      ]],
      [[ 'serialize' =>
 	    'filename',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
      ]],
+      [ 'joblist' =>
+	  [ $ajaxjob ],
+      ],
 ];
 
 our $serverstatus = [
     'serverstatus' =>
+	'starttime',
      [[ 'job' =>
 	    'id',
 	    'starttime',
 	    'pid',
 	    'peer',
 	    'request',
+	    'group',
      ]],
 ];
 
@@ -877,6 +1027,7 @@ our $binarylist = [
 	'package',
      [[ 'binary' =>
 	    'filename',
+	    'md5',
 	    'size',
 	    'mtime',
      ]],
@@ -1050,6 +1201,7 @@ our $binary_id = [
 	'filepath',
 	'baseproject',
 	'type',
+	'downloadurl',
 ];
 
 our $pattern_id = [
@@ -1062,11 +1214,63 @@ our $pattern_id = [
 	'filepath',
 	'baseproject',
 	'type',
+	'downloadurl',
+];
+
+our $sourcediff = [
+    'sourcediff' =>
+	'key',
+      [ 'old' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'new' =>
+	    'project',
+	    'package',
+	    'rev',
+	    'srcmd5',
+      ],
+      [ 'files' =>
+	 [[ 'file' =>
+		'state',	# added, deleted, changed
+	      [ 'old' =>
+		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
+	      ],
+	      [ 'new' =>
+		    'name',
+		    'md5',
+		    'size',
+		    'mtime',
+	      ],
+	      [ 'diff' =>
+		    'binary',
+		    'lines',
+		    'shown',
+		    '_content',
+              ],
+         ]],
+      ],
+      [ 'issues' =>
+	 [[ 'issue' =>
+		'state',
+		'tracker',
+		'name',
+		'label',
+		'url',
+	 ]]
+      ],
 ];
 
 our $request = [
     'request' =>
 	'id',
+	'actions',
+	'creator',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
 	'key',		# cache key, not really in request
 	'retryafter',	# timed out waiting for a key change
@@ -1094,8 +1298,9 @@ our $request = [
 	  ],
           [ 'options' =>
 		[],
-		'sourceupdate', # can be cleanup, update or noupdate
-		'updatelink',   # can be true or false
+		'sourceupdate',    # can be cleanup, update or noupdate
+		'updatelink',      # can be true or false
+		'makeoriginolder', # can be true or false
           ],
 	  [ 'acceptinfo' =>
 	        'rev',
@@ -1104,6 +1309,7 @@ our $request = [
 	        'xsrcmd5',
 	        'oxsrcmd5',
           ],
+          [ $sourcediff ],
      ]],
       [ 'submit' =>          # this is old style, obsolete by request, but still supported
 	  [ 'source' =>
@@ -1116,10 +1322,12 @@ our $request = [
 		'package',
 	  ],
       ],
+      'priority',
       [ 'state' =>
 	    'name',
 	    'who',
 	    'when',
+	    'approver',
 	    'superseded_by', # set when state.name is "superseded"
 	    [],
 	    'comment',
@@ -1135,6 +1343,13 @@ our $request = [
 	    'when',
 	    [],
 	    'comment',
+            [[ 'history' =>
+                   'who',
+                   'when',
+                   [],
+                   'comment',
+                   'description',
+            ]],
      ]],
      [[ 'history' =>
 	    'name',
@@ -1143,7 +1358,9 @@ our $request = [
 	    'superseded_by',
 	    [],
 	    'comment',
+	    'description',
      ]],
+	'accept_at',
 	'title',
 	'description',
 ];
@@ -1181,6 +1398,7 @@ our $schedulerinfo = [
 	'time',
 	[],
 	'slept',
+	'booting',
 	'notready',
       [ 'queue' =>
 	    'high',
@@ -1206,33 +1424,38 @@ our $person = [
 	'login',
 	'email',
 	'realname',
-	[ 'globalrole' ],
-	[ 'watchlist' =>
-		[[ 'project' =>
-			'name',
-		]],
-	],
+      [ 'owner' =>
+                'userid',
+        ],
+	'state',
+      [ 'globalrole' ],
+	'ignore_auth_services',
+      [ 'watchlist' =>
+	 [[ 'project' =>
+		'name',
+	 ]],
+      ],
 ];
 
 our $comps = [
     'comps' =>
-    [[ 'group' =>
+     [[ 'group' =>
 	[],
 	'id',
-	[[ 'description' =>
+	 [[ 'description' =>
 	    'xml:lang',
 	    '_content',
-	]],
-	[[ 'name' =>
+	 ]],
+	 [[ 'name' =>
 	    'xml:lang',
 	    '_content',
-	]],
-	[ 'packagelist' =>
-	    [[ 'packagereq' =>
+	 ]],
+	  [ 'packagelist' =>
+	     [[ 'packagereq' =>
 		'type',
 		'_content',
-	    ]],
-	],
+	     ]],
+	  ],
     ]],
 ];
 
@@ -1283,61 +1506,64 @@ our $servicelist = [
 ];
 
 our $updateinfoitem = [
-     'update' =>
-	    'from',
-	    'status',
-	    'type',
-	    'version',
-	    [],
-	    'id',
-	    'title',
-	    'severity',
-	    'release',
-	  [ 'issued' =>
-		'date',
-	  ],
-	  [ 'updated' =>
-		'date',
-	  ],
-	    'reboot_suggested',
-	  [ 'references' =>
-	     [[ 'reference' =>
-		    'href',
-		    'id',
-		    'title',
-		    'type',
-	     ]],
-	  ],
-	    'description',
-	  [ 'pkglist',
-	     [[	'collection' =>
-		    'short',
-		    [],
+    'update' =>
+	'from',
+	'status',
+	'type',
+	'version',
+	[],
+	'id',
+	'title',
+	'severity',
+	'release',
+      [ 'issued' =>
+	    'date',
+      ],
+      [ 'updated' =>
+	    'date',
+      ],
+	'reboot_suggested',
+      [ 'references' =>
+	 [[ 'reference' =>
+		'href',
+		'id',
+		'title',
+		'type',
+	 ]],
+      ],
+	'description',
+	'message',     #optional popup message
+      [ 'pkglist',
+	 [[ 'collection' =>
+		'short',
+		[],
+		'name',
+	     [[ 'package' =>
 		    'name',
-		 [[ 'package' =>
-			'name',
-			'epoch',
-			'version',
-			'release',
-			'arch',
-			'src',
-			[],
-			'filename',
-		      [ 'sum' =>	# obsolete?
-			    'type',
-			    '_content',
-		      ],
-			'reboot_suggested',
-			'restart_suggested',
-			'relogin_suggested',
-		 ]],
+		    'epoch',
+		    'version',
+		    'release',
+		    'arch',
+		    'src',
+		    'supportstatus',	# extension
+		    [],
+		    'filename',
+		  [ 'sum' =>	# obsolete?
+			'type',
+			'_content',
+		  ],
+		    'reboot_suggested',
+		    'restart_suggested',
+		    'relogin_suggested',
 	     ]],
-	  ],
+	 ]],
+      ],
+	'patchinforef',			# extension, "project/package"
 ];
 
 our $updateinfo = [
     'updates' =>
-      'xmlns',
+	'xmlns',
       [ $updateinfoitem ],
 ];
 
@@ -1373,53 +1599,42 @@ our $prestodelta = [
       [ $deltapackage ],
 ];
 
-our $sourcediff = [
-    'sourcediff' =>
-	'key',
-      [ 'old' =>
-	    'project',
-	    'package',
-	    'rev',
-	    'srcmd5',
+our $configuration = [
+    'configuration' =>
+	[],
+	'title',        #webui only
+	'description',  #webui only
+	'name',         #obsname
+	'anonymous',
+	'registration',
+	'default_access_disabled',
+	'default_tracker',
+	'allow_user_to_create_home_project',
+	'multiaction_notify_support',
+	'disallow_group_creation',
+	'change_password',
+	'cleanup_after_days',
+	'hide_private_options',
+	'gravatar',
+	'enforce_project_keys',
+	'download_on_demand',
+	'download_url',
+	'obs_url',
+	'api_url',
+	'ymp_url',
+	'errbit_url',
+	'bugzilla_url',
+	'http_proxy',
+	'no_proxy',
+	'admin_email',
+	'theme',
+	'cleanup_empty_projects',
+	'disable_publish_for_branches',
+      [ 'schedulers' =>
+	  [ 'arch' ],
       ],
-      [ 'new' =>
-	    'project',
-	    'package',
-	    'rev',
-	    'srcmd5',
-      ],
-      [ 'files' =>
-	 [[ 'file' =>
-		'state',	# added, deleted, changed
-	      [ 'old' =>
-		    'name',
-		    'md5',
-		    'size',
-		    'mtime',
-	      ],
-	      [ 'new' =>
-		    'name',
-		    'md5',
-		    'size',
-		    'mtime',
-	      ],
-	      [ 'diff' =>
-		    'binary',
-		    'lines',
-		    'shown',
-		    '_content',
-              ],
-         ]],
-      ],
-      [ 'issues' =>
-	 [[ 'issue' =>
-		'state',
-		'tracker',
-		'name',
-		'label',
-		'url',
-	 ]]
-      ],
+  'unlisted_projects_filter',
+  'unlisted_projects_filter_description'
 ];
 
 our $issue_trackers = [
@@ -1485,84 +1700,362 @@ our $attribute = [
         'name', 
         'binary', 
       [ 'value' ],
+     [[ 'issue' =>
+	    'name',
+	    'tracker'
+     ]],
 ];
 
 our $attributes = [
-     'attributes' => 
+    'attributes' => 
       [ $attribute ],
 ];
 
 our $size = [
-     'size' => 
-         'unit',
-         [],
-         '_content',
+    'size' => 
+        'unit',
+        [],
+        '_content',
 ];
 
 our $time = [
-     'time' => 
-         'unit',
-         [],
-         '_content',
+    'time' => 
+        'unit',
+        [],
+        '_content',
 ];
 
 # define constraints for build jobs in packages or projects.
-our $constraints = [
-  'constraints' => 
-    [],
-  [ 'hostlabel' =>
-       'exclude',   # true or false. default is false.
-       [],
-       '_content' # workers might get labels defined by admin, for example for benchmarking.
-  ],
-  [ 'sandbox' =>
-       'exclude',   # true or false. default is false.
-       [],
-       '_content' # xen/kvm/chroot/secure
-  ],
-  [ 'linux' =>
-      [ 'version' =>
+our @constraint = (
+     [[ 'hostlabel' =>
+        'exclude',   # true or false. default is false.
         [],
-        'max' ,
-        'min' ,
+        '_content' # workers might get labels defined by admin, for example for benchmarking.
+     ]],
+      [ 'sandbox' =>
+	    'exclude',   # true or false. default is false.
+	    [],
+	    '_content' # xen/kvm/zvm/lxc/emulator/chroot/secure
       ],
-    'flavor',
-  ],
-  [ 'hardware' =>
-      [ 'cpu' =>
-	 [ 'flag' ],
+      [ 'linux' =>
+	  [ 'version' =>
+		[],
+		'max' ,
+		'min' ,
+	  ],
+	'flavor',
       ],
-	'processors',
-      [ 'disk' => $size ],
-      [ 'memory' => $size ],
-      [ 'physicalmemory' => $size ],
-  ],
+      [ 'hardware' =>
+	  [ 'cpu' =>
+	      [ 'flag' ],
+	  ],
+	    'processors',
+	    'jobs',
+	  [ 'disk' => $size ],
+	  [ 'memory' => $size ],
+	  [ 'physicalmemory' => $size ],
+      ]
+);
+
+our $constraints = [
+    'constraints' => 
+        @constraint,
+     [[ 'overwrite' =>
+	  [ 'conditions' =>
+              [ 'arch' ],
+              [ 'package' ],
+          ],
+          @constraint,
+     ]]
 ];
 
 our $buildstatistics = [
     'buildstatistics' =>
-	[ 'disk' =>
-              [ 'usage' => 
-                 [ 'size' =>
-                     'unit',
-                     [],
-                     '_content',
-                 ],
-                 'io_requests',
-                 'io_sectors',
-              ],
-        ],
-	[ 'memory' =>
-              [ 'usage' => $size ],
-        ],
-	[ 'times' =>
-              [ 'total' => $time ],
-              [ 'preinstall' => $time ],
-              [ 'install' => $time ],
-              [ 'main' => $time ],
-        ],
-#	'cpu' =>
+      [ 'disk' =>
+	  [ 'usage' => 
+	      [ 'size' =>
+		    'unit',
+		    [],
+		    '_content',
+	      ],
+	    'io_requests',
+	    'io_sectors',
+	  ],
+      ],
+      [ 'memory' =>
+	  [ 'usage' => $size ],
+      ],
+      [ 'times' =>
+	  [ 'total' => $time ],
+	  [ 'preinstall' => $time ],
+	  [ 'install' => $time ],
+	  [ 'main' => $time ],
+	  [ 'postchecks' => $time ],
+	  [ 'rpmlint' => $time ],
+	  [ 'buildcmp' => $time ],
+	  [ 'deltarpms' => $time ],
+	  [ 'download' => $time ],
+      ],
+      [ 'download' =>
+	    [],
+	    $size,
+	    'binaries',
+	    'cachehits',
+	    'preinstallimage',
+      ],
 ];
 
+# This array is an outcome of following perl snippet
+# our $buildstatslay = [
+#     'stats' =>
+#        $buildstatistics,
+#        @$jobhistlay,
+# ];
+# 
+#  
+# sub flat_arr {
+#     my $first = shift @_;
+#     return [] if ! defined($first);
+#     my $second = [map { ref eq 'ARRAY' ? @{flat_arr(@$_)} : $_ } @_];
+#     return [map { join '_',$first, $_  } @$second];
+# }
+#
+# $buildstatslay = flat_arr(@$buildstatslay)
+#  
+# adding new elements to the buildstatistics array should get a new entry in this array 
+# otherwise that entry will not saved to the stats file. New entries must only be
+# appended to the end of this list!
+
+
+our $buildstatslay = [
+    'stats_buildstatistics_disk_usage_size_unit',
+    'stats_buildstatistics_disk_usage_size__content',
+    'stats_buildstatistics_disk_usage_io_requests',
+    'stats_buildstatistics_disk_usage_io_sectors',
+    'stats_buildstatistics_memory_usage_size_unit',
+    'stats_buildstatistics_memory_usage_size__content',
+    'stats_buildstatistics_times_total_time_unit',
+    'stats_buildstatistics_times_total_time__content',
+    'stats_buildstatistics_times_preinstall_time_unit',
+    'stats_buildstatistics_times_preinstall_time__content',
+    'stats_buildstatistics_times_install_time_unit',
+    'stats_buildstatistics_times_install_time__content',
+    'stats_buildstatistics_times_main_time_unit',
+    'stats_buildstatistics_times_main_time__content',
+    'stats_buildstatistics_times_postchecks_time_unit',
+    'stats_buildstatistics_times_postchecks_time__content',
+    'stats_buildstatistics_times_rpmlint_time_unit',
+    'stats_buildstatistics_times_rpmlint_time__content',
+    'stats_buildstatistics_times_buildcmp_time_unit',
+    'stats_buildstatistics_times_buildcmp_time__content',
+    'stats_buildstatistics_times_deltarpms_time_unit',
+    'stats_buildstatistics_times_deltarpms_time__content',
+    'stats_buildstatistics_times_download_time_unit',
+    'stats_buildstatistics_times_download_time__content',
+    'stats_buildstatistics_download_size_unit',
+    'stats_buildstatistics_download_size__content',
+    'stats_buildstatistics_download_binaries',
+    'stats_buildstatistics_download_cachehits',
+    'stats_buildstatistics_download_preinstallimage',
+    'stats_package',
+    'stats_rev',
+    'stats_srcmd5',
+    'stats_versrel',
+    'stats_bcnt',
+    'stats_readytime',
+    'stats_starttime',
+    'stats_endtime',
+    'stats_code',
+    'stats_uri',
+    'stats_workerid',
+    'stats_hostarch',
+    'stats_reason',
+    'stats_verifymd5'
+];
+
+
+our $buildstatslist = [
+    'buildstats' =>
+    [[ 'entry' =>
+         @$buildstatslay
+    ]]
+];
+
+
+our $notifications = [
+    'notifications' =>
+	'next',
+	'sync',
+	'limit_reached',
+     [[ 'notification' =>
+	    'type',
+	    'time',
+	 [[ 'data' =>
+		'key',
+		'_content',
+	 ]],
+     ]],
+];
+
+our $frozenlinks = [
+    'frozenlinks' =>
+     [[ 'frozenlink' =>
+	    'project',
+	 [[ 'package' =>
+		'name',
+		'srcmd5',
+		'vrev',
+	 ]],
+     ]],
+];
+
+our $report = [
+    'report' =>
+	'epoch',
+	'version',
+	'release',
+	'binaryarch',
+	'buildtime',
+	'buildhost',
+	'disturl',
+	'binaryid',
+     [[ 'binary' =>
+	    'name',
+	    'epoch',
+	    'version',
+	    'release',
+	    'binaryarch',
+	    'buildtime',
+	    'buildhost',
+	    'disturl',
+	    'binaryid',
+	    'supportstatus',
+	    'cpeid',
+
+	    'project',
+	    'repository',
+	    'package',
+	    'arch',		# schedulerarch
+
+	    '_content',
+     ]],
+];
+
+our $publishedpath = [
+    'publishedpath' =>
+	'project',
+	'repository',
+	'medium',
+	[],
+	'path',
+	'url',
+];
+
+our $multibuild = [
+    'multibuild' =>
+	  [ 'package' ],	# obsolete
+	  [ 'flavor' ],
+];
+
+our $pubkeyinfo = [
+    'pubkey' =>
+	'keyid',
+	'userid',
+	'algo',
+	'keysize',
+	'expires',
+	'fingerprint',
+	'_content',
+];
+
+our $certinfo = [
+    'sslcert' =>
+	'serial',
+	'issuer',
+	'subject',
+	'algo',
+	'keysize',
+	'begins',
+	'expires',
+	'_content',
+];
+
+our $keyinfo = [
+    'keyinfo' =>
+	'project',
+        $pubkeyinfo,
+	$certinfo,
+];
+
+our $binannotation = [
+    'annotation' =>
+     [[ 'repo' =>
+	    'url',
+	    'project',
+	    'repository',
+	    'priority',
+     ]],
+	'buildtime',
+	'buildhost',
+	'disturl',
+	'binaryid',
+	'package',		# only in build job annotation
+	'epoch',		# only in build job annotation
+	'version',		# only in build job annotation
+	'release',		# only in build job annotation
+	'binaryarch',		# only in build job annotation
+	'hdrmd5',		# only in build job annotation
+];
+
+our $availablebinaries = [
+    'availablebinaries' =>
+     [[ 'packages' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+     [[ 'products' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+     [[ 'patterns' =>
+	  [ 'arch' ],
+	  [ 'name' ],
+    ]],
+];
+
+our $clouduploadjob = [
+    'clouduploadjob' =>
+	'name',
+	[],
+	'state',		# created, receiving, scheduled, uploading, succeeded, waiting, failed
+	'details',		# error messages, upload result string
+	'progress',		# percentage completed
+	'try',			# retry count
+	'created',		# when was this job created
+
+	'user',			# who did this
+	'target',		# where to upload to
+
+	'project',
+	'repository',
+	'package',
+	'arch',
+	'filename',		# what to upload
+	'size',
+
+	'pid',		# internal
+];
+
+our $clouduploadjoblist = [
+    'clouduploadjoblist' =>
+      [ $clouduploadjob ],
+];
+
+our $regrepoowner = [
+    'regrepoowner' =>
+	'regrepo',
+	'project',
+	'repository',
+];
 
 1;

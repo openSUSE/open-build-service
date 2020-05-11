@@ -1,83 +1,66 @@
-require 'api_exception'
+require 'api_error'
 
 module ValidationHelper
-
-  class InvalidPackageName < APIException
-    setup "invalid_package_name", 404
+  class InvalidProjectNameError < APIError
   end
 
-  def valid_project_name? name
-    return true if name =~ /\A\w[-+\w\.:]*\z/
-    return false
+  class InvalidPackageNameError < APIError
   end
 
-  def valid_package_name? name
-    return true if name == "_patchinfo"
-    return true if name == "_pattern"
-    return true if name == "_project"
-    return true if name == "_product"
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/
-    # obsolete, just for backward compatibility
-    return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
-    name =~ /\A\w[-+\w\.]*\z/
+  def valid_project_name!(project_name)
+    raise InvalidProjectNameError, "invalid project name '#{project_name}'" unless Project.valid_name?(project_name)
   end
 
-  def valid_package_name! package_name
-    unless valid_package_name? package_name
-      raise InvalidPackageName, "invalid package name '#{package_name}'"
-    end
+  def valid_package_name!(package_name)
+    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_name?(package_name)
+  end
+
+  def valid_multibuild_package_name!(package_name)
+    raise InvalidPackageNameError, "invalid package name '#{package_name}'" unless Package.valid_multibuild_name?(package_name)
   end
 
   # load last package meta file and just check if sourceaccess flag was used at all, no per user checking atm
   def validate_read_access_of_deleted_package(project, name)
-    prj = Project.get_by_name project
-    raise Project::ReadAccessError, "#{project}" if prj.disabled_for? 'access', nil, nil
-    raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for? 'sourceaccess', nil, nil
+    prj = Project.get_by_name(project)
+    if prj.is_a?(Project)
+      raise Project::ReadAccessError, project.to_s if prj.disabled_for?('access', nil, nil)
+      raise Package::ReadSourceAccessError, "#{target_project_name}/#{target_package_name}" if prj.disabled_for?('sourceaccess', nil, nil)
+    end
 
     begin
-      r = Suse::Backend.get("/source/#{CGI.escape(project)}/#{name}/_history?deleted=1&meta=1")
+      revisions_list = Backend::Api::Sources::Package.revisions(project, name)
     rescue
       raise Package::UnknownObjectError, "#{project}/#{name}"
     end
+    data = Xmlhash.parse(revisions_list)
+    lastrev = data.elements('revision').last
 
-    data = ActiveXML::Node.new(r.body.to_s)
-    lastrev = nil
-    data.each_revision {|rev| lastrev = rev}
-    metapath = "/source/#{CGI.escape(project)}/#{name}/_meta"
-    if lastrev
-      srcmd5 = lastrev.value('srcmd5')
-      metapath += "?rev=#{srcmd5}" # only add revision if package has some
-    end
+    query = { deleted: 1 }
+    query[:rev] = lastrev.value('srcmd5') if lastrev
+    meta = PackageMetaFile.new(project_name: project, package_name: name).content(query)
+    raise Package::UnknownObjectError, "#{project}/#{name}" unless meta
 
-    r = Suse::Backend.get(metapath)
-    raise Package::UnknownObjectError, "#{project}/#{name}" unless r
-    return true if @http_user.is_admin?
-    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'sourceaccess')
+    return true if User.admin_session?
+    if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
-    return true
+    true
   end
 
   def validate_visibility_of_deleted_project(project)
     begin
-      r = Suse::Backend.get("/source/#{CGI.escape(project)}/_project/_history?deleted=1&meta=1")
+      revisions_list = Backend::Api::Sources::Project.revisions(project)
     rescue
-      raise Project::UnknownObjectError, "#{project}"
+      raise Project::UnknownObjectError, project.to_s
     end
+    data = Xmlhash.parse(revisions_list)
+    lastrev = data.elements('revision').last
+    raise Project::UnknownObjectError, project.to_s unless lastrev
 
-    data = ActiveXML::Node.new(r.body.to_s)
-    lastrev = nil
-    data.each_revision {|rev| lastrev = rev}
-    raise Project::UnknownObjectError, "#{project}" unless lastrev
-
-    metapath = "/source/#{CGI.escape(project)}/_project/_meta?rev=#{lastrev.value('srcmd5')}&deleted=1"
-    r = Suse::Backend.get(metapath)
-    raise Project::UnknownObjectError unless r
-    return true if @http_user.is_admin?
-    if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
-      #FIXME: actually a per user checking would be more accurate here
-      raise Project::UnknownObjectError, "#{project}"
-    end
+    meta = Backend::Api::Sources::Project.meta(project, revision: lastrev.value('srcmd5'), deleted: 1)
+    raise Project::UnknownObjectError unless meta
+    return true if User.admin_session?
+    # FIXME: actually a per user checking would be more accurate here
+    raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
   end
-
 end

@@ -1,0 +1,44 @@
+.modal.fade#request-bugowner-change-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'request-bugowner-change-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(request_set_bugowner_request_path, method: :post) do
+        .modal-header
+          %h5.modal-title#request-bugowner-change-modal-label Submit Request to Change Bugowner
+        .modal-body
+          .form-group
+            = label_tag(:review_type, 'Bugowner can be a user or a group:')
+            = select_tag(:review_type, options_for_select([%w[User review-user], %w[Group review-group]], 'review-user'), class: 'custom-select')
+
+          .hideable.review-user
+            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user', label: 'User:', required: true,
+                                                                     data: { source: autocomplete_users_path } }
+          .hideable.review-group.d-none
+            = render partial: 'webui/shared/autocomplete', locals: { html_id: 'group', label: 'Group:', required: true,
+                                                                     data: { source: autocomplete_groups_path } }
+          .form-group
+            For:
+            - projects_and_packages.each do |project_and_package|
+              :ruby
+                project = project_and_package[:project]
+                package = project_and_package[:package]
+                tag = "#{project}/#{package}"
+
+              - if projects_and_packages.length > 1
+                .custom-control.custom-checkbox
+                  = check_box_tag('project[]', tag, false, class: 'custom-control-input')
+                  = label_tag(project, tag, class: 'custom-control-label')
+              - else
+                .custom-control.custom-checkbox
+                  = check_box_tag('project', project, true, class: 'custom-control-input')
+                  = label_tag(project, tag, class: 'custom-control-label')
+                = hidden_field_tag('package', package)
+          .form-group
+            = label_tag(:description, 'Description:')
+            %abbr.text-danger{ title: 'required' } *
+            ~ text_area_tag(:description, nil, size: '40x3', class: 'form-control', required: true)
+
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Submit' }
+
+- content_for :ready_function do
+  requestAddAutocomplete('#review_type');

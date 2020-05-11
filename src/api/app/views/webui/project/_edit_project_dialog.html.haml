@@ -1,0 +1,19 @@
+.modal.fade#edit-project-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'edit-project-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_for(project, url: project_update_url, method: :patch) do |form|
+        .modal-header
+          %h5.modal-title#edit-project-modal-label Edit Project #{project}
+        .modal-body
+          = hidden_field_tag(:id, project.id)
+          .form-group
+            = form.label(:title, 'Title:')
+            = form.text_field(:title, class: 'form-control')
+          .form-group
+            = form.label(:description, 'Description:')
+            = form.text_area(:description, rows: 8, class: 'form-control')
+          .form-group
+            = form.label(:url, 'URL:')
+            = form.text_field(:url, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }

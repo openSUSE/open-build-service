@@ -1,0 +1,11 @@
+.nested-fields
+  .field.form-row.form-group
+    .col-auto
+      = f.collection_select(:issue_tracker_id, issue_trackers, :id, :name, {}, class: 'form-control')
+    .col-auto.col-form-label
+      = f.label(:id, 'ID:')
+    .col
+      = f.text_field(:name, class: 'form-control')
+    .col-auto.col-form-label
+      = link_to_remove_association(f, title: 'Delete issue') do
+        %i.fas.fa-times-circle.text-danger

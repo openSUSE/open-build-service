@@ -1,0 +1,37 @@
+- @pagetitle = "Show #{@project}"
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body#project-monitor
+
+    - if @buildresult_unavailable
+      %p Unavailable Build Results.
+    - else
+      = render partial: 'monitor_control',
+        locals: { project: @project, activate_client_search: @activate_client_search,
+        status: @avail_status_values, repositories: @avail_repo_values, architectures: @avail_arch_values,
+        repository_filter: @repo_filter, architecture_filter: @arch_filter, status_filter: @status_filter,
+        lastbuild_switch: @lastbuild_switch }
+      - tableinfo = []
+      .row.mt-4
+        .col-md-12.obs-dataTable.invisible
+          %table.table.table-sm.table-bordered.table-hover.text-nowrap#project-monitor-table
+            %thead.header
+              %tr
+                %th
+                - @repoarray.each do |repo, archlist|
+                  - next if archlist.empty?
+                  %th.text-center{ colspan: archlist.length }
+                    = repo
+              %tr
+                %th
+                - @repoarray.each do |repo, archlist|
+                  - archlist.each do |arch|
+                    - tableinfo << [repo, arch]
+                    %th.text-center
+                      = repository_status_icon(status: @repostatushash[repo][arch], html_class: 'mr-1')
+                      = arch
+            %tbody{ data: { packagenames: @packagenames, project: @project, statushash: @statushash.to_json, tableinfo: tableinfo } }
+
+      - content_for :ready_function do
+        setupProjectMonitor();

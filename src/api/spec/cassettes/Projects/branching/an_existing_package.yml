@@ -1,0 +1,1053 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_7/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title/>
+          <description/>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_7">
+          <title></title>
+          <description></description>
+          <person userid="user_7" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/_meta?user=other_user
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title/>
+          <description/>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '142'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:other_user">
+          <title></title>
+          <description></description>
+          <person userid="other_user" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:other_user">
+          <title>Françoise Sagan</title>
+          <description>Totam dolores eum est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYnJhbmNoX3Rlc3RfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpvdGhlcl91c2VyIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlRvdGFtIGRvbG9yZXMgZXVtIGVzdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_config
+    body:
+      encoding: UTF-8
+      string: Ut dolorem iste. Minima qui non. Et commodi quisquam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>fc1a0b5d10e03df14df6084e48f6c884</srcmd5>
+          <version>unknown</version>
+          <time>1568127988</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Vel assumenda pariatur. Facilis harum ut. Unde accusantium animi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>04bc017c126b379ea6b9f27f9aa0146b</srcmd5>
+          <version>unknown</version>
+          <time>1568127988</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22branch_test_package%22%20and%20linkinfo/@project=%22home:other_user%22%20and%20@project=%22home:other_user%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:Jane">
+          <title>Françoise Sagan</title>
+          <description>Totam dolores eum est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYnJhbmNoX3Rlc3RfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpKYW5lIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlRvdGFtIGRvbG9yZXMgZXVtIGVzdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=branch&noservice=1&opackage=branch_test_package&oproject=home:other_user&user=Jane
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '204'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>9131d0c61a2a1accc89616ce5096be29</srcmd5>
+          <version>unknown</version>
+          <time>1568127990</time>
+          <user>Jane</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="branch_test_package" project="home:Jane">
+          <title>Françoise Sagan</title>
+          <description>Totam dolores eum est.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '154'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0iYnJhbmNoX3Rlc3RfcGFja2FnZSIgcHJvamVjdD0iaG9tZTpKYW5lIj4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPlRvdGFtIGRvbG9yZXMgZXVtIGVzdC48L2Rlc2NyaXB0aW9uPgo8L3BhY2thZ2U+Cg==
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:30 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '638'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" xsrcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="_link" md5="cf4b039e6e38fbad2c41f7c09266914d" size="123" mtime="1568127990"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '349'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="branch_test_package" rev="3" vrev="11" srcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29" verifymd5="04bc017c126b379ea6b9f27f9aa0146b">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="home:other_user" package="branch_test_package"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '638'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" xsrcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="_link" md5="cf4b039e6e38fbad2c41f7c09266914d" size="123" mtime="1568127990"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '318'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="bd743fc4988e2d10a9270c5aedfc0616">
+          <old project="home:Jane" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:Jane" package="branch_test_package" rev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:Jane/branch_test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '363'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="95ab19f4ec3e2cfca3e9a17a05ae07fa">
+          <old project="home:other_user" package="branch_test_package" rev="04bc017c126b379ea6b9f27f9aa0146b" srcmd5="04bc017c126b379ea6b9f27f9aa0146b"/>
+          <new project="home:Jane" package="branch_test_package" rev="5d8509ca10f320596cf41f2431f9b561" srcmd5="5d8509ca10f320596cf41f2431f9b561"/>
+          <files/>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:Jane/_meta?user=Jane
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title/>
+          <description/>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '130'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:Jane">
+          <title></title>
+          <description></description>
+          <person userid="Jane" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:other_user/branch_test_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="branch_test_package" rev="8" vrev="8" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" verifymd5="04bc017c126b379ea6b9f27f9aa0146b">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:other_user/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="8" vrev="8" srcmd5="04bc017c126b379ea6b9f27f9aa0146b">
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:other_user/branch_test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '330'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="8b3c7037a16fecf76e0d802cd130fe27">
+          <old project="home:other_user" package="branch_test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:other_user" package="branch_test_package" rev="8" srcmd5="04bc017c126b379ea6b9f27f9aa0146b"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '638'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" xsrcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="_link" md5="cf4b039e6e38fbad2c41f7c09266914d" size="123" mtime="1568127990"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package?expand=1&rev=3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '534'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="5d8509ca10f320596cf41f2431f9b561" vrev="11" srcmd5="5d8509ca10f320596cf41f2431f9b561">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '638'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" xsrcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="_link" md5="cf4b039e6e38fbad2c41f7c09266914d" size="123" mtime="1568127990"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '638'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="branch_test_package" rev="3" vrev="3" srcmd5="9131d0c61a2a1accc89616ce5096be29">
+          <linkinfo project="home:other_user" package="branch_test_package" srcmd5="04bc017c126b379ea6b9f27f9aa0146b" baserev="04bc017c126b379ea6b9f27f9aa0146b" xsrcmd5="5d8509ca10f320596cf41f2431f9b561" lsrcmd5="9131d0c61a2a1accc89616ce5096be29"/>
+          <entry name="_config" md5="7a247c51a52a0f1f3090db3106cff62e" size="53" mtime="1568127988"/>
+          <entry name="_link" md5="cf4b039e6e38fbad2c41f7c09266914d" size="123" mtime="1568127990"/>
+          <entry name="somefile.txt" md5="d912744ebbc07612405fc0987f7dcba3" size="65" mtime="1568127988"/>
+        </directory>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:Jane/branch_test_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '574'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>fb44fff1a5071c5138acc0d893d955fb</srcmd5>
+            <version>unknown</version>
+            <time>1568127964</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>0eeb88778c6037273dd8719cdf26254c</srcmd5>
+            <version>unknown</version>
+            <time>1568127964</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>9131d0c61a2a1accc89616ce5096be29</srcmd5>
+            <version>unknown</version>
+            <time>1568127990</time>
+            <user>Jane</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:Jane/_result?package=branch_test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Tue, 10 Sep 2019 15:06:31 GMT
+recorded_with: VCR 5.0.0

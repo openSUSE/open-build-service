@@ -1,0 +1,5 @@
+<project name="openSUSE.org">                                                                                                                                                                                                                
+  <title>Remote OBS instance</title>                                                                                                                                                                                                         
+  <description>This project is representing a remote build service instance.</description>                                                                                                                                                   
+  <remoteurl>https://api.opensuse.org/public</remoteurl>                                                                                                                                                                                     
+</project>  

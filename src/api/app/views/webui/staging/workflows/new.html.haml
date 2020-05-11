@@ -1,0 +1,20 @@
+- @pagetitle = "Staging Projects for #{@project}"
+
+.card.mb-3
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+  .card-body
+    %h3= @pagetitle
+    %p
+      Adding the staging capability to this project will enable you to group
+      requests into staging projects and being able to see how they build together.
+    %p
+      Managers groups can only be created by an admin. Please contact an
+      = Configuration[:admin_email] == 'unconfigured@openbuildservice.org' ? 'admin' : mail_to(Configuration[:admin_email], 'admin')
+      if don't have a group yet.
+    .mb-3.w-50.m-auto
+      = form_for @staging_workflow, method: :post do |f|
+        = hidden_field_tag :project_name, @project
+        = render partial: 'webui/shared/autocomplete', locals: { html_id: 'managers_title', label: 'Managers Group:',
+                                                                 data: { source: autocomplete_groups_path } }
+        .text-center
+          = f.submit 'Create Staging Projects', class: 'btn btn-primary'

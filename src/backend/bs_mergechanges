@@ -1,0 +1,216 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2014 Adrian Schroeter, SUSE LLC
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 or 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use strict;
+
+use POSIX;
+use Data::Dumper;
+use Getopt::Long;
+use Date::Parse;
+
+sub echo_help {
+    print "\n
+The SUSE changes merge tool
+===========================
+
+openSUSE package sources contain a .changes file providing a full changelog.
+A stripped version of that gets attached to rpm %changes to avoid a too large rpm db.
+But the full version is kept with the package sources.
+
+The classic diff3 merge approach often fails on these files, so this
+merge tool is reading the entire files and sorts the entries according
+to it's date. If entries with same date do differ it fails. The classic
+diff3 merge and manual conflict resolution is the only way then.
+
+The tool takes any amount of files and is merging them into one. The first file
+must be the common ancestor of the other files.
+
+";
+}
+
+#
+# Argument parsing
+#
+if (@ARGV < 1) {
+  echo_help();
+  exit(1);
+}
+
+my @files;
+my $force;
+my $verbose;
+
+while (@ARGV) {
+  my $arg = shift @ARGV;
+  if ($arg eq "--help") {
+    echo_help();
+    exit(0);
+  }
+
+  if ($arg eq "--verbose") {
+    $verbose = 1;
+  } elsif ($arg eq "--force") {
+    $force = 1;
+  } elsif ($arg =~ /^-/) {
+    die("Unknown switch $arg");
+  } else {
+    push @files, $arg;
+  }
+}
+
+die("Give at least one file") if @files < 1;
+
+# init
+my $seperator = "-------------------------------------------------------------------";
+my %entries;
+
+# utils
+
+sub time2mystr {
+  my ($time) = @_;
+  my @lt = gmtime($time);
+  # ctime(3) format output
+  return strftime("%a %b %e %H:%M:%S UTC %Y", @lt);
+}
+
+sub findsim {
+  my ($ent, $allents) = @_;
+  return undef unless $ent->{'fileno'};
+  my %sim;
+  my @in = grep {!$_->{'fileno'}} @$allents;
+  for my $ent2 (@in) {
+    return $ent2 if $ent2->{'text'} eq $ent->{'text'};
+  }
+  for my $ent2 (@in) {
+    my @w = split(' ', $ent2->{'text'});
+    my @wc = grep {$ent->{'text'} =~ /\Q$_\E/} @w;
+    $sim{$ent2} = @wc ? @w / @wc : 0;
+  }
+  my @sorted = sort {$sim{$a} <=> $sim{$b}} @in;
+  return $sorted[-1] if @sorted && $sorted[-1] > .75;
+  return undef;
+}
+
+sub decide {
+  my ($ent, $nfiles) = @_;
+  return $ent unless $ent->{'sim'};
+  my @sim = @{$ent->{'sim'}};
+  my @changed = grep {$_->{'text'} ne $ent->{'text'}} @sim;
+  if (!@changed) {
+    return $sim[-1] if @sim == $nfiles - 1;
+    return undef if @sim == $nfiles - 2;
+  }
+  if (@changed && @sim == $nfiles - 1) {
+    return $changed[-1] unless grep {$_->{'text'} ne $changed[-1]->{'text'}} @changed;
+  }
+  die("Conflicting entries for $ent->{time}\n");
+}
+
+sub setentry {
+  my ($time, $timestr, $email, $text, $fileno) = @_;
+  my $ent = {'time' => $timestr, 'email' => $email, 'text' => $text, 'fileno' => $fileno};
+  if ($entries{$time}) {
+    my $siment = findsim($ent, $entries{$time});
+    if ($siment) {
+      push @{$siment->{'sim'}}, $ent;
+      return;
+    }
+  }
+  push @{$entries{$time}}, $ent;
+}
+
+# read all files into a hash
+my $fileno = 0;
+my $nfiles = @files;
+while (@files) {
+  my $file = shift @files;
+  local *F;
+  open(F, '<', $file) || die("Unable to open $file");
+  my @lines = <F>;
+  close F;
+  print "Read file $file\n" if $verbose;
+
+  my $init;
+  my $email;
+  my $time;
+  my $timestr;
+  my $text = ""; 
+  my $cycle = 0;
+  foreach my $line (@lines) {
+    chomp($line);
+    if (!$init) {
+      die("no ---- seperator in first line\n") unless $line eq $seperator;
+      $init = 1;
+      next;
+    }
+
+    if (!$time) {
+      ($timestr, $email) = split(' - ', $line, 2);
+      $time = str2time($timestr);
+      die("unable to parse time $line\n") unless $time;
+      die("unable to find email in $line\n") unless $email;
+      print "Read ".time2mystr($time)."($time) for $line\n" if $verbose;
+      next;
+    }
+    
+    if ($line eq $seperator) {
+      my @lt = gmtime($time);
+      # check for the special case, we had many entries at 00:00:00 on same day in the past ...
+      # ignoring the hour due to timezone issues, but do not accept it anymore for current entries
+      # we take this as one blob.
+      # Accept this only for entries in 2006 and before with 00 minutes and 00 seconds
+      if ($lt[5] > 106 || $lt[1] != 0 || $lt[0] != 0) {
+        setentry($time, $timestr, $email, $text, $fileno);
+        $text = ""; 
+        $time = undef;
+        $email = undef;
+        next;
+      }
+    }
+
+    # must be text
+    $text .= "$line\n";
+  }
+  # last entry
+  setentry($time, $timestr, $email, $text, $fileno);
+  $fileno++;
+}
+
+print "Merged ouput:\n===========\n" if $verbose;
+
+# output the hash
+for my $time (sort {$b <=> $a} keys %entries) {
+  my %seen;
+  for my $ent (@{$entries{$time}}) {
+    $ent = decide($ent, $nfiles);
+    next unless $ent && $ent->{'fileno'};	# ignore old stuff
+    next if $seen{$ent->{text}};
+    print "$seperator\n$ent->{time} - $ent->{email}\n$ent->{text}";
+    $seen{$ent->{text}} = 1;
+  }
+}
+

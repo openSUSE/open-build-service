@@ -1,0 +1,39 @@
+- user_can_modify_package = User.possibly_nobody.can_modify?(package)
+
+.card-body
+  - if files.present?
+    %table.table.table-bordered.table-hover.table-sm.dt-responsive.w-100#files-table
+      %thead
+        %tr
+          %th Filename
+          %th Size
+          %th Changed
+          %th Actions
+      %tbody
+        - file_locals = { package: package, project: project, expand: expand, is_current_rev: is_current_rev,
+        can_modify: user_can_modify_package, nobody: !User.session }
+        = render partial: 'file', collection: files,
+        cached: proc { |file| [file[:name], file[:mtime], file[:md5], file_locals].hash }, locals: file_locals
+  - else
+    %i This package has no files yet
+  - if user_can_modify_package
+    .pt-4
+      = link_to(package_add_file_path(project, package)) do
+        %i.fas.fa-plus-circle.text-primary
+        Add file
+    = render(partial: 'delete_file_dialog', locals: { project: project, package: package })
+- unless files.blank? || spider_bot
+  - if revision.present?
+    - if is_current_rev
+      %h5.card-header.border-top Latest Revision
+    - else
+      %h5.card-header.border-top
+        Revision #{revision} (latest revision is #{current_rev})
+    .card-body
+      = render partial: 'commit_item', locals: { revision: revision, commit: package.commit(revision) }
+  - elsif srcmd5
+    %h5
+      Source MD5 is #{srcmd5} (latest revision is #{current_rev})
+
+- content_for :ready_function do
+  initializeDataTable('#files-table');

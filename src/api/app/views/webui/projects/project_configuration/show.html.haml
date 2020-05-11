@@ -1,0 +1,16 @@
+:ruby
+  content_for(:content_for_head, javascript_include_tag('webui/cm2/codemirror-prjconf'))
+  @pagetitle = "Project Configuration of #{@project}"
+  @metarobots = 'noindex'
+
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    %h3= @pagetitle
+    - if User.possibly_nobody.can_modify?(@project)
+      = render partial: 'webui/shared/editor', locals: { text: @content, mode: 'prjconf',
+        save: { url: project_config_path, method: :put,
+        data: { project_name: @project.name, submit: 'config' } } }
+    - else
+      = render partial: 'webui/shared/editor', locals: { text: @content, mode: 'prjconf', style: { read_only: true } }

@@ -1,0 +1,24 @@
+
+    <archsets>
+      <archset name="ix86" productarch="i586">
+        <arch>i586</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="x86_64" productarch="x86_64">
+        <arch>x86_64</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="ppc64" productarch="ppc64">
+        <arch>ppc64</arch>
+        <arch>noarch</arch>
+      </archset>
+      <archset name="s390x" productarch="s390x">
+         <arch>s390x</arch>
+         <arch>noarch</arch>
+      </archset>
+      <archset name="ia64" productarch="ia64">
+         <arch>ia64</arch>
+         <arch>noarch</arch>
+      </archset>
+    </archsets>
+

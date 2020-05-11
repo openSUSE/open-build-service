@@ -1,0 +1,5 @@
+%li
+  %i.fas.fa-info-circle.text-info
+  = package.linking_packages.size
+  = link_to('derived packages', '#', title: 'derived packages', data: { toggle: 'modal', target: '#linking-packages-modal' })
+  = render partial: 'webui/package/linking_packages', locals: { package: package }

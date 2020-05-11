@@ -1,0 +1,33 @@
+ubuntu12.04 root登录
+1先设定一个root的密码，sudo passwd root
+
+2 root 登陆，su root
+
+3 备份一下lightgdm
+cp -p /etc/lightdm/lightdm.conf /etc/lightdm/lightdm.conf.bak
+
+4 vi /etc/lightdm/lightdm.conf
+
+5 增加：greeter-show-manual-login=true
+  修改后为：
+  [SeatDefaults]
+  greeter-session=unity-greeter
+  user-session=ubuntu
+  greeter-show-manual-login=true
+
+  重启登陆即可。已经可以输入root了
+
+
+root登陆后还没声音，又查了查，如下方法:
+Ubuntu root登录没有声音这个问题的根本原因是使用root登录后pulseaudio没有启动。
+将root加到pulse-access组：
+sudo usermod -a -G pulse-access root
+然后修改配置文件/etc/default/pulseaudio，将PULSEAUDIO_SYSTEM_START设为1，
+
+=======================================================================
+安装linux版本的beyond compare
+beyond compare的注册码：
+HmB5oANygQOhaStTHNa+zOKgOeWHOkeAp6d1+QwIebz6z9kwYCm9-O0jF9F79zvzed9v5UVC4VrDkDMmTM8nB+
+
+
+

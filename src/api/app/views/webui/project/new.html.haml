@@ -1,0 +1,25 @@
+- @pagetitle = @namespace.nil? ? 'Create Project' : 'Create Subproject'
+
+.card
+  .card-body
+    %h3= @pagetitle
+    - unless User.admin_session?
+      %p
+        All users have a homes project by default. Yours is
+        = succeed ',' do
+          = link_to User.session!.home_project_name, project_show_path(User.session!.home_project_name)
+        and you can also create sub projects inside. New projects outside of your home project can get requested via
+        = succeed '.' do
+          = link_to 'email', "mailto:#{@configuration['admin_email']}"
+    - if @show_restore_message
+      .alert.alert-secondary
+        %p
+          A project with the same name existed in the past. You can restore the old state instead of starting from scratch.
+          = link_to 'Click here', projects_restore_path(project: @project.name), method: :post
+          if you want to restore the project. If you want to start from scratch, click the 'Create Project' button again.
+          %strong (Be aware that starting from scratch would mean that you'd delete the old state of the project and it can never get restored again!)
+    = form_for(@project, url: projects_create_path, method: :post) do |form|
+      - locals = { form: form, configuration: @configuration }
+      - locals[:namespace] = @namespace if @namespace.present?
+      = render partial: 'form', locals: locals
+      = submit_tag('Accept', class: 'btn btn-sm btn-primary px-4')

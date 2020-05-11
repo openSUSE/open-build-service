@@ -1,0 +1,14 @@
+.modal.fade#unlock-project-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'unlock-project-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(project_unlock_path) do
+        .modal-header
+          %h5.modal-title#unlock-project-modal-label Unlock Project #{project}
+        .modal-body
+          %p Do you really want to unlock #{link_to(project, project_show_path(project))}?
+          = hidden_field_tag(:project, project)
+          .form-group
+            = label_tag(:comment, 'Comment:')
+            = text_area_tag(:comment, '', rows: 3, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

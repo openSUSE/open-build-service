@@ -1,0 +1,4 @@
+<required_check>
+  <name>ci/example: example test</name>
+  <name>ci/example2: example test</name>
+</required_check>

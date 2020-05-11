@@ -1,0 +1,49 @@
+- number_paths = 3
+.card-body
+  - if repository.path_elements.present?
+    %strong Repository paths:
+    %ol.list-unstyled.ml-3
+      - repository.path_elements.each_with_index do |path, index|
+        - if index < number_paths
+          = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
+                                                              user_can_modify: user_can_modify }
+        - else
+          - content_for :repository_path_item do
+            = render partial: 'repository_path_item', locals: { project: project, repository: repository, path: path,
+                                                                user_can_modify: user_can_modify }
+      - if repository.path_elements.size > number_paths
+        %details.repository-path
+          %summary.small
+            %span.more More
+            %span.less Less
+          = yield :repository_path_item
+
+.card-footer.text-center
+  .row
+    - if user_can_modify
+      .col
+        = link_to('#', title: 'Edit Repository',
+                       data: { toggle: 'modal', target: "#edit-repository-#{repository.id}" }) do
+          %i.fas.fa-edit.text-secondary
+      .col
+        = link_to('#', title: 'Add Repository Path',
+                       data: { toggle: 'modal', target: "#add-repository-path-#{repository.id}" }) do
+          %i.fas.fa-plus-circle.text-primary
+    .col
+      - url = "#{download_url}/#{project.to_s.gsub(/:/, ':/')}/#{repository}"
+      = link_to(url, title: 'Download Repository') do
+        %i.fas.fa-download.text-secondary
+
+    - if user_can_modify
+      .col
+        = link_to('#', title: 'Delete Repository', data: { toggle: 'modal', target: '#delete-repository',
+          action: destroy_repository_path(project: project, target: repository.name), repository: repository.name }) do
+          %i.fas.fa-times-circle.text-danger
+    - elsif User.session
+      .col
+        = link_to('#', title: 'Request Delete Repository', data: { toggle: 'modal', target: '#request-delete-repository',
+          action: project_remove_target_request_path(project: project, repository: repository.name), repository: repository.name }) do
+          %i.fas.fa-user-times.text-danger
+
+= render partial: 'edit_repository_modal', locals: { repository: repository, project: project, available_architectures: available_architectures }
+= render partial: 'add_repository_path_modal', locals: { repository: repository, project: project, user_can_modify: user_can_modify }

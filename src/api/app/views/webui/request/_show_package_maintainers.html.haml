@@ -1,0 +1,13 @@
+.modal.fade#show-maintainers-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title#confirm-modal-label
+          Package Maintainers
+      .modal-body
+        - package_maintainers.pluck(:login).each do |package_maintainer|
+          %p
+            = user_with_realname_and_icon(package_maintainer, short: true)
+        .modal-footer
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            OK

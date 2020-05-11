@@ -1,0 +1,19 @@
+.modal.fade#change-devel-request-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'change-devel-request-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(change_devel_request_path(project: project, package: package), method: :post) do
+        .modal-header
+          %h5.modal-title Change Devel Project Request
+        .modal-body
+          %p
+            -# FIXME: get rid of this helper
+            Do you want to request to change the devel project for #{package_link(package)} from
+            \#{project_or_package_link(project: package.develpackage.project.name)}?
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'devel_project',
+                                                                   label: 'New Devel project (leave free to delete the current one):',
+                                                                   data: { source: autocomplete_projects_path } }
+          .form-group
+            = label_tag(:change_devel_description, 'Description:')
+            = text_area_tag(:change_devel_description, '', row: 3, class: 'form-control')
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Create' }

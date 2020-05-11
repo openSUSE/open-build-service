@@ -1,177 +1,73 @@
-require "rexml/document"
-
 class AttributeController < ApplicationController
+  include ValidationHelper
 
-  validate_action :index => {:method => :get, :response => :directory}
-  validate_action :namespace_definition => {:method => :get, :response => :attribute_namespace_meta}
-  validate_action :namespace_definition => {:method => :delete, :response => :status}
-  validate_action :namespace_definition => {:method => :post, :request => :attribute_namespace_meta, :response => :status}
-  validate_action :attribute_definition => {:method => :get, :response => :attrib_type}
-  validate_action :attribute_definition => {:method => :delete, :response => :status}
-  validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
+  validate_action show: { method: :get, response: :attrib_type }
+  validate_action delete: { method: :delete, response: :status }
+  validate_action update: { method: :put, request: :attrib_type, response: :status }
+  validate_action update: { method: :post, request: :attrib_type, response: :status }
+  before_action :load_attribute, only: [:show, :update, :delete]
 
-  def index
-    valid_http_methods :get
-
-    if params[:namespace]
-      if not AttribNamespace.find_by_name( params[:namespace], :select => "id,name" )
-        render_error :status => 400, :errorcode => 'unknown_namespace',
-          :message => "Attribute namespace does not exist: #{params[:namespace]}"
-        return
-      end
-      list = AttribType.list_all( params[:namespace] )
+  # GET /attribute/:namespace/:name/_meta
+  def show
+    if @at
+      render template: 'attribute/show'
     else
-      list = AttribNamespace.list_all
-    end
-
-    builder = Builder::XmlMarkup.new( :indent => 2 )
-    xml = builder.directory( :count => list.length ) do |dir|
-      list.each do |a|
-        dir.entry( :name => a.name )
-      end
-    end
-
-    render :text => xml, :content_type => "text/xml"
-  end
-
-  # /attribute/:namespace/_meta
-  def namespace_definition
-    valid_http_methods :get, :delete, :post
-
-    if params[:namespace].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'namespace' is missing"
-      return
-    end
-    namespace = params[:namespace]
-
-    if request.get?
-      an = AttribNamespace.find_by_name( namespace, :select => "id,name" )
-      if an
-        render :text => an.render_axml, :content_type => 'text/xml'
-      else
-        render_error :message => "Unknown attribute namespace '#{namespace}'",
-          :status => 404, :errorcode => "unknown_attribute_namespace"
-      end
-      return
-    end
-
-    # namespace definitions must be managed by the admin
-    return unless extract_user
-    unless @http_user.is_admin?
-      render_error :status => 403, :errorcode => 'permissions denied',
-        :message => "Namespace changes are only permitted by the administrator"
-      return
-    end
-
-    if request.post?
-      logger.debug "--- updating attribute namespace definitions ---"
-
-      xml = REXML::Document.new( request.raw_post )
-      xml_element = xml.elements["/namespace"] if xml
-
-      unless xml and xml_element and xml_element.attributes['name'] == namespace
-        render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
-        return
-      end
-
-      db = AttribNamespace.find_by_name(namespace)
-      if db
-          logger.debug "* updating existing attribute namespace"
-          db.update_from_xml(xml_element)
-      else
-          logger.debug "* create new attribute namespace"
-          AttribNamespace.create(:name => namespace).update_from_xml(xml_element)
-      end
-
-      logger.debug "--- finished updating attribute namespace definitions ---"
-      render_ok
-    elsif request.delete?
-      db = AttribNamespace.find_by_name(namespace)
-      db.destroy
-      render_ok
-    else
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: POST #{request.path}"
+      render_error message: "Unknown attribute '#{@namespace}':'#{@name}'",
+                   status: 404, errorcode: 'unknown_attribute'
     end
   end
 
-  # /attribute/:namespace/:name/_meta
-  def attribute_definition
-    valid_http_methods :get, :delete, :post
-
-    if params[:namespace].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'namespace' is missing"
-      return
+  # DELETE /attribute/:namespace/:name/_meta
+  # DELETE /attribute/:namespace/:name
+  def delete
+    if @at
+      authorize @at, :destroy?
+      @at.destroy
     end
+
+    render_ok
+  end
+
+  # POST/PUT /attribute/:namespace/:name/_meta
+  def update
+    return unless (xml_element = validate_xml)
+
+    if @at
+      authorize @at, :update?
+      @at.update_from_xml(xml_element)
+    else
+      create(xml_element)
+    end
+
+    render_ok
+  end
+
+  private
+
+  def load_attribute
+    @namespace = params[:namespace]
+    @ans = AttribNamespace.find_by_name!(@namespace)
     if params[:name].nil?
-      render_error :status => 400, :errorcode => 'missing_parameter',
-        :message => "parameter 'name' is missing"
-      return
+      raise MissingParameterError, "parameter 'name' is missing"
     end
-    namespace = params[:namespace]
-    name = params[:name]
-    ans = AttribNamespace.find_by_name namespace
-    unless ans
-       render_error :status => 400, :errorcode => 'unknown_attribute_namespace',
-         :message => "Specified attribute namespace does not exist: '#{namespace}'"
-       return
-    end
-
-    if request.get?
-      at = ans.attrib_types.where(:name => name).first
-      if at
-        render :text => at.render_axml, :content_type => 'text/xml'
-      else
-        render_error :message => "Unknown attribute '#{namespace}':'#{name}'",
-          :status => 404, :errorcode => "unknown_attribute"
-      end
-      return
-    end
-
-    # permission check via User model
-    return unless extract_user
-    unless @http_user.can_modify_attribute_definition?(ans)
-      render_error :status => 403, :errorcode => 'permissions denied',
-        :message => "Attribute type changes are not permitted"
-      return
-    end
-
-    if request.post?
-      logger.debug "--- updating attribute type definitions ---"
-
-      xml = REXML::Document.new( request.raw_post )
-      xml_element = xml.elements["/definition"] if xml
-      unless xml and xml_element and xml_element.attributes['name'] == name and xml_element.attributes['namespace'] == namespace
-        render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
-        return
-      end
-
-      entry = ans.attrib_types.where("name = ?", name ).first
-      if entry
-          db = AttribType.find( entry.id ) # get a writable object
-          logger.debug "* updating existing attribute definitions"
-          db.update_from_xml(xml_element)
-      else
-          logger.debug "* create new attribute definition"
-          AttribType.new(:name => name, :attrib_namespace => ans ).update_from_xml(xml_element)
-      end
-
-      logger.debug "--- finished updating attribute namespace definitions ---"
-      #--- end update attribute namespace definitions ---#
-
-      render_ok
-    elsif request.delete?
-      at = ans.attrib_types.where("name = ?", name ).first
-      at.destroy if at
-      render_ok
-    else
-      render_error :status => 400, :errorcode => 'illegal_request',
-        :message => "Illegal request: POST #{request.path}"
-    end
+    @name = params[:name]
+    # find_by_name is something else (of course)
+    @at = @ans.attrib_types.where(name: @name).first
   end
 
+  def create(xml_element)
+    entry = AttribType.new(name: @name, attrib_namespace: @ans)
+    authorize entry, :create?
+
+    entry.update_from_xml(xml_element)
+  end
+
+  def validate_xml
+    xml_element = Xmlhash.parse(request.raw_post)
+
+    return xml_element if xml_element && xml_element['name'] == @name && xml_element['namespace'] == @namespace
+    render_error status: 400, errorcode: 'illegal_request',
+                 message: "Illegal request: PUT/POST #{request.path}: path does not match content"
+    return
+  end
 end

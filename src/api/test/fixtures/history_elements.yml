@@ -1,0 +1,5 @@
+record_2:
+  op_object_id: 9994
+  type: HistoryElement::RequestAllReviewsApproved
+  user_id: <%= ActiveRecord::FixtureSet.identify(:Iggy) %>
+  created_at: 2012-09-28 11:55:19.000000000 Z

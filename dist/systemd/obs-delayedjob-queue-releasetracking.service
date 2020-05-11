@@ -1,0 +1,16 @@
+[Unit]
+Description = Open Build Service DelayedJob Queue: releasetracking
+BindsTo = obs-api-support.target
+
+[Service]
+Environment = "RAILS_ENV=production"
+User = @@APACHE_USER@@
+Group = @@APACHE_GROUP@@
+WorkingDirectory = @@OBS_API_PREFIX@@
+ExecStart = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=releasetracking start -i 1000
+ExecStop  = @@OBS_BUNDLE_BIN@@ exec script/delayed_job.api.rb --queue=releasetracking stop -i 1000
+Type = forking
+PIDFile = @@OBS_API_PREFIX@@/tmp/pids/delayed_job.1000.pid
+
+[Install]
+WantedBy = obs-api-support.target

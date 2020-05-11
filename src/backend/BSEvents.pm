@@ -27,9 +27,11 @@ package BSEvents;
 use POSIX;
 
 my $nextid = 0;
+my $emptyvec = "\0\0\0\0\0\0\0\0" x 16;
+
 my %events;
-my $events_rvec = "\0\0\0\0\0\0\0\0" x 16;
-my $events_wvec = "\0\0\0\0\0\0\0\0" x 16;
+my $events_rvec = $emptyvec;
+my $events_wvec = $emptyvec;
 my %events_rvec;
 my %events_wvec;
 
@@ -59,7 +61,7 @@ sub add {
   die("event #$ev->{'id'} already added\n") if $events{$ev->{'id'}};
   $events{$ev->{'id'}} = $ev;
   if ($ev->{'type'} eq 'read') {
-    $ev->{'vec'} = "\0\0\0\0\0\0\0\0" x 16;
+    $ev->{'vec'} = $emptyvec;
     #printf "add read ev #$ev->{'id'} fd %d\n", fileno(*{$ev->{'fd'}});
     vec($ev->{'vec'}, fileno(*{$ev->{'fd'}}), 1) = 1;
     die("fd out of range\n") if length($ev->{'vec'}) != 128;
@@ -67,7 +69,7 @@ sub add {
     die("event for file descriptor added twice\n") if $events_rvec{$ev->{'vec'}};
     $events_rvec{$ev->{'vec'}} = $ev;
   } elsif ($ev->{'type'} eq 'write') {
-    $ev->{'vec'} = "\0\0\0\0\0\0\0\0" x 16;
+    $ev->{'vec'} = $emptyvec;
     #printf "add write ev #$ev->{'id'} fd %d\n", fileno(*{$ev->{'fd'}});
     vec($ev->{'vec'}, fileno(*{$ev->{'fd'}}), 1) = 1;
     die("fd out of range\n") if length($ev->{'vec'}) != 128;
@@ -147,8 +149,8 @@ sub schedule {
       $ev->{'handler'}->($ev);
       undef $wvec;
     }
-    $rvec = undef if defined($rvec) && $rvec eq "\0\0\0\0\0\0\0\0" x 16;
-    $wvec = undef if defined($wvec) && $wvec eq "\0\0\0\0\0\0\0\0" x 16;
+    $rvec = undef if defined($rvec) && $rvec eq $emptyvec;
+    $wvec = undef if defined($wvec) && $wvec eq $emptyvec;
     next unless defined($rvec) || defined($wvec);
     #print "slow call!\n";
     for my $id (sort keys %events) {
@@ -168,6 +170,10 @@ sub schedule {
       }
     }
   }
+}
+
+sub allevents {
+  return values(%events);
 }
 
 1;

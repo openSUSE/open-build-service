@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Just the very first example OBS service, written by adrian
-# we should build a bash lib for some of this stuff
+# Based on download_url service. However this on is only for the
+# test suite and just produces files with random content
 
 # defaults
 MYPROTOCOL="http"
@@ -63,11 +63,16 @@ if [ -z "$FILE" ]; then
 fi
 
 cd "$MYOUTDIR"
-# yes, not nice, but too many broken servers out there who either break with IPv6 or have broken certificates :/
-# let's use verify service to validate the downloaded source
+# Shall we fail?
+if [ "__FAIL__" = "${MYPATH##*/}" ]; then
+  echo "Error message of source service"
+  exit 1
+fi
+
+# Just generate a file with permanent changing content for the test suite
 if [ -n "$MYFILENAME" ]; then
-  exec /usr/bin/wget -4 --no-check-certificate -q -O "$MYFILENAME" "$MYPROTOCOL://${MYHOST}${MYPORT}/$MYPATH"
+  cat /proc/uptime > "$MYFILENAME"
 else
-  exec /usr/bin/wget -4 --no-check-certificate -q "$MYPROTOCOL://${MYHOST}${MYPORT}/$MYPATH"
+  cat /proc/uptime > "${MYPATH##*/}"
 fi
 

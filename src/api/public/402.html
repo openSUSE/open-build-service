@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Error 402</title>
+  
+  <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+  <style type="text/css">
+    html,
+    body {
+    height: 100%; /* The html and body elements cannot have any padding or margin. */
+    background-color: #F6F6F6;
+    }
+    /* Wrapper for page content to push down footer */
+    #wrap {
+      min-height: 100%;
+      height: auto;
+      /* Negative indent footer by its height */
+      margin: 0 auto -250px;
+      /* Pad bottom by footer height */
+      padding: 0 0 250px;
+    }
+    /* Set the fixed height of the footer here */
+    #footer {
+      height: 250px;
+      background-color: #f5f5f5;
+    }
+    #error-text {
+      padding-top: 0;
+
+    }
+    @media all and (min-width: 751px) {
+      #error-text {
+        padding-top: 90px;
+      }
+    }   
+
+    #error-img {
+      padding-top: 0;
+    }
+    @media all and (min-width: 971px) {
+      #error-img {
+        padding-top: 130px;
+      }
+    }  
+    @media all and (min-width: 1171px) {
+      #error-img {
+        padding-top: 85px;
+      }
+    } 
+  </style>
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div id="wrap">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-6 col-md-6" id="error-text">
+        <h1>402: Account Unconfirmed</h1>
+        <p class="lead">
+         Sorry, your account is registered but not confirmed yet. Please get in contact with the OBS administrator to get it confirmend.
+        </p>
+      </div>
+      <div class="col-sm-6 col-md-6" id="error-img">
+        <img src="/obs-on-fire.png" class="img-responsive" alt="Responsive image">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="footer">
+  <div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>In case of emergency...</h3>
+      <p>Let's be honest, we're both not perfect (yet!). But don't despair, as <a href="https://www.fsf.org/about/what-is-free-software">free software</a> project we're commited to work together and collaborate. Here is how we do that.</p>
+      <div class="row">
+        <div class="col-md-4">
+          <h4>...we help each other out</h4>
+          <p>
+            On <a href="irc://irc.freenode.net/openSUSE-buildservice" rel="nofollow">IRC</a> and on the <a href="mailto:opensuse-buildservice+subscribe@opensuse.org" rel="nofollow">mailing list</a> there is a vibrant community of developers, admins and users that <em>support</em> each other.  
+          </p>
+        </div>
+        <div class="col-md-4">
+          <h4>...we tell us about problems</h4>
+          <p>
+            In the unfortunate event you've hit a <em>bug</em> in the OBS we depend on you to <a href="https://github.com/openSUSE/open-build-service/issues">report them on GitHub</a>.
+          </p>
+        </div>
+        <div class="col-md-4">
+          <h4>...we better ourselves</h4>
+          <p>
+            You have an idea how to make OBS better, faster, stronger? Those ideas we call <em>feature</em> and we track them in <a href="https://features.opensuse.org/feature/new">openFATE</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+</body>
+</html>

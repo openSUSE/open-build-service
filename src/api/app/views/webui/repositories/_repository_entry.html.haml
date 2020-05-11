@@ -1,0 +1,16 @@
+.col-12.col-md-6.col-lg-4
+  .card.mb-3.repository-card
+    .card-header
+      = link_to(repository, project_repository_state_path(project: project, repository: repository.name), class: 'font-weight-bold')
+      - if repository.architectures.empty?
+        %i No architecture selected
+      - else
+        - repository.architectures.pluck(:name).each do |architecture|
+          %span.badge.badge-primary= architecture
+    - if repository.is_dod_repository?
+      = render partial: 'dod_repository_card_content', locals: { project: project, repository: repository,
+                 available_architectures: available_architectures }
+    - else
+      = render partial: 'repository_card_content', locals: { project: project, repository: repository,
+                 download_url: download_url, user_can_modify: user_can_modify,
+                 available_architectures: available_architectures }

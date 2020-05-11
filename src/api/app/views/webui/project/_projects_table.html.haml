@@ -1,0 +1,12 @@
+%h3 #{table_title.pluralize} of #{project}
+- table_id = table_title.tr(' ', '_')
+%table.responsive.table.table-sm.table-bordered.table-hover.w-100{ data: { source: project_subprojects_path(project,
+  type: table_title.downcase) }, id: table_id }
+  %thead
+    %tr
+      %th= table_title
+      %th Title
+  %tbody
+
+- content_for :ready_function do
+  initializeRemoteDatatable("##{table_id}", { columns: [ { data: 'name' }, { data: 'title' }] });

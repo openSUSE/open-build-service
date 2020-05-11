@@ -1,0 +1,4 @@
+%li
+  %i.fa.fa-info-circle.text-info
+  = link_to(project_meta_path(project)) do
+    = pluralize(release_targets.length, 'Release Target')

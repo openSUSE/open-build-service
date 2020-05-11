@@ -1,0 +1,21 @@
+- label_css ||= ''
+- button_css ||= ''
+
+= form_tag(log_in_params[:url], log_in_params[:options]) do
+  - if proxy_mode?
+    = hidden_field_tag(:context, 'default')
+    = hidden_field_tag(:proxypath, 'reserve')
+    = hidden_field_tag(:message, 'Please log in')
+    - if with_redirect
+      = hidden_field_tag(:url, return_to_location)
+  .form-group
+    = label_tag(:username, 'Username', class: "#{label_css}")
+    = text_field_tag(:username, nil, placeholder: 'User Name', required: true, id: 'user-login', class: 'form-control')
+  .form-group
+    = label_tag(:password, 'Password', class: "#{label_css}")
+    = password_field_tag(:password, nil, placeholder: 'Password', required: true, id: 'user-password', class: 'form-control')
+  .clearfix
+    = submit_tag('Log In', name: 'login', class: "btn btn-primary #{button_css}")
+    - if with_sign_up && can_sign_up?
+      %span or
+      %span= sign_up_link

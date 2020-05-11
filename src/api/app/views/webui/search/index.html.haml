@@ -1,0 +1,21 @@
+- @pagetitle = 'Search'
+
+.card.mb-3
+  = render partial: 'tabs'
+  .card-body
+    %h3 Search for packages or projects:
+    .d-flex.justify-content-center
+      = form_tag(search_path, method: :get, class: 'my-3 w-75') do
+        .form-group.input-group
+          = text_field_tag('search_text', params[:search_text], placeholder: 'Search', autofocus: true,
+                           required: true, minlength: 2, class: 'form-control rounded', id: 'search_input')
+          %button.btn.btn-primary.ml-1{ type: 'submit', title: 'Search' }
+            %i.fa.fa-search
+
+        = render(partial: 'search_for')
+        = render(partial: 'advanced_search', locals: { attrib_type_list: @attrib_type_list,
+                                                         issue_tracker_list: @issue_tracker_list,
+                                                         default_tracker: @default_tracker })
+
+    - if @results.present?
+      = render(partial: 'results', locals: { results: @results, per_page: @per_page, search_text: @search_text })

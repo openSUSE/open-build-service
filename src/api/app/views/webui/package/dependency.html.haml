@@ -1,0 +1,26 @@
+- @pagetitle = "Dependency information about #{@filename}"
+
+.card
+  = render partial: 'tabs', locals: { package: @package, project: @project }
+
+  .card-body
+    %h3 Dependency of #{@filename}
+
+    %dl.row.mt-4
+      %dt.col-md-2.text-truncate Name
+      %dd.col-md-10= @fileinfo.value(:name)
+
+      %dt.col-md-2.text-truncate Project
+      %dd.col-md-10= @dependant_project
+
+      %dt.col-md-2.text-truncate Repository
+      %dd.col-md-10= @dependant_repository
+
+    %hr
+
+    = render partial: 'fileinfo', locals: { fileinfo: @fileinfo,
+                                            filename: @filename,
+                                            project: @project,
+                                            package: @package,
+                                            repository: @repository,
+                                            architecture: @arch }

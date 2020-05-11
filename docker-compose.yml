@@ -1,0 +1,44 @@
+version: "2.1"
+services:
+  db:
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/mariadb
+    ports:
+      - "3306:3306"
+    command: /usr/lib/mysql/mysql-systemd-helper start
+  cache:
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/memcached
+    ports:
+      - "11211:11211"
+    command: /usr/sbin/memcached -u memcached
+  backend:
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend
+    volumes:
+      - .:/obs
+      - ./dist/aws_credentials:/etc/obs/cloudupload/.aws/config
+      - ./dist/ec2utils.conf:/etc/obs/cloudupload/.ec2utils.conf
+      - ./dist/clouduploader.rb:/usr/bin/clouduploader
+    command: /obs/contrib/start_development_backend -d /obs
+  worker:
+    image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend
+    volumes:
+      - .:/obs
+    privileged: true 
+    depends_on:
+      - backend
+    command: /obs/contrib/start_development_worker
+  frontend:
+    image: openbuildservice/frontend
+    command: foreman start -p 3000
+    build:
+      dockerfile: docker-files/Dockerfile
+      context: src/api
+    volumes:
+      - .:/obs
+    ports:
+      - "3000:3000"
+      - "1080:1080"
+    depends_on:
+      - db
+      - cache
+      - backend
+      - worker

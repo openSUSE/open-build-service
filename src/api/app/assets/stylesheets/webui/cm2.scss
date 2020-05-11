@@ -1,0 +1,14 @@
+@import "cm2/bootstrap";
+
+.custom-file-label-with-overflow {
+    @extend .custom-file-label;
+    overflow: hidden;
+}
+
+.short-progress {
+    height: 5px;
+}
+
+.big-editor {
+    height: auto;
+}

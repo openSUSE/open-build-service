@@ -1,0 +1,11 @@
+ul li.value {
+  &:not(:last-child) {
+    margin-bottom: 5px;
+  }
+
+  & pre {
+    background-color: $body-bg;
+    border: 1px dotted $primary;
+    padding: 2px 3px;
+  }
+}

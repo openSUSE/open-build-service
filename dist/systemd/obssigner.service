@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS signer service
+After=obsstoragesetup.service signd.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_signer --logfile signer.log
+ExecStop=/usr/lib/obs/server/bs_signer --stop
+ExecReload=/usr/lib/obs/server/bs_signer --restart
+
+[Install]
+WantedBy=multi-user.target

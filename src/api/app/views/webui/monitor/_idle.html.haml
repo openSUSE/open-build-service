@@ -1,0 +1,21 @@
+- idle_hosts = worker_status.elements('idle')
+
+.mt-3#idlehosts
+  %h2 Idle Hosts
+  - if idle_hosts.empty?
+    %p
+      None of the #{pluralize(worker_status['clients'], 'host')} idle.
+  - else
+    %p
+      = idle_hosts.size
+      of #{pluralize(worker_status['clients'], 'host')} idle.
+    %table.responsive.table.table-sm.table-bordered.table-hover
+      %thead
+        %tr
+          %th Host
+          %th Arch
+      %tbody
+        - idle_hosts.each do |idle_host|
+          %tr
+            %td= idle_host['workerid']
+            %td= idle_host['hostarch']

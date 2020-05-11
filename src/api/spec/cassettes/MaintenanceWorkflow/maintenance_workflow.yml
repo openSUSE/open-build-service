@@ -1,0 +1,5554 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title/>
+          <description/>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '134'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:user_1">
+          <title></title>
+          <description></description>
+          <person userid="user_1" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo">
+          <title>I Sing the Body Electric</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo">
+          <title>I Sing the Body Electric</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo:Update/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo:Update" kind="maintenance_release">
+          <title>Great Work of Time</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo:Update" kind="maintenance_release">
+          <title>Great Work of Time</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo/_project/_attribute?meta=1&user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="UpdateProject" namespace="OBS">
+            <value>ProjectWithRepo:Update</value>
+          </attribute>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4">
+          <srcmd5>309d2f968f7b121b4d3f41db13084a6e</srcmd5>
+          <time>1568198514</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo:Update/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo:Update" kind="maintenance_release">
+          <title>Great Work of Time</title>
+          <description/>
+          <link project="ProjectWithRepo"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="ProjectWithRepo:Update" kind="maintenance_release">
+          <title>Great Work of Time</title>
+          <description></description>
+          <link project="ProjectWithRepo"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:maintenance_coord/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:maintenance_coord">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:maintenance_coord">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '233'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="10">
+          <srcmd5>b5ac59f5d2a72c7f98586b6c1dbf55de</srcmd5>
+          <time>1568198514</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <maintenance>
+            <maintains project="ProjectWithRepo:Update"/>
+          </maintenance>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '316'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject" kind="maintenance">
+          <title>official maintenance space</title>
+          <description></description>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <maintenance>
+            <maintains project="ProjectWithRepo:Update"/>
+          </maintenance>
+          <build>
+            <disable/>
+          </build>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '275'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:54 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo?comment=generated%20by%20createpatchinfo%20call&user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>maintenance_coord</packager>
+          <summary>Fake comment</summary>
+          <description/>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '250'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>7c79565cf2a5793c8092ebecfe0a912a</srcmd5>
+          <version>unknown</version>
+          <time>1568198514</time>
+          <user>maintenance_coord</user>
+          <comment>generated by createpatchinfo call</comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '275'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="7c79565cf2a5793c8092ebecfe0a912a">
+          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1568189212"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="2" vrev="2" srcmd5="7c79565cf2a5793c8092ebecfe0a912a" verifymd5="7c79565cf2a5793c8092ebecfe0a912a">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="2" vrev="2" srcmd5="7c79565cf2a5793c8092ebecfe0a912a">
+          <entry name="_patchinfo" md5="ea890f2483d4b7e7255d64ef4dbb1d43" size="174" mtime="1568189212"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '174'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo>
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>maintenance_coord</packager>
+          <summary>Fake comment</summary>
+          <description/>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject/_project/_attribute?meta=1&user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="MaintenanceProject" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="12">
+          <srcmd5>1a27633649f413902bc03ee04970c5db</srcmd5>
+          <time>1568198515</time>
+          <user>user_1</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="ProjectWithRepo">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="ProjectWithRepo">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_config
+    body:
+      encoding: UTF-8
+      string: Odio et aut. Corporis dignissimos voluptas. Voluptas maiores necessitatibus.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>5531efd60e11b51f1f57f04053b644ef</srcmd5>
+          <version>unknown</version>
+          <time>1568198518</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Commodi ratione voluptates. Atque tempora repellat. Earum quae autem.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>27fd3d4e3cc6f7d0c1df2c421005fc4a</srcmd5>
+          <version>unknown</version>
+          <time>1568198518</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a">
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package?expand=1&rev=4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a">
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo/ProjectWithRepo_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '759'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>cf68f0f6b32cd1072c8113a23ab90ef2</srcmd5>
+            <version>unknown</version>
+            <time>1568189215</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>0c6cd15a3e952884df836c610d34bb4b</srcmd5>
+            <version>unknown</version>
+            <time>1568189215</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>5531efd60e11b51f1f57f04053b644ef</srcmd5>
+            <version>unknown</version>
+            <time>1568198518</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="4" vrev="4">
+            <srcmd5>27fd3d4e3cc6f7d0c1df2c421005fc4a</srcmd5>
+            <version>unknown</version>
+            <time>1568198518</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:58 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:59 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:41:59 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '125'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+          <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0"/>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:ProjectWithRepo:Update">
+          <title>Branch project for package ProjectWithRepo_package</title>
+          <description>This project was created for package ProjectWithRepo_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '299'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:ProjectWithRepo:Update">
+          <title>Branch project for package ProjectWithRepo_package</title>
+          <description>This project was created for package ProjectWithRepo_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=branch&noservice=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>dad221a6bbe0d404ad741948e7275fe4</srcmd5>
+          <version>unknown</version>
+          <time>1568198520</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '205'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package" project="home:tom:branches:ProjectWithRepo:Update">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '435'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="ProjectWithRepo_package" rev="3" vrev="7" srcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4" verifymd5="27fd3d4e3cc6f7d0c1df2c421005fc4a">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
+          <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:00 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '388'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5088ce95a4c94045c0ac376c36a7d831">
+          <old project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '409'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="3c9073440bc876c70837d41f97774d4d">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="27fd3d4e3cc6f7d0c1df2c421005fc4a" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="503f608bfe84953dd820bb052132c7db" srcmd5="503f608bfe84953dd820bb052132c7db"/>
+          <files/>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:ProjectWithRepo:Update">
+          <title>Branch project for package ProjectWithRepo_package</title>
+          <description>This project was created for package ProjectWithRepo_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="repository_2">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '563'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:ProjectWithRepo:Update">
+          <title>Branch project for package ProjectWithRepo_package</title>
+          <description>This project was created for package ProjectWithRepo_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="repository_2">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '308'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a">
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '548'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="503f608bfe84953dd820bb052132c7db" vrev="7" srcmd5="503f608bfe84953dd820bb052132c7db">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '653'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="3" vrev="3" srcmd5="dad221a6bbe0d404ad741948e7275fe4">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="503f608bfe84953dd820bb052132c7db" lsrcmd5="dad221a6bbe0d404ad741948e7275fe4"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '569'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>8db7ed8202fd40bf0924e4ccacc11a96</srcmd5>
+            <version>unknown</version>
+            <time>1568189217</time>
+            <user>tom</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>796e73b21245166a5b08e7085d6c205d</srcmd5>
+            <version>unknown</version>
+            <time>1568189218</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>dad221a6bbe0d404ad741948e7275fe4</srcmd5>
+            <version>unknown</version>
+            <time>1568198520</time>
+            <user>tom</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package/DUMMY_FILE
+    body:
+      encoding: UTF-8
+      string: dummy
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>3ed306f93a25861f492b539cbcf0a7e6</srcmd5>
+          <version>unknown</version>
+          <time>1568198522</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/_keyinfo?donotcreatecert=1&withsslcert=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '11'
+    body:
+      encoding: UTF-8
+      string: "<keyinfo/>\n"
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '273'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)">
+            <summary/>
+          </result>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:02 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          DUMMY_FILE
+
+        other changes:
+        --------------
+
+        ++++++ DUMMY_FILE (new)
+        --- DUMMY_FILE
+        +++ DUMMY_FILE
+        @@ -0,0 +1,1 @@
+        +dummy
+        \ No newline at end of file
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '644'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="6399b4d31b214c40fca6d31ecaf8379d" vrev="8" srcmd5="6399b4d31b214c40fca6d31ecaf8379d">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '273'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)">
+            <summary/>
+          </result>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:03 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:05 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&rev=6399b4d31b214c40fca6d31ecaf8379d&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '608'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="81f0e74c64ca35d6ebf402346bf5f16f">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="4" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a"/>
+          <new project="home:tom:branches:ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="6399b4d31b214c40fca6d31ecaf8379d" srcmd5="6399b4d31b214c40fca6d31ecaf8379d"/>
+          <files>
+            <file state="added">
+              <new name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +dummy
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:05 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6399b4d31b214c40fca6d31ecaf8379d
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '635'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="6399b4d31b214c40fca6d31ecaf8379d" srcmd5="6399b4d31b214c40fca6d31ecaf8379d">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1&rev=6399b4d31b214c40fca6d31ecaf8379d
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '635'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="6399b4d31b214c40fca6d31ecaf8379d" srcmd5="6399b4d31b214c40fca6d31ecaf8379d">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?requestid=1&user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '313'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo:Update%22%20and%20starts-with(@project,%22MaintenanceProject:%22))
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '125'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+          <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0"/>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '261'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=branch&extendvrev=1&noservice=1&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="3" vrev="3">
+          <srcmd5>da5b05a6ef922b51a3c602e1cd879ddc</srcmd5>
+          <version>unknown</version>
+          <time>1568198526</time>
+          <user>maintenance_coord</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '261'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '676'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '460'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="5.4" srcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc" verifymd5="27fd3d4e3cc6f7d0c1df2c421005fc4a">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
+          <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '676'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '394'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="839812f6dcd26b4a7939c296592bcfbb">
+          <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:06 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '435'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="71cd83241272eae079eaddf887fcca13">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="27fd3d4e3cc6f7d0c1df2c421005fc4a" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="ebade73b45e27224a64e775f7c3d3b38" srcmd5="ebade73b45e27224a64e775f7c3d3b38"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+          <build>
+            <enable repository="ProjectWithRepo_Update"/>
+          </build>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '332'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+          <build>
+            <enable repository="ProjectWithRepo_Update"/>
+          </build>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '676'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '676'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '676'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="3" vrev="3" srcmd5="da5b05a6ef922b51a3c602e1cd879ddc">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="ebade73b45e27224a64e775f7c3d3b38" lsrcmd5="da5b05a6ef922b51a3c602e1cd879ddc"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22ProjectWithRepo_package%22%20and%20linkinfo/@project=%22ProjectWithRepo%22%20and%20@project=%22ProjectWithRepo%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '569'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '569'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=copy&comment=Maintenance%20incident%20copy%20from%20project%20home:tom:branches:ProjectWithRepo:Update&expand=1&keeplink=1&opackage=ProjectWithRepo_package&oproject=home:tom:branches:ProjectWithRepo:Update&orev=6399b4d31b214c40fca6d31ecaf8379d&requestid=1&user=maintenance_coord&withacceptinfo=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '504'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>9f6e508c7bd2275ceda49f294f164059</srcmd5>
+          <version>unknown</version>
+          <time>1568198527</time>
+          <user>maintenance_coord</user>
+          <comment>Maintenance incident copy from project home:tom:branches:ProjectWithRepo:Update</comment>
+          <requestid>1</requestid>
+          <acceptinfo rev="4" srcmd5="9f6e508c7bd2275ceda49f294f164059" osrcmd5="da5b05a6ef922b51a3c602e1cd879ddc" xsrcmd5="7d9baccc97ceb173d9db172a8a53dda0" oxsrcmd5="ebade73b45e27224a64e775f7c3d3b38"/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+          <build>
+            <enable repository="ProjectWithRepo_Update"/>
+          </build>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '332'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ProjectWithRepo_package.ProjectWithRepo_Update" project="MaintenanceProject:0">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sunt nihil aperiam perferendis.</description>
+          <releasename>ProjectWithRepo_package</releasename>
+          <build>
+            <enable repository="ProjectWithRepo_Update"/>
+          </build>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '772'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="4" vrev="4" srcmd5="9f6e508c7bd2275ceda49f294f164059">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="7d9baccc97ceb173d9db172a8a53dda0" lsrcmd5="9f6e508c7bd2275ceda49f294f164059"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '460'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="4" vrev="5.5" srcmd5="7d9baccc97ceb173d9db172a8a53dda0" lsrcmd5="9f6e508c7bd2275ceda49f294f164059" verifymd5="65068bde2f12b3c3d04ea2ce58af0153">
+          <error>bad build configuration, no build type defined or detected</error>
+          <linked project="ProjectWithRepo:Update" package="ProjectWithRepo_package"/>
+          <linked project="ProjectWithRepo" package="ProjectWithRepo_package"/>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '772'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package.ProjectWithRepo_Update" rev="4" vrev="4" srcmd5="9f6e508c7bd2275ceda49f294f164059">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="7d9baccc97ceb173d9db172a8a53dda0" lsrcmd5="9f6e508c7bd2275ceda49f294f164059"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="76d31785a031a996e4855ca5248d830a" size="175" mtime="1568198526"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '394'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="a1365841a145e000b0cd73b521914465">
+          <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="4" srcmd5="9f6e508c7bd2275ceda49f294f164059"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '435'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="4f4dbe5efa29e4e1c56f48eebcefdc5a">
+          <old project="ProjectWithRepo:Update" package="ProjectWithRepo_package" rev="27fd3d4e3cc6f7d0c1df2c421005fc4a" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="7d9baccc97ceb173d9db172a8a53dda0" srcmd5="7d9baccc97ceb173d9db172a8a53dda0"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/_meta?comment=maintenance_incident%20request%201&requestid=1&user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title/>
+          <description/>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '569'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="MaintenanceProject:0" kind="maintenance_incident">
+          <title></title>
+          <description></description>
+          <person userid="maintenance_coord" role="bugowner"/>
+          <person userid="maintenance_coord" role="maintainer"/>
+          <build>
+            <disable/>
+          </build>
+          <publish>
+            <disable/>
+          </publish>
+          <repository name="ProjectWithRepo_Update">
+            <releasetarget project="ProjectWithRepo:Update" repository="repository_2" trigger="maintenance"/>
+            <path project="ProjectWithRepo:Update" repository="repository_2"/>
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '277'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?comment=generated%20by%20request%20id%201%20accept%20call&user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '254'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>53b684c8c2dbc9672bb230d024c87a14</srcmd5>
+          <version>unknown</version>
+          <time>1568198527</time>
+          <user>maintenance_coord</user>
+          <comment>generated by request id 1 accept call</comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '277'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="7" vrev="7" srcmd5="53b684c8c2dbc9672bb230d024c87a14">
+          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1568189224"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:07 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="7" vrev="7" srcmd5="53b684c8c2dbc9672bb230d024c87a14" verifymd5="53b684c8c2dbc9672bb230d024c87a14">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="7" vrev="7" srcmd5="53b684c8c2dbc9672bb230d024c87a14">
+          <entry name="_patchinfo" md5="34e0b04fccfd75faea0577efe7cd9ead" size="208" mtime="1568189224"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/MaintenanceProject:0/ProjectWithRepo_package.ProjectWithRepo_Update?cmd=diff&filelimit=10000&orev=ebade73b45e27224a64e775f7c3d3b38&rev=7d9baccc97ceb173d9db172a8a53dda0&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '663'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5943054662a1f184d575cca869383a5a">
+          <old project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="ebade73b45e27224a64e775f7c3d3b38" srcmd5="ebade73b45e27224a64e775f7c3d3b38"/>
+          <new project="MaintenanceProject:0" package="ProjectWithRepo_package.ProjectWithRepo_Update" rev="7d9baccc97ceb173d9db172a8a53dda0" srcmd5="7d9baccc97ceb173d9db172a8a53dda0"/>
+          <files>
+            <file state="added">
+              <new name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5"/>
+              <diff lines="3">@@ -0,0 +1,1 @@
+        +dummy
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?locallink=1&multibuild=1&package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?package=ProjectWithRepo_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:08 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '208'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <patchinfo incident="0">
+          <category>recommended</category>
+          <rating>low</rating>
+          <packager>tom</packager>
+          <summary>I want the update</summary>
+          <description>I want the update</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>d07dfcdc0bb71ab61e7d0c85c4a68c71</srcmd5>
+          <version>unknown</version>
+          <time>1568198529</time>
+          <user>maintenance_coord</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '277'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="8" vrev="8" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
+          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1568189226"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="8" vrev="8" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71" verifymd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="8" vrev="8" srcmd5="d07dfcdc0bb71ab61e7d0c85c4a68c71">
+          <entry name="_patchinfo" md5="7fd692cf9ae54961b5c5a22aa13e29c0" size="347" mtime="1568189226"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/MaintenanceProject:0/_result?view=binarylist
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '237'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="1ebb8da631fca74768ff14657f9f6921">
+          <result project="MaintenanceProject:0" repository="ProjectWithRepo_Update" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '347'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+          <stopped>locked!</stopped>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '217'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>177d57906eba63ae56a64a367592144a</srcmd5>
+          <version>unknown</version>
+          <time>1568198530</time>
+          <user>maintenance_coord</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_meta?user=maintenance_coord
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '277'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="patchinfo" project="MaintenanceProject:0">
+          <title>Patchinfo</title>
+          <description>Collected packages for update</description>
+          <build>
+            <enable/>
+          </build>
+          <publish>
+            <enable/>
+          </publish>
+          <useforbuild>
+            <disable/>
+          </useforbuild>
+        </package>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="9" vrev="9" srcmd5="177d57906eba63ae56a64a367592144a">
+          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1568189227"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '185'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="patchinfo" rev="9" vrev="9" srcmd5="177d57906eba63ae56a64a367592144a" verifymd5="177d57906eba63ae56a64a367592144a">
+          <filename>_patchinfo</filename>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="patchinfo" rev="9" vrev="9" srcmd5="177d57906eba63ae56a64a367592144a">
+          <entry name="_patchinfo" md5="ac29f7f1abd9ef43afeb43fc7737c007" size="318" mtime="1568189227"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '318'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '318'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/MaintenanceProject:0/patchinfo/_patchinfo
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '318'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <patchinfo incident="0">
+          <packager>tom</packager>
+          <category>recommended</category>
+          <rating>low</rating>
+          <summary>ProjectWithRepo_package is much better than the old one</summary>
+          <description>Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing</description>
+        </patchinfo>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '273'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)">
+            <summary/>
+          </result>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '749'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="4" vrev="4" srcmd5="3ed306f93a25861f492b539cbcf0a7e6">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" xsrcmd5="6399b4d31b214c40fca6d31ecaf8379d" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="_link" md5="a98a8b03c8fbad929fa77771aae6ebbe" size="130" mtime="1568198520"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?cmd=diff&expand=1&filelimit=10000&opackage=ProjectWithRepo_package&oproject=ProjectWithRepo:Update&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '161'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          DUMMY_FILE
+
+        other changes:
+        --------------
+
+        ++++++ DUMMY_FILE (new)
+        --- DUMMY_FILE
+        +++ DUMMY_FILE
+        @@ -0,0 +1,1 @@
+        +dummy
+        \ No newline at end of file
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom:branches:ProjectWithRepo:Update/ProjectWithRepo_package?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '644'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ProjectWithRepo_package" rev="6399b4d31b214c40fca6d31ecaf8379d" vrev="8" srcmd5="6399b4d31b214c40fca6d31ecaf8379d">
+          <linkinfo project="ProjectWithRepo:Update" package="ProjectWithRepo_package" srcmd5="27fd3d4e3cc6f7d0c1df2c421005fc4a" baserev="27fd3d4e3cc6f7d0c1df2c421005fc4a" lsrcmd5="3ed306f93a25861f492b539cbcf0a7e6"/>
+          <entry name="DUMMY_FILE" md5="275876e34cf609db118f3d84b799a790" size="5" mtime="1568189218"/>
+          <entry name="_config" md5="30481e39eaf63e188a782559def656af" size="76" mtime="1568198518"/>
+          <entry name="somefile.txt" md5="a8859a8c8996b9553cce39660973d680" size="69" mtime="1568198518"/>
+        </directory>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '247'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)"/>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:tom:branches:ProjectWithRepo:Update/_result?view=summary
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '273'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="d717409be2592c96becbdc11142f1468">
+          <result project="home:tom:branches:ProjectWithRepo:Update" repository="repository_2" arch="i586" code="broken" state="broken" details="no build type (ProjectWithRepo:Update)">
+            <summary/>
+          </result>
+        </resultlist>
+    http_version: 
+  recorded_at: Wed, 11 Sep 2019 10:42:13 GMT
+recorded_with: VCR 5.0.0

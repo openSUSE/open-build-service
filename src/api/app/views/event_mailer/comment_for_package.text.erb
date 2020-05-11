@@ -1,0 +1,5 @@
+Visit <%= url_for(project: event['project'], package: event['package'], controller: 'webui/package', action: :show, only_path: false, host: @host) %>
+
+<%= event['commenter'].realname %> wrote in package <%= event['project'] %>/<%= event['package'] %>:
+
+<%= event['comment_body'] %>

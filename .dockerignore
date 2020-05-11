@@ -1,0 +1,4 @@
+src/api/tmp/*
+src/api/log/*
+src/backend/t/tmp/*
+src/auth-proxy/

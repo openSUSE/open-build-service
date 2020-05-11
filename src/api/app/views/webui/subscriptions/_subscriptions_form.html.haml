@@ -1,0 +1,20 @@
+- i = 0
+- subscriptions_form.subscriptions_by_event.each do |subscription|
+  .card.bg-light.mb-2
+    .card-body
+      %h5.card-title= subscription.event_class.description
+      %p.card-text= Event::Base::EXPLANATION_FOR_NOTIFICATIONS[subscription.event_class.to_s]
+      .list-group
+        - subscription.roles.each do |role|
+          .d-flex.flex-column.flex-sm-row.justify-content-sm-between.list-group-item.list-group-item-action
+            %span= EventSubscription::RECEIVER_ROLE_TEXTS[role.name]
+            .d-flex.flex-column.flex-sm-row{ class: "#{role.name}" }
+              - role.channels.each do |channel|
+                .d-flex.flex-nowrap.align-items-baseline.custom-control.custom-checkbox.my-2.my-sm-0.pr-2
+                  = check_box_tag "subscriptions[#{i}][enabled]", true, channel.enabled?,
+                                  disabled: channel.disabled_checkbox?,
+                                  class: 'custom-control-input',
+                                  data: { url: path, method: :put, remote: true, params: channel.subscription_params(i) }
+                  %label.custom-control-label{ for: "subscriptions_#{i}_enabled" }= channel.name.gsub('instant_', '')
+                  %i.fas.fa-spinner.invisible
+                  - i += 1

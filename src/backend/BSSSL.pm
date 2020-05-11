@@ -24,6 +24,7 @@
 
 package BSSSL;
 
+use POSIX;
 use Socket;
 use Net::SSLeay;
 
@@ -36,23 +37,31 @@ sub initctx {
   Net::SSLeay::load_error_strings();
   Net::SSLeay::SSLeay_add_ssl_algorithms();
   Net::SSLeay::randomize();
-  $sslctx = Net::SSLeay::CTX_new () or die("CTX_new failed!\n");
+  $sslctx = Net::SSLeay::CTX_new() or die("CTX_new failed!\n");
   Net::SSLeay::CTX_set_options($sslctx, &Net::SSLeay::OP_ALL);
   if ($keyfile) {
     Net::SSLeay::CTX_use_RSAPrivateKey_file($sslctx, $keyfile, &Net::SSLeay::FILETYPE_PEM) || die("RSAPrivateKey $keyfile failed\n");
   }
   if ($certfile) {
-    Net::SSLeay::CTX_use_certificate_file($sslctx, $certfile, &Net::SSLeay::FILETYPE_PEM) || die("certificate $keyfile failed\n");
+    # CTX_use_certificate_chain_file expects PEM format anyway, client cert first, chain certs after that
+    Net::SSLeay::CTX_use_certificate_chain_file($sslctx, $certfile) || die("certificate $certfile failed\n");
+  }
+  if (defined(&Net::SSLeay::CTX_set_tmp_ecdh) && Net::SSLeay::SSLeay() < 0x10100000) {
+    my $curve = Net::SSLeay::OBJ_txt2nid('prime256v1');
+    my $ecdh  = Net::SSLeay::EC_KEY_new_by_curve_name($curve);
+    Net::SSLeay::CTX_set_tmp_ecdh($sslctx, $ecdh);
+    Net::SSLeay::EC_KEY_free($ecdh);
   }
 }
 
 sub freectx {
   Net::SSLeay::CTX_free($sslctx);
+  undef $sslctx;
 }
 
 sub tossl {
-  local *S = $_[0];
-  tie(*S, 'BSSSL', @_);
+  local *S = shift @_;
+  tie(*{\*S}, 'BSSSL', \*S, @_);
 }
 
 sub TIEHANDLE {
@@ -93,7 +102,11 @@ sub READLINE {
 sub READ {
   my ($sslr, undef, $len, $offset) = @_;
   my $buf = \$_[1];
-  my $r = Net::SSLeay::read($sslr->[0], $len);
+  my ($r, $rv)  = Net::SSLeay::read($sslr->[0]);
+  if ($rv && $rv < 0) {
+    my $code = Net::SSLeay::get_error($sslr->[0], $rv);
+    $! = POSIX::EINTR if $code == &Net::SSLeay::ERROR_WANT_READ || $code == &Net::SSLeay::ERROR_WANT_WRITE;
+  }
   return undef unless defined $r;
   return length($$buf = $r) unless defined $offset;
   my $bl = length($$buf);
@@ -134,6 +147,17 @@ sub UNTIE {
 sub DESTROY {
   my ($sslr) = @_;
   UNTIE($sslr) if $sslr && $sslr->[0];
+}
+
+sub peerfingerprint {
+  my ($sslr, $type) = @_;
+  my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
+  return undef unless $cert;
+  my $fp = Net::SSLeay::X509_get_fingerprint($cert, lc($type));
+  Net::SSLeay::X509_free($cert);
+  return undef unless $fp;
+  $fp =~ s/://g;
+  return lc($fp);
 }
 
 1;

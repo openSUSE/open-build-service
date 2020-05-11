@@ -1,0 +1,334 @@
+#!/usr/bin/perl
+#
+# Copyright (c) 2020 SUSE LLC
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+# modify the package header of an rpm
+#
+# note that this will remove all signatures from the signature
+# header as well!
+
+use strict;
+use Data::Dumper;
+use Digest;
+
+sub splitheader {
+  my ($buf) = @_;
+  my %h;
+  my ($headmagic, $cnt, $cntdata) = unpack('N@8NN', substr($buf, 0, 16, ''));
+  die("bad rpm header magic\n") unless $headmagic == 0x8eade801;
+  die("bad rpm header size\n") unless $cnt < 0x10000 && $cntdata < 0x10000000 && length($buf) >= $cnt * 16 + $cntdata;
+  my $idx = substr($buf, 0, 16 * $cnt, '');
+  while ($idx ne '') {
+    my ($tag, $type, $offset, $count) = unpack('N4', substr($idx, 0, 16, ''));
+    die("unknown tag type $type for tag $tag\n") if $type > 9;
+    if ($type == 0) {
+      $h{$tag} = [ $type ];
+      next;
+    } elsif ($type == 1 || $type == 2) {
+      $h{$tag} = [ $type, [ unpack("\@${offset}C$count", $buf) ]];
+    } elsif ($type == 3) {
+      $h{$tag} = [ $type, [ unpack("\@${offset}n$count", $buf) ]];
+    } elsif ($type == 4) {
+      $h{$tag} = [ $type, [ unpack("\@${offset}N$count", $buf) ]];
+    } elsif ($type == 5) {
+      my @q = unpack('N*', substr($buf, $offset, $count * 8));
+      my @q2;
+      while (@q) {
+        my ($hi, $lo) = splice(@q, 0, 2);
+        die("quad too big in tag $tag\n") if $hi >= 65536;
+	push @q2, $hi * 4294967296. + $lo;
+      }
+      $h{$tag} = [ $type, \@q2 ];
+    } elsif ($type == 6) {
+      die("tag $tag type string has count != 1\n") if $count != 1;
+      $h{$tag} = [ $type, unpack("\@${offset}Z*", $buf) ];
+    } elsif ($type == 7) {
+      $h{$tag} = [ $type, substr($buf, $offset, $count) ];
+    } elsif ($type == 8 || $type == 9) {
+      my @q;
+      while ($count-- > 0) {
+        push @q, unpack("\@${offset}Z*", $buf);
+        $offset += length($q[-1]) + 1;
+      }
+      $h{$tag} = [ $type, \@q ];
+    }
+  }
+  return \%h;
+}
+
+sub joinheader {
+  my ($h) = @_;
+  my $idx = '';
+  my $data = '';
+  for my $tag (sort {$a <=> $b} keys %$h) {
+    next if $tag == 62 || $tag == 63;
+    my $type = $h->{$tag}->[0];
+    die("unknown tag type $type for tag $tag\n") if $type > 9;
+    if ($type >= 3 && $type <= 5) {
+      my $align = (1 << $type - 2);
+      $data .= substr("\0\0\0\0\0\0\0\0", 0, $align - (length($data) % $align)) if length($data) % $align;
+    }
+    my $offset = length($data);
+    my $count = 0;
+    $count = length($h->{$tag}->[1]) if $type == 7;
+    $count = 1 if $type == 6;
+    $count = @{$h->{$tag}->[1]} if $type >= 1 && $type <= 5;
+    $count = @{$h->{$tag}->[1]} if $type == 8 || $type == 9;
+    $idx .= pack('N4', $tag, $type, $offset, $count);
+    if ($type == 1 || $type == 2) {
+      $data .= pack('C*', @{$h->{$tag}->[1]});
+    } elsif ($type == 3) {
+      $data .= pack('n*', @{$h->{$tag}->[1]});
+    } elsif ($type == 4) {
+      $data .= pack('N*', @{$h->{$tag}->[1]});
+    } elsif ($type == 5) {
+      for (@{$h->{$tag}->[1]}) {
+        my $hi = int($_ / 4294967296);
+        die("quad too big in tag $tag\n") if $hi >= 65536;
+        my $lo = $_ - $hi * 4294967296;
+	$data .= pack('NN', $hi, $lo);
+      }
+    } elsif ($type == 6) {
+      $data .= $h->{$tag}->[1] . "\0";
+    } elsif ($type == 7) {
+      $data .= $h->{$tag}->[1];
+    } elsif ($type == 8 || $type == 9) {
+      $data .= "$_\0" for @{$h->{$tag}->[1]};
+    }
+  }
+  die("cannot have both tag 62 and 63\n") if $h->{62} && $h->{63};
+  if ($h->{62} || $h->{63}) {
+    my $tag = $h->{62} ? 62 : 63;
+    my $type = $h->{$tag}->[0];
+    die("bad region type for tag $tag\n") unless $type == 7;
+    $idx = pack('N4', $tag, $type, length($data), 16) . $idx;
+    $data .= pack('N4', $tag, $type, -(length($idx)), 16);
+  }
+  return pack('NNNN', 0x8eade801, 0, int(length($idx) / 16), length($data)) . $idx . $data;
+}
+
+sub writeblob {
+  my ($fd, $blob) = @_;
+  while ($blob ne '') {
+    my $bite = length($blob) > 65536 ? 65536 : length($blob);
+    my $r = syswrite($fd, $blob, $bite);
+    die("syswrite: $!\n") unless $r && $r > 0;
+    substr($blob, 0, $bite, '');
+  }
+}
+
+sub readblob {
+  my ($fd, $l) = @_;
+  my $blob = '';
+  return $blob unless $l;
+  sysread($fd, $blob, $l, 0) == $l || die("sysread failed\n");
+  return $blob;
+}
+
+sub readlead {
+  my ($fd) = @_;
+  my $lead = readblob($fd, 96);
+  return $lead;
+}
+
+sub readheader {
+  my ($fd) = @_;
+  my $header = '';
+  sysread($fd, $header, 16, 0) == 16 || die("sysread header magic failed\n");
+  my ($headmagic, $cnt, $cntdata) = unpack('N@8NN', $header);
+  die("bad rpm header magic\n") unless $headmagic == 0x8eade801;
+  die("bad rpm header size\n") unless $cnt < 0x10000 && $cntdata < 0x10000000;
+  my $l = 16 + $cnt * 16 + $cntdata;
+  while (length($header) < $l) {
+    my $bite = $l - length($header);
+    $bite = 65536 if $bite > 65536;
+    sysread($fd, $header, $bite, length($header)) == $bite || die("sysread header bite failed\n");
+  }
+  return $header;
+}
+
+my %knownsigtags = map { $_ => 1 } (
+  1000, 1002, 1004, 1005, 1007, 1008,
+  257, 259, 261, 262, 266, 267,
+  268, 269, 270, 271, 273,
+  62, 63,
+);
+
+my %knownjobs = (
+  'add-requires'     => [ 1049, 1050, 1048 ],
+  'add-provides'     => [ 1047, 1113, 1112 ],
+  'add-conflicts'    => [ 1054, 1055, 1053 ],
+  'add-obsoletes'    => [ 1090, 1115, 1114 ],
+  'add-recommends'   => [ 5046, 5047, 5048 ],
+  'add-suggests'     => [ 5049, 5050, 5051 ],
+  'add-supplements'  => [ 5052, 5053, 5054 ],
+  'add-enhances'     => [ 5055, 5056, 5057 ],
+  'set-summary'      => [ 1004, 9 ],
+  'set-description'  => [ 1005, 9 ],
+  'add-description'  => [ 1005, 9 ],
+  'set-buildtime'    => [ 1006, 4 ],
+  'set-buildhost'    => [ 1007, 6 ],
+  'set-distribution' => [ 1010, 6 ],
+  'set-vendor'       => [ 1011, 6 ],
+  'set-license'      => [ 1014, 6 ],
+  'set-packager'     => [ 1015, 6 ],
+  'set-group'        => [ 1016, 9 ],
+  'set-url'          => [ 1020, 6 ],
+  'set-disturl'      => [ 1123, 6 ],
+);
+
+my @jobs;
+
+while (@ARGV && $ARGV[0] =~ /^--(.*)$/) {
+  shift @ARGV;
+  last if $1 eq '';
+  die("unknown option --$1\n") unless $knownjobs{$1};
+  push @jobs, [ $1, $knownjobs{$1}, shift @ARGV ];
+}
+
+die("usage: modifyrpmheader --job... in.rpm out.rpm\n") unless @ARGV == 2;
+
+my $in;
+open($in, '<', $ARGV[0]) || die("$ARGV[0]: $!\n");
+my $lead = readlead($in);
+my $sighdrblob = readheader($in);
+my $pad = readblob($in, (8 - (length($sighdrblob) % 8)) % 8);
+my $hdrblob = readheader($in);
+
+my $sighdr = splitheader($sighdrblob);
+my $hdr = splitheader($hdrblob);
+#print Dumper($sighdr);
+#print Dumper($hdr);
+
+for my $job (@jobs) {
+  my $d = $job->[1];
+  if (@$d == 2) {
+    my $str = $job->[2];
+    my $set = 0;
+    $set = 1 if $job->[0] =~ /^set/;
+    $str =~ s/\\([n\\])/$1 eq 'n' ? "\n" : $1/ge;
+    if ($d->[1] == 6) {
+      $hdr->{$d->[0]} ||= [ 6, '' ];
+      die("bad type for tag $d->[0]\n") unless $hdr->{$d->[0]}->[0] == 6;
+      $hdr->{$d->[0]}->[1] =~ s/([^\n])$/$1\n/;
+      $hdr->{$d->[0]}->[1] = '' if $set;
+      $hdr->{$d->[0]}->[1] .= $str;
+    } elsif ($d->[1] == 9) {
+      $hdr->{$d->[0]} ||= [ 9, [ '' ] ];
+      die("bad type for tag $d->[0]\n") unless $hdr->{$d->[0]}->[0] == 9;
+      $hdr->{$d->[0]}->[1]->[0] =~ s/([^\n])$/$1\n/;
+      $hdr->{$d->[0]}->[1]->[0] = '' if $set;
+      $hdr->{$d->[0]}->[1]->[0] .= $str;
+    } elsif ($d->[1] == 4) {
+      $hdr->{$d->[0]} ||= [ 4, [] ];
+      die("bad type for tag $d->[0]\n") unless $hdr->{$d->[0]}->[0] == 4;
+      $hdr->{$d->[0]}->[1] = [] if $set;
+      push @{$hdr->{$d->[0]}->[1]}, 0 + $job->[2];
+    }
+  } else {
+    my $n = $job->[2];
+    my $evr = '';
+    my $f = 0;
+    if ($n =~ /^([^<=>\(\s][^<=>\s]*)\s*([<=>]+)\s*([^<=>\s]+)$/) {
+      $n = $1;
+      $evr = $3;
+      my $r = $2;
+      $f |= 2 if $r =~ /</;
+      $f |= 4 if $r =~ />/;
+      $f |= 8 if $r =~ /=/;
+    }
+    $hdr->{$d->[0]} ||= [ 8, [] ];
+    $hdr->{$d->[1]} ||= [ 8, [] ];
+    $hdr->{$d->[2]} ||= [ 4, [] ];
+    die("bad type for tag $d->[0]\n") unless $hdr->{$d->[0]}->[0] == 8;
+    die("bad type for tag $d->[1]\n") unless $hdr->{$d->[1]}->[0] == 8;
+    die("bad type for tag $d->[2]\n") unless $hdr->{$d->[2]}->[0] == 4;
+    push @{$hdr->{$d->[0]}->[1]}, $n;
+    push @{$hdr->{$d->[1]}->[1]}, $evr;
+    push @{$hdr->{$d->[2]}->[1]}, $f;
+  }
+}
+
+my $hdrblob2 = joinheader($hdr);
+
+# check if we know all tags
+for my $tag (sort keys %$sighdr) {
+  die("unknown tag $tag in signature header\n") unless $knownsigtags{$tag};
+}
+
+# drop signature tags
+for my $tag (1002, 1005, 259, 262, 267, 268) {
+  delete $sighdr->{$tag};
+}
+# fix header sizes
+my $hdrblobdiff = length($hdrblob2) - length($hdrblob);
+for my $tag (1000, 257, 270) {
+  next unless $sighdr->{$tag};
+  if ($tag != 257 && $sighdr->{$tag}->[1]->[0] + $hdrblobdiff >= 4294967296) {
+    if (!$sighdr->{270}) {
+      $sighdr->{270} ||= delete $sighdr->{$tag};
+      $sighdr->{270}->[0] = 5;
+    }
+    delete $sighdr->{$tag};
+    next;
+  }
+  $sighdr->{$tag}->[1]->[0] += $hdrblobdiff;
+}
+
+# fix header digests
+if ($sighdr->{269}) {
+  my $ctx = Digest->new('SHA-1');
+  $ctx->add($hdrblob2);
+  $sighdr->{269}->[1] = $ctx->hexdigest();
+}
+if ($sighdr->{273}) {
+  my $ctx = Digest->new('SHA-256');
+  $ctx->add($hdrblob2);
+  $sighdr->{273}->[1] = $ctx->hexdigest();
+}
+
+my $sighdrblob2 = joinheader($sighdr);
+
+my $out;
+open($out, '>', $ARGV[1]) || die("$ARGV[1]: $!\n");
+writeblob($out, $lead);
+writeblob($out, $sighdrblob2);
+writeblob($out, substr("\0\0\0\0\0\0\0\0", 0, (8 - (length($sighdrblob2) % 8)) % 8));
+writeblob($out, $hdrblob2);
+
+my $ctx = Digest->new('MD5');
+$ctx->add($hdrblob2);
+
+while (1) {
+  my $r = '';
+  my $l = sysread($in, $r, 65536);
+  die("sysread: $!\n") unless defined($l) && $l >= 0;
+  last if $l == 0;
+  writeblob($out, $r);
+  $ctx->add($r);
+}
+
+my $md5 = $ctx->digest();
+$sighdr->{1004}->[1] = $md5 if $sighdr->{1004};
+$sighdr->{261}->[1] = $md5 if $sighdr->{261};
+
+my $sighdrblob3 = joinheader($sighdr);
+die("sigheader length mismatch\n") unless length($sighdrblob2) == length($sighdrblob3);
+sysseek($out, 96, 0);
+writeblob($out, $sighdrblob3);
+

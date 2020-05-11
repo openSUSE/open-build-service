@@ -1,0 +1,19 @@
+%td.p-2.w-25.font-weight-bold
+  %i.mr-2.fas{ class: items.empty? ? 'fa-check-circle text-primary' : 'fa-exclamation-triangle text-warning' }
+  = type.humanize
+%td.p-2
+  - if items.empty?
+    None
+  - else
+    - items.each_with_index do |item, index|
+      = succeed "#{',' if index < items.size - 1}" do
+        :ruby
+          case type
+          when 'untracked_requests', 'obsolete_requests'
+            link_to("##{item.number} (#{item.state})", request_show_path(item.number))
+          when 'missing_reviews'
+            link_to("#{item[:package]} by #{item[:by]}", request_show_path(item[:request]))
+          when 'building_repositories'
+            link_to("#{item['repository']}-#{item['arch']} (#{item['state']})",
+                    project_repository_state_path(project: @staging_project.name, repository: item['repository']))
+          end

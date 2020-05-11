@@ -1,0 +1,9 @@
+= render partial: 'webui/staging/workflows/breadcrumb_items'
+- if controller_name == 'projects' && action_name == 'show'
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    = @staging_project.name
+- elsif controller_name == 'projects' && action_name == 'preview_copy'
+  %li.breadcrumb-item
+    = link_to(@staging_project.name, staging_workflow_staging_project_path(@staging_project.staging_workflow.project, @staging_project))
+  %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+    Copy

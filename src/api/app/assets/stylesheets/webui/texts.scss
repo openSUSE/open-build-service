@@ -1,0 +1,29 @@
+.text-gray-400 {
+    color: $gray-400;
+}
+
+.text-gray-500 {
+    color: $gray-500;
+}
+
+.text-wrap {
+  white-space: normal;
+}
+
+.text-pre-wrap {
+  white-space: pre-wrap;
+}
+
+.text-word-break-all {
+  word-break: break-all;
+}
+
+.half-font-size { font-size: 0.5rem; }
+
+.text-40p-size {
+  font-size: 40%;
+}
+
+.ml-0_6 {
+  margin-left: 0.6rem !important;
+}

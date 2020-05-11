@@ -1,0 +1,12 @@
+- commentable.comments.without_parent.includes(:user).each do |comment|
+  = render partial: 'webui/comment/content', locals: { comment: comment, commentable: commentable, level: 1 }
+
+.comment_new.mt-3
+  = render partial: 'webui/comment/new', locals: { commentable: commentable }
+
+:javascript
+  $(document).ready(function() {
+    $('.comments-list img').one('error', function() {
+      $(this).replaceWith('<i class="fas fa-user-circle fa-2x ' + $(this).attr('class') + '"></i>');
+    });
+  });

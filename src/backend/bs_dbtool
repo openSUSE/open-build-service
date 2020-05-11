@@ -1,0 +1,263 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC, $wd;
+}
+
+use Data::Dumper;
+
+use BSConfiguration;
+use BSUtil;
+use BSDB;
+
+$Data::Dumper::Sortkeys = 1;
+
+if (@ARGV && $ARGV[0] eq '--old') {
+  shift @ARGV;
+  undef $BSConfig::published_db_sqlite;
+  undef $BSConfig::source_db_sqlite;
+} elsif (@ARGV && $ARGV[0] eq '--new') {
+  shift @ARGV;
+  $BSConfig::published_db_sqlite = 1;
+  $BSConfig::source_db_sqlite = 1;
+}
+
+require BSSrcServer::SQLite if $BSConfig::published_db_sqlite || $BSConfig::source_db_sqlite;
+
+use strict;
+
+my $extrepodb = "$BSConfig::bsdir/db/published";
+my $sourcedb = "$BSConfig::bsdir/db/source";
+
+my $user = $BSConfig::bsuser;
+my $group = $BSConfig::bsgroup;
+
+!defined($user) || defined($user = (getpwnam($user))[2]) || die("unknown user\n");
+!defined($group) || defined($group = (getgrnam($group))[2]) || die("unknown group\n");
+if (defined $group) {
+  ($), $() = ($group, $group);
+  die "setgid: $!\n" if ($) != $group);
+}
+if (defined $user) {
+  ($>, $<) = ($user, $user);
+  die "setuid: $!\n" if ($> != $user);
+}
+
+die("usage: bs_dbtool binary|pattern|repoinfo|linkinfo <cmd> [args]\n") unless @ARGV >= 2;
+
+my $table = shift @ARGV;
+my $cmd = shift @ARGV;
+
+my $db;
+if ($table eq 'linkinfo') {
+  if ($BSConfig::source_db_sqlite) {
+    $db = BSSrcServer::SQLite::opendb($sourcedb, $table);
+  } else {
+    $db = BSDB::opendb($sourcedb, $table);
+    $db->{'allkeyspath'} = 'project';
+  }
+} elsif ($table eq 'binary' || $table eq 'pattern' || $table eq 'repoinfo') {
+  if ($BSConfig::published_db_sqlite) {
+    $db = BSSrcServer::SQLite::opendb($extrepodb, $table);
+  } else {
+    $db = BSDB::opendb($extrepodb, $table);
+    $db->{'allkeyspath'} = 'name' if $table eq 'binary';
+  }
+} else {
+  die("unknown database table $table\n");
+}
+
+if ($cmd eq 'keys') {
+  my @k = $db->keys(@ARGV);
+  print "  - $_\n" for @k;
+  exit(0);
+}
+
+if ($cmd eq 'values') {
+  die("values: need path argument\n") unless @ARGV;
+  my @v = $db->values(@ARGV);
+  print "  - $_\n" for @v;
+  exit(0);
+}
+
+if ($cmd eq 'fetch') {
+  print Dumper($db->fetch($ARGV[0]));
+  exit(0);
+}
+
+if ($cmd eq 'repoinfo') {
+  my $repoinfo;
+  my $prp = $ARGV[0];
+  if ($BSConfig::published_db_sqlite) {
+    my $prp_ext = $prp;
+    $prp_ext =~ s/:/:\//g;
+    $repoinfo = $db->getrepoinfo($prp_ext);
+  } else {
+    $db = BSDB::opendb($extrepodb, 'repoinfo');
+    $repoinfo = $db->fetch($prp);
+  }
+  print Dumper($repoinfo);
+  exit(0);
+}
+
+if ($cmd eq 'repoorigins') {
+  my $repoorigins;
+  my $prp = $ARGV[0];
+  if ($BSConfig::published_db_sqlite) {
+    my $prp_ext = $prp;
+    $prp_ext =~ s/:/:\//g;
+    $repoorigins = $db->getrepoorigins($prp_ext);
+  } else {
+    $db = BSDB::opendb($extrepodb, 'repoinfo');
+    my $repoinfo = $db->fetch($prp);
+    $repoorigins = $repoinfo->{'binaryorigins'};
+  }
+  print Dumper($repoorigins);
+  exit(0);
+}
+
+if ($cmd eq 'projectkeys') {
+  my @k;
+  if ($BSConfig::published_db_sqlite) {
+    @k = $db->getprojectkeys($ARGV[0]);
+  } else {
+    die("the projectkeys command only works with sqlite\n");
+  }
+  print "  - $_\n" for @k;
+  exit(0);
+}
+
+if ($cmd eq 'locallinks') {
+  my @l;
+  if ($BSConfig::source_db_sqlite) {
+    @l = $db->getlocallinks(@ARGV);
+  } else {
+    die("the locallinks command only works with sqlite\n");
+  }
+  print "  - $_\n" for @l;
+  exit(0);
+}
+
+if ($cmd eq 'linkers') {
+  my @l;
+  if ($BSConfig::source_db_sqlite) {
+    @l = $db->getlinkers(@ARGV);
+  } else {
+    die("the linkers command only works with sqlite\n");
+  }
+  print "  - $_\n" for @l;
+  exit(0);
+}
+
+if ($cmd eq 'linkpackages') {
+  my @l;
+  if ($BSConfig::source_db_sqlite) {
+    @l = $db->getlinkpackages(@ARGV);
+  } else {
+    die("the linkpackages command only works with sqlite\n");
+  }
+  print "  - $_\n" for @l;
+  exit(0);
+}
+
+if ($cmd eq 'convert') {
+  require BSSrcServer::SQLite;
+  $db = undef;
+  my $ndb;
+  if ($table eq 'linkinfo') {
+    $ndb = BSSrcServer::SQLite::opendb($sourcedb, $table);
+    $db = BSDB::opendb($sourcedb, $table);
+    $db->{'allkeyspath'} = 'project';
+  } elsif ($table eq 'pattern') {
+    $ndb = BSSrcServer::SQLite::opendb($extrepodb, $table);
+    $db = BSDB::opendb($extrepodb, $table);
+  } elsif ($table eq 'binary') {
+    $ndb = BSSrcServer::SQLite::opendb($extrepodb, $table);
+    $db = BSDB::opendb($extrepodb, 'repoinfo');
+  } else {
+    die("unsupported table to convert\n");
+  }
+
+  my @todo;
+  my %todo_pattern;
+  if ($table eq 'linkinfo' || $table eq 'binary') {
+    @todo = $db->keys();
+  } elsif ($table eq 'pattern') {
+    for my $key ($db->keys()) {
+      my @p = split('/', $key);
+      while (@p > 1 && $p[0] =~ /:$/) {
+	splice(@p, 0, 2, "$p[0]$p[1]");
+      }
+      my $project = shift(@p);
+      while (@p > 1 && $p[0] =~ /:$/) {
+	splice(@p, 0, 2, "$p[0]$p[1]");
+      }
+      my $repository = shift(@p);
+      $key = join('/', @p);
+      $todo_pattern{"$project/$repository"}->{$key} = 1;
+    }
+    @todo = sort keys %todo_pattern;
+  }
+  my $done = 0;
+  my $todo = @todo;
+
+  print "Converting $todo datasets\n";
+  
+  if ($table eq 'linkinfo') {
+    BSSrcServer::SQLite::init_sourcedb();
+  } elsif ($table eq 'pattern' || $table eq 'binary') {
+    BSSrcServer::SQLite::init_publisheddb(undef, $table);
+  }
+  $ndb->asyncmode();
+
+  my @bad;
+  for my $prp (@todo) {
+    my $prp_ext = $prp;
+    $prp_ext =~ s/:/:\//g;
+
+    if ($table eq 'linkinfo') {
+      my ($projid, $packid) = split('/', $prp, 2);
+      my $linkinfo = $db->fetch($prp);
+      if (!$linkinfo) {
+	push @bad, $prp;
+	warn("could not fetch $bad[-1]\n");
+	next;
+      }
+      $ndb->store_linkinfo($projid, $packid, $linkinfo);
+    } elsif ($table eq 'pattern') {
+      my $patterninfo = {};
+      for my $path (sort keys %{$todo_pattern{$prp}}) {
+	my $pi = $db->fetch("$prp_ext/$path");
+	if (!$pi) {
+	  push @bad, "$prp_ext/$path";
+	  warn("could not fetch $bad[-1]\n");
+	  next;
+	}
+	$patterninfo->{$path} = $pi;
+      }
+      $ndb->updatedb_patterninfo($prp, $patterninfo);
+    } elsif ($table eq 'binary') {
+      my $repoinfo = $db->fetch($prp);
+      if (!$repoinfo) {
+	push @bad, $prp;
+	warn("could not fetch $bad[-1]\n");
+	next;
+      }
+      $ndb->updatedb_repoinfo($prp, $repoinfo);
+    }
+
+    $done++;
+    print "$done/$todo\n" if $done % 10 == 0;
+  }
+  print "$todo/$todo\n";
+  if (@bad) {
+    print "WARNING: could not fetch the following entries:\n";
+    print "  - $_\n" for @bad;
+  }
+  exit(0);
+}
+
+die("unknown command $cmd\n");
+

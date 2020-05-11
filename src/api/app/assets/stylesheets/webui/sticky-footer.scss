@@ -1,0 +1,40 @@
+// Sticky footer
+body {
+  min-height: 100vh;
+}
+.flex-grow {
+  flex: 1;
+}
+
+#footer {
+  strong {
+    color: $gray-300;
+  }
+
+  & a {
+    font-size: .9rem;
+    color: $gray-400;
+
+    &:hover {
+        color: $gray-300;
+    }
+  }
+
+  ul {
+    @extend .list-unstyled;
+    @extend .mt-1;
+  }
+  #footer-legal {
+    p {
+      color: $gray-300;
+    }
+  }
+}
+
+// Sticky bottom
+.sticky-bottom {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    z-index: 1020;
+}

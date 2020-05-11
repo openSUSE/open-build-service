@@ -1,34 +1,77 @@
-class Architecture < ActiveRecord::Base
+# This class provides all existing architectures known to OBS
+class Architecture < ApplicationRecord
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
 
-  has_many :repository_architectures
-  has_many :repositories, :through => :repository_architectures
-  
-  has_many :download_stats
-  has_many :downloads
-
+  #### Associations macros (Belongs to, Has one, Has many)
+  has_many :repository_architectures, inverse_of: :architecture
+  has_many :repositories, through: :repository_architectures
   has_many :flags
 
-  attr_accessible :available, :recommended, :name
+  #### Callbacks macros: before_save, after_save, etc.
+  after_save :discard_cache
+  after_destroy :discard_cache
 
-  def self.discard_cache
-    Rails.cache.delete("archcache")
-  end
+  #### Scopes (first the default_scope macro if is used)
+  scope :available, -> { where(available: 1) }
+  scope :unavailable, -> { where(available: 0) }
+
+  #### Validations macros
+  validates :name, uniqueness: true
+  validates :name, presence: true
+
+  #### Class methods using self. (public and then private)
 
   def self.archcache
-    return Rails.cache.fetch("archcache") do
-      ret = Hash.new
-      Architecture.all.each do |arch|
-        ret[arch.name] = arch
-      end
-      ret
+    Rails.cache.fetch('archcache') do
+      Architecture.all.map { |arch| [arch.name, arch] }.to_h
     end
   end
 
-  def archcache
-    Architecture.archcache
+  def self.from_cache!(archname)
+    unless archcache.key?(archname)
+      raise ActiveRecord::RecordNotFound, "unknown architecture: '#{archname}'"
+    end
+    archcache[archname]
   end
 
-  after_save 'Architecture.discard_cache'
-  after_destroy 'Architecture.discard_cache'
+  def worker
+    case name
+    when 'i586' then 'x86_64'
+    when 'ppc' then 'ppc64'
+    when 's390' then 's390x'
+    else name
+    end
+  end
+
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
+  def to_s
+    name
+  end
+
+  private
+
+  def discard_cache
+    Rails.cache.delete('archcache')
+  end
+
+  #### Alias of methods
 end
 
+# == Schema Information
+#
+# Table name: architectures
+#
+#  id        :integer          not null, primary key
+#  name      :string(255)      not null, indexed
+#  available :boolean          default(FALSE)
+#
+# Indexes
+#
+#  arch_name_index  (name) UNIQUE
+#

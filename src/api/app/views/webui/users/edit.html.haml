@@ -1,0 +1,32 @@
+- @pagetitle = "Edit User #{@displayed_user}"
+
+.card.mb-3
+  .card-body
+    %h3= @pagetitle
+    .col-md-6.pl-0
+      = form_for(@displayed_user) do |form|
+        = form.hidden_field(:login)
+        .form-group
+          = form.label(:realname, 'Name:')
+          = form.text_field(:realname, disabled: user_is_configurable(@configuration, @displayed_user), class: 'form-control')
+        .form-group
+          = form.label(:email, 'Email:')
+          %abbr.text-danger{ title: 'required' } *
+          = form.text_field(:email, required: true, email: true, disabled: user_is_configurable(@configuration, @displayed_user),
+            class: 'form-control')
+        .form-group
+          = form.collection_check_boxes(:role_ids, Role.global, :id, :title, {}) do |checkbox|
+            .custom-control.custom-checkbox
+              = checkbox.check_box(class: 'custom-control-input')
+              = checkbox.label(class: 'custom-control-label')
+        .form-group
+          = form.collection_radio_buttons(:state, User::STATES - ['subaccount'], :to_s, :to_s, class: 'custom-control-input') do |radio|
+            .custom-control.custom-radio.custom-control-inline
+              = radio.radio_button(class: 'custom-control-input')
+              = radio.label(class: 'custom-control-label')
+        - if Configuration.ldap_enabled? && User.admin_session?
+          .form-group
+            .custom-control.custom-checkbox
+              = form.check_box(:ignore_auth_services, { class: 'custom-control-input' }, true)
+              = form.label(:ignore_auth_services, 'Local user', class: 'custom-control-label')
+        = form.submit('Update', class: 'btn btn-primary', data: { disable_with: 'Updating...' })

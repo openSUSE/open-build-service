@@ -47,11 +47,17 @@
           <ref name="issue-element"/>
         </zeroOrMore>
 
+        <optional>
+          <element name="name"> <!-- old style patch name -->
+            <text/>
+          </element>
+        </optional>
+
         <element name="category"> 
           <ref name="patchinfo-categories" />
         </element>
         <element name="rating"> 
-          <ref name="patchinfo-ratings" />
+          <ref name="obs-ratings" />
         </element>
         <element name="summary"> 
           <text/>
@@ -59,6 +65,11 @@
         <element name="description"> 
           <text/>
         </element>
+        <optional>
+          <element name="message"> <!-- optional pop-up message -->
+            <text/>
+          </element>
+        </optional>
         <element name="packager"> 
           <text/>
         </element>
@@ -66,6 +77,11 @@
         <optional>
           <element name="stopped"> 
             <text/>
+          </element>
+        </optional>
+        <optional>
+          <element name="retracted">
+            <empty/>
           </element>
         </optional>
         <optional>
@@ -110,21 +126,13 @@
     </element>
   </define>
 
-  <define ns="" name="patchinfo-ratings">
-    <choice>
-      <value>low</value>
-      <value>moderate</value>
-      <value>important</value>
-      <value>critical</value>
-    </choice>
-  </define>
-
   <define ns="" name="patchinfo-categories">
     <choice>
       <value>security</value>
       <value>recommended</value>
       <value>optional</value>
       <value>feature</value>
+      <value>ptf</value>
     </choice>
   </define>
 

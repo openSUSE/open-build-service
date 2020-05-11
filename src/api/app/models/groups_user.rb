@@ -1,18 +1,39 @@
-class GroupsUser < ActiveRecord::Base
-  belongs_to :user, :foreign_key => 'user_id'
-  belongs_to :group, :foreign_key => 'group_id'
+class GroupsUser < ApplicationRecord
+  include ActiveModel::Validations
 
-  validates :user, :presence => true
-  validates :group, :presence => true
-  validate :validate_duplicates
+  belongs_to :user
+  belongs_to :group
 
-  attr_accessible :group, :user
+  validates :user, presence: true
+  validates :group, presence: true
+  validate :validate_duplicates, on: :create
+  validates_with AllowedUserValidator
 
-  protected
-  validate :validate_duplicates, :on => :create
+  private
+
   def validate_duplicates
-    if GroupsUser.where("user_id = ? AND group_id = ?", self.user, self.group).first
-      errors.add(:user, "User already has this group")
-    end
+    return unless GroupsUser.find_by(user: user, group: group)
+    errors.add(:user, 'User already has this group')
   end
 end
+
+# == Schema Information
+#
+# Table name: groups_users
+#
+#  group_id   :integer          default(0), not null, indexed => [user_id]
+#  user_id    :integer          default(0), not null, indexed => [group_id], indexed
+#  created_at :datetime
+#  email      :boolean          default(TRUE)
+#  id         :integer          not null, primary key
+#
+# Indexes
+#
+#  groups_users_all_index  (group_id,user_id) UNIQUE
+#  user_id                 (user_id)
+#
+# Foreign Keys
+#
+#  groups_users_ibfk_1  (group_id => groups.id)
+#  groups_users_ibfk_2  (user_id => users.id)
+#

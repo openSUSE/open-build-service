@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS source service server
+After=network.target obsstoragesetup.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_service --logfile src_service.log
+ExecStop=/usr/lib/obs/server/bs_service --stop
+ExecReload=/usr/lib/obs/server/bs_service --restart
+
+[Install]
+WantedBy=multi-user.target

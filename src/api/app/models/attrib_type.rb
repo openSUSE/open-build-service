@@ -1,143 +1,170 @@
-# Attribute definition as part of project meta data
-# This is always inside of an attribute namespace
+# Attribute definition as part of project meta data. This is always inside of an attribute namespace
+class AttribType < ApplicationRecord
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  class UnknownAttributeTypeError < APIError
+    setup 'unknown_attribute_type', 404, 'Unknown Attribute Type'
+  end
+  class InvalidAttributeError < APIError
+  end
 
-class AttribType < ActiveRecord::Base
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :attrib_namespace
 
-  has_many :attribs, :dependent => :destroy
-  has_many :default_values, :class_name => 'AttribDefaultValue', :dependent => :destroy
-  has_many :allowed_values, :class_name => 'AttribAllowedValue', :dependent => :destroy
-  has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', :dependent => :destroy
+  has_many :attribs, dependent: :destroy
+  has_many :default_values, -> { order('position ASC') }, class_name: 'AttribDefaultValue', dependent: :delete_all
+  has_many :allowed_values, class_name: 'AttribAllowedValue', dependent: :delete_all
+  has_many :attrib_type_modifiable_bies, class_name: 'AttribTypeModifiableBy', dependent: :delete_all
 
-  attr_accessible :name, :attrib_namespace, :value_count
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+  validates :name, presence: true
 
-  class << self
-    def list_all(namespace=nil)
-      if namespace
-        joins(:attrib_namespace).where("attrib_namespaces.name = ?", namespace).select("attrib_types.id,attrib_types.name").all
-      else
-        select("id,name").all
-      end
-    end
-
-    def find_by_name(name)
-      name_parts = name.split(/:/)
-      if name_parts.length != 2
-        raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
-      end
-      find_by_namespace_and_name(name_parts[0], name_parts[1])
-    end
-  
-    def find_by_namespace_and_name(namespace, name)
-      unless namespace and name
-        raise ArgumentError, "Need namespace and name as parameters"
-      end
-      joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name).first
-    end
+  #### Class methods using self. (public and then private)
+  def self.find_by_name!(name)
+    find_by_name(name, true)
   end
 
+  def self.find_by_name(name, or_fail = false)
+    name_parts = name.split(/:/)
+    if name_parts.length != 2
+      raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style"
+    end
+    find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
+  end
+
+  def self.find_by_namespace_and_name!(namespace, name)
+    find_by_namespace_and_name(namespace, name, true)
+  end
+
+  def self.find_by_namespace_and_name(namespace, name, or_fail = false)
+    unless namespace && name
+      raise ArgumentError, 'Need namespace and name as parameters'
+    end
+    ats = joins(:attrib_namespace).where('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
+    if or_fail && ats.count != 1
+      raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist"
+    end
+    ats.first
+  end
+
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def namespace
-    read_attribute :attrib_namespace
-  end
- 
-  def namespace=(val)
-    write_attribute :attrib_namespace, val
+    attrib_namespace.name
   end
 
-  def render_axml
-     builder = Nokogiri::XML::Builder.new do |node|
-      p = {}
-      p[:name]      = self.name
-      p[:namespace] = attrib_namespace.name
-      node.definition(p) do |attr|
-
-       if default_values.length > 0
-         attr.default do |default|
-           default_values.each do |def_val|
-             default.value def_val.value
-           end
-         end
-       end
-
-       if allowed_values.length > 0
-         attr.allowed do |allowed|
-           allowed_values.each do |all_val|
-             allowed.value all_val.value
-           end
-         end
-       end
-
-       if self.value_count
-         attr.count self.value_count
-       end
-
-       abies = attrib_type_modifiable_bies.includes(:user, :group, :role).all
-       if abies.length > 0
-         abies.each do |mod_rule|
-           p={}
-           p[:user] = mod_rule.user.login if mod_rule.user 
-           p[:group] = mod_rule.group.title if mod_rule.group 
-           p[:role] = mod_rule.role.title if mod_rule.role 
-           attr.modifiable_by(p)
-         end
-       end
-      end
-     end
-     builder.to_xml
+  def fullname
+    "#{attrib_namespace}:#{name}"
   end
 
-  def update_from_xml(node)
-    self.transaction do
-      #
+  def update_from_xml(xmlhash)
+    transaction do
       # defined permissions
-      #
-      self.attrib_type_modifiable_bies.delete_all
+      attrib_type_modifiable_bies.delete_all
+
       # store permission setting
-      node.elements.each("modifiable_by") do |m|
-          if not m.attributes["user"] and not m.attributes["group"] and not m.attributes["role"]
-            raise RuntimeError, "attribute type '#{node.name}' modifiable_by element has no valid rules set"
-          end
-          p={}
-          if m.attributes["user"]
-            p[:user] = User.get_by_login(m.attributes["user"])
-          end
-          if m.attributes["group"]
-            p[:group] = Group.get_by_title(m.attributes["group"])
-          end
-          if m.attributes["role"]
-            p[:role] = Role.get_by_title(m.attributes["role"])
-          end
-          self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(p)
+      xmlhash.elements('modifiable_by') { |element| create_one_rule(element) }
+
+      # attribute type definition
+      self.description = nil
+      xmlhash.elements('description') do |element|
+        self.description = element
       end
 
-      #
-      # attribute type definition
-      #
       # set value counter (this number of values must exist, not more, not less)
       self.value_count = nil
-      node.elements.each("count") do |c|
-        self.value_count = c.text
+      xmlhash.elements('count') do |element|
+        self.value_count = element
       end
+
+      # allow issues?
+      logger.debug "XML #{xmlhash.inspect}"
+      self.issue_list = !xmlhash['issue_list'].nil?
+      logger.debug "IL #{issue_list}"
 
       # default values of a attribute stored
-      self.default_values.delete_all
-      position = 1
-      node.elements.each("default") do |d|
-        d.elements.each("value") do |v|
-          self.default_values << AttribDefaultValue.new(:value => v.text, :position => position)
-          position += 1
-        end
-      end
+      update_default_values(xmlhash.elements('default'))
 
       # list of allowed values
-      self.allowed_values.delete_all
-      node.elements.each("allowed") do |a|
-        a.elements.each("value") do |v|
-          self.allowed_values << AttribAllowedValue.new(:value => v.text)
+      allowed_values.delete_all
+      xmlhash.elements('allowed') do |allowed_element|
+        allowed_element.elements('value') do |value_element|
+          allowed_values.build(value: value_element)
         end
       end
 
-      self.save
+      save
     end
   end
+
+  # FIXME: we REALLY should use active_model_serializers
+  def as_json(options = nil)
+    if options
+      if options.key?(:methods)
+        if options[:methods].is_a?(Array)
+          options[:methods] << :attrib_namespace_name unless options[:methods].include?(:attrib_namespace_name)
+        elsif options[:methods] != :attrib_namespace_name
+          options[:methods] = [options[:methods]] + [:attrib_namespace_name]
+        end
+      else
+        options[:methods] = [:attrib_namespace_name]
+      end
+      super(options)
+    else
+      super(methods: [:attrib_namespace_name])
+    end
+  end
+
+  private
+
+  def create_one_rule(node)
+    if node['user'].blank? && node['group'].blank? && node['role'].blank?
+      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
+    end
+    new_rule = {}
+    new_rule[:user] = User.find_by_login!(node['user']) if node['user']
+    new_rule[:group] = Group.find_by_title!(node['group']) if node['group']
+    new_rule[:role] = Role.find_by_title!(node['role']) if node['role']
+    attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
+  end
+
+  def update_default_values(default_elements)
+    default_values.delete_all
+    position = 1
+    default_elements.each do |d|
+      d.elements('value') do |v|
+        default_values << AttribDefaultValue.new(value: v, position: position)
+        position += 1
+      end
+    end
+  end
+
+  #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: attrib_types
+#
+#  id                  :integer          not null, primary key
+#  name                :string(255)      not null, indexed => [attrib_namespace_id], indexed
+#  description         :string(255)
+#  type                :string(255)
+#  value_count         :integer
+#  attrib_namespace_id :integer          not null, indexed => [name]
+#  issue_list          :boolean          default(FALSE)
+#
+# Indexes
+#
+#  index_attrib_types_on_attrib_namespace_id_and_name  (attrib_namespace_id,name) UNIQUE
+#  index_attrib_types_on_name                          (name)
+#
+# Foreign Keys
+#
+#  attrib_types_ibfk_1  (attrib_namespace_id => attrib_namespaces.id)
+#

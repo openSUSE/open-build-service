@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="channel-element"/>
+  </start>
+
+  <define ns="" name="channel-element">
+    <element name="channel">
+      <zeroOrMore>
+        <ref name="channel-product-element"/>
+      </zeroOrMore>
+      <zeroOrMore>
+        <ref name="channel-target-element"/>
+      </zeroOrMore>
+      <oneOrMore>
+        <ref name="channel-binaries-element"/>
+      </oneOrMore>
+    </element>
+  </define>
+
+  <define ns="" name="channel-product-element">
+     <element ns="" name="product">
+       <attribute name="project"/>
+       <attribute name="name"/>
+       <empty/>
+     </element>
+  </define>
+
+  <define ns="" name="channel-target-element">
+     <element ns="" name="target">
+       <attribute name="project"/>
+       <attribute name="repository"/>
+       <optional>
+         <attribute name="id_template"/>
+       </optional>
+       <optional>
+         <attribute name="requires_issue"/>
+       </optional>
+       <optional>
+         <element ns="" name="disabled">
+           <empty/>
+         </element>
+       </optional>
+     </element>
+  </define>
+
+  <define ns="" name="channel-binaries-element">
+     <element ns="" name="binaries">
+       <optional>
+         <attribute name="project"/>
+       </optional>
+       <optional>
+         <attribute name="repository"/>
+       </optional>
+       <optional>
+         <attribute name="arch">
+           <ref name="build-arch" />
+         </attribute>
+       </optional>
+       <oneOrMore>
+         <ref name="channel-binary-element"/>
+       </oneOrMore>
+       <empty/>
+     </element>
+  </define>
+
+
+  <define ns="" name="channel-binary-element">
+     <element ns="" name="binary">
+       <attribute name="name"/>
+       <optional>
+         <attribute name="binaryarch"/>
+       </optional>
+       <optional>
+         <attribute name="project"/>
+       </optional>
+       <optional>
+         <attribute name="repository"/>
+       </optional>
+       <optional>
+         <attribute name="package"/>
+       </optional>
+       <optional>
+         <attribute name="arch">
+           <ref name="build-arch" />
+         </attribute>
+       </optional>
+       <optional>
+         <attribute name="supportstatus">
+           <ref name="supportstatus-choices" />
+         </attribute>
+       </optional>
+       <empty/>
+     </element>
+  </define>
+
+</grammar>

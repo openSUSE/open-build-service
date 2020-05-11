@@ -1,0 +1,16 @@
+.modal.fade#add-user-role-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'edit-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag action: :save_person do
+        .modal-header
+          %h5.modal-title#edit-modal-label Add User
+        .modal-body
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'userid', label: 'User:',
+                                                                   data: { source: autocomplete_users_path } }
+          .form-group
+            = label_tag(:role, 'Role:')
+            = select_tag 'role', options_for_select(Role.local_roles, nil), required: true, class: 'form-control'
+          = hidden_field_tag 'package', package
+          = hidden_field_tag 'project', project
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

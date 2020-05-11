@@ -1,0 +1,7 @@
+#package-buildstatus
+  - if project.repositories.none?
+    %p
+      %i The project this package belongs to currently has no #{link_to('build targets', repositories_distributions_path(project))} defined.
+  - else
+    %p
+      %i No build results available

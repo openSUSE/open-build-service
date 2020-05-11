@@ -1,0 +1,5 @@
+<% if action.group_name.blank? -%>
+- <%= action.person_name %> wants to be <%= action.role %> in <%= project_or_package_text(action.target_project, action.target_package) -%>
+<% else -%>
+- Group <%= action.group_name %> wants to be <%= action.role %> in <%= project_or_package_text(action.target_project, action.target_package) -%>
+<% end -%>

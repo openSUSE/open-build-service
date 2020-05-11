@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channel>
+  <product project="openSUSE:12.3" name="simple" />
+  <target project="openSUSE:12.3:Update" repository="standard" id_template="My-Product-%Y-%C" />
+  <binaries project="openSUSE:12.3" repository="standard" arch="i586">
+    <binary name="glibc-devel" binaryarch="noarch" package="glibc.i686" project="openSUSE:12.3" repository="standard" arch="i586"/>
+    <binary name="bc" binaryarch="noarch" package="glibc.i686" supportstatus="l3"/>
+  </binaries>
+</channel>

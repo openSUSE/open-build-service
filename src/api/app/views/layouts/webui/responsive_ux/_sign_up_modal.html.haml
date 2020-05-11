@@ -1,0 +1,8 @@
+.modal.fade.access-modal#sign-up-modal{ tabindex: -1, role: 'dialog', aria: { hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-body
+        %i.close.fas.fa-times{ data: { dismiss: 'modal' } }
+        = link_to(root_path, class: 'd-block text-center', alt: 'Logo') do
+          = image_tag('favicon.svg', height: '60')
+        = render partial: 'layouts/webui/responsive_ux/sign_up_form'

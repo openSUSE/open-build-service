@@ -1,0 +1,9 @@
+ul.ui-autocomplete {
+  @extend .dropdown-menu;
+
+  li { @extend .dropdown-item; }
+}
+
+.ui-helper-hidden-accessible{
+  display:none !important;
+}

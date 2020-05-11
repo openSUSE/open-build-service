@@ -1,0 +1,167 @@
+$request-ready-color: $success;
+$request-review-color: $secondary;
+$request-obsolete-color: $dark;
+
+.legend {
+  ul {
+    @extend .ml-2;
+
+    li {
+      span {
+        display: inline-flex;
+        width: 1rem;
+        height: 1rem;
+        @extend .border;
+        @extend .border-dark;
+      }
+
+      .request-ready {
+        background-color: $request-ready-color;
+      }
+      .request-review {
+        background-color: $request-review-color;
+      }
+      .request-obsolete {
+        background-color: $request-obsolete-color;
+      }
+    }
+  }
+}
+
+ul .table-list-group-item {
+  padding: 0.5rem 0.75rem;
+  background-color: transparent;
+}
+
+.bg-staging-state-accepting {
+  background-color: #ca57ce;
+}
+
+#staging-projects-datatable td,
+#staging-project-package-list {
+  span.badge {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+
+  &.project {
+    min-width: 9rem;
+
+    > span.badge {
+      @extend .w-100;
+
+      > span.badge {
+        @extend .m-1;
+        max-width: 15rem;
+        overflow-wrap: break-word;
+        word-wrap: break-word;
+        display: inline-block;
+        white-space: normal;
+      }
+    }
+
+    span.badge {
+      &.state-unacceptable {
+        @extend .badge-dark;
+      }
+
+      &.state-acceptable {
+        @extend .badge-success;
+      }
+
+      &.state-accepting {
+        @extend .bg-staging-state-accepting;
+        color: white;
+      }
+
+      &.state-testing {
+        @extend .badge-info;
+      }
+
+      &.state-building {
+        @extend .badge-warning;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+
+      &.state-failed {
+        @extend .badge-danger;
+      }
+
+      &.state-review {
+        @extend .badge-secondary;
+      }
+
+      &.state-empty {
+        @extend .badge-light;
+        @extend .border;
+
+        span {
+          @extend .text-dark;
+        }
+      }
+    }
+  }
+  &.requests {
+    .request-elements { min-width: 20rem; }
+
+    span.badge {
+      margin-left: 10px;
+
+      a.request {
+        min-height: 1.3rem;
+        @extend .text-white;
+        padding: 0 0.125rem 0;
+        display: flex;
+        align-items: center;
+
+        &:hover {
+          text-decoration: none;
+        }
+
+        img {
+          @extend .bg-white;
+          border-radius: 50%;
+          height: 20px;
+          width: 20px;
+        }
+
+        img, i {
+          margin-left: 5px;
+        }
+      }
+
+      &.state-ready {
+        @extend .badge-success;
+        background-color: $request-ready-color;
+      }
+
+      &.state-review {
+        @extend .badge-warning;
+        background-color: $request-review-color;
+      }
+
+      &.state-obsolete {
+        @extend .badge-info;
+        background-color: $request-obsolete-color;
+      }
+
+      &.delete {
+        a.request {
+          text-decoration: line-through;
+        }
+      }
+    }
+    a, div.collapse, div.collapsing {
+      float: left;
+    }
+  }
+  .problem-elements { min-width: 12rem; }
+}
+
+li.missing-check {
+  margin-left: 1.25rem;
+  list-style: disc;
+}

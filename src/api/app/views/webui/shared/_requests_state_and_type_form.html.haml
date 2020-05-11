@@ -1,0 +1,19 @@
+.row
+  .form-group.input-group.col-sm-12.col-md-6
+    .input-group-prepend
+      = label_tag('request_type_select', 'Display', class: 'control-label input-group-text')
+    = select_tag('request_type_select',
+                 options_for_select(Webui::RequestHelper::AVAILABLE_TYPES, selected_type),
+                 data: { table: 'all_requests_table' },
+                 class: 'form-control custom-select dataTables_length')
+
+  .form-group.input-group.col-sm-12.col-md
+    .input-group-prepend
+      = label_tag('request_state_select', 'Requests in state', class: 'control-label input-group-text')
+    = select_tag('request_state_select',
+                 options_for_select(Webui::RequestHelper::AVAILABLE_STATES, selected_state),
+                 data: { table: 'all_requests_table' },
+                 class: 'form-control custom-select dataTables_length')
+
+
+

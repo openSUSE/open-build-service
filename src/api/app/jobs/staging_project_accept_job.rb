@@ -1,0 +1,20 @@
+class StagingProjectAcceptJob < ApplicationJob
+  queue_as :staging
+
+  def perform(payload)
+    User.find_by!(login: payload[:user_login]).run_as do
+      accept(Project.find(payload[:project_id]))
+    end
+  end
+
+  def accept(staging_project)
+    staging_project.send(:clear_memoized_data)
+    staging_project.staged_requests.each do |staged_request|
+      if staged_request.reviews.where(by_project: staging_project.name).exists?
+        staged_request.change_review_state(:accepted, by_project: staging_project.name, comment: "Staging Project #{staging_project.name} got accepted.")
+      end
+      staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{staging_project.name} got accepted.")
+    end
+    staging_project.project_log_entries.staging_history.delete_all
+  end
+end

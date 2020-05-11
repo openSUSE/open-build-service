@@ -1,0 +1,5 @@
+
+    <repositories>
+      <repository path="obs://home:Iggy/10.2"/>
+    </repositories>
+

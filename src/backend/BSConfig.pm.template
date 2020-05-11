@@ -33,9 +33,10 @@ my $frontend = undef; # FQDN of the WebUI/API server if it's not $hostname
 
 # If defined, restrict access to the backend servers (bs_repserver, bs_srcserver, bs_service)
 our $ipaccess = {
-   '127\..*' => 'rw', # only the localhost can write to the backend
-   "^$ip" => 'rw',    # Permit IP of FQDN
-   '.*' => 'worker',  # build results can be delivered from any client in the network
+   '^::1$' => 'rw',    # only the localhost can write to the backend
+   '^127\..*' => 'rw', # only the localhost can write to the backend
+   "^$ip\$" => 'rw',   # Permit IP of FQDN
+   '.*' => 'worker',   # build results can be delivered from any client in the network
 };
 
 # IP of the WebUI/API Server (only used for $ipaccess)
@@ -44,50 +45,54 @@ if ($frontend) {
   $ipaccess->{$frontendip} = 'rw' ; # in dotted.quad format
 }
 
-our $obsname = $hostname; # unique identifier for this Build Service instance
+#our $ssl_keyfile = "/path/to/tls.key";
+#our $ssl_certfile = "/path/to/tls.pem";
+
 # Change also the SLP reg files in /etc/slp.reg.d/ when you touch hostname or port
 our $srcserver = "http://$hostname:5352";
 our $reposerver = "http://$hostname:5252";
 our $serviceserver = "http://$hostname:5152";
+our $clouduploadserver = "http://$hostname:5452"; 
+
+# you can use different ports for worker connections
+#our $workersrcserver = "http://$hostname:5353";
+#our $workerreposerver = "http://$hostname:5253";
+
 our $servicedir = "/usr/lib/obs/service/";
-#our $servicetempdir = "/var/temp/";
+#our $servicetempdir = "/srv/obs/service";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
-#our $gpg_standard_key = "/etc/obs-default-gpg.asc";
-# public download service:
-our $repodownload = "http://$hostname/repositories";
+# Maximum number of concurrent jobs for source service
+#our $service_maxchild = 20;
+
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
 #
-# Notification Plugin
-#our $notification_plugin = "notify_hermes";
+# Notification Plugin, multiple plugins supported, separated by space
+#our $notification_plugin = "notify_hermes notify_rabbitmq";
 #
-#FIXME2.4 belongs in API
-# Does the notify plugin supports multiple actions?
-# Hermes doesn't, BOSS does.
-#our $multiaction_notify_support = 0
-
-# For the workers only, it is possible to define multiple repository servers here.
-# But only one source server is possible yet.
-our @reposervers = ("http://$hostname:5252");
-
-# proxy support:
-#our $proxy = "http(s)://<user:pass>\@<host>:<port>";
-
-# Curl-like interpretation for noproxy, i.e. each name in $noproxy is either
-# a domain containing the hostname or the hostname itself.
-# Example: host.com matches host.com, www.host.com etc but not www.myhost.com
-#our $noproxy = "localhost, 127.0.0.1";
 
 # Package defaults
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
+# user and group for bs_service (if the lxc service wrapper is used, set
+# $bsserviceuser to root). If several obs services (e.g., bs_service and
+# bs_srcserver) run on the same host, make sure that $bsservicegroup is set
+# to $bsgroup.
+our $bsserviceuser = 'obsservicerun';
+our $bsservicegroup = $bsgroup;
 #our $bsquotafile = '/srv/obs/quota.xml';
 
-# To enable package downloading from backend on demand
-our $enable_download_on_demand = 1;
+# Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
+# when the network is slow or broken. This will become the default in future
+# our $sched_asyncmode = 1;
+
+# Define how the scheduler does a cold start. The default (0) is to request the
+# data for all packages, (1) means that only the non-remote packages are fetched,
+# (2) means that all of the package data fetches get delayed.
+# our $sched_startupmode = 0;
 
 # Disable fdatasync calls, increases the speed, but may lead to data 
 # corruption on system crash when the filesystem does not guarantees
@@ -95,6 +100,18 @@ our $enable_download_on_demand = 1;
 # It is esp. required on XFS filesystem.
 # It is safe to be disabled on ext4 and btrfs filesystems.
 #our $disable_data_sync = 1;
+
+
+# configure special handling of selected repositories
+# our $publishredirect = { 'My:Project/repo' =>
+#                          [ "/srv/local/directory/",
+#                            undef, # or local sub path
+#                            "http://my.local.download.server/and/the/path/to/reach/repo",
+#                            "rsync://my.stage.server/module",
+#                            undef, # or special string for a repository pusher trigger file
+#                          ];
+#                          'My:Other:Project/images' => '/srv/local/other/directory/'
+#                         };
 
 # Package rc script / backend communication + log files
 our $rundir = "$bsdir/run";
@@ -106,6 +123,9 @@ our $logdir = "$bsdir/log";
 # 2: new trees are not shared, in case of a missing tree the shared
 #    location is also tried (package default)
 our $nosharedtrees = 2;
+
+# enable binary release tracking by default for release projects
+our $packtrack = [];
 
 # optional: limit visibility of projects for some architectures
 #our $limit_projects = {
@@ -122,14 +142,17 @@ our $relsync_pool = {
  "x86_64" => "i586",
  "ppc" => "ppc",
  "ppc64" => "ppc",
+ "ppc64le" => "ppc",
  "mips" => "mips",
  "mips64" => "mips",
  "mipsel" => "mipsel",
  "mips64el" => "mipsel",
  "aarch64"  => "arm",
+ "aarch64_ilp32"  => "arm",
  "armv4l"  => "arm",
  "armv5l"  => "arm",
  "armv6l"  => "arm",
+ "armv6hl" => "arm",
  "armv7l"  => "arm",
  "armv7hl" => "arm",
  "armv5el" => "armv5el", # they do not exist
@@ -140,19 +163,20 @@ our $relsync_pool = {
  "sparc64" => "sparcv9",
 };
 
-# List of power hosts that can handle power jobs for the sake of
-# building critical packages fast.
-#our $powerhosts  = ["build20"];
-
-# List of power packages that can be built on power hosts 
-#our $powerpkgs = [ "glibc", "qt" ]
-
 #No extra stage server sync
 #our $stageserver = 'rsync://127.0.0.1/put-repos-main';
 #our $stageserver_sync = 'rsync://127.0.0.1/trigger-repos-sync';
 
-#No public download server
-#our $repodownload = 'http://software.opensuse.org/download/repositories';
+#additional options for calling rsync in the publisher
+#for example "--whole-file" if network faster than disk
+#our $rsync_extra_options = "--whole-file";
+
+# Define your own global Macros
+#my $macro_packager = '<rpm@example.com>';
+#my $macro_vendor = 'Name, Company, City, DE';
+#our $extramacros = {
+#    ".*" => "%packager $macro_packager\n%vendor $macro_vendor\n",
+#};
 
 #No package signing server
 #our $sign = '/usr/bin/sign';
@@ -160,13 +184,17 @@ our $relsync_pool = {
 #our $sign_project = 1;
 #Global sign key 
 #our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
-#Create a key by default for new projects, if top level have not one
-#our $forceprojectkeys = 1;
+#our $gpg_standard_key = "/etc/obs-default-gpg.asc";
 
 # Use a special local arch for product building
 # our $localarch = "x86_64";
 
 # config options for the bs_worker
+#
+#our buildlog_maxsize = 500 * 1000000;
+#our buildlog_maxidle =   8 * 3600;
+#our xenstore_maxsize =  20 * 1000000;
+#our gettimeout =         1 * 3600;
 #
 # run a script to check if the worker is good enough for the job
 #our workerhostcheck = 'my_check_script';
@@ -178,11 +206,100 @@ our $relsync_pool = {
 # Use old style source service handling
 # our $old_style_services = 1;
 
+###
+# Optional support to split the binary backend. This can be used on large servers
+# to seperate projects for better scalability.
+# There is still just one source server, but there can be multiple servers which
+# run each repserver, schedulers, dispatcher, warden and publisher
+#
+# This repo service is the 'home' server for all home:* projects. This and the
+# $reposerver setting must be different on the binary backend servers.
+# our $partition = 'home';
+#
+# this defines how the projects are split. All home: projects are hosted
+# on an own server in this example. Order is important.
+# our $partitioning = [ 'home:' => 'home',
+#                       '.*'    => 'main',
+#                     ];
+#
+# our $partitionservers = { 'home' => 'http://home-backend-server:5252',
+#                           'main' => 'http://main-backend-server:5252',
+#                         };
+
 # host specific configs
-my $hostconfig = "bsconfig." . Net::Domain::hostname();
-if(-r $hostconfig) {
-  print "reading $hostconfig...\n";
+my $hostconfig = __FILE__;
+$hostconfig =~ s/[^\/]*$/bsconfig.$hostname/;
+if (-r $hostconfig) {
+  print STDERR "reading $hostconfig...\n";
   require $hostconfig;
 }
+
+# For specific build constraints, for example to require a specific
+# security level of the workers.
+#
+#our $dispatch_constraint = sub {
+#  my ($job, $worker) = @_;
+#
+#  return 0 unless (grep {$_ eq "OBS_WORKER_SECURITY_LEVEL_1"} @{$worker->{'hostlabel'} || []});
+#  return 1;
+#}
+
+# use createrepo_c instead of createrepo. This gets selected via update-alternatives usualy.
+#our $createrepo = '/usr/bin/createrepo_c';
+# use modifyrepo_c instead of modifyrepo
+#our $modifyrepo = '/usr/bin/modifyrepo_c';
+
+# enable service dispatcher
+our $servicedispatch = 1;
+# max of 4 parallel running services (default)
+# our $servicedispatch_maxchild = 4;
+
+# print all messages with a lower level than $debuglevel in addition to the normal log messages
+#our $debuglevel = 1;
+
+our $container_registries = {
+   'local' => {
+     server => $hostname,
+     pushserver => 'local:'
+   },
+#   'staging-registry.example.com' => {
+#     server => '',
+#     user => '',
+#     password => '',
+#     repository_base => '',
+#   },
+#   'hub.docker.com' => {
+#     server => '',
+#     user => '',
+#     password => '',
+#     repository_base => '',
+#   },
+};
+
+our $publish_containers = [
+#   # key:   regex to match projid
+#   # value: ArrayRef with identifiers for registries configured in $container_registries
+#   'SUSE:.*'        => [ 'registry.example.com', 'hub.docker.com' ],
+#   '.*:branches:.*' => [ 'staging-registry.example.com' ],
+   '.*'             => ['local'],
+];
+
+# enable this to announce the X-Registry-Supports-Signatures extension
+# (this needs a proxy entry for /extensions/v2 in the web server config)
+our $local_registry_signatures_extension = 1;
+
+
+# special options to use for starting containers in run-service-containerized
+# our $docker_custom_opt = [];
+
+## Server where mirrored gems could be found - used in services like obs-service-bundle_gems
+# our $gems_mirror = '';
+#
+## Container which should be 'linked' when running "bundle_gems" service
+# our $geminabox_container = '';
+#
+
+# public cloud uploader configuration
+# our $cloudupload_pubkey = "/etc/obs/cloudupload/_pubkey"; # default setting
 
 1;

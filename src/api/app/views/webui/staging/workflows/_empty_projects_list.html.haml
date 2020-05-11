@@ -1,0 +1,8 @@
+- if projects.empty?
+  None
+- else
+  %ul.pl-4
+    - projects.sort.each do |project|
+      %li
+        = link_to(Staging::ProjectDecorator.new(project).title,
+                  staging_workflow_staging_project_path(staging_workflow.project, project.name))

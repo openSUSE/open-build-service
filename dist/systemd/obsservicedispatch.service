@@ -1,0 +1,12 @@
+[Unit]
+Description=OBS source service dispatcher
+After=obsstoragesetup.service obsservice.service
+
+[Service]
+EnvironmentFile=/etc/sysconfig/obs-server
+ExecStart=/usr/lib/obs/server/bs_servicedispatch --logfile servicedispatch.log
+ExecStop=/usr/lib/obs/server/bs_servicedispatch --stop
+ExecReload=/usr/lib/obs/server/bs_servicedispatch --restart
+
+[Install]
+WantedBy=multi-user.target

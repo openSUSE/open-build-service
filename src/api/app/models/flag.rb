@@ -1,85 +1,78 @@
-require 'rexml/document'
-
-class Flag < ActiveRecord::Base
-  belongs_to :project, foreign_key: :db_project_id
-  belongs_to :package, foreign_key: :db_package_id
+class Flag < ApplicationRecord
+  belongs_to :project, inverse_of: :flags
+  belongs_to :package, inverse_of: :flags
 
   belongs_to :architecture
 
-  attr_accessible :repo, :status, :flag, :position, :architecture, :project, :package
+  scope :of_type, ->(type) { where(flag: type) }
 
-  def to_xml(builder)
-    raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
-    options = Hash.new
-    options['arch'] = self.architecture.name unless self.architecture.nil?
-    options['repository'] = self.repo unless self.repo.nil?
-    builder.send(status.to_s, options)
-  end
+  validates :flag, presence: true
+  validates :position, presence: true
+  validates :position, numericality: { only_integer: true }
 
-  def is_explicit_for?(in_repo, in_arch)
-    return false unless is_relevant_for?(in_repo, in_arch)
+  after_save :discard_forbidden_project_cache
+  after_destroy :discard_forbidden_project_cache
 
-    arch = architecture ? architecture.name : nil
-
-    return false if arch.nil? and !in_arch.nil?
-    return false if !arch.nil? and in_arch.nil?
-
-    return false if repo.nil? and !in_repo.nil?
-    return false if !repo.nil? and in_repo.nil?
-
-    return true
-  end
-
-  # returns true when flag is relevant for the given repo/arch combination
-  def is_relevant_for?(in_repo, in_arch)
-    arch = architecture ? architecture.name : nil
-
-    if arch.nil? and repo.nil?
-      return true
-    elsif arch.nil? and not repo.nil?
-      return true if in_repo == repo
-    elsif not arch.nil? and repo.nil?
-      return true if in_arch == arch
-    else
-      return true if in_arch == arch and in_repo == repo
-    end
-
-    return false
-  end
-
-  def specifics
-    count = 0
-    count += 1 if status == 'disable'
-    count += 2 unless architecture.nil?
-    count += 4 unless repo.nil?
-    count
-  end
-
-  def to_s
-    ret = status
-    ret += " arch=#{self.architecture.name}" unless self.architecture.nil?
-    ret += " repo=#{self.repo}" unless self.repo.nil?
-    ret
-  end
-
-  validates :flag, :presence => true
-  validates :position, :presence => true
-  validates_numericality_of :position, :only_integer => true
-
-  before_validation(:on => :create) do
-    if self.project
-      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.package
-      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
-    end
+  before_validation(on: :create) do
+    self.position = main_object.flags.maximum(:position).to_i + 1
   end
 
   validate :validate_custom_save
-  def validate_custom_save
-    errors.add(:name, "Please set either project_id or package_id.") if self.project.nil? and self.package.nil?
-    errors.add(:flag, "There needs to be a valid flag.") unless FlagHelper::TYPES.has_key?(self.flag)
-    errors.add(:status, "Status needs to be enable or disable") unless (self.status == 'enable' or self.status == 'disable')
-    errors.add(:name, "Please set either project_id or package_id.") unless self.db_project_id.nil? or self.db_package_id.nil?
+
+  validates :flag, uniqueness: { scope: [:project_id, :package_id, :architecture_id, :repo] }
+
+  def to_xml(builder)
+    raise "FlagError: No flag-status set. \n #{inspect}" if status.nil?
+    options = {}
+    options['arch'] = architecture.name unless architecture.nil?
+    options['repository'] = repo unless repo.nil?
+    builder.send(status.to_s, options)
   end
 
+  def arch
+    architecture.try(:name).to_s
+  end
+
+  private
+
+  def discard_forbidden_project_cache
+    Relationship.discard_cache if flag == 'access'
+  end
+
+  def main_object
+    package || project
+  end
+
+  def validate_custom_save
+    errors.add(:name, 'Please set either project or package') unless project.nil? ^ package.nil?
+    errors.add(:flag, 'There needs to be a valid flag') unless FlagHelper::TYPES.key?(flag)
+    errors.add(:status, 'Status needs to be enable or disable') unless status && (status.to_sym == :enable || status.to_sym == :disable)
+  end
 end
+
+# == Schema Information
+#
+# Table name: flags
+#
+#  id              :integer          not null, primary key
+#  status          :string(7)        not null
+#  repo            :string(255)
+#  project_id      :integer          indexed
+#  package_id      :integer          indexed
+#  architecture_id :integer          indexed
+#  position        :integer          not null
+#  flag            :string(14)       not null, indexed
+#
+# Indexes
+#
+#  architecture_id            (architecture_id)
+#  index_flags_on_flag        (flag)
+#  index_flags_on_package_id  (package_id)
+#  index_flags_on_project_id  (project_id)
+#
+# Foreign Keys
+#
+#  flags_ibfk_3  (architecture_id => architectures.id)
+#  flags_ibfk_4  (project_id => projects.id)
+#  flags_ibfk_5  (package_id => packages.id)
+#

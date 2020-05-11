@@ -1,0 +1,16 @@
+#!/usr/bin/perl
+
+use solv;
+my $pool = solv::Pool->new();
+my $repo = $pool->add_repo("primary");
+my $f = @ARGV ? solv::xfopen($ARGV[0]) : solv::xfopen_fd(undef, 0);
+$repo->add_rpmmd($f, undef);
+$f->close();
+for my $s (@{$pool->solvables_iter()}) {
+  my $evr = $s->{'evr'};
+  my $c = $s->lookup_checksum($solv::SOLVABLE_CHECKSUM);
+  my ($l) = $s->lookup_location();
+  next unless $c && $l;
+  print $c->hex() . " $s->{'name'} $s->{'arch'} $s->{'evr'} $l\n";
+}
+

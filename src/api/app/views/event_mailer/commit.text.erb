@@ -1,0 +1,15 @@
+Committer: <%= event['user']%>
+New Revision: <%= event['rev']%>
+
+Log:
+<%= event['comment']%>
+
+<%= event['files']%>
+
+<%= event['diff']%>
+
+To compare against the previous version:
+   osc rdiff <%= event['project']%> <%= event['package']%>
+
+Check out the package for editing:
+   osc checkout <%= event['project']%> <%= event['package']%>

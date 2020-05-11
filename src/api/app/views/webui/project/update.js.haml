@@ -1,0 +1,17 @@
+resetFormValidation();
+- if @project.errors.any?
+  - @project.errors.messages.each do |field, messages|
+    element = $("##{@project.class.name.underscore}_#{field}"); // Create strings like "project_title"
+    setFormValidation(element, "#{messages.to_sentence}");
+- else
+  :plain
+    $('.in-place-editing').animate({
+      opacity: 0.25
+    }, 400, function() {
+      scrollToInPlace();
+      $('.in-place-editing').html("#{escape_javascript(render(partial: 'webui/project/basic_info', locals: { project: @project }))}");
+      setCollapsible();
+      $('.in-place-editing').animate({ opacity: 1 }, 400, function() {
+        $('#flash').html("#{escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash))}");
+      });
+    });

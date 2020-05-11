@@ -1,0 +1,6 @@
+%p
+  Visit #{link_to(nil, package_show_url(event['project'], event['package'], only_path: false, host: @host))}
+%p
+  = event['commenter'].realname
+  wrote in package #{event['project']}/#{event['package']}:
+%div= render_as_markdown(event['comment_body'])

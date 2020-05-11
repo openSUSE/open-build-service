@@ -1,0 +1,12 @@
+.modal.fade#add-group-user-modal{ tabindex: -1, role: 'dialog', aria: { labelledby: 'add-group-user-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag(group_user_index_path(group_title: group.title)) do
+        = hidden_field_tag 'group_title', group.title
+        .modal-header
+          %h5.modal-title#add-group-user-modal-label Add Member
+        .modal-body
+          = render partial: 'webui/shared/autocomplete', locals: { html_id: 'user_login', label: 'User:',
+                                                            data: { source: autocomplete_users_path } }
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons'

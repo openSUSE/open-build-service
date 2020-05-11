@@ -1,0 +1,27 @@
+// Override Bootstrap's default colors
+$body-bg: #f6f6f6;
+$gray-100: #f8f9fa;
+$gray-200: #f0f0f0;
+$gray-300: #e9ecef;
+$gray-400: #aeaeae;
+$gray-500: #878c92;
+
+$blue: #069;
+$green: #008000;
+$pink: #708;
+$indigo: #219;
+$purple: #30a;
+$teal: #164;
+$orange: #a50;
+$yellow: #f0ad4e;
+$cyan: #007a7c;
+
+$primary: $green;
+$secondary: $blue;
+$warning: $yellow;
+$info: $cyan;
+$success: $green;
+
+$card-cap-bg: $gray-200;
+$link-hover-color: $green;
+$link-color: $blue;

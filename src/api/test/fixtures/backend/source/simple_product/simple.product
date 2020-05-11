@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
   <products>
-    <product id="simple">
-      <vendor>OBS Fuzzies</vendor>
+    <product>
+      <vendor>OBS_Fuzzies</vendor>
       <name>simple</name>
-      <baseversion>11</baseversion>
-      <patchlevel>2</patchlevel>
+      <predecessor>too_complex</predecessor>
+      <predecessor>silly_fork</predecessor>
+      <version>13.1</version>
       <release>0</release>
-      <productline>sle</productline>
       <register>
         <target>sle-11-%{_target_cpu}</target>
-        <release></release>
+        <pool>
+          <repository project="BaseDistro" name="BaseDistro_repo" medium="DVD" />
+          <repository url="http://external.url/to.some.one" />
+        </pool>
+        <updates>
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+        </updates>
       </register>
+      <shortsummary>SimpleProduct</shortsummary>
       <summary>Simple OBS Product</summary>
 
       <description>Some text
@@ -24,7 +31,7 @@ lines
       </urls>
       <buildconfig>
         <!-- This section is needed to generate the installation media -->
-        <producttheme>SLES</producttheme>
+        <producttheme>openSUSE</producttheme>
         <betaversion>Beta2</betaversion>
       </buildconfig>
 
@@ -33,8 +40,8 @@ lines
         <defaultlang>en_US</defaultlang>
           <datadir>suse</datadir>
           <descriptiondir>suse/setup/descr</descriptiondir>
-          <releasepackage name="simple-release" version="11" flag="EQ"/>
-          <distribution>SUSE_SLE</distribution>
+          <releasepackage name="simple-release" version="13.1" flag="EQ"/>
+          <distribution>openSUSE</distribution>
         </installconfig>
         <!-- All Flags needed in the running system -->
         <runtimeconfig />
@@ -48,12 +55,11 @@ lines
     <mediasets>
         <media type="cd"
                flavor="cd"
-               product="sle-obs"
                name="OBS-CD"
                sourcemedia="1"
                create_pattern="false"
                ignore_missing_meta_packages="true"
-               mediastyle="suse-sle11-sp2"
+               mediastyle="suse-13.2"
                use_required="true"
                use_suggested="false"
                use_recommended="true">
@@ -70,10 +76,12 @@ lines
                    <package name="skelcd-obs"/>
 		   <package name="patterns-obs"/>
                </metadata>
-            <productdependency relationship="requires" name="SUSE_SLES" flag="GE" version="11"/>
             <use group="obs">
+		<package name="package" relationship="requires" />
+<!--
 		<package name="obs-release" relationship="requires" />
 		<package name="obs-release-cd" relationship="requires" />
+-->
 	    </use>
         </media>
     </mediasets>

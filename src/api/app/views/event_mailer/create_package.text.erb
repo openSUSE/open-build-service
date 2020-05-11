@@ -1,0 +1,3 @@
+A new package named <%= event['package']%> was created in <%= event['project']%>
+
+<%= url_for(project: event['project'], package: event['package'], controller: 'webui/package', action: :show, only_path: false, host: @host) %>

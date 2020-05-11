@@ -26,22 +26,39 @@ use strict;
 
 use Fcntl qw(:DEFAULT :flock);
 
+sub lockopen {
+  my ($fg, $fn) = @_;
+  local *FL = $fg;
+  while (1) {
+    open(FL, '+>>', $fn) || die("$fn: $!\n");
+    flock(FL, LOCK_EX) || die("$fn: $!\n");
+    my @s = stat(FL);
+    return if @s && $s[3];
+    close FL;
+  }
+}
+
 sub decode_line {
   my ($line, $lay) = @_;
   my @line = split('\|', $line);
   s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @line;
   my @lay = @$lay;
   my $r = {};
+  my $al;
+  ($al) = splice(@lay, -2, 2) if $lay->[-1] eq '[]';
   $r->{shift @lay} = shift @line while @lay && @line;
+  $r->{$al} = [ @line ] if $al;
   return $r;
 }
 
 sub encode_line {
   my ($r, $lay) = @_;
   my @line;
-  for (@$lay) {
-    push @line, defined($r->{$_})  ? $r->{$_} : '';
-  }
+  my @lay = @$lay;
+  my $al;
+  ($al) = splice(@lay, -2, 2) if $lay->[-1] eq '[]';
+  push @line, defined($r->{$_})  ? $r->{$_} : '' for @lay;
+  push @line, @{$r->{$al} || []} if $al;
   s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge for @line; 
   return join('|', @line);
 }
@@ -236,8 +253,7 @@ sub fdb_add_i {
   if (ref($fn)) {
     *F = *$fn;
   } else {
-    open(F, '+>>', $fn) || die("$fn: $!\n");
-    flock(F, LOCK_EX) || die("$fn: $!\n");
+    lockopen(\*F, $fn);
   }
   my $num = 0;
   my $end = sysseek(F, 0, 2);
@@ -276,8 +292,7 @@ sub fdb_add_i {
 sub fdb_add_i2 {
   my ($fn, $lay, $r, $field, $mfield, $mdata) = @_;
   local *FN;
-  open(FN, '+>>', $fn) || die("$fn: $!\n");
-  flock(FN, LOCK_EX) || die("$fn: $!\n");
+  lockopen(\*FN, $fn);
   my ($d2, $r2) = fdb_getmatch(\*FN, $lay, $mfield, $mdata, 1);
   if (!defined($d2)) {
     my @s = stat(FN);
@@ -309,8 +324,7 @@ sub fdb_add_i2 {
 sub fdb_add {
   my ($fn, $lay, $r) = @_;
   local *FN;
-  open(FN, '+>>', $fn) || die("$fn: $!\n");
-  flock(FN, LOCK_EX) || die("$fn: $!\n");
+  lockopen(\*FN, $fn);
   my $d = encode_line($r, $lay)."\n";
   (syswrite(FN, $d) || 0) == length($d) || die("$fn write error: $!\n");
   close(FN) || die("$fn write error: $!\n");
@@ -321,8 +335,7 @@ sub fdb_add_multiple {
   my ($fn, $lay, @r) = @_;
   return unless @r;
   local *FN;
-  open(FN, '+>>', $fn) || die("$fn: $!\n");
-  flock(FN, LOCK_EX) || die("$fn: $!\n");
+  lockopen(\*FN, $fn);
   my $d = '';
   for my $r (@r) {
     $d .= encode_line($r, $lay)."\n";

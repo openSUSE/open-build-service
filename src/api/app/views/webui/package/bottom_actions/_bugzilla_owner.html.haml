@@ -1,0 +1,4 @@
+%li.list-inline-item
+  = link_to(bugzilla_url(bugowners_mail, "#{project_name}/#{package_name}: Bug"), class: 'nav-link') do
+    %i.fas.fa-bug.text-danger
+    Report Bug

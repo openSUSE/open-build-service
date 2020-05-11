@@ -1,4 +1,8 @@
-patchinfo_of_fred:
-  id: 874490187
-  db_package_id: 289270358
+record_0:
   issue_id: 1
+  change: kept
+  package: BaseDistro_patchinfo
+record_1:
+  issue_id: 3
+  change: kept
+  package: BaseDistro_patchinfo

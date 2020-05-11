@@ -1,0 +1,7 @@
+- @pagetitle = "Create package for #{@project}"
+
+.card.mb-3
+  = render partial: 'tabs', locals: { project: @project }
+  .card-body
+    %h3= @pagetitle
+    = render partial: 'create_package_form', locals: { project: @project }

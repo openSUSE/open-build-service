@@ -1,0 +1,65 @@
+:ruby
+  if flipper_responsive?
+    render partial: 'webui/users/notifications/responsive_ux/index_actions'
+  end
+
+.row
+  .col-md-4.col-lg-3#notifications-filter-desktop
+    .card.mb-3
+      %strong.d-block.d-md-none.p-3{ data: { toggle: 'collapse', target: '#filters' },
+                                   aria: { expanded: true, controls: 'filters' } }
+        Filtered by: #{(params[:type] || 'Inbox').humanize}
+        %i.float-right.mt-1.fa.fa-chevron-down
+
+      .card-body.collapse#filters
+        .row.list-group-flush
+          = filter_by_type_link('Unread', type: 'unread')
+          = filter_by_type_link('Read', type: 'read')
+        .row.list-group-flush.mt-5
+          %h5.ml-3 Filter
+          = filter_by_type_link('Reviews', type: 'reviews')
+          = filter_by_type_link('Comments', type: 'comments')
+          = filter_by_type_link('Requests', type: 'requests')
+        .row.list-group-flush.mt-5
+          %h5.ml-3 Projects
+          - @projects_for_filter.each_pair do |project_name, amount|
+            = filter_by_project_link(project_name, amount, project: project_name)
+  .col-md-8.col-lg-9#notifications-list
+    .card
+      .card-body
+        - if @notifications.empty?
+          %p
+            - case params[:type]
+            - when 'reviews', 'comments', 'requests'
+              There are no notifications for this filter
+            - when 'done'
+              Mark notifications as "Done" and they'll appear here
+            - else
+              There are no notifications, but there's a world of opportunities!
+        - else
+          .text-center
+            %span.ml-3= page_entries_info @notifications, entry_name: 'notification'
+            = link_to_all unless @notifications.total_pages == 1 && params['show_all'].nil?
+
+          .list-group.list-group-flush.mt-3
+            - @notifications.each do |n|
+              - notification = NotificationPresenter.new(n)
+              .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+                .content
+                  .text-nowrap
+                    %span.badge.badge-secondary= notification.notification_badge
+                    %small.text-muted= time_ago_in_words(notification.created_at)
+                  = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
+                  %p.text-muted= notification.excerpt
+                - unless params[:type] == 'read'
+                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                    = link_to(my_notification_path(id: notification),
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Read"') do
+                      %i.fas.fa-check
+                - unless notification.unread?
+                  .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                    = link_to(my_notification_path(id: notification),
+                                      method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Unread"') do
+                      %i.fas.fa-undo
+
+          = paginate @notifications, views_prefix: 'webui', window: 2

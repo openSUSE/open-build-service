@@ -1,0 +1,4 @@
+<services>
+  <service name="recompresserator" mode="buildtime">
+  </service>
+</services>

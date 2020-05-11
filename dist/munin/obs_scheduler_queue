@@ -1,0 +1,47 @@
+#!/bin/sh
+
+sched=`grep arch /srv/obs/configuration.xml |sed -e 's/<[^>]*>//g'`
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Scheduler: Scheduling Queue (high, medium, low, and next)
+graph_vlabel Number of queues
+graph_category obs
+graph_info The load average of the scheduler describes how many packages are in the ready-queue (scheduled to run "immediately").
+EOM
+for i in $sched; do
+ echo "sched_"$i"_queue_high.label" "sched_"$i"_queue_high"
+ echo "sched_"$i"_queue_high.info" "User interaction, do those ASAP."
+ echo "sched_"$i"_queue_high.type GAUGE" 
+ echo "sched_"$i"_queue_high.draw AREA" 
+ echo "sched_"$i"_queue_medium.label" "sched_"$i"_queue_medium"
+ echo "sched_"$i"_queue_medium.info" "Builds are finished here."
+ echo "sched_"$i"_queue_medium.type GAUGE" 
+ echo "sched_"$i"_queue_medium.draw AREA" 
+ echo "sched_"$i"_queue_low.label" "sched_"$i"_queue_low"
+ echo "sched_"$i"_queue_low.info" "Not so important."
+ echo "sched_"$i"_queue_low.type GAUGE" 
+ echo "sched_"$i"_queue_low.draw AREA" 
+ echo "sched_"$i"_queue_next.label" "sched_"$i"_queue_next"
+ echo "sched_"$i"_queue_next.info" "Not so important, next series."
+ echo "sched_"$i"_queue_next.type GAUGE" 
+ echo "sched_"$i"_queue_next.draw AREA" 
+done
+       exit 0;;
+esac
+
+for i in $sched; do
+ # high 
+ val=` grep 'queue' /srv/obs/info/schedulerinfo.$i | sed 's/med="[^"]"*//g' | sed 's/low="[^"]"*//g' | sed 's/next="[^"]"*//g' | sed 's/[^0-9]*//g'`
+ echo "sched_"$i"_queue_high.value $val"
+ # medium
+ val=` grep 'queue' /srv/obs/info/schedulerinfo.$i  | sed 's/high="[^"]"*//g' | sed 's/low="[^"]"*//g' | sed 's/next="[^"]"*//g' | sed 's/[^0-9]*//g'`
+ echo "sched_"$i"_queue_medium.value $val"
+ # low
+ val=` grep 'queue' /srv/obs/info/schedulerinfo.$i  | sed 's/high="[^"]"*//g' | sed 's/med="[^"]"*//g' | sed 's/next="[^"]"*//g' | sed 's/[^0-9]*//g'`
+ echo "sched_"$i"_queue_low.value $val"
+ # next
+ val=` grep 'queue' /srv/obs/info/schedulerinfo.$i  | sed 's/high="[^"]"*//g' | sed 's/med="[^"]"*//g' | sed 's/low="[^"]"*//g' | sed 's/[^0-9]*//g'`
+ echo "sched_"$i"_queue_next.value $val"
+done

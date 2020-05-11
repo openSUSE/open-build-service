@@ -1,0 +1,41 @@
+@mixin collapsible($maxHeight: 4.5em) {
+  .obs-collapsible-textbox {
+    padding-right: 1em;
+    @extend .text-break;
+    max-width: $seventy-five-chars;
+
+    .obs-collapsible-text {
+      overflow: hidden;
+      line-height: 1.5;
+      max-height: $maxHeight;
+
+      p:last-child { @extend .mb-0; }
+      &.expanded { max-height: initial; }
+    }
+
+    .show-content {
+      text-decoration: none;
+      @extend .small;
+      @extend .float-right;
+      @extend .mt-2;
+
+      &.more{
+        &:before { content: 'Show more '; }
+        i { @extend .fa-chevron-down; }
+      }
+      &.less{
+        &:before { content: 'Show less '; }
+        i { @extend .fa-chevron-up; }
+      }
+    }
+  }
+}
+
+#description-text {
+  p { @extend .mb-4; }
+  @include collapsible($maxHeight: 15em);
+}
+
+#request-history {
+  @include collapsible($maxHeight: 4.5em);
+}

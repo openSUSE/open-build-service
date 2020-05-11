@@ -40,6 +40,14 @@
       <xs:attribute name="originproject" type="xs:string"/>
       <xs:attribute name="available" type="xs:boolean"/>
       <xs:attribute name="recommended" type="xs:boolean"/>
+      <xs:attribute name="hash" type="xs:string">
+        <xs:annotation>
+          <xs:documentation>
+          a checksum for the save verification of the file. The checksum method
+          needs to be prefixed, eg sha256:......
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>
 

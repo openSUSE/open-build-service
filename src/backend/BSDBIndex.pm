@@ -104,6 +104,7 @@ sub modify {
     $usedfiles{$file} = undef;
     push @{$addbyfile{$file}}, $rel;
   }
+  delete $usedfiles{$_} for @{$db->{'blocked'} || []};
 
   # sort so we do not run into deadlocks
   my @usedfiles = sort keys %usedfiles;
@@ -134,8 +135,16 @@ sub modify {
 
     my @data;
     if (-s $usedfiles{$file}) {
-      my $data = Storable::fd_retrieve($usedfiles{$file});
-      die("retrieve file failed\n") unless $data;
+      my $data;
+      eval {
+        $data = Storable::fd_retrieve($usedfiles{$file});
+      };
+      if (!$data) {
+	my $fn = Digest::MD5::md5_hex($file);
+	my $dn = substr($fn, 0, 2);
+	$fn = substr($fn, 2);
+	die("retrieve file $dn/$fn failed: $@");
+      }
       @data = @$data;
     }
     my $oldcnt = @data;
@@ -143,7 +152,7 @@ sub modify {
     my %data = map {$_ => $_} @data;
     for my $rel (@{$rembyfile{$file} || []}) {
       if (ref($rel->[2]) eq 'CODE') {
-        @data = sort keys %data if $changes;
+	@data = sort values %data if $changes;
 	$changes += $rel->[2]->($db, $rel, \@data);
 	%data = map {$_ => $_} @data;
 	next;

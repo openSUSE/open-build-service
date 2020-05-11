@@ -1,0 +1,342 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Cabbages and Kings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Cabbages and Kings</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_config
+    body:
+      encoding: UTF-8
+      string: Sit ex consequatur id debitis illo nisi. Voluptatum dolores consequatur
+        earum sed nam. Sed provident nihil exercitationem quia. Autem molestias sit
+        sed illo.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/multibuild/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>O Pioneers!</title>
+          <description>Saepe odio impedit nihil nam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>O Pioneers!</title>
+          <description>Saepe odio impedit nihil nam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/multibuild/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>O Pioneers!</title>
+          <description>Saepe odio impedit nihil nam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="multibuild" project="project_4">
+          <title>O Pioneers!</title>
+          <description>Saepe odio impedit nihil nam.</description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '125'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>The Heart Is Deceitful Above All Things</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_config
+    body:
+      encoding: UTF-8
+      string: Labore architecto veritatis qui et et voluptatem. Quo odit qui natus
+        quis ipsa quia. Excepturi omnis incidunt ut quia dolorem impedit eius.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Violent Bear It Away</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>The Violent Bear It Away</title>
+          <description></description>
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_config
+    body:
+      encoding: UTF-8
+      string: Ut dolor magnam qui eius quis. Voluptatem rerum ratione ipsa deleniti.
+        Sit impedit dolores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Jun 2018 05:59:59 GMT
+recorded_with: VCR 4.0.0

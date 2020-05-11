@@ -1,0 +1,45 @@
+- @pagetitle = "Pulse for #{@project}"
+
+.card
+  = render(partial: 'webui/project/tabs', locals: { project: @project })
+
+  .card-body
+    .row.mb-3
+      .col-sm-12.col-md-8
+        %h3#range-header
+          = pulse_period(@range)
+      .col
+        .dropdown.float-right
+          %button.btn.btn-secondary.dropdown-toggle#period-dropdown{ 'aria-expanded': 'false',
+                                                                     'aria-haspopup': 'true',
+                                                                     'data-toggle': 'dropdown',
+                                                                     type: 'button' }
+            Period: One
+            %span#range-text
+              = @range.capitalize
+          .dropdown-menu{ 'aria-labelledby': 'dropdownMenuButton' }
+            %h6.dropdown-header
+              Period to display:
+            = link_to(project_pulse_path(@project), remote: true, type: :json, class: 'dropdown-item') do
+              One Week
+            = link_to(project_pulse_path(@project, range: 'month'), remote: true, type: :json, class: 'dropdown-item') do
+              One Month
+    .row
+      .col.spinner
+        .row
+          .col.text-center
+            %i.fas.fa-spinner.fa-spin.fa-3x
+      .col.d-none#pulse
+
+:javascript
+  $.ajax({
+    url: "#{project_pulse_path(@project, range: @range)}",
+    type: "get",
+    dataType: 'script'
+  });
+
+  $(".dropdown-item").click(function() {
+    $('#pulse, .col.spinner').toggleClass('d-none');
+    // FIXME: No idea why this is needed, maybe remote links are not covered by bootstrap?
+    $('#period-dropdown').dropdown('toggle')
+  });

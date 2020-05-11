@@ -1,0 +1,46 @@
+- write_access = policy(group).update?
+
+- if write_access
+  %ul.list-inline
+    %li.list-inline-item
+      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
+        %i.fas.fa-plus-circle.text-primary
+        Add Member
+  = render partial: 'add_group_user_modal', locals: { group: group }
+
+- if group.users.blank?
+  %p
+    This group does not have members.
+- else
+  #group-users
+    .d-flex.flex-wrap
+      - group.users.each do |user|
+        .card.m-1.p-2.group-user
+          - if write_access
+            = link_to(group_user_path(group_title: group.title, user_login: user.login), data: { method: :delete, remote: true },
+              id: user.login, class: 'group-member-removal text-right', title: 'Remove member from group') do
+              %i.fas.fa-sm.fa-times-circle.text-danger
+          .row.no-gutters
+            .col-md-3
+              = image_tag_for(user, size: 80, custom_class: 'align-self-center')
+            .col-md-9
+              .card-body.py-1
+                = link_to(user_path(user)) do
+                  = display_name(user)
+
+                .custom-control.custom-checkbox.mt-2
+                  = check_box_tag("maintainer_#{user.login}", true, group.maintainer?(user), class: 'custom-control-input group-maintainership',
+                    name: :maintainer, disabled: !write_access, data: { method: :patch,
+                    url: group_user_path(group_title: group.title, user_login: user.login), remote: true })
+                  %label.custom-control-label{ for: "maintainer_#{user.login}" }
+                    Maintainer
+                  %i.fas.fa-spinner.fa-spin.d-none
+
+- content_for :ready_function do
+  :plain
+    $('#group-users').on('ajax:before ajax:complete', '.group-maintainership', function() {
+      $(this).siblings('i.fa-spinner').toggleClass('d-none');
+    });
+    $('#group-users').on('ajax:success', '.group-member-removal', function() {
+      $(this).parents('.group-user').remove();
+    });

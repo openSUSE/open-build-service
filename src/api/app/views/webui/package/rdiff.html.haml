@@ -1,0 +1,53 @@
+- @pagetitle = "Changes of Revision #{@rev}"
+
+- if @not_full_diff && User.session
+  - path_variables = { project: @project, package: @package, linkrev: @linkrev, rev: @rev, full_diff: true }
+  - if @opackage
+    - path_variables[:oproject] = @oproject
+    - path_variables[:opackage] = @opackage
+
+  = render partial: 'webui/shared/truncated_diff_hint', locals: { path: package_rdiff_path(path_variables) }
+
+.card
+  = render partial: 'tabs', locals: { project: @project, package: @package }
+  .card-body
+    .row.mb-4
+      .col-12
+        - if @filenames.present?
+          .btn-group.float-right
+            %button.btn.btn-sm.btn-outline-secondary.expand-diffs{ data: { package: @package } }
+              Expand all
+            %button.btn.btn-sm.btn-outline-secondary.collapse-diffs{ data: { package: @package } }
+              Collapse all
+        - if @opackage
+          %h3
+            Difference Between Revision #{@rev}
+            and #{project_or_package_link project: @oproject.name, package: @opackage.name, short: true}
+        - else
+          %h3
+            Changes of Revision #{@rev}
+    .row
+      .col-sm-12
+        - if @filenames.present?
+          - @filenames.each_with_index do |filename, index|
+            - revision = calculate_revision_on_state(@rev, @files[filename]['state'])
+            .mb-2
+              = render partial: 'revision_diff_detail',
+              locals: { file_view_path: package_view_file_path(project: @project, package: @package, rev: revision, filename: filename),
+                filename: filename,
+                file: @files[filename],
+                index: index,
+                last: @filenames.last == filename,
+                package: @package }
+        - else
+          .mb-2
+            %p.lead No source changes.
+        = render partial: 'revision_diff_footer',
+        locals: { project: @project,
+          package: @package,
+          request: @last_req,
+          submit_message: @submit_message,
+          target_project: @submit_url_opts[:target_project],
+          target_package: @submit_url_opts[:targetpackage],
+          revision: @rev,
+          show_link: User.session && @filenames.present? }

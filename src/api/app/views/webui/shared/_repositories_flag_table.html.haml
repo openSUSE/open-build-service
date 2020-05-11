@@ -1,0 +1,22 @@
+.table-responsive
+  %table.table.table-hover.table-sm{ id: table_id }
+    %thead.thead-light
+      %tr
+        %th.w-auto Repository
+        %th.w-auto.text-center All
+        - architectures.each do |architecture|
+          %th.w-auto.text-center= architecture.name
+    %tbody
+      - ([nil] + project.repositories).each do |repository|
+        %tr
+          %td.reponame.text-word-break-all
+            - repository_name = repository.try(&:name)
+            - if repository.nil?
+              All
+            - elsif package
+              = link_to(repository_name, package_binaries_path(project: project, package: package, repository: repository_name))
+            - else
+              = link_to(repository_name, action: :state, project: project, repository: repository_name)
+          - ([nil] + architectures).each do |architecture|
+            %td.text-center{ class: architecture && repository ? nil : 'all_flag' }
+              = flag_column(flags, repository_name, architecture.try(&:name))

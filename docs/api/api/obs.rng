@@ -11,11 +11,11 @@
       <value>noarch</value>
 
       <value>aarch64</value>
+      <value>aarch64_ilp32</value>
 
       <value>armv4l</value>
       <value>armv5l</value>
       <value>armv6l</value>
-      <value>armv7l</value>
       <value>armv7l</value>
       <value>armv5el</value> <!-- not existing officially -->
       <value>armv6el</value>
@@ -25,6 +25,8 @@
 
       <value>hppa</value>
 
+      <value>m68k</value>
+
       <value>i386</value>
       <value>i486</value>
       <value>i586</value>
@@ -32,6 +34,8 @@
       <value>athlon</value>
 
       <value>ia64</value>
+
+      <value>k1om</value>
 
       <value>mips</value>
       <value>mipsel</value>
@@ -41,6 +45,10 @@
 
       <value>ppc</value>
       <value>ppc64</value>
+      <value>ppc64p7</value>
+      <value>ppc64le</value>
+
+      <value>riscv64</value>
 
       <value>s390</value>
       <value>s390x</value>
@@ -82,6 +90,7 @@
       <value>trylocal</value>      <!-- try on local clients and merge result, but run also on server side -->
       <value>localonly</value>     <!-- never run on server side, but on the clients (not enforced) -->
       <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
+      <value>buildtime</value>     <!-- run during build time, pulls in services as build dependencies -->
       <value>disabled</value>      <!-- never run, except user explicit starts it locally -->
     </choice>
   </define>
@@ -96,10 +105,20 @@
 
   <define ns="" name="release-triggers">
     <choice>
-      <value>manual</value>        <!-- DEFAULT: only on manual commands the release gets started -->
-      <value>finished</value>      <!-- Release when the repository has finished building -->
-      <value>allsucceeded</value>  <!-- Release when the repository has finished building and all jobs were successfull -->
+                                   <!-- DEFAULT: not set, no release action possible -->
+      <value>manual</value>        <!-- only on manual commands the release gets started -->
+ <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successfull -->
       <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute get removed at the same time -->
+    </choice>
+  </define>
+
+  <define ns="" name="supportstatus-choices">
+    <choice>
+      <value>l3</value>
+      <value>l2</value>
+      <value>l1</value>
+      <value>acc</value>
+      <value>unsupported</value>
     </choice>
   </define>
 
@@ -155,9 +174,6 @@
         <ref name="build-arch" />
       </attribute>
     </optional>
-    <optional>
-      <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-    </optional>
   </define>
 
   <define ns="" name="flag-element">
@@ -179,17 +195,11 @@
   <define ns="" name="simple-flag-element">
     <optional>
       <element name="enable">
-        <optional>
-          <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-        </optional>
         <empty/>
       </element>
     </optional>
     <optional>
       <element name="disable">
-        <optional>
-          <attribute name="explicit"/> <!-- this is not part of meta data, just visible when expanding via view=flagdetails -->
-        </optional>
         <empty/>
       </element>
     </optional>
@@ -217,7 +227,43 @@
         </attribute>
       </optional>
       <interleave>
-        <optional> <!-- limited to one currently. Could be extended later -->
+        <zeroOrMore>
+          <element name="download">
+            <attribute name="arch">
+              <data type="string" />
+            </attribute>
+            <attribute name="url">
+              <data type="string" />
+            </attribute>
+            <attribute name="repotype">
+              <data type="string" />
+            </attribute>
+            <interleave>
+              <optional>
+                <element name="archfilter">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="master">
+                  <attribute name="url">
+                    <data type="string" />
+                  </attribute>
+                  <attribute name="sslfingerprint">
+                    <data type="string" />
+                  </attribute>
+                </element>
+              </optional>
+              <optional>
+                <element name="pubkey">
+                  <text/>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+        </zeroOrMore>
+
+        <zeroOrMore>
             <element name="releasetarget">
               <attribute name="project">
                 <data type="string" />
@@ -231,7 +277,7 @@
                 </attribute>
               </optional>
             </element>
-        </optional>
+        </zeroOrMore>
         <zeroOrMore>
             <element name="path">
               <attribute name="repository">
@@ -321,15 +367,6 @@
     </choice>
   </define>
 
-  <define ns="" name="cpu-flags">
-    <choice>
-      <value>fpu</value>
-      <value>mmx</value>
-      <value>sse</value>
-      <value>sse2</value>
-    </choice>
-  </define>
-
   <define ns="" name="size-unit">
     <element name="size">
       <attribute name="unit">
@@ -342,6 +379,16 @@
       </attribute>
       <data type="float"/>
     </element>
+  </define>
+
+  <!-- OBS rating values, used in patchinfos and requests -->
+  <define ns="" name="obs-ratings">
+    <choice>
+      <value>low</value>       <!-- work on it when nothing else needs to be done -->
+      <value>moderate</value>  <!-- default: normal priority -->
+      <value>important</value> <!-- prefer this over the others, but finish your current task first -->
+      <value>critical</value>  <!-- everything and work only on this -->
+    </choice>
   </define>
 
 </grammar>

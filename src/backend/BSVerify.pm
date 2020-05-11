@@ -24,12 +24,13 @@ package BSVerify;
 
 use strict;
 
-# keep in sync with src/api/app/model/project.rb
+# NOTE: Keep in sync with src/api/app/models/project.rb
 sub verify_projid {
   my $projid = $_[0];
   die("projid is empty\n") unless defined($projid) && $projid ne '';
   die("projid '$projid' is illegal\n") if $projid =~ /[\/\000-\037]/;
   die("projid '$projid' is illegal\n") if ":$projid:" =~ /:[_\.:]/;
+  die("projid '$projid' is illegal\n") unless $projid;
   die("projid '$projid' is too long\n") if length($projid) > 200;
 }
 
@@ -38,15 +39,25 @@ sub verify_projkind {
   die("projkind '$projkind' is illegal\n") if $projkind ne 'standard' && $projkind ne 'maintenance' && $projkind ne 'maintenance_incident' && $projkind ne 'maintenance_release'
 }
 
-# keep in sync with src/api/app/model/package.rb
+# NOTE: this method is used for source and build container names
 sub verify_packid {
   my $packid = $_[0];
   die("packid is empty\n") unless defined($packid) && $packid ne '';
-  $packid =~ s/^_product://s;
-  $packid =~ s/^_patchinfo://s;
-  die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
-  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/ && $packid ne '_product' && $packid ne '_pattern' && $packid ne '_project' && $packid ne '_patchinfo';
   die("packid '$packid' is too long\n") if length($packid) > 200;
+  if ($packid =~ /(?<!^_product)(?<!^_patchinfo):./) {
+    # multibuild case: first part must be a vaild package, second part simple label
+    die("packid '$packid' is illegal\n") unless $packid =~ /\A([^:]+):([^:]+)\z/s;
+    my ($p1, $p2) = ($1, $2);
+    die("packid '$packid' is illegal\n") if $p1 eq '_project' || $p1 eq '_pattern';
+    verify_packid($p1);
+    die("packid '$packid' is illegal\n") unless $p2 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+    return;
+  }
+  return if $packid =~ /\A(?:_product|_pattern|_project|_patchinfo)\z/;
+  return if $packid =~ /\A(?:_product:|_patchinfo:)[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+  die("packid '$packid' is illegal\n") if $packid =~ /[\/:\000-\037]/;
+  die("packid '$packid' is illegal\n") if $packid =~ /^[_\.]/;
+  die("packid '$packid' is illegal\n") unless $packid;
 }
 
 sub verify_repoid {
@@ -54,6 +65,7 @@ sub verify_repoid {
   die("repoid is empty\n") unless defined($repoid) && $repoid ne '';
   die("repoid '$repoid' is illegal\n") if $repoid =~ /[\/:\000-\037]/;
   die("repoid '$repoid' is illegal\n") if $repoid =~ /^[_\.]/;
+  die("repoid '$repoid' is illegal\n") unless $repoid;
   die("repoid '$repoid' is too long\n") if length($repoid) > 200;
 }
 
@@ -68,6 +80,7 @@ sub verify_arch {
   my $arch = $_[0];
   die("arch is empty\n") unless defined($arch) && $arch ne '';
   die("arch '$arch' is illegal\n") if $arch =~ /[\/:\.\000-\037]/;
+  die("arch '$arch' is illegal\n") unless $arch;
   die("arch '$arch' is too long\n") if length($arch) > 200;
   verify_simple($arch);
 }
@@ -76,36 +89,34 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
+sub verify_packid_repositorybuild {
+  my ($packid) = $_[0];
+  if ($packid =~ /\A_repository:([^:]+)\z/s) {
+    my $p2 = $1;
+    die("packid '$packid' is illegal\n") unless $p2 =~ /\A[^_\.\/:\000-\037][^\/:\000-\037]*\z/;
+    return;
+  }
+  verify_packid_repository($packid);
+}
+
+sub verify_service {
+  my $p = $_[0];
+  verify_filename($p->{'name'}) if defined($p->{'name'});
+  for my $param (@{$p->{'param'} || []}) {
+    verify_filename($param->{'name'});
+  }
+}
+
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];
   verify_filename($p->{'name'}) if defined($p->{'name'});
-  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature};
+  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature ptf};
   die("Invalid category defined in _patchinfo\n") if defined($p->{'category'}) && !$allowed_categories{$p->{'category'}};
   for my $rt (@{$p->{'releasetarget'} || []}) {
     verify_projid($rt->{'project'});
     verify_repoid($rt->{'repository'}) if defined $rt->{'repository'};
   }
-}
-
-sub verify_patchinfo_complete {
-  # This verifies all necessary content to create a patchinfo repo
-  my $p = $_[0];
-  verify_patchinfo( $p );
-#  die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
-#  for my $id (@{$p->{'bugzilla'}}){
-#    die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
-#  }
-  die("No summary defined in _patchinfo") unless $p->{'summary'};
-  die("No description defined in _patchinfo") unless $p->{'description'};
-  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature};
-  die("No category defined in _patchinfo") unless $p->{'category'};
-  die("Invalid category defined in _patchinfo") unless !$allowed_categories{$p->{'category'}};
-  for my $binary (@{$p->{'binary'}||[]}) {
-    verify_filename($binary);
-  }
-
-  # checks of optional content to be added here
 }
 
 sub verify_simple {
@@ -120,9 +131,22 @@ sub verify_filename {
   die("filename '$filename' is illegal\n") if $filename =~ /^\./;
 }
 
+sub verify_url {
+  my $url = $_[0];
+  die("url is empty\n") unless defined($url) && $url ne '';
+  die("illegal characters in url\n") if $url =~ /[^\041-\176\200-\377]/s;
+  die("url does not start with a scheme\n") if $url !~ /^[a-zA-Z]+:/s;
+}
+
 sub verify_md5 {
   my $md5 = $_[0];
   die("not a md5 sum\n") unless $md5 && $md5 =~ /^[0-9a-f]{32}$/s;
+}
+
+# can be a md5sum or a git id
+sub verify_srcmd5 {
+  my $srcmd5 = $_[0];
+  die("not a srcmd5 sum\n") unless $srcmd5 && ($srcmd5 =~ /^[0-9a-f]{32}$/s || $srcmd5 =~ /^[0-9a-f]{40}$/s);
 }
 
 sub verify_rev {
@@ -182,7 +206,27 @@ sub verify_prpa {
 
 sub verify_resultview {
   my $view = $_[0];
-  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats';
+  die("unknown view parameter: '$view'\n") if $view ne 'summary' && $view ne 'status' && $view ne 'binarylist' && $view ne 'stats' && $view ne 'versrel';
+}
+
+sub verify_workerid {
+}
+
+sub verify_regrepo {
+  my ($repo) = @_;
+  die("bad repo name '$repo'\n") if !defined($repo) || $repo eq '';
+  die("bad repo name '$repo'\n") if $repo =~ /^[:\.]/s;
+  die("bad repo name '$repo'\n") if "/$repo/" =~ /\/\//;
+  for my $p (split('/', $repo)) {
+    die("component '$p' is illegal\n") if $p =~ /[\/\000-\037]/s;
+    die("component '$p' is illegal\n") if $p =~ /^[:\.]/s;
+  }
+}
+
+sub verify_regtag {
+  my ($tag) = @_;
+  die("illegal characters in tag '$tag'\n") if $tag =~ /[^\-+=\.,0-9%{}\@#%A-Z_a-z~\200-\377]/s;
+  die("illegal tag '$tag'\n") if $tag =~ /^\./;
 }
 
 sub verify_disableenable {
@@ -190,6 +234,36 @@ sub verify_disableenable {
   for my $d (@{$disen->{'disable'} || []}, @{$disen->{'enable'} || []}) {
     verify_repoid($d->{'repository'}) if exists $d->{'repository'};
     verify_arch($d->{'arch'}) if exists $d->{'arch'};
+  }
+}
+
+sub verify_repo {
+  my ($repo) = @_;
+  verify_repoid($repo->{'name'});
+  for my $r (@{$repo->{'path'} || []}) {
+    verify_projid($r->{'project'});
+    verify_repoid($r->{'repository'});
+  }
+  for my $a (@{$repo->{'arch'} || []}) {
+    verify_arch($a);
+  }
+  for my $rt (@{$repo->{'releasetarget'} || []}) {
+    verify_projid($rt->{'project'});
+    verify_repoid($rt->{'repository'});
+  }
+  my %archs = map {$_ => 1} @{$repo->{'arch'} || []};
+  for my $dod (@{$repo->{'download'} || []}) {
+    verify_dod($dod);
+    die("dod arch $dod->{'arch'} not in repo\n") unless $archs{$dod->{'arch'}};
+    die("dod arch $dod->{'arch'} listed more than once\n") if $archs{$dod->{'arch'}}++ > 1;
+  }
+  if ($repo->{'base'}) {
+    die("repo contains a 'base' element\n");
+  }
+  # what is this?
+  if ($repo->{'hostsystem'}) {
+    verify_projid($repo->{'hostsystem'}->{'project'});
+    verify_repoid($repo->{'hostsystem'}->{'repository'});
   }
 }
 
@@ -208,33 +282,26 @@ sub verify_proj {
   }
   my %got;
   for my $repo (@{$proj->{'repository'} || []}) {
-    verify_repoid($repo->{'name'});
+    verify_repo($repo);
     die("repository $repo->{'name'} listed more than once\n") if $got{$repo->{'name'}};
     $got{$repo->{'name'}} = 1;
-    for my $r (@{$repo->{'path'} || []}) {
-      verify_projid($r->{'project'});
-      verify_repoid($r->{'repository'});
-    }
-    for my $a (@{$repo->{'arch'} || []}) {
-      verify_arch($a);
-    }
-    for my $rt (@{$repo->{'releasetarget'} || []}) {
-      verify_projid($rt->{'project'});
-      verify_repoid($rt->{'repository'});
-    }
   }
   for my $link (@{$proj->{'link'} || []}) {
     verify_projid($link->{'project'});
+    if (exists($link->{'vrevmode'})) {
+      die("bad vrevmode attribute: $link->{'vrevmode'}\n") unless $link->{'vrevmode'} && ($link->{'vrevmode'} eq 'extend' || $link->{'vrevmode'} eq 'unextend');
+    }
   }
-  for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
+  for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
-  die('project must not have mountproject\n') if exists $proj->{'mountproject'};
+  die("project must not have a mountproject\n") if exists $proj->{'mountproject'};
   if ($proj->{'maintenance'}) {
     for my $m (@{$proj->{'maintenance'}->{'maintains'} || []}) {
       verify_projid($m->{'project'});
     }
   }
+  die("project must not have a 'config' element\n") if exists $proj->{'config'};
 }
 
 sub verify_pack {
@@ -242,9 +309,10 @@ sub verify_pack {
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
+  verify_projid($pack->{'project'}) if exists $pack->{'project'};
   verify_packid($pack->{'name'});
   verify_disableenable($pack);	# obsolete
-  for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
+  for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
   }
   if ($pack->{'devel'}) {
@@ -294,6 +362,7 @@ sub verify_aggregatelist {
       die("'nosources' element must be empty\n") if $a->{'nosources'} ne '';
     }
     for my $p (@{$a->{'package'} || []}) {
+      next if ($p || '') eq '_repository';
       verify_packid($p);
     }
     for my $b (@{$a->{'binary'} || []}) {
@@ -303,6 +372,26 @@ sub verify_aggregatelist {
       verify_repoid($r->{'source'}) if exists $r->{'source'};
       verify_repoid($r->{'target'}) if exists $r->{'target'};
     }
+  }
+}
+
+sub verify_channel {
+  my ($channel) = @_;
+  for my $binaries (@{$channel->{'binaries'} || []}) {
+    verify_projid($binaries->{'project'}) if defined $binaries->{'project'};
+    verify_arch($binaries->{'arch'}) if defined $binaries->{'arch'};
+    for my $binary (@{$binaries->{'binary'} || []}) {
+      verify_filename($binary->{'name'});
+      verify_arch($binaries->{'binaryarch'}) if defined $binary->{'binaryarch'};
+      verify_projid($binary->{'project'}) if defined $binary->{'project'};
+      verify_packid($binary->{'package'}) if defined $binary->{'package'};
+      verify_packid($binary->{'arch'}) if defined $binary->{'arch'};
+    }
+  }
+  for my $rt (@{$channel->{'target'} || []}) {
+    die("bad target specification\n") unless $rt->{'project'} || $rt->{'repository'};
+    verify_projid($rt->{'project'}) if $rt->{'project'};
+    verify_repoid($rt->{'repository'}) if $rt->{'repository'};
   }
 }
 
@@ -401,33 +490,76 @@ sub verify_nevraquery {
 }
 
 sub verify_attribute {
-  my $attribute = $_;
-  die("no namespace defined\n") unless $attribute->{'namespace'};
-  die("no name defined\n") unless $attribute->{'name'};
+  my ($attribute) = @_;
+  die("no namespace defined\n") unless defined $attribute->{'namespace'};
+  die("no name defined\n") unless defined $attribute->{'name'};
   verify_simple($attribute->{'namespace'});
   verify_simple($attribute->{'name'});
-  verify_simple($attribute->{'binary'}) if $attribute->{'binary'};
-  for my $value (@{$attribute->{'value'} || []}) {
-    verify_simple($value);
-  }
+  verify_simple($attribute->{'binary'}) if exists $attribute->{'binary'};
 }
 
 sub verify_attributes {
-  my $attributes = $_;
-  for my $attribute (@{$attributes || []}) {
+  my ($attributes) = @_;
+  for my $attribute (@{$attributes->{'attribute'} || []}) {
     verify_attribute($attribute);
   }
 }
 
-our $verifyers = {
+sub verify_frozenlinks {
+  my ($frozenlinks) = @_;
+  my %seen;
+  for my $fp (@{$frozenlinks->{'frozenlink'} || []}) {
+    my $xp = exists($fp->{'project'}) ? $fp->{'project'} : '/all';
+    verify_projid($fp->{'project'}) if exists $fp->{'project'};
+    die("project listed multiple times in frozenlinks\n") if $seen{$xp} || $seen{'/all'};
+    $seen{$xp} = 1;
+    for my $p (@{$fp->{'package'} || []}) {
+      verify_packid($p->{'name'});
+      verify_srcmd5($p->{'srcmd5'});
+      verify_simple($p->{'vrev'}) if defined $p->{'vrev'};
+    }
+  }
+}
+
+sub verify_dod {
+  my ($dod) = @_;
+  verify_arch($dod->{'arch'});
+  verify_simple($dod->{'repotype'});
+  verify_url($dod->{'url'});
+  my $master = $dod->{'master'};
+  if ($master) {
+    verify_url($master->{'url'}) if defined $master->{'url'};
+    verify_simple($master->{'sslfingerprint'}) if defined $master->{'sslfingerprint'};
+  }
+}
+
+sub verify_multibuild {
+  my ($mb) = @_;
+  die("multibuild cannot have both package and flavor elements\n") if $mb->{'package'} && $mb->{'flavor'};
+  for my $packid (@{$mb->{'package'} || []}) {
+    verify_packid($packid);
+    die("packid $packid is illegal in multibuild\n") if $packid =~ /:/;
+  }
+  for my $packid (@{$mb->{'flavor'} || []}) {
+    verify_packid($packid);
+    die("flavor $packid is illegal in multibuild\n") if $packid =~ /:/;
+  }
+}
+
+sub verify_module {
+}
+
+our $verifiers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,
   'repository' => \&verify_repoid,
   'arch' => \&verify_arch,
   'job' => \&verify_jobid,
   'package_repository' => \&verify_packid_repository,
+  'package_repositorybuild' => \&verify_packid_repositorybuild,
   'filename' => \&verify_filename,
   'md5' => \&verify_md5,
+  'srcmd5' => \&verify_srcmd5,
   'rev' => \&verify_rev,
   'linkrev' => \&verify_linkrev,
   'bool' => \&verify_bool,
@@ -437,6 +569,11 @@ our $verifyers = {
   'prp' => \&verify_prp,
   'prpa' => \&verify_prpa,
   'resultview' => \&verify_resultview,
+  'jobid' => \&verify_md5,
+  'workerid' => \&verify_workerid,
+  'regrepo' => \&verify_regrepo,
+  'regtag' => \&verify_regtag,
+  'module' => \&verify_module,
 };
 
 1;

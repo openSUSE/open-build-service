@@ -1,0 +1,9 @@
+BaseDistro:
+  project: BaseDistro
+  maintenance_project: My_Maintenance
+BaseDistro2.0_LinkedUpdateProject:
+  project: BaseDistro2.0_LinkedUpdateProject
+  maintenance_project: My_Maintenance
+BaseDistro3:
+  project: BaseDistro3
+  maintenance_project: My_Maintenance

@@ -1,0 +1,12 @@
+%p
+  %strong Repository:
+  = repository
+  %strong Architecture:
+  = architecture
+%p
+  %strong Worker:
+  = worker_id
+  %strong Buildtime:
+  = distance_of_time_in_words(build_time || 0)
+  = "(#{percent}%)" if percent
+

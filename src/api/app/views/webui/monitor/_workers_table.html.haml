@@ -1,0 +1,46 @@
+%form.form-inline.float-sm-right{ action: '/' }
+  %label.mr-2 Show:
+  - worker_display_options = [['Package name', 'package'], ['Project', 'project'], ['Repository', 'repository'], ['Architecture', 'arch']]
+  = select_tag(:worker_display, options_for_select(worker_display_options, 'package'), id: 'worker-display', class: 'custom-select')
+
+%h2.nowrap#workers-title
+  Workers
+  %span.hidden#workers-updating (updating...)
+
+#workers{ data: { monitor_path: monitor_update_building_path,
+                  build_log_path: "#{package_live_build_log_path(project: 'PROJECT', package: 'PACKAGE', arch: 'ARCH', repository: 'REPOSITORY')}" } }
+  %p
+    This shows the single workers and their jobs. The
+    %em progress
+    shown (and color) is not for the time it will take (we don't know that before),
+    but just relative against each other. The exact percentage shown has no real meaning,
+    just one thing is certain: the bar reaches its maximum at 4h.
+  %p
+    The monitor is meant to entertain and not to be exact, if you need to know more details, check the #{link_to 'detailed page', action: :old}.
+- if workers_sorted.empty?
+  %p
+    %i No workers
+- else
+  .d-flex.flex-wrap
+    - workers_sorted.each do |name, hash|
+      %ul.monitorboxrow.list-unstyled.overflow-hidden.m-3
+        %li.builderbox.float-left
+          %span.font-weight-bold #{name} (#{hash['_arch']})
+          - hash.each do |subid, id|
+            - if subid != '_arch'
+              .monitorpb.position-relative.mt-1{ id: "p#{id}" }
+                .progress
+                  .progress-bar.progress-bar-striped{ 'aria-valuemax' => '100', 'aria-valuemin' => '0',
+                                                      'role' => 'progressbar' }
+
+                    = link_to('', '#', rel: 'nofollow', class: 'monitorpb_text position-absolute no-wrap')
+
+- content_for :ready_function do
+  :plain
+    updateProgressBar();
+
+    setInterval("updateProgressBar()", 100000 );
+
+    $("#worker-display").change(function(logfileinfo) {
+      updateProgressBar();
+    });

@@ -1,0 +1,4 @@
+@subject: [obs update] Project Config of <%= event['project']%> updated
+The project config of project <%= event['project']%> was updated.
+
+<%= url_for(project: event['project'], controller: 'webui/project', action: :show, only_path: false, host: @host) %>

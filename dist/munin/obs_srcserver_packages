@@ -1,0 +1,18 @@
+#!/bin/sh
+
+case $1 in
+  config)
+       cat <<'EOM'
+graph_title OBS Source Server: The number of packages
+graph_vlabel Source packages
+graph_category obs
+graph_order numpackages
+numpackages.label obs_src_server_number_of_packages
+numpackages.info The number of source packages in obs source server
+numpackages.type GAUGE
+EOM
+       exit 0;;
+esac
+
+num_numpackages=`ls /srv/obs/sources/ | wc -l`
+echo "numpackages.value " $num_numpackages

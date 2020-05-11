@@ -1,0 +1,105 @@
+.rpmlint-result {
+  font-size: .95em;
+  max-height: 35rem;
+}
+
+.custom-label {
+  cursor: pointer;
+  color: $link-color;
+}
+
+#buildresult-box {
+  .nav-link {
+    .fa-sync-alt { @extend .invisible; }
+
+    &.active {
+      .fa-sync-alt { @extend .visible; }
+    }
+  }
+}
+
+.repository-state {
+  @extend .pl-1;
+  @extend .pl-sm-3;
+  @extend .text-nowrap;
+  flex-basis: 38%;
+}
+
+.build-state {
+  @extend .pl-1;
+  @extend .pl-sm-2;
+  flex-basis: 62%;
+}
+
+.build-results {
+  a[data-toggle="collapse"] { width: 1.875rem; }
+}
+
+.build-state-succeeded {
+  color: $green;
+}
+
+.build-state-building {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $blue;
+}
+
+.build-state-scheduled {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $cyan;
+}
+
+.build-state-signing, .build-state-finished {
+  color: black;
+  @extend .px-1;
+  background-color: $yellow;
+}
+
+.build-state-unresolvable, .build-state-broken, .build-state-failed {
+  color: $red;
+  &:hover {
+    color: $red;
+  }
+}
+
+.build-state-disabled {
+  color: $gray-600;
+}
+
+.build-state-blocked {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $gray-600;
+}
+
+.build-state-scheduled-warning {
+  @extend .text-white;
+  @extend .px-1;
+  background-color: $orange;
+}
+
+.build-state-unknown {
+  color: $orange;
+}
+
+.repository-state-default {
+  @extend .text-black-50;
+}
+
+.repository-state-outdated {
+  @extend .text-gray-400;
+}
+
+.repository-state-broken {
+  @extend .text-danger;
+}
+
+.repository-state-building, .repository-state-finished, .repository-state-publishing {
+  color: $gray-600;
+}
+
+.repository-state-published {
+  @extend .text-success;
+}

@@ -1,0 +1,65 @@
+#
+# Open Build Service 2.11
+#
+
+WARNING:
+WARNING: This is a development release, not for production usage!
+WARNING:
+
+
+
+
+Please read the README.SETUP file for initial installation
+instructions or use the OBS Appliance from
+
+  http://openbuildservice.org/download/
+
+There is also an install medium which installs OBS on hard disk now.
+
+dist/README.UPDATERS file has information for updaters.
+
+OBS Appliance users who have setup their LVM can just replace
+their appliance image without data loss. The migration will
+happen automatically.
+
+
+Features
+========
+
+Generic:
+ * Search was improved: New and updated projects/packages are indexed directly instead
+   of once every hour. As configuration files for Thinking Sphinx were changed, running
+   a 'ts:rebuild' task is needed after deployment, as user wwwrun:
+   'chroot --userspec=wwwrun:www / /bin/bash -c "cd /srv/www/obs/api/ && /usr/bin/bundle.ruby2.5 exec rails ts:rebuild RAILS_ENV=production"'
+
+User Interface:
+ * Colors were adjusted to improve contrast thus improving readability
+ * The diff box from requests are now being rendered with ruby and coderay instead of CodeMirror
+
+Backend & build support:
+ *
+
+Bugfixes:
+ *
+
+
+Intentional changes:
+====================
+
+Backend:
+ * .sha256 files get gpg signed in detached mode now
+ * Switched from OR to AND when checking CPU flags in _constraints file
+
+Webui:
+  Features enabled by default:
+    * Image Template
+    * Kiwi Image Editor
+    * Cloud upload for EC2
+    * Cloud upload for Azure
+
+ * Removed the following routes:
+
+    - /home/my_work
+    - /home/home_project
+    - /home/list_my
+

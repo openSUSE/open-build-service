@@ -1,0 +1,19 @@
+- @pagetitle = "Detailed Information About #{@filename}"
+- @metarobots = 'noindex' # files change too often
+
+.card
+  = render partial: 'tabs', locals: { package: @package, project: @project }
+
+  .card-body
+    %h3
+      = @pagetitle
+      - if @durl
+        = link_to(@durl, title: 'Download') do
+          %i.fas.fa-download.text-secondary
+
+    = render partial: 'fileinfo', locals: { fileinfo: @fileinfo,
+                                            filename: @filename,
+                                            project: @project,
+                                            package: @package,
+                                            repository: @repository,
+                                            architecture: @arch }

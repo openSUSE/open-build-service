@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+#  Bash TAP Bootstrap:
+#    Copy this file into your project tests dir and source it
+#    from each test file with:
+#      . $(dirname $0)/bash-tap-bootstrap
+#    It takes care of finding bash-tap or outputing a usage message.
+#
+
+bash_tap_bootstrap_version='1.0.2'
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    # Being run directly, probably by test harness running entire dir.
+    echo "1..0 # SKIP bash-tap-bootstrap isn't a test file"
+    exit 0
+fi
+
+if [ -z "$BASH_TAP_ROOT" ]; then
+    #  TODO: search likely locations.
+    BASH_TAP_ROOT="$(dirname ${BASH_SOURCE[0]})/../../bash-tap"
+fi
+
+if [ -f "$BASH_TAP_ROOT/bash-tap" ]; then
+    . "$BASH_TAP_ROOT/bash-tap"
+else
+    echo "Bail out!  Unable to find bash-tap.  Install from https://github.com/illusori/bash-tap or set \$BASH_TAP_ROOT if you have it installed somewhere unusual."
+    exit 255
+fi

@@ -1,0 +1,21 @@
+.modal.fade{ id: "edit-repository-#{repository.id}", tabindex: -1, role: 'dialog', aria: { labelledby: "edit-#{repository.id}", hidden: 'true' } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      = form_tag({ action: :update }, id: "update_target_form-#{valid_xml_id(repository)}") do
+        .modal-header
+          %h5.modal-title{ id: "edit-#{repository.id}" } Edit #{repository}
+        .modal-body
+          .form-group
+            = label_tag :architectures, class: 'w-100' do
+              %strong Architectures:
+            - available_architectures.each do |architecture|
+              .custom-control.custom-checkbox.custom-control-inline
+                = check_box_tag "arch[#{architecture}]", '', repository.architectures.include?(architecture),
+                                                             class: 'custom-control-input',
+                                                             id: "#{repository.id}-architecture-#{architecture}"
+                = label_tag :architecture, architecture, class: 'custom-control-label', for: "#{repository.id}-architecture-#{architecture}"
+            = hidden_field_tag :project, project
+            = hidden_field_tag :repo, repository
+
+        .modal-footer
+          = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }

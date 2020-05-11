@@ -1,0 +1,74 @@
+.row
+  .col-md-12
+    = form_tag(project_monitor_path, project: project, method: :get) do
+      = hidden_field_tag :defaults, 0
+      %span.dropdown#project-monitor-status-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Status
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - status.each do |status|
+            .dropdown-item
+              .custom-control.custom-checkbox
+                = check_box_tag valid_xml_id(status), 1, status_filter.include?(status), class: 'custom-control-input'
+                %label.custom-control-label{ for: valid_xml_id(status) }
+                  = status
+      %span.dropdown#project-monitor-architectures-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Architecture
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - architectures.each do |architecture|
+            .dropdown-item
+              .custom-control.custom-checkbox
+                = check_box_tag valid_xml_id('arch_' + architecture), 1, architecture_filter.include?(architecture), class: 'custom-control-input'
+                %label.custom-control-label{ for: valid_xml_id('arch_' + architecture) }
+                  = architecture
+      %span.dropdown#project-monitor-repositories-dropdown
+        %button.btn.btn-outline-secondary.dropdown-toggle{ data: { toggle: :dropdown }, type: :button }
+          %span.caret
+          Repository
+        .dropdown-menu.keep-open
+          .text-center
+            %button.btn.btn-link.monitor-filter-link{ type: :button } All
+            %button.btn.btn-link.monitor-no-filter-link{ type: :button } None
+          - repositories.each do |repository|
+            .dropdown-item
+              .custom-control.custom-checkbox
+                = check_box_tag valid_xml_id('repo_' + repository), 1, repository_filter.include?(repository), class: 'custom-control-input'
+                %label.custom-control-label{ for: valid_xml_id('repo_' + repository) }
+                  = repository
+      %span#project-monitor-repositories-last-build
+        = label_tag 'lastbuild', title: 'Include the results from the last build', class: 'btn btn-outline-secondary mb-0' do
+          = check_box_tag 'lastbuild', 1, lastbuild_switch
+          Last time results
+
+      %button.btn.btn-primary#filter-button{ type: :submit }
+        Apply Filter
+      %i.fas.fa-lg.fa-sync-alt.fa-spin.ml-3#table-spinner
+
+      %button.btn.btn-outline-secondary.float-right{ type: :button,
+      data: { toggle: 'modal', target: '#build-monitor-legend' }, title: 'Build status legend' }
+        Legend
+
+.modal.fade#build-monitor-legend{ tabindex: -1, role: 'dialog', aria: { labelledby: 'confirm-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered.modal-lg{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Build status legend
+      .modal-body
+        - @legend.each do |status, description|
+          %p
+            %strong
+              #{status}:
+            = description
+        .modal-footer
+          %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+            Cancel

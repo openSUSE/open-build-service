@@ -25,39 +25,14 @@ package BSServerEvents;
 use POSIX;
 use Socket;
 use Fcntl qw(:DEFAULT);
-use Symbol;
 use BSEvents;
+use BSHTTP;
+use BSCpio;
 use Data::Dumper;
 
 use strict;
 
 our $gev;	# our event
-
-sub gethead {
-  # parses http header and fills hash
-  # $h: reference to the hash to be filled
-  # $t: http header as string
-  my ($h, $t) = @_; 
-
-  my ($field, $data);
-  for (split(/[\r\n]+/, $t)) {
-    next if $_ eq ''; 
-    if (/^[ \t]/) {
-      next unless defined $field;
-      s/^\s*/ /;
-      $h->{$field} .= $_; 
-    } else {
-      ($field, $data) = split(/\s*:\s*/, $_, 2); 
-      $field =~ tr/A-Z/a-z/;
-      if ($h->{$field} && $h->{$field} ne '') {
-        $h->{$field} = $h->{$field}.','.$data;
-      } else {
-        $h->{$field} = $data;
-      }   
-    }   
-  }
-}
-
 
 sub replstream_timeout {
   my ($ev) = @_;
@@ -73,6 +48,7 @@ sub replrequest_timeout {
   close($ev->{'nfd'}) if $ev->{'nfd'};
   delete $ev->{'fd'};
   delete $ev->{'nfd'};
+  delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
 }
 
 sub replrequest_write {
@@ -90,6 +66,7 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
+    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
     return;
   }
   if ($r == length($ev->{'replbuf'})) {
@@ -97,6 +74,7 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
+    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
@@ -105,13 +83,15 @@ sub replrequest_write {
 }
 
 sub reply {
-  my ($str, @hi) = @_;
+  my ($str, @hdrs) = @_;
   my $ev = $gev;
+  my $conf = $ev->{'conf'};
   # print "reply to event #$ev->{'id'}\n";
   if (!exists($ev->{'fd'})) {
     $ev->{'handler'}->($ev) if $ev->{'handler'};
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     print "$str\n" if defined($str) && $str ne '';
+    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
     return;
   }
   if ($ev->{'streaming'}) {
@@ -120,20 +100,21 @@ sub reply {
     $ev->{'type'} = 'write';
     $ev->{'handler'} = \&replrequest_write;
     $ev->{'timeouthandler'} = \&replrequest_timeout;
-    BSEvents::add($ev, $ev->{'conf'}->{'replrequest_timeout'});
+    BSEvents::add($ev, $conf->{'replrequest_timeout'});
     return;
   }
-  if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
+  $ev->{'request'}->{'state'} = 'replying';
+  if (@hdrs && $hdrs[0] =~ /^status: (\d+.*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
-    $hi[0] = "HTTP/1.1 $msg";
+    $hdrs[0] = "HTTP/1.1 $msg";
   } else {
-    unshift @hi, "HTTP/1.1 200 OK";
+    unshift @hdrs, "HTTP/1.1 200 OK";
   }
-  push @hi, "Cache-Control: no-cache";
-  push @hi, "Connection: close";
-  push @hi, "Content-Length: ".length($str) if defined $str;
-  my $data = join("\r\n", @hi)."\r\n\r\n";
+  push @hdrs, "Cache-Control: no-cache" unless grep {/^cache-control:/i} @hdrs;
+  push @hdrs, "Connection: close";
+  push @hdrs, "Content-Length: ".length($str) if defined $str;
+  my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined $str;
   my $dummy = '';
   sysread($ev->{'fd'}, $dummy, 1024, 0);	# clear extra input
@@ -141,35 +122,24 @@ sub reply {
   $ev->{'type'} = 'write';
   $ev->{'handler'} = \&replrequest_write;
   $ev->{'timeouthandler'} = \&replrequest_timeout;
-  BSEvents::add($ev, $ev->{'conf'}->{'replrequest_timeout'});
+  BSEvents::add($ev, $conf->{'replrequest_timeout'});
 }
 
 sub reply_error  {
-  my ($conf, $err) = @_;
-  $err ||= "unspecified error";
-  $err =~ s/\n$//s;
-  my $code = 400;
-  my $tag = ''; 
-  if ($err =~ /^(\d+)\s*([^\r\n]*)/) {
-    $code = $1; 
-    $tag = $2; 
-  } elsif ($err =~ /^([^\r\n]+)/) {
-    $tag = $1; 
-  } else {
-    $tag = 'Error';
-  }
+  my ($conf, $errstr) = @_;
+  my ($err, $code, $tag, @hdrs) = BSServer::parse_error_string($conf, $errstr);
   if ($conf && $conf->{'errorreply'}) {
-    $conf->{'errorreply'}->($err, $code, $tag);
+    $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
   } else {
-    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain');
+    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
   }
 }
 
 sub reply_stream {
-  my ($rev, @args) = @_;
-  push @args, 'Transfer-Encoding: chunked';
-  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
-  reply(undef, @args);
+  my ($rev, @hdrs) = @_;
+  push @hdrs, 'Transfer-Encoding: chunked' if $rev->{'makechunks'};
+  unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
+  reply(undef, @hdrs);
   my $ev = $gev;
   BSEvents::rem($ev);
   #print "reply_stream $rev -> $ev\n";
@@ -178,101 +148,111 @@ sub reply_stream {
   $ev->{'timeouthandler'} = \&replstream_timeout;
   $ev->{'streaming'} = 1;
   $rev->{'writeev'} = $ev;
-  $rev->{'handler'} = \&stream_read_handler unless $rev->{'handler'};
+  $rev->{'handler'} ||= \&stream_read_handler;
   BSEvents::add($ev, 0);
   BSEvents::add($rev);	# do this last (because of "always" type)
 }
 
 sub reply_file {
-  my ($filename, @args) = @_;
-  my $fd = $filename;
-  if (!ref($fd)) {
-    $fd = gensym;
+  my ($filename, @hdrs) = @_;
+  my $param = {'chunked' => 1};
+  if (ref($filename) eq 'HASH' && exists($filename->{'filename'})) {
+    $param = $filename;
+    $filename = $filename->{'filename'};
+  }
+  my $fd;
+  if (!ref($filename)) {
     open($fd, '<', $filename) || die("$filename: $!\n");
+  } else {
+    $fd = $filename;
   }
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
-  $rev->{'makechunks'} = 1;
-  reply_stream($rev, @args);
+  $rev->{'makechunks'} = 1 if $param->{'chunked'};
+  $rev->{'filegrows'} = 1 if $param->{'filegrows'};
+  $rev->{'maxbytes'} = $param->{'maxbytes'} if defined $param->{'maxbytes'};
+  reply_stream($rev, @hdrs);
+  return $rev;
 }
 
-sub makecpiohead {
-  my ($name, $s) = @_;
-  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$s;
-  my $h = "07070100000000000081a4000000000000000000000001";
-  $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
-  $h .= "00000000000000000000000000000000";
-  $h .= sprintf("%08x", length($name) + 1);
-  $h .= "00000000$name\0";
-  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
-  my $pad = '';
-  $pad = substr("\0\0\0\0", ($s->[7] & 3)) if $s->[7] & 3;
-  return ($h, $pad);
+sub reply_file_grown {
+  my ($eof) = @_;
+  my $ev = $gev;
+  my $rev = $ev->{'readev'};
+  return unless $rev && $rev->{'type'} eq 'always';
+  delete $rev->{'filegrows'} if $eof;
+  BSEvents::add($rev) unless $rev->{'paused'};
 }
 
 sub cpio_nextfile {
   my ($ev) = @_;
 
   my $data = '';
-  while(1) {
+  while (1) {
     #print "cpio_nextfile\n";
-    $data .= $ev->{'filespad'} if defined $ev->{'filespad'};
-    delete $ev->{'filespad'};
+    $data .= delete($ev->{'filespad'}) if defined $ev->{'filespad'};
     my $files = $ev->{'files'};
     my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
-    my $file;
+    my $ent;
     if ($filesno >= @$files) {
-      if ($ev->{'cpioerrors'} ne '') {
-	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
-	$ev->{'cpioerrors'} = '';
-      } else {
-	$data .= makecpiohead();
+      $ent = delete $ev->{'cpioerrors'};
+      if (!$ent || $ent->{'data'} eq '') {
+	$data .= BSCpio::makecpiohead();
 	return $data;
       }
     } else {
       $ev->{'filesno'} = $filesno;
-      $file = $files->[$filesno];
-    }
-    if ($file->{'error'}) {
-      $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'error'}\n";
-      next;
+      $ent = $files->[$filesno];
     }
     my @s;
-    if (exists $file->{'filename'}) {
-      my $fd = $file->{'filename'};
-      if (!ref($fd)) {
-	$fd = gensym;
-	if (!open($fd, '<', $file->{'filename'})) {
-	  $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
-	  next;
-	}
+    my $name = $ent->{'name'};
+    if ($ent->{'error'}) {
+      $ev->{'cpioerrors'}->{'data'} .= "$name: $ent->{'error'}\n";
+    } elsif (exists($ent->{'file'}) || exists($ent->{'filename'})) {
+      my $file = exists($ent->{'file'}) ? $ent->{'file'} : $ent->{'filename'};
+      my ($fd, $error) = BSCpio::openentfile($ent, $file, \@s);
+      if ($error) {
+        close($fd) if $fd && !ref($file);
+        $ev->{'cpioerrors'}->{'data'} .= $error;
+	next;
       }
       $ev->{'fd'} = $fd;
-      @s = stat($ev->{'fd'});
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= $header;
+      $ev->{'filespad'} = $pad;
+      return $data;
     } else {
-      $s[7] = length($file->{'data'});
-      $s[9] = time();
+      $s[7] = length($ent->{'data'});
+      $s[9] = $ent->{'mtime'} || time();
+      my ($header, $pad) = BSCpio::makecpiohead($ent, \@s);
+      $data .= "$header$ent->{'data'}";
+      $ev->{'filespad'} = $pad;
     }
-    my ($header, $pad) = makecpiohead($file->{'name'}, \@s);
-    $data .= $header;
-    $ev->{'filespad'} = $pad;
-    if (!exists $file->{'filename'}) {
-      $data .= $file->{'data'};
-      next;
-    }
-    return $data;
+  }
+}
+
+sub cpio_closehandler {
+  my ($ev) = @_;
+  my $files = $ev->{'files'};
+  my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
+  while ($filesno < @$files) {
+    my $ent = $files->[$filesno];
+    close($ent->{'file'}) if ref($ent->{'file'});
+    close($ent->{'filename'}) if ref($ent->{'filename'});
+    $filesno++;
   }
 }
 
 sub reply_cpio {
-  my ($files, @args) = @_;
+  my ($files, @hdrs) = @_;
   my $rev = BSEvents::new('always');
   $rev->{'files'} = $files;
-  $rev->{'cpioerrors'} = '';
+  $rev->{'cpioerrors'} = { 'name' => '.errors', 'data' => '' };
   $rev->{'makechunks'} = 1;
   $rev->{'eofhandler'} = \&cpio_nextfile;
-  unshift @args, 'Content-Type: application/x-cpio';
-  reply_stream($rev, @args);
+  $rev->{'closehandler'} = \&cpio_closehandler;
+  unshift @hdrs, 'Content-Type: application/x-cpio';
+  reply_stream($rev, @hdrs);
 }
 
 sub getrequest_timeout {
@@ -281,6 +261,7 @@ sub getrequest_timeout {
   $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
   close($ev->{'fd'});
   close($ev->{'nfd'}) if $ev->{'nfd'};
+  delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
 }
 
 sub getrequest {
@@ -288,20 +269,22 @@ sub getrequest {
   my $buf;
   local $gev = $ev;
 
+  my $conf = $ev->{'conf'};
+  my $req = $ev->{'request'};
+  my $peer = $req->{'peer'};
   eval {
     $ev->{'reqbuf'} = '' unless exists $ev->{'reqbuf'};
     my $r;
-    if ($ev->{'reqbuf'} eq '' && exists $ev->{'conf'}->{'getrequest_recvfd'}) {
-      my $newfd = gensym;
-      $r = $ev->{'conf'}->{'getrequest_recvfd'}->($ev->{'fd'}, $newfd, 1024);
-      if (defined($r)) {
+    if ($ev->{'reqbuf'} eq '' && exists $conf->{'getrequest_recvfd'}) {
+      my ($chunk, $newfd) = $conf->{'getrequest_recvfd'}->($ev->{'fd'}, 1024);
+      if (defined($chunk)) {
 	if (-c $newfd) {
 	  close $newfd;	# /dev/null case, no handoff requested
 	} else {
           $ev->{'nfd'} = $newfd;
 	}
-        $ev->{'reqbuf'} = $r;
-        $r = length($r);
+        $ev->{'reqbuf'} = $chunk;
+        $r = length($chunk);
       }
     } else {
       $r = sysread($ev->{'fd'}, $ev->{'reqbuf'}, 1024, length($ev->{'reqbuf'}));
@@ -311,17 +294,19 @@ sub getrequest {
         BSEvents::add($ev);
         return;
       }
-      print "read error for $ev->{'peer'}: $!\n";
+      print "read error for $peer: $!\n";
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
       return;
     }
     if (!$r) {
-      print "EOF for $ev->{'peer'}\n";
+      print "EOF for $peer\n";
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
       return;
     }
     if ($ev->{'reqbuf'} !~ /^(.*?)\r?\n/s) {
@@ -337,30 +322,39 @@ sub getrequest {
 	BSEvents::add($ev);
 	return;
       }
-      gethead($headers, "Request: $1");
-    } elsif ($act ne 'get') {
+      BSHTTP::gethead($headers, "Request: $1");
+    } else {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
     }
     my $query_string = '';
-    if ($path =~ /^(.*?)\?(.*)$/) {
-      $path = $1;
-      $query_string = $2;
-    }
+    my $fragment;
+    ($path, $fragment) = ($1, $2) if $path =~ /^(.*?)\#(.*)$/;
+    ($path, $query_string) = ($1, $2) if $path =~ /^(.*?)\?(.*)$/;
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
+    $fragment =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge if defined $fragment;
     die("501 invalid path\n") unless $path =~ /^\//;
-    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers};
-    $ev->{'request'} = $req;
-    my $conf = $ev->{'conf'};
-    $conf->{'dispatch'}->($conf, $req);
+    %$req = ( %$req, 'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'state' => 'processing' );
+    $req->{'fragment'} = $fragment if defined $fragment;
+    # FIXME: should not use global
+    local $BSServer::request = $req;
+    my @r = $conf->{'dispatch'}->($conf, $req);
+    if ($conf->{'stdreply'}) {
+      $conf->{'stdreply'}->(@r);
+    } elsif (@r && (@r != 1 || defined($r[0]))) {
+      reply(@r);
+    }
   };
-  reply_error($ev->{'conf'}, $@) if $@;
+  if ($@) {
+    local $BSServer::request = $req;
+    reply_error($conf, $@);
+  }
 }
 
 sub newconnect {
   my ($ev) = @_;
   #print "newconnect!\n";
   BSEvents::add($ev);
-  my $newfd = gensym;
+  my $newfd;
   my $peeraddr = accept($newfd, *{$ev->{'fd'}});
   return unless $peeraddr;
   fcntl($newfd, F_SETFL, O_NONBLOCK);
@@ -371,16 +365,21 @@ sub newconnect {
     ($peerport, $peera) = sockaddr_in($peeraddr);
     $peer = inet_ntoa($peera);
   };
-  my $cev = BSEvents::new('read', \&getrequest);
-  $cev->{'fd'} = $newfd;
-  $cev->{'peer'} = $peer;
-  $cev->{'peerport'} = $peerport if $peerport;
-  $cev->{'timeouthandler'} = \&getrequest_timeout;
-  $cev->{'conf'} = $ev->{'conf'};
-  if ($cev->{'conf'}->{'setkeepalive'}) {
-    setsockopt($cev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
+  my $conf = $ev->{'conf'};
+  my $request = { 'conf' => $conf, 'peer' => $peer, 'starttime' => time(), 'state' => 'receiving', 'server' => $ev->{'server'} };
+  $request->{'peerport'} = $peerport if $peerport;
+  my $nev = BSEvents::new('read', \&getrequest);
+  $nev->{'request'} = $request;
+  $nev->{'fd'} = $newfd;
+  $nev->{'peer'} = $peer;
+  $nev->{'timeouthandler'} = \&getrequest_timeout;
+  $nev->{'conf'} = $conf;
+  if ($conf->{'setkeepalive'}) {
+    setsockopt($nev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   }
-  BSEvents::add($cev, $ev->{'conf'}->{'getrequest_timeout'});
+  $nev->{'requestevents'} = $ev->{'server'}->{'requestevents'};
+  $nev->{'requestevents'}->{$nev->{'id'}} = $nev;
+  BSEvents::add($nev, $conf->{'getrequest_timeout'});
 }
 
 sub cloneconnect {
@@ -388,43 +387,80 @@ sub cloneconnect {
   my $ev = $gev;
   return $ev unless exists $ev->{'nfd'};
   fcntl($ev->{'nfd'}, F_SETFL, O_NONBLOCK);
+  my $conf = $ev->{'conf'};
   my $nev = BSEvents::new('read', $ev->{'handler'});
   $nev->{'fd'} = $ev->{'nfd'};
   delete $ev->{'nfd'};
-  $nev->{'conf'} = $ev->{'conf'};
-  $nev->{'request'} = $ev->{'request'};
+  my $nreq = { %{$ev->{'request'} || {}} };
+  $nev->{'conf'} = $conf;
+  $nev->{'request'} = $nreq;
+  $nev->{'requestevents'} = $ev->{'requestevents'};
   my $peer = 'unknown';
+  my $peerport;
   eval {
-    my $peername = getpeername($nev->{'fd'});
-    if ($peername) {
-      my ($peerport, $peera) = sockaddr_in($peername);
+    my $peeraddr = getpeername($nev->{'fd'});
+    if ($peeraddr) {
+      my $peera;
+      ($peerport, $peera) = sockaddr_in($peeraddr);
       $peer = inet_ntoa($peera);
     }
   };
+  $nreq->{'peer'} = $peer;
+  $nreq->{'peerport'} = $peerport if $peerport;
   $nev->{'peer'} = $peer;
-  BSServerEvents::reply(@reply) if @reply;
+  $nev->{'requestevents'}->{$nev->{'id'}} = $nev;
+  if (@reply) {
+    if ($conf->{'stdreply'}) {
+      $conf->{'stdreply'}->(@reply);
+    } elsif (@reply != 1 || defined($reply[0])) {
+      reply(@reply);
+    }
+  }
   $gev = $nev;	# switch to new event
-  if ($nev->{'conf'}->{'setkeepalive'}) {
+  if ($conf->{'setkeepalive'}) {
     setsockopt($nev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   }
   return $nev;
 }
 
+sub background {
+  my (@reply) = @_;
+  my $ev = $gev;
+  return $ev unless $ev && exists $ev->{'fd'};	# already in background?
+  my $nev = BSEvents::new('never');
+  for (keys %$ev) {
+    $nev->{$_} = $ev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
+  }
+  $nev->{'request'} = { %{$ev->{'request'}} } if $ev->{'request'};
+  if (@reply) {
+    if ($ev->{'conf'}->{'stdreply'}) {
+      $ev->{'conf'}->{'stdreply'}->(@reply);
+    } elsif (@reply != 1 || defined($reply[0])) {
+      reply(@reply);
+    }
+  }
+  $gev = $nev;	# switch to new event
+  return $nev;
+}
+
 sub stream_close {
-  my ($ev, $wev) = @_;
+  my ($ev, $wev, $err, $werr) = @_;
   if ($ev) {
+    print "$err\n" if $err;
     BSEvents::rem($ev) if $ev->{'fd'} && !$ev->{'paused'};
-    $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
+    $ev->{'closehandler'}->($ev, $err) if $ev->{'closehandler'};
     close $ev->{'fd'} if $ev->{'fd'};
     delete $ev->{'fd'};
     delete $ev->{'writeev'};
   }
   if ($wev) {
+    print "$werr\n" if $werr;
     BSEvents::rem($wev) if $wev->{'fd'} && !$wev->{'paused'};
-    $wev->{'closehandler'}->($wev) if $wev->{'closehandler'};
+    $wev->{'closehandler'}->($wev, $werr) if $wev->{'closehandler'};
     close $wev->{'fd'} if $wev->{'fd'};
     delete $wev->{'fd'};
     delete $wev->{'readev'};
+    delete $wev->{'requestevents'}->{$wev->{'id'}} if $wev->{'requestevents'};
   }
 }
 
@@ -442,12 +478,13 @@ sub stream_read_handler {
   $wev->{'replbuf'} = '' unless exists $wev->{'replbuf'};
   my $r;
   if ($ev->{'fd'}) {
+    my $bite = defined($ev->{'maxbytes'}) && $ev->{'maxbytes'} < 4096 ? $ev->{'maxbytes'} : 4096;
     if ($ev->{'makechunks'}) {
       my $b = '';
-      $r = sysread($ev->{'fd'}, $b, 4096);
+      $r = sysread($ev->{'fd'}, $b, $bite);
       $wev->{'replbuf'} .= sprintf("%X\r\n", length($b)).$b."\r\n" if $r;
     } else {
-      $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, 4096, length($wev->{'replbuf'}));
+      $r = sysread($ev->{'fd'}, $wev->{'replbuf'}, $bite, length($wev->{'replbuf'}));
     }
     if (!defined($r)) {
       if ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK) {
@@ -456,10 +493,17 @@ sub stream_read_handler {
       }
       print "stream_read_handler: $!\n";
       # can't do much here, fallthrough in EOF code
+    } elsif (defined($ev->{'maxbytes'})) {
+      $ev->{'maxbytes'} -= $r;
+      $r = 0 if $ev->{'maxbytes'} <= 0;
     }
   }
   if (!$r) {
 #    print "stream_read_handler: EOF\n";
+    # filegrows case: just return. we need to continue with some other trigger
+    if (defined($r) && $ev->{'filegrows'} && $ev->{'type'} eq 'always' && (!defined($ev->{'maxbytes'}) || $ev->{'maxbytes'} > 0)) {
+      return;
+    }
     if ($ev->{'eofhandler'}) {
       close $ev->{'fd'} if $ev->{'fd'};
       delete $ev->{'fd'};
@@ -530,7 +574,7 @@ sub stream_write_handler {
     }
     print "stream_write_handler: $!\n";
     $ev->{'paused'} = 1;
-    # support multiple writers
+    # support multiple writers ($ev will be a $jev in that case)
     if ($rev->{'writeev'} != $ev) {
       # leave reader open
       print "reader stays open\n";
@@ -541,6 +585,7 @@ sub stream_write_handler {
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
+  # flow control: have we reached the low water mark?
   if ($rev->{'paused'} && length($ev->{'replbuf'}) <= 8192) {
     delete $rev->{'paused'};
     BSEvents::add($rev);
@@ -563,24 +608,79 @@ sub stream_write_handler {
 
 sub periodic_handler {
   my ($ev) = @_;
-  my $conf = $ev->{'conf'};
+  my $server = $ev->{'server'};
+  my $conf = $server->{'conf'};
   return unless $conf->{'periodic'};
-  $conf->{'periodic'}->($conf);
+  $conf->{'periodic'}->($conf, $server);
   BSEvents::add($ev, $conf->{'periodic_interval'} || 3) if $conf->{'periodic'};
+}
+
+# Connectivity check. We cheat here, as TCP does not provide a way to
+# check if the other side can receive data. Instead we check for EOF,
+# i.e. if we received a FIN. This does not work if the other side
+# did only shutdown the sender (but who does that?).
+sub concheck_handler {
+  my ($cev) = @_;
+  my $server = $cev->{'server'};
+  my $requestevents = $server->{'requestevents'} || {};
+  while (1) {
+    my $rvec = '';
+    for my $ev (values %$requestevents) {
+      next unless $ev->{'fd'};
+      my $req = $ev->{'request'};
+      next if !$req || $req->{'state'} eq 'receiving';
+      vec($rvec, fileno(*{$ev->{'fd'}}), 1) = 1;
+    }
+    last if $rvec eq '';
+    my $nfound = select($rvec, undef, undef, 0);
+    last unless $nfound;
+    for my $ev (values %$requestevents) {
+      next unless $ev->{'fd'};
+      my $req = $ev->{'request'};
+      next if !$req || $req->{'state'} eq 'receiving';
+      next unless vec($rvec, fileno(*{$ev->{'fd'}}), 1);
+      my $buf = '';
+      my $r = sysread($ev->{'fd'}, $buf, 1024);
+      next if $r;
+      if (!defined($r)) {
+	next if $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
+	print "concheck: read error for $ev->{'peer'}: $!\n";
+      } else {
+	print "concheck: EOF for $ev->{'peer'}\n";
+      }
+      $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
+      close($ev->{'fd'});
+      close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $requestevents->{$ev->{'id'}};
+      BSEvents::rem($ev);	# just in case...
+    }
+  }
+  BSEvents::add($cev, $server->{'conf'}->{'concheck_interval'} || 6);
 }
 
 sub addserver {
   my ($fd, $conf) = @_;
+  my $server = { 'starttime' => time(), 'conf' => $conf, 'requestevents' => {} };
   my $sockev = BSEvents::new('read', \&newconnect);
   $sockev->{'fd'} = $fd;
   $sockev->{'conf'} = $conf;
+  $sockev->{'server'} = $server;
   BSEvents::add($sockev);
   if ($conf->{'periodic'}) {
     my $per_ev = BSEvents::new('timeout', \&periodic_handler);
-    $per_ev->{'conf'} = $conf;
+    $per_ev->{'server'} = $server;
     BSEvents::add($per_ev, $conf->{'periodic_interval'} || 3);
   }
+  my $con_ev = BSEvents::new('timeout', \&concheck_handler);
+  $con_ev->{'server'} = $server;
+  BSEvents::add($con_ev, $conf->{'concheck_interval'} || 60);
   return $sockev;
+}
+
+sub getrequestevents {
+  my ($server) = @_;
+  my $requestevents = $server->{'requestevents'} || {};
+  return map {$requestevents->{$_}} sort {$a <=> $b} keys %$requestevents;
 }
 
 1;

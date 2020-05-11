@@ -1,0 +1,18 @@
+.all_flag {
+    background-color: rgba($success, 0.2);
+}
+
+details.repository-path .less{
+  display: none;
+}
+
+details[open].repository-path {
+  .less{ display: inline; }
+  .more{ display: none; }
+}
+
+// Ensure repository footer has same height when being empty
+.repository-card .card-footer .row {
+  min-height: 24px;
+}
+

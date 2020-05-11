@@ -1,0 +1,9 @@
+.form-group.col-md-6
+  .custom-control.custom-checkbox
+    = form.check_box(:block, class: 'custom-control-input')
+    = form.label(:block, 'Block release?', class: 'custom-control-label')
+.form-group.col-md-6
+  = form.label(:block_reason) do
+    Reason
+    %small.form-text Explain what is blocking the release of this patchinfo
+  = form.text_field(:block_reason, class: 'form-control', disabled: !patchinfo_block)

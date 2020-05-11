@@ -1,0 +1,6 @@
+%li
+  %i.fas.fa-info-circle.text-info
+  Devel package for
+  - developed_packages.each_with_index do |pkg, index|
+    = ',' if index > 0
+    = link_to(elide(pkg.project.name, 40), package_show_path(project: pkg.project.name, package: pkg.name))

@@ -1,87 +1,87 @@
-roles_static_permissions_001:
-  role_id: 1
-  static_permission_id: 1
-roles_static_permissions_002:
-  role_id: 1
-  static_permission_id: 2
-roles_static_permissions_003:
-  role_id: 2
-  static_permission_id: 2
-roles_static_permissions_004:
-  role_id: 1
-  static_permission_id: 3
-roles_static_permissions_005:
-  role_id: 1
-  static_permission_id: 4
-roles_static_permissions_006:
-  role_id: 1
-  static_permission_id: 5
-roles_static_permissions_007:
-  role_id: 1
-  static_permission_id: 6
-roles_static_permissions_008:
-  role_id: 1
-  static_permission_id: 7
-roles_static_permissions_009:
-  role_id: 3
-  static_permission_id: 7
-roles_static_permissions_010:
-  role_id: 1
-  static_permission_id: 8
-roles_static_permissions_011:
-  role_id: 3
-  static_permission_id: 8
-roles_static_permissions_012:
-  role_id: 1
-  static_permission_id: 9
-roles_static_permissions_013:
-  role_id: 3
-  static_permission_id: 9
-roles_static_permissions_014:
-  role_id: 1
-  static_permission_id: 10
-roles_static_permissions_015:
-  role_id: 3
-  static_permission_id: 10
-roles_static_permissions_016:
-  role_id: 1
-  static_permission_id: 11
-roles_static_permissions_017:
-  role_id: 3
-  static_permission_id: 11
-roles_static_permissions_018:
-  role_id: 5
-  static_permission_id: 11
-roles_static_permissions_019:
-  role_id: 1
-  static_permission_id: 12
-roles_static_permissions_020:
-  role_id: 3
-  static_permission_id: 12
-roles_static_permissions_021:
-  role_id: 7
-  static_permission_id: 12
-roles_static_permissions_022:
-  role_id: 1
-  static_permission_id: 13
-roles_static_permissions_023:
-  role_id: 1
-  static_permission_id: 14
-roles_static_permissions_024:
-  role_id: 3
-  static_permission_id: 14
-roles_static_permissions_025:
-  role_id: 7
-  static_permission_id: 14
-roles_static_permissions_026:
-  role_id: 1
-  static_permission_id: 19
-roles_static_permissions_027:
-  role_id: 1
-  static_permission_id: 20
-roles_static_permissions_028:
-  role_id: 1
-  static_permission_id: 21
-roles_static_permissions_029:
-  role_id: 1
-  static_permission_id: 22
+Admin_access:
+  role: Admin
+  static_permission: access
+Admin_change_package:
+  role: Admin
+  static_permission: change_package
+Admin_change_project:
+  role: Admin
+  static_permission: change_project
+Admin_create_package:
+  role: Admin
+  static_permission: create_package
+Admin_create_project:
+  role: Admin
+  static_permission: create_project
+Admin_download_binaries:
+  role: Admin
+  static_permission: download_binaries
+Admin_global_change_package:
+  role: Admin
+  static_permission: global_change_package
+Admin_global_change_project:
+  role: Admin
+  static_permission: global_change_project
+Admin_global_create_package:
+  role: Admin
+  static_permission: global_create_package
+Admin_global_create_project:
+  role: Admin
+  static_permission: global_create_project
+Admin_global_package_change:
+  role: Admin
+  static_permission: global_package_change
+Admin_global_package_create:
+  role: Admin
+  static_permission: global_package_create
+Admin_global_project_change:
+  role: Admin
+  static_permission: global_project_change
+Admin_global_project_create:
+  role: Admin
+  static_permission: global_project_create
+Admin_private_view:
+  role: Admin
+  static_permission: private_view
+Admin_set_download_counters:
+  role: Admin
+  static_permission: set_download_counters
+Admin_source_access:
+  role: Admin
+  static_permission: source_access
+Admin_status_message_create:
+  role: Admin
+  static_permission: status_message_create
+User_global_project_create:
+  role: User
+  static_permission: global_project_create
+downloader_download_binaries:
+  role: downloader
+  static_permission: download_binaries
+maintainer_access:
+  role: maintainer
+  static_permission: access
+maintainer_change_package:
+  role: maintainer
+  static_permission: change_package
+maintainer_change_project:
+  role: maintainer
+  static_permission: change_project
+maintainer_create_package:
+  role: maintainer
+  static_permission: create_package
+maintainer_create_project:
+  role: maintainer
+  static_permission: create_project
+maintainer_download_binaries:
+  role: maintainer
+  static_permission: download_binaries
+maintainer_source_access:
+  role: maintainer
+  static_permission: source_access
+reader_access:
+  role: reader
+  static_permission: access
+reader_source_access:
+  role: reader
+  static_permission: source_access

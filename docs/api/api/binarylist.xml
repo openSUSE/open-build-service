@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<binarylist project="screen" repository="SL10.0" arch="i586">
-  <binary filename="screwdriver-1.0-4.i586.rpm"/>
-  <binary filename="kdelibs3-3.5.5-2.i586.rpm"/>
-</binarylist>
-

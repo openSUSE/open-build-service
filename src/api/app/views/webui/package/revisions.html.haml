@@ -1,0 +1,27 @@
+- @pagetitle = "Revisions of #{@package}"
+
+.card
+  = render(partial: 'webui/package/tabs', locals: { project: @project, package: @package })
+
+  .card-body
+    %h3
+      = @pagetitle
+      %span.badge.badge-primary= @revisions.count
+    - if @revisions.present?
+      .list-group
+        - @revisions.each do |revision|
+          .list-group-item{ id: "commit_item_#{revision}" }
+            - commit = @package.commit(revision)
+            - if commit
+              = render(partial: 'commit_item', locals: { revision: revision, commit: commit })
+            - else
+              %i Revision #{revision} not found
+      - unless params['show_all']
+        = paginate @revisions, views_prefix: 'webui'
+        - unless @revisions.total_pages == 1
+          .text-center= link_to('Show all',
+                                package_view_revisions_path(project: @project, package: @package, show_all: 1),
+                                class: 'btn btn-sm btn-secondary')
+    - else
+      %p
+        %i No commits exists yet.
