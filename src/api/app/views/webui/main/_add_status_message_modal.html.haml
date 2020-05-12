@@ -10,7 +10,7 @@
             = text_area_tag(:message, '', size: '40x3', required: true, class: 'form-control')
           .form-group
             = label_tag(:severity, 'Severity:')
-            - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
+            - options = (StatusMessage.severities.keys - ['announcement']).map { |severity| [severity.humanize, severity] }
             = select_tag(:severity, options_for_select(options), class: 'form-control')
           .modal-footer
             = render partial: 'webui/shared/dialog_action_buttons'

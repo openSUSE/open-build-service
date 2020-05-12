@@ -1,0 +1,19 @@
+- @pagetitle = 'New Status Message'
+.row
+  .col
+    .card
+      .card-body
+        %h3= @pagetitle
+        = form_for(StatusMessage.new, url: status_messages_path, method: 'post') do |f|
+          .form-group
+            = f.label(:message) do
+              Message:
+              %abbr.text-danger{ title: 'required' } *
+            = f.text_area(:message, rows: 3, required: true, class: 'form-control')
+          .form-group
+            = f.label(:severity) do
+              Severity:
+              %abbr.text-danger{ title: 'required' } *
+            - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
+            = f.select(:severity, options_for_select(options), {}, class: 'custom-select')
+          = f.submit 'Accept', class: 'btn btn-primary'

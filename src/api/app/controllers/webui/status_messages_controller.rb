@@ -4,7 +4,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def create
     # TODO: make use of permissions.status_message_create
-    status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.session!)
+    status_message = StatusMessage.new(parameters)
 
     if status_message.save
       flash[:success] = 'Status message was successfully created.'
@@ -35,6 +35,16 @@ class Webui::StatusMessagesController < Webui::WebuiController
     end
     respond_to do |format|
       format.js { render controller: 'status_message', action: 'acknowledge' }
+    end
+  end
+
+  private
+
+  def parameters
+    if Flipper.enabled?(:responsive_ux, User.possibly_nobody)
+      { user: User.session!, message: params[:status_message][:message], severity: params[:status_message][:severity] }
+    else
+      { user: User.session!, message: params[:message], severity: params[:severity] }
     end
   end
 end

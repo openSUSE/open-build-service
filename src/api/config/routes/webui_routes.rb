@@ -4,7 +4,7 @@ OBSApi::Application.routes.draw do
   constraints(WebuiMatcher) do
     root 'webui/main#index'
 
-    resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages'
+    resources :status_messages, only: [:new, :create, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
       get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
