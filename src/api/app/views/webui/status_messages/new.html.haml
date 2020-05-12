@@ -1,0 +1,16 @@
+- @pagetitle = 'New Status Message'
+.row
+  .col
+    .card
+      .card-body
+        %h3= @pagetitle
+        .mb-3.w-50.m-auto
+          = form_tag(status_messages_path, method: 'post') do
+            .form-group
+              = label_tag(:message, 'Message:')
+              = text_area_tag(:message, '', size: '40x3', required: true, class: 'form-control')
+            .form-group
+              = label_tag(:severity, 'Severity:')
+              = select_tag(:severity, options_for_select(StatusMessage.severities.keys), class: 'form-control')
+            .modal-footer
+              = render partial: 'webui/shared/dialog_action_buttons'
