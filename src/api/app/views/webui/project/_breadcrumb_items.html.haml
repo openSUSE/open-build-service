@@ -35,3 +35,6 @@
     - elsif current_page?(project_subprojects_path(@project))
       %li.breadcrumb-item.active{ 'aria-current' => 'page' }
         Subprojects
+    - elsif current_page?(project_release_request_path(@project))
+      %li.breadcrumb-item.active{ 'aria-current' => 'page' }
+        Create Maintenance Release Request

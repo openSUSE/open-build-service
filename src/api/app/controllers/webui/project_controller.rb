@@ -6,11 +6,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :lockout_spiders, only: [:requests, :buildresults]
 
-  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new,
+  before_action :require_login, only: [:create, :toggle_watch, :destroy, :new, :release_request,
                                        :new_release_request, :new_package, :edit_comment]
 
   before_action :set_project, only: [:autocomplete_repositories, :users, :subprojects,
-                                     :new_package, :edit,
+                                     :new_package, :edit, :release_request,
                                      :show, :buildresult,
                                      :destroy, :remove_path_from_target,
                                      :requests, :save, :monitor, :toggle_watch,
@@ -88,6 +88,10 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def new_package
+    authorize @project, :update?
+  end
+
+  def release_request
     authorize @project, :update?
   end
 
