@@ -40,7 +40,7 @@ http_interactions:
           <person userid="package_test_user" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:14 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/_meta?user=user_tab_user
@@ -81,16 +81,16 @@ http_interactions:
           <person userid="user_tab_user" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_17
+    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
+          <title>The Last Temptation</title>
+          <description>Omnis molestias dolorem sapiente.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -111,16 +111,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '175'
+      - '176'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
+          <title>The Last Temptation</title>
+          <description>Omnis molestias dolorem sapiente.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/_meta?user=other_user
@@ -161,16 +161,16 @@ http_interactions:
           <person userid="other_user" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_18
+    uri: http://backend:5352/source/home:other_user/branch_test_package/_meta?user=user_8
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Vile Bodies</title>
-          <description>Sed repellat earum tempora.</description>
+          <title>Of Mice and Men</title>
+          <description>Non dicta sed ab.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -191,22 +191,22 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="branch_test_package" project="home:other_user">
-          <title>Vile Bodies</title>
-          <description>Sed repellat earum tempora.</description>
+          <title>Of Mice and Men</title>
+          <description>Non dicta sed ab.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/_config
     body:
       encoding: UTF-8
-      string: Qui explicabo libero. Sit reiciendis quis. Aut non reiciendis.
+      string: Fugit eius neque. Atque sit non. Minus et sed.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -230,22 +230,22 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="25" vrev="25">
-          <srcmd5>e7c0cd9fdc1f2fa0cdaeba4ffcfe5a33</srcmd5>
+        <revision rev="15" vrev="15">
+          <srcmd5>ce04a573615d890b503ff763c408edef</srcmd5>
           <version>unknown</version>
-          <time>1588951455</time>
+          <time>1588951332</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:other_user/branch_test_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Dolor non eius. Doloribus cupiditate unde. Ipsa ut rerum.
+      string: Est sed quibusdam. Consequuntur ut ut. Ut quidem delectus.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -269,16 +269,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="26" vrev="26">
-          <srcmd5>9f47056c2c389c0ad8cad3fdaa3c4c5c</srcmd5>
+        <revision rev="16" vrev="16">
+          <srcmd5>fcaf3d8a8512d563cc80c6d9f0956417</srcmd5>
           <version>unknown</version>
-          <time>1588951455</time>
+          <time>1588951333</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:15 GMT
+  recorded_at: Fri, 08 May 2020 15:22:13 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -311,7 +311,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:19 GMT
+  recorded_at: Fri, 08 May 2020 15:22:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
@@ -344,7 +344,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:19 GMT
+  recorded_at: Fri, 08 May 2020 15:22:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -377,7 +377,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:19 GMT
+  recorded_at: Fri, 08 May 2020 15:22:16 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:user_tab_user/group_test_package
@@ -410,7 +410,7 @@ http_interactions:
         <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:19 GMT
+  recorded_at: Fri, 08 May 2020 15:22:16 GMT
 - request:
     method: get
     uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
@@ -443,7 +443,7 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:20 GMT
+  recorded_at: Fri, 08 May 2020 15:22:17 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
@@ -451,10 +451,12 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
+          <title>The Last Temptation</title>
+          <description>Omnis molestias dolorem sapiente.</description>
           <person userid="user_tab_user" role="maintainer"/>
-          <person userid="reader_user" role="reader"/>
+          <group groupid="existing_group" role="bugowner"/>
+          <group groupid="existing_group" role="maintainer"/>
+          <group groupid="other_group" role="maintainer"/>
         </package>
     headers:
       Accept-Encoding:
@@ -475,224 +477,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '275'
+      - '386'
     body:
       encoding: UTF-8
       string: |
         <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
+          <title>The Last Temptation</title>
+          <description>Omnis molestias dolorem sapiente.</description>
           <person userid="user_tab_user" role="maintainer"/>
-          <person userid="reader_user" role="reader"/>
+          <group groupid="existing_group" role="bugowner"/>
+          <group groupid="existing_group" role="maintainer"/>
+          <group groupid="other_group" role="maintainer"/>
         </package>
     http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:26 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package/_meta?user=user_tab_user
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
-          <person userid="user_tab_user" role="maintainer"/>
-          <person userid="reader_user" role="reader"/>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '275'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="group_test_package" project="home:user_tab_user">
-          <title>Let Us Now Praise Famous Men</title>
-          <description>Maxime aut aut dolorem.</description>
-          <person userid="user_tab_user" role="maintainer"/>
-          <person userid="reader_user" role="reader"/>
-        </package>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:26 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package?expand=1
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/source/home:user_tab_user/group_test_package
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '93'
-    body:
-      encoding: UTF-8
-      string: |
-        <directory name="group_test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:27 GMT
-- request:
-    method: get
-    uri: http://backend:5352/build/home:user_tab_user/_result?package=group_test_package&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '55'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000"/>
-
-'
-    http_version: null
-  recorded_at: Fri, 08 May 2020 15:24:28 GMT
+  recorded_at: Fri, 08 May 2020 15:22:21 GMT
 recorded_with: VCR 5.1.0
