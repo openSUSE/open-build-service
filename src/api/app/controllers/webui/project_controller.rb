@@ -23,8 +23,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_action :load_project_info, only: :show
 
-  before_action :load_releasetargets, only: :show
-
   before_action :check_ajax, only: [:buildresult, :edit_comment_form]
 
   after_action :verify_authorized, except: [:index, :autocomplete_projects, :autocomplete_incidents, :autocomplete_packages,
@@ -135,6 +133,7 @@ class Webui::ProjectController < Webui::WebuiController
   def show
     @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
     @bugowners_mail = @project.bugowner_emails
+    @release_targets = @project.release_targets
 
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
@@ -535,17 +534,6 @@ class Webui::ProjectController < Webui::WebuiController
     @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort!.uniq
 
     @nr_of_problem_packages = @project.number_of_build_problems
-  end
-
-  def load_releasetargets
-    @releasetargets = []
-    rts = ReleaseTarget.where(repository_id: @project.repositories)
-    return if rts.empty?
-    Rails.logger.debug rts.inspect
-    @project.repositories.each do |repository|
-      release_target = repository.release_targets.first
-      @releasetargets.push(release_target.repository.project.name + '/' + release_target.repository.name) if release_target
-    end
   end
 
   def require_maintenance_project

@@ -10,7 +10,7 @@
                                                                           packages: @packages,
                                                                           has_patchinfo: @has_patchinfo,
                                                                           open_release_requests: @open_release_requests,
-                                                                          release_targets: @releasetargets }
+                                                                          release_targets: @release_targets }
   end
 
 .card.mb-3
@@ -26,7 +26,7 @@
                                                   nr_of_problem_packages: @nr_of_problem_packages,
                                                   has_patchinfo: @has_patchinfo,
                                                   open_release_requests: @open_release_requests,
-                                                  release_targets: @releasetargets,
+                                                  release_targets: @release_targets,
                                                   requests: @requests,
                                                   package: @package,
                                                   linking_projects: @linking_projects,
@@ -37,7 +37,7 @@
                                                       packages: @packages,
                                                       has_patchinfo: @has_patchinfo,
                                                       open_release_requests: @open_release_requests,
-                                                      release_targets: @releasetargets }
+                                                      release_targets: @release_targets }
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name }
@@ -84,9 +84,6 @@
     - if show_package_actions?
       = render partial: 'create_package_modal', locals: { project: @project }
       = render partial: 'new_package_branch_modal', locals: { project: @project, remote_projects: @remote_projects }
-
-    - if !can_be_released?(@project, @packages, @open_release_requests, @has_patchinfo) && !@project.is_maintenance?
-      = render partial: 'project_submit_update_dialog', locals: { project: @project, release_targets: @releasetargets }
   - elsif !@project.is_locked?
     = render partial: 'webui/request/add_role_request_dialog', locals: { project: @project }
     = render partial: 'webui/request/delete_request_dialog', locals: { project: @project }

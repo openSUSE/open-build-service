@@ -1,0 +1,26 @@
+- @pagetitle = 'Submit as Update'
+
+.row
+  .col
+    .card
+      = render partial: 'webui/project/tabs', locals: { project: @project }
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+          .col-12
+            %p This will submit your project as a Maintenance Incident Request.
+          .col-12.col-md-9.col-lg-6
+            = form_tag(project_maintenance_incident_requests_path(@project)) do
+              = hidden_field_tag(:project, @project.name)
+              .form-group
+                = label_tag(:sourceproject, 'Project Submitted as Update:')
+                = text_field_tag(:sourceproject, @project.name, disabled: true, class: 'form-control')
+              .form-group
+                = label_tag(:releasetarget, 'Release Targets:')
+                - @release_targets.each do |release_target|
+                  = text_field_tag(:releasetarget, release_target, disabled: true, class: 'form-control')
+              .form-group
+                = label_tag(:description, 'Description:')
+                = text_area_tag(:description, '', rows: 3, class: 'form-control')
+              = submit_tag('Submit', class: 'btn btn-sm btn-primary px-4')
