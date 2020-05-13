@@ -1,6 +1,6 @@
 module Webui
   module Packages
-    class BsRequestsController < WebuiController
+    class BsRequestsController < Packages::MainController
       before_action :set_project
       before_action :require_package
 
