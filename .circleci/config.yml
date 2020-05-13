@@ -116,6 +116,15 @@ jobs:
             fi
 
             bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
+            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
+              echo "Running feature tests for mobile"
+              # simulating parallel tests - otherwise one rspec call overwrites the previous
+              export TEST_ENV_NUMBER=2
+              export PARALLEL_TEST_GROUPS="RSpec"
+              export CAPYBARA_DRIVER="mobile"
+              bundle exec rspec --format progress --format RspecJunitFormatter \
+                -o /home/frontend/rspec/rspec.mobile.xml $(circleci tests glob 'spec/features/beta/**/*_spec.rb')
+            fi
 
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
