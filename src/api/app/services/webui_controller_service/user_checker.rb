@@ -1,6 +1,7 @@
 module WebuiControllerService
   class UserChecker
     attr_reader :user_login, :http_request
+
     def initialize(http_request:, config:)
       @http_request = http_request
       @config = config

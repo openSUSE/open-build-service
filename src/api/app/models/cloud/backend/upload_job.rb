@@ -7,6 +7,7 @@ module Cloud
 
       attr_accessor :xml, :exception
       attr_writer :xml_object
+
       def_delegators :xml_object,
                      :name,
                      :state,

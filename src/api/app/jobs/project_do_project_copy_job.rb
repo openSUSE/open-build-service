@@ -2,6 +2,7 @@ class ProjectDoProjectCopyJob < ApplicationJob
   queue_as :quick
 
   attr_accessor :project, :params
+
   def perform(project_id, params)
     self.project = Project.find(project_id)
     self.params = params

@@ -5,6 +5,7 @@ module Cloud
     extend Forwardable
 
     attr_accessor :user_upload_job, :backend_upload_job, :target_params, :filename, :arch, :target, :user
+
     validate :validate_dependencies
     validates :user, presence: true
     validates :filename, presence: true, format: {

@@ -32,6 +32,7 @@ class Package < ApplicationRecord
   delegate :name, to: :project, prefix: true
 
   attr_accessor :commit_opts, :commit_user
+
   after_initialize do
     @commit_opts = {}
     # might be nil - in this case we rely on the caller to set it

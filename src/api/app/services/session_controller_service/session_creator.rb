@@ -1,6 +1,7 @@
 module SessionControllerService
   class SessionCreator
     attr_accessor :user
+
     def initialize(params)
       @username = params.fetch(:username, '')
       @password = params.fetch(:password, '')

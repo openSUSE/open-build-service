@@ -3,6 +3,7 @@ require 'memprof'
 class MemoryDebugger
   class Line
     attr_accessor :line, :lines, :parent
+
     def initialize(line)
       self.line = line
       self.lines = []
