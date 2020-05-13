@@ -397,6 +397,7 @@ sub mergeservicerun {
   delete $files->{'_service'};
   for (sort keys %$files) {
     next unless /^_service:.*:(.*?)$/s;
+    die("cannot create a link from a service") if $1 eq '_link';
     $files->{$1} = $files->{$_};
     delete $files->{$_};
     BSSrcrep::copyonefile($projid, $packid, $1, $projid, $packid, $_, $files->{$1});
