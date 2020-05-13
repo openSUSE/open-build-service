@@ -28,5 +28,13 @@ please review.</p>\n"
         "<p>anbox<a href='the number'>400000+22d000</a></p>\n"
       )
     end
+
+    it 'does remove dangerous html from the view' do
+      expect(render_as_markdown('<script></script>')).to eq('')
+    end
+
+    it 'does remove dangerous html from inside the links' do
+      expect(render_as_markdown('[<script></script>](https://build.opensuse.org)')).to eq("<p><a href='https://build.opensuse.org'></a></p>\n")
+    end
   end
 end
