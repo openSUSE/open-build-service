@@ -58,7 +58,9 @@ please review. Also you, <a href='https://unconfigured.openbuildservice.org/user
     end
 
     it 'does remove dangerous html from inside the links' do
-      expect(render_as_markdown('[<script></script>](https://build.opensuse.org)')).to eq("<p><a href='https://build.opensuse.org'>&lt;script&gt;&lt;/script&gt;</a></p>\n")
+      # rubocop:disable Layout/LineLength
+      expect(render_as_markdown('[<script></script>](https://build.opensuse.org)')).to eq("<p><a href='https://build.opensuse.org'>&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;</a></p>\n")
+      # rubocop:enable Layout/LineLength
     end
   end
 end
