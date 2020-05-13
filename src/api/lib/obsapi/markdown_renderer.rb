@@ -1,7 +1,7 @@
 require 'uri'
 
 module OBSApi
-  class MarkdownRenderer < Redcarpet::Render::HTML
+  class MarkdownRenderer < Redcarpet::Render::Safe
     include Rails.application.routes.url_helpers
 
     def self.default_url_options
