@@ -92,6 +92,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       visit package_show_path(package: package, project: user.home_project)
       click_link('Requests')
       expect(page).to have_css('table#all_requests_table tbody tr', count: 1)
+      first('table#all_requests_table tbody tr td').click if mobile?
       find('a', class: 'request_link').click
       expect(page.current_path).to match('/request/show/\\d+')
     end
