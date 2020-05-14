@@ -28,6 +28,8 @@ RSpec.feature 'Groups', type: :feature, js: true do
   scenario 'visit group show page' do
     visit group_show_path(group_1)
 
+    # TODO: Remove this line if the dropdown is changed to a scrollable tab, and responsive_ux is out of beta.
+    find('.nav-link.dropdown-toggle').click if mobile?
     expect(page).to have_content('Incoming Reviews')
     expect(page).to have_content('Incoming Requests')
     expect(page).to have_content('All Requests')
