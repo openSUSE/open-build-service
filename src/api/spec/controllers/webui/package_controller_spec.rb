@@ -1368,20 +1368,19 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
   end
 
-  describe 'POST #save_new' do
+  describe 'POST #create' do
     let(:package_name) { 'new-package' }
     let(:my_user) { user }
     let(:post_params) do
-      { project: source_project, name: package_name,
-        title: 'package foo',
-        description: 'awesome package foo' }
+      { project: source_project,
+        package: { name: package_name, title: 'package foo', description: 'awesome package foo' } }
     end
 
     context 'Package#save failed' do
       before do
         allow_any_instance_of(Package).to receive(:save).and_return(false)
         login(my_user)
-        post :save_new, params: post_params
+        post :create, params: post_params
       end
 
       it { expect(response).to redirect_to(project_show_path(source_project)) }
@@ -1391,7 +1390,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     context 'package creation' do
       before do
         login(my_user)
-        post :save_new, params: post_params
+        post :create, params: post_params
       end
 
       context 'valid package name' do
@@ -1402,10 +1401,8 @@ RSpec.describe Webui::PackageController, vcr: true do
 
       context 'valid package with source_protection enabled' do
         let(:post_params) do
-          { project: source_project, name: package_name,
-            title: 'package foo',
-            description: 'awesome package foo', source_protection: 'foo',
-            disable_publishing: 'bar' }
+          { project: source_project, source_protection: 'foo', disable_publishing: 'bar',
+            package: { name: package_name, title: 'package foo', description: 'awesome package foo' } }
         end
 
         it { expect(Package.find_by(name: package_name).flags).to include(Flag.find_by_flag('sourceaccess')) }
@@ -1415,14 +1412,14 @@ RSpec.describe Webui::PackageController, vcr: true do
       context 'invalid package name' do
         let(:package_name) { 'A' * 250 }
 
-        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(response).to redirect_to(new_package_path(source_project)) }
         it { expect(flash[:error]).to match("Invalid package name:\s.*") }
       end
 
       context 'package already exist' do
         let(:package_name) { package.name }
 
-        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(response).to redirect_to(new_package_path(source_project)) }
         it { expect(flash[:error]).to start_with("Package '#{package.name}' already exists in project") }
       end
 
@@ -1430,7 +1427,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         let(:package_name) { 'foo' }
         let(:my_user) { create(:confirmed_user, login: 'another_user') }
 
-        it { expect(response).to redirect_to(project_new_package_path(source_project)) }
+        it { expect(response).to redirect_to(new_package_path(source_project)) }
         it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
       end
     end

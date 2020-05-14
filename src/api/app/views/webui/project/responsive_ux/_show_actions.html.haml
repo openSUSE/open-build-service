@@ -23,7 +23,7 @@
       New Image
   - if User.possibly_nobody.can_modify?(project) && show_package_actions?
     %li.nav-item
-      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
+      = link_to(new_package_path(project), class: 'nav-link') do
         %i.fas.fa-plus-circle.fa-lg.mr-2
         Create Package
     %li.nav-item

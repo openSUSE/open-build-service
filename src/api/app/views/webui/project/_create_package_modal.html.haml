@@ -1,8 +1,0 @@
-.modal.fade#new-package-modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'new-package-modal-label', hidden: true } }
-  .modal-dialog.modal-lg{ role: 'document' }
-    .modal-content
-      .modal-header
-        %h5.modal-title#new-package-modal-label
-          Create Package for #{project.name}
-      .modal-body
-        = render partial: 'create_package_form', locals: { project: project, modal: true }

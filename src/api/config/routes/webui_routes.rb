@@ -66,7 +66,8 @@ OBSApi::Application.routes.draw do
         get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
         post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
-        post 'package/save_new/:project' => :save_new, constraints: cons, as: 'save_new_package'
+        post 'package/create/:project' => :create, constraints: cons, as: 'packages'
+        get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
         post 'package/branch' => :branch, constraints: cons
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
@@ -183,7 +184,6 @@ OBSApi::Application.routes.draw do
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      get 'project/new_package/:project' => :new_package, constraints: cons, as: 'project_new_package'
       get 'project/release_request/(:project)' => :release_request, constraints: cons, as: :project_release_request
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons, as: :project_new_release_request
       get 'project/show/:project' => :show, constraints: cons, as: 'project_show'

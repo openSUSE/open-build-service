@@ -1,0 +1,31 @@
+- @pagetitle = "Create Package for #{@project}"
+
+.row
+  .col
+    .card
+      -# We display the project tabs since we're creating a package in the context of the project `@project`
+      = render partial: 'webui/project/tabs', locals: { project: @project }
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+          .col-12.col-md-9.col-lg-6
+            = form_for(:package, url: packages_url(@project)) do |f|
+              .form-group
+                = f.label(:name)
+                %abbr.text-danger{ title: 'required' } *
+                = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name')
+              .form-group
+                = f.label(:title)
+                = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
+              .form-group
+                = f.label(:description)
+                = f.text_area(:description, cols: 80, rows: 10, class: 'form-control')
+              - unless @configuration['hide_private_options']
+                .form-group.custom-control.custom-checkbox
+                  = check_box_tag :source_protection, 1, false, class: 'custom-control-input', type: 'checkbox'
+                  %label.custom-control-label{ for: 'source_protection' } Deny access to source of package
+              .form-group.custom-control.custom-checkbox
+                = check_box_tag :disable_publishing, 1, false, class: 'custom-control-input', type: 'checkbox'
+                %label.custom-control-label{ for: 'disable_publishing' } Disable build results publishing
+              = f.submit('Create', class: 'btn btn-primary px-4')
