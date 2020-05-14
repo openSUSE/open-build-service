@@ -29,12 +29,9 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     visit package_show_path(project: update_project, package: package)
 
     click_menu_link('Actions', 'Branch package')
-    sleep 1 # Needed to avoid a flickering test.
     expect(page).to have_text('Source')
 
-    within('#branch-modal .modal-footer') do
-      click_button('Accept')
-    end
+    click_button('Accept')
 
     expect(page).to have_text('Successfully branched package')
 

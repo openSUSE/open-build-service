@@ -5,6 +5,7 @@
 .row
   .col
     .card
+      = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
       .card-body
         .row
           .col-12
@@ -18,7 +19,7 @@
               -# FIXME: get rid of this helper
               = project_or_package_link(project: branch_project, short: true)
           .col-12.col-md-9.col-xl-6
-            = form_tag({ controller: :package, action: :create_branch }, method: :post) do
+            = form_tag(packages_branches_path) do
               %details
                 %summary More options
                 .pt-2.pl-2

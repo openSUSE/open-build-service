@@ -1,12 +1,12 @@
 require 'browser_helper'
 
-RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: false do
+RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:maintenance_coord_user) { create(:confirmed_user, :with_home, login: 'maintenance_coord') }
   let(:project) { create(:project_with_repository, name: 'ProjectWithRepo') }
   let(:package) { create(:package_with_file, project: project, name: 'ProjectWithRepo_package') }
-  let(:update_project) { create(:update_project, target_project: project, name: "#{project.name}:Update") }
+  let(:update_project) { create(:update_project, target_project: project, name: "#{project}:Update") }
   let(:maintenance_project) do
     create(:maintenance_project,
            name: 'MaintenanceProject',

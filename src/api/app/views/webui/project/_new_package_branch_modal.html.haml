@@ -20,7 +20,7 @@
             - @remote_projects.each do |_id, name, title|
               %li.list-inline-item
                 = link_to("#{name}: #{title}", project_show_path(project: name))
-        = form_tag(package_create_branch_path) do
+        = form_tag(packages_branches_path) do
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
                                                                    data: { source: autocomplete_projects_path } }
           = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name',

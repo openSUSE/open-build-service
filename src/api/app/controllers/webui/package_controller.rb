@@ -1,4 +1,3 @@
-# rubocop:disable Metrics/ClassLength
 class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include ParsePackageDiff
@@ -16,7 +15,7 @@ class Webui::PackageController < Webui::WebuiController
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
-                                         :binary_download, :branch]
+                                         :binary_download]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -374,86 +373,6 @@ class Webui::PackageController < Webui::WebuiController
       'description': description,
       'cleanupSource': @project.branch? # We should remove the package if this request is a branch
     }
-  end
-
-  def branch
-    @revision = params[:revision] || @package.rev
-  end
-
-  def create_branch
-    params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
-    params.fetch(:linked_package) { raise ArgumentError, 'Linked Package parameter missing' }
-
-    # Full permission check happens in BranchPackage.new(branch_params).branch command
-    # Are we linking a package from a remote instance?
-    # Then just try, the remote instance will handle checking for existence authorization etc.
-    if Project.find_remote_project(params[:linked_project])
-      source_project_name = params[:linked_project]
-      source_package_name = params[:linked_package]
-    else
-      options = { use_source: false, follow_project_links: true, follow_multibuild: true }
-      source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package], options)
-
-      source_project_name = source_package.project.name
-      source_package_name = source_package.name
-      authorize source_package, :create_branch?
-    end
-
-    branch_params = {
-      project: source_project_name,
-      package: source_package_name
-    }
-
-    # Set the branch to the current revision if revision is present
-    if params[:current_revision].present?
-      options = { project: source_project_name, package: source_package_name, expand: 1 }
-      options[:rev] = params[:revision] if params[:revision].present?
-      dirhash = Directory.hashed(options)
-      branch_params[:rev] = dirhash['xsrcmd5'] || dirhash['rev']
-
-      unless branch_params[:rev]
-        flash[:error] = dirhash['error'] || 'Package has no source revision yet'
-        redirect_back(fallback_location: root_path)
-        return
-      end
-    end
-
-    branch_params[:target_project] = params[:target_project] if params[:target_project].present?
-    branch_params[:target_package] = params[:target_package] if params[:target_package].present?
-    branch_params[:add_repositories_rebuild] = params[:add_repositories_rebuild] if params[:add_repositories_rebuild].present?
-    branch_params[:autocleanup] = params[:autocleanup] if params[:autocleanup].present?
-
-    branched_package = BranchPackage.new(branch_params).branch
-    created_project_name = branched_package[:data][:targetproject]
-    created_package_name = branched_package[:data][:targetpackage]
-
-    Event::BranchCommand.create(project: source_project_name, package: source_package_name,
-                                targetproject: created_project_name, targetpackage: created_package_name,
-                                user: User.session!.login)
-
-    branched_package_object = Package.find_by_project_and_name(created_project_name, created_package_name)
-
-    if request.env['HTTP_REFERER'] == image_templates_url && branched_package_object.kiwi_image?
-      redirect_to(import_kiwi_image_path(branched_package_object.id))
-    else
-      flash[:success] = 'Successfully branched package'
-      redirect_to(package_show_path(project: created_project_name, package: created_package_name))
-    end
-  rescue BranchPackage::DoubleBranchPackageError => e
-    flash[:notice] = 'You have already branched this package'
-    redirect_to(package_show_path(project: e.project, package: e.package))
-  rescue Package::UnknownObjectError, Project::UnknownObjectError
-    flash[:error] = 'Failed to branch: Package does not exist.'
-    redirect_back(fallback_location: root_path)
-  rescue ArgumentError => e
-    flash[:error] = "Failed to branch: #{e.message}"
-    redirect_back(fallback_location: root_path)
-  rescue CreateProjectNoPermission
-    flash[:error] = 'Sorry, you are not authorized to create this Project.'
-    redirect_back(fallback_location: root_path)
-  rescue APIError, ActiveRecord::RecordInvalid => e
-    flash[:error] = "Failed to branch: #{e.message}"
-    redirect_back(fallback_location: root_path)
   end
 
   def save
@@ -1086,4 +1005,3 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
