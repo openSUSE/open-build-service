@@ -9,6 +9,7 @@ module Package::Errors
 
   class DeleteError < APIError
     attr_accessor :packages
+
     setup 'delete_error'
   end
 

@@ -1,6 +1,7 @@
 module ProjectConfigurationService
   class ProjectConfigurationPresenter
     attr_reader :config
+
     def initialize(project, params)
       @project = project
       @params = params

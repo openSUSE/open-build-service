@@ -16,6 +16,7 @@ class Dog < ApplicationRecord
 
   #### Attributes
   attr_accessor :number_of_barks
+
   attribute_method_prefix 'reset_'
 
   alias_method :go_home, :save

@@ -70,6 +70,7 @@ module PrettyNestedErrors
 
   included do
     attr_reader :nested_error_messages
+
     class_attribute :nested_error_groupings
 
     def self.nest_errors_for(association_name, options = {})

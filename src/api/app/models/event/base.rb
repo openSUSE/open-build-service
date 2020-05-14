@@ -21,6 +21,7 @@ module Event
     class << self
       attr_accessor :description
       attr_accessor :message_bus_routing_key
+
       @payload_keys = nil
       @create_jobs = nil
       @classnames = nil

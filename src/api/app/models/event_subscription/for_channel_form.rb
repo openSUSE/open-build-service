@@ -3,6 +3,7 @@ class EventSubscription
     DISABLE_FOR_EVENTS = ['Event::BuildFail', 'Event::ServiceFail'].freeze
 
     attr_reader :name, :subscription
+
     delegate :enabled?, to: :subscription
 
     def initialize(channel_name, subscription, event)

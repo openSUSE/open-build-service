@@ -5,6 +5,7 @@ module Cloud
       include ActiveModel::Model
 
       attr_accessor :region, :ami_name, :vpc_subnet_id
+
       validates :region, presence: true, inclusion: {
         in: Cloud::Ec2::Configuration::REGIONS.map(&:second), message: "'%{value}' is not a valid EC2 region"
       }
