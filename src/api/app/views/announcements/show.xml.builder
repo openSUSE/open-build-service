@@ -1,5 +1,1 @@
-xml.announcement do
-  xml.id      announcement.id
-  xml.title   announcement.title
-  xml.content announcement.content
-end
+render(partial: 'announcement', locals: { builder: xml, announcement: announcement })
