@@ -371,7 +371,9 @@ class SourceController < ApplicationController
       end
     end
 
-    Package.verify_file!(@pack, params[:filename], request.raw_post)
+    readable = proc { request.raw_post }
+    readable.define_singleton_method(:read) { call }
+    Package.verify_file!(@pack, params[:filename], readable)
 
     @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
     pass_to_backend(@path)
