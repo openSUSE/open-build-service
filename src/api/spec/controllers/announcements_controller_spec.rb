@@ -26,8 +26,7 @@ RSpec.describe AnnouncementsController do
           announcements.each do |announcement|
             assert_select 'announcement' do
               assert_select 'id',      announcement.id.to_s
-              assert_select 'title',   announcement.title
-              assert_select 'content', announcement.content
+              assert_select 'message', announcement.message
             end
           end
         end
@@ -58,8 +57,7 @@ RSpec.describe AnnouncementsController do
       it 'responds with the announcement' do
         assert_select 'announcement' do
           assert_select 'id',      /\d+/
-          assert_select 'title',   announcement.title
-          assert_select 'content', announcement.content
+          assert_select 'message', announcement.message
         end
       end
     end
@@ -85,14 +83,13 @@ RSpec.describe AnnouncementsController do
       subject! { post :create, body: new_announcement_xml, format: :xml }
 
       it 'creates a new Announcement' do
-        expect(Announcement.where(title: new_announcement.title, content: new_announcement.content)).to exist
+        expect(Announcement.where(message: new_announcement.message)).to exist
       end
 
       it 'responds with the created announcement' do
         assert_select 'announcement' do
           assert_select 'id',      /\d+/
-          assert_select 'title',   new_announcement.title
-          assert_select 'content', new_announcement.content
+          assert_select 'message', new_announcement.message
         end
       end
     end
@@ -101,8 +98,7 @@ RSpec.describe AnnouncementsController do
       let(:invalid_announcement_xml) do
         <<~XML
           <announcement>
-            <title>My announcement</title>
-            <content></content>
+            <message></message>
           </announcement>
         XML
       end
@@ -112,7 +108,7 @@ RSpec.describe AnnouncementsController do
       it 'returns a with an error' do
         expect(subject).to have_http_status(:bad_request)
         assert_select 'status[code=invalid_announcement]' do
-          assert_select 'summary', "[\"Content can't be blank\"]"
+          assert_select 'summary', "[\"Message can't be blank\"]"
         end
       end
     end
@@ -120,14 +116,13 @@ RSpec.describe AnnouncementsController do
 
   describe 'PUT #update' do
     let(:updated_announcement_xml) do
-      announcement.title = 'Changed title'
+      announcement.message = 'Changed title'
       announcement.to_xml(Announcement::DEFAULT_RENDER_PARAMS)
     end
     let(:invalid_announcement_xml) do
       <<~XML
         <announcement>
-          <title/>
-          <content>Terms of Service</content>
+          <message></message>
         </announcement>
       XML
     end
@@ -136,7 +131,7 @@ RSpec.describe AnnouncementsController do
       subject! { put :update, params: { id: announcement }, body: updated_announcement_xml, format: :xml }
 
       it 'updates the requested announcement' do
-        expect(announcement.reload.title).to eq('Changed title')
+        expect(announcement.reload.message).to eq('Changed title')
         expect(subject).to have_http_status(:success)
       end
     end
@@ -147,7 +142,7 @@ RSpec.describe AnnouncementsController do
       it 'returns an error' do
         expect(subject).to have_http_status(:bad_request)
         assert_select 'status[code=invalid_announcement]' do
-          assert_select 'summary', "[\"Title can't be blank\"]"
+          assert_select 'summary', "[\"Message can't be blank\"]"
         end
       end
     end
