@@ -385,10 +385,10 @@ class BsRequestPermissionCheck
         @write_permission_in_this_action = true
       end
     else
-      if @target_project && User.session!.can_create_package_in?(@target_project, true)
+      if @target_project && Pundit.policy(User.session!, Package.new(project: @target_project), true).create?
         @write_permission_in_target = true
       end
-      if @target_project && User.session!.can_create_package_in?(@target_project, ignore_lock)
+      if @target_project && Pundit.policy(User.session!, Package.new(project: @target_project), ignore_lock).create?
         @write_permission_in_this_action = true
       end
     end

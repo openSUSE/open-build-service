@@ -448,6 +448,7 @@ class User < ApplicationRecord
     end
   end
 
+  # FIXME: This should be a policy
   def can_modify?(object, ignore_lock = nil)
     case object
     when Project
@@ -461,6 +462,7 @@ class User < ApplicationRecord
     end
   end
 
+  # FIXME: This should be a policy
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
     unless project.is_a?(Project)
@@ -475,6 +477,7 @@ class User < ApplicationRecord
     can_modify_project_internal(project, ignore_lock)
   end
 
+  # FIXME: This should be a policy
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
@@ -488,23 +491,12 @@ class User < ApplicationRecord
     false
   end
 
+  # FIXME: This should be a policy
   def can_modify_user?(user)
     is_admin? || self == user
   end
 
-  # project is instance of Project
-  def can_create_package_in?(project, ignore_lock = nil)
-    unless project.is_a?(Project)
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
-    end
-
-    return false if !ignore_lock && project.is_locked?
-    return true if is_admin?
-    return true if has_global_permission?('create_package')
-    return true if has_local_permission?('create_package', project)
-    false
-  end
-
+  # FIXME: This should be a policy
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
@@ -518,6 +510,7 @@ class User < ApplicationRecord
     has_local_permission?('create_project', parent_project)
   end
 
+  # FIXME: This should be a policy
   def can_modify_attribute_definition?(object)
     can_create_attribute_definition?(object)
   end
@@ -528,6 +521,7 @@ class User < ApplicationRecord
     true
   end
 
+  # FIXME: This should be a policy
   def can_create_attribute_definition?(object)
     object = object.attrib_namespace if object.is_a?(AttribType)
     unless object.is_a?(AttribNamespace)
@@ -546,6 +540,7 @@ class User < ApplicationRecord
     true
   end
 
+  # FIXME: This should be a policy
   def can_create_attribute_in?(object, atype)
     if !object.is_a?(Project) && !object.is_a?(Package)
       raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
@@ -560,14 +555,17 @@ class User < ApplicationRecord
     abies.any? { |rule| attribute_modification_rule_matches?(rule, object) }
   end
 
+  # FIXME: This should be a policy
   def can_download_binaries?(package)
     can?(:download_binaries, package)
   end
 
+  # FIXME: This should be a policy
   def can_source_access?(package)
     can?(:source_access, package)
   end
 
+  # FIXME: This should be a policy
   def can?(key, package)
     is_admin? ||
       has_global_permission?(key.to_s) ||

@@ -35,7 +35,8 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
-  after_action :verify_authorized, only: [:remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :save_file, :abort_build, :trigger_rebuild,
+                                          :wipe_binaries, :save_meta, :save, :abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -338,11 +339,12 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def new
-    authorize @project, :update?
+    authorize Package.new(project: @project), :create?
   end
 
   def create
     @package = @project.packages.build(package_params)
+    authorize @package, :create?
 
     if params[:source_protection]
       @package.flags.build(flag: :sourceaccess, status: :disable)
@@ -354,6 +356,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = "Package '#{@package}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
+      # TODO better error messages for users, don't hide them with a generic error message
       flash[:error] = "Failed to create package '#{@package}'"
       redirect_to controller: :project, action: :show, project: params[:project]
     end
@@ -1009,12 +1012,6 @@ class Webui::PackageController < Webui::WebuiController
     # FIXME: This should be a validation in the Package model
     if Package.exists_by_project_and_name(@project.name, package_name)
       flash[:error] = "Package '#{package_name}' already exists in project '#{@project}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-    # FIXME: This should be a Pundit policy
-    unless User.possibly_nobody.can_create_package_in?(@project)
-      flash[:error] = "You can't create packages in #{@project.name}"
       redirect_to action: :new, project: @project
       return false
     end
