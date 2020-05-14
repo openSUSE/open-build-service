@@ -55,7 +55,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Create')
 
       expect(page).to have_text("Invalid package name: 'cool stuff'")
-      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+      expect(page.current_path).to eq("/package/new/#{user.home_project_name}")
     end
 
     scenario 'that already exists' do
@@ -65,7 +65,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Create')
 
       expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
-      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+      expect(page.current_path).to eq("/package/new/#{user.home_project_name}")
     end
 
     scenario 'with valid data' do
@@ -91,7 +91,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).not_to have_link('Create package')
 
       # Use direct path instead
-      visit "/project/new_package/#{global_project}"
+      visit "/package/new/#{global_project}"
 
       expect(page).to have_text('Sorry, you are not authorized to update this Project')
       expect(page.current_path).to eq(root_path)

@@ -6,7 +6,7 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
 
   before_action :set_project, only: [:show, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                     :branch_diff_info, :rdiff, :save_new, :save, :remove, :add_file, :save_file,
+                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :add_file, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
@@ -29,7 +29,7 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
-  before_action :check_package_name_for_new, only: [:save_new]
+  before_action :check_package_name_for_new, only: [:create]
 
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
@@ -337,10 +337,13 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def save_new
-    @package = @project.packages.build(name: @package_name)
-    @package.title = params[:title]
-    @package.description = params[:description]
+  def new
+    authorize @project, :update?
+  end
+
+  def create
+    @package = @project.packages.build(package_params)
+
     if params[:source_protection]
       @package.flags.build(flag: :sourceaccess, status: :disable)
     end
@@ -348,8 +351,8 @@ class Webui::PackageController < Webui::WebuiController
       @package.flags.build(flag: :publish, status: :disable)
     end
     if @package.save
-      flash[:success] = "Package '#{@package.name}' was created successfully"
-      redirect_to action: :show, project: params[:project], package: @package_name
+      flash[:success] = "Package '#{@package}' was created successfully"
+      redirect_to action: :show, project: params[:project], package: @package.name
     else
       flash[:error] = "Failed to create package '#{@package}'"
       redirect_to controller: :project, action: :show, project: params[:project]
@@ -840,6 +843,10 @@ class Webui::PackageController < Webui::WebuiController
 
   private
 
+  def package_params
+    params.require(:package).permit(:name, :title, :description)
+  end
+
   def validate_xml
     Suse::Validator.validate('package', params[:meta])
     @meta_xml = Xmlhash.parse(params[:meta])
@@ -991,23 +998,24 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def check_package_name_for_new
-    @package_name = params[:name]
-    @package_title = params[:title]
-    @package_description = params[:description]
+    package_name = params[:package][:name]
 
-    unless Package.valid_name?(@package_name)
-      flash[:error] = "Invalid package name: '#{@package_name}'"
-      redirect_to controller: :project, action: :new_package, project: @project
+    # FIXME: This should be a validation in the Package model
+    unless Package.valid_name?(package_name)
+      flash[:error] = "Invalid package name: '#{package_name}'"
+      redirect_to action: :new, project: @project
       return false
     end
-    if Package.exists_by_project_and_name(@project.name, @package_name)
-      flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
-      redirect_to controller: :project, action: :new_package, project: @project
+    # FIXME: This should be a validation in the Package model
+    if Package.exists_by_project_and_name(@project.name, package_name)
+      flash[:error] = "Package '#{package_name}' already exists in project '#{@project}'"
+      redirect_to action: :new, project: @project
       return false
     end
+    # FIXME: This should be a Pundit policy
     unless User.possibly_nobody.can_create_package_in?(@project)
       flash[:error] = "You can't create packages in #{@project.name}"
-      redirect_to controller: :project, action: :new_package, project: @project
+      redirect_to action: :new, project: @project
       return false
     end
     true

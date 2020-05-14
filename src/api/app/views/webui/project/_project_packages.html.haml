@@ -15,7 +15,7 @@
       .pt-4
         %ul.list-inline
           %li.list-inline-item
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-modal' }) do
+            = link_to(new_package_path(project), class: 'nav-link') do
               %i.fas.fa-plus-circle.text-primary
               Create Package
           %li.list-inline-item
