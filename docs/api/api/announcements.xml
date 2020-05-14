@@ -1,12 +1,10 @@
 <announcements>
   <announcement>
     <id>3</id>
-    <title>Keep Calm</title>
-    <content>And Carry On!</content>
+    <message>Keep Calm And Carry On!</message>
   </announcement>
   <announcement>
     <id>4</id>
-    <title>Developers Developers</title>
-    <content>Developers!</content>
+    <message>### Developers! We support _Markdown_</message>
   </announcement>
 </announcements>
