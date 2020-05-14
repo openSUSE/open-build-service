@@ -2188,6 +2188,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/_pattern/, @response.body)
 
+    # verify a pattern file (_pattern package exists)
+    put '/source/home:coolo:test/_pattern/mypattern', params: 'broken'
+    assert_response 400
+
     # delete failure
     prepare_request_with_user('adrian_nobody', 'buildservice')
     delete '/source/home:coolo:test/_pattern/mypattern'
