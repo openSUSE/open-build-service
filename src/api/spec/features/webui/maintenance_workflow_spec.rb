@@ -46,13 +46,9 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
     click_link('Submit as Update')
-    # we need this find to wait for the dialog to appear
-    expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
+    expect(page).to have_title('Submit as Update')
     fill_in('description', with: 'I want the update')
-
-    within('#project-submit-update-modal .modal-footer') do
-      click_button('Submit')
-    end
+    click_button('Submit')
 
     expect(page).to have_css('#flash', text: 'Created maintenance incident request')
 
@@ -107,13 +103,9 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
     click_link('Submit as Update')
-    # we need this find to wait for the dialog to appear
-    expect(find('#project-submit-update-modal-label')).to have_text('Submit as Update')
+    expect(page).to have_title('Submit as Update')
     fill_in('description', with: 'I have a additional fix')
-
-    within('#project-submit-update-modal .modal-footer') do
-      click_button('Submit')
-    end
+    click_button('Submit')
 
     logout
 

@@ -248,11 +248,8 @@ OBSApi::Application.routes.draw do
       resource :rebuild_time, controller: 'webui/projects/rebuild_times', only: [:show], constraints: cons do
         get 'rebuild_time_png'
       end
-      resources :maintenance_incidents, controller: 'webui/projects/maintenance_incidents', only: [:index, :create], constraints: cons do
-        collection do
-          post 'create_request'
-        end
-      end
+      resources :maintenance_incidents, controller: 'webui/projects/maintenance_incidents', only: [:index, :create], constraints: cons
+      resources :maintenance_incident_requests, controller: 'webui/projects/maintenance_incident_requests', only: [:new, :create], constraints: cons
     end
 
     controller 'webui/request' do
