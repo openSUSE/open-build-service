@@ -29,8 +29,6 @@ class Webui::PackageController < Webui::WebuiController
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
-  before_action :check_package_name_for_new, only: [:create]
-
   before_action :handle_parameters_for_rpmlint_log, only: [:rpmlint_log]
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
@@ -356,8 +354,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = "Package '#{@package}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
-      # TODO better error messages for users, don't hide them with a generic error message
-      flash[:error] = "Failed to create package '#{@package}'"
+      flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
       redirect_to controller: :project, action: :show, project: params[:project]
     end
   end
@@ -998,24 +995,6 @@ class Webui::PackageController < Webui::WebuiController
     return unless Package.exists_on_backend?(linkinfo['package'], linkinfo['project'])
 
     @linkinfo = { remote_project: linkinfo['project'], package: linkinfo['package'] }
-  end
-
-  def check_package_name_for_new
-    package_name = params[:package][:name]
-
-    # FIXME: This should be a validation in the Package model
-    unless Package.valid_name?(package_name)
-      flash[:error] = "Invalid package name: '#{package_name}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-    # FIXME: This should be a validation in the Package model
-    if Package.exists_by_project_and_name(@project.name, package_name)
-      flash[:error] = "Package '#{package_name}' already exists in project '#{@project}'"
-      redirect_to action: :new, project: @project
-      return false
-    end
-    true
   end
 
   def find_last_req

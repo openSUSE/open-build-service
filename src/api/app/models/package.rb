@@ -104,10 +104,11 @@ class Package < ApplicationRecord
   validates :project_id, uniqueness: {
     scope: :name,
     message: lambda do |object, _data|
-      "##{object.project_id} already has a package with the name `#{object.name}`"
+      "#{object.project} already has a package with the name #{object}"
     end
   }
   validate :valid_name
+  validate :is_unique
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package
   has_one :token, class_name: 'Token::Service', foreign_key: :package_id, dependent: :destroy
@@ -1013,6 +1014,12 @@ class Package < ApplicationRecord
 
   def valid_name
     errors.add(:name, 'is illegal') unless Package.valid_name?(name)
+  end
+
+  def is_unique
+    return unless Package.exists_by_project_and_name(project.name, name)
+
+    errors.add(:name, "already exists in project #{project}")
   end
 
   def branch_from(origin_project, origin_package, opts)
