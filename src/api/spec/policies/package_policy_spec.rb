@@ -10,6 +10,51 @@ RSpec.describe PackagePolicy do
 
   subject { PackagePolicy }
 
+  context :create_in_locked_project_without_ignore_lock do
+    permissions :create? do
+      before do
+        allow(package.project).to receive(:is_locked?).and_return(true)
+        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+      end
+
+      it { is_expected.not_to permit(user, package) }
+      it { is_expected.not_to permit(other_user, package) }
+      it { is_expected.not_to permit(admin_user, package) }
+      it { is_expected.not_to permit(anonymous_user, package) }
+    end
+  end
+
+  context :create_in_locked_project_with_ignore_lock do
+    permissions :create? do
+      before do
+        allow(package.project).to receive(:is_locked?).and_return(true)
+        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+      end
+
+      # We cannot use the `permit` matcher due to the extra argument in `new`
+      it { expect(PackagePolicy.new(admin_user, package, true).create?).to be true }
+      it { expect(PackagePolicy.new(other_user, package, true).create?).to be true }
+      it { expect(PackagePolicy.new(user, package, true).create?).to be true }
+      it { expect(PackagePolicy.new(anonymous_user, package, true).create?).to be false }
+    end
+  end
+
+  context :create_in_unlocked_project do
+    permissions :create? do
+      before do
+        allow(other_user).to receive(:has_global_permission?).with('create_package').and_return(true)
+        allow(user).to receive(:has_local_permission?).with('create_package', package.project).and_return(true)
+      end
+
+      it { is_expected.to permit(admin_user, package) }
+      it { is_expected.to permit(other_user, package) }
+      it { is_expected.to permit(user, package) }
+      it { is_expected.not_to permit(anonymous_user, package) }
+    end
+  end
+
   context :branch_as_anonymous do
     permissions :branch? do
       before do

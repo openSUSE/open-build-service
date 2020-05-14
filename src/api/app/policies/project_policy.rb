@@ -59,11 +59,7 @@ class ProjectPolicy < ApplicationPolicy
     record.is_a?(Project)
   end
 
-  def can_create_package_in?
-    user.can_create_package_in?(record)
-  end
-
   def local_project_and_allowed_to_create_package_in?
-    local? && can_create_package_in?
+    local? && Pundit.policy(user, Package.new(project: record)).create?
   end
 end

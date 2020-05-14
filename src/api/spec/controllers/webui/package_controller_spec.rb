@@ -1378,13 +1378,12 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'Package#save failed' do
       before do
-        allow_any_instance_of(Package).to receive(:save).and_return(false)
         login(my_user)
-        post :create, params: post_params
+        post :create, params: post_params.merge(package: { name: package_name, title: 'a' * 251 })
       end
 
       it { expect(response).to redirect_to(project_show_path(source_project)) }
-      it { expect(flash[:error]).to eq("Failed to create package '#{package_name}'") }
+      it { expect(flash[:error]).to eq('Failed to create package: Title is too long (maximum is 250 characters)') }
     end
 
     context 'package creation' do
@@ -1427,8 +1426,8 @@ RSpec.describe Webui::PackageController, vcr: true do
         let(:package_name) { 'foo' }
         let(:my_user) { create(:confirmed_user, login: 'another_user') }
 
-        it { expect(response).to redirect_to(new_package_path(source_project)) }
-        it { expect(flash[:error]).to eq("You can't create packages in #{source_project.name}") }
+        it { expect(response).to redirect_to(root_path) }
+        it { expect(flash[:error]).to eq('Sorry, you are not authorized to create this Package.') }
       end
     end
   end

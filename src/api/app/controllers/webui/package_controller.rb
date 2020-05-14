@@ -339,15 +339,12 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def new
-    # FIXME: Use the package policy for this
-    authorize @project, :update?
+    authorize Package.new(project: @project), :create?
   end
 
   def create
     @package = @project.packages.build(package_params)
-
-    # FIXME: Use the package policy for this
-    authorize @project, :update?
+    authorize @package, :create?
 
     @package.flags.build(flag: :sourceaccess, status: :disable) if params[:source_protection]
     @package.flags.build(flag: :publish, status: :disable) if params[:disable_publishing]
@@ -356,7 +353,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:success] = "Package '#{@package}' was created successfully"
       redirect_to action: :show, project: params[:project], package: @package.name
     else
-      flash[:error] = "Failed to create package '#{@package}'"
+      flash[:error] = "Failed to create package: #{@package.errors.full_messages.join(', ')}"
       redirect_to controller: :project, action: :show, project: params[:project]
     end
   end
@@ -1014,12 +1011,7 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to action: :new, project: @project
       return false
     end
-    # FIXME: This should be a Pundit policy
-    unless User.possibly_nobody.can_create_package_in?(@project)
-      flash[:error] = "You can't create packages in #{@project.name}"
-      redirect_to action: :new, project: @project
-      return false
-    end
+
     true
   end
 

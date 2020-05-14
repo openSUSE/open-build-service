@@ -837,7 +837,7 @@ class SourceController < ApplicationController
       raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless tprj.is_a?(Project) && User.session!.can_create_package_in?(tprj)
+    unless tprj.is_a?(Project) && Pundit.policy(User.session!, Package.new(project: tprj)).create?
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
 
@@ -1103,7 +1103,7 @@ class SourceController < ApplicationController
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif !@project.is_a?(Project) || !User.session!.can_create_package_in?(@project)
+    elsif !@project.is_a?(Project) || !Pundit.policy(User.session!, Package.new(project: @project)).create?
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
     end
   end
