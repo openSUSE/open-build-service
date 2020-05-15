@@ -2548,6 +2548,49 @@ sub getbinaries {
   return @meta;
 }
 
+sub getlinkedccache {
+  my ($buildinfo, $odir) = @_;
+
+  mkdir_p($odir) || die("mkdir_p $odir: $!\n");
+  for my $other (@{$buildinfo->{'path'}}) {
+    if ($other->{'server'} ne $buildinfo->{'srcserver'}) {
+      my $oprojid = $other->{'project'};
+      my $orepoid = $other->{'repository'};
+      my $opackid = $buildinfo->{'package'};
+
+      next if $oprojid eq $buildinfo->{'project'} && $orepoid eq $buildinfo->{'repository'};
+
+      # do extra work for maintenance incidents
+      if ($buildinfo->{'releasename'}) {
+        $opackid = $buildinfo->{'releasename'};
+        eval {
+          my $link = BSRPC::rpc("$buildinfo->{'srcserver'}/source/$oprojid/$opackid/_link", $BSXML::link);
+          $opackid = $link->{'package'} if $link->{'package'} && !$link->{'project'};
+        };
+        warn($@) if $@ && $@ !~ /^404/;
+      }
+
+      my $res;
+      eval {
+        $res = BSRPC::rpc({
+          'uri' => "$other->{'server'}/build/$oprojid/$orepoid/$buildinfo->{'arch'}/$opackid/_ccache.tar",
+          'filename' => "$odir/_ccache.tar",
+          'timeout' => $gettimeout,
+          'receiver' => \&BSHTTP::file_receiver,
+        }, undef);
+      };
+      if ($@ && $@ !~ /^404/) {
+        warn($@);
+      } else {
+        $binariesdownload += 1;
+        $binariesdownloadsize += int($res->{'size'} / 1024);
+        last;
+      }
+    }
+  }
+  rmdir($odir);	# if not needed
+}
+
 sub getoldpackages {
   my ($buildinfo, $odir, $useccache) = @_;
 
@@ -3094,7 +3137,11 @@ sub dobuild {
         $useccache = 1;
     }
   }
-  getoldpackages($buildinfo, $oldpkgdir, $useccache) if $oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage';
+
+  if ($oldpkgdir && !$kiwimode && $buildinfo->{'file'} ne 'preinstallimage') {
+      getoldpackages($buildinfo, $oldpkgdir, $useccache);
+      getlinkedccache($buildinfo, $oldpkgdir) if $useccache && ! -f "$oldpkgdir/_ccache.tar";
+  }
 
   $stats->{'times'}->{'download'}->{'time'}->{'unit'} = "s";
   $stats->{'times'}->{'download'}->{'time'}->{'_content'} = (time() - $downloadstarttime);
