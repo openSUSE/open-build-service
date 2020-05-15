@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:19 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/_meta?user=admin
@@ -80,16 +80,16 @@ http_interactions:
           <description></description>
           <person userid="admin" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:19 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/_meta?user=admin
+    uri: http://backend:5352/source/project_4/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Taming a Sea Horse</title>
+        <project name="project_4">
+          <title>Stranger in a Strange Land</title>
           <description/>
         </project>
     headers:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '112'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_2">
-          <title>Taming a Sea Horse</title>
+        <project name="project_4">
+          <title>Stranger in a Strange Land</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:33 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/forbidden_package/_meta?user=admin
+    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_2">
-          <title>The Millstone</title>
-          <description>Ad quo dolorem rerum.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>The Way Through the Woods</title>
+          <description>Sit ea et quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,19 +150,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_2">
-          <title>The Millstone</title>
-          <description>Ad quo dolorem rerum.</description>
+        <package name="forbidden_package" project="project_4">
+          <title>The Way Through the Woods</title>
+          <description>Sit ea et quo.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:33 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/project_2/forbidden_package?comment&user=admin
+    uri: http://backend:5352/source/project_4/forbidden_package?comment&user=admin
     body:
       encoding: US-ASCII
       string: ''
@@ -191,6 +191,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:33 GMT
+recorded_with: VCR 5.1.0

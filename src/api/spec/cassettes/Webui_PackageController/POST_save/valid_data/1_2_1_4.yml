@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:46 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Man Within</title>
-          <description>Placeat occaecati sunt dicta.</description>
+          <title>Françoise Sagan</title>
+          <description>Sit odio vel in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '149'
+      - '138'
     body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package" project="home:tom">
-          <title>The Man Within</title>
-          <description>Placeat occaecati sunt dicta.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:46 GMT
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHBhY2thZ2UgbmFtZT0ibXlfcGFja2FnZSIgcHJvamVjdD0iaG9tZTp0b20iPgogIDx0aXRsZT5GcmFuw6dvaXNlIFNhZ2FuPC90aXRsZT4KICA8ZGVzY3JpcHRpb24+U2l0IG9kaW8gdmVsIGluLjwvZGVzY3JpcHRpb24+CjwvcGFja2FnZT4K
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:38 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -117,6 +114,6 @@ http_interactions:
           <title>New title for package</title>
           <description>New description for package</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:46 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:38 GMT
+recorded_with: VCR 5.1.0

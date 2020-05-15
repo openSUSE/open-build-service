@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:07 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_7
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Dicta quo mollitia sunt.</description>
+          <title>Of Human Bondage</title>
+          <description>Qui voluptatum quo velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Surprised by Joy</title>
-          <description>Dicta quo mollitia sunt.</description>
+          <title>Of Human Bondage</title>
+          <description>Qui voluptatum quo velit.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:07 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -111,8 +111,8 @@ http_interactions:
       string: |
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:07 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -144,6 +144,6 @@ http_interactions:
       string: |
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:07 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:37 GMT
+recorded_with: VCR 5.1.0

@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:21 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:20 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Et explicabo quasi facere.</description>
+          <title>All Passion Spent</title>
+          <description>Sit cupiditate dolores ad.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Et explicabo quasi facere.</description>
+          <title>All Passion Spent</title>
+          <description>Sit cupiditate dolores ad.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:21 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:20 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?cmd=rebuild&package=my_package&repository=non_existant_repository
@@ -114,6 +114,6 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:21 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:20 GMT
+recorded_with: VCR 5.1.0

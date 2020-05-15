@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:11 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:12 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Clouds of Witness</title>
-          <description>Eos nesciunt omnis similique.</description>
+          <title>Down to a Sunless Sea</title>
+          <description>Nisi quia veritatis aliquid.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Clouds of Witness</title>
-          <description>Eos nesciunt omnis similique.</description>
+          <title>Down to a Sunless Sea</title>
+          <description>Nisi quia veritatis aliquid.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:17:11 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:12 GMT
+recorded_with: VCR 5.1.0

@@ -39,17 +39,17 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_14
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_40
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Ut unde temporibus sint.</description>
+          <title>Many Waters</title>
+          <description>Provident autem omnis eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '139'
+      - '143'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Antic Hay</title>
-          <description>Ut unde temporibus sint.</description>
+          <title>Many Waters</title>
+          <description>Provident autem omnis eum.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:17 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:54 GMT
+recorded_with: VCR 5.1.0

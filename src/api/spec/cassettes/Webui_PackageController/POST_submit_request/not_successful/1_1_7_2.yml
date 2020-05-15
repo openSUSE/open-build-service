@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Nobis eaque at excepturi.</description>
+          <title>Edna O'Brien</title>
+          <description>Qui quia reprehenderit est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '145'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Nobis eaque at excepturi.</description>
+          <title>Edna O'Brien</title>
+          <description>Qui quia reprehenderit est.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_link
@@ -109,24 +109,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>6e3cb940a6f3f5b473a68d4ef83b7dce</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>3b4cc9074853a8980f29240aab0a4efa</srcmd5>
           <version>unknown</version>
-          <time>1569593801</time>
+          <time>1589555917</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:37 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_28/_meta?user=tom
+    uri: http://backend:5352/source/project_26/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_28">
-          <title>The Yellow Meads of Asphodel</title>
+        <project name="project_26">
+          <title>No Longer at Ease</title>
           <description/>
         </project>
     headers:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '115'
+      - '104'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_28">
-          <title>The Yellow Meads of Asphodel</title>
+        <project name="project_26">
+          <title>No Longer at Ease</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -190,6 +190,6 @@ http_interactions:
         <status code="400">
           <summary>_link is bad: projid '/Invalid' is illegal</summary>
         </status>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:41 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:37 GMT
+recorded_with: VCR 5.1.0
