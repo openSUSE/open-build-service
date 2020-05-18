@@ -99,13 +99,8 @@ class Package < ApplicationRecord
   validates :releasename, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
   validates :description, length: { maximum: 65_535 }
-  validates :project_id, uniqueness: {
-    scope: :name,
-    message: lambda do |object, _data|
-      "##{object.project_id} already has a package with the name `#{object.name}`"
-    end
-  }
   validate :valid_name
+  validate :unique?
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package # rubocop:disable Rails/RedundantForeignKey
   has_one :token, class_name: 'Token::Service', dependent: :destroy
@@ -1036,6 +1031,12 @@ class Package < ApplicationRecord
 
   def valid_name
     errors.add(:name, 'is illegal') unless Package.valid_name?(name)
+  end
+
+  def unique?
+    return unless Package.exists_by_project_and_name(project.name, name)
+
+    errors.add(:name, "#{name} already exists in project #{project}")
   end
 
   def branch_from(origin_project, origin_package, opts)
