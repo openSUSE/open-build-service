@@ -4,6 +4,7 @@ class StatusMessage < ApplicationRecord
   scope :alive, -> { where(deleted_at: nil).order('created_at DESC') }
 
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
+  enum communication_scope: { all_users: 0, logged_in_users: 1, admin_users: 2, in_beta_users: 3, in_rollout_users: 4 }
 
   def delete
     self.deleted_at = Time.now

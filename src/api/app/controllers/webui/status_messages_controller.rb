@@ -4,11 +4,11 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def create
     status_message = if params[:severity].to_sym == :announcement
-                       Announcement.new(message: params[:message])
+                       Announcement.new(message: params[:message], communication_scope: params[:communication_scope])
                      else
                        # TODO: make use of permissions.status_message_create
                        StatusMessage.new(message: params[:message], severity: params[:severity],
-                                         user: User.session!)
+                                         communication_scope: params[:communication_scope], user: User.session!)
                      end
 
     if status_message.save

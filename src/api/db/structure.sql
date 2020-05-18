@@ -3,6 +3,7 @@ CREATE TABLE `announcements` (
   `message` text COLLATE utf8mb4_unicode_ci,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
+  `communication_scope` int(11) DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
@@ -1252,6 +1253,7 @@ CREATE TABLE `status_messages` (
   `message` text COLLATE utf8mb4_unicode_ci,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
+  `communication_scope` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`) USING BTREE,
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
@@ -1509,4 +1511,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200421115317'),
 ('20200422134122'),
 ('20200423160517'),
-('20200511131709');
+('20200511131709'),
+('20200518115753'),
+('20200518131851');
+
+

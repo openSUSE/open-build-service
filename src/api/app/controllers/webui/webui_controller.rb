@@ -311,9 +311,31 @@ class Webui::WebuiController < ActionController::Base
     User.possibly_nobody
   end
 
+  def communication_scope(announcement)
+    case announcement.communication_scope.to_sym
+    when :admin_users
+      User.admins
+    when :in_rollout_users
+      User.in_rollout
+    when :in_beta_users
+      User.in_beta
+    when :logged_in_users
+      [User.session]
+    when :all_users
+      User.all
+    else
+      []
+    end
+  end
+
   def set_pending_announcement
-    return if Announcement.last.in?(User.possibly_nobody.announcements)
-    @pending_announcement = Announcement.last
+    return unless (announcement = Announcement.last)
+
+    user = User.possibly_nobody
+    return if user.announcements.include?(announcement)
+    return unless communication_scope(announcement).include?(user) # Is current user allowed to see the last announcement?
+
+    @pending_announcement = announcement
   end
 
   def add_arrays(arr1, arr2)

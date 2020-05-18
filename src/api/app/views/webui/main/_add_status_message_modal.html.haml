@@ -11,5 +11,9 @@
           .form-group
             = label_tag(:severity, 'Severity:')
             = select_tag(:severity, options_for_select(StatusMessage.severities.keys), class: 'form-control')
+          .form-group
+            = label_tag(:communication_scope, 'Communication Scope:')
+            - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
+            = select_tag(:communication_scope, options_for_select(options), class: 'form-control')
           .modal-footer
             = render partial: 'webui/shared/dialog_action_buttons'
