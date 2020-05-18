@@ -2164,7 +2164,10 @@ sub notify_jobresult {
         $failcnt += 1;
         return 1;
     };
-    BSFileDB::fdb_getall_reverse("$reporoot/$prpa/:jobhistory", $BSXML::jobhistlay, undef, $filter);
+    # each line is around <200 chars (biggest can be pacakage name)
+    # 1000 * 200 ~= ~1.6 MB
+    # setting it to 1000 skip over jobhistory of !$package
+    BSFileDB::fdb_getall_reverse("$reporoot/$prpa/:jobhistory", $BSXML::jobhistlay, 1000, $filter);
     $ninfo{'successive_failcount'} = $failcnt;
     BSNotify::notify('BUILD_FAIL', \%ninfo);
   }
