@@ -88,7 +88,7 @@ jobs:
             - .
 
   rspec:
-    parallelism: 5
+    parallelism: 3
     docker:
       - <<: *frontend_base
       - <<: *mariadb
@@ -105,26 +105,11 @@ jobs:
             cd src/api
             pickfile=log/pick.$CIRCLE_NODE_INDEX.list
 
-            # reserve the latest node for beta
-            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
-              echo "Testing beta"
-              circleci tests glob 'spec/features/beta/**/*_spec.rb' > $pickfile
-            else
-              # single out beta and db specs
-              circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/\(features/beta\|db\)' > spec.list
-              circleci tests split --total $((CIRCLE_NODE_TOTAL-1)) --split-by=timings < spec.list > $pickfile
-            fi
+            # single out beta and db specs
+            circleci tests glob 'spec/**/*_spec.rb' | grep -v 'spec/\(features\|db\)' > spec.list
+            circleci tests split --total $CIRCLE_NODE_TOTAL --split-by=timings < spec.list > $pickfile
 
             bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.xml $(cat $pickfile)
-            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
-              echo "Running feature tests for mobile"
-              # simulating parallel tests - otherwise one rspec call overwrites the previous
-              export TEST_ENV_NUMBER=2
-              export PARALLEL_TEST_GROUPS="RSpec"
-              export CAPYBARA_DRIVER="mobile"
-              bundle exec rspec --format progress --format RspecJunitFormatter \
-                -o /home/frontend/rspec/rspec.mobile.xml $(circleci tests glob 'spec/features/beta/**/*_spec.rb')
-            fi
 
             # run DB tests at the end of node 0
             # see https://github.com/openSUSE/open-build-service/issues/4959
@@ -145,9 +130,6 @@ jobs:
       - store_artifacts:
           path: ./src/api/log
           destination: rspec
-      - store_artifacts:
-          path: ./src/api/tmp/capybara
-          destination: capybara
       - store_test_results:
           path: /home/frontend/rspec
 
@@ -259,6 +241,55 @@ jobs:
             cd src/api
             brakeman .
 
+  feature:
+    parallelism: 3
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *wait_for_database
+      - run: *create_test_db
+      - run: mkdir /home/frontend/feature
+      - run:
+          name: Run rspec feature tests
+          command: |
+            cd src/api
+            pickfile=log/pick.$CIRCLE_NODE_INDEX.list
+
+            if test "$CIRCLE_NODE_INDEX" = 0; then
+              message="Running feature tests"
+              circleci tests glob 'spec/features/**/*_spec.rb' | grep -v 'spec/features/beta/' > $pickfile
+            else
+              message="Running beta feature tests"
+              circleci tests glob 'spec/features/beta/**/*_spec.rb' > $pickfile
+            fi
+
+            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
+              message="Running beta feature tests for mobile"
+              export CAPYBARA_DRIVER='mobile'
+            fi
+
+            echo $message
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml $(cat $pickfile)
+
+            mkdir coverage_results
+            cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json
+
+      - persist_to_workspace:
+          root: .
+          paths:
+            - src/api/coverage_results
+      - store_artifacts:
+          path: ./src/api/log
+          destination: feature
+      - store_artifacts:
+          path: ./src/api/tmp/capybara
+          destination: capybara
+      - store_test_results:
+          path: /home/frontend/feature
 
 workflows:
   version: 2
@@ -281,6 +312,10 @@ workflows:
           requires:
             - rspec
             - minitest
+            - feature
       - brakeman:
+          requires:
+            - checkout_code
+      - feature:
           requires:
             - checkout_code
