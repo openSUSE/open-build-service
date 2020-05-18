@@ -1,4 +1,18 @@
 class PackagePolicy < ApplicationPolicy
+  # FIXME: Using more than 2 arguments is considered a code smell.
+  def initialize(user, record, ignore_lock = false)
+    super(user, record)
+    @ignore_lock = ignore_lock
+  end
+
+  def create?
+    return false if !@ignore_lock && record.project.is_locked?
+    return true if user.is_admin? ||
+                   user.has_global_permission?('create_package') ||
+                   user.has_local_permission?('create_package', record.project)
+    false
+  end
+
   def branch?
     # same as Package.check_source_access!
     if source_access? || project_source_access?

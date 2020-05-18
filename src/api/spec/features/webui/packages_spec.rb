@@ -397,7 +397,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         # Use direct path instead
         visit "/package/new/#{global_project}"
 
-        expect(page).to have_text('Sorry, you are not authorized to update this Project')
+        expect(page).to have_text('Sorry, you are not authorized to create this Package')
         expect(page.current_path).to eq(root_path)
       end
 
