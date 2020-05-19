@@ -14,6 +14,11 @@
             = f.label(:severity) do
               Severity:
               %abbr.text-danger{ title: 'required' } *
+            %p With "announcement" severity the message will be displayed on the top and all over the web site and requires acknowledgement.
             - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
             = f.select(:severity, options_for_select(options), {}, class: 'custom-select')
+          .form-group
+            = f.label(:communication_scope, 'Communication Scope:')
+            - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
+            = f.select(:communication_scope, options_for_select(options), {}, class: 'custom-select')
           = f.submit 'Accept', class: 'btn btn-primary'

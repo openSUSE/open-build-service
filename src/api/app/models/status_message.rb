@@ -9,6 +9,7 @@ class StatusMessage < ApplicationRecord
   scope :announcements, -> { alive.where(severity: 'announcement') }
 
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
+  enum communication_scope: { all_users: 0, logged_in_users: 1, admin_users: 2, in_beta_users: 3, in_rollout_users: 4 }
 
   def delete
     self.deleted_at = Time.now
@@ -17,6 +18,22 @@ class StatusMessage < ApplicationRecord
 
   def acknowledge!
     users << User.session!
+  end
+
+  def visible_for_current_user?
+    current_user = User.possibly_nobody
+    case communication_scope.try(:to_sym)
+    when :admin_users
+      current_user.is_admin?
+    when :in_rollout_users
+      current_user.in_rollout?
+    when :in_beta_users
+      current_user.in_beta?
+    when :logged_in_users
+      User.session.present?
+    else # :all_users
+      true
+    end
   end
 end
 

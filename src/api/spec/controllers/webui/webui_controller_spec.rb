@@ -135,4 +135,168 @@ RSpec.describe Webui::WebuiController do
       end
     end
   end
+
+  describe '#current_announcement' do
+    shared_examples 'visible announcement' do
+      it 'gets an announcement' do
+        login(user)
+        get :index
+        expect(assigns(:current_announcement)).to eq(announcement)
+      end
+    end
+
+    shared_examples 'non-visible announcement' do
+      it 'does not get announcements' do
+        login(user)
+        get :index
+        expect(assigns(:current_announcement)).to be_nil
+      end
+    end
+
+    context 'when user is admin' do
+      let!(:user) { create(:admin_user, in_beta: false, in_rollout: false) }
+
+      context 'when announcement is for admins' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'admin_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for logged-in users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'logged_in_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for all users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'all_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in beta' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_beta_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for users in rollout' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_rollout_users') }
+        include_context 'non-visible announcement'
+      end
+    end
+
+    context 'when user is a common logged-in user' do
+      let!(:user) { create(:confirmed_user, in_beta: false, in_rollout: false) }
+
+      context 'when announcement is for admins' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'admin_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for logged-in users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'logged_in_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for all users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'all_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in beta' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_beta_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for users in rollout' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_rollout_users') }
+        include_context 'non-visible announcement'
+      end
+    end
+
+    context 'when user is an anonymous user' do
+      let!(:user) { create(:user_nobody) }
+
+      context 'when announcement is for admins' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'admin_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for logged-in users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'logged_in_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for all users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'all_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in beta' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_beta_users') }
+        include_context 'non-visible announcement'
+      end
+
+      # By default, anonymous users are in rollout
+      context 'when announcement is for users in rollout' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_rollout_users') }
+        include_context 'visible announcement'
+      end
+    end
+
+    context 'when user is in beta' do
+      let!(:user) { create(:confirmed_user, in_beta: true, in_rollout: false) }
+
+      context 'when announcement is for admins' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'admin_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for logged-in users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'logged_in_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for all users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'all_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in beta' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_beta_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in rollout' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_rollout_users') }
+        include_context 'non-visible announcement'
+      end
+    end
+
+    context 'when user is in rollout' do
+      let!(:user) { create(:confirmed_user, in_beta: false, in_rollout: true) }
+
+      context 'when announcement is for admins' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'admin_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for logged-in users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'logged_in_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for all users' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'all_users') }
+        include_context 'visible announcement'
+      end
+
+      context 'when announcement is for users in beta' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_beta_users') }
+        include_context 'non-visible announcement'
+      end
+
+      context 'when announcement is for users in rollout' do
+        let!(:announcement) { create(:status_message, severity: 'announcement', communication_scope: 'in_rollout_users') }
+        include_context 'visible announcement'
+      end
+    end
+  end
 end

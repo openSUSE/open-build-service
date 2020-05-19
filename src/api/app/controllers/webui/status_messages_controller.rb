@@ -42,9 +42,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def parameters
     if Flipper.enabled?(:responsive_ux, User.possibly_nobody)
-      { user: User.session!, message: params[:status_message][:message], severity: params[:status_message][:severity] }
+      { user: User.session!, message: params[:status_message][:message], severity: params[:status_message][:severity], communication_scope: params[:status_message][:communication_scope] }
     else
-      { user: User.session!, message: params[:message], severity: params[:severity] }
+      { user: User.session!, message: params[:message], severity: params[:severity], communication_scope: params[:communication_scope] }
     end
   end
 end

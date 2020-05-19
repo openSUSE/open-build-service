@@ -318,10 +318,10 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def current_announcement
-    current_announcement = StatusMessage.announcements.first
-    return unless current_announcement
-    return if current_announcement.users.include?(User.session!)
-    @current_announcement = current_announcement
+    announcement = StatusMessage.announcements.first
+    return unless announcement && announcement.visible_for_current_user?
+    return if User.session && announcement.users.include?(User.session)
+    @current_announcement = announcement
   end
 
   def add_arrays(arr1, arr2)
