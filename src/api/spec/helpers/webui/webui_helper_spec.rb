@@ -105,15 +105,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#sprited_text' do
-    it 'returns a img element with a matching icon class and title attribute and text' do
-      expect(sprited_text('brick_edit', 'Edit description')).to eq('<img title="Edit description" ' \
-                       'class="icons-brick_edit" alt="Edit description" src="/images/s.gif" /> Edit description')
-      expect(sprited_text('user_add', 'Request role addition')).to eq('<img title="Request role addition" ' \
-                       'class="icons-user_add" alt="Request role addition" src="/images/s.gif" /> Request role addition')
-    end
-  end
-
   describe '#next_codemirror_uid' do
     before do
       @codemirror_editor_setup = 0
