@@ -135,4 +135,232 @@ RSpec.describe Webui::WebuiController do
       end
     end
   end
+
+  describe '#set_pending_announcement' do
+    let(:anonymous_user) { create(:user_nobody) }
+    let(:common_user) { create(:confirmed_user, in_beta: false, in_rollout: false) }
+    let(:admin_user) { create(:admin_user, in_beta: false, in_rollout: false) }
+    let(:in_beta_user) { create(:confirmed_user, in_beta: true, in_rollout: false) }
+    let(:in_rollout_user) { create(:confirmed_user, in_beta: false, in_rollout: true) }
+
+    context 'when there is an announcement for admin users' do
+      let!(:announcement) { create(:announcement, communication_scope: 'admin_users') }
+
+      context 'when user is nobody' do
+        it 'gets no announcements' do
+          login(anonymous_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is logged in and not in beta' do
+        it 'gets no announcements' do
+          login(common_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is admin' do
+        it 'gets an announcement' do
+          login(admin_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in beta' do
+        it 'gets no announcements' do
+          login(in_beta_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is in rollout' do
+        it 'gets no announcements' do
+          login(in_rollout_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+    end
+
+    context 'when there is an announcement for logged-in users' do
+      let!(:announcement) { create(:announcement, communication_scope: 'logged_in_users') }
+
+      context 'when user is nobody' do
+        it 'gets no announcements' do
+          login(anonymous_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is logged in and not in beta' do
+        it 'gets no announcements' do
+          login(common_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is admin' do
+        it 'gets no announcements' do
+          login(admin_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in beta' do
+        it 'gets no announcements' do
+          login(in_beta_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in rollout' do
+        it 'gets no announcements' do
+          login(in_rollout_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+    end
+
+    context 'when there is an announcement for users in beta' do
+      let!(:announcement) { create(:announcement, communication_scope: 'in_beta_users') }
+
+      context 'when user is nobody' do
+        it 'gets no announcements' do
+          login(anonymous_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is logged in and not in beta' do
+        it 'gets no announcements' do
+          login(common_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is admin' do
+        it 'gets no announcements' do
+          login(admin_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is in beta' do
+        it 'gets an announcement' do
+          login(in_beta_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in rollout' do
+        it 'gets no announcements' do
+          login(in_rollout_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+    end
+
+    context 'when there is an announcement for users in rollout' do
+      let!(:announcement) { create(:announcement, communication_scope: 'in_rollout_users') }
+
+      context 'when user is nobody' do
+        it 'gets no announcements' do
+          login(anonymous_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement) # 'nobody' user is in rollout by default
+        end
+      end
+
+      context 'when user is logged in and not in beta' do
+        it 'gets no announcements' do
+          login(common_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is admin' do
+        it 'gets no announcements' do
+          login(admin_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is in beta' do
+        it 'gets no announcements' do
+          login(in_beta_user)
+          get :index
+          expect(assigns(:pending_announcement)).to be_nil
+        end
+      end
+
+      context 'when user is in rollout' do
+        it 'gets an announcement' do
+          login(in_rollout_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+    end
+
+    context 'when there is an announcement for all users' do
+      let!(:announcement) { create(:announcement, communication_scope: 'all_users') }
+
+      context 'when user is nobody' do
+        it 'gets an announcement' do
+          login(anonymous_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is logged in and not in beta' do
+        it 'gets an announcement' do
+          login(common_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is admin' do
+        it 'gets an announcement' do
+          login(admin_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in beta' do
+        it 'gets an announcement' do
+          login(in_beta_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+
+      context 'when user is in rollout' do
+        it 'gets an announcement' do
+          login(in_rollout_user)
+          get :index
+          expect(assigns(:pending_announcement)).to eq(announcement)
+        end
+      end
+    end
+  end
 end
