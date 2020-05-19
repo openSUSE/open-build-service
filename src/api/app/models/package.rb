@@ -1233,45 +1233,8 @@ class Package < ApplicationRecord
   end
 
   def self.verify_file!(pkg, name, content)
-    # Prohibit dotfiles (files with leading .) and files with a / character in the name
-    raise IllegalFileName, "'#{name}' is not a valid filename" if name.blank? || name !~ /^[^\.\/][^\/]+$/
-
-    # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
-    # will call to_s therefore we have to read the content first
-    content = File.open(content.path).read if content.is_a?(ActionDispatch::Http::UploadedFile)
-
-    # schema validation, if possible
-    ['aggregate', 'constraints', 'link', 'service', 'patchinfo', 'channel', 'multibuild'].each do |schema|
-      Suse::Validator.validate(schema, content) if name == '_' + schema
-    end
-
-    # validate all files inside of _pattern container
-    if pkg && pkg.name == '_pattern'
-      Suse::Validator.validate('pattern', content)
-    end
-
-    # verify link
-    if name == '_link' && content.present?
-      data = Xmlhash.parse(content)
-      tproject_name = data.value('project') || pkg.project.name
-      tpackage_name = data.value('package') || pkg.name
-      if data['missingok']
-        Project.get_by_name(tproject_name) # permission check
-        if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-          raise NotMissingError, "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
-        end
-      else
-        # permission check
-        Package.get_by_project_and_name(tproject_name, tpackage_name)
-      end
-    end
-
-    # special checks in their models
-    Service.verify_xml!(content) if name == '_service'
-    Channel.verify_xml!(content) if name == '_channel'
-    Patchinfo.new.verify_data(pkg.project, content) if name == '_patchinfo'
-    return unless name == '_attribute'
-    raise IllegalFileName
+    raise IllegalFileName if name == '_attribute'
+    PackageService::FileVerifier.new(package: pkg, file_name: name, content: content).call
   end
 
   def save_file(opt = {})
