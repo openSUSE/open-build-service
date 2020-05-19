@@ -11,16 +11,16 @@
       = link_to(@package, package_show_path(@project, @package))
     - else
       = link_to truncate(@package.to_s, length: 50), package_show_path(@project, @package)
-  - if current_page?(package_add_file_path)
+  - if current_page?(package_add_file_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Add File
-  - if current_page?(package_view_revisions_path)
+  - if current_page?(package_view_revisions_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Revisions
-  - if current_page?(package_requests_path)
+  - if current_page?(package_requests_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Requests
-  - if current_page?(package_users_path)
+  - if current_page?(package_users_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Users
   - if controller_name == 'package' && action_name == 'binaries'
@@ -29,13 +29,13 @@
   - if controller_name == 'package' && action_name == 'binary'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Binary
-  - if current_page?(package_dependency_path)
+  - if current_page?(package_dependency_path(@project, @package))
     %li.breadcrumb-item
       = link_to('Binary', package_binary_path(project: @dependant_project, package: @package_name, repository: @dependant_repository,
                                               arch: @arch, filename: @filename))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Dependency
-  - if current_page?(package_show_path)
+  - if current_page?(package_show_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Overview
   - if controller_name == 'package' && action_name == 'live_build_log'
@@ -46,6 +46,6 @@
       = link_to 'Repository State', package_binaries_path(@project, @package_name, @repository)
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Statistics
-  - if current_page?(package_view_file_path)
+  - if current_page?(package_view_file_path(@project, @package))
     %li.breadcrumb-item.active.text-word-break-all{ 'aria-current' => 'page' }
       = truncate(@filename, length: 50)

@@ -102,6 +102,8 @@ class BsRequest < ApplicationRecord
   after_commit :update_cache
   after_create :notify
 
+  accepts_nested_attributes_for :bs_request_actions
+
   def self.delayed_auto_accept
     to_accept_by_time.each do |request|
       BsRequestAutoAcceptJob.perform_later(request.id)

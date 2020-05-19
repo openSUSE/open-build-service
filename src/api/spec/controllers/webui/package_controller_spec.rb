@@ -141,7 +141,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it do
-        expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions is invalid, ' \
+        expect(flash[:error]).to eq('Unable to submit: Validation failed: Bs request actions sourceupdate is not included in the list, ' \
                                     'Bs request actions Sourceupdate is not included in the list')
       end
 

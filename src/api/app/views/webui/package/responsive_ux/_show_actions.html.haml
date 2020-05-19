@@ -21,7 +21,7 @@
       - if services.present?
         = render partial: 'webui/package/responsive_ux/show_actions/trigger_services', locals: { package: package, project: project }
     - else
-      = render partial: 'webui/package/responsive_ux/show_actions/request_role_addition'
+      = render partial: 'webui/package/responsive_ux/show_actions/request_role_addition', locals: { package: package, project: project }
       = render partial: 'webui/package/responsive_ux/show_actions/request_deletion'
 
       //TODO: only users w/o rights should see this, maintainers should get a different dialog:

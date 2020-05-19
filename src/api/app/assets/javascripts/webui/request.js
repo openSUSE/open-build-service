@@ -79,6 +79,23 @@ function prefillSubmitRequestForm() {
   });
 }
 
+function toggleAutocomplete(autocompleteElement) { // jshint ignore:line
+  $('.hideable').addClass('d-none');
+  $('.hideable input:not(:visible)').attr('disabled', true);
+
+  var selected = $(autocompleteElement+':checked').attr('value');
+  $('.' + selected).removeClass('d-none');
+  $('.hideable input:visible').removeAttr('disabled');
+}
+
+// TODO: Rename once modals depending on the non-responsive-ux version are all removed
+function requestAddAutocompleteResponsiveUx(autocompleteElement) { // jshint ignore:line
+  toggleAutocomplete(autocompleteElement);
+
+  $(autocompleteElement).change(function () { toggleAutocomplete(autocompleteElement); });
+}
+
+// TODO: Remove once modals depending on this are all removed
 function requestAddAutocomplete(autocompleteElement) { // jshint ignore:line
   $('.modal').on('shown.bs.modal', function() {
     $('.hideable input:not(:visible)').attr('disabled', true);

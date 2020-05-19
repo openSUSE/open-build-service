@@ -93,7 +93,6 @@
     = render partial: 'edit_dialog', locals: { project: @project, package: @package }
     = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
   - else
-    = render partial: 'webui/request/add_role_request_dialog', locals: { project: @project, package: @package }
     = render partial: 'webui/request/delete_request_dialog', locals: { project: @project, package: @package }
   - if @package.develpackage
     = render partial: 'webui/request/change_devel_request_dialog', locals: { project: @project, package: @package }
