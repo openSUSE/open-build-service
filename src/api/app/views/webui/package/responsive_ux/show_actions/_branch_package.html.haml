@@ -1,4 +1,5 @@
 %li.nav-item
-  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#branch-modal' }) do
+  = link_to(new_package_branches_path(project: project, package_name: package, revision: revision),
+            class: 'nav-link') do
     %i.fas.fa-code-branch.fa-lg.mr-2
     Branch package

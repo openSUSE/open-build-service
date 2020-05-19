@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:31 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>This Lime Tree Bower</title>
-          <description>Consequatur architecto assumenda nihil.</description>
+          <title>Noli Me Tangere</title>
+          <description>Consequuntur ipsam itaque dolores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,24 +70,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '165'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>This Lime Tree Bower</title>
-          <description>Consequatur architecto assumenda nihil.</description>
+          <title>Noli Me Tangere</title>
+          <description>Consequuntur ipsam itaque dolores.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=tom
+    uri: http://backend:5352/source/project_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>Taming a Sea Horse</title>
+        <project name="project_1">
+          <title>Behold the Man</title>
           <description/>
         </project>
     headers:
@@ -109,25 +109,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '100'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>Taming a Sea Horse</title>
+        <project name="project_1">
+          <title>Behold the Man</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_3">
-          <title>To a God Unknown</title>
-          <description>Distinctio vel sed ea.</description>
+        <package name="package_1" project="project_1">
+          <title>Time To Murder And Create</title>
+          <description>Sunt iusto animi tenetur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,25 +148,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '156'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_3">
-          <title>To a God Unknown</title>
-          <description>Distinctio vel sed ea.</description>
+        <package name="package_1" project="project_1">
+          <title>Time To Murder And Create</title>
+          <description>Sunt iusto animi tenetur.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_1/_meta?user=tom
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_3">
-          <title>To a God Unknown</title>
-          <description>Distinctio vel sed ea.</description>
+        <package name="package_1" project="project_1">
+          <title>Time To Murder And Create</title>
+          <description>Sunt iusto animi tenetur.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -188,15 +188,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '195'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_1" project="project_3">
-          <title>To a God Unknown</title>
-          <description>Distinctio vel sed ea.</description>
+        <package name="package_1" project="project_1">
+          <title>Time To Murder And Create</title>
+          <description>Sunt iusto animi tenetur.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:20 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+recorded_with: VCR 5.1.0

@@ -215,13 +215,10 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       allow(Configuration).to receive(:cleanup_after_days).and_return(14)
       visit package_show_path(project: other_user.home_project, package: other_users_package)
       click_link('Branch package')
-      sleep 1 # Needed to avoid a flickering test. Sometimes the summary is not expanded and its content not visible
     end
 
     scenario 'with AutoCleanup' do
-      within('#branch-modal .modal-footer') do
-        click_button('Accept')
-      end
+      click_button('Accept')
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(
@@ -232,11 +229,9 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     end
 
     scenario 'without AutoCleanup' do
-      within('#branch-modal') do
-        find('summary').click
-        find('label[for="disable-autocleanup"]').click
-        click_button('Accept')
-      end
+      find('summary').click
+      find('label[for="disable-autocleanup"]').click
+      click_button('Accept')
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(

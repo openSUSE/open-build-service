@@ -13,7 +13,7 @@ class PackagePolicy < ApplicationPolicy
     false
   end
 
-  def branch?
+  def create_branch?
     # same as Package.check_source_access!
     if source_access? || project_source_access?
       return false unless user.can_source_access?(record)

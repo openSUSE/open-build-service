@@ -39,8 +39,8 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:47 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Carrion Comfort</title>
-          <description>Aspernatur non asperiores possimus.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Sunt aut fuga repellat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Carrion Comfort</title>
-          <description>Aspernatur non asperiores possimus.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Sunt aut fuga repellat.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:47 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:24 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?arch=bar&cmd=abortbuild&package=my_package&repository=foo
@@ -114,6 +114,6 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:47 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:18:24 GMT
+recorded_with: VCR 5.1.0

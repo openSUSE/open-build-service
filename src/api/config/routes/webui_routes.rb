@@ -68,7 +68,6 @@ OBSApi::Application.routes.draw do
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/create/:project' => :create, constraints: cons, as: 'packages'
         get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
-        post 'package/branch' => :branch, constraints: cons
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
         get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
@@ -109,6 +108,14 @@ OBSApi::Application.routes.draw do
       resource :build_reason, controller: 'webui/packages/build_reason', only: [] do
         get '/:project/:repository/:arch' => :index, as: :index, constraints: cons
       end
+
+      resource :branches, controller: 'webui/packages/branches', only: [] do
+        get '/:project', action: :new, as: :new, constraints: cons
+      end
+    end
+
+    resource :packages, only: [] do
+      resources :branches, controller: 'webui/packages/branches', only: [:create], constraints: cons
     end
 
     resource :patchinfo, except: [:show], controller: 'webui/patchinfo' do

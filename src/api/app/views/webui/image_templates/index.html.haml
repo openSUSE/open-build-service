@@ -33,7 +33,7 @@
                 %strong= title_or_name(project)
     - if first_template
       %hr
-      = form_tag({ controller: :package, action: :branch }, method: :post, id: 'appliance_form') do
+      = form_tag(packages_branches_path, id: 'appliance_form') do
         .form-group
           = hidden_field_tag 'linked_project', first_template.project
           = hidden_field_tag 'linked_package', first_template.name

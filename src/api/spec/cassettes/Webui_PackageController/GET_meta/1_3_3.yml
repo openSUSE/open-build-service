@@ -39,17 +39,17 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:18 GMT
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:53 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_16
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_39
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Waiting for the Barbarians</title>
-          <description>Quia cupiditate beatae rerum.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Voluptates architecto ducimus consectetur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Waiting for the Barbarians</title>
-          <description>Quia cupiditate beatae rerum.</description>
+          <title>Fair Stood the Wind for France</title>
+          <description>Voluptates architecto ducimus consectetur.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 27 Sep 2019 14:16:18 GMT
-recorded_with: VCR 5.0.0
+    http_version: null
+  recorded_at: Fri, 15 May 2020 15:17:53 GMT
+recorded_with: VCR 5.1.0
