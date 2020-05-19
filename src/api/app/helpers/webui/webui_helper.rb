@@ -193,10 +193,6 @@ module Webui::WebuiHelper
     image_tag('s.gif', opts)
   end
 
-  def sprited_text(icon, text)
-    sprite_tag(icon, title: text) + ' ' + text
-  end
-
   def next_codemirror_uid
     return @codemirror_editor_setup = 0 unless @codemirror_editor_setup
     @codemirror_editor_setup += 1
