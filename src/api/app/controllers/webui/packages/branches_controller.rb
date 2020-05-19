@@ -4,9 +4,11 @@ module Webui
       before_action :set_project, only: [:new, :into]
       before_action :set_package, only: [:new]
 
-      after_action :verify_authorized, only: [:into]
+      after_action :verify_authorized, except: [:create]
 
       def new
+        authorize @package, :create_branch?
+
         @revision = params[:revision] || @package.rev
       end
 

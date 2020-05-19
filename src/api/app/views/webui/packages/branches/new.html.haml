@@ -1,5 +1,5 @@
 :ruby
-  @pagetitle = "Branch #{@package}"
+  @pagetitle = "Branch Package #{@package}"
   branch_project = User.session!.branch_project_name(@project)
 
 .row
@@ -30,4 +30,4 @@
                                                                                   package: @package,
                                                                                   revision: @revision }
               .pt-4
-                = submit_tag('Accept', class: 'btn btn-primary px-4')
+                = submit_tag('Branch', class: 'btn btn-primary px-4')
