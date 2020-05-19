@@ -19,9 +19,9 @@
               %i.fas.fa-plus-circle.text-primary
               Create Package
           %li.list-inline-item
-            = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#new-package-branch-modal' }) do
+            = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
               %i.fas.fa-code-branch.text-primary
-              Branch Existing Package
+              Branch Package
 
 - content_for :ready_function do
   :plain

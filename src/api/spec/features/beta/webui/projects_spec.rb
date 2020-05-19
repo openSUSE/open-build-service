@@ -96,14 +96,14 @@ RSpec.feature 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project)
-      click_menu_link('Actions', 'Branch Existing Package')
+      click_menu_link('Actions', 'Branch Package')
     end
 
     scenario 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
@@ -114,7 +114,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
       # This needs global write through
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
       expect(page.current_path).to eq("/package/show/#{user.home_project_name}/some_different_name")
@@ -126,7 +126,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('You have already branched this package')
       expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
@@ -136,10 +136,10 @@ RSpec.feature 'Projects', type: :feature, js: true do
       fill_in('linked_project', with: 'non-existing_package')
       fill_in('linked_package', with: package_of_another_project.name)
 
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('Failed to branch: Package does not exist.')
-      expect(page).to have_current_path(project_show_path('home:Jane'))
+      expect(page).to have_current_path(project_new_packages_branch_path('home:Jane'))
     end
   end
 

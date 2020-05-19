@@ -1,0 +1,33 @@
+- @pagetitle = "Branch Package Into #{@project}"
+
+.row
+  .col
+    .card
+      = render partial: 'webui/project/tabs', locals: { project: @project }
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+          .col-12.col-md-8
+            %p
+              By branching a package from another project, you add the package and its files to your project in a transparent way.
+              Changes of the files in the original project will also change the files in the branched package in your project.
+              You can add patches to the branched package without affecting the original package.
+            - unless @remote_projects.empty?
+              %p
+                Branches also work across interconnected OBS instances. This OBS instance has
+                #{pluralize(@remote_projects.count, 'interconnect')}.
+              %ul.list-inline
+                - @remote_projects.each do |_id, name, title|
+                  %li.list-inline-item
+                    = link_to("#{name}: #{title}", project_show_path(project: name))
+          .col-12.col-md-9.col-lg-6
+            = form_tag(packages_branches_path) do
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_project', label: 'Original project name',
+                                                                       data: { source: autocomplete_projects_path } }
+              = render partial: 'webui/shared/autocomplete', locals: { html_id: 'linked_package', label: 'Original package name',
+                                                                       data: { source: autocomplete_packages_path } }
+              = hidden_field_tag 'target_project', @project
+              = render partial: 'webui/shared/package_branch_form', locals: { show_project_field: false, target_project: @project,
+                                                                              package: nil, revision: nil }
+              = submit_tag('Branch', class: 'btn btn-primary px-4 mt-3')

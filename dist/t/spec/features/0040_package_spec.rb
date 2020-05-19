@@ -36,10 +36,10 @@ RSpec.describe "Package" do
     within("div#personal-navigation") do
       click_link('Home Project')
     end
-    click_link('Branch Existing Package')
+    click_link('Branch Package')
     fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
     fill_in 'linked_package', with: 'build'
-    click_button('Accept')
+    click_button('Branch')
     expect(page).to have_content('build.spec')
   end
 
