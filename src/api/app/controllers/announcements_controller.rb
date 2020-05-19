@@ -62,13 +62,12 @@ class AnnouncementsController < ApplicationController
   def announcement_params
     xml = Nokogiri::XML(request.raw_post, &:strict)
     message = xml.xpath('//announcement/message').text
-    # title = xml.xpath('//announcement/title').text
-    # content = xml.xpath('//announcement/content').text
+    scope = xml.xpath('//announcement/scope').text
+    scope = 'all_users' if scope.blank?
 
     attributes = {}
-    # attributes[:title] = title if title
-    # attributes[:content] = content if content
     attributes[:message] = message if message
+    attributes[:communication_scope] = scope
     attributes
   end
 end

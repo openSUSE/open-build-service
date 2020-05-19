@@ -1,5 +1,5 @@
 class Announcement < ApplicationRecord
-  DEFAULT_RENDER_PARAMS = { only: [:id, :message], dasherize: true, skip_types: true, skip_instruct: true }.freeze
+  DEFAULT_RENDER_PARAMS = { only: [:id, :message, :communication_scope], dasherize: true, skip_types: true, skip_instruct: true }.freeze
 
   has_and_belongs_to_many :users
 

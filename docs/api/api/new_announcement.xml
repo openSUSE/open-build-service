@@ -1,4 +1,4 @@
 <announcement>
-  <title>Keep Calm</title>
-  <content>And Carry On!</content>
+  <message>And Carry On!</message>
+  <scope>logged_in_users</scope>
 </announcement>

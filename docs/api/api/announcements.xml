@@ -2,9 +2,11 @@
   <announcement>
     <id>3</id>
     <message>Keep Calm And Carry On!</message>
+    <scope>in_beta_users</scope>
   </announcement>
   <announcement>
     <id>4</id>
     <message>### Developers! We support _Markdown_</message>
+    <scope>all_users</scope>
   </announcement>
 </announcements>

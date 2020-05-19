@@ -1,4 +1,5 @@
 <announcement>
   <id>1</id>
   <message>Keep Calm, use _Markdown_ And Carry On!</message>
+  <scope>admin_users</scope>
 </announcement>
