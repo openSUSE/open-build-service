@@ -1,0 +1,29 @@
+- @pagetitle = 'Request Devel Project Change'
+
+.row
+  .col
+    .card.mb-3
+      = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+      .card-body
+        .row
+          .col-12.col-md-8.col-lg-6
+            %h3= @pagetitle
+            = form_for(@bs_request, url: project_package_devel_project_changes_path(project: @project, package: @package)) do |f|
+              %p
+                -# FIXME: get rid of this helper
+                Do you want to request to change the devel project for #{package_link(@package)} from
+                \#{project_or_package_link(project: @package.develpackage.project.name)}?
+              = f.fields_for(:bs_request_actions) do |bs_request_actions|
+                = bs_request_actions.hidden_field(:type)
+                = bs_request_actions.hidden_field(:target_project)
+                = bs_request_actions.hidden_field(:target_package)
+                = render partial: 'webui/shared/autocomplete',
+                           locals: { html_id: "#{bs_request_actions.object_name.gsub(/\]\[|\]|\[/, '_')}source_project",
+                                     html_name: "#{bs_request_actions.object_name}[source_project]",
+                                     label: 'New Devel Project:', required: true,
+                                     data: { source: autocomplete_projects_path } }
+                = bs_request_actions.hidden_field(:source_package)
+              .form-group
+                = f.label(:description, 'Description:')
+                = f.text_area(:description, row: 3, class: 'form-control', placeholder: 'Please explain why')
+              = f.submit('Request', class: 'btn btn-primary px-4')

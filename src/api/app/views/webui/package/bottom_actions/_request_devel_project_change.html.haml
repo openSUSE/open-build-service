@@ -1,4 +1,4 @@
 %li.list-inline-item
-  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#change-devel-request-modal' }) do
-    %i.fas.fa-exchange-alt.text-primary
-    Request devel project change
+  = link_to(new_project_package_devel_project_change_path(package.project, package), class: 'nav-link') do
+    %i.fas.fa-exchange-alt
+    Request Devel Project Change

@@ -1,7 +1,6 @@
 -# haml-lint:disable ViewLength
 :ruby
   @pagetitle = "Show #{@project} / #{truncate(@package.name, length: 50)}"
-  devel_package = @package.develpackage
 
   content_for(:meta_title, @package.title.presence || @package.name)
   content_for(:meta_description, @package.description)
@@ -25,7 +24,7 @@
       .col-md-8
         = render partial: 'basic_info', locals: { package: @package }
       .col-md-4
-        = render partial: 'side_links', locals: { devel_package: devel_package,
+        = render partial: 'side_links', locals: { devel_package: @package.develpackage,
                                                   failures: @failures,
                                                   linkinfo: @linkinfo,
                                                   revision: @revision,
@@ -92,6 +91,4 @@
   - if User.possibly_nobody.can_modify?(@package)
     = render partial: 'edit_dialog', locals: { project: @project, package: @package }
     = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
-  - if @package.develpackage
-    = render partial: 'webui/request/change_devel_request_dialog', locals: { project: @project, package: @package }
 -# haml-lint:enable ViewLength
