@@ -99,12 +99,18 @@ sub depstotestcaseformat {
 sub addldeprepo {
   my ($pool, $bconf, $ldepfile) = @_;
   my $data = {};
-  Build::readdeps({ %$bconf }, $data, $ldepfile);
-  # repofromdata expects testcase format, so convert rich dependencies
-  if (defined &Build::Rpm::testcaseformat) {
-    for my $p (values %$data) {
-      for ('requires', 'conflicts', 'recommends', 'supplements') {
-	depstotestcaseformat($p->{$_}) if $p->{$_};
+  if (defined &Build::parse_depfile) {
+    my $nofiledeps = %{$bconf->{'fileprovides'} || {}} ? 0 : 1;
+    $data = Build::parse_depfile($ldepfile, [], 'testcaseformat' => 1, 'nofiledeps' => $nofiledeps);
+    $data = { map {$_ => $_} @$data };	# convert from array to hash
+  } else {
+    Build::readdeps({ %$bconf }, $data, $ldepfile);
+    # repofromdata expects testcase format, so convert rich dependencies
+    if (defined &Build::Rpm::testcaseformat) {
+      for my $p (values %$data) {
+        for ('requires', 'conflicts', 'recommends', 'supplements') {
+	  depstotestcaseformat($p->{$_}) if $p->{$_};
+        }
       }
     }
   }

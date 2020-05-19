@@ -802,6 +802,13 @@ sub addjobhist {
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   mkdir_p($gdst);
   BSFileDB::fdb_add("$gdst/:jobhistory", $BSXML::jobhistlay, $jobhist);
+  my $dst = "$gdst/$jobhist->{'package'}";
+  if ($jobhist->{'code'} eq 'failed') {
+    mkdir_p($dst);
+    BSFileDB::fdb_add_i("$dst/.failhistory", [ 'failcount', @$BSXML::jobhistlay ] , { %$jobhist });
+  } else {
+    unlink("$dst/.failhistory");
+  }
 }
 
 
