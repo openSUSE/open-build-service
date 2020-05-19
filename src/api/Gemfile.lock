@@ -80,7 +80,7 @@ GEM
       execjs
     bcrypt (3.1.13)
     bigdecimal (2.0.0)
-    bootstrap (4.4.1)
+    bootstrap (4.5.0)
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 1.14.3, < 2)
       sassc-rails (>= 2.0.0)
