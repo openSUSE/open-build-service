@@ -69,7 +69,6 @@ OBSApi::Application.routes.draw do
         get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
         get 'package/statistics/:project/:package/:repository/:arch' => :statistics, as: 'package_statistics', constraints: cons
         get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
-        post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
         get 'package/rdiff/:project/:package' => :rdiff, constraints: cons, as: 'package_rdiff'
         post 'package/create/:project' => :create, constraints: cons, as: 'packages'
         get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
@@ -268,6 +267,7 @@ OBSApi::Application.routes.draw do
         resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
         resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: [:new, :create], constraints: cons
+        resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
