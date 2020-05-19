@@ -14,9 +14,9 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Create Package')
-    fill_in 'name', with: 'hello_world'
-    fill_in 'title', with: 'hello_world'
-    fill_in 'description', with: 'hello_world'
+    fill_in 'package_name', with: 'hello_world'
+    fill_in 'package_title', with: 'hello_world'
+    fill_in 'package_description', with: 'hello_world'
     click_button('Create')
     expect(page).to have_content("Package 'hello_world' was created successfully")
   end
@@ -37,12 +37,9 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('Branch Existing Package')
-    page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations to avoid race conditions
-    within('#new-package-branch-modal') do
-      fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
-      fill_in 'linked_package', with: 'build'
-      click_button('Accept')
-    end
+    fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
+    fill_in 'linked_package', with: 'build'
+    click_button('Accept')
     expect(page).to have_content('build.spec')
   end
 
