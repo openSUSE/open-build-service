@@ -261,13 +261,11 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
 
-    click_link('Request devel project change')
+    click_link('Request Devel Project Change')
 
-    within('#change-devel-request-modal') do
-      fill_in('devel_project', with: third_project.name)
-      fill_in('change_devel_description', with: 'Hey, why not?')
-      click_button('Create')
-    end
+    fill_in('New Devel Project:', with: third_project.name)
+    fill_in('Description:', with: 'Hey, why not?')
+    click_button('Request')
 
     request = BsRequest.where(description: 'Hey, why not?', creator: user.login, state: 'review')
     expect(request).to exist
