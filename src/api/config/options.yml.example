@@ -37,7 +37,7 @@ default: &default
 
   extended_backend_log: false
 
-  # proxy_auth_mode can be :off, :on or :simulate
+  # proxy_auth_mode can be :off or :on
   proxy_auth_mode: :off
 
   # ATTENTION: If proxy_auth_mode'is :on, the frontend takes the user
