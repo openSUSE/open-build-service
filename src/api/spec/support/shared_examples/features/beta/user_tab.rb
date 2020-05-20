@@ -42,6 +42,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Viewing user roles' do
+      skip_on_mobile
+
       expect(page).to have_text('User Roles')
       expect(find_field('user_maintainer_user_tab_user', visible: false)).to be_checked
       expect(find_field('user_bugowner_user_tab_user', visible: false)).to be_checked
@@ -97,6 +99,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove user from package / project' do
+      skip_on_mobile
+
       find('td', text: "#{reader.realname} (reader_user)").ancestor('tr').find('.remove-user').click
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
       click_button('Delete')
@@ -106,6 +110,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to user' do
+      skip_on_mobile
+
       toggle_checkbox('user_reviewer_user_tab_user')
 
       visit project_path # project_users_path
@@ -114,6 +120,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from user' do
+      skip_on_mobile
+
       toggle_checkbox('user_bugowner_user_tab_user')
 
       visit project_path
@@ -141,6 +149,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Viewing group roles' do
+      skip_on_mobile
+
       expect(page).to have_text('Group Roles')
       expect(find_field('group_maintainer_existing_group', visible: false)).to be_checked
       expect(find_field('group_bugowner_existing_group', visible: false)).to be_checked
@@ -195,6 +205,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to group' do
+      skip_on_mobile
+
       toggle_checkbox('group_reviewer_existing_group')
 
       visit project_path
@@ -203,6 +215,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from group' do
+      skip_on_mobile
+
       toggle_checkbox('group_bugowner_existing_group')
 
       visit project_path

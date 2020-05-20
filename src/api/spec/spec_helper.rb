@@ -59,10 +59,14 @@ RSpec.configure do |config|
   # the seed, which is printed after each run.
   config.order = :random
 
-  # Tag all groups and examples in the spec/features directory with
-  # :vcr => :true
+  # Tag all groups and examples in the spec/features directory with :vcr => :true
+  #
+  # CAPYBARA_DRIVER => choose one of existing drivers: ['desktop', 'mobile']
+  # If you want to run the feature tests for mobile, you need to specify the driver
+  # environment variable. By default it is :desktop.
   config.define_derived_metadata(file_path: %r{/spec/features/}) do |metadata|
     metadata[:vcr] = true
+    metadata[:driver] = ENV.fetch('CAPYBARA_DRIVER', 'desktop').to_sym
   end
 
   # Tag all groups and examples in the spec/features directory with

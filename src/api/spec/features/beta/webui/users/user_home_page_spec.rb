@@ -48,6 +48,8 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       visit my_tasks_path
 
       expect(page).to have_link('Incoming Requests')
+      # TODO: Remove this line if the dropdown is changed to a scrollable tab, and responsive_ux is out of beta.
+      find('.nav-link.dropdown-toggle').click if mobile?
       expect(page).to have_link('Outgoing Requests')
       expect(page).to have_link('Declined Requests')
       expect(page).to have_link('All Requests')

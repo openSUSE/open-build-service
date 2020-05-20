@@ -31,14 +31,14 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login via widget' do
     visit root_path
-    within('#navigation') do
+    within(desktop? ? '#navigation' : '#bottom-navigation') do
       click_link('Log In')
+    end
 
-      within('#log-in-modal') do
-        fill_in 'username', with: user.login
-        fill_in 'password', with: 'buildservice'
-        click_button('Log In')
-      end
+    within('#log-in-modal') do
+      fill_in 'username', with: user.login
+      fill_in 'password', with: 'buildservice'
+      click_button('Log In')
     end
 
     expect(page).to have_link('Your Home Project', visible: false)
@@ -46,14 +46,14 @@ RSpec.feature 'Login', type: :feature, js: true do
 
   scenario 'login with wrong data' do
     visit root_path
-    within('#navigation') do
+    within(desktop? ? '#navigation' : '#bottom-navigation') do
       click_link('Log In')
+    end
 
-      within('#log-in-modal') do
-        fill_in 'username', with: user.login
-        fill_in 'password', with: 'foo'
-        click_button('Log In')
-      end
+    within('#log-in-modal') do
+      fill_in 'username', with: user.login
+      fill_in 'password', with: 'foo'
+      click_button('Log In')
     end
 
     expect(page).to have_content('Authentication failed')
