@@ -2560,6 +2560,9 @@ sub copybuild {
 	    $shafile =~ s/.*?\n\n//s;
 	    $shafile =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
 	  }
+          # ensure a possible missing new line
+          # kiwi bundler may have forgotten
+          $shafile =~ s/\n?$/\n/s if $shafile;
 	  my $writeit;
 	  for (sort keys %renamed) {
 	    $writeit = 1 if $shafile =~ s/([ \/])\Q$_\E\n/$1$renamed{$_}\n/g;
