@@ -1349,4 +1349,86 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
     end
   end
+
+  describe 'GET #edit' do
+    context 'when the user is authorized to edit the package' do
+      before do
+        login(user)
+        get :edit, xhr: true, params: { project: source_project, package: source_package }, format: :js
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns[:project]).to eql(source_project) }
+      it { expect(assigns[:package]).to eql(source_package) }
+    end
+
+    context 'when the user is NOT authorized to edit the package' do
+      let(:admins_home_project) { admin.home_project }
+      let(:package_from_admin) do
+        create(:package, name: 'admins_package', project: admins_home_project)
+      end
+
+      before do
+        login(user)
+        get :edit, params: { project: admins_home_project, package: package_from_admin }, format: :js
+      end
+
+      it { expect(response).to redirect_to(root_path) }
+    end
+  end
+
+  describe 'PATCH #update' do
+    context 'when the user is authorized to change the package' do
+      let(:package_params) do
+        {
+          title: 'Updated title',
+          url: 'https://updated.url',
+          description: 'Updated description.'
+        }
+      end
+
+      before do
+        login(user)
+        patch :update,
+              params: {
+                project: source_project,
+                package_details: package_params,
+                package: source_package.name
+              },
+              format: :js
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:package).title).to eql(package_params[:title]) }
+      it { expect(assigns(:package).url).to eql(package_params[:url]) }
+      it { expect(assigns(:package).description).to eql(package_params[:description]) }
+    end
+  end
+
+  context 'when the user is NOT authorized to change the package' do
+    let(:package_params) do
+      {
+        title: 'Updated title',
+        url: 'https://updated.url',
+        description: 'Updated description.'
+      }
+    end
+    let(:admins_home_project) { admin.home_project }
+    let(:package_from_admin) do
+      create(:package, name: 'admins_package', project: admins_home_project)
+    end
+
+    before do
+      login(user)
+      patch :update,
+            params: {
+              project: admins_home_project,
+              package_details: package_params,
+              package: package_from_admin.name
+            },
+            format: :js
+    end
+
+    it { expect(response).to redirect_to(root_path) }
+  end
 end

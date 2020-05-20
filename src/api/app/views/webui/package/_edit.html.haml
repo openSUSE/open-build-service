@@ -1,0 +1,17 @@
+= form_for([project, package], as: :package_details, url: package_update_url, method: :patch, remote: true) do |form|
+  %h5 Edit Package #{package}
+  = hidden_field_tag(:id, package.id)
+  = hidden_field_tag(:project, project)
+  = hidden_field_tag(:package, package.name)
+  .form-group
+    = form.label(:title, 'Title:')
+    = form.text_field(:title, class: 'form-control', autofocus: true)
+  .form-group
+    = form.label(:url, 'URL:')
+    = form.text_field(:url, class: 'form-control')
+  .form-group
+    = form.label(:description, 'Description:')
+    = form.text_area(:description, rows: 8, class: 'form-control')
+  .form-group.text-right
+    = link_to 'Cancel', package_show_path(project, package), class: 'cancel btn btn-outline-danger px-4', remote: true
+    = submit_tag('Update', class: 'btn btn-primary px-4')

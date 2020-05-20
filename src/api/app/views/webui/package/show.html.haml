@@ -17,20 +17,13 @@
                                                     package: @package,
                                                     is_working: @forced_unexpand.blank? }
   end
+
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     .row
       .col-md-8
-        %h3#package-title
-          = @package.title.presence || @package.name
-        - if @package.url.present?
-          = link_to(@package.url, @package.url, class: 'mb-3 d-block')
-        #description-text
-          - if @package.description.blank?
-            %i No description set
-          - else
-            = render partial: 'webui/shared/collapsible_text', locals: { text: @package.description }
+        = render partial: 'basic_info', locals: { package: @package }
       .col-md-4
         = render partial: 'side_links', locals: { devel_package: devel_package,
                                                   failures: @failures,
