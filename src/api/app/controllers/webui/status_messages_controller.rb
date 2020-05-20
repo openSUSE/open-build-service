@@ -3,7 +3,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   before_action :require_admin, only: [:destroy, :create]
 
   def create
-    status_message = if params[:severity].to_sym == :announcement
+    status_message = if params[:severity].try(:to_sym) == :announcement
                        Announcement.new(message: params[:message], communication_scope: params[:communication_scope])
                      else
                        # TODO: make use of permissions.status_message_create
