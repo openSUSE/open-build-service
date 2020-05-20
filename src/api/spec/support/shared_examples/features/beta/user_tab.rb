@@ -110,6 +110,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to user' do
+      skip_on_mobile
+
       toggle_checkbox('user_reviewer_user_tab_user')
 
       visit project_path # project_users_path
@@ -118,6 +120,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from user' do
+      skip_on_mobile
+
       toggle_checkbox('user_bugowner_user_tab_user')
 
       visit project_path
@@ -201,6 +205,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add role to group' do
+      skip_on_mobile
+
       toggle_checkbox('group_reviewer_existing_group')
 
       visit project_path
@@ -209,6 +215,8 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Remove role from group' do
+      skip_on_mobile
+
       toggle_checkbox('group_bugowner_existing_group')
 
       visit project_path

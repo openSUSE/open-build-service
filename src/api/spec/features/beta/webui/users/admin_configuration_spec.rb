@@ -12,6 +12,8 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
   end
 
   scenario 'view users' do
+    skip_on_mobile
+
     expect(find_all('tbody tr').count).to eq(5)
     expect(find_all('td', text: 'confirmed').count).to eq(5)
     # The actions column
@@ -23,6 +25,8 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
   end
 
   scenario 'delete user' do
+    skip_on_mobile
+
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
       expect(page).to have_css('td', text: 'confirmed')
       page.find('a[data-method=delete]').click
