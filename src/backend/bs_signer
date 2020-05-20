@@ -219,11 +219,13 @@ sub signisotag {
   my $tags = ';'.substr($blk, 0x8373, 0x200);
   return unless $tags =~ /;signature=(\d+)/;
   my $sigblkno = $1;
+  my $b = readblk($fd, $sigblkno, 4, 512);
+  return if ord(substr($b, 64, 1));	# do not re-sign already signed isos
   my $sig = BSUtil::xsystem(substr($blk, 0x8373, 0x200), $BSConfig::sign, @signargs, '-d');
   die("returned signature is empty\n") unless $sig;
   die("returned signature is too big\n") if length($sig) > 2048 - 64;
   $sig .= "\0" x (2048 - 64 - length($sig));
-  my $b = readblk($fd, $sigblkno, 4, 512);
+  return if substr($b, 64, 2048 - 64) eq $sig;
   substr($b, 64, 2048 - 64) = $sig;
   writeblk($fd, $sigblkno, $b, 512);
 }
