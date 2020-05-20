@@ -120,7 +120,9 @@ OBSApi::Application.routes.draw do
     end
 
     resource :packages, only: [] do
-      resources :branches, controller: 'webui/packages/branches', only: [:create], constraints: cons
+      resources :branches, controller: 'webui/packages/branches', only: [:create], constraints: cons do
+        get '/:project', action: :into, on: :new, as: :project, constraints: cons
+      end
     end
 
     resource :patchinfo, except: [:show], controller: 'webui/patchinfo' do

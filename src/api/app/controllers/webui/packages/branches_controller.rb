@@ -1,14 +1,26 @@
 module Webui
   module Packages
     class BranchesController < Packages::MainController
-      before_action :set_project, only: [:new]
+      before_action :set_project, only: [:new, :into]
       before_action :set_package, only: [:new]
 
+      after_action :verify_authorized, except: [:create]
+
       def new
+        authorize @package, :create_branch?
+
         @revision = params[:revision] || @package.rev
       end
 
+      def into
+        authorize Package.new(project: @project), :create_branch?
+
+        @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
+      end
+
+      # FIXME: We should completely and solely rely on Pundit for authorization instead of some custom authorization code in the BranchPackage model
       def create
+        # FIXME: We should use strong parameters instead of this custom implementation
         params.fetch(:linked_project) { raise ArgumentError, 'Linked Project parameter missing' }
         params.fetch(:linked_package) { raise ArgumentError, 'Linked Package parameter missing' }
 

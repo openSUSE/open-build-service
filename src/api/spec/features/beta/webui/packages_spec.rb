@@ -214,11 +214,11 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       login user
       allow(Configuration).to receive(:cleanup_after_days).and_return(14)
       visit package_show_path(project: other_user.home_project, package: other_users_package)
-      click_menu_link('Actions', 'Branch package')
+      click_menu_link('Actions', 'Branch Package')
     end
 
     scenario 'with AutoCleanup' do
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(
@@ -231,7 +231,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     scenario 'without AutoCleanup' do
       find('summary').click
       find('label[for="disable-autocleanup"]').click
-      click_button('Accept')
+      click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
       expect(page).to have_current_path(

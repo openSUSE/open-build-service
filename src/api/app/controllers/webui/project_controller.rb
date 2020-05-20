@@ -127,7 +127,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def show
-    @remote_projects = Project.where.not(remoteurl: nil).pluck(:id, :name, :title)
     @bugowners_mail = @project.bugowner_emails
     @release_targets = @project.release_targets
 

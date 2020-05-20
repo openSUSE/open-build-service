@@ -28,10 +28,10 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
 
     visit package_show_path(project: update_project, package: package)
 
-    click_menu_link('Actions', 'Branch package')
+    click_menu_link('Actions', 'Branch Package')
     expect(page).to have_text('Source')
 
-    click_button('Accept')
+    click_button('Branch')
 
     expect(page).to have_text('Successfully branched package')
 
