@@ -3,6 +3,8 @@ class StatusMessage < ApplicationRecord
   validates :user, :severity, :message, presence: true
   scope :alive, -> { where(deleted_at: nil).order('created_at DESC') }
 
+  enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
+
   def delete
     self.deleted_at = Time.now
     save

@@ -29,7 +29,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag attributes: { code: 'invalid_record' }
 
-    post '/status/messages', params: '<message severity="1">I have nothing to say</message>'
+    post '/status/messages', params: '<message severity="yellow">I have nothing to say</message>'
     assert_response :success
 
     # delete it again
