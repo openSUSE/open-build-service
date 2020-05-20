@@ -3154,24 +3154,30 @@ sub getjobhistory {
   if ($cgi->{'code'} && @{$cgi->{'code'}} == 1 && $cgi->{'code'}->[0] eq 'lastfailures') {
     return getlastfailures($cgi, $projid, $repoid, $arch);
   }
+  my $idx = 0;
+  my %indices = map {$_ => $idx++} @$BSXML::jobhistlay;
+  my $packidx = $indices{'package'};
+  my $codeidx = $indices{'code'};
+  my $endtimeidx = $indices{'endtime'};
   if ($cgi->{'package'} && $cgi->{'code'}) {
-    my %packid = map {$_ => 1} @{$cgi->{'package'}};
+    my %packid = map {BSFileDB::encode_field($_) => 1} @{$cgi->{'package'}};
     my %code = map {$_ => 1} @{$cgi->{'code'}};
-    $filter = sub {$packid{$_[0]->{'package'}} && $code{$_[0]->{'code'}}};
+    $filter = sub {$packid{$_[$packidx]} && $code{$_[$codeidx]}};
   } elsif ($cgi->{'package'}) {
-    my %packid = map {$_ => 1} @{$cgi->{'package'}};
-    $filter = sub {$packid{$_[0]->{'package'}}};
+    my %packid = map {BSFileDB::encode_field($_) => 1} @{$cgi->{'package'}};
+    $filter = sub {$packid{$_[$packidx]}};
   } elsif ($cgi->{'code'}) {
     my %code = map {$_ => 1} @{$cgi->{'code'}};
-    $filter = sub {$code{$_[0]->{'code'}}};
+    $filter = sub {$code{$_[$codeidx]}};
   }
-  if ($cgi->{'endtime_start'} || $cgi->{'endtime_end'} || 1) {
+  if ($cgi->{'endtime_start'} || $cgi->{'endtime_end'}) {
     my $filter2 = $filter;
     my $endtime_start = $cgi->{'endtime_start'} || 0;
     my $endtime_end = $cgi->{'endtime_end'};
-    $filter = sub {$_[0]->{'endtime'} < $endtime_start ? -2 : defined($endtime_end) && $_[0]->{'endtime'} > $endtime_end ? 0 : $filter2 ? $filter2->($_[0]) : 1};
+    $filter = sub { $_[$endtimeidx] < $endtime_start ? -2 : defined($endtime_end) && $_[$endtimeidx] > $endtime_end ? 0 : $filter2 ? $filter2->(@_) : 1 };
   }
-  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", $BSXML::jobhistlay, $cgi->{'limit'} || 100, $filter);
+  my @hist = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/:jobhistory", undef, $cgi->{'limit'} || 100, $filter);
+  @hist = map {BSFileDB::decode_line($_, $BSXML::jobhistlay)} @hist;
   @hist = reverse @hist;
   my $ret = {jobhist => \@hist};
   return ($ret, $BSXML::jobhistlist);
