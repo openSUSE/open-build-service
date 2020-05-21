@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true, vcr: true do
+RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   context 'branching' do
