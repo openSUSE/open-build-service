@@ -68,6 +68,9 @@ class User < ApplicationRecord
   has_and_belongs_to_many :announcements
   has_many :commit_activities
 
+  has_many :status_message_acknowledgements, dependent: :destroy
+  has_many :acknowledged_status_messages, through: :status_message_acknowledgements, class_name: 'StatusMessage', source: 'status_message'
+
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
   scope :not_deleted, -> { where.not(state: 'deleted') }

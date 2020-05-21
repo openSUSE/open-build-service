@@ -21,6 +21,7 @@ class Webui::WebuiController < ActionController::Base
   before_action :set_influxdb_additional_tags
   before_action :require_configuration
   before_action :set_pending_announcement
+  before_action :current_announcement
   after_action :clean_cache
 
   # :notice and :alert are default, we add :success and :error
@@ -314,6 +315,13 @@ class Webui::WebuiController < ActionController::Base
   def set_pending_announcement
     return if Announcement.last.in?(User.possibly_nobody.announcements)
     @pending_announcement = Announcement.last
+  end
+
+  def current_announcement
+    current_announcement = StatusMessage.announcements.first
+    return unless current_announcement
+    return if current_announcement.users.include?(User.session!)
+    @current_announcement = current_announcement
   end
 
   def add_arrays(arr1, arr2)
