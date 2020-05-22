@@ -3,7 +3,7 @@ require_dependency 'opensuse/validator'
 module PackageService
   class SchemaVerifier
     SCHEMAS = ['aggregate', 'constraints', 'link',
-               'service', 'patchinfo', 'channel', 'multibuild'].freeze
+               'service', 'patchinfo', 'channel', 'multibuild', 'pattern'].freeze
 
     def initialize(content:, package:, file_name:)
       @content = content
@@ -12,16 +12,16 @@ module PackageService
     end
 
     def call
-      return unless  allowed_schema? || pattern?
+      return unless allowed_schema?
       # if it doesn't validate, exception will be raised
       SCHEMAS.each { |schema| validate_schema!(schema) if schema?(schema) }
-      validate_schema!('pattern') if pattern?
     end
 
     private
 
     def allowed_schema?
-      SCHEMAS.include?(@file_name[1..-1])
+      schema = pattern? ? @package.try(:name) : @file_name
+      SCHEMAS.include?(schema[1..-1])
     end
 
     def pattern?
@@ -33,7 +33,7 @@ module PackageService
     end
 
     def schema?(schema)
-      @file_name == "_#{schema}"
+      pattern? ? @package.try(:name) == "_#{schema}" : @file_name == "_#{schema}"
     end
   end
 end
