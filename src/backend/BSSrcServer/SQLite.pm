@@ -21,59 +21,40 @@ use strict;
 use BSConfiguration;
 use BSUtil;
 use BSDB;
+use BSSQLite;
 use Data::Dumper;
 
 use DBI qw(:sql_types);
-use DBD::SQLite;
 
 use JSON::XS ();
 
 
 my $sqlitedb = "$BSConfig::bsdir/db/sqlite";
 
-sub dobinds {
-  my ($sh, $start, @binds) = @_;
-  $sh->bind_param($start++, @$_) for @binds;
-}
-
 sub dbdo {
-  my ($h, $statement) = @_;
-  $statement =~ s/^\s*//s;
-  $h->do($statement) || die($h->errstr);
+  BSSQLite::dbdo(@_);
 }
 
 sub dbdo_bind {
-  my ($h, $statement, @binds) = @_;
-  $statement =~ s/^\s*//s;
-  my $sh = $h->prepare($statement) || die($h->errstr);
-  dobinds($sh, 1, @binds);
-  $sh->execute() || die($sh->errstr);
-  return $sh;
+  return BSSQLite::dbdo_bind(@_);
 }
 
 sub connectdb {
   my ($db) = @_;
-  mkdir_p($sqlitedb);
   my $dbname = $db->{'sqlite_dbname'};
   die("no dbname defined\n") unless $dbname;
-  my $h = DBI->connect("dbi:SQLite:dbname=$sqlitedb/$dbname");
-  $h->{AutoCommit} = 1;
-  dbdo($h, 'PRAGMA foreign_keys = OFF');
+  mkdir_p($sqlitedb);
+  my $h = BSSQLite::connectdb("$sqlitedb/$dbname");
+  BSSQLite::foreignkeys($h, 0);
   $db->{'sqlite'} = $h;
   return $h;
-}
-
-sub list_tables {
-  my ($h) = @_;
-  my $sh = $h->table_info(undef, undef, undef, 'TABLE');
-  return map {$_->[2]} @{$sh->fetchall_arrayref()};
 }
 
 sub init_publisheddb {
   my ($extrepodb, $onlytable) = @_;
   my $db = opendb($extrepodb, 'binary');
   my $h = $db->{'sqlite'} || connectdb($db);
-  my %t = map {$_ => 1} list_tables($h);
+  my %t = map {$_ => 1} BSSQLite::list_tables($h);
   if (!$t{'repoinfo'} || !$t{'binary'} || !$t{'pattern'}) {
     # need to create our tables. abort if there is an old database
     BSUtil::diecritical("Please convert the published database to sqlite first") if $extrepodb && -d $extrepodb;
@@ -126,7 +107,7 @@ sub init_sourcedb {
   my ($sourcedb) = @_;
   my $db = opendb($sourcedb, 'linkinfo');
   my $h = $db->{'sqlite'} || connectdb($db);
-  my %t = map {$_ => 1} list_tables($h);
+  my %t = map {$_ => 1} BSSQLite::list_tables($h);
   if (!$t{'linkinfo'}) {
     BSUtil::diecritical("Please convert the source database to sqlite first") if $sourcedb && -d $sourcedb;
     dbdo($h, <<'EOS');
@@ -148,7 +129,7 @@ EOS
 sub asyncmode {
   my ($db) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
-  dbdo($h, 'PRAGMA synchronous = off');
+  BSSQLite::synchronous($h, 0);
 }
 
 my %tables = (
@@ -206,11 +187,11 @@ sub updatedb_deleterepo {
   my $prp_ext_id = prpext2id($h, $prp_ext);
   return unless $prp_ext_id;
 
-  $h->begin_work() || die($h->errstr);
+  BSSQLite::begin_work($h);
   dbdo_bind($h, 'DELETE FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
   dbdo_bind($h, 'DELETE FROM pattern WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
   dbdo_bind($h, 'DELETE FROM repoinfo WHERE id = ?', [ $prp_ext_id, SQL_INTEGER ]);
-  $h->commit() || die $h->errstr;
+  BSSQLite::commit($h);
 }
 
 sub updatedb_repoinfo {
@@ -229,14 +210,14 @@ sub updatedb_repoinfo {
   my @bins = sort keys %{$binaryorigins || {}};
 
   if (!@bins) {
-    $h->begin_work() || die($h->errstr);
+    BSSQLite::begin_work($h);
     dbdo_bind($h, 'DELETE FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
-    $h->commit() || die $h->errstr;
+    BSSQLite::commit($h);
     return;
   }
 
   # start transaction
-  $h->begin_work() || die($h->errstr);
+  BSSQLite::begin_work($h);
 
   # get old data
   $sh = dbdo_bind($h, 'SELECT rowid,name,path FROM binary WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
@@ -276,7 +257,7 @@ sub updatedb_repoinfo {
   }
 
   # finish transaction
-  $h->commit() || die $h->errstr;
+  BSSQLite::commit($h);
 }
 
 sub updatedb_patterninfo {
@@ -292,13 +273,13 @@ sub updatedb_patterninfo {
 
   my @pats = sort keys %{$patterninfo || {}};
   if (!@pats) {
-    $h->begin_work() || die($h->errstr);
+    BSSQLite::begin_work($h);
     dbdo_bind($h, 'DELETE FROM pattern WHERE repoinfo = ?', [ $prp_ext_id, SQL_INTEGER ]);
-    $h->commit() || die $h->errstr;
+    BSSQLite::commit($h);
     return;
   }
   # start transaction
-  $h->begin_work() || die($h->errstr);
+  BSSQLite::begin_work($h);
   my $sh;
 
   # get old data
@@ -343,14 +324,14 @@ sub updatedb_patterninfo {
   }
 
   # finish transaction
-  $h->commit() || die $h->errstr;
+  BSSQLite::commit($h);
 }
 
 sub store_linkinfo {
   my ($db, $projid, $packid, $linkinfo) = @_;
 
   my $h = $db->{'sqlite'} || connectdb($db);
-  $h->begin_work() || die($h->errstr);
+  BSSQLite::begin_work($h);
   if ($linkinfo) {
     my $lprojid = $linkinfo->{'project'};
     my $lpackid = $linkinfo->{'package'};
@@ -363,7 +344,7 @@ sub store_linkinfo {
   } else {
     dbdo_bind($h, 'DELETE FROM linkinfo WHERE sourceproject = ? AND sourcepackage = ?', [ $projid ], [ $packid ]);
   }
-  $h->commit() || die $h->errstr;
+  BSSQLite::commit($h);
 }
 
 ###########################################################################
