@@ -1,9 +1,5 @@
 class StatusMessagesController < ApplicationController
-  class PermissionDeniedError < APIError
-    setup 403
-  end
-
-  class CreatingMessagesError < APIError; end
+  before_action :require_admin, only: [:create, :destroy]
 
   def index
     @messages = StatusMessage.alive.limit(params[:limit]).order('created_at DESC').includes(:user)
@@ -11,40 +7,31 @@ class StatusMessagesController < ApplicationController
   end
 
   def show
-    @messages = [StatusMessage.find(params[:id])]
-    @count = 1
-    render :index
+    @message = StatusMessage.find(params[:id])
   end
 
   def create
-    # check permissions
-    unless permissions.status_message_create
-      raise PermissionDeniedError, 'message(s) cannot be created, you have not sufficient permissions'
-    end
+    status_message = StatusMessage.from_xml(validate_status_message)
 
-    new_messages = Nokogiri::XML(request.raw_post, &:strict).root
-    @messages = []
-    if new_messages.css('message').present?
-      # message(s) are wrapped in outer xml tag 'status_messages'
-      new_messages.css('message').each do |msg|
-        @messages << StatusMessage.create!(message: msg.content, severity: msg['severity'], user: User.session!)
-      end
-    else
-      # TODO: make use of a validator
-      raise CreatingMessagesError, "no message #{new_messages.to_xml}" if new_messages.name != 'message'
-      # just one message, NOT wrapped in outer xml tag 'status_messages'
-      @messages << StatusMessage.create!(message: new_messages.content, severity: new_messages['severity'], user: User.session!)
-    end
-    render :index
+    authorize status_message
+
+    status_message.save!
+
+    render_ok
   end
 
   def destroy
-    # check permissions
-    unless permissions.status_message_create
-      raise PermissionDeniedError, 'message cannot be deleted, you have not sufficient permissions'
-    end
-
-    StatusMessage.find(params[:id]).delete
+    status_message = StatusMessage.find(params[:id])
+    authorize status_message
+    status_message.delete
     render_ok
+  end
+
+  private
+
+  # TODO: make it more robust
+  def validate_status_message
+    Suse::Validator.validate(:status_message, request.raw_post)
+    request.raw_post
   end
 end

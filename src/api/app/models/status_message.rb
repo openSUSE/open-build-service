@@ -10,6 +10,17 @@ class StatusMessage < ApplicationRecord
 
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
 
+  # xml: A Nokogiri object
+  def self.from_xml(xml)
+    StatusMessage.create! if xml.blank?
+    doc = Nokogiri::XML(xml, &:strict).root
+    message = doc.css('message').text
+    severity = doc.css('severity').text
+    scope = doc.css('scope').text
+    scope = 'all_users' if scope.blank?
+    StatusMessage.new(message: message, severity: severity, communication_scope: scope, user: User.session!)
+  end
+
   def delete
     self.deleted_at = Time.now
     save
