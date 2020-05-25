@@ -40,9 +40,18 @@ module MaintenanceHelper
     end
   end
 
-  def release_package(source_package, target, target_package_name,
-                      filter_source_repository = nil, multibuild_container = nil, action = nil,
-                      setrelease = nil, manual = nil)
+  def release_package(source_package, target, target_package_name, opts = {})
+    filter_source_repository = opts[:filter_source_repository]
+    multibuild_container     = opts[:multibuild_container]
+    action                   = opts[:action]
+    setrelease               = opts[:setrelease]
+    manual                   = opts[:manual]
+    comment                  = opts[:comment]
+
+    if action && comment.nil?
+      comment = "Release request #{action.bs_request.number}"
+    end
+
     if target.is_a?(Repository)
       target_project = target.project
     else
@@ -51,7 +60,7 @@ module MaintenanceHelper
     end
     target_project.check_write_access!
     # lock the scheduler
-    target_project.suspend_scheduler
+    target_project.suspend_scheduler(comment)
 
     if source_package.name.starts_with?('_product:') && target_project.packages.where(name: '_product').count > 0
       # a master _product container exists, so we need to copy all sources
@@ -83,7 +92,7 @@ module MaintenanceHelper
     end
 
     # release the scheduler lock
-    target_project.resume_scheduler
+    target_project.resume_scheduler(comment)
 
     u_ids
   end

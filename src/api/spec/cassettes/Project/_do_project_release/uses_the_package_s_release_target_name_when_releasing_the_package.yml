@@ -30,26 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux">
           <title></title>
           <description></description>
-          <person userid="tux" role="maintainer" />
+          <person userid="tux" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tux/my_package_release/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tux/my_package_release/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package_release" project="home:tux">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tux/my_package_release/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package_release" project="home:tux">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '161'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="my_package_release" project="home:tux">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
-        </package>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/my_package_release/somefile.txt
@@ -148,16 +109,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="5" vrev="5">
+        <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1551449314</time>
+          <time>1588924388</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/my_package_release/somefile.txt
@@ -187,24 +148,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
+        <revision rev="2" vrev="2">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1551449314</time>
+          <time>1588924388</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tux:staging/_meta?user=_nobody_
+    uri: http://backend:5352/source/home:tux:staging/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:staging">
-          <title>A Summer Bird-Cage</title>
+          <title>Have His Carcase</title>
           <description/>
         </project>
     headers:
@@ -226,19 +187,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux:staging">
-          <title>A Summer Bird-Cage</title>
+          <title>Have His Carcase</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:34 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tux:staging?cmd=suspendproject
+    uri: http://backend:5352/build/home:tux:staging?cmd=suspendproject&comment=Project%20release%20by%20tux
     body:
       encoding: UTF-8
       string: ''
@@ -269,8 +230,8 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -278,8 +239,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -300,16 +261,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -317,8 +278,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -339,16 +300,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux:staging/my_release_target?cmd=copy&comment=Release%20from%20home:tux%20/%20my_package_release&expand=1&noservice=1&opackage=my_package_release&oproject=home:tux&user=tux&withacceptinfo=1&withvrev=1
@@ -380,16 +341,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="7">
+        <revision rev="1" vrev="3">
           <srcmd5>efbe5f0a5dd48df5129b4319df43aa45</srcmd5>
           <version>unknown</version>
-          <time>1551449315</time>
+          <time>1588924388</time>
           <user>tux</user>
           <comment>Release from home:tux / my_package_release</comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux:staging/my_release_target/_meta?user=tux
@@ -397,8 +358,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -419,16 +380,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="my_release_target" project="home:tux:staging">
-          <title>His Dark Materials</title>
-          <description>Vitae explicabo deserunt vel.</description>
+          <title>For Whom the Bell Tolls</title>
+          <description>Praesentium repellat deserunt aut.</description>
         </package>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target
@@ -454,15 +415,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1551444109" />
+        <directory name="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1588924388"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target?view=info
@@ -492,11 +453,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
+        <sourceinfo package="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" verifymd5="efbe5f0a5dd48df5129b4319df43aa45">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tux:staging/my_release_target
@@ -522,15 +483,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '208'
+      - '207'
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_release_target" rev="1" vrev="7" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1551444109" />
+        <directory name="my_release_target" rev="1" vrev="3" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
+          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1588924388"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:09 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tux:staging/my_release_target?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -553,27 +514,27 @@ http_interactions:
     headers:
       Content-Type:
       - text/xml
-      Content-Length:
-      - '333'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '328'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="fe1ee31568c3b1d86d5b5c0a5221db2d">
-          <old project="home:tux:staging" package="my_package_release" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tux:staging" package="my_package_release" rev="1" srcmd5="efbe5f0a5dd48df5129b4319df43aa45" />
-          <files />
+        <sourcediff key="3c022e0fed6df83833535b8bc00c3b70">
+          <old project="home:tux:staging" package="my_release_target" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tux:staging" package="my_release_target" rev="1" srcmd5="efbe5f0a5dd48df5129b4319df43aa45"/>
+          <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:09 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tux:staging?cmd=resumeproject
+    uri: http://backend:5352/build/home:tux:staging?cmd=resumeproject&comment=Project%20release%20by%20tux
     body:
       encoding: UTF-8
       string: ''
@@ -604,6 +565,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Fri, 01 Mar 2019 14:08:35 GMT
-recorded_with: VCR 4.0.0
+    http_version: null
+  recorded_at: Fri, 08 May 2020 07:53:09 GMT
+recorded_with: VCR 5.1.0
