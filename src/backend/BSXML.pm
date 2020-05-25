@@ -514,6 +514,7 @@ our $buildinfo = [
 	'project',
 	'repository',
 	'package',
+	'releasename',  # internal
 	'srcserver',
 	'reposerver',
 	'downloadurl',
