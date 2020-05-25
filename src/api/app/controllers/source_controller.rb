@@ -361,7 +361,7 @@ class SourceController < ApplicationController
       @pack.save
     end
 
-    Package.verify_file!(@pack, params[:filename], request.raw_post.to_s)
+    Package.verify_file!(@pack, params[:filename], request.raw_post)
 
     @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
     pass_to_backend(@path)
