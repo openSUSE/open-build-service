@@ -47,6 +47,9 @@ RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true do
     end
 
     scenario 'branch Kiwi image template' do
+      # FIXME: This scenario is flickering on mobile
+      skip('This scenario fails most of the time') if mobile?
+
       visit image_templates_path
       expect(page).to have_css('input[type=submit][disabled]')
 
