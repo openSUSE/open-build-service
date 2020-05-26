@@ -167,20 +167,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to request_show_path(number: request.number)
   end
 
-  def add_role_request
-    request = nil
-    begin
-      request = BsRequest.create!(
-        description: params[:add_role_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:add_role))]
-      )
-    rescue APIError => e
-      flash[:error] = e.message
-      redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
-      redirect_to(controller: :project, action: :show, project: params[:project]) && return
-    end
-    redirect_to controller: :request, action: :show, number: request.number
-  end
-
   def set_bugowner_request
     required_parameters :project
     request = nil

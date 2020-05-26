@@ -66,12 +66,11 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit project_show_path(project: target_project)
         click_menu_link('Actions', 'Request Role Addition')
-        find(:id, 'role').select('Bugowner')
-        find(:id, 'role_type').select('Group')
-
-        fill_in 'group', with: roleaddition_group.title
-        fill_in 'add_role_description', with: 'I can fix bugs too.'
-        expect { click_button('Create') }.to change(BsRequest, :count).by(1)
+        choose 'Bugowner', allow_label_click: true
+        choose 'Group', allow_label_click: true
+        fill_in 'Group:', with: roleaddition_group.title
+        fill_in 'Description:', with: 'I can fix bugs too.'
+        expect { click_button('Request') }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group} to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
@@ -103,13 +102,11 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
         click_menu_link('Actions', 'Request Role Addition')
-        within('#add-role-modal') do
-          find(:id, 'role').select('Maintainer')
-          find(:id, 'role_type').select('Group')
-          fill_in 'group', with: roleaddition_group.title
-          fill_in 'add_role_description', with: 'I can produce bugs too.'
-          expect { click_button('Create') }.to change(BsRequest, :count).by(1)
-        end
+        choose 'Maintainer', allow_label_click: true
+        choose 'Group', allow_label_click: true
+        fill_in 'Group:', with: roleaddition_group.title
+        fill_in 'Description:', with: 'I can produce bugs too.'
+        expect { click_button('Request') }.to change(BsRequest, :count).by(1)
 
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the group #{roleaddition_group.title} to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
@@ -134,11 +131,11 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit project_show_path(project: target_project)
         click_menu_link('Actions', 'Request Role Addition')
-        find(:id, 'role').select('Bugowner')
-        find(:id, 'role_type').select('User')
-        fill_in 'user', with: "#{submitter.login}"
-        fill_in 'add_role_description', with: 'I can fix bugs too.'
-        expect { click_button('Create') }.to change(BsRequest, :count).by(1)
+        choose 'Bugowner', allow_label_click: true
+        choose 'User', allow_label_click: true
+        fill_in 'User:', with: "#{submitter.login}"
+        fill_in 'Description:', with: 'I can fix bugs too.'
+        expect { click_button('Request') }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role bugowner for project #{target_project}")
         expect(page).to have_css('#description-text', text: 'I can fix bugs too.')
         expect(page).to have_text('In state new')
@@ -169,13 +166,11 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
         click_menu_link('Actions', 'Request Role Addition')
-        within('#add-role-modal') do
-          find(:id, 'role').select('Maintainer')
-          find(:id, 'role_type').select('User')
-          fill_in 'user', with: submitter.login
-          fill_in 'add_role_description', with: 'I can produce bugs too.'
-          expect { click_button('Create') }.to change(BsRequest, :count).by(1)
-        end
+        choose 'Maintainer', allow_label_click: true
+        choose 'User', allow_label_click: true
+        fill_in 'User:', with: submitter.login
+        fill_in 'Description:', with: 'I can produce bugs too.'
+        expect { click_button('Request') }.to change(BsRequest, :count).by(1)
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants to get the role maintainer " \
                                   "for package #{target_project} / #{target_package}")
         expect(page).to have_css('#description-text', text: 'I can produce bugs too.')

@@ -1,4 +1,4 @@
 %li.list-inline-item
-  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-role-modal' }) do
+  = link_to(new_project_package_role_addition_path(project, package), class: 'nav-link') do
     %i.fas.fa-user-plus.text-primary
     Request Role Addition
