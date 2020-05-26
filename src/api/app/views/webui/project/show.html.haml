@@ -80,8 +80,6 @@
   - elsif User.session!.can_modify?(@project)
     = render partial: 'edit_project_dialog', locals: { project: @project }
     = render partial: 'delete_project_dialog', locals: { project: @project }
-  - elsif !@project.is_locked?
-    = render partial: 'webui/request/delete_request_dialog', locals: { project: @project }
 
 - content_for :ready_function do
   initializeDataTable('#inherited-packages-table');

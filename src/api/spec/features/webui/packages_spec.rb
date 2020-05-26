@@ -245,17 +245,16 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
   scenario 'requesting package deletion' do
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
-    click_link('Request deletion')
+    click_link('Request Deletion')
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
-    within('#delete-request-modal') do
-      fill_in('delete_description', with: 'Hey, why not?')
-      click_button('Create')
-    end
+    fill_in('bs_request_description', with: 'Hey, why not?')
+    expect { click_button('Request') }.to change(BsRequest, :count).by(1)
 
-    expect(page).to have_text('Created delete request')
-    find('a', text: /delete request \d+/).click
-    expect(page).to have_current_path(/\/request\/show\/\d+/)
+    # The project name can be ellipsed when it's too long, so this explains why it's hardcoded in the spec
+    expect(page).to have_text("Delete package home:othe...test_user / #{other_users_package}")
+    expect(page).to have_css('#description-text', text: 'Hey, why not?')
+    expect(page).to have_text('In state new')
   end
 
   scenario "changing the package's devel project" do

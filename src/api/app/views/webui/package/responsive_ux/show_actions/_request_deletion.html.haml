@@ -1,4 +1,4 @@
 %li.nav-item
-  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#delete-request-modal' }) do
-    %i.fas.fa-list-alt.fa-lg.mr-2
-    Request deletion
+  = link_to(new_project_package_deletion_path(project, package), class: 'nav-link') do
+    %i.fas.fa-times-circle.fa-lg.mr-2
+    Request Deletion

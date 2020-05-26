@@ -147,26 +147,6 @@ class Webui::RequestController < Webui::WebuiController
     render partial: 'requests_small', locals: { requests: requests }
   end
 
-  def delete_request
-    request = nil
-    begin
-      request = BsRequest.create!(
-        description: params[:delete_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:delete))]
-      )
-      request_link = ActionController::Base.helpers.link_to("delete request #{request.number}", request_show_path(request.number))
-      flash[:success] = "Created #{request_link}"
-    rescue APIError => e
-      flash[:error] = e.message
-      if params[:package]
-        redirect_to package_show_path(project: params[:project], package: params[:package])
-      else
-        redirect_to project_show_path(project: params[:project])
-      end
-      return
-    end
-    redirect_to request_show_path(number: request.number)
-  end
-
   def set_bugowner_request
     required_parameters :project
     request = nil
