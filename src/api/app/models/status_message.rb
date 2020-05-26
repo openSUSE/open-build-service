@@ -29,20 +29,20 @@ class StatusMessage < ApplicationRecord
     users << User.session!
   end
 
-  def visible_for_current_user?
-    current_user = User.possibly_nobody
-    case communication_scope.try(:to_sym)
-    when :admin_users
-      current_user.is_admin?
-    when :in_rollout_users
-      current_user.in_rollout?
-    when :in_beta_users
-      current_user.in_beta?
-    when :logged_in_users
-      User.session.present?
-    else # :all_users
-      true
-    end
+  def self.newest_announcement_for_current_user
+    announcement = StatusMessage.announcements.find_by(communication_scope: StatusMessage.communication_scopes_for_current_user)
+    return nil unless announcement
+    return nil if StatusMessageAcknowledgement.find_by(status_message: announcement, user: User.session)
+    announcement
+  end
+
+  def self.communication_scopes_for_current_user
+    scopes = [:all_users]
+    return scopes unless User.session
+    scopes << :admin_users if User.session.is_admin?
+    scopes << :in_rollout_users if User.session.in_rollout?
+    scopes << :in_beta_users if User.session.in_beta?
+    scopes << :logged_in_users
   end
 end
 
