@@ -42,6 +42,8 @@ require 'mocha/setup'
 
 require 'capybara/rails'
 Capybara.default_max_wait_time = 6
+# Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
+Capybara.automatic_label_click = true
 
 Capybara.register_driver :rack_test do |app|
   Capybara::RackTest::Driver.new(app, headers: { 'HTTP_ACCEPT' => 'text/html' })
