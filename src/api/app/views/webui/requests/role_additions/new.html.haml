@@ -18,7 +18,7 @@
               = project_or_package_link(project: @project.name, package: @package.try(:name))
               ?
           .col-12.col-md-9.col-lg-6
-            - form_path = @project ? project_role_additions_path(@project) : project_package_role_additions_path(@project, @package)
+            - form_path = @package ? project_package_role_additions_path(@project, @package) : project_role_additions_path(@project)
             = form_for(@bs_request, url: form_path) do |f|
               = f.fields_for(:bs_request_actions) do |bs_request_actions|
                 = bs_request_actions.hidden_field(:target_project)
