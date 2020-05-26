@@ -1,6 +1,7 @@
 module Webui
   module Packages
     class BranchesController < Packages::MainController
+      before_action :require_login
       before_action :set_project, only: [:new, :into]
       before_action :set_package, only: [:new]
 
