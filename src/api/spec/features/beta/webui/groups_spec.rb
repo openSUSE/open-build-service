@@ -69,7 +69,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     visit group_show_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
-      check('Maintainer', allow_label_click: true)
+      check('Maintainer')
     end
 
     expect(page).to have_content("Gave maintainer rights to '#{admin}'")

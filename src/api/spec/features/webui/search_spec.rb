@@ -66,7 +66,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       click_button 'Advanced'
       select('Packages', from: 'search_for')
 
-      check 'title', allow_label_click: true
+      check 'title'
       click_button 'Search'
 
       within '#search-results' do
@@ -85,9 +85,9 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
-      check 'title', allow_label_click: true
-      uncheck 'name', allow_label_click: true
-      uncheck 'description', allow_label_click: true
+      check 'title'
+      uncheck 'name'
+      uncheck 'description'
       click_button 'Search'
 
       within '#search-results' do
@@ -105,9 +105,9 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
-      uncheck 'title', allow_label_click: true
-      uncheck 'name', allow_label_click: true
-      check 'description', allow_label_click: true
+      uncheck 'title'
+      uncheck 'name'
+      check 'description'
       click_button 'Search'
 
       within '#search-results' do
@@ -141,9 +141,9 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
-      uncheck 'title', allow_label_click: true
-      uncheck 'name', allow_label_click: true
-      uncheck 'description', allow_label_click: true
+      uncheck 'title'
+      uncheck 'name'
+      uncheck 'description'
       click_button 'Search'
 
       within('#flash') do
@@ -161,8 +161,8 @@ RSpec.feature 'Search', type: :feature, js: true do
 
       fill_in 'search_input', with: 'вокябюч'
       click_button 'Advanced'
-      uncheck 'name', allow_label_click: true
-      check 'title', allow_label_click: true
+      uncheck 'name'
+      check 'title'
       click_button 'Search'
 
       within '#search-results' do
@@ -181,7 +181,7 @@ RSpec.feature 'Search', type: :feature, js: true do
 
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
-        check 'title', allow_label_click: true
+        check 'title'
         click_button 'Search'
 
         within('#flash') do
@@ -202,7 +202,7 @@ RSpec.feature 'Search', type: :feature, js: true do
 
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
-        check 'title', allow_label_click: true
+        check 'title'
         click_button 'Search'
 
         within '#search-results' do
