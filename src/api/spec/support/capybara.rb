@@ -4,6 +4,8 @@ Capybara.save_path = Rails.root.join('tmp', 'capybara')
 Capybara.server = :puma, { Silent: true }
 Capybara.disable_animation = true
 Capybara.javascript_driver = :desktop
+# Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
+Capybara.automatic_label_click = true
 
 # we use RSPEC_HOST as trigger to use remote selenium
 if ENV['RSPEC_HOST'].blank?

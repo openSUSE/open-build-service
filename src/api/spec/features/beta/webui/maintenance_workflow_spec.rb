@@ -80,7 +80,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     # needed for patchinfo validation
     fill_in('patchinfo_summary', with: 'ProjectWithRepo_package is much better than the old one')
     fill_in('patchinfo_description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing')
-    check('patchinfo_block', allow_label_click: true)
+    check('patchinfo_block')
     fill_in('patchinfo_block_reason', with: 'locked!')
 
     click_button('Save')
@@ -88,7 +88,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     expect(find(:css, '.block-reason span:first-child')).to have_text('Release is blocked')
 
     click_link('Edit patchinfo')
-    uncheck('patchinfo_block', allow_label_click: true)
+    uncheck('patchinfo_block')
     expect(page).to have_css('input[id=patchinfo_block_reason][disabled]')
     click_button 'Save'
 

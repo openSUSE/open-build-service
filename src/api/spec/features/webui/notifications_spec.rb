@@ -10,7 +10,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
       notification_field = find('.card-body h5', text: 'Package has failed to build').sibling('.list-group')
       ['maintainer', 'bugowner', 'reader', 'watcher'].each do |role|
         subscription_by_role = notification_field.find(".#{role}")
-        subscription_by_role.check('email', allow_label_click: true)
+        subscription_by_role.check('email')
         expect(page).to have_css('#flash', text: 'Notifications settings updated')
         find('#flash button[data-dismiss]').click
       end

@@ -19,7 +19,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     login user
     broken_package_with_error
     visit project_status_path(project_name: project)
-    uncheck('limit_to_fails', allow_label_click: true)
+    uncheck('limit_to_fails')
     click_button('Filter results')
     expect(page).to have_text('Status of')
   end

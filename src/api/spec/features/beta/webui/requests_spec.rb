@@ -66,8 +66,8 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit project_show_path(project: target_project)
         click_menu_link('Actions', 'Request Role Addition')
-        choose 'Bugowner', allow_label_click: true
-        choose 'Group', allow_label_click: true
+        choose 'Bugowner'
+        choose 'Group'
         fill_in 'Group:', with: roleaddition_group.title
         fill_in 'Description:', with: 'I can fix bugs too.'
         expect { click_button('Request') }.to change(BsRequest, :count).by(1)
@@ -102,8 +102,8 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
         click_menu_link('Actions', 'Request Role Addition')
-        choose 'Maintainer', allow_label_click: true
-        choose 'Group', allow_label_click: true
+        choose 'Maintainer'
+        choose 'Group'
         fill_in 'Group:', with: roleaddition_group.title
         fill_in 'Description:', with: 'I can produce bugs too.'
         expect { click_button('Request') }.to change(BsRequest, :count).by(1)
@@ -131,8 +131,8 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit project_show_path(project: target_project)
         click_menu_link('Actions', 'Request Role Addition')
-        choose 'Bugowner', allow_label_click: true
-        choose 'User', allow_label_click: true
+        choose 'Bugowner'
+        choose 'User'
         fill_in 'User:', with: "#{submitter.login}"
         fill_in 'Description:', with: 'I can fix bugs too.'
         expect { click_button('Request') }.to change(BsRequest, :count).by(1)
@@ -166,8 +166,8 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
         click_menu_link('Actions', 'Request Role Addition')
-        choose 'Maintainer', allow_label_click: true
-        choose 'User', allow_label_click: true
+        choose 'Maintainer'
+        choose 'User'
         fill_in 'User:', with: submitter.login
         fill_in 'Description:', with: 'I can produce bugs too.'
         expect { click_button('Request') }.to change(BsRequest, :count).by(1)
