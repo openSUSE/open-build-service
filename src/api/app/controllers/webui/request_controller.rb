@@ -4,12 +4,28 @@ class Webui::RequestController < Webui::WebuiController
   before_action :require_login, except: [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
   before_action :lockout_spiders
-
   before_action :require_request, only: [:changerequest, :show]
-
   before_action :set_superseded_request, only: :show
-
   before_action :check_ajax, only: :sourcediff
+
+  after_action :verify_authorized, only: [:create]
+
+  def create
+    request = BsRequest.new(bs_request_params)
+    authorize request, :create?
+    begin
+      request.save!
+    rescue APIError => e
+      flash[:error] = e.message
+      if params.key?(:package_name)
+        redirect_to(controller: :package, action: :show, package: params[:package_name], project: params[:project_name])
+      else
+        redirect_to(controller: :project, action: :show, project: params[:project_name])
+      end
+      return
+    end
+    redirect_to request_show_path(request.number)
+  end
 
   def add_reviewer
     begin
@@ -299,6 +315,17 @@ class Webui::RequestController < Webui::WebuiController
     flash[:success] += " and forwarded to #{target_link} (#{request_link})"
   end
 
+  def set_package
+    return unless params.key?(:package_name)
+
+    @package = Package.find_by(name: params[:package_name])
+  end
+
+  # @abstract Subcontroller is expected to implement #bs_request_params
+  # @!method bs_request_params
+  #    Strong parameters for BsRequest with nested attributes for its bs_request_actions association
+
+  # FIXME: We should rely on strong parameters, so implement `bs_request_params` in subcontrollers as explained above
   def request_action_attributes(type)
     opt = {}
     opt['target_project'] = params[:project]
