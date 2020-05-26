@@ -17,6 +17,8 @@ end
 Capybara.default_driver = :selenium_chrome_headless
 Capybara.javascript_driver = :selenium_chrome_headless
 Capybara.save_path = '/tmp/rspec_screens'
+# Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
+Capybara.automatic_label_click = true
 
 # Set hostname
 begin
