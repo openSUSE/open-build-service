@@ -20,7 +20,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :check_anonymous
   before_action :set_influxdb_additional_tags
   before_action :require_configuration
-  before_action :set_pending_announcement
   before_action :current_announcement
   after_action :clean_cache
 
@@ -310,11 +309,6 @@ class Webui::WebuiController < ActionController::Base
 
   def pundit_user
     User.possibly_nobody
-  end
-
-  def set_pending_announcement
-    return if Announcement.last.in?(User.possibly_nobody.announcements)
-    @pending_announcement = Announcement.last
   end
 
   def current_announcement
