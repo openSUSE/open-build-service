@@ -11,20 +11,24 @@ class Webui::RequestController < Webui::WebuiController
   after_action :verify_authorized, only: [:create]
 
   def create
-    request = BsRequest.new(bs_request_params)
-    authorize request, :create?
+    @bs_request = BsRequest.new(bs_request_params)
+    authorize @bs_request, :create?
+
     begin
-      request.save!
-    rescue APIError => e
+      @bs_request.save!
+    # FIXME: Use validations in the model instead of raising whenever something is wrong
+    rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = e.message
+
       if params.key?(:package_name)
-        redirect_to(controller: :package, action: :show, package: params[:package_name], project: params[:project_name])
+        redirect_to(package_show_path(params[:project_name], params[:package_name]))
       else
-        redirect_to(controller: :project, action: :show, project: params[:project_name])
+        redirect_to(project_show_path(params[:project_name]))
       end
       return
     end
-    redirect_to request_show_path(request.number)
+
+    redirect_to request_show_path(@bs_request.number)
   end
 
   def add_reviewer
