@@ -663,9 +663,34 @@ class BsRequestAction < ApplicationRecord
     check_permissions!
   end
 
-  def expand_targets(ignore_build_state)
+  def expand_targets(ignore_build_state, ignore_delegate)
     # expand target_package
 
+    # target delegation handling
+    if action_type == :submit
+      tprj = Project.get_by_name(target_project) if target_project.present?
+      if tprj.class == Project &&
+         ignore_delegate.blank? &&
+         Attrib.find_by_container_and_fullname(tprj, 'OBS:DelegateRequestTarget')
+
+        # new packages stay in target for now
+        # we may error out in near future to require explicit target via ignore_delegate
+        if Package.exists_by_project_and_name(target_project,
+                                              target_package || source_package,
+                                              { follow_project_links: true,
+                                                follow_multibuild: true,
+                                                check_update_project: true })
+          tpkg = Package.get_by_project_and_name(target_project,
+                                                 target_package || source_package,
+                                                 { follow_project_links: true,
+                                                   follow_multibuild: true,
+                                                   check_update_project: true })
+          self.target_project = tpkg.project.name
+        end
+      end
+    end
+
+    # empty submission protection
     if action_type.in?([:submit, :maintenance_incident])
       if target_package &&
          Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)

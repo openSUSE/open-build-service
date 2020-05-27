@@ -140,6 +140,35 @@ class BsRequestTest < ActiveSupport::TestCase
                          name: 'Submit TestPack'
   end
 
+  def test_if_delegate_works
+    xml = '<request>
+              <action type="submit">
+                <source project="BaseDistro3" package="pack2"/>
+                <target project="BaseDistro:SP1"/>
+              </action>
+              <state name="new" />
+          </request>'
+    req = BsRequest.new_from_xml(xml)
+    assert req.number.nil?
+    assert_equal 1, req.bs_request_actions.length
+    req.save!
+    # normal behaviour, target project is used
+    assert_equal 'BaseDistro:SP1', req.bs_request_actions.first.target_project
+
+    # enable delegation
+    attrib_type = AttribType.find_by_namespace_and_name('OBS', 'DelegateRequestTarget')
+    attrib = Attrib.new(attrib_type: attrib_type)
+    attrib.project = Project.find_by_name('BaseDistro:SP1')
+    attrib.save
+
+    # check delegation to BaseDistro:Update via BaseDistro where the package lives
+    req = BsRequest.new_from_xml(xml)
+    exception = assert_raise BsRequestAction::Errors::SubmitRequestRejected do
+      req.save!
+    end
+    assert_match(/The target project BaseDistro:Update is a maintenance release project/, exception.message)
+  end
+
   def check_user_targets(user, *trues)
     Backend::Test.start
     BsRequest.all.each do |r|

@@ -293,6 +293,10 @@ class BsRequest < ApplicationRecord
     @ignore_build_state = true
   end
 
+  def set_ignore_delegate
+    @ignore_delegate = true
+  end
+
   def sanitize?
     !@skip_sanitize
   end
@@ -1031,7 +1035,7 @@ class BsRequest < ApplicationRecord
     oldactions = []
 
     bs_request_actions.each do |action|
-      na, ppl = action.expand_targets(!@ignore_build_state.nil?)
+      na, ppl = action.expand_targets(@ignore_build_state.present?, @ignore_delegate.present?)
       @per_package_locking ||= ppl
       next if na.nil?
 

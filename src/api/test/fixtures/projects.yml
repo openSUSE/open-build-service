@@ -20,6 +20,14 @@ BaseDistro:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   kind: standard
   delta: 1
+BaseDistro_SP1:
+  name: BaseDistro:SP1
+  title: This is a service pack for base distro
+  description: This could be SUSE:SLE-15-SP2:GA project for example
+  created_at: 2020-01-01 01:00:01.000000000 Z
+  updated_at: 2020-01-01 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
 BaseDistro2.0:
   name: BaseDistro2.0
   title: This is another base distro
