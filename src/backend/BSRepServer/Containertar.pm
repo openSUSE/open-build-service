@@ -19,6 +19,7 @@ package BSRepServer::Containertar;
 
 use JSON::XS ();
 
+use BSConfiguration;
 use BSTar;
 use BSContar;
 use BSHTTP;
@@ -26,6 +27,8 @@ use BSServer;
 use BSUtil;
 
 use strict;
+
+my $uploaddir = "$BSConfig::bsdir/upload";
 
 sub normalize_container {
   my ($dir, $container, $writeblobs, $deletetar, $arch) = @_;
@@ -154,8 +157,11 @@ sub open_container {
   my $dir = $container;
   $dir =~ s/[^\/]*$/./;
   my ($tar) = construct_container_tar($dir, $containerinfo, 1);
+  my $tmpfilename = "$uploaddir/open_container.$$";
+  unlink($tmpfilename);
   my $fd;
-  open($fd, '+>', undef) || die("tmpfile open: $!\n");
+  open($fd, '+>', $tmpfilename) || die("tmpfile open: $!\n");
+  unlink($tmpfilename);
   BSTar::writetar($fd, $tar);
   seek($fd, 0, 0);
   return $fd;
