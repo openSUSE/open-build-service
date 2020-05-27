@@ -1,0 +1,27 @@
+- @pagetitle = 'Create Status Message'
+.row
+  .col
+    .card
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+          .col-12.col-md-9.col-lg-6
+            = form_for(StatusMessage.new, url: status_messages_path) do |f|
+              .form-group
+                = f.label(:message) do
+                  Message:
+                  %abbr.text-danger{ title: 'required' } *
+                = f.text_area(:message, rows: 3, required: true, class: 'form-control')
+              .form-group
+                = f.label(:severity) do
+                  Severity:
+                  %abbr.text-danger{ title: 'required' } *
+                  %small.form-text With "Announcement", the message will be displayed on the top and all over the web site.
+                - options = StatusMessage.severities.keys.map { |severity| [severity.humanize, severity] }
+                = f.select(:severity, options_for_select(options), {}, class: 'custom-select')
+              .form-group
+                = f.label(:communication_scope, 'Communication Scope:')
+                - options = StatusMessage.communication_scopes.keys.map { |scope| [scope.humanize, scope] }
+                = f.select(:communication_scope, options_for_select(options), {}, class: 'custom-select')
+              = f.submit 'Create', class: 'btn btn-primary'

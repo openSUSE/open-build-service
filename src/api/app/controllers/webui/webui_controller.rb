@@ -318,10 +318,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def current_announcement
-    current_announcement = StatusMessage.announcements.first
-    return unless current_announcement
-    return if current_announcement.users.include?(User.session!)
-    @current_announcement = current_announcement
+    @current_announcement = StatusMessage.latest_for_current_user
   end
 
   def add_arrays(arr1, arr2)

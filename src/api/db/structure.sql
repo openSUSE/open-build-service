@@ -1264,6 +1264,7 @@ CREATE TABLE `status_messages` (
   `message` text COLLATE utf8mb4_unicode_ci,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
+  `communication_scope` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`) USING BTREE,
   KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
@@ -1521,6 +1522,8 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200421115317'),
 ('20200422134122'),
 ('20200423160517'),
-('20200522092917');
+('20200522092917'),
+('20200522145733'),
+('20200522151615');
 
 
