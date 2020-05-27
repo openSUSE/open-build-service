@@ -322,7 +322,10 @@ class Webui::RequestController < Webui::WebuiController
   def set_package
     return unless params.key?(:package_name)
 
-    @package = Package.find_by(name: params[:package_name])
+    @package = Package.get_by_project_and_name(params[:project_name], params[:package_name],
+                                               use_source: false, follow_project_links: true, follow_multibuild: true)
+  rescue APIError
+    raise ActiveRecord::RecordNotFound
   end
 
   # @abstract Subcontroller is expected to implement #bs_request_params
