@@ -195,42 +195,6 @@ RSpec.describe Webui::RequestController, vcr: true do
     end
   end
 
-  describe 'POST #delete_request' do
-    before do
-      login(submitter)
-    end
-
-    context 'a valid request' do
-      before do
-        post :delete_request, params: { project: target_project, package: target_package, delete_description: 'delete it!' }
-      end
-
-      subject do
-        BsRequest.joins(:bs_request_actions).
-          where('bs_request_actions.target_project=? AND bs_request_actions.target_package=? AND type=?',
-                target_project.to_s, target_package.to_s, 'delete').first
-      end
-
-      it { expect(response).to redirect_to(request_show_path(number: subject)) }
-      it { expect(flash[:success]).to match("Created .+delete request #{subject.number}") }
-      it { expect(subject.description).to eq('delete it!') }
-    end
-
-    context 'a request causing a APIError' do
-      before do
-        allow_any_instance_of(BsRequest).to receive(:save!).and_raise(APIError, 'something happened')
-        post :delete_request, params: { project: target_project, package: target_package, description: 'delete it!' }
-      end
-
-      it { expect(flash[:error]).to eq('something happened') }
-      it { expect(response).to redirect_to(package_show_path(project: target_project, package: target_package)) }
-
-      it 'does not create a delete request' do
-        expect(BsRequest.count).to eq(0)
-      end
-    end
-  end
-
   describe 'POST #modify_review' do
     RSpec.shared_examples 'a valid review' do |new_state|
       let(:params_hash) do

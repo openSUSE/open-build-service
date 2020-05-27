@@ -1,0 +1,36 @@
+- @pagetitle = 'Request Deletion'
+
+.row
+  .col
+    .card
+      - if @package
+        = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+      - else
+        = render partial: 'webui/project/tabs', locals: { project: @project }
+      .card-body
+        .row
+          .col-12
+            %h3= @pagetitle
+          .col-12.col-md-9.col-lg-8
+            %p
+              -# FIXME: get rid of the helper project_or_package_link
+              Do you really want to request the deletion of
+              = project_or_package_link(project: @project.name, package: @package.try(:name))
+              ?
+          .col-12.col-md-9.col-lg-6
+            - form_path = @package ? project_package_role_additions_path(@project, @package) : project_role_additions_path(@project)
+            = form_for(@bs_request, url: form_path) do |f|
+              = f.fields_for(:bs_request_actions) do |bs_request_actions|
+                = bs_request_actions.hidden_field(:target_project)
+                = bs_request_actions.hidden_field(:type)
+                - if @package
+                  .form-group
+                    = bs_request_actions.hidden_field(:target_package)
+                    = bs_request_actions.label(:target_project, 'In target project:')
+                    = bs_request_actions.text_field(:target_project, disabled: true, class: 'form-control')
+              .form-group
+                = f.label(:description, "Please describe your reasons to request the deletion of this #{@package ? 'package' : 'project'}:")
+                %abbr.text-danger{ title: 'required' } *
+                = f.text_area(:description, row: 3, class: 'form-control', required: true)
+
+              = submit_tag('Request', class: 'btn btn-primary px-4')

@@ -266,9 +266,11 @@ OBSApi::Application.routes.draw do
       resources :maintenance_incident_requests, controller: 'webui/projects/maintenance_incident_requests', only: [:new, :create], constraints: cons
       resources :packages, only: [], param: :name do
         resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
+        resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
+      resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
     end
 
     controller 'webui/request' do
@@ -279,7 +281,6 @@ OBSApi::Application.routes.draw do
       post 'request/changerequest' => :changerequest
       get 'request/diff/:number' => :diff
       get 'request/list_small' => :list_small, as: 'request_list_small'
-      post 'request/delete_request/:project' => :delete_request, constraints: cons, as: 'delete_request'
       post 'request/set_bugowner_request' => :set_bugowner_request
       post 'request/change_devel_request/:project/:package' => :change_devel_request, constraints: cons, as: 'change_devel_request'
     end
