@@ -1641,6 +1641,7 @@ sub mapsleimage {
   if ($p =~ /-Build\d+/) {
     $rbin =~ s/\.asc$//;
     $rbin =~ s/\.sha256$//;
+    $rbin =~ s/\.sha256.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(iso|packages|raw|tbz|tgz|tar|qcow2|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
@@ -1915,7 +1916,7 @@ sub publish {
 	  $p = "iso/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)\.iso$/;
     	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
-	} elsif ($bin =~ /ONIE\.bin(?:\.sha256)?$/) {
+	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256(?:\.asc)?)?$/) {
@@ -1939,7 +1940,7 @@ sub publish {
             $kiwimedium{$p} = "$arch/$1" if -e "$r/$1.packages";
 	  }
 	  next;
-	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256)?$/) {
+	} elsif ($bin =~ /((.*-Build\d.*?)(?:\.docker)?)\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(\.sha256(?:\.asc)?)?$/) {
           # kiwi image case
           $p = $bin;
 	  $kiwimedium = "$arch/$2" if !$3 && -e "$r/$2.packages";
@@ -1959,7 +1960,7 @@ sub publish {
 	  } else {
 	    $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	  }
-	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256)?$/) {
+	} elsif ($bin =~ /(.*)\.tar(?:\.(?:gz|bz2|xz))?(\.sha256(?:\.asc)?)?$/) {
           # Dockerfile case
           $p = $bin;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
