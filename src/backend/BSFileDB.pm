@@ -51,6 +51,12 @@ sub decode_line {
   return $r;
 }
 
+sub encode_field {
+    my ($str) = @_;
+    $str =~ s/([\000-\037%|=\177-\237])/sprintf("%%%02X", ord($1))/ge;
+    return $str;
+}
+
 sub encode_line {
   my ($r, $lay) = @_;
   my @line;
@@ -229,9 +235,15 @@ sub fdb_getall_reverse {
       @l = split("\n", $buf, -1);
     }
     for (reverse @l) {
-      my $r = decode_line($_, $lay);
+      my $r = $_;
+      $r = decode_line($_, $lay) if defined($lay);
       if ($filter) {
-        my $f = $filter->($r);
+        my $f;
+        if (defined($lay)) {
+          $f = $filter->($r);
+        } else {
+          $f = $filter->(split('\|', $r));
+        }
 	next unless $f;
 	if ($f < 0) {
 	  push @res, $r if $f == -1;
