@@ -275,6 +275,10 @@ check_vmcp()
     modprobe vmcp 2> /dev/null || :
     # run a vmcp command that always works from within z/VM
     vmcp q privclass
+    # transport zVM console messages over iucv
+    vmcp set smsg iucv
+    vmcp set cpconio iucv
+    modprobe smsgiucv_app
 }
 
 create_initrd()
@@ -282,36 +286,31 @@ create_initrd()
     # $1 name of kernel
     # $2 name of initrd
     # 0150 is already included from the local guest
+    ZVM_VOLUME_SWAP=${ZVM_VOLUME_SWAP:-0200}
     if test -z "$2" ; then
         echo "Please define a name for the new initrd in /etc/sysconfig/obs-server"
         return 1
     else
         # create initrd with system scripts
-        mkinitrd -k $1 -i $2 -m "xfs reiserfs ext3 ext4 fat vfat" -B -S
+        mkinitrd -k ${1}-$(get_kernel_version ${1}) -i $2 -m "xfs reiserfs fat vfat" -B
         TEMPDIR=$(mktemp -d /tmp/initrd.XXX)
         pushd $TEMPDIR
         # unpack initrd to add some extra files
-        zcat $2 | cpio -i
-        cat - > etc/udev/rules.d/51-dasd-0.0.0250.rules <<EOF
-ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0250",
-IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
-ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
-IMPORT{program}="collect 0.0.0250 %k 0.0.0250 dasd-eckd"
-ACTION=="add", ENV{COLLECT_0.0.0250}=="0", ATTR{[ccw/0.0.0250]online}="1"
+        xzcat $2 | cpio -i
+        cat - > etc/udev/rules.d/51-dasd-0.0.${ZVM_VOLUME_SWAP}.rules <<EOF
+ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.${ZVM_VOLUME_SWAP}", DRIVER=="dasd-eckd", GOTO="cfg_dasd_eckd_0.0.${ZVM_VOLUME_SWAP}"
+ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd", TEST=="[ccw/0.0.${ZVM_VOLUME_SWAP}]", GOTO="cfg_dasd_eckd_0.0.${ZVM_VOLUME_SWAP}"
+GOTO="end_dasd_eckd_0.0.${ZVM_VOLUME_SWAP}"
+
+LABEL="cfg_dasd_eckd_0.0.${ZVM_VOLUME_SWAP}"
+ATTR{[ccw/0.0.${ZVM_VOLUME_SWAP}]use_diag}="0"
+ATTR{[ccw/0.0.${ZVM_VOLUME_SWAP}]online}="1"
+
+LABEL="end_dasd_eckd_0.0.${ZVM_VOLUME_SWAP}"
 EOF
-        # lets activate the alias devices too
-        for device in {1..2}E{C..F}; do
-        cat - > etc/udev/rules.d/51-dasd-0.0.0${device}.rules <<EOF
-ACTION=="add", SUBSYSTEM=="ccw", KERNEL=="0.0.0${device}",
-IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
-ACTION=="add", SUBSYSTEM=="drivers", KERNEL=="dasd-eckd",
-IMPORT{program}="collect 0.0.0${device} %k 0.0.0${device} dasd-eckd"
-ACTION=="add", ENV{COLLECT_0.0.0${device}}=="0", ATTR{[ccw/0.0.0${device}]online}="1"
-EOF
-        done
-        cp -a /usr/sbin/xfs_check /sbin/fsck.xfs /usr/sbin/xfs_db sbin/
+        cp -a /usr/sbin/xfs_db sbin/
         # create new initrd:
-        find . | cpio -H newc -o | gzip -9 -c > $2
+        find . | cpio -H newc -o | xz -9 --format=lzma > $2
         popd
         rm -rf $TEMPDIR
     fi
