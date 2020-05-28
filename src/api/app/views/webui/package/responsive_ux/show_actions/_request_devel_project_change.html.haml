@@ -1,4 +1,4 @@
 %li.nav-item
-  = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#change-devel-request-modal' }) do
+  = link_to(new_project_package_devel_project_change_path(package.project, package), class: 'nav-link') do
     %i.fas.fa-exchange-alt.fa-lg.mr-2
-    Request devel project change
+    Request Devel Project Change

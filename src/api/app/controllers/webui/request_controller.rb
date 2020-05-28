@@ -182,26 +182,6 @@ class Webui::RequestController < Webui::WebuiController
     redirect_to controller: :request, action: :show, number: request.number
   end
 
-  def change_devel_request
-    request = nil
-    begin
-      request = BsRequest.create!(
-        description: params[:change_devel_description], bs_request_actions: [BsRequestAction.new(request_action_attributes(:change_devel))]
-      )
-    rescue BsRequestAction::UnknownProject,
-           Package::UnknownObjectError,
-           BsRequestAction::UnknownTargetPackage => e
-      flash[:error] = "No such package: #{e.message}"
-      redirect_to package_show_path(project: params[:project], package: params[:package])
-      return
-    rescue APIError => e
-      flash[:error] = "Unable to create request: #{e.message}"
-      redirect_to package_show_path(project: params[:project], package: params[:package])
-      return
-    end
-    redirect_to request_show_path(number: request.number)
-  end
-
   def set_incident
     request = BsRequest.find_by_number(params[:number])
     if request.nil?

@@ -30,7 +30,7 @@ module ValidationHelper
     begin
       revisions_list = Backend::Api::Sources::Package.revisions(project, name)
     rescue
-      raise Package::UnknownObjectError, "#{project}/#{name}"
+      raise Package::UnknownObjectError, "Package not found: #{project}/#{name}"
     end
     data = Xmlhash.parse(revisions_list)
     lastrev = data.elements('revision').last
@@ -38,7 +38,7 @@ module ValidationHelper
     query = { deleted: 1 }
     query[:rev] = lastrev.value('srcmd5') if lastrev
     meta = PackageMetaFile.new(project_name: project, package_name: name).content(query)
-    raise Package::UnknownObjectError, "#{project}/#{name}" unless meta
+    raise Package::UnknownObjectError, "Package not found: #{project}/#{name}" unless meta
 
     return true if User.admin_session?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
@@ -51,16 +51,16 @@ module ValidationHelper
     begin
       revisions_list = Backend::Api::Sources::Project.revisions(project)
     rescue
-      raise Project::UnknownObjectError, project.to_s
+      raise Project::UnknownObjectError, "Project not found: #{project}"
     end
     data = Xmlhash.parse(revisions_list)
     lastrev = data.elements('revision').last
-    raise Project::UnknownObjectError, project.to_s unless lastrev
+    raise Project::UnknownObjectError, "Project not found: #{project}" unless lastrev
 
     meta = Backend::Api::Sources::Project.meta(project, revision: lastrev.value('srcmd5'), deleted: 1)
-    raise Project::UnknownObjectError unless meta
+    raise Project::UnknownObjectError, "Project not found: #{project}" unless meta
     return true if User.admin_session?
     # FIXME: actually a per user checking would be more accurate here
-    raise Project::UnknownObjectError, project.to_s if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
+    raise Project::UnknownObjectError, "Project not found: #{project}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'access')
   end
 end

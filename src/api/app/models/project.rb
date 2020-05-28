@@ -251,7 +251,7 @@ class Project < ApplicationRecord
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ':' + remote_name if dbp
-        raise Project::Errors::UnknownObjectError, name
+        raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
       end
       if opts[:includeallpackages]
         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").find_each do |pkg|

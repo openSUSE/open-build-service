@@ -4141,16 +4141,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get '/source/Foo'
     assert_response 404
-    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Foo' }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Project not found: Foo' }, Xmlhash.parse(@response.body))
 
     # and while we're at it, try it for packages too
     get '/source/Foo/bar'
     assert_response 404
-    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Foo' }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_project', 'summary' => 'Project not found: Foo' }, Xmlhash.parse(@response.body))
 
     get '/source/home:tom/bar'
     assert_response 404
-    assert_equal({ 'code' => 'unknown_package', 'summary' => 'home:tom/bar' }, Xmlhash.parse(@response.body))
+    assert_equal({ 'code' => 'unknown_package', 'summary' => 'Package not found: home:tom/bar' }, Xmlhash.parse(@response.body))
   end
 
   def test_repository_with_local_references

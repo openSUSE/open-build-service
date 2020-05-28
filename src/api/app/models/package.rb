@@ -189,7 +189,7 @@ class Package < ApplicationRecord
       end
     end
 
-    raise UnknownObjectError, "#{project}/#{package}" unless pkg
+    raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
     raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
 
     pkg.check_source_access! if opts[:use_source]
@@ -200,7 +200,7 @@ class Package < ApplicationRecord
 
   def self.get_by_project_and_name!(project, package, opts = {})
     pkg = get_by_project_and_name(project, package, opts)
-    raise UnknownObjectError, "#{project}/#{package}" unless pkg
+    raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
     pkg
   end
 
