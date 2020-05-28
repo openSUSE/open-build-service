@@ -164,7 +164,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         post :submit_request, params: { project: source_project, package: '', targetproject: source_project }
       end
 
-      it { expect(flash[:error]).to eq("Unable to submit: #{source_project}/") }
+      it { expect(flash[:error]).to eq("Unable to submit: Package not found: #{source_project}/") }
       it { expect(response).to redirect_to(project_show_path(project: source_project)) }
       it { expect(BsRequestActionSubmit.where(target_project: source_project.name)).not_to exist }
     end
@@ -175,7 +175,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it 'creates a submit request with correct sourceupdate attibute' do
-        expect(flash[:error]).to eq('Unable to submit (missing target): unknown')
+        expect(flash[:error]).to eq('Unable to submit (missing target): Project not found: unknown')
       end
 
       it { expect(response).to redirect_to(root_path) }
