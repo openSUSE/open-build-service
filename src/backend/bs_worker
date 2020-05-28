@@ -2750,7 +2750,7 @@ sub xmlescape {
 }
 
 sub addreportdata {
-  my ($report, $buildinfo) = $_;
+  my ($report, $buildinfo) = @_;
   if ($buildinfo->{'versrel'}) {
     $report->{'version'} = $buildinfo->{'versrel'};
     $report->{'version'} =~ s/-[^-]*$//s;
