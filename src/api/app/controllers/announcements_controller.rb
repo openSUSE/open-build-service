@@ -5,7 +5,7 @@ class AnnouncementsController < ApplicationController
 
   # GET /announcements
   def index
-    @announcements = Announcement.all
+    @announcements = StatusMessage.announcements
     authorize @announcements
     render formats: [:xml]
   end
@@ -18,10 +18,10 @@ class AnnouncementsController < ApplicationController
 
   # POST /announcements
   def create
-    @announcement = Announcement.new(announcement_params)
+    @announcement = StatusMessage.new(announcement_params)
     authorize @announcement
     if @announcement.save
-      render 'show', formats: [:xml], locals: { announcement: @announcement }
+      render_ok
     else
       render_error message: @announcement.errors.full_messages,
                    status: 400, errorcode: 'invalid_announcement'
@@ -46,16 +46,11 @@ class AnnouncementsController < ApplicationController
     render_ok
   end
 
-  #### Non CRUD actions
-
-  #### Non actions methods
-  # Use hide_action if they are not private
-
   private
 
   # Use callbacks to share common setup or constraints between actions.
   def set_announcement
-    @announcement = Announcement.find(params[:id])
+    @announcement = StatusMessage.announcements.find(params[:id])
   end
 
   # Only allow a trusted parameter "white list" through.
@@ -63,11 +58,6 @@ class AnnouncementsController < ApplicationController
     xml = Nokogiri::XML(request.raw_post, &:strict)
     title = xml.xpath('//announcement/title').text
     content = xml.xpath('//announcement/content').text
-
-    attributes = {}
-    attributes[:title] = title if title
-    attributes[:content] = content if content
-
-    attributes
+    { message: "#{title} #{content}", severity: 'announcement', user: User.session! }
   end
 end

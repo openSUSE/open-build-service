@@ -6,4 +6,12 @@ class StatusMessagePolicy < ApplicationPolicy
   def destroy?
     user.is_admin?
   end
+
+  def index?
+    user.is_admin?
+  end
+
+  def show?
+    user.is_admin?
+  end
 end

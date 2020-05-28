@@ -25,6 +25,18 @@ class StatusMessage < ApplicationRecord
     save
   end
 
+  # TODO: remove it
+  # we need it while we support Announcement
+  def title
+    message[0..10]
+  end
+
+  # TODO: remove it
+  # we need it while we support Announcement
+  def content
+    message
+  end
+
   def acknowledge!
     users << User.session!
   end
