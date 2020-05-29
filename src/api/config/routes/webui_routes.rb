@@ -4,7 +4,7 @@ OBSApi::Application.routes.draw do
   constraints(WebuiMatcher) do
     root 'webui/main#index'
 
-    resources :status_messages, only: [:create, :destroy], controller: 'webui/status_messages'
+    resources :status_messages, only: [:new, :create, :destroy], controller: 'webui/status_messages'
 
     controller 'webui/feeds' do
       get 'main/news' => :news, constraints: ->(req) { req.format == :rss }, as: :news_feed
@@ -316,6 +316,7 @@ OBSApi::Application.routes.draw do
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       # To accept announcements as user
       post 'announcements/:id' => :create, controller: 'webui/users/announcements', as: :my_announcements
+      post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
     end
 
     get 'home', to: 'webui/webui#home', as: :home

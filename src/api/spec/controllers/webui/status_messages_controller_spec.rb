@@ -8,9 +8,9 @@ RSpec.describe Webui::StatusMessagesController do
     it 'create a status message' do
       login(admin_user)
 
-      post :create, params: { message: 'Some message', severity: 1 }
+      post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       expect(response).to redirect_to(root_path)
-      message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 1)
+      message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
       expect(message).to exist
     end
 
@@ -18,13 +18,13 @@ RSpec.describe Webui::StatusMessagesController do
       login(admin_user)
 
       expect do
-        post :create, params: { message: 'Some message' }
+        post :create, params: { status_message: { message: 'Some message' } }
       end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Could not create status message: Severity can't be blank")
 
       expect do
-        post :create, params: { severity: 1 }
+        post :create, params: { status_message: { severity: 'green' } }
       end.not_to change(StatusMessage, :count)
       expect(response).to redirect_to(root_path)
       expect(flash[:error]).to eq("Could not create status message: Message can't be blank")
@@ -34,12 +34,12 @@ RSpec.describe Webui::StatusMessagesController do
       before do
         login(user)
 
-        post :create, params: { message: 'Some message', severity: 1 }
+        post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       end
 
       it 'does not create a status message' do
         expect(response).to redirect_to(root_path)
-        message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 1)
+        message = StatusMessage.where(user: admin_user, message: 'Some message', severity: 'green')
         expect(message).not_to exist
       end
     end
@@ -47,7 +47,7 @@ RSpec.describe Webui::StatusMessagesController do
     context 'empty message' do
       before do
         login(admin_user)
-        post :create, params: { severity: 1 }
+        post :create, params: { status_message: { severity: 'green' } }
       end
 
       it { expect(flash[:error]).to eq("Could not create status message: Message can't be blank") }
@@ -56,7 +56,7 @@ RSpec.describe Webui::StatusMessagesController do
     context 'empty severity' do
       before do
         login(admin_user)
-        post :create, params: { message: 'Some message' }
+        post :create, params: { status_message: { message: 'Some message' } }
       end
 
       it { expect(flash[:error]).to eq("Could not create status message: Severity can't be blank") }
@@ -66,7 +66,7 @@ RSpec.describe Webui::StatusMessagesController do
       before do
         login(admin_user)
         allow_any_instance_of(StatusMessage).to receive(:save).and_return(false)
-        post :create, params: { message: 'Some message', severity: 1 }
+        post :create, params: { status_message: { message: 'Some message', severity: 'green' } }
       end
 
       it { expect(flash[:error]).not_to be(nil) }

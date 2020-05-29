@@ -64,3 +64,8 @@ Webui:
     - /home/home_project
     - /home/list_my
 
+
+Breaking API changes:
+=====================
+
+ * Status messages endpoints. Check the API documentation for the new format.

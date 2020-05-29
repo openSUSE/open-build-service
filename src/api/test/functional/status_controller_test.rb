@@ -25,18 +25,18 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     post '/status/messages', params: '<whereareyou/>'
     assert_response 400
 
-    post '/status/messages', params: '<messages><message>nada</message></messages>'
+    post '/status/messages', params: '<status_message><message>nada</message></status_message>'
     assert_response 400
-    assert_xml_tag attributes: { code: 'invalid_record' }
+    assert_xml_tag attributes: { code: 'validation_failed' }
 
-    post '/status/messages', params: '<message severity="1">I have nothing to say</message>'
+    post '/status/messages', params: '<status_message><message>I have nothing to say</message><severity>yellow</severity></status_message>'
     assert_response :success
 
     # delete it again
     get '/status/messages'
     assert_response :success
     messages = Xmlhash.parse @response.body
-    msg_id = messages.get('message').value('msg_id')
+    msg_id = messages.get('status_message').value('id')
 
     prepare_request_valid_user
     delete "/status/messages/#{msg_id}"

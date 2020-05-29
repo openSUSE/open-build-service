@@ -1,0 +1,11 @@
+- if current_announcement
+  .row.justify-content-center#status-message-announcement
+    .col-12
+      .alert.fade.show.alert-notice
+        .row
+          .col-md-10
+            = render_as_markdown(current_announcement.message)
+          .col-md-2
+            - if User.session
+              = form_tag(acknowledge_status_message_path(current_announcement), remote: true, class: 'text-right') do
+                = submit_tag 'Got it', class: 'btn btn-sm btn-secondary'

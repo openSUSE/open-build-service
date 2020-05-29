@@ -4,19 +4,21 @@ RSpec.describe StatusMessagesController do
   render_views
 
   let(:user) { create(:confirmed_user) }
-  let(:status_message) { create(:status_message) }
+  let(:status_message) { create(:status_message, user: user) }
 
   before do
     login user
   end
 
   describe 'GET #show' do
+    before { status_message }
+
     subject! { get :show, params: { id: status_message.id }, format: :xml }
 
     it { is_expected.to have_http_status(:success) }
 
     it 'returns the requested status message' do
-      assert_select 'status_messages[count=1]' do
+      assert_select 'status_message' do
         assert_select 'message', status_message.message
       end
     end
@@ -41,9 +43,11 @@ RSpec.describe StatusMessagesController do
   describe '#create' do
     let(:request_xml) do
       <<~XML
-        <status_messages>
-          <message severity="1">New message was sent!</message>
-        </status_messages>
+        <status_message>
+          <message>New message was sent!</message>
+          <severity>green</severity>
+          <scope>all_users</scope>
+        </status_message>
       XML
     end
 
@@ -51,12 +55,6 @@ RSpec.describe StatusMessagesController do
       subject! { post :create, body: request_xml, format: :xml }
 
       it { is_expected.to have_http_status(:forbidden) }
-
-      it "responds with a 'permission_denied' status" do
-        assert_select 'status[code=permission_denied]' do
-          assert_select 'summary', 'message(s) cannot be created, you have not sufficient permissions'
-        end
-      end
     end
 
     context 'when requester is admin' do
@@ -70,13 +68,27 @@ RSpec.describe StatusMessagesController do
 
       it { is_expected.to have_http_status(:success) }
 
-      it 'responds with the created message' do
-        assert_select 'status_messages' do
-          assert_select 'message', 'New message was sent!'
-        end
+      it { expect(StatusMessage.last.message).to eq('New message was sent!') }
+    end
+
+    context 'create with a wrong XML' do
+      let(:request_xml) do
+        <<~XML
+          <stadus_message>
+            <message>New message was sent!</message>
+            <severity>information</severity>
+          </status_message>
+        XML
+      end
+      let(:admin) { create(:admin_user) }
+
+      before do
+        login admin
       end
 
-      it { expect(StatusMessage.last.message).to eq('New message was sent!') }
+      subject! { post :create, body: request_xml, format: :xml }
+
+      it { is_expected.to have_http_status(:bad_request) }
     end
   end
 
@@ -86,12 +98,6 @@ RSpec.describe StatusMessagesController do
 
       it { is_expected.to have_http_status(:forbidden) }
       it { expect(status_message.deleted_at).to be_nil }
-
-      it "responds with a 'permission_denied' status" do
-        assert_select 'status[code=permission_denied]' do
-          assert_select 'summary', 'message cannot be deleted, you have not sufficient permissions'
-        end
-      end
     end
 
     context 'when requester is admin' do
