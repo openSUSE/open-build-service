@@ -27,7 +27,7 @@ OBSApi::Application.configure do
   config.action_mailer.delivery_method = :sendmail
   config.action_mailer.perform_caching = false
 
-  config.active_support.deprecation = :log
+  config.active_support.deprecation = :silence
 
   # Enable serving of images, stylesheets, and javascripts from an asset server
   # config.action_controller.asset_host                  = "http://assets.example.com"
