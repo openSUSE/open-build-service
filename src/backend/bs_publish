@@ -1488,7 +1488,7 @@ sub sync_to_stage {
 
   for my $stageserver (@stageservers) {
     if ($stageserver =~ /^rsync:\/\//) {
-      $stageserver .= $dbgsplit if $stageservers;		# hmm
+      $stageserver .= $dbgsplit if $dbgsplit && $stageservers;
       print "    running rsync to $stageserver at ".localtime(time)."\n";
       # rsync with a timeout of 1 hour
       # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
