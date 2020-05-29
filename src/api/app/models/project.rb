@@ -111,6 +111,10 @@ class Project < ApplicationRecord
   scope :local_image_templates, lambda {
     ProjectsWithImageTemplatesFinder.new.call
   }
+  # will return all projects with attribute 'OBS:DelegateRequestTarget'
+  scope :delegates_requests, lambda {
+    ProjectsWithDelegateRequestTargetFinder.new.call
+  }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
@@ -687,6 +691,10 @@ class Project < ApplicationRecord
 
   def defines_remote_instance?
     remoteurl.present?
+  end
+
+  def delegates_requests?
+    find_attribute('OBS', 'DelegateRequestTarget').present?
   end
 
   def can_free_repositories?
