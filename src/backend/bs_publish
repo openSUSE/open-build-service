@@ -1923,6 +1923,11 @@ sub publish {
 	  $p = $bin;
 	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
+	} elsif ($bin =~ /(.*)\.install.tar?(?:\.sha256(?:\.asc)?)?$/) {
+          # kiwi has uncompressed install.tar (because internal compressed) since 17 Jul 2019
+	  $p = $bin;
+	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
