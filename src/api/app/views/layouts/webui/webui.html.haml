@@ -53,8 +53,6 @@
             = render partial: 'layouts/webui/personal_navigation'
 
     .container-xxl.sticky-top.flash-and-announcement.text-word-break-all
-      - unless @hide_announcement_notification
-        #announcement= render partial: 'layouts/webui/announcement', locals: { pending_announcement: @pending_announcement }
       = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
       #flash= render partial: 'layouts/webui/flash', object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }

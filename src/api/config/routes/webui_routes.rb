@@ -314,8 +314,6 @@ OBSApi::Application.routes.draw do
       end
 
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
-      # To accept announcements as user
-      post 'announcements/:id' => :create, controller: 'webui/users/announcements', as: :my_announcements
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
     end
 
@@ -334,8 +332,6 @@ OBSApi::Application.routes.draw do
       get '/tokens', to: redirect('/users/tokens')
     end
     # Legacy routes end
-
-    resources :announcements, only: :show, controller: 'webui/announcements'
 
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
 

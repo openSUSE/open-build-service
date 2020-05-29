@@ -24,8 +24,6 @@
       %li= link_to('API Documentation', apidocs_index_path)
       %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
       %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
-      - if Announcement.last.present?
-        %li= link_to('Latest Announcement', announcement_path(Announcement.last))
   .flex-fill
     %strong.text-uppercase Contact
     %ul
