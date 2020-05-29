@@ -30,6 +30,10 @@ FactoryBot.define do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'ImageTemplates') }
     end
 
+    factory :delegate_requests_attrib do
+      attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'DelegateRequestTarget') }
+    end
+
     factory :approved_request_source_attrib do
       attrib_type { AttribType.find_by_namespace_and_name!('OBS', 'ApprovedRequestSource') }
     end

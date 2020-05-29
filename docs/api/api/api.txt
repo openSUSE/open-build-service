@@ -989,6 +989,8 @@ XmlResult: request
 Parameters:
 
   addrevision: ask the server to add revisions of current sources to the request
+  ignore_delegate: enforce a new package instance in a project which has OBS:DelegateRequestTarget set
+  ignore_build_state: skip the build state check
 
 
 PUT /request/<id>

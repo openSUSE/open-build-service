@@ -26,7 +26,8 @@ def update_all_attrib_type_descriptions
     'IncidentPriority' => 'A numeric value which defines the importance of this incident project.',
     'EmbargoDate' => 'A timestamp until outgoing requests can not get accepted.',
     'PlannedReleaseDate' => 'A timestamp for the planned release date of an incident.',
-    'MakeOriginOlder' => 'Initialize packages by making the build results newer then updated ones'
+    'MakeOriginOlder' => 'Initialize packages by making the build results newer then updated ones',
+    'DelegateRequestTarget' => 'Delegate the target project of requests even when target_project is specified'
   }
   # rubocop:enable Layout/LineLength
 

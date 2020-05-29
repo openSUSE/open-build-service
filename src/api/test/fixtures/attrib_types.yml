@@ -125,3 +125,9 @@ OBS_MakeOriginOlder:
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
+OBS_DelegateRequestTarget:
+  id: 82
+  name: DelegateRequestTarget
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0

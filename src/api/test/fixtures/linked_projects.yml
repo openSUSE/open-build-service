@@ -23,3 +23,9 @@ linked_db_projects_44:
   linked_remote_project_name: nil
   project: BaseDistro_Update
   linked_db_project: BaseDistro
+linked_db_projects_46:
+  id: 46
+  position: 1
+  linked_remote_project_name: nil
+  project: BaseDistro_SP1
+  linked_db_project: BaseDistro

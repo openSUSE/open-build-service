@@ -87,7 +87,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     save
   end
 
-  def expand_targets(ignore_build_state)
+  def expand_targets(ignore_build_state, ignore_delegate)
     # find maintenance project
     maintenance_project = nil
     if target_project
@@ -100,7 +100,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
-    super(ignore_build_state)
+    super(ignore_build_state, ignore_delegate)
   end
 
   private

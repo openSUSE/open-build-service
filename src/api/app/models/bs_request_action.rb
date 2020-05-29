@@ -663,9 +663,12 @@ class BsRequestAction < ApplicationRecord
     check_permissions!
   end
 
-  def expand_targets(ignore_build_state)
-    # expand target_package
+  def expand_targets(ignore_build_state, ignore_delegate)
+    if action_type == :submit && ignore_delegate.blank? && target_project.present?
+      expand_target_project
+    end
 
+    # empty submission protection
     if action_type.in?([:submit, :maintenance_incident])
       if target_package &&
          Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
@@ -701,6 +704,24 @@ class BsRequestAction < ApplicationRecord
     end
 
     return
+  end
+
+  # Follow project links for a target project that delegates requests
+  def expand_target_project
+    tprj = Project.get_by_name(target_project)
+    return unless tprj.is_a?(Project) && tprj.delegates_requests?
+
+    return unless Package.exists_by_project_and_name(target_project,
+                                                     target_package || source_package,
+                                                     { follow_project_links: true,
+                                                       follow_multibuild: true,
+                                                       check_update_project: true })
+    tpkg = Package.get_by_project_and_name(target_project,
+                                           target_package || source_package,
+                                           { follow_project_links: true,
+                                             follow_multibuild: true,
+                                             check_update_project: true })
+    self.target_project = tpkg.project.name
   end
 
   def source_access_check!
