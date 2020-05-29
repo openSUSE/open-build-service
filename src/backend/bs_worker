@@ -3133,7 +3133,9 @@ sub dobuild {
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
   my $useccache=0;
   if (exists $bconf->{'buildflags:useccache'}) {
-      if (grep {$_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+      my $opackid = $packid;
+      $opackid = $buildinfo->{'releasename'} if $buildinfo->{'releasename'};
+      if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
         $useccache = 1;
     }
   }
