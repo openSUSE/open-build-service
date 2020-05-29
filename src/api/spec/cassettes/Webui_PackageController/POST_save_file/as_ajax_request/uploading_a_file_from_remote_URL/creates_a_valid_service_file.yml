@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:22 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Parliament of Man</title>
-          <description>Aut sit iure officia.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Eligendi rerum exercitationem eos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Parliament of Man</title>
-          <description>Aut sit iure officia.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Eligendi rerum exercitationem eos.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:22 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package/_service
@@ -114,7 +114,7 @@ http_interactions:
           <details>404 _service: no such file</details>
         </status>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_service?comment=Modified%20via%20webui&user=tom
@@ -153,15 +153,15 @@ http_interactions:
       encoding: UTF-8
       string: |
         <revision rev="1" vrev="1">
-          <srcmd5>0644487f1dcfe5877056528b36e56ffc</srcmd5>
+          <srcmd5>6ae8c045aa33aa1ee9013e0f5070d844</srcmd5>
           <version>unknown</version>
-          <time>1589555889</time>
+          <time>1590766643</time>
           <user>tom</user>
           <comment>Modified via webui</comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/my_package?cmd=runservice&user=tom
@@ -196,7 +196,7 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -204,8 +204,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Parliament of Man</title>
-          <description>Aut sit iure officia.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Eligendi rerum exercitationem eos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -226,16 +226,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Parliament of Man</title>
-          <description>Aut sit iure officia.</description>
+          <title>Pale Kings and Princes</title>
+          <description>Eligendi rerum exercitationem eos.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -265,12 +265,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" rev="2" vrev="2" srcmd5="dff32c3c21a686658d0771ba2bbe1c7b">
+        <directory name="my_package" rev="2" vrev="2" srcmd5="c7327ca82046e3c0d5141824eb003864">
           <serviceinfo code="running"/>
-          <entry name="_service" md5="4da20bf9b9adf337a61ec7571253d7f3" size="279" mtime="1589555889"/>
+          <entry name="_service" md5="4da20bf9b9adf337a61ec7571253d7f3" size="279" mtime="1590766379"/>
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?view=info
@@ -300,11 +300,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="my_package" rev="2" vrev="2" srcmd5="dff32c3c21a686658d0771ba2bbe1c7b">
+        <sourceinfo package="my_package" rev="2" vrev="2" srcmd5="c7327ca82046e3c0d5141824eb003864">
           <error>service in progress</error>
         </sourceinfo>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -334,12 +334,12 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="my_package" rev="2" vrev="2" srcmd5="dff32c3c21a686658d0771ba2bbe1c7b">
+        <directory name="my_package" rev="2" vrev="2" srcmd5="c7327ca82046e3c0d5141824eb003864">
           <serviceinfo code="running"/>
-          <entry name="_service" md5="4da20bf9b9adf337a61ec7571253d7f3" size="279" mtime="1589555889"/>
+          <entry name="_service" md5="4da20bf9b9adf337a61ec7571253d7f3" size="279" mtime="1590766379"/>
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -371,15 +371,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="04ed8c429555a4482ef43b99ecbd5995">
+        <sourcediff key="6ae48feb67f656b913438aaae4a21572">
           <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="my_package" rev="2" srcmd5="dff32c3c21a686658d0771ba2bbe1c7b"/>
+          <new project="home:tom" package="my_package" rev="2" srcmd5="c7327ca82046e3c0d5141824eb003864"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package/_service
@@ -418,7 +418,7 @@ http_interactions:
           </service>
         </services>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package/remote_file
@@ -453,7 +453,7 @@ http_interactions:
           <details>404 remote_file: no such file</details>
         </status>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package/_service
@@ -492,7 +492,7 @@ http_interactions:
           </service>
         </services>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom/my_package?comment&user=tom
@@ -525,5 +525,5 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:09 GMT
+  recorded_at: Fri, 29 May 2020 15:37:23 GMT
 recorded_with: VCR 5.1.0

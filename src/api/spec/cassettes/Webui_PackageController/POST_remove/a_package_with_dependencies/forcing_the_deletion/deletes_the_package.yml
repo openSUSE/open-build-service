@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Qui molestias excepturi saepe.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Repudiandae delectus molestiae omnis.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '169'
+      - '174'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>After Many a Summer Dies the Swan</title>
-          <description>Qui molestias excepturi saepe.</description>
+          <title>I Know Why the Caged Bird Sings</title>
+          <description>Repudiandae delectus molestiae omnis.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/_meta?user=tom
@@ -87,7 +87,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>The Moving Toyshop</title>
+          <title>Down to a Sunless Sea</title>
           <description/>
         </project>
     headers:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>The Moving Toyshop</title>
+          <title>Down to a Sunless Sea</title>
           <description></description>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -165,8 +165,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -188,17 +188,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '218'
+      - '202'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom/my_package?comment&user=tom
@@ -231,7 +231,7 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_2/package_2/_meta?user=tom
@@ -239,8 +239,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -261,14 +261,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="package_2" project="project_2">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Animi delectus praesentium dolor.</description>
+          <title>That Good Night</title>
+          <description>Veniam quisquam sunt pariatur.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 recorded_with: VCR 5.1.0

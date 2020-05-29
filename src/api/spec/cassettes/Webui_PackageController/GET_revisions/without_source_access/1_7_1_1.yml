@@ -1,0 +1,167 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:36:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_revision" project="home:tom">
+          <title>A Time of Gifts</title>
+          <description>Est inventore dolores error.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_revision" project="home:tom">
+          <title>A Time of Gifts</title>
+          <description>Est inventore dolores error.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:36:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
+          <version>unknown</version>
+          <time>1590766596</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:36:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_revision" project="home:tom">
+          <title>A Time of Gifts</title>
+          <description>Est inventore dolores error.</description>
+          <sourceaccess>
+            <disable/>
+          </sourceaccess>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '214'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_one_revision" project="home:tom">
+          <title>A Time of Gifts</title>
+          <description>Est inventore dolores error.</description>
+          <sourceaccess>
+            <disable/>
+          </sourceaccess>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:36:36 GMT
+recorded_with: VCR 5.1.0

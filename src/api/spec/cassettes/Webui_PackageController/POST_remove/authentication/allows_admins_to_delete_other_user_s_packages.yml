@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:admin/_meta?user=admin
@@ -81,15 +81,15 @@ http_interactions:
           <person userid="admin" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:32 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=admin
+    uri: http://backend:5352/source/project_3/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Stranger in a Strange Land</title>
+        <project name="project_3">
+          <title>The Man Within</title>
           <description/>
         </project>
     headers:
@@ -111,25 +111,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '112'
+      - '100'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Stranger in a Strange Land</title>
+        <project name="project_3">
+          <title>The Man Within</title>
           <description></description>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:33 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/forbidden_package/_meta?user=admin
+    uri: http://backend:5352/source/project_3/forbidden_package/_meta?user=admin
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_4">
-          <title>The Way Through the Woods</title>
-          <description>Sit ea et quo.</description>
+        <package name="forbidden_package" project="project_3">
+          <title>A Farewell to Arms</title>
+          <description>Provident amet voluptas non.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -150,19 +150,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '160'
     body:
       encoding: UTF-8
       string: |
-        <package name="forbidden_package" project="project_4">
-          <title>The Way Through the Woods</title>
-          <description>Sit ea et quo.</description>
+        <package name="forbidden_package" project="project_3">
+          <title>A Farewell to Arms</title>
+          <description>Provident amet voluptas non.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:33 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 - request:
     method: delete
-    uri: http://backend:5352/source/project_4/forbidden_package?comment&user=admin
+    uri: http://backend:5352/source/project_3/forbidden_package?comment&user=admin
     body:
       encoding: US-ASCII
       string: ''
@@ -192,5 +192,5 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:33 GMT
+  recorded_at: Fri, 29 May 2020 15:37:14 GMT
 recorded_with: VCR 5.1.0

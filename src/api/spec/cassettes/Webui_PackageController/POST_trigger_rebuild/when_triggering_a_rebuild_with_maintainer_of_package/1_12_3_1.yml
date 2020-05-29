@@ -1,0 +1,167 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Sun Also Rises</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '149'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Sun Also Rises</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/package_1/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="foo_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Autem voluptatem et labore.</description>
+          <person userid="bar" role="maintainer"/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_1" project="foo_project">
+          <title>After Many a Summer Dies the Swan</title>
+          <description>Autem voluptatem et labore.</description>
+          <person userid="bar" role="maintainer"/>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_project/_meta?user=foo
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Sun Also Rises</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+          <repository name="openSUSE_Leap_15.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '228'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_project">
+          <title>The Sun Also Rises</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+          <repository name="openSUSE_Leap_15.1">
+            <arch>i586</arch>
+          </repository>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/foo_project?arch=i586&cmd=rebuild&package=package_1&repository=openSUSE_Leap_15.1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+recorded_with: VCR 5.1.0

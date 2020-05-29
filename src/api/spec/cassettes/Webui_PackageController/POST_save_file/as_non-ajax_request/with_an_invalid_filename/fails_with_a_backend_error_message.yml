@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:17 GMT
+  recorded_at: Fri, 29 May 2020 15:37:29 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Proper Study</title>
-          <description>Sunt beatae illum quos.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Porro dolores molestiae est.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '145'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Proper Study</title>
-          <description>Sunt beatae illum quos.</description>
+          <title>Stranger in a Strange Land</title>
+          <description>Porro dolores molestiae est.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:17 GMT
+  recorded_at: Fri, 29 May 2020 15:37:29 GMT
 recorded_with: VCR 5.1.0

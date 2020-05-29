@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:37 GMT
+  recorded_at: Fri, 29 May 2020 15:37:17 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_7
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_46
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Of Human Bondage</title>
-          <description>Qui voluptatum quo velit.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Corrupti quam amet iure.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Of Human Bondage</title>
-          <description>Qui voluptatum quo velit.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Corrupti quam amet iure.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:37 GMT
+  recorded_at: Fri, 29 May 2020 15:37:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package
@@ -112,7 +112,7 @@ http_interactions:
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:37 GMT
+  recorded_at: Fri, 29 May 2020 15:37:17 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1
@@ -145,5 +145,5 @@ http_interactions:
         <directory name="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:37 GMT
+  recorded_at: Fri, 29 May 2020 15:37:17 GMT
 recorded_with: VCR 5.1.0

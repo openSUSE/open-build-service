@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Noli Me Tangere</title>
-          <description>Consequuntur ipsam itaque dolores.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Vel consectetur in et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Noli Me Tangere</title>
-          <description>Consequuntur ipsam itaque dolores.</description>
+          <title>Alone on a Wide, Wide Sea</title>
+          <description>Vel consectetur in et.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/_meta?user=tom
@@ -87,7 +87,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>Behold the Man</title>
+          <title>The Widening Gyre</title>
           <description/>
         </project>
     headers:
@@ -109,16 +109,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '100'
+      - '103'
     body:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>Behold the Man</title>
+          <title>The Widening Gyre</title>
           <description></description>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -126,8 +126,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Time To Murder And Create</title>
-          <description>Sunt iusto animi tenetur.</description>
+          <title>Antic Hay</title>
+          <description>Odio suscipit enim qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -148,16 +148,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '156'
+      - '138'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Time To Murder And Create</title>
-          <description>Sunt iusto animi tenetur.</description>
+          <title>Antic Hay</title>
+          <description>Odio suscipit enim qui.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 - request:
     method: put
     uri: http://backend:5352/source/project_1/package_1/_meta?user=tom
@@ -165,8 +165,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Time To Murder And Create</title>
-          <description>Sunt iusto animi tenetur.</description>
+          <title>Antic Hay</title>
+          <description>Odio suscipit enim qui.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     headers:
@@ -188,15 +188,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '189'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>Time To Murder And Create</title>
-          <description>Sunt iusto animi tenetur.</description>
+          <title>Antic Hay</title>
+          <description>Odio suscipit enim qui.</description>
           <devel project="home:tom" package="my_package"/>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:31 GMT
+  recorded_at: Fri, 29 May 2020 15:37:13 GMT
 recorded_with: VCR 5.1.0

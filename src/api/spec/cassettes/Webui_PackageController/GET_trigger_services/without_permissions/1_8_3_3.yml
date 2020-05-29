@@ -1,0 +1,161 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_39
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Ea praesentium quasi vel.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Ea praesentium quasi vel.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Sed voluptatem iure. Quia et reprehenderit. Reprehenderit deleniti eligendi.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="35" vrev="35">
+          <srcmd5>2e5a7a098555231f5eaf90ccc8854271</srcmd5>
+          <version>unknown</version>
+          <time>1590766628</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ut officia temporibus. Cupiditate enim ratione. Doloribus sed et.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="36" vrev="36">
+          <srcmd5>96cbb3fdd4fc6567f8e3ce9646e98d62</srcmd5>
+          <version>unknown</version>
+          <time>1590766628</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 15:37:08 GMT
+recorded_with: VCR 5.1.0

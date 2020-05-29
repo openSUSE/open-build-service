@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:43 GMT
+  recorded_at: Fri, 29 May 2020 15:36:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>The Other Side of Silence</title>
-          <description>Consequuntur occaecati cupiditate ab.</description>
+          <title>Fear and Trembling</title>
+          <description>Nesciunt fugit a tempora.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '183'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_one_revision" project="home:tom">
-          <title>The Other Side of Silence</title>
-          <description>Consequuntur occaecati cupiditate ab.</description>
+          <title>Fear and Trembling</title>
+          <description>Nesciunt fugit a tempora.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:43 GMT
+  recorded_at: Fri, 29 May 2020 15:36:37 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_one_revision/somefile.txt
@@ -109,16 +109,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
+        <revision rev="1" vrev="1">
           <srcmd5>cabf9a1f9a0b7c19d4f7ff46166f4ee0</srcmd5>
           <version>unknown</version>
-          <time>1589555923</time>
+          <time>1590766597</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:43 GMT
+  recorded_at: Fri, 29 May 2020 15:36:37 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_one_revision
@@ -148,11 +148,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_one_revision" rev="3" vrev="3" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
-          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1589555922"/>
+        <directory name="package_with_one_revision" rev="1" vrev="1" srcmd5="cabf9a1f9a0b7c19d4f7ff46166f4ee0">
+          <entry name="somefile.txt" md5="cfcd208495d565ef66e7dff9f98764da" size="1" mtime="1590766355"/>
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:43 GMT
+  recorded_at: Fri, 29 May 2020 15:36:37 GMT
 - request:
     method: delete
     uri: http://backend:5352/source/home:tom/package_with_one_revision?comment&user=tom
@@ -185,5 +185,5 @@ http_interactions:
 
 '
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:44 GMT
+  recorded_at: Fri, 29 May 2020 15:36:37 GMT
 recorded_with: VCR 5.1.0
