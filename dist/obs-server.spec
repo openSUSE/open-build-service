@@ -148,6 +148,7 @@ BuildRequires:  python-devel
 BuildRequires:  openssl
 BuildRequires:  perl-BSSolv >= 0.36
 BuildRequires:  perl-Compress-Zlib
+BuildRequires:  perl-DBD-SQLite
 BuildRequires:  perl-Diff-LibXDiff
 BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-JSON-XS
@@ -219,6 +220,8 @@ Requires:       perl-XML-Structured
 Requires:       perl-YAML-LibYAML
 # zstd is esp for Arch Linux
 Requires:       zstd
+# needed for optional bs_sourcepublish
+Recommends:     perl-DBD-SQLite
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
@@ -799,6 +802,7 @@ fi
 /usr/lib/obs/server/bs_repserver
 /usr/lib/obs/server/bs_sched
 /usr/lib/obs/server/bs_serverstatus
+/usr/lib/obs/server/bs_sourcepublish
 /usr/lib/obs/server/bs_srcserver
 /usr/lib/obs/server/bs_worker
 /usr/lib/obs/server/bs_signer

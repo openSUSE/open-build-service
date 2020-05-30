@@ -1716,6 +1716,16 @@ sub publish {
     $do_packtrack = 1;
   }
 
+  # do we need to do source publishing?
+  my $do_sourcepublish;
+  if ($BSConfig::sourcepublish_sync) {
+    if ($BSConfig::sourcepublish_filter) {
+      $do_sourcepublish = 1 if grep {$prp =~ /^$_/} @$BSConfig::sourcepublish_filter;
+    } else {
+      $do_sourcepublish = 1;
+    }
+  }
+
   # is there a special subdirectory for binary packages configured?
   my $subdir = '';
   if ($repotype{'packagesubdir'} && $repotype{'packagesubdir'}->[0]) {
@@ -1919,9 +1929,15 @@ sub publish {
 	} elsif ($bin =~ /ONIE\.bin(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = "onie/$bin";
 	  $kiwimedium = "$arch/$1" if $bin =~ /(.+)ONIE\.bin$/;
-	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256(?:\.asc)?)?$/) {
+	} elsif ($bin =~ /(.*)\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256(?:\.asc)?)?$/) {
 	  $p = $bin;
 	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
+	} elsif ($bin =~ /(.*)\.install.tar?(?:\.sha256(?:\.asc)?)?$/) {
+          # kiwi has uncompressed install.tar (because internal compressed) since 17 Jul 2019
+	  $p = $bin;
+	  $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
+	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
@@ -1997,7 +2013,7 @@ sub publish {
           $p = mapsleimage($config, "$reporoot/$prp/$arch/:repo", $rbin, $p, $sleimage) if $sleimage;
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
-	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack;
+	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack || $do_sourcepublish;
 	  next;
 	} elsif ($bin =~ /^(.*)\.index$/) {
 	  # collect virt-builder index parts
@@ -2402,13 +2418,15 @@ sub publish {
   clean_blobdir($blobdir);
   undef $blobdir;
 
-  # collect packtrack data (if needed)
+  # collect packtrack and source data (if needed)
   my $packtrack;
-  if ($do_packtrack) {
+  my $sources;
+  if ($do_packtrack || $do_sourcepublish) {
     $packtrack = $dbgpacktrack || {};
     my %cache = @{$packtrackcache || []};
     for my $bin (sort keys %{ { %bins, %containers } }) {
       my $reportfile;
+      my $sourceid;
       if ($bin =~ /\.(?:$binsufsre)$/) {
 	my $res;
 	my @s = stat("$extrep/$bin");
@@ -2433,21 +2451,29 @@ sub publish {
 	    $res->{'cpeid'} = BSHTTP::urldecode($cpeid);
 	  }
 	}
-	my $pt = { 'project' => $projid, 'repository' => $repoid };
-	$pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
-	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
-	for (qw{name epoch version release disturl buildtime}) {
-	  $pt->{$_} = $res->{$_} if defined $res->{$_};
-	}
-	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
-	$pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
-	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
-	$pt->{'cpeid'} = $res->{'cpeid'} if $res->{'cpeid'};
-	$packtrack->{$bin} = $pt;
-	if ($pt->{'arch'}) {
-	  $reportfile = $bin;
-	  $reportfile =~ s/.*\///;    # basename
-	  $reportfile = "$pt->{'arch'}/$reportfile";
+
+        if ($do_sourcepublish && $res->{disturl} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)/) {
+          $sourceid = "$1/$3/$2";
+        }
+
+        # packtrack specific code
+        if ($do_packtrack) {
+	  my $pt = { 'project' => $projid, 'repository' => $repoid };
+	  $pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
+	  $pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	  for (qw{name epoch version release disturl buildtime}) {
+	    $pt->{$_} = $res->{$_} if defined $res->{$_};
+	  }
+	  $pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	  $pt->{'binaryid'} = $res->{'hdrmd5'} if defined $res->{'hdrmd5'};
+	  $pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
+	  $pt->{'cpeid'} = $res->{'cpeid'} if $res->{'cpeid'};
+	  $packtrack->{$bin} = $pt;
+	  if ($pt->{'arch'}) {
+	    $reportfile = $bin;
+	    $reportfile =~ s/.*\///;    # basename
+	    $reportfile = "$pt->{'arch'}/$reportfile";
+	  }
         }
       }
 
@@ -2468,30 +2494,45 @@ sub publish {
 	}
         $pt->{'binaryid'} = $containerinfo->{'imageid'} if $containerinfo->{'imageid'};
 	$pt->{'ismedium'} = $medium;
-	$packtrack->{$bin} = $pt;
+	$packtrack->{$bin} = $pt if $do_packtrack;
+
+        if ($do_sourcepublish && $pt->{disturl} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)/) {
+          $sourceid = "$1/$3/$2";
+        }
       }
 
-      # track kiwi images and kiwi products
+      # track images and kiwi products
       if (!$containers{$bin} && $kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
 	my $medium = $bin;
 	$medium =~ s/.*\///;	# basename
 	my $report = $kiwireport{$kiwimedium{$bin}};
-	my $pt = { 'project' => $projid, 'repository' => $repoid };
-	$pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
-	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
-	$pt->{'name'} = $medium;	# hmm...
-	$pt->{'version'} = defined($report->{'version'}) ? $report->{'version'} : '0';
-	$pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
-	$pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
-	$pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
-	$pt->{'cpeid'} = BSHTTP::urldecode($report->{'cpeid'}) if $report->{'cpeid'};
-        # need a way to get disturl, buildtime and binaryid...
-	$pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
-	$pt->{'ismedium'} = $medium;
-	$packtrack->{$bin} = $pt;
+
+        if ($do_sourcepublish && $report->{'disturl'} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)/) {
+          $sourceid = "$1/$3/$2";
+        }
+
+        if ($do_packtrack) {
+	  my $pt = { 'project' => $projid, 'repository' => $repoid };
+	  $pt->{'arch'} = (split('/', $kiwimedium{$bin}, 2))[0];
+	  $pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	  $pt->{'name'} = $medium;	# hmm...
+	  $pt->{'version'} = defined($report->{'version'}) ? $report->{'version'} : '0';
+	  $pt->{'release'} = defined($report->{'release'}) ? $report->{'release'} : '0';
+	  $pt->{'binaryarch'} = $report->{'binaryarch'} || $pt->{'arch'} || 'noarch';
+	  $pt->{'buildtime'} = $report->{'buildtime'} if $report->{'buildtime'};
+	  $pt->{'cpeid'} = BSHTTP::urldecode($report->{'cpeid'}) if $report->{'cpeid'};
+	  # need a way to get disturl, buildtime and binaryid...
+	  $pt->{'disturl'} = $report->{'disturl'} if $report->{'disturl'};
+	  $pt->{'ismedium'} = $medium;
+	  $packtrack->{$bin} = $pt;
+        }
       }
 
+      # adds a published source entry
+      $sources->{$sourceid} = [] if $sourceid;
+
       # check if there is a report associated with this binary
+      # this adds the content to the referenced binary
       $reportfile = $kiwimedium{$bin} if $kiwimedium{$bin};
       if ($reportfile && $kiwireport{$reportfile}) {
 	my $medium = $bin;
@@ -2505,7 +2546,11 @@ sub publish {
 	  $pt->{'medium'} = $medium;
 	  my $fn = '';
 	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
-	  $packtrack->{"$medium$fn"} = $pt;
+	  $packtrack->{"$medium$fn"} = $pt if $do_packtrack;
+
+          if ($sourceid && $pt->{disturl} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)/) {
+            push @{$sources->{$sourceid}}, "$1/$3/$2";
+          }
 	}
       }
     }
@@ -2831,6 +2876,11 @@ publishprog_done:
     # send notification
     print "    sending binary release tracking notification\n";
     BSNotify::notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+  }
+
+  if ($sources && !$dbgsplit) {
+    print "    sending source publish notification\n";
+    BSNotify::notify('sourcepublish', { project => $projid , 'repo' => $repoid }, BSUtil::tostorable($sources));
   }
 
   # update repoinfo with status

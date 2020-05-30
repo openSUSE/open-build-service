@@ -171,6 +171,11 @@ our $relsync_pool = {
 #for example "--whole-file" if network faster than disk
 #our $rsync_extra_options = "--whole-file";
 
+# optional source publishing to rsync server
+#our $sourcepublish_sync = 'rsync://127.0.0.1/sources';
+# optional filter to publish only some areas
+#our $sourcepublish_filter = [ "openSUSE:.*", "SUSE:.*" ];
+
 # Define your own global Macros
 #my $macro_packager = '<rpm@example.com>';
 #my $macro_vendor = 'Name, Company, City, DE';
