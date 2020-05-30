@@ -1,0 +1,161 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:07:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Nobis laudantium fugit alias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>Tiger! Tiger!</title>
+          <description>Nobis laudantium fugit alias.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:17:45 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Doloribus ut dolores. Iste id rerum. Facere id id.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>e96b2c80f8fde6af5c67c9b0a9132673</srcmd5>
+          <version>unknown</version>
+          <time>1590751065</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:17:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Incidunt ea rem. Et vel ut. Eaque illum quas.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="8" vrev="8">
+          <srcmd5>5e61ea2b1a1e390e6f4d458026126f02</srcmd5>
+          <version>unknown</version>
+          <time>1590751066</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:17:47 GMT
+recorded_with: VCR 5.1.0
