@@ -1,12 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<status_messages>
-  <message id="1" user="Admin" severity="0" created_at="Thu Feb 15 19:02:37 +0100 2007" deleted_at="Thu Feb 15 19:02:52 +0100 2007">
-    testmessage number one ...
-  </message>
-  <message id="2" user="Admin" severity="2" created_at="Thu Feb 15 19:05:02 +0100 2007">
-    the format of this file will be used for getting messages from the api.
-    it can also be used to send (put) multiple messages to the api at once.
-    in this case the optional attributes will be ignored.
-  </message>
+<status_messages count="2">
+  <status_message id="1">
+    <message>
+      a single sample message. contains some text ...
+      attributes are optional and ignored when sent (put) to the api.
+      the format of this example will be used as a convenient way to put a message.
+    </message>
+    <severity>information</severity>
+    <scope>all_users</scope>
+  </status_message>
+  <status_message id="2">
+    <message>
+      the format of this file will be used for getting messages from the api.
+      it can also be used to send (put) multiple messages to the api at once.
+      in this case the optional attributes will be ignored.
+    </message>
+    <severity>announcement</severity>
+    <scope>in_beta_users</scope>
+  </status_message>
 </status_messages>
 

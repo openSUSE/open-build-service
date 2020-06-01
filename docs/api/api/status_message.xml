@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<status_message>
+<status_message id="1">
   <message>
     a single sample message. contains some text ...
     attributes are optional and ignored when sent (put) to the api.
