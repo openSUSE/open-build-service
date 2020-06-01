@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:17 GMT
+  recorded_at: Fri, 29 May 2020 15:37:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>East of Eden</title>
-          <description>Sequi doloremque cum similique.</description>
+          <title>A Darkling Plain</title>
+          <description>Eius quae architecto rerum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -75,9 +75,9 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>East of Eden</title>
-          <description>Sequi doloremque cum similique.</description>
+          <title>A Darkling Plain</title>
+          <description>Eius quae architecto rerum.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:17 GMT
+  recorded_at: Fri, 29 May 2020 15:37:30 GMT
 recorded_with: VCR 5.1.0

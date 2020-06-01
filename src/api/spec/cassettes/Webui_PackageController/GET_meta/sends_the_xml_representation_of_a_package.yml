@@ -40,16 +40,16 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:54 GMT
+  recorded_at: Fri, 29 May 2020 15:37:11 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_41
+    uri: http://backend:5352/source/home:tom/my_package/_meta?user=user_43
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Other Side of Silence</title>
-          <description>Laudantium maiores beatae labore.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Similique aut nemo quos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '164'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>The Other Side of Silence</title>
-          <description>Laudantium maiores beatae labore.</description>
+          <title>The Stars' Tennis Balls</title>
+          <description>Similique aut nemo quos.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:54 GMT
+  recorded_at: Fri, 29 May 2020 15:37:11 GMT
 recorded_with: VCR 5.1.0

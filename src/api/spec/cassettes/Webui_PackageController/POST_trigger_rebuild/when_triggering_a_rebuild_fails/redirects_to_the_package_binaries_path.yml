@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:20 GMT
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Et qui earum exercitationem.</description>
+          <title>Tender Is the Night</title>
+          <description>Aut repudiandae ea et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '147'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Et qui earum exercitationem.</description>
+          <title>Tender Is the Night</title>
+          <description>Aut repudiandae ea et.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:20 GMT
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?cmd=rebuild&package=my_package&repository=non_existant_repository
@@ -115,5 +115,5 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:21 GMT
+  recorded_at: Fri, 29 May 2020 15:37:34 GMT
 recorded_with: VCR 5.1.0

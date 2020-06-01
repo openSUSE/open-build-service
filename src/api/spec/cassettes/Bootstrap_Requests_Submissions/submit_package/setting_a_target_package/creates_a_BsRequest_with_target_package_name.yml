@@ -1,0 +1,932 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/_meta?user=madam_submitter
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title/>
+          <description/>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:madam_submitter">
+          <title></title>
+          <description></description>
+          <person userid="madam_submitter" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:21:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/_meta?user=madam_submitter
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:madam_submitter">
+          <title>Cabbages and Kings</title>
+          <description>Nemo tenetur et vel.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:madam_submitter">
+          <title>Cabbages and Kings</title>
+          <description>Nemo tenetur et vel.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/_config
+    body:
+      encoding: UTF-8
+      string: Adipisci tenetur voluptatibus. Sit voluptatem praesentium. Ut et mollitia.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>4217b5ba09421d1e0075798690765209</srcmd5>
+          <version>unknown</version>
+          <time>1590751331</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Aut aliquid aliquam. Eius non asperiores. Dolore corrupti eos.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>f8312b03109343f88602f9f216ce1343</srcmd5>
+          <version>unknown</version>
+          <time>1590751331</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '395'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>4217b5ba09421d1e0075798690765209</srcmd5>
+            <version>unknown</version>
+            <time>1590751331</time>
+            <user>unknown</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>f8312b03109343f88602f9f216ce1343</srcmd5>
+            <version>unknown</version>
+            <time>1590751331</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?package=Quebec&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:11 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '224'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343" verifymd5="f8312b03109343f88602f9f216ce1343">
+          <error>bad build configuration, no build type defined or detected</error>
+        </sourceinfo>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/_meta?user=mr_receiver
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title/>
+          <description/>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '144'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:mr_receiver">
+          <title></title>
+          <description></description>
+          <person userid="mr_receiver" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '314'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="41518e081bd80c9371a02494150d97ca">
+          <old project="home:madam_submitter" package="Quebec" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:madam_submitter" package="Quebec" rev="2" srcmd5="f8312b03109343f88602f9f216ce1343"/>
+          <files/>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_meta?user=madam_submitter
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>The Torment of Others</title>
+          <description>Reprehenderit libero est nam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="Quebec" project="home:mr_receiver">
+          <title>The Torment of Others</title>
+          <description>Reprehenderit libero est nam.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/_config
+    body:
+      encoding: UTF-8
+      string: Perspiciatis aut quibusdam. Alias consequatur vitae. Rerum suscipit
+        qui.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>e6d1127f8f40c217cf40aa95fac34981</srcmd5>
+          <version>unknown</version>
+          <time>1590751332</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:mr_receiver/Quebec/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Ut delectus consequatur. Quia sint et. Nihil repudiandae rerum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>ec1f68acf6481efc28707512c69459f9</srcmd5>
+          <version>unknown</version>
+          <time>1590751332</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:mr_receiver&rev=2&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '518'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        ++++++ _config
+        --- _config
+        +++ _config
+        @@ -1,1 +1,1 @@
+        -Perspiciatis aut quibusdam. Alias consequatur vitae. Rerum suscipit qui.
+        \ No newline at end of file
+        +Adipisci tenetur voluptatibus. Sit voluptatem praesentium. Ut et mollitia.
+        \ No newline at end of file
+
+        ++++++ somefile.txt
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -1,1 +1,1 @@
+        -Ut delectus consequatur. Quia sint et. Nihil repudiandae rerum.
+        \ No newline at end of file
+        +Aut aliquid aliquam. Eius non asperiores. Dolore corrupti eos.
+        \ No newline at end of file
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:12 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:madam_submitter/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="f8312b03109343f88602f9f216ce1343">
+          <entry name="_config" md5="91cce68360760faace92893db686985a" size="74" mtime="1590751331"/>
+          <entry name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62" mtime="1590751331"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:13 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:madam_submitter/Quebec?cmd=diff&expand=1&filelimit=10000&opackage=Quebec&oproject=home:mr_receiver&rev=2&tarlimit=10000&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1199'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="abd70baa903b05a307f75bbe95aa233a">
+          <old project="home:mr_receiver" package="Quebec" rev="2" srcmd5="ec1f68acf6481efc28707512c69459f9"/>
+          <new project="home:madam_submitter" package="Quebec" rev="2" srcmd5="f8312b03109343f88602f9f216ce1343"/>
+          <files>
+            <file state="changed">
+              <old name="_config" md5="e45d1d6b2723bb7197215d9d2b243923" size="72"/>
+              <new name="_config" md5="91cce68360760faace92893db686985a" size="74"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Perspiciatis aut quibusdam. Alias consequatur vitae. Rerum suscipit qui.
+        \ No newline at end of file
+        +Adipisci tenetur voluptatibus. Sit voluptatem praesentium. Ut et mollitia.
+        \ No newline at end of file
+        </diff>
+            </file>
+            <file state="changed">
+              <old name="somefile.txt" md5="efa7a1c940ab62654b73c23354ff9c68" size="63"/>
+              <new name="somefile.txt" md5="cee5f37732db9df559cd756e39b0cc9d" size="62"/>
+              <diff lines="5">@@ -1,1 +1,1 @@
+        -Ut delectus consequatur. Quia sint et. Nihil repudiandae rerum.
+        \ No newline at end of file
+        +Aut aliquid aliquam. Eius non asperiores. Dolore corrupti eos.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:13 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:mr_receiver/Quebec
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '291'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="Quebec" rev="2" vrev="2" srcmd5="ec1f68acf6481efc28707512c69459f9">
+          <entry name="_config" md5="e45d1d6b2723bb7197215d9d2b243923" size="72" mtime="1590751332"/>
+          <entry name="somefile.txt" md5="efa7a1c940ab62654b73c23354ff9c68" size="63" mtime="1590751332"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:13 GMT
+- request:
+    method: get
+    uri: http://backend:5352/build/home:madam_submitter/_result?package=Quebec&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '55'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000"/>
+
+'
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:22:13 GMT
+recorded_with: VCR 5.1.0

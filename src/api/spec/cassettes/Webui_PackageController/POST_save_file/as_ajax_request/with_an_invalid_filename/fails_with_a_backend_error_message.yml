@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:12 GMT
+  recorded_at: Fri, 29 May 2020 15:37:26 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Ullam eum omnis cum.</description>
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Quas sunt ea impedit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,14 +70,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '171'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>To Your Scattered Bodies Go</title>
-          <description>Ullam eum omnis cum.</description>
+          <title>By Grand Central Station I Sat Down and Wept</title>
+          <description>Quas sunt ea impedit.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:12 GMT
+  recorded_at: Fri, 29 May 2020 15:37:26 GMT
 recorded_with: VCR 5.1.0

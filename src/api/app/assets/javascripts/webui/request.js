@@ -1,18 +1,18 @@
 function updateSupersedeAndDevelPackageDisplay() {
-  if ($('#targetproject').length > 0 && $('#targetproject')[0].value.length > 2) {
-    if ($('#targetproject')[0].value === $('#sourceproject')[0].value) {
+  if ($('[id$="target_project"]').length > 0 && $('[id$="target_project"]')[0].value.length > 2) {
+    if ($('[id$="target_project"]')[0].value === $('[id$="source_project"]')[0].value) {
       $('#sourceupdate-display').hide();
-      $('#sourceupdate').prop('disabled', true); // hide 'sourceupdate' from Ruby
+      $('[id$="sourceupdate"]').prop('disabled', true); // hide 'sourceupdate' from Ruby
     } else {
       $('#sourceupdate-display').show();
-      $('#sourceupdate').prop('disabled', false);
+      $('[id$="sourceupdate"]').prop('disabled', false);
     }
     $.ajax({
-      url: $('#targetproject').data('requests-url'),
+      url: $('[id$="target_project"]').data('requests-url'),
       data: {
-        project: $('#targetproject')[0].value,
-        source_project: $('#project')[0].value, // jshint ignore:line
-        package: $('#package')[0].value,
+        project: $('[id$="target_project"]')[0].value,
+        source_project: $('[id$="source_project"]')[0].value, // jshint ignore:line
+        package: $('[id$="source_package"]')[0].value,
         types: 'submit',
         states: ['new', 'review', 'declined']
       },
@@ -27,10 +27,10 @@ function updateSupersedeAndDevelPackageDisplay() {
       }
     });
     $.ajax({
-      url: $('#targetproject').data('develpackage-url'),
+      url: $('[id$="target_project"]').data('develpackage-url'),
       data: {
-        project: $('#targetproject')[0].value,
-        package: $('#package')[0].value
+        project: $('[id$="target_project"]')[0].value,
+        package: $('[id$="source_package"]')[0].value
       },
       success: function (data) {
         if (data.length > 0) {
@@ -44,38 +44,35 @@ function updateSupersedeAndDevelPackageDisplay() {
   }
 }
 
-function setupRequestDialog() { // jshint ignore:line
+function setupSubmitPackagePage(url) { // jshint ignore:line
   $('#devel-project-name').click(function () {
-    $('#targetproject').attr('value', $('#devel-project-name').html());
+    $('[id$="target_project"]').attr('value', $('#devel-project-name').html());
   });
 
-  $('#targetproject.obs-autocomplete').on('autocompleteselect autocompletechange', function() {
+  $('[id$="target_project"].obs-autocomplete').on('autocompleteselect autocompletechange', function() {
     updateSupersedeAndDevelPackageDisplay();
   });
 
-  prefillSubmitRequestForm();
+  prefillSubmitRequestForm(url);
 }
 
 /*
   This prefills the dialog with data coming from the package prefill endpoint.
-  The actual url has to be set in the link that shows the modal (coming as `e.relatedTarget`),
-  as a url data attribute.
+  FIXME: Remove this. The endpoint should be an instance method on the package model or inside a service object
  */
-function prefillSubmitRequestForm() {
-  $('#submit-request-modal').on('show.bs.modal', function(e) {
-    $.ajax({
-      url: $(e.relatedTarget).data().url,
-      dataType: 'json',
-      contentType: 'application/json; charset=utf-8',
-      accept: 'application/json',
-      success: function (e) {
-        $('#targetpackage').attr('value', e.targetPackage);
-        $('#targetproject').attr('value', e.targetProject);
-        $('#description').val(e.description);
-        $('#sourceupdate').attr('checked', e.cleanupSource);
-        updateSupersedeAndDevelPackageDisplay();
-      }
-    });
+function prefillSubmitRequestForm(url) {
+  $.ajax({
+    url: url,
+    dataType: 'json',
+    contentType: 'application/json; charset=utf-8',
+    accept: 'application/json',
+    success: function (e) {
+      $('[id$="target_package"]').attr('value', e.targetPackage);
+      $('[id$="target_project"]').attr('value', e.targetProject);
+      $('#bs_request_description').val(e.description);
+      $('[id$="sourceupdate"]').attr('checked', e.cleanupSource);
+      updateSupersedeAndDevelPackageDisplay();
+    }
   });
 }
 

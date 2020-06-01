@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:24 GMT
+  recorded_at: Fri, 29 May 2020 15:36:30 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Sunt aut fuga repellat.</description>
+          <title>Tender Is the Night</title>
+          <description>Eum molestiae autem aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>I Know Why the Caged Bird Sings</title>
-          <description>Sunt aut fuga repellat.</description>
+          <title>Tender Is the Night</title>
+          <description>Eum molestiae autem aut.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:24 GMT
+  recorded_at: Fri, 29 May 2020 15:36:30 GMT
 - request:
     method: post
     uri: http://backend:5352/build/home:tom?arch=bar&cmd=abortbuild&package=my_package&repository=foo
@@ -115,5 +115,5 @@ http_interactions:
           <summary>no repository defined</summary>
         </status>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:18:24 GMT
+  recorded_at: Fri, 29 May 2020 15:36:30 GMT
 recorded_with: VCR 5.1.0

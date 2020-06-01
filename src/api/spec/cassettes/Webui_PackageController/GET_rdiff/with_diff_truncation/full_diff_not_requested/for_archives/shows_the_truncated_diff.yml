@@ -40,7 +40,7 @@ http_interactions:
           <person userid="tom" role="maintainer"/>
         </project>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/_meta?user=tom
@@ -48,8 +48,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Time of our Darkness</title>
-          <description>Ut ullam excepturi voluptatem.</description>
+          <title>Of Mice and Men</title>
+          <description>Tempora nulla dolor qui.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +70,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '157'
     body:
       encoding: UTF-8
       string: |
         <package name="diff-truncation-test-2" project="home:tom">
-          <title>Time of our Darkness</title>
-          <description>Ut ullam excepturi voluptatem.</description>
+          <title>Of Mice and Men</title>
+          <description>Tempora nulla dolor qui.</description>
         </package>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -112,16 +112,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="7" vrev="7">
           <srcmd5>a9789ffd295bf47f77113616443547ac</srcmd5>
           <version>unknown</version>
-          <time>1589555860</time>
+          <time>1590766593</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2/bigfile_archive.tar.gz
@@ -154,16 +154,16 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="8" vrev="8">
           <srcmd5>f83eab96d07ccb93931e4136c117e1df</srcmd5>
           <version>unknown</version>
-          <time>1589555860</time>
+          <time>1590766593</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -193,11 +193,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1589555860"/>
+        <directory name="diff-truncation-test-2" rev="8" vrev="8" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1590766397"/>
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/diff-truncation-test-2
@@ -227,14 +227,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="diff-truncation-test-2" rev="2" vrev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df">
-          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1589555860"/>
+        <directory name="diff-truncation-test-2" rev="8" vrev="8" srcmd5="f83eab96d07ccb93931e4136c117e1df">
+          <entry name="bigfile_archive.tar.gz" md5="e4f963909dcadcfb2cb888d0ce167570" size="10240" mtime="1590766397"/>
         </directory>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&rev=2&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/diff-truncation-test-2?cmd=diff&expand=1&rev=8&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -263,9 +263,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="560a8b7b93b1780d69963a3d1fc5d478">
-          <old project="home:tom" package="diff-truncation-test-2" rev="1" srcmd5="a9789ffd295bf47f77113616443547ac"/>
-          <new project="home:tom" package="diff-truncation-test-2" rev="2" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
+        <sourcediff key="45d01297fcd5beca9f25847b2ded137b">
+          <old project="home:tom" package="diff-truncation-test-2" rev="7" srcmd5="a9789ffd295bf47f77113616443547ac"/>
+          <new project="home:tom" package="diff-truncation-test-2" rev="8" srcmd5="f83eab96d07ccb93931e4136c117e1df"/>
           <files>
             <file state="changed">
               <old name="bigfile_archive.tar.gz/bigfile.txt" md5="0ab4de70d53908fd2b2669101500a09a" size="12"/>
@@ -290,5 +290,5 @@ http_interactions:
           </issues>
         </sourcediff>
     http_version: null
-  recorded_at: Fri, 15 May 2020 15:17:40 GMT
+  recorded_at: Fri, 29 May 2020 15:36:33 GMT
 recorded_with: VCR 5.1.0

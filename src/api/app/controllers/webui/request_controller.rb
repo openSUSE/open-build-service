@@ -12,23 +12,27 @@ class Webui::RequestController < Webui::WebuiController
 
   def create
     @bs_request = BsRequest.new(bs_request_params)
+    @bs_request.set_add_revision if params.key?(:add_revision)
     authorize @bs_request, :create?
 
     begin
       @bs_request.save!
+      redirect_to request_show_path(@bs_request.number)
+      return
     # FIXME: Use validations in the model instead of raising whenever something is wrong
+    rescue BsRequestAction::MissingAction
+      flash[:error] = 'Unable to submit, sources are unchanged'
+    rescue Project::Errors::UnknownObjectError
+      flash[:error] = "Unable to submit: The source of package #{params[:project_name]}/#{params[:package_name]} is broken"
     rescue APIError, ActiveRecord::RecordInvalid => e
       flash[:error] = e.message
-
-      if params.key?(:package_name)
-        redirect_to(package_show_path(params[:project_name], params[:package_name]))
-      else
-        redirect_to(project_show_path(params[:project_name]))
-      end
-      return
     end
 
-    redirect_to request_show_path(@bs_request.number)
+    if params.key?(:package_name)
+      redirect_to(package_show_path(params[:project_name], params[:package_name]))
+    else
+      redirect_to(project_show_path(params[:project_name]))
+    end
   end
 
   def add_reviewer

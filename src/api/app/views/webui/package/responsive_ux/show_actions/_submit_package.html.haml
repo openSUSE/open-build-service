@@ -1,8 +1,4 @@
 %li.nav-item
-  = link_to('#',
-      class: 'nav-link',
-      data: { toggle: 'modal',
-              target: '#submit-request-modal',
-              url: package_branch_diff_info_path(@project.name, @package.name) }) do
+  = link_to(new_project_package_submission_path(project, package, revision: revision), class: 'nav-link') do
     %i.fas.fa-share-square.fa-lg.mr-2
-    Submit package
+    Submit Package

@@ -1,0 +1,512 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:24:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Quia voluptatem officia suscipit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '164'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>The House of Mirth</title>
+          <description>Quia voluptatem officia suscipit.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:24:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Doloribus neque dignissimos. Esse laborum neque. Est occaecati maiores.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="21" vrev="21">
+          <srcmd5>e1f6790fb0458495b80041f410c9b381</srcmd5>
+          <version>unknown</version>
+          <time>1590747878</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:24:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Officia ex est. Est quo sint. Est dolorem magnam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="22" vrev="22">
+          <srcmd5>8e1d863a89ec8b4becc7d1f1f8b0d08d</srcmd5>
+          <version>unknown</version>
+          <time>1590747880</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:24:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Beneath the Bleeding</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Beneath the Bleeding</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:24:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>An Instant In The Wind</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>An Instant In The Wind</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="24" vrev="24" srcmd5="10084ac97a5959cd3cfb25f774f8dd57">
+          <entry name="_config" md5="d4ff6c30d8082934b0bb697c0937b593" size="58" mtime="1590747927"/>
+          <entry name="somefile.txt" md5="3f3e27773889d27720d45e6ed030630d" size="59" mtime="1590747928"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="24" vrev="24" srcmd5="10084ac97a5959cd3cfb25f774f8dd57">
+          <entry name="_config" md5="d4ff6c30d8082934b0bb697c0937b593" size="58" mtime="1590747927"/>
+          <entry name="somefile.txt" md5="3f3e27773889d27720d45e6ed030630d" size="59" mtime="1590747928"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="24" vrev="24" srcmd5="10084ac97a5959cd3cfb25f774f8dd57">
+          <entry name="_config" md5="d4ff6c30d8082934b0bb697c0937b593" size="58" mtime="1590747927"/>
+          <entry name="somefile.txt" md5="3f3e27773889d27720d45e6ed030630d" size="59" mtime="1590747928"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&orev=0&rev=24&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Content-Length:
+      - '383'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          _config
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ _config (new)
+        --- _config
+        +++ _config
+        @@ -0,0 +1,1 @@
+        +Dicta vel omnis. Vel quidem esse. Omnis commodi voluptate.
+        \ No newline at end of file
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -0,0 +1,1 @@
+        +Harum quas itaque. Sit beatae numquam. Dolores et deserunt.
+        \ No newline at end of file
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '304'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="24" vrev="24" srcmd5="10084ac97a5959cd3cfb25f774f8dd57">
+          <entry name="_config" md5="d4ff6c30d8082934b0bb697c0937b593" size="58" mtime="1590747927"/>
+          <entry name="somefile.txt" md5="3f3e27773889d27720d45e6ed030630d" size="59" mtime="1590747928"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:27:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_16/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_16">
+          <title>The Man Within</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_16">
+          <title>The Man Within</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:40:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_17/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_17">
+          <title>Mr Standfast</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_17">
+          <title>Mr Standfast</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:43:12 GMT
+recorded_with: VCR 5.1.0

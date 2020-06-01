@@ -1,0 +1,555 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>That Hideous Strength</title>
+          <description>Earum ipsa est voluptas.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_file" project="home:tom">
+          <title>That Hideous Strength</title>
+          <description>Earum ipsa est voluptas.</description>
+        </package>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/_config
+    body:
+      encoding: UTF-8
+      string: Placeat enim animi. Architecto aut ea. Dolorum distinctio quam.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="25" vrev="25">
+          <srcmd5>1f1811a25071cbee65f04f2b36ca8cfe</srcmd5>
+          <version>unknown</version>
+          <time>1590748478</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Adipisci et odit. Quis nihil ab. Occaecati qui dolorum.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="26" vrev="26">
+          <srcmd5>54363c2e183b9694d9d47cb60734ffa7</srcmd5>
+          <version>unknown</version>
+          <time>1590748480</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '0'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="27" vrev="27">
+          <srcmd5>290d30f5cb4a150e4e69dcee55a6ecc6</srcmd5>
+          <version>unknown</version>
+          <time>1590748481</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '1'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="28" vrev="28">
+          <srcmd5>2a14a71b3f94336bccf06a0e2f6a246e</srcmd5>
+          <version>unknown</version>
+          <time>1590748483</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
+    body:
+      encoding: US-ASCII
+      string: '2'
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="29" vrev="29">
+          <srcmd5>96808dfb3f8ac952a1b3decbbfd07fcc</srcmd5>
+          <version>unknown</version>
+          <time>1590748484</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Passage to India</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>A Passage to India</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="29" vrev="29" srcmd5="96808dfb3f8ac952a1b3decbbfd07fcc">
+          <entry name="_config" md5="d79a55f97493e9afe5730d576a79f468" size="63" mtime="1590748478"/>
+          <entry name="somefile.txt" md5="c81e728d9d4c2f636f067f89cc14862c" size="1" mtime="1590748484"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="29" vrev="29" srcmd5="96808dfb3f8ac952a1b3decbbfd07fcc">
+          <entry name="_config" md5="d79a55f97493e9afe5730d576a79f468" size="63" mtime="1590748478"/>
+          <entry name="somefile.txt" md5="c81e728d9d4c2f636f067f89cc14862c" size="1" mtime="1590748484"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&orev=0&rev=2&tarlimit=10000
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/plain
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '382'
+    body:
+      encoding: UTF-8
+      string: |2
+
+        new:
+        ----
+          _config
+          somefile.txt
+
+        other changes:
+        --------------
+
+        ++++++ _config (new)
+        --- _config
+        +++ _config
+        @@ -0,0 +1,1 @@
+        +Laudantium accusantium nemo. Molestiae mollitia et. Ad earum et.
+        \ No newline at end of file
+
+        ++++++ somefile.txt (new)
+        --- somefile.txt
+        +++ somefile.txt
+        @@ -0,0 +1,1 @@
+        +Quasi est magnam. Et ipsam iusto. Esse amet tempore.
+        \ No newline at end of file
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/home:tom/package_with_file?expand=1&rev=2
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_with_file" rev="2" vrev="2" srcmd5="3a0cff6c61f4ac0d172cab777791827d">
+          <entry name="_config" md5="b6c4903d071b5f1f773879a31e24a3ce" size="64" mtime="1590746813"/>
+          <entry name="somefile.txt" md5="d336ef3e1f4040074fb56b5d42d1fa92" size="52" mtime="1590746814"/>
+        </directory>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 10:34:46 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_17/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_17">
+          <title>Death Be Not Proud</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_17">
+          <title>Death Be Not Proud</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:41:00 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>The Torment of Others</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>The Torment of Others</title>
+          <description></description>
+        </project>
+    http_version: null
+  recorded_at: Fri, 29 May 2020 11:42:37 GMT
+recorded_with: VCR 5.1.0

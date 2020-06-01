@@ -9,14 +9,6 @@
 - if submit_message && show_link
   %ul.list-inline
     %li.list-inline-item
-      = link_to('#',
-          class: 'nav-link',
-          data: { toggle: 'modal',
-                  target: '#submit-request-modal',
-                  url: package_branch_diff_info_path(project.name, package.name) }) do
+      = link_to(new_project_package_submission_path(project, package, revision: revision), class: 'nav-link') do
         %i.fas.fa-share-square.text-warning
         = submit_message
-
-  = render partial: 'submit_request_dialog', locals: { project: project, package: package, revision: revision,
-                                                       target_project: target_project, target_package: target_package,
-                                                       description: '', cleanup_source: false }

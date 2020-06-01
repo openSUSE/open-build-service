@@ -1,0 +1,57 @@
+:ruby
+  @pagetitle = 'Submit Package'
+
+.row
+  .col
+    .card
+      = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+      .card-body
+        .col-12
+          %h3= @pagetitle
+        .col-12
+          %p Do you want to submit #{package_link @package, rev: @revision}?
+        .col-12.col-md-9.col-lg-6
+          = form_for(@bs_request, url: project_package_submissions_path(@project, @package)) do |f|
+            = hidden_field_tag(:add_revision, 'yes')
+            = f.fields_for(:bs_request_actions) do |bs_request_action|
+              = bs_request_action.hidden_field(:type)
+              = bs_request_action.hidden_field(:source_package)
+              = bs_request_action.hidden_field(:source_rev)
+              .form-group
+                = bs_request_action.label(:source_project, 'From source project:')
+                = bs_request_action.text_field(:source_project, disabled: true, class: 'form-control text-truncate')
+                = bs_request_action.hidden_field(:source_project)
+              .form-group
+                -# Reproduce the naming convention for nested fields since we cannot use the FormBuilder (we replace ][, ] and [ by _)
+                = render partial: 'webui/shared/autocomplete',
+                         locals: { html_id: "#{bs_request_action.object_name.gsub(/\]\[|\]|\[/, '_')}target_project",
+                                   html_name: "#{bs_request_action.object_name}[target_project]",
+                                   label: 'To target project:',
+                                   data: { source: autocomplete_projects_path,
+                                           requests_url: request_list_small_path,
+                                           develpackage_url: package_devel_project_path(@project, @package) } }
+              .form-group
+                = bs_request_action.label(:target_package, 'To target package:')
+                = bs_request_action.text_field(:target_package, class: 'form-control',
+                                               placeholder: "Leave empty to keep the package's name")
+              .form-group
+                = f.label(:description, 'Please describe your reasons to submit this package:')
+                %abbr.text-danger{ title: 'required' } *
+                ~ f.text_area(:description, size: '40x3', class: 'form-control', required: true)
+              .form-group.d-none#supersede-display
+                = label_tag(:supersede_requests, 'Supersede requests:')
+                #supersede-requests
+              .custom-control.custom-checkbox#sourceupdate-display
+                -# Avoid auto-removal of branch
+                - unchecked_value = @project.name.include?(':branches') ? 'update' : nil
+                = bs_request_action.check_box(:sourceupdate, { class: 'custom-control-input' }, 'cleanup', unchecked_value)
+                = bs_request_action.label(:sourceupdate, 'Remove local package if request is accepted', class: 'custom-control-label')
+            %p.d-none#devel-project-warning
+              You are about to bypass the devel project, please submit to
+              %b#devel-project-name
+              instead.
+
+            = submit_tag('Submit', class: 'btn btn-primary px-4 mt-4')
+
+- content_for :ready_function do
+  setupSubmitPackagePage('#{package_branch_diff_info_path(@project.name, @package.name)}');
