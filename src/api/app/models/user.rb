@@ -79,6 +79,7 @@ class User < ApplicationRecord
   scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
   scope :staff, -> { joins(:roles).where('roles.title = ?', 'Staff') }
   scope :not_staff, -> { where.not(id: User.staff.pluck(:id)) }
+  scope :admins, -> { joins(:roles).where('roles.title = ?', 'Admin') }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
