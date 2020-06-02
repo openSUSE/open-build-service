@@ -213,7 +213,7 @@ RSpec.describe Webui::WebuiHelper do
     end
 
     context 'with a big text' do
-      it { expect(toggle_sliced_text(big_text)).to match(/(.+)#{sliced_text}(.+)\[\+\](.+)#{big_text}(.+)\[\-\](.+)/) }
+      it { expect(toggle_sliced_text(big_text)).to match(/(.+)#{sliced_text}(.+)\[\+\](.+)#{big_text}(.+)\[-\](.+)/) }
     end
   end
 

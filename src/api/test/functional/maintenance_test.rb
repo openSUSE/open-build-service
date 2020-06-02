@@ -238,7 +238,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'source', attributes: { project: 'RemoteInstance:kde4', package: 'kdelibs' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
     # diff contains the critical lines
-    assert_match(/^\-NOOP/, @response.body)
+    assert_match(/^-NOOP/, @response.body)
     assert_match(/^\+argl/, @response.body)
 
     # accept request
@@ -296,7 +296,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:kde4', package: 'kdelibs' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' })
     # diff contains the critical lines
-    assert_match(/^\-NOOP/, @response.body)
+    assert_match(/^-NOOP/, @response.body)
     assert_match(/^\+argl/, @response.body)
 
     # accept request

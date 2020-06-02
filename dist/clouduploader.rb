@@ -70,7 +70,7 @@ module CloudUploader
         end
         while line = stdout_stderr.gets
           STDOUT.write(line)
-          write_result($1) if line =~ /^Created\simage:\s+(ami-[\w]+)$/
+          write_result($1) if line =~ /^Created\simage:\s+(ami-\w+)$/
         end
         status = wait_thr.value
         abort unless status.success?

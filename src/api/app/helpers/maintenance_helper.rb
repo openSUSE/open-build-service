@@ -120,7 +120,7 @@ module MaintenanceHelper
   end
 
   def release_package_create_main_package(request, source_package, target_package_name, target_project)
-    base_package_name = target_package_name.gsub(/\.[^\.]*$/, '')
+    base_package_name = target_package_name.gsub(/\.[^.]*$/, '')
 
     # only if package does not contain a _patchinfo file
     lpkg = nil
@@ -169,7 +169,7 @@ module MaintenanceHelper
     if target_project.is_maintenance_release? && source_package.is_link?
       # no permission check here on purpose
       if source_package.linkinfo['project'] == target_project.name &&
-         source_package.linkinfo['package'] == target_package_name.gsub(/\.[^\.]*$/, '')
+         source_package.linkinfo['package'] == target_package_name.gsub(/\.[^.]*$/, '')
         # link target is equal to release target. So we freeze our link.
         cp_params[:freezelink] = 1
       end
@@ -332,7 +332,7 @@ module MaintenanceHelper
     pkg_name = opkg_name = opkg.name
     if opkg.is_a?(Package) && opkg.project.is_maintenance_release?
       # strip incident suffix
-      pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
+      pkg_name = opkg.name.gsub(/\.[^.]*$/, '')
     end
 
     # target packages must not exist yet
@@ -345,7 +345,7 @@ module MaintenanceHelper
       lpkg_name = p.name
       if opkg_name != pkg_name && p.is_a?(Package) && p.project.is_maintenance_release?
         # strip incident suffix
-        lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+        lpkg_name = p.name.gsub(/\.[^.]*$/, '')
         # skip the base links
         next if lpkg_name == p.name
       end

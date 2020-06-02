@@ -312,7 +312,7 @@ class Package < ApplicationRecord
   end
 
   def belongs_to_product?
-    /\A_product:\w[-+\w\.]*\z/.match?(name) && project.packages.with_product_name.exists?
+    /\A_product:\w[-+\w.]*\z/.match?(name) && project.packages.with_product_name.exists?
   end
 
   def can_be_modified_by?(user, ignore_lock = nil)
@@ -918,7 +918,7 @@ class Package < ApplicationRecord
     container_list.keys.each do |container|
       container_name = container.name.dup
       container_update_project = container.project.update_instance
-      container_name.gsub!(/\.[^\.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
+      container_name.gsub!(/\.[^.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
       container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
       next if project.packages.exists?(name: container_name)
       target_package = Package.new(name: container_name, title: container.title, description: container.description)
@@ -955,7 +955,7 @@ class Package < ApplicationRecord
     name = opkg.name.dup
     # strip incident suffix in update release projects
     # but beware of packages where the name has already a dot
-    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
+    name.gsub!(/\.[^.]*$/, '') if opkg.project.is_maintenance_release? && !opkg.is_link?
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
@@ -974,7 +974,7 @@ class Package < ApplicationRecord
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
       # strip incident suffix in update release projects
-      name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release?
+      name.gsub!(/\.[^.]*$/, '') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
         _add_channel(mode, cb, "Listed in #{project_name} #{name}")
       end
@@ -1007,7 +1007,7 @@ class Package < ApplicationRecord
     return false if name == '0'
     return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
     # _patchinfo: is obsolete, just for backward compatibility
-    allowed_characters = /[-+\w\.#{allow_multibuild ? ':' : ''}]/
+    allowed_characters = /[-+\w.#{allow_multibuild ? ':' : ''}]/
     reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
     reg_exp.match?(name)
   end

@@ -70,7 +70,7 @@ class Comment < ApplicationRecord
       # take the one making the comment
       users << comment.user.login
       # check if users are mentioned (regexp borrowed from user model - with whitespace removed)
-      comment.body.scan(%r{@([\w\^\-\.#\*\+&'"]*)}).each do |user_login|
+      comment.body.scan(%r{@([\w\^\-.#*+&'"]*)}).each do |user_login|
         users_mentioned << user_login.first
       end
     end

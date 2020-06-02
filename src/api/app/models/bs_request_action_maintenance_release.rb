@@ -79,7 +79,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     if xml.elements["/directory/entry/@name='_patchinfo'"]
       rel = rel.where(bs_request_actions: { target_package: target_package })
     else
-      tpkgprefix = target_package.gsub(/\.[^\.]*$/, '')
+      tpkgprefix = target_package.gsub(/\.[^.]*$/, '')
       rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', target_package, "#{tpkgprefix}.%")
     end
 
@@ -100,7 +100,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def set_acceptinfo(ai)
     # packages in maintenance_release projects are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
-    base_package_name = target_package.gsub(/\.[^\.]*$/, '')
+    base_package_name = target_package.gsub(/\.[^.]*$/, '')
     pkg = Package.find_by_project_and_name(target_project, base_package_name)
     if pkg
       opkg = pkg.origin_container

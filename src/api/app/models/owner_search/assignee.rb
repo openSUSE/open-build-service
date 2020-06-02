@@ -91,7 +91,7 @@ module OwnerSearch
       return false if b['project'] != prj.name || b['package'].blank?
 
       package_name = b['package']
-      package_name.gsub!(/\.[^\.]*$/, '') if prj.is_maintenance_release?
+      package_name.gsub!(/\.[^.]*$/, '') if prj.is_maintenance_release?
       pkg = prj.packages.find_by_name(package_name)
 
       return false if pkg.nil? || pkg.is_patchinfo?

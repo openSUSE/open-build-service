@@ -384,7 +384,7 @@ class BranchPackage
       ap = innerp.first if innerp.length == 1
 
       target_package = ap.name
-      target_package += '.' + p[:target_package].gsub(/^[^\.]*\./, '') if @extend_names
+      target_package += '.' + p[:target_package].gsub(/^[^.]*\./, '') if @extend_names
       release_name = ap.name if @extend_names
 
       # avoid double entries and therefore endless loops

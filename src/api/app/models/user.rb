@@ -96,7 +96,7 @@ class User < ApplicationRecord
             uniqueness: { message: 'is the name of an already existing user' }
 
   validates :login,
-            format: { with: %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+            format: { with: %r{\A[\w $\^\-.#*+&'"]*\z},
                       message: 'must not contain invalid characters' }
   validates :login,
             length: { in: 2..100, allow_nil: true,
@@ -113,7 +113,7 @@ class User < ApplicationRecord
   # However, this is not *so* bad since users have to answer on their email
   # to confirm their registration.
   validates :email,
-            format: { with: %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+            format: { with: %r{\A([\w\-.\#$%&!?*'+=(){}|~]+)@([0-9a-zA-Z\-.\#$%&!?*'=(){}|~]+)+\z},
                       message: 'must be a valid email address',
                       allow_blank: true }
 

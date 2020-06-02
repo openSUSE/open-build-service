@@ -563,7 +563,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def valid_target_name?(name)
-    name =~ /^\w[-\.\w&]*$/
+    name =~ /^\w[-.\w&]*$/
   end
 
   def monitor_set_filter(defaults)
