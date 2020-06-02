@@ -157,12 +157,9 @@ sub has_publishedsource {
 sub syncsource {
   my ($dir, $projid, $packid, $srcmd5) = @_;
 
-  my $rsyncpath = $rsyncserver;
-  $rsyncpath =~ s/^rsync://;
-
   my @rsync_extra_options;
   @rsync_extra_options = split(' ', $BSConfig::rsync_extra_options) if $BSConfig::rsync_extra_options;
-  qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncpath) && die("    rsync failed at ".localtime(time).": $?\n");
+  qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncserver) && die("    rsync failed at ".localtime(time).": $?\n");
 
 }
 
