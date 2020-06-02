@@ -355,10 +355,19 @@ class SourceController < ApplicationController
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
-    if @package_name == '_pattern' && !Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
-      @pack = Package.new(name: '_pattern', title: 'Patterns', description: 'Package Patterns')
-      @prj.packages << @pack
-      @pack.save
+    if @package_name == '_pattern'
+      if !Package.exists_by_project_and_name(@project_name, @package_name,
+                                             follow_project_links: false)
+        @pack = Package.new(name: '_pattern', title: 'Patterns',
+                            description: 'Package Patterns')
+        @prj.packages << @pack
+        @pack.save
+      else
+        @pack = Package.get_by_project_and_name(@project_name, @package_name,
+                                                follow_project_links: false)
+        # very unlikely... (actually this should be a 400 instead of 404)
+        raise RemoteProjectError, 'Cannot modify a remote package' if @pack.nil?
+      end
     end
 
     Package.verify_file!(@pack, params[:filename], request.raw_post)
