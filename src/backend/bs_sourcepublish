@@ -28,22 +28,18 @@ BEGIN {
 }
 
 use XML::Structured ':bytes';
-use POSIX;
 
 use BSConfiguration;
 use BSUtil;
-use BSSrcrep;
 use BSRevision;
 use BSStdRunner;
 use BSSQLite;
-use BSVerify;
 use Data::Dumper;
 
 use strict;
 
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
-my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $uploaddir = "$srcrep/:upload";
 
 my $rsyncserver = $BSConfig::sourcepublish_sync || $BSConfig::sourcepublish_sync;
@@ -52,14 +48,14 @@ my $maxchild = 1;
 $maxchild = $BSConfig::sourcepublish_maxchild if defined $BSConfig::sourcepublish_maxchild;
 
 my $myeventdir = "$eventdir/sourcepublish";
+my $sqlitedir = "$BSConfig::bsdir/db/sqlite";
 
 # source publish db init
-my $publishedsourcedbfile = "$BSConfig::bsdir/db/sqlite/publishedsource";
+my $publishedsourcedbfile = "$sqlitedir/publishedsource";
 my $publishedsourcedb;
 
 sub init_db {
-  my ($conf) = @_;
-  mkdir_p("$BSConfig::bsdir/db/sqlite");
+  mkdir_p($sqlitedir);
   $publishedsourcedb = BSSQLite::connectdb($publishedsourcedbfile);
   my %dbtables = map {$_ => 1} BSSQLite::list_tables($publishedsourcedb);
   if (!$dbtables{'publishedsource'}) {
@@ -73,14 +69,6 @@ sub init_db {
 EOS
   }
   BSSQLite::dbdo($publishedsourcedb, 'CREATE INDEX IF NOT EXISTS publishedsource_idx on publishedsource(project,package,srcmd5)');
-  BSRunner::run($conf);
-}
-
-sub getrev {
-  my ($projid, $packid, $revid) = @_;
-  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
-  $rev = BSRevision::getrev_deleted_srcmd5($projid, $packid, $revid) if !$rev && $revid && $revid =~ /^[0-9a-f]{32}$/;
-  return $rev;
 }
 
 sub linksourceintodir {
@@ -88,10 +76,11 @@ sub linksourceintodir {
 
   # get files to send to service daemon
   my $rev;
-  my $sourcefiles;
+  my $files;
   eval {
-   $rev = getrev($projid, $packid, $srcmd5);
-   $sourcefiles = BSRevision::lsrev($rev);
+   $rev = BSRevision::getrev_local($projid, $packid, $srcmd5);
+   $rev ||= BSRevision::getrev_deleted_srcmd5($projid, $packid, $srcmd5);
+   $files = BSRevision::lsrev($rev);
   };
   if ($@) {
     BSUtil::printlog "warning: $projid, $packid, $srcmd5 not found, skipping\n";
@@ -99,9 +88,9 @@ sub linksourceintodir {
   }
 
   my $dir = "$basedir/$projid/$packid/$srcmd5";
-  mkdir_p("$dir");
-  for my $filename (sort keys %$sourcefiles) {
-    link(BSRevision::revfilename($rev, $filename, $sourcefiles->{$filename}), "$dir/$filename");
+  mkdir_p($dir);
+  for my $filename (sort keys %$files) {
+    link(BSRevision::revfilename($rev, $filename, $files->{$filename}), "$dir/$filename");
   }
   return 1;
 }
@@ -153,7 +142,7 @@ sub add_publishedsource {
 
   my $h = $publishedsourcedb->{'sqlite'} || BSSQLite::connectdb($publishedsourcedbfile);
   BSSQLite::begin_work($h);
-  BSSQLite::dbdo_bind($h, 'INSERT INTO publishedsource(project,package,srcmd5) VALUES(?,?,?)', [ $projid ], [ $packid ], [ $srcmd5 ]);
+  BSSQLite::dbdo_bind($h, 'INSERT OR IGNORE INTO publishedsource(project,package,srcmd5) VALUES(?,?,?)', [ $projid ], [ $packid ], [ $srcmd5 ]);
   BSSQLite::commit($h);
 }
 
@@ -166,16 +155,15 @@ sub has_publishedsource {
 }
 
 sub syncsource {
-  my ($dir, $projid, $packid, $srcmd5, $new_entry) = @_;
+  my ($dir, $projid, $packid, $srcmd5) = @_;
 
-  my $rsyncpath = "$rsyncserver";
+  my $rsyncpath = $rsyncserver;
   $rsyncpath =~ s/^rsync://;
 
   my @rsync_extra_options;
   @rsync_extra_options = split(' ', $BSConfig::rsync_extra_options) if $BSConfig::rsync_extra_options;
   qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncpath) && die("    rsync failed at ".localtime(time).": $?\n");
 
-  add_publishedsource($projid, $packid, $srcmd5) if $new_entry;
 }
 
 sub sourcepublish {
@@ -192,14 +180,16 @@ sub sourcepublish {
 
   BSUtil::printlog("source publish event for $projid/$packid $srcmd5");
 
-  my $update;
-  my $new_entry = has_publishedsource($projid, $packid, $srcmd5);
-
-  # get files to send to service daemon
-  my $odir = "$uploaddir/sourcepublish$$/";
-  BSUtil::cleandir("$odir") if -d $odir;
   # strip multibuild flavor
   $packid =~ s/:.*// if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
+
+  my $update;
+  my $new_entry = !has_publishedsource($projid, $packid, $srcmd5);
+  return if !$new_entry && !@{$included || []};		# fast return if there is nothing to do
+
+  # get files to sync
+  my $odir = "$uploaddir/sourcepublish$$/";
+  BSUtil::cleandir("$odir") if -d $odir;
   linksourceintodir($odir, $projid, $packid, $srcmd5) || die ("unable to link sources for $projid $packid $srcmd5");
 
   # check for included sources, eg in images
@@ -208,14 +198,14 @@ sub sourcepublish {
     # strip multibuild flavor
     $package =~ s/:.*// if $package =~ /(?<!^_product)(?<!^_patchinfo):./;
     my $exists = has_publishedsource($source->{'project'}, $package, $source->{'srcmd5'});
-    my $created;
-    unless ($exists) {
+    if (!$exists) {
       if (linksourceintodir($odir, $source->{'project'}, $package, $source->{'srcmd5'})) {
         syncsource($odir, $source->{'project'}, $package, $source->{'srcmd5'});
-        $created = 1;
+        add_publishedsource($source->{'project'}, $package, $source->{'srcmd5'});
+        $exists = 1;
       }
     }
-    if ($exists || $created) {
+    if ($exists) {
       my $symlink = "$odir/$projid/$packid/$srcmd5/INCLUDED";
       mkdir_p($symlink);
       $symlink .= "/$source->{'project'}::${package}::$source->{'srcmd5'}";
@@ -227,15 +217,11 @@ sub sourcepublish {
   }
 
   # sync main package
-  syncsource($odir, $projid, $packid, $srcmd5, $new_entry) if $update || $new_entry;
+  syncsource($odir, $projid, $packid, $srcmd5) if $update || $new_entry;
+  add_publishedsource($projid, $packid, $srcmd5) if $new_entry;
 
   BSUtil::cleandir($odir);
   rmdir($odir);
-}
-
-sub getevent {
-  my ($req, $notdue, $nofork) = BSStdRunner::getevent(@_);
-  return ($req, $notdue, $nofork);
 }
 
 sub sourcepublishevent {
@@ -251,16 +237,21 @@ sub sourcepublishevent {
   return 1;
 }
 
+sub run {
+  my ($conf) = @_;
+  init_db();
+  BSRunner::run($conf);
+}
+
 my $dispatches = [
   'sourcepublish $project $package $srcmd5 $included:*' => \&sourcepublishevent,
 ];
 
 my $conf = {
-  'run' => \&init_db,
+  'run' => \&run,
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
   'maxchild' => $maxchild,
-  'getevent' => \&getevent,
   'inprogress' => 1,
 };
 
