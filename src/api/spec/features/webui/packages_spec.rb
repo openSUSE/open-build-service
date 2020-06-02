@@ -2,7 +2,7 @@ require 'browser_helper'
 require 'webmock/rspec'
 require 'code_mirror_helper'
 
-RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
+RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
   it_behaves_like 'bootstrap user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',
@@ -31,18 +31,18 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       User.session = user
     end
 
-    scenario "has a mime like suffix in it's name" do
+    it "has a mime like suffix in it's name" do
       visit package_show_path(project: user.home_project, package: package_mime)
       expect(page).to have_text('test.json')
       expect(page).to have_text('A package with a mime type suffix')
     end
 
-    scenario 'was branched' do
+    it 'was branched' do
       visit package_show_path(project: branched_project, package: branched_project.packages.first)
       expect(page).to have_text("Links to #{user.home_project} / #{package}")
     end
 
-    scenario 'has derived packages' do
+    it 'has derived packages' do
       # Trigger branch creation
       branched_project.update_packages_if_dirty
 
@@ -66,7 +66,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       visit package_show_path(project: user.home_project, package: file_edit_test_package)
     end
 
-    scenario 'editing an existing file' do
+    it 'editing an existing file' do
       # somefile.txt is a file of our test package
       click_link('somefile.txt')
       # Workaround to update codemirror text field
@@ -87,7 +87,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
              target_package: package)
     end
 
-    scenario 'see a request' do
+    it 'see a request' do
       login user
       visit package_show_path(package: package, project: user.home_project)
       click_link('Requests')
@@ -118,13 +118,13 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       stub_request(:get, path).and_return(body: '<builddepinfo />')
     end
 
-    scenario 'via live build log' do
+    it 'via live build log' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'x86_64')
       click_link('Trigger Rebuild', match: :first)
       expect(a_request(:post, rebuild_url)).to have_been_made.once
     end
 
-    scenario 'via binaries view' do
+    it 'via binaries view' do
       allow(Buildresult).to receive(:find_hashed)
         .with(project: user.home_project, package: package.name, repository: repository.name, view: ['binarylist', 'status'])
         .and_return(Xmlhash.parse(fake_buildresult))
@@ -161,7 +161,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       stub_request(:get, path).and_return(body: '<builddepinfo />')
     end
 
-    scenario 'live build finishes succesfully' do
+    it 'live build finishes succesfully' do
       visit package_live_build_log_path(project: user.home_project, package: package, repository: repository.name, arch: 'i586')
 
       find('#status', text: 'Build') # to wait until it loads
@@ -169,7 +169,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       expect(page).to have_text('[1] this is my dummy logfile -> ümlaut')
     end
 
-    scenario 'download logfile succesfully' do
+    it 'download logfile succesfully' do
       visit package_show_path(project: user.home_project, package: package)
       # test reload and wait for the build to finish
       find('.build-refresh').click
@@ -181,7 +181,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     end
   end
 
-  scenario 'adding a valid file' do
+  it 'adding a valid file' do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
@@ -194,7 +194,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     expect(page).to have_link('new_file')
   end
 
-  scenario 'adding an invalid file' do
+  it 'adding an invalid file' do
     login user
 
     visit package_show_path(project: user.home_project, package: package)
@@ -217,7 +217,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       click_link('Branch Package')
     end
 
-    scenario 'with AutoCleanup' do
+    it 'with AutoCleanup' do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
@@ -228,7 +228,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       expect(page).to have_text('OBS:AutoCleanup')
     end
 
-    scenario 'without AutoCleanup' do
+    it 'without AutoCleanup' do
       find('summary').click
       find('label[for="disable-autocleanup"]').click
       click_button('Branch')
@@ -242,7 +242,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     end
   end
 
-  scenario 'requesting package deletion' do
+  it 'requesting package deletion' do
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
     click_link('Request Deletion')
@@ -257,7 +257,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     expect(page).to have_text('In state new')
   end
 
-  scenario "changing the package's devel project" do
+  it "changing the package's devel project" do
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
 
@@ -275,7 +275,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
   end
 
-  scenario 'editing a package' do
+  it 'editing a package' do
     login user
     visit package_show_path(package: package, project: user.home_project)
     click_link('Edit description')
@@ -300,7 +300,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         login admin_user
       end
 
-      scenario 'can edit' do
+      it 'can edit' do
         visit package_meta_path(package.project, package)
         fill_in_editor_field('<!-- Comment for testing -->')
         find('.save').click
@@ -315,7 +315,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         login other_user
       end
 
-      scenario 'can not edit' do
+      it 'can not edit' do
         visit package_meta_path(package.project, package)
         within('.card-body') do
           expect(page).not_to have_css('.toolbar')
@@ -339,7 +339,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         end
       end
 
-      scenario 'with invalid data (validation fails)' do
+      it 'with invalid data (validation fails)' do
         expect(page).to have_text("Create Package for #{user.home_project_name}")
         fill_in 'package_name', with: 'cool stuff'
         click_button('Create')
@@ -348,7 +348,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
-      scenario 'that already exists' do
+      it 'that already exists' do
         expect(page).to have_text("Create Package for #{user.home_project_name}")
         create(:package, name: 'coolstuff', project: user.home_project)
 
@@ -359,7 +359,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
-      scenario 'with valid data' do
+      it 'with valid data' do
         expect(page).to have_text("Create Package for #{user.home_project_name}")
         fill_in 'package_name', with: 'coolstuff'
         fill_in 'package_title', with: 'cool stuff everyone needs'
@@ -377,7 +377,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       let(:admin_user) { create(:admin_user, :with_home) }
       let(:global_project) { create(:project, name: 'global_project') }
 
-      scenario 'as non-admin user' do
+      it 'as non-admin user' do
         login other_user
         visit project_show_path(project: global_project)
         # TODO: Remove `if` once responsive_ux is out of beta.
@@ -393,7 +393,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         expect(page).to have_current_path(root_path, ignore_query: true)
       end
 
-      scenario 'as an admin' do
+      it 'as an admin' do
         login admin_user
         visit project_show_path(project: global_project)
         # TODO: Remove once responsive_ux is out of beta.

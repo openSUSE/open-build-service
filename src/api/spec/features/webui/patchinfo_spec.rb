@@ -2,12 +2,12 @@ require 'browser_helper'
 
 # CONFIG['global_write_through'] = true
 
-RSpec.feature 'Patchinfo', type: :feature, js: true do
+RSpec.describe 'Patchinfo', type: :feature, js: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
 
-  feature 'create Patchinfo' do
-    scenario 'form incomplete' do
+  describe 'create Patchinfo' do
+    it 'form incomplete' do
       login user
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
@@ -25,7 +25,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       expect(message).not_to be_empty
     end
 
-    scenario 'form complete' do
+    it 'form complete' do
       login user
       visit project_show_path(user.home_project)
       expect(page).to have_link('Create Patchinfo')
@@ -40,7 +40,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
     end
   end
 
-  feature 'delete Patchinfo' do
+  describe 'delete Patchinfo' do
     let(:patchinfo_package) do
       Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.where(name: 'patchinfo').exists?
       Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
@@ -51,7 +51,7 @@ RSpec.feature 'Patchinfo', type: :feature, js: true do
       patchinfo_package
     end
 
-    scenario 'delete' do
+    it 'delete' do
       visit show_patchinfo_path(project: project, package: 'patchinfo')
       expect(page).to have_link('Delete patchinfo')
       click_link('Delete patchinfo')

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_User Contributions', type: :feature, js: true do
+RSpec.describe 'Bootstrap_User Contributions', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
 
   context 'without contribution graph option' do

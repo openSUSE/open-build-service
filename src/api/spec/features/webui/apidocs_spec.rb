@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Apidocs', type: :feature, js: true do
+RSpec.describe 'Apidocs', type: :feature, js: true do
   let(:user) { create(:confirmed_user) }
   let(:tmp_dir) { Dir.mktmpdir }
   let(:tmp_file) { "#{tmp_dir}/index.html" }
@@ -19,11 +19,11 @@ RSpec.feature 'Apidocs', type: :feature, js: true do
     Dir.rmdir(tmp_dir)
   end
 
-  scenario 'is wrapped by a Bootstrap class' do
+  it 'is wrapped by a Bootstrap class' do
     expect(page).to have_css('#content > .card')
   end
 
-  scenario 'includes the file content' do
+  it 'includes the file content' do
     expect(page).to have_content('API Documentation')
   end
 end

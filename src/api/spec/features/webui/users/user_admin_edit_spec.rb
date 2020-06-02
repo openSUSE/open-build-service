@@ -1,11 +1,11 @@
 require 'browser_helper'
 
-RSpec.feature "User's admin edit page", type: :feature, js: true do
+RSpec.describe "User's admin edit page", type: :feature, js: true do
   let(:user) { create(:confirmed_user, realname: 'John Doe', email: 'john@suse.de') }
   let(:admin) { create(:admin_user) }
   let(:admin_role_html_id) { "user_role_ids_#{Role.find_by(title: 'Admin').id}" }
 
-  scenario 'view user' do
+  it 'view user' do
     login(admin)
     visit edit_user_path(login: user.login)
 
@@ -19,7 +19,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     end
   end
 
-  scenario 'make user admin' do
+  it 'make user admin' do
     login(admin)
     visit edit_user_path(login: user.login)
 
@@ -28,7 +28,7 @@ RSpec.feature "User's admin edit page", type: :feature, js: true do
     expect(user.is_admin?).to be(true)
   end
 
-  scenario 'remove admin rights from user' do
+  it 'remove admin rights from user' do
     login(admin)
     visit edit_user_path(login: admin.login)
     uncheck('Admin')

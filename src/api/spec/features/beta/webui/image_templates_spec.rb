@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true do
+RSpec.describe 'ImageTemplatesBeta', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'tom') }
 
   context 'branching' do
@@ -19,7 +19,7 @@ RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true do
       User.session = nil
     end
 
-    scenario 'branch image template' do
+    it 'branch image template' do
       visit image_templates_path
       expect(page).to have_css('input[type=submit][disabled]')
 
@@ -46,7 +46,7 @@ RSpec.feature 'ImageTemplatesBeta', type: :feature, js: true do
       expect(page).to have_text("home:tom:branches:my_project\ncustom_name")
     end
 
-    scenario 'branch Kiwi image template' do
+    it 'branch Kiwi image template' do
       # FIXME: This scenario is flickering on mobile
       skip('This scenario fails most of the time') if mobile?
 

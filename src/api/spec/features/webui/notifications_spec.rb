@@ -1,8 +1,8 @@
 require 'browser_helper'
 
-RSpec.feature 'Notifications', type: :feature, js: true do
+RSpec.describe 'Notifications', type: :feature, js: true do
   RSpec.shared_examples 'updatable' do
-    scenario 'notifications' do
+    it 'notifications' do
       login user
       visit path
 
@@ -45,7 +45,7 @@ RSpec.feature 'Notifications', type: :feature, js: true do
     let(:user) { create(:confirmed_user, login: 'Tom') }
     let!(:group) { create(:group_with_user, title: 'test', user: user) }
 
-    scenario 'disable group notification' do
+    it 'disable group notification' do
       login user
       visit my_subscriptions_path
 

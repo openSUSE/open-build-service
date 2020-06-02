@@ -1,13 +1,13 @@
 require 'browser_helper'
 
-RSpec.feature 'Attributes', type: :feature, js: true do
+RSpec.describe 'Attributes', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home) }
   let(:attribute) { create(:attrib, project: user.home_project) }
   # AttribTypes are part of the seeds, so we can reuse them
   let!(:attribute_type) { AttribType.find_by(name: 'ImageTemplates') }
 
   describe 'for a project without packages' do
-    scenario 'add attribute with values' do
+    it 'add attribute with values' do
       login user
       create(:attrib, project_id: user.home_project.id)
 
@@ -25,13 +25,13 @@ RSpec.feature 'Attributes', type: :feature, js: true do
     end
 
     describe 'with values that are not allowed' do
-      scenario 'add attribute should fail' do
+      it 'add attribute should fail' do
         skip
       end
     end
 
     describe 'without permissions' do
-      scenario 'add valid attribute with lack of permissions' do
+      it 'add valid attribute with lack of permissions' do
         # Database cleaner deletes these tables. But we need them for the
         # permission to function.
         attrib_type = AttribType.where(name: 'VeryImportantProject').first
@@ -60,7 +60,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       context 'without permissions' do
         let!(:other_user) { create(:confirmed_user) }
 
-        scenario 'it is not possible to add an attribute, the link is not shown' do
+        it 'is not possible to add an attribute, the link is not shown' do
           login other_user
 
           visit index_attribs_path(project: user.home_project_name)
@@ -69,7 +69,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
       end
 
       context 'with permissions' do
-        scenario 'remove attribute' do
+        it 'remove attribute' do
           login user
 
           visit index_attribs_path(project: user.home_project_name)
@@ -93,7 +93,7 @@ RSpec.feature 'Attributes', type: :feature, js: true do
         create(:package, project: user.home_project)
       end
 
-      scenario 'add attribute with values' do
+      it 'add attribute with values' do
         login user
 
         add_attribute_with_values(package)

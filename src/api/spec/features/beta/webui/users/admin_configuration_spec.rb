@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Admin user configuration page', type: :feature, js: true do
+RSpec.describe 'Admin user configuration page', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, realname: 'John Doe', email: 'john@suse.de') }
   let!(:users) { create_list(:confirmed_user, 3) }
   let(:admin) { create(:admin_user) }
@@ -11,7 +11,7 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
     visit users_path
   end
 
-  scenario 'view users' do
+  it 'view users' do
     skip_on_mobile
 
     expect(find_all('tbody tr').count).to eq(5)
@@ -24,7 +24,7 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
     end
   end
 
-  scenario 'delete user' do
+  it 'delete user' do
     skip_on_mobile
 
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
@@ -36,7 +36,7 @@ RSpec.feature 'Admin user configuration page', type: :feature, js: true do
     expect(page).to have_css('td', text: 'deleted')
   end
 
-  scenario 'create user' do
+  it 'create user' do
     expect(page).to have_text('5 records')
     click_link('Create User')
 

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
+RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'kody') }
   let(:project) { create(:project, name: 'watchlist_test_project') }
   let(:user_with_watched_project) do
@@ -10,7 +10,7 @@ RSpec.feature 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     other_user
   end
 
-  scenario 'add projects to watchlist' do
+  it 'add projects to watchlist' do
     login user
     visit project_show_path(user.home_project)
 
@@ -36,7 +36,7 @@ RSpec.feature 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     expect(page).to have_css('a.dropdown-item.project-link', count: 2)
   end
 
-  scenario 'remove projects from watchlist' do
+  it 'remove projects from watchlist' do
     login user_with_watched_project
     visit project_show_path(project: 'brian_s_watched_project')
 

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
+RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'kugelblitz') }
   let(:receiver) { create(:confirmed_user, :with_home, login: 'titan') }
   let(:target_project) { receiver.home_project }
@@ -10,7 +10,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
   let(:bs_request) { create(:delete_bs_request, target_project: target_project, description: 'a long text - ' * 200, creator: submitter) }
 
   RSpec.shared_examples 'expandable element' do
-    scenario 'expanding a text field' do
+    it 'expanding a text field' do
       visit request_show_path(bs_request)
       within(element) do
         find('.show-content').click
@@ -26,7 +26,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     let!(:comment_1) { create(:comment, commentable: bs_request) }
     let!(:comment_2) { create(:comment, commentable: superseded_bs_request) }
 
-    scenario 'show request comments' do
+    it 'show request comments' do
       visit request_show_path(bs_request)
       expect(page).to have_text(comment_1.body)
       expect(page).not_to have_text(comment_2.body)
@@ -36,7 +36,7 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     end
 
     describe 'request description field' do
-      scenario 'superseded requests' do
+      it 'superseded requests' do
         visit request_show_path(bs_request)
         within 'li', text: "Supersedes #{superseded_bs_request.number}" do
           find('a', text: superseded_bs_request.number).click
@@ -311,18 +311,18 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       bs_request.update(accept_at: Time.now)
     end
 
-    scenario 'when request is in a final state' do
+    it 'when request is in a final state' do
       bs_request.update(state: :accepted)
       visit request_show_path(bs_request)
       expect(page).to have_text("Auto-accept was set to #{I18n.localize bs_request.accept_at, format: :only_date}.")
     end
 
-    scenario 'when request auto_accept is in the past and not in a final state' do
+    it 'when request auto_accept is in the past and not in a final state' do
       visit request_show_path(bs_request)
       expect(page).to have_text("This request will be automatically accepted when it enters the 'new' state.")
     end
 
-    scenario 'when request auto_accept is in the future and not in a final state' do
+    it 'when request auto_accept is in the future and not in a final state' do
       bs_request.update(accept_at: Time.now + 1.day)
       visit request_show_path(bs_request)
       expect(page)

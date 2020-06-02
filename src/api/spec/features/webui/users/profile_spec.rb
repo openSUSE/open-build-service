@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'User Profile', type: :feature, js: true do
+RSpec.describe 'User Profile', type: :feature, js: true do
   let!(:user) { create(:confirmed_user) }
 
   before do
@@ -8,7 +8,7 @@ RSpec.feature 'User Profile', type: :feature, js: true do
     visit user_path(user)
   end
 
-  scenario 'public beta program' do
+  it 'public beta program' do
     within('#beta-form') do
       find('.custom-control-label').click
     end

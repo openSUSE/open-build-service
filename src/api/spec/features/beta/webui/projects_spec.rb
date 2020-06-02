@@ -1,12 +1,12 @@
 require 'browser_helper'
 
-RSpec.feature 'Projects', type: :feature, js: true do
+RSpec.describe 'Projects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user, :with_home) }
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
   let(:broken_package_with_error) { create(:package_with_failed_comment_attribute, project: project, name: 'broken_package') }
 
-  scenario 'project show' do
+  it 'project show' do
     login user
     visit project_show_path(project: project)
     expect(page).to have_text(/Packages .*0/)
@@ -15,7 +15,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     expect(page).to have_css('h3', text: project.title)
   end
 
-  scenario 'project status' do
+  it 'project status' do
     login user
     broken_package_with_error
     visit project_status_path(project_name: project)
@@ -24,7 +24,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     expect(page).to have_text('Status of')
   end
 
-  scenario 'changing project title and description' do
+  it 'changing project title and description' do
     login user
     visit project_show_path(project: project)
 
@@ -41,7 +41,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'subprojects' do
-    scenario 'create a subproject' do
+    it 'create a subproject' do
       login user
       visit project_show_path(user.home_project)
       click_link('Subprojects')
@@ -66,7 +66,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       visit project_show_path(project: locked_project.name)
     end
 
-    scenario 'unlock' do
+    it 'unlock' do
       click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
@@ -76,7 +76,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).not_to have_text('is locked')
     end
 
-    scenario 'fail to unlock' do
+    it 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
       click_menu_link('Actions', 'Unlock Project')
@@ -99,7 +99,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_menu_link('Actions', 'Branch Package')
     end
 
-    scenario 'an existing package' do
+    it 'an existing package' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
       # This needs global write through
@@ -109,7 +109,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
 
-    scenario 'an existing package, but chose a different target package name' do
+    it 'an existing package, but chose a different target package name' do
       fill_in('linked_project', with: other_user.home_project_name)
       fill_in('linked_package', with: package_of_another_project.name)
       fill_in('Branch package name', with: 'some_different_name')
@@ -120,7 +120,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name", ignore_query: true)
     end
 
-    scenario 'an existing package were the target package already exists' do
+    it 'an existing package were the target package already exists' do
       create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
 
       fill_in('linked_project', with: other_user.home_project_name)
@@ -132,7 +132,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
 
-    scenario 'a non-existing package' do
+    it 'a non-existing package' do
       fill_in('linked_project', with: 'non-existing_package')
       fill_in('linked_package', with: package_of_another_project.name)
 
@@ -144,7 +144,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
   end
 
   describe 'maintenance projects' do
-    scenario 'creating a maintenance project' do
+    it 'creating a maintenance project' do
       login(admin_user)
       visit project_show_path(project)
 
@@ -162,7 +162,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
     let(:maintenance_project) { create(:maintenance_project, name: "#{project.name}:maintenance_project") }
     let(:target_repository) { create(:repository, name: 'theone') }
 
-    scenario 'visiting the maintenance overview' do
+    it 'visiting the maintenance overview' do
       login user
 
       visit project_show_path(maintenance_project)
