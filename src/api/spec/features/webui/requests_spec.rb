@@ -325,8 +325,8 @@ RSpec.feature 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     scenario 'when request auto_accept is in the future and not in a final state' do
       bs_request.update(accept_at: Time.now + 1.day)
       visit request_show_path(bs_request)
-      expect(page).
-        to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
+      expect(page)
+        .to have_text("This request will be automatically accepted in #{ApplicationController.helpers.time_ago_in_words(bs_request.accept_at)}.")
     end
   end
 end

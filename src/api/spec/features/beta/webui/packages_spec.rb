@@ -126,9 +126,9 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
     end
 
     scenario 'via binaries view' do
-      allow(Buildresult).to receive(:find_hashed).
-        with(project: user.home_project, package: package.name, repository: repository.name, view: ['binarylist', 'status']).
-        and_return(Xmlhash.parse(fake_buildresult))
+      allow(Buildresult).to receive(:find_hashed)
+        .with(project: user.home_project, package: package.name, repository: repository.name, view: ['binarylist', 'status'])
+        .and_return(Xmlhash.parse(fake_buildresult))
 
       visit package_binaries_path(project: user.home_project, package: package, repository: repository.name)
       click_link('Trigger')

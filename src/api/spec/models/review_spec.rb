@@ -34,16 +34,16 @@ RSpec.describe Review do
     it 'is not allowed to specify by_user and any other reviewable' do
       [:by_group, :by_project, :by_package].each do |reviewable|
         review = Review.create(:by_user => user.login, reviewable => 'not-existent-reviewable')
-        expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
+        expect(review.errors.messages[:base])
+          .to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
       end
     end
 
     it 'is not allowed to specify by_group and any other reviewable' do
       [:by_project, :by_package].each do |reviewable|
         review = Review.create(:by_group => group.title, reviewable => 'not-existent-reviewable')
-        expect(review.errors.messages[:base]).
-          to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
+        expect(review.errors.messages[:base])
+          .to eq(['it is not allowed to have more than one reviewer entity: by_user, by_group, by_project'])
       end
     end
   end
@@ -117,8 +117,8 @@ RSpec.describe Review do
         review = Review.new(by_user: nobody)
         expect(review.user).to eq(nil)
         expect(review.valid?).to eq(false)
-        expect(review.errors.messages[:base]).
-          to eq(["Couldn't find user #{nobody.login}"])
+        expect(review.errors.messages[:base])
+          .to eq(["Couldn't find user #{nobody.login}"])
       end
 
       it 'does not set group association when by_group object does not exist' do

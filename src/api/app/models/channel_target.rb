@@ -11,9 +11,9 @@ class ChannelTarget < ApplicationRecord
     if project_filter.nil?
       ChannelTarget.distinct.where(repository: repo)
     else
-      ChannelTarget.joins(channel: :package).
-        distinct.
-        where('repository_id = ? AND project_id IN (?)', repo, project_filter.map(&:id))
+      ChannelTarget.joins(channel: :package)
+                   .distinct
+                   .where('repository_id = ? AND project_id IN (?)', repo, project_filter.map(&:id))
     end
   end
 end

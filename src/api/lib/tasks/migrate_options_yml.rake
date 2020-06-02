@@ -11,9 +11,9 @@ task :migrate_options_yml do
     puts "A backup has been created at 'config/options.yml.bkp'."
 
     # Remove default header
-    options_yml = File.read('config/options.yml').
-                  gsub("#\n# This file contains the default configuration of the Open Build Service API.\n#", '').
-                  strip
+    options_yml = File.read('config/options.yml')
+                      .gsub("#\n# This file contains the default configuration of the Open Build Service API.\n#", '')
+                      .strip
 
     puts 'Migrating configuration.'
     File.open('config/options.yml', 'w') do |f|

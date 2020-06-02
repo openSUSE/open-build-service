@@ -51,8 +51,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
         click_link(title: 'Delete Repository')
       end
 
-      expect(find('#delete-repository')).
-        to have_text("Please confirm deletion of '#{dod_repository}' repository")
+      expect(find('#delete-repository'))
+        .to have_text("Please confirm deletion of '#{dod_repository}' repository")
 
       within('#delete-repository .modal-footer') do
         click_button('Delete')
@@ -96,8 +96,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
         find("[data-target='#delete-dod-source-modal-#{download_repository_source}']").click
       end
 
-      expect(find("#delete-dod-source-modal-#{download_repository_source}")).
-        to have_text("Please confirm deletion of '#{download_repository_source.arch}' Download on Demand")
+      expect(find("#delete-dod-source-modal-#{download_repository_source}"))
+        .to have_text("Please confirm deletion of '#{download_repository_source.arch}' Download on Demand")
 
       within("#delete-dod-source-modal-#{download_repository_source} .modal-footer") do
         click_button('Delete')
@@ -109,8 +109,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
         find("[data-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
       end
 
-      expect(find("#delete-dod-source-modal-#{download_repository_source_2}")).
-        to have_text("Please confirm deletion of '#{download_repository_source_2.arch}' Download on Demand")
+      expect(find("#delete-dod-source-modal-#{download_repository_source_2}"))
+        .to have_text("Please confirm deletion of '#{download_repository_source_2.arch}' Download on Demand")
 
       within("#delete-dod-source-modal-#{download_repository_source_2} .modal-footer") do
         click_button('Delete')
@@ -121,8 +121,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
     end
 
     scenario 'add DoD repositories via meta editor' do
-      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
-                     gsub('user5', admin_user.login)
+      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml')
+                         .gsub('user5', admin_user.login)
 
       visit(project_meta_path(project_name: admin_user.home_project_name))
       page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
@@ -158,8 +158,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
 
       fake_distribution_body = File.open(Rails.root.join('test/fixtures/backend/distributions.xml')).read
 
-      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml').
-        to_return(status: 200, body: fake_distribution_body, headers: {})
+      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml')
+        .to_return(status: 200, body: fake_distribution_body, headers: {})
     end
 
     scenario 'add/delete repository from distribution' do

@@ -12,8 +12,8 @@ RSpec.describe Project, vcr: true do
 
   describe 'validations' do
     it {
-      expect(subject).to validate_inclusion_of(:kind).
-        in_array(['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'])
+      expect(subject).to validate_inclusion_of(:kind)
+        .in_array(['standard', 'maintenance', 'maintenance_incident', 'maintenance_release'])
     }
 
     it { is_expected.to validate_length_of(:name).is_at_most(200) }

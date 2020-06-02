@@ -48,10 +48,10 @@ module Cloud
     end
 
     def upload_data
-      permitted_params.
-        slice(:project, :package, :repository, :arch, :filename, :region, :ami_name, :target, :vpc_subnet_id).
-        to_h.
-        merge(user: ::User.session!)
+      permitted_params
+        .slice(:project, :package, :repository, :arch, :filename, :region, :ami_name, :target, :vpc_subnet_id)
+        .to_h
+        .merge(user: ::User.session!)
     end
 
     def set_upload_job
