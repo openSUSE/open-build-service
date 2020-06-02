@@ -488,7 +488,7 @@ function check_optional_backend_services {
   fi
 
   [[ $SETUP_ONLY == 1 ]] && return
-  OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice"
+  OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice obssourcepublish"
 
   for srv in $OPTIONAL_SERVICES;do
     STATE=$(systemctl is-enabled $srv)

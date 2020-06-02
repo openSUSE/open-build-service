@@ -530,6 +530,7 @@ getent passwd obsservicerun >/dev/null || \
 %service_add_pre obspublisher.service
 %service_add_pre obssigner.service
 %service_add_pre obsservicedispatch.service
+%service_add_pre obssourcepublish.service
 %service_add_pre obsservice.service
 %service_add_pre obsdeltastore.service
 %service_add_pre obsdispatcher.service
@@ -577,6 +578,7 @@ exit 0
 %service_del_preun obspublisher.service
 %service_del_preun obssigner.service
 %service_del_preun obsservicedispatch.service
+%service_del_preun obssourcepublish.service
 %service_del_preun obsservice.service
 %service_del_preun obsdeltastore.service
 %service_del_preun obsdispatcher.service
@@ -606,6 +608,7 @@ exit 0
 %service_add_post obspublisher.service
 %service_add_post obssigner.service
 %service_add_post obsservicedispatch.service
+%service_add_post obssourcepublish.service
 %service_add_post obsservice.service
 %service_add_post obsdeltastore.service
 %service_add_post obsdispatcher.service
@@ -639,6 +642,7 @@ fi
 %service_del_postun -r obspublisher.service
 %service_del_postun -r obssigner.service
 %service_del_postun -r obsservicedispatch.service
+%service_del_postun -r obssourcepublish.service
 %service_del_postun -r obsservice.service
 %service_del_postun -r obsdeltastore.service
 %service_del_postun -r obsdispatcher.service
@@ -749,6 +753,7 @@ fi
 %{_unitdir}/obspublisher.service
 %{_unitdir}/obssigner.service
 %{_unitdir}/obsservicedispatch.service
+%{_unitdir}/obssourcepublish.service
 %{_unitdir}/obsdeltastore.service
 %{_unitdir}/obsdispatcher.service
 %{_unitdir}/obsdodup.service
@@ -770,6 +775,7 @@ fi
 /usr/sbin/rcobsgetbinariesproxy
 /usr/sbin/rcobsdeltastore
 /usr/sbin/rcobsservicedispatch
+/usr/sbin/rcobssourcepublish
 /usr/sbin/rcobssigner
 /usr/sbin/rcobsnotifyforward
 /usr/sbin/rcobsredis
