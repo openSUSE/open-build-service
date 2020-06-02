@@ -54,7 +54,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       click_link('home:package_test_user...ome:package_test_user')
       # Wait for the new page being loaded (aka. the ajax request to finish)
       expect(page).to have_text("Links to #{user.home_project} / #{package}")
-      expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))
+      expect(page).to have_current_path(package_show_path(project: branched_project, package: branched_project.packages.first), ignore_query: true)
     end
   end
 
@@ -94,7 +94,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       expect(page).to have_css('table#all_requests_table tbody tr', count: 1)
       first('table#all_requests_table tbody tr td').click if mobile?
       find('a', class: 'request_link').click
-      expect(page.current_path).to match('/request/show/\\d+')
+      expect(page).to have_current_path(/\/request\/show\/\d+/)
     end
   end
 

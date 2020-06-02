@@ -6,15 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 16
-# Cop supports --auto-correct.
-Capybara/CurrentPathExpectation:
-  Exclude:
-    - 'spec/features/beta/webui/packages_spec.rb'
-    - 'spec/features/beta/webui/projects_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/features/webui/projects_spec.rb'
-
 # Offense count: 307
 # Cop supports --auto-correct.
 # Configuration parameters: EnabledMethods.

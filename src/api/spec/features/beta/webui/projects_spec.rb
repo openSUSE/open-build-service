@@ -52,7 +52,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
-      expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
+      expect(page).to have_current_path(project_show_path(project: "#{user.home_project_name}:coolstuff"))
       expect(find('#project-title').text).to eq("#{user.home_project_name}:coolstuff")
     end
   end
@@ -106,7 +106,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
-      expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
+      expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
 
     scenario 'an existing package, but chose a different target package name' do
@@ -117,7 +117,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
-      expect(page.current_path).to eq("/package/show/#{user.home_project_name}/some_different_name")
+      expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name", ignore_query: true)
     end
 
     scenario 'an existing package were the target package already exists' do
@@ -129,7 +129,7 @@ RSpec.feature 'Projects', type: :feature, js: true do
       click_button('Branch')
 
       expect(page).to have_text('You have already branched this package')
-      expect(page.current_path).to eq('/package/show/home:Jane/branch_test_package')
+      expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
 
     scenario 'a non-existing package' do

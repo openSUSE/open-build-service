@@ -54,7 +54,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       click_link('home:package_test_user...ome:package_test_user')
       # Wait for the new page being loaded (aka. the ajax request to finish)
       expect(page).to have_text("Links to #{user.home_project} / #{package}")
-      expect(page.current_path).to eq(package_show_path(project: branched_project, package: branched_project.packages.first))
+      expect(page).to have_current_path(package_show_path(project: branched_project, package: branched_project.packages.first), ignore_query: true)
     end
   end
 
@@ -93,7 +93,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
       click_link('Requests')
       expect(page).to have_css('table#all_requests_table tbody tr', count: 1)
       find('a', class: 'request_link').click
-      expect(page.current_path).to match('/request/show/\\d+')
+      expect(page).to have_current_path(/\/request\/show\/\d+/)
     end
   end
 
@@ -345,7 +345,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         click_button('Create')
 
         expect(page).to have_text("Invalid package name: 'cool stuff'")
-        expect(page.current_path).to eq("/package/new/#{user.home_project_name}")
+        expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
       scenario 'that already exists' do
@@ -356,7 +356,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         click_button('Create')
 
         expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
-        expect(page.current_path).to eq("/package/new/#{user.home_project_name}")
+        expect(page).to have_current_path("/package/new/#{user.home_project_name}", ignore_query: true)
       end
 
       scenario 'with valid data' do
@@ -390,7 +390,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         visit "/package/new/#{global_project}"
 
         expect(page).to have_text('Sorry, you are not authorized to create this Package')
-        expect(page.current_path).to eq(root_path)
+        expect(page).to have_current_path(root_path, ignore_query: true)
       end
 
       scenario 'as an admin' do
@@ -407,7 +407,7 @@ RSpec.feature 'Packages', type: :feature, js: true, vcr: true do
         click_button('Create')
 
         expect(page).to have_text("Package 'coolstuff' was created successfully")
-        expect(page.current_path).to eq(package_show_path(project: global_project.to_s, package: 'coolstuff'))
+        expect(page).to have_current_path(package_show_path(project: global_project.to_s, package: 'coolstuff'), ignore_query: true)
       end
     end
   end
