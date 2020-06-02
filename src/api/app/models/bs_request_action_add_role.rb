@@ -1,4 +1,3 @@
-#
 class BsRequestActionAddRole < BsRequestAction
   #### Includes and extends
   #### Constants

@@ -6,19 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: AllowBorderComment, AllowMarginComment.
-Layout/EmptyComment:
-  Exclude:
-    - 'app/models/bs_request_action_accept_info.rb'
-    - 'app/models/bs_request_action_add_role.rb'
-    - 'app/models/bs_request_action_change_devel.rb'
-    - 'app/models/bs_request_action_delete.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_action_set_bugowner.rb'
-
 # Offense count: 583
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:

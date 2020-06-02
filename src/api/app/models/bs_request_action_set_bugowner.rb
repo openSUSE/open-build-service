@@ -1,4 +1,3 @@
-#
 class BsRequestActionSetBugowner < BsRequestAction
   #### Includes and extends
   #### Constants
