@@ -41,6 +41,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next unless tag.name == 'a'
       next if tag.attributes['data-remote']
       next if tag.attributes['data-method']
+
       link = tag.attributes['href']
       begin
         link = baseuri.merge(link)
@@ -52,11 +53,13 @@ class Webui::SpiderTest < Webui::IntegrationTest
       link.normalize!
       next unless link.host == baseuri.host
       next unless link.port == baseuri.port
+
       link = link.to_s
       next if ignore_link?(link)
       next if tag.content == 'show latest'
       next if @pages_visited.key?(link)
       next if @pages_to_visit.key?(link)
+
       @pages_to_visit[link] = [baseuri.to_s, tag.content]
     end
   end
@@ -70,6 +73,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     while @pages_visited.key?(url)
       url, text = @pages_visited[url]
       break if url.blank?
+
       warn "#{indent}#{url} ('#{text}')"
       indent += '  '
     end
@@ -94,6 +98,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
           # puts "ignoring #{page.response_headers.inspect}"
           next
         end
+
         page.first('.navbar-brand')
       rescue Timeout::Error
         next
@@ -108,6 +113,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
         # puts "HARDCORE!! #{theone}"
       end
       next unless body
+
       flashes = body.css('div#flash div.alert-error')
       unless flashes.empty?
         raiseit("flash alert #{flashes.first.content.strip}", theone)
@@ -130,12 +136,14 @@ class Webui::SpiderTest < Webui::IntegrationTest
   def load_sitemap(url)
     page.visit(url)
     return unless page.status_code == 200
+
     r = Xmlhash.parse(page.source)
     r.elements('sitemap') do |s|
       load_sitemap(s['loc'])
     end
     r.elements('url') do |s|
       next if ignore_link?(s['loc'])
+
       @pages_to_visit[s['loc']] = [url, 'sitemap']
     end
   end

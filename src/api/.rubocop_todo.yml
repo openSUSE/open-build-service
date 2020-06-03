@@ -23,7 +23,6 @@ Layout/EmptyLineAfterGuardClause:
     - 'lib/**/*'
     - 'script/**/*'
     - 'spec/**/*'
-    - 'test/**/*'
 
 # Offense count: 2
 Lint/DuplicateMethods:

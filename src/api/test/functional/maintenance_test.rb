@@ -1584,6 +1584,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     hashed.elements('package') do |p|
       next unless p['name'] == 'package'
       next unless p['arch'] == 'x86_64'
+
       pac = p
     end
     assert_not_nil pac
