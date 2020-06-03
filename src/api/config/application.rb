@@ -14,8 +14,6 @@ module OBSApi
 
     # Enable rails version 6.0 defaults
     config.load_defaults(6.0)
-    # For now, use the classic/oldway for code loading in rails instead of zeitwerk
-    config.autoloader = :classic
     # Require `belongs_to` associations by default. Previous versions had false.
     config.active_record.belongs_to_required_by_default = false
 
