@@ -17,7 +17,7 @@ OptionParser.new do |opts|
 end.parse!
 
 def available_revision(api_url)
-  uri = URI("#{api_url}/public/build/OBS:Server:Unstable/SLE_12_SP4/x86_64/obs-server")
+  uri = URI("#{api_url}/public/build/OBS:Server:Unstable/SLE_15_SP1/x86_64/obs-server")
   result = Net::HTTP.get(uri)
   doc = Nokogiri::XML(result)
   obs_api_filename = doc.xpath('//binary[starts-with(@filename, "obs-api")]/@filename').to_s
