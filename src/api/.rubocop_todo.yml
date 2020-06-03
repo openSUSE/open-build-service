@@ -9,7 +9,21 @@
 # Offense count: 583
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:
-  Enabled: false
+  Exclude:
+    - 'app/controllers/**/*'
+    - 'app/models/**/*'
+    - 'app/policies/**/*'
+    - 'app/services/**/*'
+    - 'app/views/**/*'
+    - 'app/mailers/**/*'
+    - 'app/mixins/**/*'
+    - 'app/helpers/**/*'
+    - 'app/jobs/**/*'
+    - 'db/**/*'
+    - 'lib/**/*'
+    - 'script/**/*'
+    - 'spec/**/*'
+    - 'test/**/*'
 
 # Offense count: 2
 Lint/DuplicateMethods:
