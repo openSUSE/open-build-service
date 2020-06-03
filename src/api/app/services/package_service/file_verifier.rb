@@ -27,7 +27,7 @@ module PackageService
     end
 
     def file_name_invalid?
-      @file_name.blank? || @file_name !~ /^[^\.\/][^\/]+$/
+      @file_name.blank? || @file_name !~ /^[^.\/][^\/]+$/
     end
 
     def service?

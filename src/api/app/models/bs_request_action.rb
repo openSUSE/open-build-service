@@ -288,9 +288,9 @@ class BsRequestAction < ApplicationRecord
         # use orignal/stripped name and also GA projects for maintenance packages.
         # But do not follow project links, if we have a branch target project, like in Evergreen case
         if tprj.find_attribute('OBS', 'BranchTarget')
-          tpkg = tprj.packages.find_by_name(target_package.gsub(/\.[^\.]*$/, ''))
+          tpkg = tprj.packages.find_by_name(target_package.gsub(/\.[^.]*$/, ''))
         else
-          tpkg = tprj.find_package(target_package.gsub(/\.[^\.]*$/, ''))
+          tpkg = tprj.find_package(target_package.gsub(/\.[^.]*$/, ''))
         end
       elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
         # target must exists

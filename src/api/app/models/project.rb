@@ -140,7 +140,7 @@ class Project < ApplicationRecord
       return false if name =~ /:[:\._]/
       return false if name =~ /\A[:\._]/
       return false if name.end_with?(':')
-      return true  if name =~ /\A[-+\w\.:]{1,200}\z/
+      return true  if name =~ /\A[-+\w.:]{1,200}\z/
       false
     end
 

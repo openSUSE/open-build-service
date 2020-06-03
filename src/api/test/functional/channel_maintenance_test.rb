@@ -116,7 +116,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'source', attributes: { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '33fed2157de2517bc62894b3fdfd485c' })
     assert_xml_tag(tag: 'target', attributes: { project: 'My:Maintenance', releaseproject: 'BaseDistro3' })
     # diff contains the critical lines
-    assert_match(/^\-NOOP/, @response.body)
+    assert_match(/^-NOOP/, @response.body)
     assert_match(/^\+new_content_2137/, @response.body)
 
     # search as used by osc sees it

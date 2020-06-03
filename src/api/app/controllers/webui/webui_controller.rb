@@ -78,7 +78,7 @@ class Webui::WebuiController < ActionController::Base
 
   def valid_xml_id(rawid)
     rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
+    CGI.escapeHTML(rawid.gsub(/[+&: .\/~()@#]/, '_'))
   end
 
   def home

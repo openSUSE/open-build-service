@@ -45,7 +45,7 @@ RSpec.describe Kiwi::Repository, type: :model do
         it 'valid' do
           property_of do
             # TODO: improve regular expression to generate the URI
-            protocol + '://' + sized(range(1, 199)) { string(/[\w]/) }
+            protocol + '://' + sized(range(1, 199)) { string(/\w/) }
           end.check(3) do |string|
             expect(subject).to allow_value(string).for(:source_path)
           end
@@ -56,11 +56,11 @@ RSpec.describe Kiwi::Repository, type: :model do
         property_of do
           project = []
           range(1, 3).times do
-            project << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w\.]/) }
+            project << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) }
           end
           repository = []
           range(1, 3).times do
-            repository << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w\.]/) }
+            repository << string(/[a-zA-Z1-9]/) + sized(range(0, 20)) { string(/[-+\w.]/) }
           end
           path = "obs://#{project.join(':')}/#{repository.join(':')}"
           path
@@ -75,7 +75,7 @@ RSpec.describe Kiwi::Repository, type: :model do
 
       it 'not valid when protocol is not valid' do
         property_of do
-          string = sized(range(3, 199)) { string(/[\w]/) }
+          string = sized(range(3, 199)) { string(/\w/) }
           index = range(0, (string.length - 3))
           string[index] = ':'
           string[index + 1] = string[index + 2] = '/'
@@ -89,7 +89,7 @@ RSpec.describe Kiwi::Repository, type: :model do
       ['ftp', 'http', 'https', 'plain', 'obs'].each do |protocol|
         it 'not valid when has `{`' do
           property_of do
-            string = sized(range(1, 199)) { string(/[\w]/) }
+            string = sized(range(1, 199)) { string(/\w/) }
             index = range(0, (string.length - 1))
             uri_character = sized(1) { string(/[{]/) }
             string[index] = uri_character

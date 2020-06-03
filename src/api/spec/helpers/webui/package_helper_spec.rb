@@ -113,7 +113,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     RSpec.shared_examples 'file with extension' do |extension, extension_class|
       it 'returns correct extension' do
         property_of do
-          sized(1) { string(/[\w+\-:]/) } + sized(range(0, 190)) { string(/[\w+\-:\.]/) } + '.' + extension
+          sized(1) { string(/[\w+\-:]/) } + sized(range(0, 190)) { string(/[\w+\-:.]/) } + '.' + extension
         end.check(3) do |filename|
           expect(guess_code_class(filename)).to eq(extension_class)
         end
