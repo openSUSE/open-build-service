@@ -37,7 +37,7 @@ class Webui::WebuiController < ActionController::Base
                     when 'destroy?' then 'delete'
                     when 'create_branch?' then 'create_branch'
                     else exception.try(:query)
-    end
+                    end
     if pundit_action && exception.record
       message = "Sorry, you are not authorized to #{pundit_action} this #{exception.record.class}."
     else
@@ -262,7 +262,7 @@ class Webui::WebuiController < ActionController::Base
                 'logout,access_point=webui value=1'
               when :unauthenticated
                 'login,access_point=webui,failure=unauthenticated value=1'
-    end
+              end
     RabbitmqBus.send_to_bus('metrics', message)
   end
 

@@ -496,7 +496,7 @@ class SourceController < ApplicationController
              :enable_all
            else
              :add_disabled
-    end
+           end
 
     @project.packages.each do |pkg|
       pkg.add_channels(mode)
