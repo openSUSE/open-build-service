@@ -1,4 +1,3 @@
-
 class Dir
   def self.tmpdir
     "#{Rails.root}/tmp"

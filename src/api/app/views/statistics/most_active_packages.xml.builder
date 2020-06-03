@@ -1,5 +1,3 @@
-
-
 xml.most_active do
   @packages.each do |package|
     xml.package(

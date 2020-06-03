@@ -1,4 +1,3 @@
-
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
   include FlagHelper

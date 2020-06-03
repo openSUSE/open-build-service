@@ -1,5 +1,3 @@
-
-
 xml.activity do
   if @package
 

@@ -11,11 +11,6 @@
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
-# Offense count: 21
-# Cop supports --auto-correct.
-Layout/LeadingEmptyLines:
-  Enabled: false
-
 # Offense count: 1
 Lint/Debugger:
   Exclude:

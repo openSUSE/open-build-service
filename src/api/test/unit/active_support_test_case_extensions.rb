@@ -1,4 +1,3 @@
-
 # We monkey patch ActiveSupport::TestCase in test/test_helper.rb
 # This test covers the added methods
 class ActiveSupportTestCaseTest < ActiveSupport::TestCase

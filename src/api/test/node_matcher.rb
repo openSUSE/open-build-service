@@ -1,4 +1,3 @@
-
 class NodeMatcher #:nodoc:
   class Conditions < Hash #:nodoc:
     def initialize(hash)

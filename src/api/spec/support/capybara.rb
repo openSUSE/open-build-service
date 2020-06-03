@@ -1,4 +1,3 @@
-
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
 Capybara.server = :puma, { Silent: true }
