@@ -1,21 +1,3 @@
-CREATE TABLE `announcements` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `content` text COLLATE utf8mb4_unicode_ci,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-CREATE TABLE `announcements_users` (
-  `user_id` int(11) DEFAULT NULL,
-  `announcement_id` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  KEY `index_announcements_users_on_user_id` (`user_id`),
-  KEY `index_announcements_users_on_announcement_id` (`announcement_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
 CREATE TABLE `ar_internal_metadata` (
   `key` varchar(255) CHARACTER SET utf8 NOT NULL,
   `value` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1524,6 +1506,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200423160517'),
 ('20200522092917'),
 ('20200522145733'),
-('20200522151615');
+('20200522151615'),
+('20200601083057');
 
 
