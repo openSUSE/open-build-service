@@ -1,5 +1,5 @@
 module Webui::Projects::StatusHelper
-  def parse_status(package)
+  def parse_status(project_name, package)
     comments_to_clear = []
     outs = []
     icon = 'ok'
@@ -11,17 +11,17 @@ module Webui::Projects::StatusHelper
         case problem
         when 'different_changes'
           outs << link_to("Different changes in devel project (since #{age})",
-                          package_rdiff_path(project: package['develproject'], package: package['develpackage'], oproject: @project.name, opackage: package['name']))
+                          package_rdiff_path(project: package['develproject'], package: package['develpackage'], oproject: project_name, opackage: package['name']))
           sortkey = "5-changes-#{package['develmtime']}-#{package['name']}"
           icon = 'changes'
         when 'different_sources'
           outs << link_to("Different sources in devel project (since #{age})", package_rdiff_path(project: package['develproject'], package: package['develpackage'],
-                                                                                                  oproject: @project.name, opackage: package['name']))
+                                                                                                  oproject: project_name, opackage: package['name']))
           sortkey = "6-changes-#{package['develmtime']}-#{package['name']}"
           icon = 'changes'
         when 'diff_against_link'
           outs << link_to('Linked package is different', package_rdiff_path(oproject: package['lproject'], opackage: package['lpackage'],
-                                                                            project: @project.name, package: package['name']))
+                                                                            project: project_name, package: package['name']))
           sortkey = "7-changes#{package['name']}"
           icon = 'changes'
         when /^error-/
@@ -48,7 +48,7 @@ module Webui::Projects::StatusHelper
       sortkey = "3-request-#{999_999 - number}-#{package['name']}"
     end
     package['requests_from'].each do |number|
-      outs.prepend("Request #{link_to(number, request_show_path(number: number))} to #{h(@project.name)}".html_safe)
+      outs.prepend("Request #{link_to(number, request_show_path(number: number))} to #{h(project_name)}".html_safe)
 
       icon = 'changes'
       sortkey = "2-request-#{999_999 - number}-#{package['name']}"
@@ -64,7 +64,7 @@ module Webui::Projects::StatusHelper
     end
     if package['firstfail']
       url = package_live_build_log_path(arch: h(package['failedarch']), repository: h(package['failedrepo']),
-                                        project: h(@project.name), package: h(package['name']))
+                                        project: h(project_name), package: h(package['name']))
       outs.prepend("#{link_to('Fails', url)} since #{distance_of_time_in_words_to_now(package['firstfail'].to_i)}".html_safe)
 
       icon = 'error'

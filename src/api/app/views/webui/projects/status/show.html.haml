@@ -53,7 +53,7 @@
                 Comments
           %tbody
             - @packages.each do |package|
-              - parsed_result = parse_status(package)
+              - parsed_result = parse_status(@project.name, package)
 
               %tr
                 %td.nowrap
