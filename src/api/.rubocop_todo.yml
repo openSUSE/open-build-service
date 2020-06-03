@@ -16,13 +16,6 @@ Layout/EmptyLineAfterGuardClause:
 Layout/LeadingEmptyLines:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceAroundMethodCallOperator:
-  Exclude:
-    - 'app/models/patchinfo.rb'
-    - 'spec/helpers/webui/request_helper_spec.rb'
-
 # Offense count: 1
 Lint/Debugger:
   Exclude:

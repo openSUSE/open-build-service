@@ -13,7 +13,7 @@ RSpec.describe Webui::RequestHelper do
                target_package: 'does-not-exist-yet',
                source_package: source_package)
       end
-      let(:row) { BsRequest::DataTable::Row .new(bs_request_with_submit_action) }
+      let(:row) { BsRequest::DataTable::Row.new(bs_request_with_submit_action) }
 
       it { expect(new_or_update_request(row)).to eq('submit <small>(new package)</small>') }
       it { expect(new_or_update_request(row)).to be_a(ActiveSupport::SafeBuffer) }
