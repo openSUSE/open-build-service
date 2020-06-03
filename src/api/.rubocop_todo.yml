@@ -11,11 +11,6 @@
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
-# Offense count: 1
-Lint/Debugger:
-  Exclude:
-    - 'spec/support/capybara.rb'
-
 # Offense count: 2
 Lint/DuplicateMethods:
   Exclude:
