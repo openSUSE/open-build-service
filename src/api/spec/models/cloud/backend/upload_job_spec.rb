@@ -40,8 +40,8 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
       params.except(:region, :ami_name)
     end
     let(:post_body) do
-      user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at').
-        merge(region: 'us-east-1', ami_name: 'myami').to_json
+      user.ec2_configuration.attributes.except('id', 'created_at', 'updated_at')
+          .merge(region: 'us-east-1', ami_name: 'myami').to_json
     end
     let(:path) { "#{CONFIG['source_url']}/cloudupload?#{backend_params.to_param}" }
 

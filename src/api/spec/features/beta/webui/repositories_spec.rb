@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
+RSpec.describe 'Repositories', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let!(:repository) { create(:repository) }
 
@@ -16,7 +16,7 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       login admin_user
     end
 
-    scenario 'add DoD repositories' do
+    it 'add DoD repositories' do
       visit(project_repositories_path(project: admin_user.home_project_name))
       click_menu_link('Actions', 'Add DoD Repository')
       fill_in('Repository name', with: 'My DoD repository')
@@ -45,14 +45,14 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       end
     end
 
-    scenario 'delete DoD repositories' do
+    it 'delete DoD repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         click_link(title: 'Delete Repository')
       end
 
-      expect(find('#delete-repository')).
-        to have_text("Please confirm deletion of '#{dod_repository}' repository")
+      expect(find('#delete-repository'))
+        .to have_text("Please confirm deletion of '#{dod_repository}' repository")
 
       within('#delete-repository .modal-footer') do
         click_button('Delete')
@@ -62,7 +62,7 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       expect(project_with_dod_repo.repositories).to be_empty
     end
 
-    scenario 'edit download repositories' do
+    it 'edit download repositories' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         find("[data-target='#edit-dod-source-modal-#{download_repository_source}']").click
@@ -90,14 +90,14 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       expect(download_repository_source.pubkey).to eq('some_key')
     end
 
-    scenario 'delete download repository sources' do
+    it 'delete download repository sources' do
       visit(project_repositories_path(project: project_with_dod_repo))
       within '.repository-card' do
         find("[data-target='#delete-dod-source-modal-#{download_repository_source}']").click
       end
 
-      expect(find("#delete-dod-source-modal-#{download_repository_source}")).
-        to have_text("Please confirm deletion of '#{download_repository_source.arch}' Download on Demand")
+      expect(find("#delete-dod-source-modal-#{download_repository_source}"))
+        .to have_text("Please confirm deletion of '#{download_repository_source.arch}' Download on Demand")
 
       within("#delete-dod-source-modal-#{download_repository_source} .modal-footer") do
         click_button('Delete')
@@ -109,8 +109,8 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
         find("[data-target='#delete-dod-source-modal-#{download_repository_source_2}']").click
       end
 
-      expect(find("#delete-dod-source-modal-#{download_repository_source_2}")).
-        to have_text("Please confirm deletion of '#{download_repository_source_2.arch}' Download on Demand")
+      expect(find("#delete-dod-source-modal-#{download_repository_source_2}"))
+        .to have_text("Please confirm deletion of '#{download_repository_source_2.arch}' Download on Demand")
 
       within("#delete-dod-source-modal-#{download_repository_source_2} .modal-footer") do
         click_button('Delete')
@@ -120,9 +120,9 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       expect(repository.download_repositories.count).to eq(1)
     end
 
-    scenario 'add DoD repositories via meta editor' do
-      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml').
-                     gsub('user5', admin_user.login)
+    it 'add DoD repositories via meta editor' do
+      fixture_file = File.read(Rails.root + 'test/fixtures/backend/download_on_demand/project_with_dod.xml')
+                         .gsub('user5', admin_user.login)
 
       visit(project_meta_path(project_name: admin_user.home_project_name))
       page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
@@ -158,11 +158,11 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
 
       fake_distribution_body = File.open(Rails.root.join('test/fixtures/backend/distributions.xml')).read
 
-      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml').
-        to_return(status: 200, body: fake_distribution_body, headers: {})
+      stub_request(:get, 'https://api.opensuse.org/public/distributions.xml')
+        .to_return(status: 200, body: fake_distribution_body, headers: {})
     end
 
-    scenario 'add/delete repository from distribution' do
+    it 'add/delete repository from distribution' do
       # Create interconnect
       visit(repositories_distributions_path(project: admin_user.home_project))
       click_button('Connect', match: :first)
@@ -194,7 +194,7 @@ RSpec.feature 'Repositories', type: :feature, js: true, vcr: true do
       expect(page).not_to have_link('openSUSE_Tumbleweed')
     end
 
-    scenario 'add repository from project' do
+    it 'add repository from project' do
       visit(project_repositories_path(project: admin_user.home_project))
 
       click_menu_link('Actions', 'Add from a Project')

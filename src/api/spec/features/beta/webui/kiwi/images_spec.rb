@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Kiwi_Images', type: :feature, js: true, vcr: true do
+RSpec.describe 'Kiwi_Images', type: :feature, js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:project) { user.home_project }
   let(:kiwi_image) { create(:kiwi_image_with_package, with_kiwi_file: true, project: project, package_name: 'package_with_kiwi_file') }
@@ -11,7 +11,7 @@ RSpec.feature 'Kiwi_Images', type: :feature, js: true, vcr: true do
   end
 
   context 'project with wiki image' do
-    scenario 'modify author' do
+    it 'modify author' do
       skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
 
@@ -53,7 +53,7 @@ RSpec.feature 'Kiwi_Images', type: :feature, js: true, vcr: true do
       stub_request(:post, other_backend_url).and_return(body: available)
     end
 
-    scenario 'add repository and package' do
+    it 'add repository and package' do
       skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')
@@ -86,7 +86,7 @@ RSpec.feature 'Kiwi_Images', type: :feature, js: true, vcr: true do
       end
     end
 
-    scenario 'edit respository' do
+    it 'edit respository' do
       skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')
@@ -118,7 +118,7 @@ RSpec.feature 'Kiwi_Images', type: :feature, js: true, vcr: true do
       end
     end
 
-    scenario 'edit package' do
+    it 'edit package' do
       skip 'Capybara is not waiting for the Ajax request to finish'
       click_link('View Image')
       click_link('Software')

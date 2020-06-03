@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: true do
+RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: true do
   let(:submitter) { create(:confirmed_user, :with_home, login: 'madam_submitter') }
   let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package_with_file, name: 'Quebec', project: source_project) }
@@ -11,7 +11,7 @@ RSpec.feature 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: t
 
   context 'submit package' do
     describe 'setting a target package' do
-      scenario 'creates a BsRequest with target package name' do
+      it 'creates a BsRequest with target package name' do
         login submitter
         visit package_show_path(source_project, source_package)
         click_link('Submit Package')
@@ -27,7 +27,7 @@ RSpec.feature 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: t
     end
 
     describe 'not setting a target package' do
-      scenario 'creates a BsRequest with the source package name' do
+      it 'creates a BsRequest with the source package name' do
         login submitter
         visit package_show_path(source_project, source_package)
         click_link('Submit Package')
@@ -53,7 +53,7 @@ RSpec.feature 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: t
                                                creator: submitter)
       end
 
-      scenario 'creates a BsRequest and supersede only the selected request(s)' do
+      it 'creates a BsRequest and supersede only the selected request(s)' do
         login submitter
         visit package_show_path(source_project, source_package)
         click_link('Submit Package')
@@ -90,7 +90,7 @@ RSpec.feature 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: t
         Package.find_by(project_id: source_project.id, name: branched_package_name).save_file(filename: 'new_file', file: 'I am a new file')
       end
 
-      scenario 'fills in the submission reasons and creates a BsRequest' do
+      it 'fills in the submission reasons and creates a BsRequest' do
         visit package_show_path(source_project, branched_package_name)
         click_link('Submit Package')
         expect(page).to have_field('To target project:', with: source_project.name)

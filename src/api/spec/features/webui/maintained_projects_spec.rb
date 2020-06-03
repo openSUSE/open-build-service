@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'MaintainedProjects', type: :feature, js: true do
+RSpec.describe 'MaintainedProjects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user) }
   let(:openSUSE_project) { create(:project, name: 'openSUSE') }
   let(:openSUSE_project_update) { create(:project, name: 'openSUSE_Update') }
@@ -13,7 +13,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
         admin_user.run_as { maintenance_project }
       end
 
-      scenario 'maintenance projects are not shown' do
+      it 'maintenance projects are not shown' do
         visit project_maintained_projects_path(project_name: maintenance_project.name)
         expect(page).to have_text('Maintained Projects')
         expect(page).not_to have_selector('#new-maintenance-project-modal')
@@ -22,7 +22,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
     end
 
     context 'with admin login' do
-      scenario 'initial state' do
+      it 'initial state' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
@@ -31,7 +31,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
         expect(page).to have_selector('#delete-maintained-project-modal', visible: :hidden)
       end
 
-      scenario 'click on add new project' do
+      it 'click on add new project' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
@@ -42,7 +42,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
         expect(page).to have_selector('#delete-maintained-project-modal', visible: :hidden)
       end
 
-      scenario 'click on delete project' do
+      it 'click on delete project' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
@@ -54,7 +54,7 @@ RSpec.feature 'MaintainedProjects', type: :feature, js: true do
         expect(page).to have_selector('#delete-maintained-project-modal', visible: :visible)
       end
 
-      scenario 'delete project' do
+      it 'delete project' do
         login admin_user
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 

@@ -26,9 +26,9 @@ module OwnerSearch
     protected
 
     def packages_with_confirmed_user
-      Package.where(project_id: @projects).joins(relationships: :user).\
-        joins('LEFT JOIN users AS owners ON owners.id = users.owner_id').\
-        where(["relationships.role_id IN (?) AND
+      Package.where(project_id: @projects).joins(relationships: :user)
+             .joins('LEFT JOIN users AS owners ON owners.id = users.owner_id')
+             .where(["relationships.role_id IN (?) AND
                                 ((ISNULL(users.owner_id) AND users.state = 'confirmed') OR
                                 owners.state = 'confirmed')", @roles]).pluck(:name)
     end
@@ -47,18 +47,18 @@ module OwnerSearch
 
     def packages_with_maintainer_group_in_project
       ret = []
-      Project.joins(:relationships).
-        where('projects.id in (?) AND role_id in (?) AND group_id IN (?)', @projects, @roles, @maintained_groups).find_each do |prj|
-          ret += prj.packages.pluck(:name)
-        end
+      Project.joins(:relationships)
+             .where('projects.id in (?) AND role_id in (?) AND group_id IN (?)', @projects, @roles, @maintained_groups).find_each do |prj|
+        ret += prj.packages.pluck(:name)
+      end
       ret
     end
 
     # the main package (link) is enough here
     def incident_containers_in_released_projects
-      Package.where(project_id: @projects).
-        joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id').
-        distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
+      Package.where(project_id: @projects)
+             .joins('LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id')
+             .distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
     end
 
     def defined_packages

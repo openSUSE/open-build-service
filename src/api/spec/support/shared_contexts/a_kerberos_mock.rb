@@ -10,9 +10,9 @@ RSpec.shared_context 'a kerberos mock for' do
     ).and_return(gssapi_mock)
 
     allow(gssapi_mock).to receive(:acquire_credentials)
-    allow(gssapi_mock).to receive(:accept_context).
-      with(ticket).and_return(true)
-    allow(gssapi_mock).to receive(:display_name).
-      and_return("#{login}@#{realm}")
+    allow(gssapi_mock).to receive(:accept_context)
+      .with(ticket).and_return(true)
+    allow(gssapi_mock).to receive(:display_name)
+      .and_return("#{login}@#{realm}")
   end
 end

@@ -69,9 +69,9 @@ class Role < ApplicationRecord
   end
 
   def self.ids_with_permission(perm_string)
-    RolesStaticPermission.joins(:static_permission).
-      where(static_permissions: { title: perm_string }).
-      select('role_id').pluck(:role_id)
+    RolesStaticPermission.joins(:static_permission)
+                         .where(static_permissions: { title: perm_string })
+                         .select('role_id').pluck(:role_id)
   end
 
   def to_s

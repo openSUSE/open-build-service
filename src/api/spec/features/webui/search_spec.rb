@@ -1,7 +1,7 @@
 require 'browser_helper'
 # For expecting the load of the page to finish we use have_current_path (https://github.com/jnicklas/capybara/blob/master/README.md#navigating)
 
-RSpec.feature 'Search', type: :feature, js: true do
+RSpec.describe 'Search', type: :feature, js: true do
   let(:apache) { create(:project, name: 'Apache', title: 'Awesome project', description: 'Very awesome project') }
   let(:admin_user) { create(:admin_user) }
 
@@ -21,7 +21,7 @@ RSpec.feature 'Search', type: :feature, js: true do
     let(:hidden_project) { create(:forbidden_project, name: 'SecretProject', title: 'Fake description') }
     let(:hidden_package) { create(:package, name: 'hidden_package', title: 'Hidden package rocks!', project_id: hidden_project.id) }
 
-    scenario 'basic search functionality' do
+    it 'basic search functionality' do
       package
 
       visit search_path
@@ -36,7 +36,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'search for projects and subprojects' do
+    it 'search for projects and subprojects' do
       apache2_subproject
 
       visit search_path
@@ -55,7 +55,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'search for packages only' do
+    it 'search for packages only' do
       package
       another_package
 
@@ -77,7 +77,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'search by title only' do
+    it 'search by title only' do
       apache2
 
       visit search_path
@@ -97,7 +97,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'search by description only' do
+    it 'search by description only' do
       apache2
 
       visit search_path
@@ -117,7 +117,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'search for non existent things' do
+    it 'search for non existent things' do
       apache2
 
       visit search_path
@@ -133,7 +133,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       expect(page).to have_selector('#search-results', count: 0)
     end
 
-    scenario 'search in no fields' do
+    it 'search in no fields' do
       apache2
 
       visit search_path
@@ -153,7 +153,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       expect(page).to have_selector('#search-results', count: 0)
     end
 
-    scenario 'search Russian project in UTF-8' do
+    it 'search Russian project in UTF-8' do
       russian_project
 
       visit search_path
@@ -172,7 +172,7 @@ RSpec.feature 'Search', type: :feature, js: true do
     end
 
     describe 'search for hidden project' do
-      scenario 'as anonymous user' do
+      it 'as anonymous user' do
         hidden_package
         create(:relationship_project_user, project: hidden_project, user: user)
 
@@ -191,7 +191,7 @@ RSpec.feature 'Search', type: :feature, js: true do
         expect(page).to have_selector('#search-results', count: 0)
       end
 
-      scenario 'as admin user' do
+      it 'as admin user' do
         hidden_package
         create(:relationship_project_user, project: hidden_project, user: user)
 
@@ -234,7 +234,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       group_bugowner.add_user(other_confirmed_user)
     end
 
-    scenario 'in a package having maintainers/bugowners which are users and groups' do
+    it 'in a package having maintainers/bugowners which are users and groups' do
       relationship_package_user
       relationship_package_group
       relationship_user_bugowner
@@ -256,7 +256,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'in a package having maintainers/bugowners which are only users' do
+    it 'in a package having maintainers/bugowners which are only users' do
       relationship_package_user
       relationship_user_bugowner
 
@@ -275,7 +275,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'in a package having maintainers/bugowners which are only groups' do
+    it 'in a package having maintainers/bugowners which are only groups' do
       relationship_package_group
       relationship_group_bugowner
 
@@ -293,7 +293,7 @@ RSpec.feature 'Search', type: :feature, js: true do
       end
     end
 
-    scenario 'in a package without maintainers/bugowners' do
+    it 'in a package without maintainers/bugowners' do
       login admin_user
 
       visit search_owner_path

@@ -1,4 +1,3 @@
-#
 class BsRequestActionChangeDevel < BsRequestAction
   #### Includes and extends
   #### Constants

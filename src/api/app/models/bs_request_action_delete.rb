@@ -1,4 +1,3 @@
-#
 class BsRequestActionDelete < BsRequestAction
   #### Includes and extends
   #### Constants

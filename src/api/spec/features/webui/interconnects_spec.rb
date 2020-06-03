@@ -1,8 +1,8 @@
 require 'browser_helper'
-RSpec.feature 'Interconnects', type: :feature, js: true, vcr: true do
+RSpec.describe 'Interconnects', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
 
-  scenario 'creating openSUSE.org interconnect' do
+  it 'creating openSUSE.org interconnect' do
     login admin_user
     visit new_interconnect_path
 
@@ -12,7 +12,7 @@ RSpec.feature 'Interconnects', type: :feature, js: true, vcr: true do
     expect(RemoteProject.exists?(name: 'openSUSE.org')).to be true
   end
 
-  scenario 'creating custom interconnect' do
+  it 'creating custom interconnect' do
     login admin_user
     visit new_interconnect_path
 

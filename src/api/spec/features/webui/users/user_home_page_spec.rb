@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature "User's home project creation", type: :feature, js: true do
+RSpec.describe "User's home project creation", type: :feature, js: true do
   let!(:user) do
     create(:confirmed_user,
            login: 'Jim',
@@ -13,7 +13,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       visit user_path(user)
     end
 
-    scenario 'view home page of another user' do
+    it 'view home page of another user' do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).not_to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
@@ -32,7 +32,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       visit user_path(user)
     end
 
-    scenario 'view home page' do
+    it 'view home page' do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
@@ -44,7 +44,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       expect(page).to have_link('Owned Projects/Packages')
     end
 
-    scenario 'view tasks page' do
+    it 'view tasks page' do
       visit my_tasks_path
 
       expect(page).to have_link('Incoming Requests')
@@ -55,7 +55,7 @@ RSpec.feature "User's home project creation", type: :feature, js: true do
       expect(page).not_to have_link('Maintenance Requests')
     end
 
-    scenario 'edit account information' do
+    it 'edit account information' do
       click_link('Edit your account')
 
       fill_in('user_realname', with: 'John Doe')

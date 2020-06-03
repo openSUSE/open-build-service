@@ -6,41 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 16
-# Cop supports --auto-correct.
-Capybara/CurrentPathExpectation:
-  Exclude:
-    - 'spec/features/beta/webui/packages_spec.rb'
-    - 'spec/features/beta/webui/projects_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/features/webui/projects_spec.rb'
-
-# Offense count: 307
-# Cop supports --auto-correct.
-# Configuration parameters: EnabledMethods.
-Capybara/FeatureMethods:
-  Enabled: false
-
-# Offense count: 96
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: leading, trailing
-Layout/DotPosition:
-  Enabled: false
-
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: AllowBorderComment, AllowMarginComment.
-Layout/EmptyComment:
-  Exclude:
-    - 'app/models/bs_request_action_accept_info.rb'
-    - 'app/models/bs_request_action_add_role.rb'
-    - 'app/models/bs_request_action_change_devel.rb'
-    - 'app/models/bs_request_action_delete.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_action_set_bugowner.rb'
-
 # Offense count: 583
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:

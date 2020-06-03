@@ -1,9 +1,9 @@
 require 'browser_helper'
 
-RSpec.feature 'Sign up', type: :feature, js: true do
+RSpec.describe 'Sign up', type: :feature, js: true do
   let!(:user) { build(:user) }
 
-  scenario 'User' do
+  it 'User' do
     visit root_path
 
     expect(page).to have_link('Log In')
@@ -19,7 +19,7 @@ RSpec.feature 'Sign up', type: :feature, js: true do
     assert User.find_by(login: 'eisendieter').is_active?
   end
 
-  scenario 'User with confirmation' do
+  it 'User with confirmation' do
     # Configure confirmation for signups
     allow_any_instance_of(::Configuration).to receive(:registration).and_return('confirmation')
 
@@ -37,7 +37,7 @@ RSpec.feature 'Sign up', type: :feature, js: true do
     expect(page).to have_text('Thank you for signing up! An admin has to confirm your account now. Please be patient.')
   end
 
-  scenario 'User is denied' do
+  it 'User is denied' do
     # Deny signups
     allow_any_instance_of(::Configuration).to receive(:registration).and_return('deny')
 

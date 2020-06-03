@@ -42,8 +42,8 @@ RSpec.describe Statistics::MaintenanceStatisticsController, type: :controller do
         let(:remote) { create(:remote_project, remoteurl: 'http://remoteproject.com') }
 
         before do
-          stub_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project')).
-            to_return(status: 200, body: '<received><xml/></received>')
+          stub_request(:get, maintenance_statistics_url(host: remote.remoteurl, project: 'my_project'))
+            .to_return(status: 200, body: '<received><xml/></received>')
         end
 
         subject! { get :index, params: { format: :xml, project: "#{remote}:my_project" } }

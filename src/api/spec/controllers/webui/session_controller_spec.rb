@@ -105,8 +105,8 @@ RSpec.describe Webui::SessionController do
       let(:gssapi_mock) { double(:gssapi) }
 
       before do
-        allow(gssapi_mock).to receive(:acquire_credentials).
-          and_raise(GSSAPI::GssApiError, "couldn't validate ticket")
+        allow(gssapi_mock).to receive(:acquire_credentials)
+          .and_raise(GSSAPI::GssApiError, "couldn't validate ticket")
 
         allow(GSSAPI::Simple).to receive(:new).with(
           'obs.test.com', 'HTTP', '/etc/krb5.keytab'

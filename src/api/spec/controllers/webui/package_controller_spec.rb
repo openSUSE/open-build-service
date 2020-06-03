@@ -1055,9 +1055,9 @@ RSpec.describe Webui::PackageController, vcr: true do
       render_views
 
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:statistics).
-          with(source_project.name, source_package.name, repository.name, 'i586').
-          and_return('<buildstatistics><disk><usage><size unit="M">30</size></usage></disk></buildstatistics>')
+        allow(Backend::Api::BuildResults::Status).to receive(:statistics)
+          .with(source_project.name, source_package.name, repository.name, 'i586')
+          .and_return('<buildstatistics><disk><usage><size unit="M">30</size></usage></disk></buildstatistics>')
 
         get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name }
       end
@@ -1074,9 +1074,9 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when backend raises an exception' do
       before do
-        allow(Backend::Api::BuildResults::Status).to receive(:statistics).
-          with(source_project.name, source_package.name, repository.name, 'i586').
-          and_raise(Backend::NotFoundError)
+        allow(Backend::Api::BuildResults::Status).to receive(:statistics)
+          .with(source_project.name, source_package.name, repository.name, 'i586')
+          .and_raise(Backend::NotFoundError)
       end
 
       let(:get_statistics) { get :statistics, params: { project: source_project.name, package: source_package.name, arch: 'i586', repository: repository.name } }
@@ -1130,9 +1130,9 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     describe 'when there is a rpmlint log' do
       before do
-        allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log).
-          with(source_project.name, source_package.name, repo_for_source_project.name, 'i586').
-          and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
+        allow(Backend::Api::BuildResults::Binaries).to receive(:rpmlint_log)
+          .with(source_project.name, source_package.name, repo_for_source_project.name, 'i586')
+          .and_return('test_package.i586: W: description-shorter-than-summary\ntest_package.src: W: description-shorter-than-summary')
       end
 
       subject do

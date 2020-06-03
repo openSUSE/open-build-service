@@ -1,11 +1,11 @@
 require 'browser_helper'
 
-RSpec.feature 'Comments', type: :feature, js: true do
+RSpec.describe 'Comments', type: :feature, js: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'burdenski') }
   let!(:comment) { create(:comment_project, commentable: user.home_project, user: user) }
   let!(:old_comment_text) { comment.body }
 
-  scenario 'can be created' do
+  it 'can be created' do
     login user
     visit project_show_path(user.home_project)
     fill_in 'comment_body', with: 'Comment Body'
@@ -14,7 +14,7 @@ RSpec.feature 'Comments', type: :feature, js: true do
     expect(page).to have_text('Comment Body')
   end
 
-  scenario 'answering comments' do
+  it 'answering comments' do
     login user
     visit project_show_path(user.home_project)
 
@@ -28,7 +28,7 @@ RSpec.feature 'Comments', type: :feature, js: true do
     expect(page).to have_text('Reply Body')
   end
 
-  scenario 'can be deleted' do
+  it 'can be deleted' do
     login user
     visit project_show_path(user.home_project)
 

@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'Groups', type: :feature, js: true do
+RSpec.describe 'Groups', type: :feature, js: true do
   let(:admin) { create(:admin_user, login: 'king') }
   let(:user_1) { create(:confirmed_user, login: 'eisendieter') }
   let!(:group_1) { create(:group, title: 'test_group', users: [admin, user_1]) }
@@ -15,7 +15,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     group.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
-  scenario 'visit groups index page' do
+  it 'visit groups index page' do
     visit groups_path
 
     [group_1, group_2].each do |group|
@@ -25,7 +25,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     expect(page).to have_content('1 of 1 (2 records)')
   end
 
-  scenario 'visit group show page' do
+  it 'visit group show page' do
     visit group_show_path(group_1)
 
     expect(page).to have_content('Incoming Reviews')
@@ -37,7 +37,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     group_1.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
-  scenario 'create a group' do
+  it 'create a group' do
     visit groups_path
 
     click_link('Create Group', href: group_new_path)
@@ -52,7 +52,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     group_in_datatable(page, Group.find_by(title: new_group_title))
   end
 
-  scenario 'remove a member from a group' do
+  it 'remove a member from a group' do
     visit group_show_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
@@ -63,7 +63,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     expect(group_1.reload.users.map(&:login)).to eq([user_1.login])
   end
 
-  scenario 'give maintainer rights to a group member' do
+  it 'give maintainer rights to a group member' do
     visit group_show_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
@@ -73,7 +73,7 @@ RSpec.feature 'Groups', type: :feature, js: true do
     expect(page).to have_content("Gave maintainer rights to '#{admin}'")
   end
 
-  scenario 'add a group member' do
+  it 'add a group member' do
     visit group_show_path(group_2)
 
     click_link('Add Member')

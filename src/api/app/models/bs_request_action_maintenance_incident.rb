@@ -1,4 +1,3 @@
-#
 class BsRequestActionMaintenanceIncident < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ

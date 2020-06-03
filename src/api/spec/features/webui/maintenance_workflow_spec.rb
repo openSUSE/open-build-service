@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
+RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
   let(:admin_user) { create(:admin_user) }
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:maintenance_coord_user) { create(:confirmed_user, :with_home, login: 'maintenance_coord') }
@@ -21,7 +21,7 @@ RSpec.feature 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     create(:maintenance_project_attrib, project: maintenance_project)
   end
 
-  scenario 'maintenance workflow' do
+  it 'maintenance workflow' do
     # Step 1: The user branches a package
     ####################################
     login(user)

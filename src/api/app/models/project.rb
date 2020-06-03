@@ -1416,10 +1416,10 @@ class Project < ApplicationRecord
 
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
-    Project.where('projects.name like ?', "#{name}:%").distinct.
-      where(kind: 'maintenance_incident').
-      joins(repositories: :release_targets).
-      where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
+    Project.where('projects.name like ?', "#{name}:%").distinct
+           .where(kind: 'maintenance_incident')
+           .joins(repositories: :release_targets)
+           .where('release_targets.trigger = "maintenance"').includes(target_repositories: :project)
   end
 
   def packages_with_release_target
@@ -1469,8 +1469,8 @@ class Project < ApplicationRecord
   end
 
   def image_template?
-    attribs.joins(attrib_type: :attrib_namespace).
-      where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
+    attribs.joins(attrib_type: :attrib_namespace)
+           .where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
   end
 
   def key_info

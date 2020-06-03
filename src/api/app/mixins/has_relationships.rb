@@ -78,8 +78,8 @@ module HasRelationships
 
   def maintainers
     direct_users = relationships.with_users_and_roles_query.maintainers.pluck('users.login').map! { |user| User.find_by_login!(user) }
-    users_in_groups = relationships.with_groups_and_roles_query.maintainers.pluck('groups.title'). \
-                      map! { |title| Group.find_by_title!(title).users }.flatten
+    users_in_groups = relationships.with_groups_and_roles_query.maintainers.pluck('groups.title')
+                                   .map! { |title| Group.find_by_title!(title).users }.flatten
     (direct_users + users_in_groups).uniq
   end
 

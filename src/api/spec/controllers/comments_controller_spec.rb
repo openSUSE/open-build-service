@@ -10,8 +10,8 @@ RSpec.describe CommentsController do
       it { expect(assigns(:obj)).to eq(object) }
 
       it {
-        expect(response.body).
-          to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>")
+        expect(response.body)
+          .to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\">#{comment.body}</comment>")
       }
     end
 
@@ -67,8 +67,8 @@ RSpec.describe CommentsController do
       it { expect(assigns(:obj)).to eq(object) }
 
       it {
-        expect(response.body).
-          to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\" bsrequest=\"#{comment.commentable.number}\">#{comment.body}</comment>")
+        expect(response.body)
+          .to include("<comment who=\"#{comment.user}\" when=\"#{comment.created_at}\" id=\"#{comment.id}\" bsrequest=\"#{comment.commentable.number}\">#{comment.body}</comment>")
       }
 
       it { expect(response.body).to include("<comments user=\"#{user.login}\">") }

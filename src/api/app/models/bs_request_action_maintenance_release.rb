@@ -1,4 +1,3 @@
-#
 class BsRequestActionMaintenanceRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ

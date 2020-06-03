@@ -1,23 +1,23 @@
 require 'browser_helper'
 require 'ldap'
 
-RSpec.feature 'Login', type: :feature, js: true do
+RSpec.describe 'Login', type: :feature, js: true do
   let!(:user) { create(:confirmed_user, :with_home, login: 'proxy_user') }
   let(:admin) { create(:admin_user) }
 
-  scenario 'login with home project shows a link to it' do
+  it 'login with home project shows a link to it' do
     login user
     expect(page).to have_link('Your Home Project', visible: false)
   end
 
-  scenario 'login without home project shows a link to create it' do
+  it 'login without home project shows a link to create it' do
     login admin
     user.home_project.destroy
     login user
     expect(page).to have_link('Create Your Home Project', visible: false)
   end
 
-  scenario 'login via login page' do
+  it 'login via login page' do
     visit new_session_path
 
     within('#loginform') do
@@ -29,7 +29,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     expect(page).to have_link('Profile', visible: false)
   end
 
-  scenario 'login via widget' do
+  it 'login via widget' do
     visit root_path
     within(desktop? ? '#navigation' : '#bottom-navigation') do
       click_link('Log In')
@@ -44,7 +44,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     expect(page).to have_link('Your Home Project', visible: false)
   end
 
-  scenario 'login with wrong data' do
+  it 'login with wrong data' do
     visit root_path
     within(desktop? ? '#navigation' : '#bottom-navigation') do
       click_link('Log In')
@@ -59,7 +59,7 @@ RSpec.feature 'Login', type: :feature, js: true do
     expect(page).to have_content('Authentication failed')
   end
 
-  scenario 'logout' do
+  it 'logout' do
     login(user)
 
     click_menu_link('Places', 'Logout')
