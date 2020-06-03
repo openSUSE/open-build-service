@@ -15,6 +15,7 @@ class ProjectMaintains < ActiveRecord::Migration[4.2]
     s = OldProject.find_by_sql 'SELECT id,maintenance_project_id FROM projects WHERE NOT ISNULL(maintenance_project_id)'
     s.each do |e|
       next unless Project.find_by_id e.maintenance_project_id # broken data anyway
+
       MaintainedProject.create(project_id: e.id, maintenance_project_id: e.maintenance_project_id)
     end
 

@@ -15,6 +15,7 @@ class MigrateRssNotificationPayload < ActiveRecord::Migration[5.2]
     payload = notification.event_payload
     # Find unconverted comment events
     return unless integer?(payload['commenter'])
+
     payload['commenter'] = User.find(notification.event_payload['commenter']).login
     payload['commenters'] = User.find(notification.event_payload['commenters']).pluck(:login)
     notification.event_payload = payload

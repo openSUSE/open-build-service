@@ -29,6 +29,7 @@ class GenerateWebNotifications < ActiveRecord::Migration[6.0]
 
   def create_subscription_for_channel(subscription, channel)
     return if eventtype_disabled_for_web_and_rss?(subscription.eventtype)
+
     subscription = EventSubscription.find_or_initialize_by(user_id: subscription.user_id,
                                                            group_id: subscription.group_id,
                                                            receiver_role: subscription.receiver_role,
