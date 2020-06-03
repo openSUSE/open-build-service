@@ -53,4 +53,4 @@ After finishing the installation of your base system, follow these steps:
 ## Advanced Setup
 
 If you have a more complex setup (e.g. a distributed backend) we recommend to read the Administration
-chapter in our [reference manual](http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.admin.html).
+chapter in our [user manual](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.admin.html).
