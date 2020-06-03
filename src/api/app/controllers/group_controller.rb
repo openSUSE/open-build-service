@@ -17,7 +17,7 @@ class GroupController < ApplicationController
                     when 'update?' then 'update'
                     when 'destroy?' then 'delete'
                     else exception.query
-    end
+                    end
 
     render_error status: 403, errorcode: "No permission to #{pundit_action} group"
   end

@@ -1,5 +1,3 @@
-
-
 root_attrs = {}
 root_attrs[:count] = @messages.length if @messages
 root_attrs[:project] = @project.name if @project

@@ -117,7 +117,7 @@ class SearchController < ApplicationController
              Regexp.last_match(1)
            else
              p
-    end
+           end
     pred = '*' if pred.blank?
     pred
   end

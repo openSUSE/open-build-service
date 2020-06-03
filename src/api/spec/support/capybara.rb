@@ -1,4 +1,3 @@
-
 Capybara.default_max_wait_time = 6
 Capybara.save_path = Rails.root.join('tmp', 'capybara')
 Capybara.server = :puma, { Silent: true }
@@ -81,7 +80,10 @@ RSpec.configure do |config|
       example_filename = example_filename.gsub(/[^0-9A-Za-z_]/, '_')
       example_filename = File.expand_path(example_filename, Capybara.save_path)
       save_page("#{example_filename}.html")
+      # rubocop:disable Lint/Debugger
+      # TODO: The RuboCop comments can be removed once this is merged upstream: https://github.com/rubocop-hq/rubocop/pull/7853
       save_screenshot("#{example_filename}.png")
+      # rubocop:enable Lint/Debugger
     end
   end
 end

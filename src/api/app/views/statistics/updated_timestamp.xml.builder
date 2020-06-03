@@ -1,4 +1,3 @@
-
 xml.latest_updated do
   if @package
 

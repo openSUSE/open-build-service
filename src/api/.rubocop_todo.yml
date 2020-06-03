@@ -11,34 +11,6 @@
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
-# Offense count: 5
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyleAlignWith, AutoCorrect, Severity.
-# SupportedStylesAlignWith: keyword, variable, start_of_line
-Layout/EndAlignment:
-  Exclude:
-    - 'app/controllers/group_controller.rb'
-    - 'app/controllers/search_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-
-# Offense count: 21
-# Cop supports --auto-correct.
-Layout/LeadingEmptyLines:
-  Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Layout/SpaceAroundMethodCallOperator:
-  Exclude:
-    - 'app/models/patchinfo.rb'
-    - 'spec/helpers/webui/request_helper_spec.rb'
-
-# Offense count: 1
-Lint/Debugger:
-  Exclude:
-    - 'spec/support/capybara.rb'
-
 # Offense count: 2
 Lint/DuplicateMethods:
   Exclude:

@@ -283,7 +283,7 @@ class Patchinfo
       issues << [
         issue_element['id'],
         issue_element['tracker'],
-        IssueTracker.find_by_name(issue_element['tracker']). try(:show_url_for, issue_element['id']).to_s,
+        IssueTracker.find_by_name(issue_element['tracker']).try(:show_url_for, issue_element['id']).to_s,
         issue_element['_content']
       ]
     end

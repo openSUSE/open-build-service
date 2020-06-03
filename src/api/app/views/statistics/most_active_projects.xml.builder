@@ -1,5 +1,3 @@
-
-
 xml.most_active do
   @projects.each do |project|
     xml.project(
