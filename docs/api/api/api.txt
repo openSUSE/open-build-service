@@ -26,41 +26,6 @@ GET /about
 
 XmlResult: about
 
-== Announcements
-
-GET /announcements
-
-  Get a list of all announcements.
-
-XmlResult: announcements
-
-POST /announcements
-
-  Create an announcement.
-
-XmlBody: new_announcement
-XmlResult: announcement
-
-GET /announcements/<id>
-
-  Get a specific announcement.
-
-XmlResult: announcement
-
-PUT /announcements/<id>
-
-  Update an announcement.
-
-XmlBody: new_announcement
-XmlResult: status
-
-DELETE /announcements/<id>
-
-  Delete an announcement.
-
-XmlBody: none
-XmlResult: status
-
 == Architectures
 
 GET /architectures
