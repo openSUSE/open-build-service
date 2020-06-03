@@ -81,6 +81,7 @@ class SearchController < ApplicationController
 
   def owner_package_or_project
     return if params[:project].blank?
+
     if params[:package].present?
       Package.get_by_project_and_name(params[:project], params[:package])
     else
@@ -253,6 +254,7 @@ class SearchController < ApplicationController
     unless items.empty?
       relation.each do |item|
         next if xml[item.id]
+
         xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
         xml[item.id].gsub!(/(..*)/, '  \\1') # indent it by two spaces, if line is not empty
       end
@@ -318,6 +320,7 @@ class SearchController < ApplicationController
         builder.project(name: prj_name) do
           packages.each do |pkg_id, pkg_name, pkg_prj|
             next if pkg_prj != prj_id
+
             builder.package(name: pkg_name) do
               values = attrib_values[pack2attrib[pkg_id]]
               unless values.nil?

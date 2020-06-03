@@ -43,9 +43,11 @@ class Distribution < ApplicationRecord
         Project::RemoteURL.load(prj, '/distributions.xml')
       end
       next if body.blank? # don't let broken remote instances break us
+
       xmlhash = Xmlhash.parse(body)
       xmlhash.elements('distribution') do |d|
         next if repositories.include?(d['reponame'])
+
         repositories << d['reponame']
         iconlist = []
         architecturelist = []

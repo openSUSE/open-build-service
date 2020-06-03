@@ -67,11 +67,13 @@ class Channel < ApplicationRecord
         next if cbl.project.nil?      && b['project']
         next if cbl.repository.nil?   && b['repository']
         next if cbl.architecture.nil? && b['arch']
+
         hasharray << b['binary']
       end
       hasharray.flatten!
       # no match? either not created or searched in the right way
       raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.empty?
+
       # update...
       _update_from_xml_binaries(cbl, hasharray)
     end
@@ -108,8 +110,10 @@ class Channel < ApplicationRecord
     # defined in channel
     channel_targets.each do |ct|
       next if mode == :skip_disabled && ct.disabled
+
       repo_name = ct.repository.extended_name
       next unless mode == :enable_all || !ct.disabled
+
       # add repositories
       unless package.project.repositories.find_by_name(repo_name)
         unless target_package.project.repositories.where(name: repo_name).exists?
@@ -150,6 +154,7 @@ class Channel < ApplicationRecord
       if project.present?
         project = Project.find_by_name(project)
         next unless project
+
         repository = project.repositories.find_by_name(p['repository']) if p['repository']
         next unless repository
       end
@@ -167,8 +172,10 @@ class Channel < ApplicationRecord
     xmlhash.elements('target').each do |p|
       prj = Project.find_by_name(p['project'])
       next unless prj
+
       r = prj.repositories.find_by_name(p['repository'])
       next unless r
+
       hasharray << { project: r.project,
                      repository: r, id_template: p['id_template'],
                      requires_issue: p['requires_issue'],

@@ -141,6 +141,7 @@ class PublicController < ApplicationController
       repo_string = bin['repository']
       next if bin.value(:arch) == 'src'
       next unless bin['filepath']
+
       binary_map[repo_string] ||= []
       binary_map[repo_string] << bin
     end
@@ -153,6 +154,7 @@ class PublicController < ApplicationController
         dist = Distribution.find_by_project_and_repository(pe.link.project.name, pe.link.name)
         next unless dist
         next if binary_map[repo.name].blank?
+
         dist_id = dist.id
         @binary_links[dist_id] ||= {}
         binary = binary_map[repo.name].select { |bin| bin.value(:name) == @pkg.name }.first

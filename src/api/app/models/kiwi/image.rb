@@ -102,6 +102,7 @@ module Kiwi
           Backend::Api::BuildResults::Binaries.available_in_project(project)
         else
           return {} if repositories.blank?
+
           obs_repository_paths = repositories.select { |url| url.starts_with?('obs://') }.map! { |url| url[6..-1] }
           non_obs_repository_urls = repositories.reject { |url| url.starts_with?('obs://') }
           Backend::Api::BuildResults::Binaries.available_in_repositories(project, non_obs_repository_urls, obs_repository_paths)
@@ -113,6 +114,7 @@ module Kiwi
       if package
         kiwi_file = package.kiwi_image_file
         return nil unless kiwi_file
+
         package.source_file(kiwi_file)
       else
         Kiwi::Image::DEFAULT_KIWI_BODY

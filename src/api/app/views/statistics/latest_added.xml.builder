@@ -11,6 +11,7 @@ xml.latest_added do
 
     ### item is a project
     next unless item.instance_of? Project
+
     xml.project(
       name: item.name,
       created: item.created_at.xmlschema

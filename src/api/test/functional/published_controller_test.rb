@@ -106,6 +106,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
       hashed = Xmlhash.parse(io.read)
       hashed.elements('package').each do |p|
         next unless (p['name'] == 'package' && p['arch'] == 'i586') || (p['name'] == 'package_newweaktags' && p['arch'] == 'x86_64')
+
         package_seen[p['name']] = true
         assert_not_nil p
         assert_equal 'GPLv2+', p['format']['rpm:license']
@@ -129,6 +130,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
           assert nil # unhandled src rpm
         end
         next unless File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
+
         # seems to be a SUSE system
         if p['format']['rpm:suggests'].nil?
           print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
@@ -159,6 +161,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   def test_suse_format
     # Ensure that it doesn't fail in non SUSE platforms TODO: Move this to a method
     return unless File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
+
     login_adrian
 
     # BACKEND: Test that tooling used in the backend produce correct content via the api in the frontend

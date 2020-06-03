@@ -23,6 +23,7 @@ module ModelHelper
         key = ''
         keys.each do |k|
           raise 'MissingKey', k unless hash.key?(k)
+
           key << "#{hash[k]}::"
         end
         if entries[key]
@@ -30,6 +31,7 @@ module ModelHelper
           modified = nil
           hash.each do |entry_key, entry_value|
             next if keys.include?(entry_key)
+
             if entry_value != entries[key][entry_key]
               entries[key][entry_key] = entry_value
               modified = true

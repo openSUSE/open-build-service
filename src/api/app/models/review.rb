@@ -82,6 +82,7 @@ class Review < ApplicationRecord
 
   def validate_not_self_assigned
     return unless persisted? && id == review_id
+
     errors.add(:review_id, 'recursive assignment')
   end
 
@@ -145,6 +146,7 @@ class Review < ApplicationRecord
     end
 
     raise ArgumentError, "too much information #{hash.inspect}" if hash.present?
+
     r
   end
 
@@ -182,6 +184,7 @@ class Review < ApplicationRecord
 
   def reviewers_for_obj(obj)
     return [] unless obj
+
     relationships = obj.relationships
     roles = relationships.where(role: Role.hashed['maintainer'])
     User.where(id: roles.users.pluck(:user_id)) + Group.where(id: roles.groups.pluck(:group_id))
@@ -190,9 +193,11 @@ class Review < ApplicationRecord
   def users_and_groups_for_review
     return [User.find_by_login!(by_user)] if by_user
     return [Group.find_by_title!(by_group)] if by_group
+
     if by_package
       obj = Package.find_by_project_and_name(by_project, by_package)
       return [] unless obj
+
       reviewers_for_obj(obj) + reviewers_for_obj(obj.project)
     else
       reviewers_for_obj(Project.find_by_name(by_project))
@@ -206,6 +211,7 @@ class Review < ApplicationRecord
   def reviewable_by?(opts)
     return by_user == opts[:by_user] if by_user
     return by_group == opts[:by_group] if by_group
+
     reviewable_by = by_project == opts[:by_project]
     if by_package
       reviewable_by && by_package == opts[:by_package]
@@ -238,6 +244,7 @@ class Review < ApplicationRecord
     return false unless user
     return user.login == by_user if by_user
     return user.is_in_group?(by_group) if by_group
+
     matches_maintainers?(user)
   end
 
@@ -260,6 +267,7 @@ class Review < ApplicationRecord
 
   def matches_maintainers?(user)
     return false unless by_project
+
     if by_package
       user.has_local_permission?('change_package', Package.find_by_project_and_name(by_project, by_package))
     else

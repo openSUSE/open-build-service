@@ -10,6 +10,7 @@ module Webui::Staging::WorkflowHelper
     total = to_build + final
 
     return 100 if total == 0
+
     # if we have building repositories, make sure we don't exceed 99
     [final * 100 / total, 99].min
   end

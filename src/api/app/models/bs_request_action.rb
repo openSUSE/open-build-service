@@ -44,6 +44,7 @@ class BsRequestAction < ApplicationRecord
 
   def self.find_sti_class(type_name)
     return super if type_name.nil?
+
     type_to_class_name(type_name) || super
   end
 
@@ -55,6 +56,7 @@ class BsRequestAction < ApplicationRecord
     # now remove things from hash
     a.store_from_xml(hash)
     raise ArgumentError, "too much information #{hash.inspect}" if hash.present?
+
     a
   end
 
@@ -169,6 +171,7 @@ class BsRequestAction < ApplicationRecord
 
     self.group_name = g.delete('name') { raise ArgumentError, 'a group without name' }
     raise ArgumentError, 'role already taken' if role
+
     self.role = g.delete('role')
     raise ArgumentError, "too much information #{g.inspect}" if g.present?
   end
@@ -268,6 +271,7 @@ class BsRequestAction < ApplicationRecord
 
   def find_action_with_same_target(other_bs_request)
     return nil if other_bs_request.blank?
+
     other_bs_request.bs_request_actions.find do |other_bs_request_action|
       target_project == other_bs_request_action.target_project &&
         target_package == other_bs_request_action.target_package
@@ -282,6 +286,7 @@ class BsRequestAction < ApplicationRecord
     if tprj.class == String
       raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.'
     end
+
     tpkg = nil
     if target_package
       if is_maintenance_release?
@@ -383,6 +388,7 @@ class BsRequestAction < ApplicationRecord
   def source_cleanup
     source_project = Project.find_by_name(self.source_project)
     return unless source_project
+
     if (source_project.packages.count == 1 && ::Configuration.cleanup_empty_projects) || !source_package
 
       # remove source project, if this is the only package and not a user's home project
@@ -483,10 +489,12 @@ class BsRequestAction < ApplicationRecord
           result.search('status').each do |status|
             package = status.attributes['package']
             next unless status.attributes['versrel']
+
             vrel = status.attributes['versrel'].value
             if versrel[repo][package] && versrel[repo][package] != vrel
               raise VersionReleaseDiffers, "#{package} has a different version release in same repository"
             end
+
             versrel[repo][package] ||= vrel
           end
         end
@@ -503,10 +511,12 @@ class BsRequestAction < ApplicationRecord
               next if rt.trigger != 'maintenance'
               next unless rt.target_repository.project.is_maintenance_release?
               raise MultipleReleaseTargets if release_target && release_target != rt.target_repository.project
+
               release_target = rt.target_repository.project
             end
           end
           raise InvalidReleaseTarget unless release_target
+
           tprj = release_target
         end
       end
@@ -551,6 +561,7 @@ class BsRequestAction < ApplicationRecord
           new_action = submit_action
         else # non-channel package
           next unless maintenance_trigger?(pkg.project.repositories, tprj.repositories)
+
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource, 'According to the source link of package ' \
                                             "#{pkg.project.name}/#{pkg.name} it would go to project" \
@@ -560,6 +571,7 @@ class BsRequestAction < ApplicationRecord
       end
       # no action, nothing to do
       next unless new_action
+
       # check if the source contains really a diff or we can skip the entire action
       if new_action.action_type.in?([:submit, :maintenance_incident]) && !new_action.contains_change?
         # submit contains no diff, drop it again
@@ -622,6 +634,7 @@ class BsRequestAction < ApplicationRecord
     if action_type == :delete || action_type == :add_role || action_type == :set_bugowner
       # check existence of target
       raise UnknownProject, 'No target project specified' unless tprj
+
       if action_type == :add_role
         raise UnknownRole, 'No role specified' unless role
       end
@@ -637,6 +650,7 @@ class BsRequestAction < ApplicationRecord
           raise IllegalRequest, 'Maintenance requests accept only projects as target'
         end
         raise 'We should have expanded a target_project' unless target_project
+
         # validate project type
         prj = Project.get_by_name(target_project)
         unless prj.kind.in?(['maintenance', 'maintenance_incident'])
@@ -673,6 +687,7 @@ class BsRequestAction < ApplicationRecord
       if target_package &&
          Package.exists_by_project_and_name(target_project, target_package, follow_project_links: false)
         raise MissingAction unless contains_change?
+
         return
       end
     end
@@ -680,6 +695,7 @@ class BsRequestAction < ApplicationRecord
     # complete in formation available already?
     return if action_type == :submit && target_package
     return if action_type == :maintenance_release && target_package
+
     if action_type == :maintenance_incident && target_releaseproject && source_package
       pkg = Package.get_by_project_and_name(source_project, source_package)
       prj = Project.get_by_name(target_releaseproject).update_instance
@@ -716,6 +732,7 @@ class BsRequestAction < ApplicationRecord
                                                      { follow_project_links: true,
                                                        follow_multibuild: true,
                                                        check_update_project: true })
+
     tpkg = Package.get_by_project_and_name(target_project,
                                            target_package || source_package,
                                            { follow_project_links: true,
@@ -743,6 +760,7 @@ class BsRequestAction < ApplicationRecord
         # it is a remote project
         return
       end
+
       # produce the same exception for webui
       Package.get_by_project_and_name(source_project, source_package)
     end
@@ -750,6 +768,7 @@ class BsRequestAction < ApplicationRecord
       # a remote package
       return
     end
+
     sp.check_source_access!
   end
 
@@ -781,6 +800,7 @@ class BsRequestAction < ApplicationRecord
 
   def set_sourceupdate_default(user)
     return if sourceupdate || [:submit, :maintenance_incident].exclude?(action_type)
+
     update(sourceupdate: 'cleanup') if target_project && user.branch_project_name(target_project) == source_project
   end
 

@@ -80,6 +80,7 @@ class Project
           end
         else
           raise SaveError, 'unable to link against myself' if link == project
+
           project.linking_to.create!(project: project,
                                      linked_db_project: link,
                                      vrevmode: l['vrevmode'],
@@ -108,6 +109,7 @@ class Project
           if develprj == project
             raise SaveError, 'Devel project can not point to itself'
           end
+
           project.develproject = develprj
         end
       end
@@ -120,6 +122,7 @@ class Project
         if processed[prj.name]
           raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
         end
+
         processed[prj.name] = 1
         prj = prj.develproject
         prj = project if prj && prj.id == project.id
@@ -135,6 +138,7 @@ class Project
       xmlhash.get('maintenance').elements('maintains') do |maintains|
         pn = maintains['project']
         next if olds.delete(pn)
+
         maintained_project = Project.get_by_name(pn)
         MaintainedProject.create(project: maintained_project, maintenance_project: project)
       end
@@ -219,6 +223,7 @@ class Project
         unless link_repo
           raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
         end
+
         current_repo.path_elements.new(link: link_repo, position: position)
         position += 1
       end
@@ -228,6 +233,7 @@ class Project
 
     def check_for_empty_repo_list(list, error_prefix)
       return if list.empty?
+
       linking_repos = list.map { |x| x.repository.project.name + '/' + x.repository.name }.join("\n")
       raise SaveError, error_prefix + "\n" + linking_repos
     end
@@ -274,6 +280,7 @@ class Project
         unless target_repo
           raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'"
         end
+
         current_repo.hostsystem = target_repo
       else
         current_repo.hostsystem = nil
@@ -321,6 +328,7 @@ class Project
 
         repository = DownloadRepository.new(dod_attributes)
         raise SaveError, repository.errors.full_messages.to_sentence unless repository.valid?
+
         repository
       end
       current_repo.download_repositories.replace(dod_repositories)

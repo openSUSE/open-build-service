@@ -65,9 +65,11 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
       'declined'
     when 'HistoryElement::RequestReopened'
       return 'review' if request.reviews.find_by(state: :new).present?
+
       'new' # when no reviews or all of them were accepted
     when 'HistoryElement::ReviewAccepted'
       return 'declined' if last_history_element.description == 'Declined via staging workflow.'
+
       'review'
     else # less accurate result for any other case that was overlooked
       'review'

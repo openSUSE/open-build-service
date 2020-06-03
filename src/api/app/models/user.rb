@@ -136,6 +136,7 @@ class User < ApplicationRecord
     return if login.in?([NOBODY_LOGIN, 'Admin'])
     # may be disabled via Configuration setting
     return unless can_create_project?(home_project_name)
+
     # find or create the project
     project = Project.find_by(name: home_project_name)
     return if project
@@ -247,6 +248,7 @@ class User < ApplicationRecord
   # So the controller needs to require login if using this (or models using it)
   def self.session!
     raise ArgumentError, 'Requiring user, but found nobody' unless session
+
     current
   end
 
@@ -268,6 +270,7 @@ class User < ApplicationRecord
     admin = CONFIG['default_admin'] || 'Admin'
     user = User.find_by_login(admin)
     raise NotFoundError, "Admin not found, user #{admin} has not admin permissions" unless user.is_admin?
+
     user
   end
 
@@ -281,6 +284,7 @@ class User < ApplicationRecord
   def self.find_by_login!(login)
     user = not_deleted.find_by(login: login)
     return user if user
+
     raise NotFoundError, "Couldn't find User with login = #{login}"
   end
 
@@ -410,11 +414,13 @@ class User < ApplicationRecord
 
   def is_admin?
     return @is_admin unless @is_admin.nil?
+
     @is_admin = roles.where(title: 'Admin').exists?
   end
 
   def is_staff?
     return @is_staff unless @is_staff.nil?
+
     @is_staff = roles.where(title: 'Staff').exists?
   end
 
@@ -492,6 +498,7 @@ class User < ApplicationRecord
     return true if is_admin?
     return true if has_global_permission?('change_package')
     return true if has_local_permission?('change_package', package)
+
     false
   end
 
@@ -508,9 +515,11 @@ class User < ApplicationRecord
     return true if /^#{home_project_name}:/ =~ project_name && Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission?('create_project')
+
     parent_project = Project.new(name: project_name).parent
     return false if parent_project.nil?
     return true  if is_admin?
+
     has_local_permission?('create_project', parent_project)
   end
 
@@ -522,6 +531,7 @@ class User < ApplicationRecord
   def attribute_modifier_rule_matches?(rule)
     return false if rule.user && rule.user != self
     return false if rule.group && !is_in_group?(rule.group)
+
     true
   end
 
@@ -541,6 +551,7 @@ class User < ApplicationRecord
   def attribute_modification_rule_matches?(rule, object)
     return false unless attribute_modifier_rule_matches?(rule)
     return false if rule.role && !has_local_role?(rule.role, object)
+
     true
   end
 
@@ -581,6 +592,7 @@ class User < ApplicationRecord
       logger.debug "running local role package check: user #{login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(role_id: role.id, user_id: id)
       return true if rels.exists?
+
       rels = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: role.id)
       return true if rels.exists?
 
@@ -599,6 +611,7 @@ class User < ApplicationRecord
   def has_local_permission?(perm_string, object)
     roles = Role.ids_with_permission(perm_string)
     return false unless roles
+
     parent = nil
     case object
     when Package
@@ -616,6 +629,7 @@ class User < ApplicationRecord
     end
     rel = object.relationships.where(user_id: id).where('role_id in (?)', roles)
     return true if rel.exists?
+
     rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where('role_id in (?)', roles)
     return true if rel.exists?
 
@@ -637,6 +651,7 @@ class User < ApplicationRecord
     # lock also all home projects to avoid unneccessary builds
     Project.where('name like ?', "#{home_project_name}%").find_each do |prj|
       next if prj.is_locked?
+
       prj.lock('User account got locked')
     end
   end
@@ -878,6 +893,7 @@ class User < ApplicationRecord
 
   def proxy_realname(env)
     return unless env['HTTP_X_FIRSTNAME'].present? && env['HTTP_X_LASTNAME'].present?
+
     env['HTTP_X_FIRSTNAME'].force_encoding('UTF-8') + ' ' + env['HTTP_X_LASTNAME'].force_encoding('UTF-8')
   end
 
@@ -932,6 +948,7 @@ class User < ApplicationRecord
 
   def password_validation
     return if password_digest || deprecated_password
+
     errors.add(:password, 'can\'t be blank')
   end
 
@@ -944,6 +961,7 @@ class User < ApplicationRecord
     return true if has_global_permission?('change_project')
     return true if has_local_permission?('change_project', project)
     return true if project.name == home_project_name # users tend to remove themself, allow to re-add them
+
     false
   end
 

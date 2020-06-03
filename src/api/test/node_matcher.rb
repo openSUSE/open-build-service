@@ -41,6 +41,7 @@ class NodeMatcher #:nodoc:
     def keys_to_symbols(hash)
       Hash[hash.keys.map do |k|
         raise "illegal key #{k.inspect}" unless k.respond_to?(:to_sym)
+
         [k.to_sym, hash[k]]
       end]
     end
@@ -52,6 +53,7 @@ class NodeMatcher #:nodoc:
 
   def find_matching(node)
     return node if match(node, @conditions) == true
+
     node.element_children.detect { |child| find_matching(child) }
   end
 
@@ -241,6 +243,7 @@ class NodeMatcher #:nodoc:
 
   def matches_child_opts(node, opts)
     return true unless opts
+
     matches = []
     node.element_children.each do |child|
       if opts[:only]
@@ -252,6 +255,7 @@ class NodeMatcher #:nodoc:
 
     opts.each do |key, value|
       next if key == :only
+
       case key
       when :count
         if value.is_a?(Integer)

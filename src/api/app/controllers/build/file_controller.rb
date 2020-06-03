@@ -86,6 +86,7 @@ module Build
     def regexp
       # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
       return if request.query_string
+
       # check if binary exists and for size
       regexp = /name=["']#{Regexp.quote(params[:filename])}["'].*size=["']([^"']*)["']/
       @regexp ||= Backend::Api::BuildResults::Binaries.files(params[:project], params[:repository], params[:arch], params[:package]).match(regexp)

@@ -31,12 +31,14 @@ class IssueTracker < ApplicationRecord
   # Generates a URL to display a given issue in the upstream issue tracker
   def show_url_for(issue, html = nil)
     return unless issue
+
     url = show_url.gsub('@@@', issue)
     if url && kind == 'github'
       url.gsub!(/(github#|gh#)/, '')
       url.gsub!('#', '/issues/')
     end
     return "<a href=\"#{url}\">#{CGI.escapeHTML(show_label_for(issue))}</a>" if html
+
     url
   end
 
@@ -81,6 +83,7 @@ class IssueTracker < ApplicationRecord
     return update_issues_bugzilla if kind == 'bugzilla'
     return update_issues_github if kind == 'github'
     return update_issues_cve if kind == 'cve'
+
     false
   end
 
@@ -113,6 +116,7 @@ class IssueTracker < ApplicationRecord
   def self.update_all_issues
     IssueTracker.all.find_each do |t|
       next unless t.enable_fetch
+
       IssueTrackerUpdateIssuesJob.perform_later(t.id)
     end
   end
@@ -121,6 +125,7 @@ class IssueTracker < ApplicationRecord
 
   def delayed_write_to_backend
     return unless CONFIG['global_write_through']
+
     IssueTrackerWriteToBackendJob.perform_later
   end
 
@@ -326,6 +331,7 @@ class IssueTracker < ApplicationRecord
 
   def update_package_meta
     return unless CONFIG['global_write_through']
+
     # We need to parse again ALL sources ...
     UpdatePackageMetaJob.perform_later
   end

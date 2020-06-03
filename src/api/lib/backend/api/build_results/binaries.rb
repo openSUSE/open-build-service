@@ -69,6 +69,7 @@ module Backend
         # @return [Hash]
         def self.available_in_repositories(project_name, repository_urls, repository_paths)
           return {} if repository_paths.empty? && repository_urls.empty?
+
           transform_binary_packages_response(http_get(['/build/:project/_availablebinaries', project_name],
                                                       params: { url: repository_urls, path: repository_paths }, expand: [:url, :path]))
         end
@@ -80,6 +81,7 @@ module Backend
           list = Hash.new([])
           parsed_response = Xmlhash.parse(response)
           return list if parsed_response.blank?
+
           packages = [parsed_response['packages']].flatten
           packages.each do |build|
             architectures_names = [build['arch']].flatten

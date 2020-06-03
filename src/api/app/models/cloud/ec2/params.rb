@@ -21,6 +21,7 @@ module Cloud
 
       def valid_ami_name
         return if Project.valid_name?(ami_name)
+
         errors.add(:ami_name, "'#{ami_name}' is not a valid ami name (only letters, numbers, dots and hyphens)")
       end
     end

@@ -44,6 +44,7 @@ module Cloud
     def validate_dependencies
       [target_params, backend_upload_job, user_upload_job].each do |dependency|
         next if dependency.blank? || dependency.valid?
+
         dependency.errors.full_messages.each do |msg|
           errors.add(:base, msg)
         end

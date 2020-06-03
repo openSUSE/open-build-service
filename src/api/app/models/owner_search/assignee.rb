@@ -34,6 +34,7 @@ module OwnerSearch
       extract_from_container(owner, pkg.project, @rolefilter)
       # still not matched? Ignore it
       return owner if owner.user_or_group?
+
       nil
     end
 
@@ -43,6 +44,7 @@ module OwnerSearch
       owner = create_owner(pkg)
       # no filter defined, so do not check for roles and just return container
       return owner if @rolefilter.empty?
+
       # lookup in package container
       extract_from_container(owner, pkg, @rolefilter)
 

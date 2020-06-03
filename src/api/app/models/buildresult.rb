@@ -46,6 +46,7 @@ class Buildresult
       xml = nil
     end
     return Xmlhash::XMLHash.new({}) unless xml
+
     Xmlhash.parse(xml)
   end
 
@@ -96,6 +97,7 @@ class Buildresult
   def self.code2index(code)
     index = AVAIL_STATUS_VALUES[code.to_sym]
     return index if index
+
     raise ArgumentError, "code '#{code}' unknown #{AVAIL_STATUS_VALUES.inspect}"
   end
 end

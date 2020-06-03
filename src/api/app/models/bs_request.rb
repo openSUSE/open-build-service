@@ -118,6 +118,7 @@ class BsRequest < ApplicationRecord
       # the database id must not be exposed to the outside
       raise NotFoundError, "Couldn't find request with id '#{number}'"
     end
+
     r
   end
 
@@ -128,6 +129,7 @@ class BsRequest < ApplicationRecord
     if [:project, :user, :package].all? { |filter| opts[filter].blank? }
       raise 'This call requires at least one filter, either by user, project or package'
     end
+
     roles = opts[:roles] || []
     states = opts[:states] || []
 
@@ -159,6 +161,7 @@ class BsRequest < ApplicationRecord
     hashed = Xmlhash.parse(xml)
 
     raise SaveError, 'Failed parsing the request xml' unless hashed
+
     new_from_hash(hashed)
   end
 
@@ -202,6 +205,7 @@ class BsRequest < ApplicationRecord
       request.commenter = state.delete('who')
       unless request.commenter
         raise 'no one logged in and no user in request' unless User.session
+
         request.commenter = User.session!.login
       end
       # to be overwritten if we find history
@@ -309,16 +313,20 @@ class BsRequest < ApplicationRecord
     errors.add(:creator, 'No creator defined') unless creator
     # Allow admins to create requests for deleted or inactive users
     return if User.admin_session?
+
     user = User.not_deleted.find_by(login: creator)
     # FIXME: We should run the authorization on controller level
     raise APIError unless User.possibly_nobody.can_modify_user?(user)
+
     errors.add(:creator, "Invalid creator specified #{creator}") unless user
     return if user.is_active?
+
     errors.add(:creator, "Login #{user.login} is not an active user")
   end
 
   def assign_number
     return if number
+
     # to assign a unique and steady incremental number.
     # Using MySQL auto-increment mechanism is not working on clusters.
     BsRequest.transaction do
@@ -335,6 +343,7 @@ class BsRequest < ApplicationRecord
     end
 
     return unless superseded_by && state != :superseded
+
     errors.add(:superseded_by, 'Superseded_by should not be set')
   end
 
@@ -453,6 +462,7 @@ class BsRequest < ApplicationRecord
 
   def obsolete_reviews(opts)
     return false unless opts[:by_user] || opts[:by_group] || opts[:by_project] || opts[:by_package]
+
     reviews.each do |review|
       next unless review.reviewable_by?(opts)
 
@@ -535,6 +545,7 @@ class BsRequest < ApplicationRecord
       target_project = Project.get_by_name(action.target_project)
       # create a new incident if needed
       next unless target_project.is_maintenance?
+
       # create incident if it is a maintenance project
       incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
       opts[:check_for_patchinfo] = true
@@ -542,6 +553,7 @@ class BsRequest < ApplicationRecord
       unless incident_project.name.start_with?(target_project.name)
         raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
       end
+
       action.target_project = incident_project.name
       action.save!
     end
@@ -590,6 +602,7 @@ class BsRequest < ApplicationRecord
       if state == :new || state == :review
         reviews.each do |review|
           next unless review.state != :accepted
+
           # FIXME3.0 review history?
           review.state = :new
           review.save!
@@ -626,6 +639,7 @@ class BsRequest < ApplicationRecord
     unless state == :review || (state == :new && state == :new)
       raise InvalidStateError, 'request is not in review state'
     end
+
     reviewer = User.find_by_login!(opts[:reviewer])
 
     Review.transaction do
@@ -636,6 +650,7 @@ class BsRequest < ApplicationRecord
         raise Review::NotFoundError unless user_review
         raise InvalidStateError, 'review is not in new state' unless user_review.state == :new
         raise Review::NotFoundError, 'Not an assigned review' unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+
         user_review.destroy
       elsif user_review
         review_comment = _assignreview_update_reviews(reviewer, opts)
@@ -671,16 +686,19 @@ class BsRequest < ApplicationRecord
 
   def approve(opts)
     raise InvalidStateError, "already approved by #{approver}" if approver
+
     approval_handling(User.session!, opts)
   end
 
   def cancelapproval(opts)
     raise InvalidStateError, 'request is not approved' unless approver
+
     approval_handling(nil, opts)
   end
 
   def calculate_state_from_reviews
     return :declined if reviews.declined.exists?
+
     if reviews.all?(&:accepted?)
       :new
     else
@@ -709,6 +727,7 @@ class BsRequest < ApplicationRecord
       unless state == :review || (state == :new && new_review_state == :new)
         raise InvalidStateError, 'request is not in review state'
       end
+
       check_if_valid_review!(opts)
       unless new_review_state.in?([:new, :accepted, :declined, :superseded])
         raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}"
@@ -747,6 +766,7 @@ class BsRequest < ApplicationRecord
 
   def check_if_valid_review!(opts)
     return if opts[:by_user] || opts[:by_group] || opts[:by_project]
+
     raise InvalidReview
   end
 
@@ -761,6 +781,7 @@ class BsRequest < ApplicationRecord
       reviewer: User.session!.login
     )
     return newreview if newreview.valid?
+
     raise InvalidReview, 'Review invalid: ' + newreview.errors.full_messages.join("\n")
   end
 
@@ -825,6 +846,7 @@ class BsRequest < ApplicationRecord
     end
 
     return unless touched
+
     save!
     HistoryElement::RequestSetIncident.create(p)
   end
@@ -834,6 +856,7 @@ class BsRequest < ApplicationRecord
     return if state_was.to_s == state.to_s
     # new->review && review->new are not worth an event - it's just spam
     return if state.to_s.in?(intermediate_state) && state_was.to_s.in?(intermediate_state)
+
     Event::RequestStatechange.create(event_parameters)
   end
 
@@ -1082,15 +1105,19 @@ class BsRequest < ApplicationRecord
     reviewers.each do |r|
       if r.class == User
         next if reviews.any? { |a| a.by_user == r.login }
+
         reviews.new(by_user: r.login, state: :new)
       elsif r.class == Group
         next if reviews.any? { |a| a.by_group == r.title }
+
         reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
         next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
+
         reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
         next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
+
         reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
@@ -1170,6 +1197,7 @@ class BsRequest < ApplicationRecord
       history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.session!.id)
     end
     raise Review::NotFoundError unless review_comment
+
     review_comment
   end
 

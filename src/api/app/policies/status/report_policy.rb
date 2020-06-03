@@ -5,6 +5,7 @@ class Status::ReportPolicy < ApplicationPolicy
 
   def create?
     return false if user.blank?
+
     record.projects && record.projects.all? { |project| user.can_modify?(project) }
   end
 

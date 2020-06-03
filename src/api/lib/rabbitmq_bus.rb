@@ -19,6 +19,7 @@ class RabbitmqBus
 
   def self.publish(event_routing_key, event_payload)
     return unless CONFIG['amqp_options']
+
     start_connection
     wrapped_exchange.publish(event_payload, routing_key: event_routing_key)
   end
@@ -27,6 +28,7 @@ class RabbitmqBus
   # and reuse them
   def self.wrapped_exchange
     return exchange if exchange
+
     connection.start
     rabbitmq_channel = connection.create_channel
     if CONFIG['amqp_exchange_name']

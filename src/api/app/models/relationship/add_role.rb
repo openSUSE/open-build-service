@@ -13,6 +13,7 @@ class Relationship::AddRole
 
   def add_role
     return if duplicate?
+
     relationship = package_or_project.relationships.build(user: user, group: group, role: role)
     relationship.delete if relationship.invalid?
   end
@@ -24,6 +25,7 @@ class Relationship::AddRole
   def duplicate?
     return unless package_or_project.relationships.where(user: user, group: group, role: role).exists?
     raise SaveError, 'Relationship already exists' if check
+
     true
   end
 
@@ -40,6 +42,7 @@ class Relationship::AddRole
   def check_role!
     self.role = Role.find_by_title!(role) unless role.is_a?(Role)
     return unless role.global
+
     # only nonglobal roles may be set in an object
     raise SaveError, "tried to set global role '#{role.title}' in #{package_or_project.class} '#{package_or_project.name}'"
   end

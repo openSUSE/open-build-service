@@ -24,11 +24,13 @@ module OwnerSearch
       # Find all marked projects
       projects = Project.find_by_attribute_type(attribute)
       return projects unless projects.empty?
+
       raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
     end
 
     def project_attrib(project)
       return unless project
+
       project.attribs.find_by(attrib_type: attribute)
     end
 
@@ -52,6 +54,7 @@ module OwnerSearch
 
     def filter_roles(relation, rolefilter)
       return relation if rolefilter.empty?
+
       role_ids = rolefilter.map { |r| Role.find_by_title!(r).id }
       relation.where(role_id: role_ids)
     end
@@ -72,6 +75,7 @@ module OwnerSearch
       rel = rel.where(group: group) if group
       rel.each do |p|
         next unless p.group.any_confirmed_users?
+
         owner.groups ||= {}
         entries = owner.groups.fetch(p.role.title, []) << p.group
         owner.groups[p.role.title] = entries

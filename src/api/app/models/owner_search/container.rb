@@ -24,6 +24,7 @@ module OwnerSearch
       owner.filter = @filter
       extract_from_container(owner, container, @filter, nil)
       return if owner.users.nil? && owner.groups.nil?
+
       @maintainers << owner
     end
 

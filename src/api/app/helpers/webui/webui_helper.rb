@@ -6,6 +6,7 @@ module Webui::WebuiHelper
 
   def bugzilla_url(email_list = '', desc = '')
     return '' if @configuration['bugzilla_url'].blank?
+
     assignee = email_list.first if email_list
     if email_list.length > 1
       cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
@@ -122,6 +123,7 @@ module Webui::WebuiHelper
 
   def repository_state_class(outdated, status)
     return 'outdated' if outdated
+
     return status =~ /broken|building|finished|publishing|published/ ? status : 'default'
   end
 
@@ -161,6 +163,7 @@ module Webui::WebuiHelper
 
   def force_utf8_and_transform_nonprintables(text)
     return '' if text.blank?
+
     text.force_encoding('UTF-8')
     unless text.valid_encoding?
       text = 'The file you look at is not valid UTF-8 text. Please convert the file.'
@@ -195,6 +198,7 @@ module Webui::WebuiHelper
 
   def next_codemirror_uid
     return @codemirror_editor_setup = 0 unless @codemirror_editor_setup
+
     @codemirror_editor_setup += 1
   end
 
@@ -291,12 +295,14 @@ module Webui::WebuiHelper
 
   def word_break(string, length = 80)
     return '' unless string
+
     # adds a <wbr> tag after an amount of given characters
     safe_join(string.scan(/.{1,#{length}}/), '<wbr>'.html_safe)
   end
 
   def toggle_sliced_text(text, slice_length = 50, id = "toggle_sliced_text_#{Time.now.to_f.to_s.delete('.')}")
     return text if text.to_s.length < slice_length
+
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
     short = content_tag(:span, 'data-toggle-id' => id) do
       content_tag(:span, text.slice(0, slice_length) + ' ') +
@@ -321,6 +327,7 @@ module Webui::WebuiHelper
 
   def image_tag_for(object, size: 500, custom_class: 'img-fluid')
     return unless object
+
     alt = "#{object.name}'s avatar"
     image_tag(gravatar_icon(object.email, size), alt: alt, size: size, title: object.name, class: custom_class)
   end

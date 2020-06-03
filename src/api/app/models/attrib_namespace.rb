@@ -37,6 +37,7 @@ class AttribNamespace < ApplicationRecord
     if !node['user'] && !node['group']
       raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
     end
+
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']
     new_rule[:group] = Group.find_by_title!(node['group']) if node['group']

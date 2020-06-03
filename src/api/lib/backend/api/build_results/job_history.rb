@@ -14,6 +14,7 @@ module Backend
             return return_value
           end
           return results if raw
+
           build_local_jobhistory(jobhistory_xml: results)
         end
 
@@ -28,6 +29,7 @@ module Backend
             return return_value
           end
           return results if raw
+
           build_local_jobhistory(jobhistory_xml: results, overwrite_attributes: { repository: repository_name, arch: arch_name })
         end
 
@@ -42,6 +44,7 @@ module Backend
             return return_value
           end
           return results if raw
+
           build_local_jobhistory(jobhistory_xml: results, overwrite_attributes: { repository: repository_name, arch: arch_name })
         end
 

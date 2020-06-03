@@ -46,6 +46,7 @@ module Kiwi
     #### Instance methods (public and then protected/private)
     def name
       return source_path.to_s.tr('/', '_') if attributes['alias'].blank?
+
       attributes['alias']
     end
 
@@ -53,11 +54,14 @@ module Kiwi
       return if source_path == 'obsrepositories:/'
       return if source_path =~ /^(dir|iso|smb|this):\/\/.+/
       return if source_path =~ /\A#{URI.regexp(['ftp', 'http', 'https', 'plain'])}\z/
+
       if source_path_for_obs_repository?
         return if repo_type == 'rpm-md'
+
         errors.add(:repo_type, "should be 'rpm-md' for obs:// repositories")
       end
       return if source_path_for_opensuse_repository?
+
       errors.add(:source_path, 'has an invalid format')
     end
 
@@ -87,11 +91,13 @@ module Kiwi
 
     def project_for_type_obs
       return '' unless source_path
+
       source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 1)
     end
 
     def repository_for_type_obs
       return '' unless source_path
+
       source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 2)
     end
 

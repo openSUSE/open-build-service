@@ -92,6 +92,7 @@ module StagingProject
 
     reviews.each_with_object([]) do |review, collected|
       next if review.by_project == name
+
       extracted = extract_missing_reviews(request, review)
       collected << extracted
       @missing_reviews_of_st_project << extracted
@@ -120,6 +121,7 @@ module StagingProject
   def assign_managers_group(managers)
     role = Role.find_by_title!('maintainer')
     return if relationships.find_by(group: managers, role: role)
+
     Relationship.add_group(self, managers, role, nil, true)
   end
 
@@ -147,6 +149,7 @@ module StagingProject
 
   def force_acceptable?
     return false if overall_state.in?([:empty, :unacceptable, :accepting])
+
     # won't force accept missing reviews, but we can skip
     # building, testing and failing projects
     missing_reviews.empty?
@@ -167,9 +170,11 @@ module StagingProject
     return :accepting if Delayed::Job.where("handler LIKE '%job_class: StagingProjectAcceptJob% project_id: #{id}%'").exists?
     return :empty if staged_requests.blank?
     return :unacceptable if untracked_requests.present? || staged_requests.obsolete.exists?
+
     bc_state = build_or_check_state
     return bc_state if bc_state
     return :review if missing_reviews.present?
+
     :acceptable
   end
 
@@ -179,6 +184,7 @@ module StagingProject
     return :failed if broken_packages.present?
     # check_state
     return :testing if missing_checks.present? || checks.pending.exists?
+
     :failed if checks.failed.exists?
   end
 
@@ -202,6 +208,7 @@ module StagingProject
       code = status.get('code')
 
       next unless code.in?(['broken', 'failed', 'unresolvable'])
+
       @broken_packages << { package: status['package'],
                             project: name,
                             state: code,

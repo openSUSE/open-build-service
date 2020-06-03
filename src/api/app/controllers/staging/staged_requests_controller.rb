@@ -68,6 +68,7 @@ class Staging::StagedRequestsController < Staging::StagingController
   def set_staging_project
     @staging_project = @staging_workflow.staging_projects.find_by(name: params[:staging_project_name])
     return if @staging_project
+
     render_error(
       status: 404,
       errorcode: 'not_found',
@@ -77,6 +78,7 @@ class Staging::StagedRequestsController < Staging::StagingController
 
   def check_overall_state
     return if @staging_project.overall_state != :accepting
+
     render_error(
       status: 424,
       errorcode: 'staging_project_not_in_acceptable_state',

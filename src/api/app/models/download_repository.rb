@@ -18,6 +18,7 @@ class DownloadRepository < ApplicationRecord
     # Workaround for rspec validation test (validate_presence_of(:repository_id))
     return unless repository
     return if repository.architectures.pluck(:name).include?(arch)
+
     errors.add(:base, 'Architecture has to be available via repository association')
   end
 end

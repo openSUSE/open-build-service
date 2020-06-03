@@ -42,6 +42,7 @@ module Webui::UserHelper
   def requester_str(creator, requester_user, requester_group)
     # we don't need to show the requester if he is the same as the creator
     return if creator == requester_user
+
     if requester_user
       "the user #{user_with_realname_and_icon(requester_user, no_icon: true)}".html_safe
     elsif requester_group

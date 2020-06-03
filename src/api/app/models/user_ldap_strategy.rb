@@ -49,6 +49,7 @@ class UserLdapStrategy
     end
 
     return if result.empty?
+
     result
   end
   private_class_method :search_ldap
@@ -246,6 +247,7 @@ class UserLdapStrategy
       # ruby-ldap returns true if password is empty
       # https://github.com/ruby-ldap/ruby-net-ldap/issues/5
       return if password.blank?
+
       # Don't match the passwd locally, try to bind to the ldap server
       user_con = initialize_ldap_con(user['dn'], password)
       if user_con.nil?
@@ -311,6 +313,7 @@ class UserLdapStrategy
   # and password
   def self.initialize_ldap_con(user_name, password)
     return unless defined?(CONFIG['ldap_servers'])
+
     require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(':')
 

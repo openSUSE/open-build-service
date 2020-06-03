@@ -37,6 +37,7 @@ class Webui::RepositoriesController < Webui::WebuiController
 
     return unless @distributions.empty?
     redirect_to(action: 'new', project: @project) && return unless User.admin_session?
+
     redirect_to(new_interconnect_path,
                 alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
   end

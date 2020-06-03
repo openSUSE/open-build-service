@@ -17,6 +17,7 @@ class SchemaTest < ActiveSupport::TestCase
         end
       end
       next unless io
+
       testresult = io.read
       io.close
       assert $CHILD_STATUS == 0, "#{testfile} does not validate against #{f} -> #{testresult}"

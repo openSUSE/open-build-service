@@ -137,6 +137,7 @@ class Webui::PackageController < Webui::WebuiController
     project_repositories = dependant_project.remoteurl.blank? ? dependant_project.repositories.pluck(:name) : []
     [:repository, :dependant_repository].each do |repo_key|
       next if project_repositories.include?(params[repo_key])
+
       flash[:error] = "Repository '#{params[repo_key]}' is invalid."
       redirect_back(fallback_location: project_show_path(project: @project.name))
       return
@@ -152,6 +153,7 @@ class Webui::PackageController < Webui::WebuiController
     @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(params[:dependant_project], '_repository', params[:dependant_repository],
                                                                   @arch, params[:dependant_name])
     return if @fileinfo # avoid displaying an error for non-existing packages
+
     redirect_back(fallback_location: { action: :binary, project: params[:project], package: params[:package],
                                        repository: @repository, arch: @arch, filename: @filename })
   end
@@ -808,6 +810,7 @@ class Webui::PackageController < Webui::WebuiController
   def require_architecture
     @arch = Architecture.archcache[params[:arch]]
     return if @arch
+
     flash[:error] = "Couldn't find architecture '#{params[:arch]}'"
     redirect_to package_binaries_path(project: @project, package: @package, repository: @repository.name)
   end
@@ -815,6 +818,7 @@ class Webui::PackageController < Webui::WebuiController
   def require_repository
     @repository = @project.repositories.find_by(name: params[:repository])
     return if @repository
+
     flash[:error] = "Couldn't find repository '#{params[:repository]}'"
     redirect_to package_show_path(project: @project, package: @package)
   end
@@ -901,10 +905,12 @@ class Webui::PackageController < Webui::WebuiController
                                        source_project: @package.project,
                                        source_package: @package.name).order(:bs_request_id).last
       return unless last_req
+
       last_req = last_req.bs_request
       if last_req.state != :declined
         return # ignore all !declined
       end
+
       return {
         id: last_req.number,
         decliner: last_req.commenter,

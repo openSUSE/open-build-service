@@ -6,6 +6,7 @@ class ApplicationPolicy
       raise Pundit::NotAuthorizedError, 'must be logged in'
     end
     raise Pundit::NotAuthorizedError, 'record does not exist' unless record
+
     @user = user
     @record = record
   end

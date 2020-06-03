@@ -85,6 +85,7 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   jobfile = job.readlines.first
   return if project == 'BrokenPublishing'
   raise unless jobfile
+
   jobfile.chomp!
   jobid = ''
   IO.popen("md5sum #{jobfile}|cut -d' ' -f 1") do |io|
@@ -319,6 +320,7 @@ module ActionDispatch
       raise ArgumentError, 'we need a hash here' unless hash.is_a?(Hash)
       raise ArgumentError, 'we need a :controller' unless hash.key?(:controller)
       raise ArgumentError, 'we need a :action' unless hash.key?(:action)
+
       super(hash)
     end
 

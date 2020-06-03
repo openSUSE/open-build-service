@@ -12,6 +12,7 @@ module Status
       def set_checkable
         return set_bs_request if params[:bs_request_number]
         return set_repository_architecture if params[:arch]
+
         set_repository
       end
 
@@ -23,6 +24,7 @@ module Status
         @checkable = project.repositories.find_by(name: params[:repository_name])
         @event_class = Event::StatusCheckForPublished
         return if @checkable
+
         raise ActiveRecord::RecordNotFound, "Repository '#{params[:project_name]}/#{params[:repository_name]}' not found."
       end
 
@@ -31,6 +33,7 @@ module Status
         @checkable = @checkable.repository_architectures.joins(:architecture).find_by(architectures: { name: params[:arch] })
         @event_class = Event::StatusCheckForBuild
         return if @checkable
+
         raise ActiveRecord::RecordNotFound, "Repository '#{params[:project_name]}/#{params[:repository_name]}/#{params[:arch]}' not found."
       end
 
@@ -38,6 +41,7 @@ module Status
         @checkable = BsRequest.with_submit_requests.find_by(number: params[:bs_request_number])
         @event_class = Event::StatusCheckForRequest
         return if @checkable
+
         raise ActiveRecord::RecordNotFound, "Submit request with number '#{params[:bs_request_number]}' not found."
       end
     end

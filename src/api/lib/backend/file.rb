@@ -123,6 +123,7 @@ module Backend
     # Validation of errors perfoming commands on the backend
     def backend_file_errors
       return if @backend_file_errors.blank?
+
       errors.add(:content, @backend_file_errors)
     end
   end

@@ -22,6 +22,7 @@ class Issue < ApplicationRecord
     issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
     unless issue_tracker
       return if options[:nonfatal]
+
       raise IssueTracker::NotFoundError, "Error: Issue Tracker '#{issue_tracker_name}' not found."
     end
 
@@ -84,6 +85,7 @@ class Issue < ApplicationRecord
 
   def url
     return issue_tracker.show_url_for(label) if issue_tracker.kind == 'github'
+
     issue_tracker.show_url.gsub('@@@', name)
   end
 
@@ -138,6 +140,7 @@ class Issue < ApplicationRecord
 
   def name_validation
     return if issue_tracker.show_label_for(name).match?(issue_tracker.regex)
+
     errors.add(:name, "with value \'#{name}\' does not match defined regex #{issue_tracker.regex}")
   end
 end

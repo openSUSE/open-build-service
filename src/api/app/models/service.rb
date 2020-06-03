@@ -10,6 +10,7 @@ class Service
 
   def document
     return @document if @document
+
     xml = Backend::Api::Sources::Package.service(project.name, package.name)
     xml ||= '<services/>'
     @document = Nokogiri::XML(xml, &:strict)
@@ -21,12 +22,14 @@ class Service
     return false if name =~ %r{^[_.]}
     return false if name =~ %r{::}
     return true if name =~ /\A\w[-+\w.:]*\z/
+
     false
   end
 
   def self.verify_xml!(raw_post)
     Xmlhash.parse(raw_post).elements('service').each do |s|
       raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless valid_name?(s['name'])
+
       s.elements('param').each do |p|
         raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless valid_name?(p['name'])
       end
@@ -114,6 +117,7 @@ class Service
       service_package = Package.get_by_project_and_name(project.name, package.name,
                                                         use_source: true, follow_project_links: false)
       return false unless User.session!.can_modify?(service_package)
+
       Backend::Api::Sources::Package.run_service(service_package.project.name, service_package.name, User.session!.login)
       service_package.sources_changed
     end

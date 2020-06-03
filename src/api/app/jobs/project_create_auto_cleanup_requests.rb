@@ -37,6 +37,7 @@ Such requests get not created for projects with open requests or if you remove t
     begin
       attribute = prj.attribs.find_by_attrib_type_id(@cleanup_attribute.id)
       return unless attribute
+
       time = Time.parse(attribute.values.first.value)
       return unless time
     rescue ArgumentError

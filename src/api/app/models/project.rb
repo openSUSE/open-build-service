@@ -140,6 +140,7 @@ class Project < ApplicationRecord
       return false if name =~ /\A[:\._]/
       return false if name.end_with?(':')
       return true  if name =~ /\A[-+\w.:]{1,200}\z/
+
       false
     end
 
@@ -254,6 +255,7 @@ class Project < ApplicationRecord
       if dbp.nil?
         dbp, remote_name = find_remote_project(name)
         return dbp.name + ':' + remote_name if dbp
+
         raise Project::Errors::UnknownObjectError, "Project not found: #{name}"
       end
       if opts[:includeallpackages]
@@ -263,6 +265,7 @@ class Project < ApplicationRecord
       end
 
       raise ReadAccessError, name unless check_access?(dbp)
+
       dbp
     end
 
@@ -273,6 +276,7 @@ class Project < ApplicationRecord
       unless maintenance_project && check_access?(maintenance_project)
         raise Project::Errors::UnknownObjectError, 'There is no project flagged as maintenance project on server and no target in request defined.'
       end
+
       maintenance_project
     end
 
@@ -293,6 +297,7 @@ class Project < ApplicationRecord
 
       return if dbp.nil?
       return if !opts[:skip_check_access] && !check_access?(dbp)
+
       dbp
     end
 
@@ -353,6 +358,7 @@ class Project < ApplicationRecord
          has_dod_elements?(request_data['repository'])
         return { error: 'Admin rights are required to change projects using remote resources' }
       end
+
       {}
     end
 
@@ -472,6 +478,7 @@ class Project < ApplicationRecord
         # remove this repository, but be careful, because we may have done it already.
         repository = project.repositories.find(repo.id)
         next unless Repository.exists?(repo.id) && repository
+
         logger.info "destroy repo #{repository.name} in '#{project.name}'"
         repository.destroy
         project.store(lowprio: true) unless opts[:no_write_to_backend]
@@ -514,6 +521,7 @@ class Project < ApplicationRecord
   def siblingprojects
     parent_name = parent.try(:name)
     return Project.none unless parent_name
+
     projects_id = Project.where('name like (?) and name != (?)', "#{parent_name}:%", name).order(:name).select do |sib|
       sib if parent_name == sib.possible_ancestor_names.first
     end.pluck(:id)
@@ -567,6 +575,7 @@ class Project < ApplicationRecord
           break
         end
         next unless action.target_project == name
+
         begin
           request.change_state(newstate: 'declined', comment: "The target project '#{name}' has been removed")
         rescue PostRequestNoPermission
@@ -598,6 +607,7 @@ class Project < ApplicationRecord
     # check if a newer instance exists in a defined update project
     a = find_attribute(namespace, name)
     return Project.find_by_name(a.values[0].value) if a && a.values[0]
+
     self
   end
 
@@ -617,6 +627,7 @@ class Project < ApplicationRecord
     find_repos(:linking_repositories) do |linking_repository|
       linking_repository.path_elements.includes(:link).each do |path_element|
         next unless path_element.link.db_project_id == id && path_element.repository.db_project_id != id
+
         if linking_repository.path_elements.find_by_repository_id(Repository.deleted_instance)
           # repository has already a path to deleted repo
           path_element.destroy
@@ -635,6 +646,7 @@ class Project < ApplicationRecord
     find_repos(:linking_target_repositories) do |linking_target_repository|
       linking_target_repository.release_targets.includes(:target_repository, :link).each do |release_target|
         next unless release_target.link.db_project_id == id
+
         release_target.target_repository = Repository.deleted_instance
         release_target.save
         # update backend
@@ -747,6 +759,7 @@ class Project < ApplicationRecord
 
     unless flags.find_by_flag_and_status('lock', 'enable')
       raise ProjectNotLocked, "project '#{name}' is not locked" if with_exception
+
       errors.add(:base, 'is not locked')
     end
 
@@ -922,6 +935,7 @@ class Project < ApplicationRecord
   def expand_all_projects(project_map: {}, allow_remote_projects: true)
     # cycle check
     return [] if project_map[self]
+
     project_map[self] = 1
 
     projects = [self]
@@ -948,10 +962,12 @@ class Project < ApplicationRecord
   def expand_all_packages(packages = [], project_map = {}, package_map = {})
     # check for project link cycle
     return [] if project_map[self]
+
     project_map[self] = 1
 
     self.packages.joins(:project).pluck(:name, 'projects.name').each do |name, prj_name|
       next if package_map[name]
+
       packages << [name, prj_name]
       package_map[name] = 1
     end
@@ -1029,8 +1045,10 @@ class Project < ApplicationRecord
     # create repository objects first
     project.repositories.each do |repo|
       next if skip_repos.include?(repo.name)
+
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if repo.is_local_channel?
+
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
       next if repositories.find_by_name(repo_name)
 
@@ -1046,6 +1064,7 @@ class Project < ApplicationRecord
     project.repositories.each do |repo|
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if skip_repos.include?(repo.name)
+
       # copy target repository when operating on a channel
       targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
       # base is a maintenance incident, take its target instead (kgraft case)
@@ -1066,6 +1085,7 @@ class Project < ApplicationRecord
       unless trepo
         # channel case
         next unless is_maintenance_incident?
+
         trepo = repositories.create(name: repo_name)
       end
       add_repository_targets(trepo, repo, target_repos, opts)
@@ -1137,17 +1157,20 @@ class Project < ApplicationRecord
       cycle_detection = {}
       repo.path_elements.each do |path|
         next if cycle_detection[path.id]
+
         # go to all my path elements
         path.link.path_elements.each do |ipe|
           # avoid mixing update code streams with channels
           # FIXME: should be done via repository types instead, but we need to move
           #        them from build config to project meta first
           next unless path.link.project.kind == ipe.link.project.kind
+
           # is this path pointing to some repository which is used in another
           # of my repositories?
           repositories.joins(:path_elements).where('path_elements.repository_id = ?', ipe.link).find_each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count > 0
+
             elements = repo.path_elements.where(position: ipe.position)
             if elements.count.zero?
               new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
@@ -1236,12 +1259,15 @@ class Project < ApplicationRecord
 
     packages.each do |pkg|
       next if pkg.name == '_product' # will be handled via _product:*
+
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
+
         repo.release_targets.each do |releasetarget|
           next unless releasetarget.trigger.in?(['manual', 'maintenance'])
           next if params[:targetproject] && params[:targetproject] != releasetarget.target_repository.project.name
           next if params[:targetreposiory] && params[:targetreposiory] != releasetarget.target_repository.name
+
           # release source and binaries
           # permission checking happens inside this function
           release_package(pkg,
@@ -1367,6 +1393,7 @@ class Project < ApplicationRecord
   def unlock_by_request(request)
     f = flags.find_by_flag_and_status('lock', 'enable')
     return unless f
+
     flags.delete(f)
     store(comment: 'Request got revoked', request: request, lowprio: 1)
   end
@@ -1389,6 +1416,7 @@ class Project < ApplicationRecord
     end
 
     return unless repositories.count > 0
+
     # ensure higher build numbers for re-release
     Backend::Api::Build::Project.wipe_binaries(name)
   end
@@ -1437,6 +1465,7 @@ class Project < ApplicationRecord
   def prepend_kiwi_config
     new_configuration = source_file('_config')
     return if new_configuration =~ /^Type:/
+
     new_configuration = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << new_configuration
     Backend::Api::Sources::Project.write_configuration(name, new_configuration)
   end
@@ -1482,6 +1511,7 @@ class Project < ApplicationRecord
 
   def checks
     return Status::Check.none if combined_status_reports.empty?
+
     Status::Check.where(status_report: combined_status_reports)
   end
 
@@ -1593,6 +1623,7 @@ class Project < ApplicationRecord
   def status_reports(checkables)
     checkables = checkables.select { |checkable| checkable.required_checks.present? }
     return [] if checkables.empty?
+
     status_reports = Status::Report.where(checkable: checkables)
     result = {}
     status_reports.where(uuid: checkables.map(&:build_id)).find_each do |report|

@@ -55,8 +55,10 @@ class PackageBuildStatus
     vprojects = {}
     trepo.each do |p, _|
       next if vprojects.key?(p)
+
       prj = Project.find_by_name(p)
       next unless prj # in case of remote projects
+
       prj.packages.pluck(:name).each { |n| @tpackages[n] = p }
       vprojects[p] = 1
     end
@@ -155,6 +157,7 @@ class PackageBuildStatus
     # going through the job history to check if it built and if yes, succeeded
     jobhistory.each do |entry|
       next unless entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
+
       @everbuilt = true
       if entry.code == 'succeeded' || entry.code == 'unchanged'
         @buildcode = 'succeeded'

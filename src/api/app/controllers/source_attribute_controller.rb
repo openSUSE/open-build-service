@@ -88,6 +88,7 @@ class SourceAttributeController < SourceController
 
   def attribute_type(name)
     return if name.blank?
+
     # if an attribute param is given, it needs to exist
     AttribType.find_by_name!(name)
   end
@@ -104,6 +105,7 @@ class SourceAttributeController < SourceController
     else
       # project
       raise RemoteProject if Project.is_remote_project?(params[:project])
+
       @attribute_container = Project.get_by_name(params[:project])
     end
 

@@ -18,6 +18,7 @@ class SourceProjectMetaController < SourceController
     if Project.find_remote_project(params[:project])
       # project from remote buildservice, get metadata from backend
       raise InvalidProjectParameters if params[:view]
+
       pass_to_backend
     else
       # access check

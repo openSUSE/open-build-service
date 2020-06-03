@@ -22,6 +22,7 @@ module PackageControllerService
       download_url = @repository.download_url_for_file(@package, @arch, @filename)
       # return mirror if available
       return download_url if download_url && file_available?(download_url)
+
       # only use API for logged in users if the mirror is not available - return nil otherwise
       rpm_url unless @user.is_nobody?
     end
@@ -36,6 +37,7 @@ module PackageControllerService
       if response.code.to_i == 302 && response['location'] && max_redirects > 0
         return file_available?(response['location'], (max_redirects - 1))
       end
+
       return response.code.to_i == 200
     rescue Object => e
       logger.error "Error in checking for file #{url}: #{e.message}"

@@ -285,6 +285,7 @@ class XpathEngine
         if @stack.shift != :qname
           raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}"
         end
+
         @stack.shift # namespace
         @stack.shift # node
       when :predicate
@@ -384,6 +385,7 @@ class XpathEngine
         unless respond_to?(fname_int)
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
+
         __send__(fname_int, root, *stack.shift)
       when :child
         qtype = stack.shift
@@ -413,6 +415,7 @@ class XpathEngine
         unless respond_to?(opname_int)
           raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
         end
+
         __send__(opname_int, root, *stack)
         stack = []
       else
@@ -442,11 +445,13 @@ class XpathEngine
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
         return '' if @last_key && @attribs[table][@last_key][:empty]
+
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
           if tvalues.size != 2
             raise XpathEngine::IllegalXpathError, 'attributes must be $NAMESPACE:$NAME'
           end
+
           @condition_values_needed.times { @condition_values << tvalues }
         elsif @last_key && @attribs[table][@last_key][:double]
           @condition_values_needed.times { @condition_values << [value, value] }
@@ -466,6 +471,7 @@ class XpathEngine
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] && @attribs[table].key?(key)
     # logger.debug "-- found key: #{key} --"
     return if @attribs[table][key][:empty]
+
     @joins << @attribs[table][key][:joins] if @attribs[table][key][:joins]
     @split = @attribs[table][key][:split] if @attribs[table][key][:split]
     @attribs[table][key][:cpart]

@@ -15,6 +15,7 @@ module PackageControllerService
     # Here we detect that, and if so, we authorize against the linked project.
     def policy_object
       return @project if @project != @package.project
+
       @package
     end
 

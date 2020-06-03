@@ -212,6 +212,7 @@ class Authenticator
     unless @http_user
       if @login.blank?
         return true if check_for_anonymous_user
+
         raise AuthenticationRequiredError
       end
       raise AuthenticationRequiredError, "Unknown user '#{@login}' or invalid password"
@@ -237,6 +238,7 @@ class Authenticator
   # set the nobody user if a user agent is present in anonymous mode
   def check_for_anonymous_user
     return false unless ::Configuration.anonymous && request.user_agent
+
     load_nobody
     true
   end

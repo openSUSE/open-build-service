@@ -44,6 +44,7 @@ module ValidationHelper
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
       raise Package::ReadSourceAccessError, "#{project}/#{name}"
     end
+
     true
   end
 

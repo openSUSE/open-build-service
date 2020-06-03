@@ -34,8 +34,10 @@ module Webui::ManageRelationships
   def load_user_or_group
     login = params[:userid]
     return User.find_by_login!(login) if login
+
     title = params[:groupid]
     return ::Group.find_by_title!(title) if title
+
     raise MissingParameterError, 'Neither user nor group given'
   end
 
