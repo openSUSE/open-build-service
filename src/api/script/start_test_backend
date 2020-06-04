@@ -59,6 +59,7 @@ FileUtils.rm_rf(backend_config)
 # minimal auth
 @http_user = User.find_by_login('king')
 raise 'NO fixtures - run rake db:fixtures:load RAILS_ENV=test' unless @http_user
+
 User.session = @http_user
 
 puts "Creating backend config at #{backend_config}/BSConfig.pm"
@@ -104,6 +105,7 @@ srcsrv = Thread.new do
     begin
       line = srcsrv_out.gets
       break if line.nil?
+
       logger.debug 'bs_srcserver: ' + line.strip unless line.empty?
     rescue IOError
       break
@@ -120,6 +122,7 @@ reposrv = Thread.new do
     begin
       line = reposrv_out.gets
       break if line.nil?
+
       logger.debug 'bs_repserver: ' + line.strip unless line.empty?
     rescue IOError
       break
@@ -161,6 +164,7 @@ servicesrv = Thread.new do
     begin
       line = servicesrv_out.gets
       break if line.nil?
+
       logger.debug 'bs_service: ' + line.strip unless line.empty?
     rescue IOError
       break
@@ -177,6 +181,7 @@ servicedispatchsrv = Thread.new do
     begin
       line = servicedispatchsrv_out.gets
       break if line.nil?
+
       logger.debug line.strip unless line.empty?
     rescue IOError
       break
@@ -191,6 +196,7 @@ while publishsrv_out && !dienow
   begin
     line = publishsrv_out.gets
     break if line.nil?
+
     logger.debug 'bs_publish: ' + line.strip unless line.empty?
   rescue IOError
     break
@@ -215,6 +221,7 @@ Project.all.each do |p|
 end
 Package.all.each do |p|
   next if p.name.starts_with?('_product:')
+
   Backend::Connection.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king&comment=fixtures", p.to_axml)
 end
 Backend::Connection.put('/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
