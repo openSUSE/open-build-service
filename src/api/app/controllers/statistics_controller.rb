@@ -169,6 +169,7 @@ class StatisticsController < ApplicationController
 
   def get_limit
     return @limit = nil if !params[:limit].nil? && params[:limit].to_i.zero?
+
     @limit = 10 if (@limit = params[:limit].to_i).zero?
   end
 

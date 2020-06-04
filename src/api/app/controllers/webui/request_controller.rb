@@ -167,6 +167,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     redirect_to(user_path(User.possibly_nobody)) && return unless request.xhr? # non ajax request
+
     requests = BsRequest.list(params)
     render partial: 'requests_small', locals: { requests: requests }
   end
@@ -181,6 +182,7 @@ class Webui::RequestController < Webui::WebuiController
     rescue APIError => e
       flash[:error] = e.message
       redirect_to(controller: :package, action: :show, package: params[:package], project: params[:project]) && return if params[:package]
+
       redirect_to(controller: :project, action: :show, project: params[:project]) && return
     end
     redirect_to controller: :request, action: :show, number: request.number
@@ -230,8 +232,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_superseded_request
     return unless params[:diff_to_superseded]
+
     @diff_to_superseded = @bs_request.superseding.find_by(number: params[:diff_to_superseded])
     return if @diff_to_superseded
+
     flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
     return
   end
@@ -240,6 +244,7 @@ class Webui::RequestController < Webui::WebuiController
     required_parameters :number
     @bs_request = BsRequest.find_by_number(params[:number])
     return if @bs_request
+
     flash[:error] = "Can't find request #{params[:number]}"
     redirect_back(fallback_location: root_url) && return
   end

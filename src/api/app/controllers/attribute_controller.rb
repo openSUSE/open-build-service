@@ -50,6 +50,7 @@ class AttributeController < ApplicationController
     if params[:name].nil?
       raise MissingParameterError, "parameter 'name' is missing"
     end
+
     @name = params[:name]
     # find_by_name is something else (of course)
     @at = @ans.attrib_types.where(name: @name).first
@@ -66,6 +67,7 @@ class AttributeController < ApplicationController
     xml_element = Xmlhash.parse(request.raw_post)
 
     return xml_element if xml_element && xml_element['name'] == @name && xml_element['namespace'] == @namespace
+
     render_error status: 400, errorcode: 'illegal_request',
                  message: "Illegal request: PUT/POST #{request.path}: path does not match content"
     return

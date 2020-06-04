@@ -69,6 +69,7 @@ class Staging::StagingProjectsController < Staging::StagingController
 
   def can_accept?
     return true if @staging_project.overall_state == :acceptable
+
     params[:force].present? && @staging_project.force_acceptable?
   end
 
@@ -84,6 +85,7 @@ class Staging::StagingProjectsController < Staging::StagingController
 
     @staging_project = @project.staging.staging_projects.find_by(name: params[:staging_project_name])
     return if @staging_project
+
     raise StagingProjectNotFound, "Staging Project \"#{params[:staging_project_name]}\" does not exist."
   end
 end

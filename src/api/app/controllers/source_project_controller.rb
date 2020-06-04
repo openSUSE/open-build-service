@@ -19,6 +19,7 @@ class SourceProjectController < SourceController
 
     @project = Project.find_by_name(project_name)
     raise Project::UnknownObjectError, "Project not found: #{project_name}" unless @project
+
     # we let the backend list the packages after we verified the project is visible
     if params.key?(:view)
       if params[:view] == 'verboseproductlist'

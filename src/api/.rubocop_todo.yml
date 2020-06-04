@@ -10,7 +10,6 @@
 # Cop supports --auto-correct.
 Layout/EmptyLineAfterGuardClause:
   Exclude:
-    - 'app/controllers/**/*'
     - 'app/models/**/*'
     - 'app/policies/**/*'
     - 'app/services/**/*'

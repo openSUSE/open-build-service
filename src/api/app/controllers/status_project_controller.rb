@@ -36,6 +36,7 @@ class StatusProjectController < ApplicationController
 
   def package_hash(packages)
     return @package_hash unless @package_hash.empty?
+
     packages.each_value do |pkg|
       @package_hash[pkg.package_id] = pkg
       @package_hash[pkg.develpack.package_id] = pkg.develpack if pkg.develpack

@@ -36,6 +36,7 @@ module Cloud
 
     def validate_configuration_presence
       return if ::User.session!.cloud_configurations?
+
       render_error status: 400,
                    errorcode: 'cloud_upload_job_no_config',
                    message: "Couldn't find a cloud configuration for user"
@@ -57,6 +58,7 @@ module Cloud
     def set_upload_job
       @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:id])
       return if @upload_job.present? && (@upload_job.user == ::User.session! || ::User.admin_session?)
+
       render_error status: 404
     end
   end

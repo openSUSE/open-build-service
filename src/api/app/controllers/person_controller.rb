@@ -71,6 +71,7 @@ class PersonController < ApplicationController
     end
     if params[:cmd] == 'lock'
       return unless require_admin
+
       user = User.find_by_login!(params[:login])
       user.lock!
       render_ok
@@ -79,6 +80,7 @@ class PersonController < ApplicationController
     if params[:cmd] == 'delete'
       # maybe we should allow the users to delete themself?
       return unless require_admin
+
       user = User.find_by_login!(params[:login])
       user.delete!
       render_ok
@@ -181,6 +183,7 @@ class PersonController < ApplicationController
       if request.env['HTTP_X_USERNAME'].blank?
         raise ErrRegisterSave, 'Missing iChain header'
       end
+
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
       realname = request.env['HTTP_X_FIRSTNAME'] + ' ' + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?

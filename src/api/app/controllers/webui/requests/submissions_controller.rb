@@ -57,6 +57,7 @@ module Webui
         end
 
         return if supersede_errors.empty?
+
         flash[:error] = "Superseding failed: #{supersede_errors.join('. ')}"
       end
     end
