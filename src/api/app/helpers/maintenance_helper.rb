@@ -189,6 +189,7 @@ module MaintenanceHelper
     update_ids = []
     source_package.project.repositories.each do |source_repo|
       next if filter_source_repository && filter_source_repository != source_repo
+
       source_repo.release_targets.each do |releasetarget|
         # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == target_project
@@ -198,6 +199,7 @@ module MaintenanceHelper
         end
         # remove maintenance release trigger in source
         next unless releasetarget.trigger == 'maintenance'
+
         releasetarget.trigger = nil
         releasetarget.save!
         source_repo.project.store
@@ -352,6 +354,7 @@ module MaintenanceHelper
       if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
         raise PackageAlreadyExists, "package #{p.name} already exists"
       end
+
       local_linked_packages[lpkg_name] = p
     end
 

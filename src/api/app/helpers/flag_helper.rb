@@ -58,6 +58,7 @@ module FlagHelper
           key = "#{repo}-#{arch}"
           # overwrite duplicates - but prefer disables
           next if flags_to_create[key] && flags_to_create[key][:status] == 'disable'
+
           flags_to_create[key] = { status: status, position: position, repo: repo, architecture: arch }
           position += 1
         end
@@ -81,6 +82,7 @@ module FlagHelper
       next if repository.blank? && f.repo.present?
       next if arch.present? && f.architecture != arch
       next if arch.blank? && !f.architecture.nil?
+
       flags_to_remove << f
     end
     flags.delete(flags_to_remove)
@@ -91,6 +93,7 @@ module FlagHelper
     unless status == 'enable' || status == 'disable'
       raise ArgumentError, "Error: unknown status for flag '#{status}'"
     end
+
     flags.build(status: status, flag: flag) do |f|
       f.architecture = Architecture.find_by_name(arch) if arch
       f.repo = repository
@@ -114,6 +117,7 @@ module FlagHelper
         prj.repositories.each do |repo|
           repo.release_targets.each do |rt|
             next unless rt.target_repository == ur.repository
+
             # MATCH!
             if status
               add_flag(flag, status, rt.repository.name)
@@ -163,6 +167,7 @@ module FlagHelper
     # the defined order is by type
     FlagHelper.flag_types.each do |flag_name|
       next unless flags_sorted.key?(flag_name)
+
       xml.send("#{flag_name}_") do # avoid class with 'build' function
         flags_sorted[flag_name].each { |flag| flag.to_xml(xml) }
       end

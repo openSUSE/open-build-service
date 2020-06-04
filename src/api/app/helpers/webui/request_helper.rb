@@ -99,6 +99,7 @@ module Webui::RequestHelper
   def calculate_filename(filename, file_element)
     return filename unless file_element['state'] == 'changed'
     return filename if file_element['old']['name'] == filename
+
     return "#{file_element['old']['name']} -> #{filename}"
   end
 
