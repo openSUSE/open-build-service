@@ -27,25 +27,6 @@ Lint/NonLocalExitFromIterator:
     - 'app/controllers/configurations_controller.rb'
     - 'app/models/patchinfo.rb'
 
-# Offense count: 17
-# Cop supports --auto-correct.
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'app/controllers/source_controller.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'config/environments/development.rb'
-    - 'config/environments/test.rb'
-    - 'db/migrate/001_initial_database.rb'
-    - 'db/migrate/20140908125426_convert_request_history.rb'
-    - 'db/migrate/20170123115500_remove_duplicate_indexes.rb'
-    - 'spec/controllers/source_project_package_meta_controller_spec.rb'
-    - 'test/functional/binary_release_test.rb'
-    - 'test/functional/kgraft_maintenance_test.rb'
-    - 'test/functional/product_test.rb'
-    - 'test/functional/read_permission_test.rb'
-    - 'test/functional/zzz_post_consistency_test.rb'
-
 # Offense count: 5
 Lint/RescueException:
   Exclude:
@@ -93,12 +74,6 @@ Lint/UriEscapeUnescape:
     - 'spec/models/backend/file_spec.rb'
     - 'spec/models/package_spec.rb'
     - 'test/functional/request_controller_test.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UriRegexp:
-  Exclude:
-    - 'app/models/kiwi/repository.rb'
 
 # Offense count: 885
 # Configuration parameters: IgnoredMethods.

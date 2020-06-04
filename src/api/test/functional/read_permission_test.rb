@@ -537,10 +537,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source_project_meta, action: :update, project: 'home:adrian:PublicProject'),
         params: '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
-    # rubocop:disable Layout/LineLength
     put url_for(controller: :source_project_package_meta, action: :update, project: 'home:adrian:PublicProject', package: 'ProtectedPackage'),
         params: '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
-    # rubocop:enable Layout/LineLength
+
     assert_response :success
     put '/source/home:adrian:PublicProject/ProtectedPackage/dummy_file', params: 'dummy'
 
@@ -704,10 +703,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(controller: :source_project_meta, action: :update, project: 'home:adrian:ProtectedProject4'),
         params: '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
-    # rubocop:disable Layout/LineLength
     put url_for(controller: :source_project_meta, action: :update, project: 'home:adrian:ProtectedProject4'),
         params: '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> <link project="home:adrian:ProtectedProject2"/> </project>'
-    # rubocop:enable Layout/LineLength
+
     assert_response :success
 
     # try to access it directly with a user not permitted
