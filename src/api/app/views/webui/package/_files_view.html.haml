@@ -18,7 +18,7 @@
     %i This package has no files yet
   - if user_can_modify_package
     .pt-4
-      = link_to(package_add_file_path(project, package)) do
+      = link_to(new_project_package_files_path(project, package)) do
         %i.fas.fa-plus-circle.text-primary
         Add file
     = render(partial: 'delete_file_dialog', locals: { project: project, package: package })
