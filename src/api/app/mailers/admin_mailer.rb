@@ -4,6 +4,7 @@ class AdminMailer < ActionMailer::Base
   def set_headers
     @host = ::Configuration.obs_url
     return unless @host
+
     @configuration = ::Configuration.first
 
     headers['Precedence'] = 'bulk'
