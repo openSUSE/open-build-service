@@ -1,71 +1,5 @@
 module ProjectStatus
   class Calculator
-    # parse the jobhistory and put the result in a format we can cache
-    def parse_jobhistory(dname, repo, arch)
-      data = Xmlhash.parse(Backend::Api::BuildResults::Binaries.job_history(dname, repo, arch))
-      return [] if data.blank?
-
-      ret = []
-      data.elements('jobhist') do |p|
-        line = {
-          'name' => p['package'],
-          'code' => p['code'],
-          'versrel' => p['versrel'],
-          'verifymd5' => p['verifymd5']
-        }
-
-        if p.key?('readytime')
-          if p['readytime'].respond_to?(:to_i)
-            line['readytime'] = p['readytime'].to_i
-          else
-            line['readytime'] = 0
-          end
-        else
-          line['readytime'] = 0
-        end
-        ret << line
-      end
-      ret
-    end
-
-    def update_jobhistory(proj, mypackages)
-      prjpacks = {}
-      dname = proj.name
-      mypackages.each_value do |package|
-        prjpacks[package.name] = package if package.project == dname
-      end
-
-      proj.repositories_linking_project(@dbproj).each do |r|
-        repo = r['name']
-        r.elements('arch') do |arch|
-          cachekey = "history2#{proj.cache_key}#{repo}#{arch}"
-          jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
-            parse_jobhistory(dname, repo, arch)
-          end
-          jobhistory.each do |p|
-            pkg = prjpacks[p['name']]
-            next unless pkg
-
-            pkg.set_versrel(p['versrel'], p['readytime'])
-            pkg.failure(repo, arch, p['readytime'], p['verifymd5']) if p['code'] == 'failed'
-          end
-        end
-      end
-    end
-
-    def add_recursively(mypackages, dbpack)
-      return if mypackages.key?(dbpack.id)
-
-      pack = PackInfo.new(dbpack)
-      pack.backend_package = dbpack.backend_package
-
-      if dbpack.develpackage
-        add_recursively(mypackages, dbpack.develpackage)
-        pack.develpack = mypackages[dbpack.develpackage_id]
-      end
-      mypackages[pack.package_id] = pack
-    end
-
     def initialize(dbproj)
       @dbproj = dbproj
     end
@@ -106,8 +40,74 @@ module ProjectStatus
 
     private
 
+    # parse the jobhistory and put the result in a format we can cache
+    def parse_jobhistory(dname, repo, arch)
+      data = Xmlhash.parse(Backend::Api::BuildResults::Binaries.job_history(dname, repo, arch))
+      return [] if data.blank?
+
+      ret = []
+      data.elements('jobhist') do |p|
+        line = {
+          'name' => p['package'],
+          'code' => p['code'],
+          'versrel' => p['versrel'],
+          'verifymd5' => p['verifymd5']
+        }
+
+        if p.key?('readytime')
+          if p['readytime'].respond_to?(:to_i)
+            line['readytime'] = p['readytime'].to_i
+          else
+            line['readytime'] = 0
+          end
+        else
+          line['readytime'] = 0
+        end
+        ret << line
+      end
+      ret
+    end
+
+    def add_recursively(mypackages, dbpack)
+      return if mypackages.key?(dbpack.id)
+
+      pack = PackInfo.new(dbpack)
+      pack.backend_package = dbpack.backend_package
+
+      if dbpack.develpackage
+        add_recursively(mypackages, dbpack.develpackage)
+        pack.develpack = mypackages[dbpack.develpackage_id]
+      end
+      mypackages[pack.package_id] = pack
+    end
+
     def get_list_of_project_and_packages(ids)
       Project.joins(:packages).where(packages: { id: ids }).pluck('projects.id, projects.name, packages.id')
+    end
+
+    def update_jobhistory(proj, mypackages)
+      prjpacks = {}
+      dname = proj.name
+      mypackages.each_value do |package|
+        prjpacks[package.name] = package if package.project == dname
+      end
+
+      proj.repositories_linking_project(@dbproj).each do |r|
+        repo = r['name']
+        r.elements('arch') do |arch|
+          cachekey = "history2#{proj.cache_key}#{repo}#{arch}"
+          jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
+            parse_jobhistory(dname, repo, arch)
+          end
+          jobhistory.each do |p|
+            pkg = prjpacks[p['name']]
+            next unless pkg
+
+            pkg.set_versrel(p['versrel'], p['readytime'])
+            pkg.failure(repo, arch, p['readytime'], p['verifymd5']) if p['code'] == 'failed'
+          end
+        end
+      end
     end
   end
 end
