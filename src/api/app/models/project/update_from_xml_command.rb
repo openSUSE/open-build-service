@@ -217,7 +217,7 @@ class Project
           raise SaveError, 'Using same repository as path element is not allowed'
         end
         unless link_repo
-          raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
+          raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'"
         end
         current_repo.path_elements.new(link: link_repo, position: position)
         position += 1

@@ -357,7 +357,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
             EOF
           )
           expect { Project::UpdateFromXmlCommand.new(project).send(:update_repositories, xml_hash, false) }.to raise_error(
-            Project::SaveError, "unable to walk on path 'other_project/nonexistant'"
+            Project::SaveError, "Cannot find repository 'other_project/nonexistant'"
           )
         end
       end

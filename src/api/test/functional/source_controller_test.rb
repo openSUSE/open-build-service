@@ -3459,7 +3459,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
          </project>'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_save_error' }
-    assert_match(/unable to walk on path/, @response.body)
+    assert_match(/Cannot find repository/, @response.body)
     put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="DOESNOTEXIST" />
