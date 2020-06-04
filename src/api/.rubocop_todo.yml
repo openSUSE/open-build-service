@@ -75,12 +75,6 @@ Lint/UriEscapeUnescape:
     - 'spec/models/package_spec.rb'
     - 'test/functional/request_controller_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/UriRegexp:
-  Exclude:
-    - 'app/models/kiwi/repository.rb'
-
 # Offense count: 885
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:

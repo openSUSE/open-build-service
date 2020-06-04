@@ -53,7 +53,7 @@ module Kiwi
     def source_path_format
       return if source_path == 'obsrepositories:/'
       return if source_path =~ /^(dir|iso|smb|this):\/\/.+/
-      return if source_path =~ /\A#{URI.regexp(['ftp', 'http', 'https', 'plain'])}\z/
+      return if source_path =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['ftp', 'http', 'https', 'plain'])}\z/
 
       if source_path_for_obs_repository?
         return if repo_type == 'rpm-md'
