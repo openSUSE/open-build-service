@@ -9,6 +9,7 @@ module Webui
         @content = result.config if result.valid?
 
         return if @content
+
         raise ActiveRecord::RecordNotFound, 'Not Found'
       end
 

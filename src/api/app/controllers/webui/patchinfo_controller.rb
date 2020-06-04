@@ -134,6 +134,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       result.elements('binarylist') do |list|
         list.elements('binary') do |bin|
           next if ['rpmlint.log', 'updateinfo.xml'].include?(bin['filename'])
+
           @binarylist << bin['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end

@@ -30,6 +30,7 @@ class SourceController < ApplicationController
 
     if params.key?(:deleted)
       raise NoPermissionForDeleted unless admin_user
+
       pass_to_backend
     else
       projectlist
@@ -52,6 +53,7 @@ class SourceController < ApplicationController
     unless @tpkg
       raise NoLocalPackage, 'Issues can only be shown for local packages'
     end
+
     set_issues_default
     @tpkg.update_if_dirty
     render partial: 'package_issues'
@@ -269,6 +271,7 @@ class SourceController < ApplicationController
         return
       end
       break unless upper_project.include?(':')
+
       upper_project = upper_project.gsub(/:[^:]*$/, '')
     end
 
@@ -377,6 +380,7 @@ class SourceController < ApplicationController
 
     # update package timestamp and reindex sources
     return if params[:rev] == 'repository' || @package_name.in?(['_project', '_pattern'])
+
     special_file = params[:filename].in?(['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'])
     @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
   end
@@ -584,6 +588,7 @@ class SourceController < ApplicationController
     repo_bad_type = nil
     pro.repositories.each do |repo|
       next if params[:repository] && params[:repository] != repo.name
+
       repo.release_targets.each do |releasetarget|
         unless releasetarget.trigger.in?(['manual', 'maintenance'])
           repo_bad_type = true
@@ -592,6 +597,7 @@ class SourceController < ApplicationController
         unless User.session!.can_modify?(releasetarget.target_repository.project)
           raise CmdExecutionNoPermission, "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
+
         repo_matches = true
       end
     end
@@ -642,6 +648,7 @@ class SourceController < ApplicationController
     unless (@project && User.session!.can_modify?(@project)) || User.session!.can_create_project?(project_name)
       raise CmdExecutionNoPermission, "no permission to execute command 'copy'"
     end
+
     oprj = Project.get_by_name(params[:oproject], includeallpackages: 1)
     if params.key?(:makeolder) || params.key?(:makeoriginolder)
       unless User.session!.can_modify?(oprj)
@@ -661,6 +668,7 @@ class SourceController < ApplicationController
       unless oprj.is_a?(String)
         oprj.packages.each do |pkg|
           next unless pkg.disabled_for?('sourceaccess', nil, nil)
+
           raise ProjectCopyNoPermission, "no permission to copy project due to source protected package #{pkg.name}"
         end
       end
@@ -743,6 +751,7 @@ class SourceController < ApplicationController
 
     f = @package.flags.find_by_flag_and_status('lock', 'enable')
     raise NotLocked, "package '#{@package.project.name}/#{@package.name}' is not locked" unless f
+
     @package.flags.delete(f)
     @package.store(p)
 
@@ -845,6 +854,7 @@ class SourceController < ApplicationController
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       raise PackageExists, "the package exists already #{@target_project_name} #{@target_package_name}"
     end
+
     tprj = Project.get_by_name(@target_project_name)
     unless tprj.is_a?(Project) && Pundit.policy(User.session!, Package.new(project: tprj)).create?
       raise CmdExecutionNoPermission, "no permission to create package in project #{@target_project_name}"
@@ -854,6 +864,7 @@ class SourceController < ApplicationController
     unless User.admin_session? || params[:time].blank?
       raise CmdExecutionNoPermission, 'Only administrators are allowed to set the time'
     end
+
     path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
     pass_to_backend(path)
 
@@ -1024,8 +1035,10 @@ class SourceController < ApplicationController
       # loop via all defined targets
       pkg.project.repositories.each do |repo|
         next if params[:repository] && params[:repository] != repo.name
+
         repo.release_targets.each do |releasetarget|
           next unless releasetarget.trigger.in?(['manual', 'maintenance'])
+
           # find md5sum and release source and binaries
           release_package(pkg,
                           releasetarget.target_repository,
@@ -1048,11 +1061,13 @@ class SourceController < ApplicationController
     if params[:target_repository].blank? || params[:repository].blank?
       raise MissingParameterError, 'release action with specified target project needs also "repository" and "target_repository" parameter'
     end
+
     targetrepo = Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
     raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
     repo = pkg.project.repositories.where(name: params[:repository])
     raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count > 0
+
     repo = repo.first
 
     release_package(pkg,
@@ -1120,6 +1135,7 @@ class SourceController < ApplicationController
       @project = Project.get_by_name(@target_project_name)
     else
       return if User.session!.can_create_project?(@target_project_name)
+
       raise CreateProjectNoPermission, "no permission to create project #{@target_project_name}"
     end
 
@@ -1221,6 +1237,7 @@ class SourceController < ApplicationController
   def set_request_data
     @request_data = Xmlhash.parse(request.raw_post)
     return if @request_data
+
     render_error status: 400, errorcode: 'invalid_xml', message: 'Invalid XML'
   end
 

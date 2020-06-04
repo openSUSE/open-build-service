@@ -70,6 +70,7 @@ class Status::RequiredChecksController < ApplicationController
     @project = Project.get_by_name(params[:project_name])
 
     return if @project
+
     render_error(
       status: 404,
       errorcode: 'not_found',
@@ -83,8 +84,10 @@ class Status::RequiredChecksController < ApplicationController
 
   def checkable
     return @project unless params[:repository_name]
+
     repo = @project.repositories.find_by!(name: params[:repository_name])
     return repo unless params[:architecture_name]
+
     architecture = Architecture.find_by!(name: params[:architecture_name])
     repo.repository_architectures.find_by!(architecture: architecture)
   end

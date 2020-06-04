@@ -41,6 +41,7 @@ class DistributionsController < ApplicationController
   # basically what the other parts of our API would look like
   def upload
     raise 'routes broken' unless request.put?
+
     req = Xmlhash.parse(request.body.read)
     unless req
       render_error message: 'Invalid XML',

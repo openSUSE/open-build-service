@@ -51,6 +51,7 @@ class Status::ChecksController < ApplicationController
   def set_xml_check
     @xml_check = xml_hash
     return if @xml_check.present?
+
     render_error status: 404, errorcode: 'empty_body', message: 'Request body is empty!'
   end
 
@@ -58,6 +59,7 @@ class Status::ChecksController < ApplicationController
     result = HashWithIndifferentAccess.new
     parsed_body = Xmlhash.parse(request.body.read)
     return if parsed_body.blank?
+
     %w[url state short_description name].each { |key| result[key] = parsed_body.value(key) if parsed_body.value(key) }
 
     result

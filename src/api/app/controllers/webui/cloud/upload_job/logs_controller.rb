@@ -16,6 +16,7 @@ module Webui
         def set_log
           @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:upload_id])
           return if @upload_job.present?
+
           flash[:error] = "No log file found for #{params[:upload_id]} found."
           redirect_to cloud_upload_index_path
         end

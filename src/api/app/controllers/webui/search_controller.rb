@@ -12,6 +12,7 @@ class Webui::SearchController < Webui::WebuiController
 
     # If the search is too short, return
     return if @search_text.blank?
+
     if @search_text && @search_text.length < 2
       flash[:error] = 'Search string must contain at least two characters.'
       return
@@ -125,6 +126,7 @@ class Webui::SearchController < Webui::WebuiController
   def search
     # If there is nothing to search for, just return
     return unless params[:search_text]
+
     # If the search is too short, return too
     if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
       flash[:error] = 'Search string must contain at least two characters.'

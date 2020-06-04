@@ -436,6 +436,7 @@ class Webui::ProjectController < Webui::WebuiController
     end
 
     return unless buildresult.key?('result')
+
     buildresult
   end
 
@@ -468,6 +469,7 @@ class Webui::ProjectController < Webui::WebuiController
     result.elements('status') do |status|
       package = status['package']
       next if @name_filter.present? && !filter_matches?(package, @name_filter)
+
       stathash[package] = status
       @packagenames.add(package)
       if status['code'].in?(['unresolvable', 'failed', 'broken'])
@@ -480,6 +482,7 @@ class Webui::ProjectController < Webui::WebuiController
     @repostatusdetailshash[repo] ||= {}
 
     return unless result.key?('state')
+
     if result.key?('dirty')
       @repostatushash[repo][arch] = 'outdated_' + result['state']
     else
@@ -577,6 +580,7 @@ class Webui::ProjectController < Webui::WebuiController
         next unless defaults
       end
       next if defaults && ['disabled', 'excluded', 'unknown'].include?(s)
+
       @status_filter << s
     end
 

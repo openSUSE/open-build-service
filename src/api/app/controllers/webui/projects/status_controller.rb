@@ -70,6 +70,7 @@ module Webui
         key = @api_obj.name + '/' + pname
         if @submits.key?(key)
           return if @ignore_pending
+
           currentpack['requests_from'].concat(@submits[key])
         end
 
@@ -81,6 +82,7 @@ module Webui
         p.fails.each do |repo, arch, time, md5|
           next if newest > time
           next if md5 != p.verifymd5
+
           currentpack['failedarch'] = arch
           currentpack['failedrepo'] = repo
           newest = time
@@ -106,6 +108,7 @@ module Webui
 
         return unless currentpack['firstfail'] || currentpack['failedcomment'] || currentpack['upstream_version'] ||
                       !currentpack['problems'].empty? || !currentpack['requests_from'].empty? || !currentpack['requests_to'].empty?
+
         if @limit_to_old
           return unless currentpack['upstream_version']
         end
@@ -115,6 +118,7 @@ module Webui
       def check_devel_package_status(currentpack, p)
         dp = p.develpack
         return unless dp
+
         dproject = dp.project
         currentpack['develproject'] = dproject
         currentpack['develpackage'] = dp.name
@@ -144,6 +148,7 @@ module Webui
 
         return unless currentpack['currently_declined'].nil?
         return currentpack['problems'] << 'different_changes' if p.changesmd5 != dp.changesmd5
+
         currentpack['problems'] << 'different_sources'
       end
 
@@ -190,6 +195,7 @@ module Webui
         raw_requests.each do |number, state, tproject, tpackage|
           if state == 'declined'
             next if tproject != @api_obj.name || !@name2id.key?(tpackage)
+
             @status[@name2id[tpackage]].declined_request = number
             @declined_requests[number] = nil
           else
@@ -222,6 +228,7 @@ module Webui
         ret = {}
         at = AttribType.find_by_namespace_and_name(namespace, name)
         return unless at
+
         attribs = at.attribs.where(package_id: packages)
         AttribValue.where(attrib_id: attribs).joins(:attrib).pluck('attribs.package_id, value').each do |id, value|
           yield id, value

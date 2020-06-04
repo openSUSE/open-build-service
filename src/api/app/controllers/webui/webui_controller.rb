@@ -225,6 +225,7 @@ class Webui::WebuiController < ActionController::Base
   # Don't show performance of database queries to users
   def peek_enabled?
     return false if CONFIG['peek_enabled'] != 'true'
+
     User.admin_session? || User.possibly_nobody.is_staff?
   end
 
@@ -246,6 +247,7 @@ class Webui::WebuiController < ActionController::Base
       end
 
       raise(ActiveRecord::RecordNotFound, 'Not Found') unless request.xhr?
+
       render nothing: true, status: :not_found
     end
   end
@@ -277,6 +279,7 @@ class Webui::WebuiController < ActionController::Base
   # Before filter to check if current user is administrator
   def require_admin
     return if User.admin_session?
+
     flash[:error] = 'Requires admin privileges'
     redirect_back(fallback_location: { controller: 'main', action: 'index' })
   end

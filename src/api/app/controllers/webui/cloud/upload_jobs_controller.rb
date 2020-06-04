@@ -43,6 +43,7 @@ module Webui
 
       def validate_uploadable
         return if ::Cloud::UploadJob.new(filename: params[:filename], arch: params[:arch]).uploadable?
+
         flash[:error] = "File '#{params[:filename]}' with architecture '#{params[:arch]}' is not a valid cloud image."
         redirect_to cloud_upload_index_path
       end
@@ -54,6 +55,7 @@ module Webui
       def set_upload_job
         @upload_job = ::Cloud::User::UploadJob.find_by(job_id: params[:id])
         return if @upload_job.present?
+
         flash[:error] = "No upload job with id #{params[:id]} found."
         redirect_to cloud_upload_index_path
       end
@@ -61,6 +63,7 @@ module Webui
       def set_package
         @package = Package.find_by_project_and_name(params[:project], params[:package])
         return if @package.present?
+
         flash[:error] = "Package #{params[:project]}/#{params[:package]} does not exist."
         redirect_to cloud_upload_index_path
       end
