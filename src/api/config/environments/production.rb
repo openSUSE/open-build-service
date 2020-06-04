@@ -86,12 +86,6 @@ OBSApi::Application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-
-  # memcache store for peek
-  client = CONFIG['memcached_host'].nil? ? Dalli::Client.new : Dalli::Client.new(CONFIG['memcached_host'].to_s)
-  config.peek.adapter = :memcache, {
-    client: client
-  }
 end
 
 # disabled on production for performance reasons

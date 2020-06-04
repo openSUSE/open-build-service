@@ -7,7 +7,6 @@ class ActionDispatch::Routing::Mapper
 end
 
 OBSApi::Application.routes.draw do
-  mount Peek::Railtie => '/peek'
   draw :webui
   draw :api
 end

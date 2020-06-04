@@ -59,12 +59,6 @@ OBSApi::Application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   # config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  # memcache store for peek
-  client = CONFIG['memcached_host'].nil? ? Dalli::Client.new : Dalli::Client.new(CONFIG['memcached_host'].to_s)
-  config.peek.adapter = :memcache, {
-    client: client
-  }
-
   # Bullet configuration
   config.after_initialize do
     Bullet.enable = true

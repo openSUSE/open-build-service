@@ -124,8 +124,6 @@ GEM
     coffee-script-source (1.12.2)
     colorize (0.8.1)
     concurrent-ruby (1.1.6)
-    concurrent-ruby-ext (1.1.6)
-      concurrent-ruby (= 1.1.6)
     coveralls (0.8.23)
       json (>= 1.8, < 3)
       simplecov (~> 0.16.1)
@@ -263,20 +261,6 @@ GEM
     parallel (1.19.1)
     parser (2.7.1.3)
       ast (~> 2.4.0)
-    peek (1.1.0)
-      railties (>= 4.0.0)
-    peek-dalli (1.2.0)
-      concurrent-ruby
-      concurrent-ruby-ext
-      dalli
-      peek
-    peek-host (1.0.0)
-      peek
-    peek-mysql2 (1.2.0)
-      concurrent-ruby
-      concurrent-ruby-ext
-      mysql2
-      peek
     pkg-config (1.4.1)
     popper_js (1.16.0)
     power_assert (1.2.0)
@@ -524,10 +508,6 @@ DEPENDENCIES
   mousetrap-rails
   mysql2
   nokogiri
-  peek
-  peek-dalli
-  peek-host
-  peek-mysql2
   pry (>= 0.9.12)
   pry-byebug
   puma
