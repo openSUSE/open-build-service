@@ -69,6 +69,7 @@ module Statistics
         end
 
         next unless review.declined_at
+
         unassigned_review_statistics << MaintenanceStatistic.new(
           type: :review_declined,
           who: review.assigned_reviewer,

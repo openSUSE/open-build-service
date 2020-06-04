@@ -27,6 +27,7 @@ module Kiwi
 
     def to_xml
       return '' if packages.empty?
+
       group_attributes = { type: kiwi_type }
       group_attributes[:profiles] = profiles if profiles.present?
       group_attributes[:patternType] = pattern_type if pattern_type.present?

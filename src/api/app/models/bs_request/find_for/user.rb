@@ -29,11 +29,13 @@ class BsRequest
 
       def bs_request_actions_query
         return unless roles.empty? || roles.include?('maintainer')
+
         @bs_request_actions_query ||= bs_request_actions(user).select(:bs_request_id)
       end
 
       def reviews_query
         return unless roles.empty? || roles.include?('reviewer')
+
         @reviews_query ||= reviews(user, review_states).select(:bs_request_id)
       end
     end

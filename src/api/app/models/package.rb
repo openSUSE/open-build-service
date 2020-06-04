@@ -118,6 +118,7 @@ class Package < ApplicationRecord
   def self.check_access?(package)
     return false if package.nil?
     return false unless package.class == Package
+
     Project.check_access?(package.project)
   end
 
@@ -136,6 +137,7 @@ class Package < ApplicationRecord
     if pid
       pkg = Package.where(id: pid).includes(:project).first
       return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
+
       Rails.cache.delete(@key) # outdated anyway
     end
     return
@@ -144,6 +146,7 @@ class Package < ApplicationRecord
   def self.internal_get_project(project)
     return project if project.is_a?(Project)
     return if Project.is_remote_project?(project)
+
     Project.get_by_name(project)
   end
 
@@ -201,6 +204,7 @@ class Package < ApplicationRecord
   def self.get_by_project_and_name!(project, package, opts = {})
     pkg = get_by_project_and_name(project, package, opts)
     raise UnknownObjectError, "Package not found: #{project}/#{package}" unless pkg
+
     pkg
   end
 
@@ -216,6 +220,7 @@ class Package < ApplicationRecord
     unless prj.is_a?(Project)
       return opts[:allow_remote_packages] && exists_on_backend?(package, project)
     end
+
     prj.exists_package?(package, opts)
   end
 
@@ -265,6 +270,7 @@ class Package < ApplicationRecord
 
   def is_locked?
     return true if flags.find_by_flag_and_status('lock', 'enable')
+
     project.is_locked?
   end
 
@@ -302,12 +308,14 @@ class Package < ApplicationRecord
 
   def kiwi_image_outdated?
     return true if kiwi_file_md5.nil? || !kiwi_image
+
     kiwi_image.md5_last_revision != kiwi_file_md5
   end
 
   def master_product_object
     # test _product permissions if any other _product: subcontainer is used and _product exists
     return self unless belongs_to_product?
+
     project.packages.with_product_name.first
   end
 
@@ -331,6 +339,7 @@ class Package < ApplicationRecord
       errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
     end
     return false if errors.any?
+
     true
   end
 
@@ -372,6 +381,7 @@ class Package < ApplicationRecord
 
   def update_project_for_product
     return unless name == '_product'
+
     project.update_product_autopackages
   end
 
@@ -393,6 +403,7 @@ class Package < ApplicationRecord
   def unlock_by_request(request)
     f = flags.find_by_flag_and_status('lock', 'enable')
     return unless f
+
     flags.delete(f)
     store(comment: 'Request got revoked', request: request, lowprio: 1)
   end
@@ -536,6 +547,7 @@ class Package < ApplicationRecord
       issues.each do |issue|
         next unless issue_change[issue.issue_tracker.name]
         next unless issue_change[issue.issue_tracker.name][issue.name]
+
         state = issue_change[issue.issue_tracker.name][issue.name]
         myissues[state] ||= []
         myissues[state] << issue
@@ -614,6 +626,7 @@ class Package < ApplicationRecord
 
   def self.detect_package_kinds(directory)
     raise ArgumentError, 'neh!' if directory.key?('time')
+
     ret = []
     directory.elements('entry') do |e|
       ['patchinfo', 'aggregate', 'link', 'channel'].each do |kind|
@@ -629,6 +642,7 @@ class Package < ApplicationRecord
   def find_devel_package
     pkg = resolve_devel_package
     return if pkg == self
+
     pkg
   end
 
@@ -641,6 +655,7 @@ class Package < ApplicationRecord
     if pkg == pkg.develpackage
       raise CycleError, 'Package defines itself as devel package'
     end
+
     while pkg.develpackage || pkg.project.develproject
       # logger.debug "resolve_devel_package #{pkg.inspect}"
 
@@ -689,10 +704,12 @@ class Package < ApplicationRecord
         unless develprj
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
+
         develpkg = develprj.packages.find_by_name(pkg_name)
         unless develpkg
           raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
         end
+
         self.develpackage = develpkg
       end
       #--- end devel project ---#
@@ -730,6 +747,7 @@ class Package < ApplicationRecord
   def write_to_backend
     reset_cache
     raise ArgumentError, 'no commit_user set' unless commit_user
+
     #--- write through to backend ---#
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: commit_user.login }
@@ -756,6 +774,7 @@ class Package < ApplicationRecord
     return if name == '_project'
 
     raise ArgumentError, 'no commit_user set' unless commit_user
+
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
 
@@ -862,6 +881,7 @@ class Package < ApplicationRecord
   def service_error(revision = nil)
     revision ||= serviceinfo['xsrcmd5']
     return nil unless revision
+
     PackageServiceErrorFile.new(project_name: project.name, package_name: name).content(rev: revision)
   end
 
@@ -906,6 +926,7 @@ class Package < ApplicationRecord
     update_pkg.project.expand_all_projects.each do |prj|
       origin_package = prj.packages.find_by_name(update_pkg.name)
       next unless origin_package
+
       origin_package.binary_releases.where(obsolete_time: nil).find_each do |binary_release|
         mc = binary_release.medium_container
         container_list[mc] = 1 if mc
@@ -921,6 +942,7 @@ class Package < ApplicationRecord
       container_name.gsub!(/\.[^.]*$/, '') if container_update_project.is_maintenance_release? && !container.is_link?
       container_name << '.' << container_update_project.name.tr(':', '_') if opts[:extend_package_names]
       next if project.packages.exists?(name: container_name)
+
       target_package = Package.new(name: container_name, title: container.title, description: container.description)
       project.packages << target_package
       target_package.store(comment: comment)
@@ -932,8 +954,10 @@ class Package < ApplicationRecord
 
   def modify_channel(mode = :add_disabled)
     raise InvalidParameterError unless [:add_disabled, :enable_all].include?(mode)
+
     channel = channels.first
     return unless channel
+
     channel.add_channel_repos_to_project(self, mode)
   end
 
@@ -1006,6 +1030,7 @@ class Package < ApplicationRecord
     return false if name.length > 200
     return false if name == '0'
     return true if ['_product', '_pattern', '_project', '_patchinfo'].include?(name)
+
     # _patchinfo: is obsolete, just for backward compatibility
     allowed_characters = /[-+\w.#{allow_multibuild ? ':' : ''}]/
     reg_exp = /\A([a-zA-Z0-9]|(_product:|_patchinfo:)\w)#{allowed_characters}*\z/
@@ -1047,6 +1072,7 @@ class Package < ApplicationRecord
     bp = super
     # if it's there, it's supposed to be fine
     return bp if bp
+
     update_backendinfo
   end
 
@@ -1137,6 +1163,7 @@ class Package < ApplicationRecord
           break
         end
         next unless action.target_project == project.name && action.target_package == name
+
         begin
           request.change_state(newstate: 'declined', comment: "The target package '#{name}' has been removed")
         rescue PostRequestNoPermission
@@ -1234,6 +1261,7 @@ class Package < ApplicationRecord
 
   def self.verify_file!(pkg, name, content)
     raise IllegalFileName if name == '_attribute'
+
     PackageService::FileVerifier.new(package: pkg, file_name: name, content: content).call
   end
 
@@ -1262,6 +1290,7 @@ class Package < ApplicationRecord
 
     # update package timestamp and reindex sources
     return if opt[:rev] == 'repository' || ['_project', '_pattern'].include?(name)
+
     sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
   end
 
@@ -1379,12 +1408,15 @@ class Package < ApplicationRecord
   def _add_channel(mode, channel_binary, message)
     # add source container
     return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
+
     cpkg = channel_binary.create_channel_package_into(project, message)
     return unless cpkg
+
     # be sure that the object exists or a background job get launched
     cpkg.backend_package
     # add and enable repos
     return if mode == :add_disabled && !channel_binary.channel_binary_list.channel.is_active?
+
     cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
   end
 

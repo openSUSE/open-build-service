@@ -10,6 +10,7 @@ class GroupMaintainer < ApplicationRecord
 
   def validate_duplicates
     return unless GroupMaintainer.find_by(user: user, group: group)
+
     errors.add(:user, 'Maintainer already has this group')
   end
 end

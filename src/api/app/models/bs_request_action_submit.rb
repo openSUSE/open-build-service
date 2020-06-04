@@ -110,16 +110,20 @@ class BsRequestActionSubmit < BsRequestAction
     # if a new request is created (which could fail if User.session!
     # cannot modify the source_package).
     return unless skip_source
+
     target_project = Project.get_by_name(self.target_project)
     return unless target_project && target_project.is_a?(Project)
+
     target_package = target_project.packages.find_by_name(self.target_package)
     initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')
     return if target_package || !initialize_devel_package
+
     opts = { follow_project_links: false }
     source_package = Package.get_by_project_and_name!(source_project,
                                                       self.source_package,
                                                       opts)
     return if User.session!.can_modify?(source_package)
+
     msg = 'No permission to initialize the source package as a devel package'
     raise PostRequestNoPermission, msg
   end

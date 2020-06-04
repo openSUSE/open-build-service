@@ -35,8 +35,10 @@ module Cloud
       def self.find(job_id, options = {})
         xml = ::Backend::Api::Cloud.upload_jobs([job_id])
         return xml if options[:format] == :xml
+
         xml_hash = Xmlhash.parse(xml)['clouduploadjob']
         return if xml_hash.blank?
+
         new(xml_object: OpenStruct.new(xml_hash))
       rescue Backend::Error, Timeout::Error
         nil
@@ -45,6 +47,7 @@ module Cloud
       def self.all(user, options = {})
         xml = ::Backend::Api::Cloud.upload_jobs(user.upload_jobs.pluck(:job_id))
         return xml if options[:format] == :xml
+
         [Xmlhash.parse(xml)['clouduploadjob']].flatten.compact.map! do |xml_hash|
           new(xml_object: OpenStruct.new(xml_hash))
         end
@@ -69,6 +72,7 @@ module Cloud
 
       def validate_xml
         return if exception.blank?
+
         message = Xmlhash.parse(exception).try(:fetch, 'summary', nil) || exception
         errors.add(:base, message)
       end

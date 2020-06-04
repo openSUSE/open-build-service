@@ -48,6 +48,7 @@ module ProjectStatus
 
     def set_versrel(versrel, time)
       return if @versiontime && @versiontime.to_i > time.to_i
+
       versrel = versrel.split('-')
       @versiontime = time
       @version = versrel[0..-2].join('-')

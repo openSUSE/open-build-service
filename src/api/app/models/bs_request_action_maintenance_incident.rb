@@ -99,6 +99,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       raise NoMaintenanceProject, 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
     raise IllegalRequest, 'Target package must not be specified in maintenance_incident actions' if target_package
+
     super(ignore_build_state, ignore_delegate)
   end
 
@@ -116,6 +117,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       # local link, skip it, it will come via branch command
       return
     end
+
     kinds = Package.detect_package_kinds(dir_hash)
     pkg_title = ''
     pkg_description = ''

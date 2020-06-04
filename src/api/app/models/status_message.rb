@@ -35,12 +35,14 @@ class StatusMessage < ApplicationRecord
     announcement = StatusMessage.announcements.find_by(communication_scope: StatusMessage.communication_scopes_for_current_user)
     return nil unless announcement
     return nil if StatusMessageAcknowledgement.find_by(status_message: announcement, user: User.session)
+
     announcement
   end
 
   def self.communication_scopes_for_current_user
     scopes = [:all_users]
     return scopes unless User.session
+
     scopes << :admin_users if User.session.is_admin?
     scopes << :in_rollout_users if User.session.in_rollout?
     scopes << :in_beta_users if User.session.in_beta?

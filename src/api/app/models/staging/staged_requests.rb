@@ -14,6 +14,7 @@ class Staging::StagedRequests
     create
 
     return if valid?
+
     raise Staging::ExcludedRequestNotFound, errors.to_sentence
   end
 
@@ -133,6 +134,7 @@ class Staging::StagedRequests
 
   def unstageable?(request, staging_project)
     return true if staging_project && staging_project.overall_state != :accepting
+
     errors << if staging_project.nil?
                 "Request '#{request.number}' is not staged"
               else

@@ -92,6 +92,7 @@ class Relationship < ApplicationRecord
     end
     # We don't need to check the relationships if we don't have a User
     return forbidden_projects[:projects] unless User.session
+
     # The cache sequence is for invalidating user centric cache entries for all users
     Rails.cache.fetch(cache_user_centric_key) do
       # Normal users can be in the whitelist let's substract allowed projects
@@ -138,6 +139,7 @@ class Relationship < ApplicationRecord
 
   def check_global_role
     return unless role && role.global
+
     errors.add(:base,
                "global role #{role.title} is not allowed.")
   end

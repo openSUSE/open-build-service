@@ -34,6 +34,7 @@ class Architecture < ApplicationRecord
     unless archcache.key?(archname)
       raise ActiveRecord::RecordNotFound, "unknown architecture: '#{archname}'"
     end
+
     archcache[archname]
   end
 

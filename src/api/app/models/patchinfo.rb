@@ -64,6 +64,7 @@ class Patchinfo
 
   def is_repository_matching?(repo, rt)
     return false if repo.project.name != rt['project']
+
     if rt['repository']
       return false if repo.name != rt['repository']
     end
@@ -90,6 +91,7 @@ class Patchinfo
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
       raise TrackerNotFound, "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
+
       issue = Issue.new(name: i['id'], issue_tracker: tracker)
       raise Issue::InvalidName, issue.errors.full_messages.to_sentence unless issue.valid?
     end
@@ -100,6 +102,7 @@ class Patchinfo
   def add_issue_to_patchinfo(issue)
     tracker = issue.issue_tracker
     return if @patchinfo.document.xpath("issue[(@id='#{issue.name}' and @tracker='#{tracker.name}')]").present?
+
     @patchinfo.document.root.add_child("<issue id='#{issue.name}' tracker='#{tracker.name}'/>")
     @patchinfo.document.at_css('category').content = 'security' if tracker.kind == 'cve'
   end
@@ -125,8 +128,10 @@ class Patchinfo
     # update informations of empty issues
     patchinfo.document.css('issue').each do |i|
       next if i.content.present? || i['name'].blank?
+
       issue = Issue.find_or_create_by_name_and_tracker(i['name'], i['tracker'])
       next unless issue
+
       # enforce update from issue server
       issue.fetch_updates if opts[:enfore_issue_update]
       i.text = issue.summary
@@ -189,6 +194,7 @@ class Patchinfo
 
     @pkg = Package.get_by_project_and_name(project, pkg_name)
     return if force
+
     if @pkg.is_patchinfo?
       raise PatchinfoFileExists, "createpatchinfo command: the patchinfo #{pkg_name} exists already. " \
                                  'Either use force=1 re-create the _patchinfo or use updatepatchinfo for updating.'
@@ -241,6 +247,7 @@ class Patchinfo
     if data.empty?
       raise IncompletePatchinfo, 'The _patchinfo file is not parseble'
     end
+
     ['rating', 'category', 'summary'].each do |field|
       if data[field].blank?
         raise IncompletePatchinfo, "The _patchinfo has no #{field} set"
@@ -356,8 +363,10 @@ class Patchinfo
 
   def issue_tracker_existence
     return if issuetracker.blank?
+
     unknown_issue_trackers = issuetracker.uniq - IssueTracker.where(name: issuetracker).pluck(:name)
     return if unknown_issue_trackers.empty?
+
     errors.add(:base, "Unknown Issue trackers: #{unknown_issue_trackers.to_sentence}")
   end
 end

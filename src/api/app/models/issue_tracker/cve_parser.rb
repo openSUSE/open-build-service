@@ -20,11 +20,13 @@ class IssueTracker::CVEParser < Nokogiri::XML::SAX::Document
 
   def characters(content)
     return unless @is_desc
+
     @my_summary += content.chomp
   end
 
   def end_element(name)
     return unless name == 'item'
+
     if @my_summary.present?
       @my_issue.summary = @my_summary[0..254]
       @my_issue.save

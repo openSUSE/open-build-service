@@ -32,6 +32,7 @@ class BsRequestActionDelete < BsRequestAction
   def sourcediff(opts = {})
     raise DiffError, "Project diff isn't implemented yet" unless target_package || target_repository
     return '' unless target_package
+
     begin
       options = { expand: 1, filelimit: 0, rev: 0 }
       options[:view] = 'xml' if opts[:view] == 'xml' # Request unified diff in full XML view
@@ -71,6 +72,7 @@ class BsRequestActionDelete < BsRequestAction
     unless r
       raise RepositoryMissing, "The repository #{target_project} / #{target_repository} does not exist"
     end
+
     r.destroy
     prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: bs_request)
   end

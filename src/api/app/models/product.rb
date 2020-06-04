@@ -7,6 +7,7 @@ class Product < ApplicationRecord
 
   def self.find_or_create_by_name_and_package(name, package)
     raise Product::NotFoundError, 'Error: Package not valid.' unless package.class == Package
+
     product = find_by_name_and_package(name, package)
 
     product = create(name: name, package: package) if product.empty?
@@ -64,6 +65,7 @@ class Product < ApplicationRecord
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
             next unless p['name'] == name
+
             self.baseversion = p['baseversion']
             self.patchlevel = p['patchlevel']
             pversion = p['version']
@@ -97,6 +99,7 @@ class Product < ApplicationRecord
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
+
         pool_repo = Repository.find_by_project_and_name(repo['project'], repo['name'])
         unless pool_repo
           errors.add(:missing, "Pool repository #{repo['project']}/#{repo['name']} missing")
@@ -131,6 +134,7 @@ class Product < ApplicationRecord
       update = {}
       product_update_repositories.each do |pu|
         next unless pu.repository # it may be remote or not yet exist
+
         key = pu.repository.id.to_s
         key += '/' + pu.arch_filter.name if pu.arch_filter_id
         update[key] = pu
@@ -138,6 +142,7 @@ class Product < ApplicationRecord
       u.elements('repository') do |repo|
         update_repo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
         next unless update_repo # it might be a remote repo, which will not become indexed
+
         arch = repo.get('arch')
         key = update_repo.id.to_s
         p = { product: self, repository: update_repo }

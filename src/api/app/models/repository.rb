@@ -78,6 +78,7 @@ class Repository < ApplicationRecord
     linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link, :repository).each do |pe|
         next unless pe.link == self # this is not pointing to our repo
+
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).present?
           # repo has already a path element pointing to deleted repository
           pe.destroy
@@ -93,6 +94,7 @@ class Repository < ApplicationRecord
     linking_target_repositories.each do |lrep|
       lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
         next unless rt.target_repository == self # this is not pointing to our repo
+
         repo = rt.repository
         if lrep.targetlinks.where(repository_id: Repository.deleted_instance).present?
           # repo has already a path element pointing to deleted repository
@@ -118,6 +120,7 @@ class Repository < ApplicationRecord
     links.each do |path_element|
       # skip self referencing repos to avoid loops
       next if path_element.repository_id == id
+
       path_element.repository.expand_all_repositories.each do |repo|
         repositories << repo
       end
@@ -150,6 +153,7 @@ class Repository < ApplicationRecord
   # or empty list
   def linking_repositories
     return [] if links.size.zero?
+
     # FIXME: This is the same as using a `has_many through:` association
     links.map(&:repository)
   end
@@ -160,11 +164,13 @@ class Repository < ApplicationRecord
       return true if ChannelTarget.find_by_repo(pe.link, [project]).any?
     end
     return true if ChannelTarget.find_by_repo(self, [project]).any?
+
     false
   end
 
   def linking_target_repositories
     return [] if targetlinks.size.zero?
+
     # FIXME: This is the same as using a `has_many through:` association
     targetlinks.map(&:target_repository)
   end
@@ -210,6 +216,7 @@ class Repository < ApplicationRecord
       # pointing to this external repo.
       source_repository.path_elements.each do |spe|
         next unless spe.link.project == source_repository.project
+
         local_repository = project.repositories.find_by_name(spe.link.name)
         path_elements.create(link: local_repository, position: position)
         position += 1
@@ -251,6 +258,7 @@ class Repository < ApplicationRecord
 
   def remote_project_name_not_nill
     return unless remote_project_name.nil?
+
     errors.add(:remote_project_name, 'cannot be nil')
   end
 

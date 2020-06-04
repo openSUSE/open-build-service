@@ -119,6 +119,7 @@ class BinaryRelease < ApplicationRecord
       # and mark all not processed binaries as removed
       oldlist.each do |e|
         next if processed_item[e.id]
+
         e.obsolete_time = time
         e.save!
         # create an additional "removed" entry here? No one asked for it yet ....
@@ -210,6 +211,7 @@ class BinaryRelease < ApplicationRecord
     [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium].each do |key|
       value = send(key)
       next unless value
+
       ekey = key.to_s.gsub(/^binary_/, '')
       attributes[ekey] = value
     end

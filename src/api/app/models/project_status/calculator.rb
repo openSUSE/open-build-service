@@ -55,6 +55,7 @@ module ProjectStatus
 
     def add_recursively(mypackages, dbpack)
       return if mypackages.key?(dbpack.id)
+
       pack = PackInfo.new(dbpack)
       pack.backend_package = dbpack.backend_package
 

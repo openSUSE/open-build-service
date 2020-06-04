@@ -16,6 +16,7 @@ class WorkerStatus
 
       worker_status.css('building').each do |b|
         next if prj_names.include?(b['project'])
+
         hide_project_information(b)
       end
       worker_status
@@ -98,6 +99,7 @@ class WorkerStatus
         worker_id = e.attributes['workerid'].value
         # building+idle worker
         next if workers.key?(worker_id)
+
         workers[worker_id] = 1
         key = generic_key_generation([state, e.attributes['hostarch'].value])
         allworkers[key] += 1
