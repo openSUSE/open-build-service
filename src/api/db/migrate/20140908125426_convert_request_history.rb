@@ -13,8 +13,10 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
       puts 'This can take some time...' if BsRequest.count > 1000
       BsRequest.all.each do |request|
         next if request.state == :new # nothing happend yet
+
         user[request.commenter] ||= User.find_by_login request.commenter
         next unless user[request.commenter]
+
         p = { created_at: request.updated_at, user: user[request.commenter], op_object_id: request.id }
         p[:comment] = request.comment if request.comment.present?
         history = nil
@@ -35,8 +37,10 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
       puts "Creating some history elements based on #{Review.count} reviews..."
       Review.all.each do |review|
         next if review.state == :new # nothing happend yet
+
         user[review.reviewer] ||= User.find_by_login review.reviewer
         next unless user[review.reviewer]
+
         p = { created_at: review.updated_at, user: user[review.reviewer], op_object_id: review.id }
         p[:comment] = review.reason if review.reason.present?
         history = nil
@@ -58,6 +62,7 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
       s.each do |e|
         user[e.commenter] ||= User.find_by_login e.commenter
         next unless user[e.commenter]
+
         p = { created_at: e.created_at, user: user[e.commenter], op_object_id: e.bs_request_id }
         p[:comment] = e.comment if e.comment.present?
 
@@ -93,6 +98,7 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
           history = HistoryElement::RequestAllReviewsApproved
         end
         next unless history
+
         history.create(p)
         e.destroy
       end

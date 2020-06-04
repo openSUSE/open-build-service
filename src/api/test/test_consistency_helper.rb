@@ -20,6 +20,7 @@ def resubmit_all_fixtures
     r = @response.body
     User.session = User.find_by_login('king')
     next if Project.find_by_name(name).is_locked?
+
     User.session = nil
     # FIXME: add some more validation checks here
     put "/source/#{name}/_meta", params: r.dup

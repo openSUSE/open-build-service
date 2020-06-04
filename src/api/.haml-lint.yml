@@ -17,6 +17,8 @@ linters:
       - Lint/BlockAlignment
       - Lint/EndAlignment
       - Lint/Void
+      # It's impossible to fix since new lines aren't taken into account - https://github.com/sds/haml-lint/issues/285
+      - Layout/EmptyLineAfterGuardClause
       - Layout/ParameterAlignment
       - Layout/ElseAlignment
       - Layout/EndOfLine

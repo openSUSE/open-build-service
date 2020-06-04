@@ -9,6 +9,7 @@ class MarkEvents < ActiveRecord::Migration[4.2]
     # unless there is a delayed job for it
     Delayed::Job.where("handler like '%ruby/object:SendEventEmails%'").each do |j|
       next unless j.payload_object.event
+
       j.payload_object.event.update(mails_sent: false)
     end
 

@@ -15,6 +15,7 @@ class MigrateCommentPayload < ActiveRecord::Migration[5.2]
     payload = event.payload
     # Find unconverted comment events
     return unless integer?(payload['commenter'])
+
     payload[:commenter] = User.find(event.payload['commenter']).login
     payload[:commenters] = User.find(event.payload['commenters']).pluck(:login)
     event.set_payload(payload, payload.keys)
