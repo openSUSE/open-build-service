@@ -45,27 +45,15 @@ module ProjectStatus
       data = Xmlhash.parse(Backend::Api::BuildResults::Binaries.job_history(dname, repo, arch))
       return [] if data.blank?
 
-      ret = []
-      data.elements('jobhist') do |p|
-        line = {
+      data.elements('jobhist').collect do |p|
+        {
           'name' => p['package'],
           'code' => p['code'],
           'versrel' => p['versrel'],
-          'verifymd5' => p['verifymd5']
+          'verifymd5' => p['verifymd5'],
+          'readytime' => p.key?('readytime') ? p['readytime'].to_i : 0
         }
-
-        if p.key?('readytime')
-          if p['readytime'].respond_to?(:to_i)
-            line['readytime'] = p['readytime'].to_i
-          else
-            line['readytime'] = 0
-          end
-        else
-          line['readytime'] = 0
-        end
-        ret << line
       end
-      ret
     end
 
     def add_recursively(mypackages, dbpack)
