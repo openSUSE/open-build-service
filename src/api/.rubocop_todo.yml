@@ -6,14 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 583
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterGuardClause:
-  Exclude:
-    - 'app/policies/**/*'
-    - 'app/views/**/*'
-    - 'spec/**/*'
-
 # Offense count: 2
 Lint/DuplicateMethods:
   Exclude:

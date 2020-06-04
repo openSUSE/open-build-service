@@ -10,6 +10,7 @@ class PackagePolicy < ApplicationPolicy
     return true if user.is_admin? ||
                    user.has_global_permission?('create_package') ||
                    user.has_local_permission?('create_package', record.project)
+
     false
   end
 
