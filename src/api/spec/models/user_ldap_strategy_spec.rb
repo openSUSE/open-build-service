@@ -383,6 +383,7 @@ RSpec.describe UserLdapStrategy do
           # First time LDAP works, second time is raises an error, third time it works etc.
           allow(ldap_mock).to receive(:search) do
             raise StandardError if times_called == 1
+
             times_called += 1
           end
           allow(ldap_mock).to receive(:err).and_return('something went wrong')
