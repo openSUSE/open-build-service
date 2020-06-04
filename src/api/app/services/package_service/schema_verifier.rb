@@ -13,6 +13,7 @@ module PackageService
 
     def call
       return unless allowed_schema?
+
       # if it doesn't validate, exception will be raised
       SCHEMAS.each { |schema| validate_schema!(schema) if schema?(schema) }
     end

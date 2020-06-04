@@ -19,6 +19,7 @@ module Staging
 
     def authorized?
       return can_create? if @project.new_record?
+
       can_update?
     end
 

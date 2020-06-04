@@ -38,6 +38,7 @@ module Webui::MaintenanceIncidentHelper
 
   def patchinfo_data(patchinfo)
     return {} unless patchinfo
+
     Xmlhash.parse(patchinfo.source_file('_patchinfo')).slice('summary', 'category', 'stopped').with_indifferent_access
   end
 
@@ -61,6 +62,7 @@ module Webui::MaintenanceIncidentHelper
   def packages_cell(incident)
     packages = incident.packages_with_release_target.limit(2).pluck(:name)
     return if packages.empty?
+
     first_package = packages.first
     safe_join([
                 link_to(first_package.split('.', 2)[0], package_show_path(project: incident.name, package: first_package)),
@@ -74,6 +76,7 @@ module Webui::MaintenanceIncidentHelper
 
   def stopped_icon(patchinfo)
     return unless patchinfo[:stopped]
+
     content_tag(:div) do
       safe_join([content_tag(:i, nil, class: 'fas fa-clock text-info pr-1'), "Stopped: #{patchinfo[:stopped]}"])
     end

@@ -11,9 +11,7 @@
 Layout/EmptyLineAfterGuardClause:
   Exclude:
     - 'app/policies/**/*'
-    - 'app/services/**/*'
     - 'app/views/**/*'
-    - 'app/helpers/**/*'
     - 'spec/**/*'
 
 # Offense count: 2

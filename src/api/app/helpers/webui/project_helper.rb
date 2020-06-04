@@ -26,6 +26,7 @@ module Webui::ProjectHelper
 
   def rebuild_time_col(package)
     return '' if package.blank?
+
     btime = @timings[package][0]
     link_to(h(package), controller: '/webui/package', action: :show, project: @project, package: package) + ' ' + format_seconds(btime)
   end
@@ -35,6 +36,7 @@ module Webui::ProjectHelper
     return false if @project.defines_remote_instance?
     return true unless @is_incident_project && @packages.present? &&
                        @has_patchinfo && @open_release_requests.empty?
+
     false
   end
 

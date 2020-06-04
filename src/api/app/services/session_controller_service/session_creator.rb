@@ -9,6 +9,7 @@ module SessionControllerService
 
     def valid?
       return true if @username.present? && @password.present?
+
       false
     end
 
