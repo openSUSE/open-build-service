@@ -26,6 +26,7 @@ class ConsistencyCheckJob < ApplicationJob
     @errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) { |project| check_one_project(project, fix) }
     return if @errors.empty?
+
     @errors = "FIXING the following errors:\n" << @errors if fix
     Rails.logger.error('Detected problems during consistency check')
     Rails.logger.error(@errors)
@@ -175,8 +176,10 @@ class ConsistencyCheckJob < ApplicationJob
     package_list_api = project.packages.pluck(:name)
     package_list_api.each do |name|
       next if Package.valid_name?(name)
+
       errors << "Invalid package name #{name} in project #{project.name}\n"
       next unless fix
+
       # just remove it, the backend won't accept it anyway
       pkg = project.packages.find_by(name: name)
       pkg.commit_opts = { no_backend_write: 1 }

@@ -14,10 +14,7 @@ Layout/EmptyLineAfterGuardClause:
     - 'app/policies/**/*'
     - 'app/services/**/*'
     - 'app/views/**/*'
-    - 'app/mailers/**/*'
-    - 'app/mixins/**/*'
     - 'app/helpers/**/*'
-    - 'app/jobs/**/*'
     - 'spec/**/*'
 
 # Offense count: 2

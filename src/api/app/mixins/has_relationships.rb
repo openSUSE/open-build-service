@@ -41,6 +41,7 @@ module HasRelationships
 
   def user_has_role?(user, role)
     return true if relationships.where(role_id: role.id, user_id: user.id).exists?
+
     relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
   end
 
@@ -98,6 +99,7 @@ module HasRelationships
     cache.each do |_, roles|
       roles.each do |_, object|
         next if [:keep, :new].include?(object)
+
         object.destroy
       end
     end
@@ -171,6 +173,7 @@ module HasRelationships
     cache = {}
     relationships.each do |purr|
       next if @updater.ignore?(purr)
+
       h = cache[@updater.name_for_relationship(purr)] ||= {}
       h[purr.role.title] = purr
     end
