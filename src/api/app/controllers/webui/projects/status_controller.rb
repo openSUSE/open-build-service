@@ -40,7 +40,7 @@ module Webui
       private
 
       def calc_status(project_name)
-        @api_obj = ::Project.where(name: project_name).includes(:packages).first
+        @api_obj = Project.includes(:packages).find_by!(name: project_name)
         @status = {}
 
         # needed to map requests to package id
