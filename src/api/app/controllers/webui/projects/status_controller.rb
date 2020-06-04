@@ -62,9 +62,9 @@ module Webui
         { packages: @packages, projects: @develprojects.keys }
       end
 
-      def status_check_package(p)
+      def status_check_package(package)
         currentpack = {}
-        pname = p.name
+        pname = package.name
 
         currentpack['requests_from'] = []
         key = @api_obj.name + '/' + pname
@@ -75,13 +75,13 @@ module Webui
         end
 
         currentpack['name'] = pname
-        currentpack['failedcomment'] = p.failed_comment if p.failed_comment.present?
+        currentpack['failedcomment'] = package.failed_comment if package.failed_comment.present?
 
         newest = 0
 
-        p.fails.each do |repo, arch, time, md5|
+        package.fails.each do |repo, arch, time, md5|
           next if newest > time
-          next if md5 != p.verifymd5
+          next if md5 != package.verifymd5
 
           currentpack['failedarch'] = arch
           currentpack['failedrepo'] = repo
@@ -93,16 +93,16 @@ module Webui
         currentpack['problems'] = []
         currentpack['requests_to'] = []
 
-        currentpack['md5'] = p.verifymd5
+        currentpack['md5'] = package.verifymd5
 
-        check_devel_package_status(currentpack, p)
-        currentpack.merge!(project_status_set_version(p))
+        check_devel_package_status(currentpack, package)
+        currentpack.merge!(project_status_set_version(package))
 
-        if p.links_to
-          if currentpack['md5'] != p.links_to.verifymd5
+        if package.links_to
+          if currentpack['md5'] != package.links_to.verifymd5
             currentpack['problems'] << 'diff_against_link'
-            currentpack['lproject'] = p.links_to.project
-            currentpack['lpackage'] = p.links_to.name
+            currentpack['lproject'] = package.links_to.project
+            currentpack['lpackage'] = package.links_to.name
           end
         end
 
