@@ -1,7 +1,6 @@
 class InitialDatabase < ActiveRecord::Migration[4.2]
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
-  # rubocop:disable Layout/LineLength
   def self.up
     # rubocop:disable Layout/ExtraSpacing
     create_table 'architectures', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
@@ -923,7 +922,6 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
   end
   # rubocop:enable Metrics/AbcSize
   # rubocop:enable Metrics/MethodLength
-  # rubocop:enable Layout/LineLength
 
   def self.down
     raise ActiveRecord::IrreversibleMigration

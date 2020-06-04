@@ -194,9 +194,7 @@ class BsRequestPermissionCheck
       begin
         Backend::Api::Sources::Package.files(action.source_project, action.source_package, query)
       rescue Backend::Error
-        # rubocop:disable Layout/LineLength
         raise ExpandError, "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
-        # rubocop:enable Layout/LineLength
       end
     end
 

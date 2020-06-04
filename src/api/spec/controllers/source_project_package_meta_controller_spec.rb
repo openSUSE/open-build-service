@@ -36,14 +36,12 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
   describe 'PUT #update' do
     context 'well-formated XML' do
       let(:meta) do
-        # rubocop: disable Layout/IndentHeredoc
         <<~META
           <package name="foo" project="#{project_with_package.name}">
             <title>My cool package</title>
             <description/>
           </package>
         META
-        # rubocop: enable Layout/IndentHeredoc
       end
 
       before do

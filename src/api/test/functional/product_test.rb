@@ -1,4 +1,3 @@
-# rubocop:disable Layout/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -394,4 +393,3 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
-# rubocop:enable Layout/LineLength
