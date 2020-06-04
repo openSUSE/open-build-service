@@ -6,13 +6,13 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
 
   before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :add_file, :save_file,
+                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :save_file,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :add_file, :save_file,
+                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :save_file,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
                                          :binary_download]
@@ -357,10 +357,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
     end
     redirect_to package_show_path(@project, @package)
-  end
-
-  def add_file
-    set_file_details
   end
 
   def save_file

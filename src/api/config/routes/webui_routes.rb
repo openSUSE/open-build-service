@@ -74,7 +74,6 @@ OBSApi::Application.routes.draw do
         get 'package/new/:project' => :new, constraints: cons, as: 'new_package'
         post 'package/save/:project/:package' => :save, constraints: cons, as: 'package_save'
         post 'package/remove/:project/:package' => :remove, constraints: cons
-        get 'package/add_file/:project/:package' => :add_file, constraints: cons, as: 'package_add_file'
         post 'package/save_file/:project/:package' => :save_file, constraints: cons
         post 'package/remove_file/:project/:package/:filename' => :remove_file, constraints: cons
         post 'package/save_person/:project/:package' => :save_person, constraints: cons, as: 'package_save_person'
@@ -268,6 +267,7 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: [:new, :create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
+        resource :files, controller: 'webui/packages/files', only: [:new], constraints: cons
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
