@@ -72,6 +72,7 @@ RSpec.describe BsRequest, vcr: true do
   describe '#assignreview' do
     context 'from group to user' do
       let(:reviewer) { create(:confirmed_user) }
+      let(:new_review) { request.reviews.last }
       let(:group) { create(:group) }
       let!(:request) { create(:set_bugowner_request, creator: reviewer, review_by_group: group) }
       let(:review) { request.reviews.first }
@@ -81,8 +82,6 @@ RSpec.describe BsRequest, vcr: true do
       end
 
       subject! { request.assignreview(by_group: group.title, reviewer: reviewer.login) }
-
-      let(:new_review) { request.reviews.last }
 
       it { expect(request.reviews.count).to eq(2) }
 
@@ -102,6 +101,7 @@ RSpec.describe BsRequest, vcr: true do
 
   describe '#addreview' do
     let(:reviewer) { create(:confirmed_user) }
+    let(:history_element) { HistoryElement::RequestReviewAdded.last }
     let(:group) { create(:group) }
     let!(:request) { create(:set_bugowner_request, creator: reviewer) }
 
@@ -111,8 +111,6 @@ RSpec.describe BsRequest, vcr: true do
     end
 
     subject { Review.last }
-
-    let(:history_element) { HistoryElement::RequestReviewAdded.last }
 
     it { expect(subject.state).to eq(:new) }
     it { expect(subject.by_group).to eq(group.title) }

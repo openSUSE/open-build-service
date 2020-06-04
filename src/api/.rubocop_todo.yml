@@ -386,16 +386,6 @@ RSpec/RepeatedExampleGroupDescription:
     - 'spec/models/users/requests_spec.rb'
     - 'spec/policies/user_policy_spec.rb'
 
-# Offense count: 9
-# Cop supports --auto-correct.
-RSpec/ScatteredLet:
-  Exclude:
-    - 'spec/controllers/webui/patchinfo_controller_spec.rb'
-    - 'spec/controllers/webui/subscriptions_controller_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'spec/models/package_spec.rb'
-    - 'spec/models/project_spec.rb'
-
 # Offense count: 4
 RSpec/ScatteredSetup:
   Exclude:

@@ -12,6 +12,31 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
     Patchinfo.new.create_patchinfo(user.home_project_name, nil) unless user.home_project.packages.where(name: 'patchinfo').exists?
     Package.get_by_project_and_name(user.home_project_name, 'patchinfo', use_source: false)
   end
+  let(:fake_build_results) do
+    <<-HEREDOC
+      <resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
+        <result project="home:macario" repository="fake_repo" arch="i586" code="unknown" state="unknown" dirty="true">
+         <binarylist>
+            <binary filename="fake_binary_001"/>
+            <binary filename="fake_binary_002"/>
+            <binary filename="updateinfo.xml"/>
+            <binary filename="rpmlint.log"/>
+          </binarylist>
+        </result>
+      </resultlist>
+    HEREDOC
+  end
+  let(:fake_patchinfo_with_binaries) do
+    Patchinfo.new(data:
+      '<patchinfo>
+        <category>recommended</category>
+        <rating>low</rating>
+        <packager>macario</packager>
+        <summary/>
+        <description/>
+        <binary>fake_binary_001</binary>
+      </patchinfo>')
+  end
 
   def do_proper_post_save
     put :update, params: {
@@ -28,33 +53,6 @@ RSpec.describe Webui::PatchinfoController, vcr: true do
         packager: user.login
       }
     }
-  end
-
-  let(:fake_build_results) do
-    <<-HEREDOC
-      <resultlist state="2b71f05ecb8742e3cd7f6066a5097c72">
-        <result project="home:macario" repository="fake_repo" arch="i586" code="unknown" state="unknown" dirty="true">
-         <binarylist>
-            <binary filename="fake_binary_001"/>
-            <binary filename="fake_binary_002"/>
-            <binary filename="updateinfo.xml"/>
-            <binary filename="rpmlint.log"/>
-          </binarylist>
-        </result>
-      </resultlist>
-    HEREDOC
-  end
-
-  let(:fake_patchinfo_with_binaries) do
-    Patchinfo.new(data:
-      '<patchinfo>
-        <category>recommended</category>
-        <rating>low</rating>
-        <packager>macario</packager>
-        <summary/>
-        <description/>
-        <binary>fake_binary_001</binary>
-      </patchinfo>')
   end
 
   after do
