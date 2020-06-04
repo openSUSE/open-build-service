@@ -14,7 +14,6 @@ Layout/EmptyLineAfterGuardClause:
     - 'app/policies/**/*'
     - 'app/services/**/*'
     - 'app/views/**/*'
-    - 'app/mixins/**/*'
     - 'app/helpers/**/*'
     - 'spec/**/*'
 

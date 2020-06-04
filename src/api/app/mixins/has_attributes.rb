@@ -11,6 +11,7 @@ module HasAttributes
 
   def write_attributes
     return unless CONFIG['global_write_through']
+
     project_name = is_a?(Project) ? name : project.name
     if is_a?(Package)
       Backend::Api::Sources::Package.write_attributes(project_name, name, User.session!.login, render_attribute_axml)
@@ -50,6 +51,7 @@ module HasAttributes
     # write values
     a.update_with_associations(values, issues)
     return unless a.saved_changes?
+
     write_attributes
   end
 
@@ -59,6 +61,7 @@ module HasAttributes
     if is_a?(Project) && binary
       raise AttributeFindError, 'binary packages are not allowed in project attributes'
     end
+
     query = attribs.joins(attrib_type: :attrib_namespace)
     query = query.where(attrib_types: { name: name },
                         binary: binary,
@@ -83,6 +86,7 @@ module HasAttributes
   def render_main_attributes(builder, opts)
     attribs.each do |attr|
       next unless render?(attr, opts[:attrib_type], opts[:binary])
+
       p = {}
       p[:name] = attr.attrib_type.name
       p[:namespace] = attr.attrib_type.attrib_namespace.name
@@ -103,6 +107,7 @@ module HasAttributes
   def matches_binary_filter?(filter, binary)
     return true unless filter
     return false if binary != filter
+
     # switch between all and NULL binary
     filter != '' || binary == ''
   end
