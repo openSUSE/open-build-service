@@ -79,9 +79,9 @@ module ProjectStatus
         add_recursively(mypackages, dbpack)
       end
 
-      list = Project.joins(:packages).where(packages: { id: mypackages.keys }).pluck('projects.id, projects.name, packages.id')
       projects = {}
-      list.each do |project_id, project_name, package_name|
+
+      get_list_of_project_and_packages(mypackages.keys).each do |project_id, project_name, package_name|
         package_info = mypackages[package_name]
         package_info.project = project_name
         if package_info.links_to_id
@@ -102,6 +102,12 @@ module ProjectStatus
       end
 
       mypackages
+    end
+
+    private
+
+    def get_list_of_project_and_packages(ids)
+      Project.joins(:packages).where(packages: { id: ids }).pluck('projects.id, projects.name, packages.id')
     end
   end
 end
