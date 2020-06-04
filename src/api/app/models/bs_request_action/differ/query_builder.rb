@@ -64,6 +64,7 @@ class BsRequestAction
         # the target is by default the _link target
         # maintenance_release creates new packages instance, but are changing the source only according to the link
         return if action.target_package && action.action_type == :maintenance_incident
+
         begin
           data = Xmlhash.parse(Backend::Api::Sources::Package.files(action.source_project, spkg))
         rescue Backend::Error
@@ -71,9 +72,11 @@ class BsRequestAction
         end
         linkinfo = data['linkinfo']
         return unless linkinfo
+
         self.target_project ||= linkinfo['project']
         self.target_package ||= linkinfo['package']
         return unless linkinfo['project'] == action.source_project
+
         # a local link, check if the real source change gets also transported in a seperate action
         action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo['package']) } if action.bs_request
       end

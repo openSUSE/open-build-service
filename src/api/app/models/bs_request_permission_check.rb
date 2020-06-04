@@ -41,6 +41,7 @@ class BsRequestPermissionCheck
       unless @target_project.kind == 'maintenance'
         raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}"
       end
+
       tip = Project.get_by_name(action.target_project + ':' + opts[:incident])
       raise ProjectLocked if tip && tip.is_locked?
     end
@@ -73,12 +74,14 @@ class BsRequestPermissionCheck
     if by_group && !User.session!.is_in_group?(by_group)
       raise ReviewChangeStateNoPermission, "review state change for group #{by_group.title} is not permitted for #{User.session!.login}"
     end
+
     if by_package && !User.session!.can_modify?(by_package, true)
       raise ReviewChangeStateNoPermission, "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " \
                                            "is not permitted for #{User.session!.login}"
     end
 
     return unless by_project && !User.session!.can_modify?(by_project, true)
+
     raise ReviewChangeStateNoPermission, "review state change for project #{opts[:by_project]} is not permitted for #{User.session!.login}"
   end
 
@@ -151,6 +154,7 @@ class BsRequestPermissionCheck
 
       # abort immediatly if we want to write and can't
       next unless accept_check && !@write_permission_in_this_action
+
       msg = ''
       unless action.bs_request.new_record?
         msg = 'No permission to modify target of request ' \
@@ -294,6 +298,7 @@ class BsRequestPermissionCheck
   def check_newstate_action!(action, opts)
     # relaxed checks for final exit states
     return if opts[:newstate].in?(['declined', 'revoked', 'superseded'])
+
     if opts[:newstate] == 'accepted' || opts[:cmd] == 'approve'
       check_accepted_action(action)
     else # only check the target is sane
@@ -338,6 +343,7 @@ class BsRequestPermissionCheck
     unless @write_permission_in_target || @write_permission_in_source
       raise AddReviewNotPermitted, "You have no role in request #{req.number}"
     end
+
     true
   end
 

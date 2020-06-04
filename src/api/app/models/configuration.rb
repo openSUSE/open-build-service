@@ -51,6 +51,7 @@ class Configuration < ApplicationRecord
         # make them boolean
         return value.in?([:on, ':on', 'on', 'true', true])
       end
+
       value
     end
 

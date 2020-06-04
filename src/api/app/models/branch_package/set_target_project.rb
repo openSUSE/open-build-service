@@ -14,6 +14,7 @@ class BranchPackage::SetTargetProject
 
   def target_project
     return @target_project if @target_project
+
     if @request
       User.session!.branch_project_name("REQUEST_#{@request}")
     elsif @project

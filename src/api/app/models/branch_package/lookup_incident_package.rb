@@ -8,6 +8,7 @@ class BranchPackage::LookupIncidentPackage
     possible_packages = @link_target_project.maintenance_projects.collect do |mp|
       # only approved maintenance projects
       next unless maintenance_projects.include?(mp.maintenance_project)
+
       # extract possible packages
       possible_packages(mp.maintenance_project)
     end.flatten
@@ -25,6 +26,7 @@ class BranchPackage::LookupIncidentPackage
       possible_package = Package.find_by_project_and_name(e.attributes['project'].value,
                                                           e.attributes['name'].value)
       next if possible_package.nil? || !incident?(possible_package)
+
       possible_package
     end
   end

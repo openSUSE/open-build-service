@@ -55,6 +55,7 @@ class Group < ApplicationRecord
 
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
+
       user = User.find_by_login!(maintainer['userid'])
       if cache.key?(user.id)
         # user has already a role in this package
@@ -74,6 +75,7 @@ class Group < ApplicationRecord
     if persons
       persons.elements('person') do |person|
         next unless person['userid']
+
         user = User.find_by_login!(person['userid'])
         if cache.key?(user.id)
           # user has already a role in this package
@@ -92,6 +94,7 @@ class Group < ApplicationRecord
 
   def add_user(user)
     return if users.find_by_id(user.id) # avoid double creation
+
     gu = GroupsUser.create(user: user, group: self)
     gu.save!
   end

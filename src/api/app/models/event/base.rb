@@ -62,6 +62,7 @@ module Event
       def create_jobs(*keys)
         # this function serves both for reading and setting
         return @create_jobs || [] if keys.empty?
+
         @create_jobs ||= []
         @create_jobs += keys
       end
@@ -69,6 +70,7 @@ module Event
       def receiver_roles(*keys)
         # this function serves both for reading and setting
         return @receiver_roles || [] if keys.empty?
+
         @receiver_roles ||= []
         @receiver_roles += keys
       end
@@ -157,6 +159,7 @@ module Event
       create_jobs.each do |job|
         job_class = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if job_class.nil?
+
         job_obj = job_class.new
         raise("#{job.to_s.camelize} is not a CreateJob") unless job_obj.is_a?(CreateJob)
 
@@ -205,6 +208,7 @@ module Event
 
     def payload_address(field)
       return User.find_by_login(payload[field]) if payload[field]
+
       nil
     end
 
@@ -246,6 +250,7 @@ module Event
 
     def _roles(role, project, package = nil)
       return [] unless project
+
       p = nil
       p = ::Package.find_by_project_and_name(project, package) if package
       p ||= ::Project.find_by_name(project)
@@ -328,6 +333,7 @@ module Event
 
     def subject_to_title
       return subject if subject.size <= 255
+
       subject.slice(0, 252).concat('...')
     end
   end

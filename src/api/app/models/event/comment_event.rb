@@ -20,6 +20,7 @@ module Event
 
     def commenters
       return User.none unless payload['commenters']
+
       User.where(login: payload['commenters'])
     end
 

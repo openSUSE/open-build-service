@@ -22,6 +22,7 @@ class BranchPackage
     @block_policy = params[:add_repositories_block]
     raise InvalidArgument unless [nil, 'all', 'local', 'never'].include?(@block_policy)
     raise InvalidArgument unless [nil, 'transitive', 'direct', 'local', 'copy'].include?(@rebuild_policy)
+
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
@@ -268,6 +269,7 @@ class BranchPackage
       if @noaccess
         raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable"
       end
+
       tprj = Project.get_by_name(@target_project)
     else
       # permission check
@@ -360,6 +362,7 @@ class BranchPackage
     end
     p[:rev] = dir['srcmd5']
     return if p[:rev]
+
     raise InvalidFilelistError, 'no srcmd5 revision found'
   end
 
@@ -393,6 +396,7 @@ class BranchPackage
         found = true if ep[:package] == ap
       end
       next if found
+
       logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " \
                    "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
       @packages.push(base_project: p[:base_project],
@@ -484,6 +488,7 @@ class BranchPackage
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
           next if pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
+
           logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" \
                       "for attribute #{at.name} and given package name #{params[:package]}"
           if ltprj.find_attribute('OBS', 'BranchTarget').nil?
@@ -501,6 +506,7 @@ class BranchPackage
   def lookup_incident_pkg(p)
     return unless p[:package].is_a?(Package)
     return if p[:link_target_project].maintenance_projects.empty?
+
     BranchPackage::LookupIncidentPackage.new(p).package
   end
 
@@ -511,6 +517,7 @@ class BranchPackage
   def set_target_project
     target_project_set = BranchPackage::SetTargetProject.new(params)
     raise InvalidProjectNameError, 'invalid project name' unless target_project_set.valid?
+
     @target_project = target_project_set.target_project
     @auto_cleanup = target_project_set.auto_cleanup
   end
@@ -521,6 +528,7 @@ class BranchPackage
     if update_project_at.length != 2
       raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
+
     @up_attribute_namespace = update_project_at[0]
     @up_attribute_name = update_project_at[1]
   end
@@ -528,6 +536,7 @@ class BranchPackage
   def update_project_for_project(prj)
     updateprj = prj.update_instance(@up_attribute_namespace, @up_attribute_name)
     return updateprj if updateprj != prj
+
     nil
   end
 end

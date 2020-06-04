@@ -81,6 +81,7 @@ class Comment < ApplicationRecord
   def validate_parent_id
     return unless parent_id
     return if commentable.comments.where(id: parent_id).present?
+
     errors.add(:parent, 'belongs to different object')
   end
 end

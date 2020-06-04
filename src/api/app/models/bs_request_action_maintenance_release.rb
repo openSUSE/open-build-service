@@ -38,6 +38,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # lock project when last package is released
     return if pkg.project.is_locked?
+
     f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
     pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
     pkg.project.flags.create(status: 'enable', flag: 'lock')
@@ -57,6 +58,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       Backend::Api::Sources::Project.commit(tprj, User.session!.login, commit_params)
 
       next if cleaned_projects[sprj]
+
       # cleanup published binaries to save disk space on ftp server and mirrors
       Backend::Api::Build::Project.wipe_published_locked(sprj)
       cleaned_projects[sprj] = 1
@@ -93,6 +95,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # creating release requests is also locking the source package, therefore we require write access there.
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return if spkg || !User.session!.can_modify?(spkg)
+
     raise LackingReleaseMaintainership, 'Creating a release request action requires maintainership in source package'
   end
 
@@ -119,6 +122,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     if opts[:per_package_locking]
       # we avoid patchinfo's to be able to complete meta data about the update
       return if spkg.is_patchinfo?
+
       object = spkg
     else
       # Workaround: In rails 5 'spkg.project' started to return a readonly object
@@ -136,6 +140,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return unless spkg && spkg.is_patchinfo?
+
     pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']
   end
@@ -152,6 +157,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       if repo.architectures.empty?
         raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}"
       end
+
       repo.release_targets.each do |rt|
         unless repo.architectures.size == rt.target_repository.architectures.size
           raise ArchitectureOrderMissmatch, "Repository '#{repo.name}' and releasetarget " \

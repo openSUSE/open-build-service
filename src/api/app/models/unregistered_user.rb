@@ -27,6 +27,7 @@ class UnregisteredUser < User
     # Turn off registration if its disabled
     if ::Configuration.registration == 'deny'
       return true if User.admin_session?
+
       logger.debug 'Someone tried to register but its disabled'
       raise ErrRegisterSave, 'Sorry, sign up is disabled'
     end

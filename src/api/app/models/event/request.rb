@@ -35,6 +35,7 @@ module Event
       return { 'X-OBS-Review-By_User' => payload['by_user'] } if payload['by_user']
       return { 'X-OBS-Review-By_Group' => payload['by_group'] } if payload['by_group']
       return { 'X-OBS-Review-By_Package' => "#{payload['by_project']}/#{payload['by_package']}" } if payload['by_package']
+
       { 'X-OBS-Review-By_Project' => payload['by_project'] }
     end
 
@@ -49,6 +50,7 @@ module Event
       payload['actions'].each do |a|
         diff = calculate_diff(a).try(:lines)
         next unless diff
+
         diff_length = diff.length
         if diff_length > DIFF_LIMIT
           diff = diff[0..DIFF_LIMIT]
@@ -94,6 +96,7 @@ module Event
     def calculate_diff(a)
       return if a['type'] != 'submit'
       raise 'We need action_id' unless a['action_id']
+
       action = BsRequestAction.find(a['action_id'])
       begin
         action.sourcediff(view: nil, withissues: 0)

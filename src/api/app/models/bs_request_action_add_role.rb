@@ -21,6 +21,7 @@ class BsRequestActionAddRole < BsRequestAction
     super
     errors.add(:role, 'should not be empty for add_role') if role.blank?
     return unless person_name.blank? && group_name.blank?
+
     errors.add(:person_name, 'Either person or group needs to be set')
   end
 

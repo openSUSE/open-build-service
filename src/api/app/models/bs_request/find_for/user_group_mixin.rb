@@ -30,6 +30,7 @@ class BsRequest
 
       def packages_query(obj)
         return @packages_query if @packages_query
+
         # Hoping that Rails allows to write this nicer: https://github.com/rails/rails/issues/35925
         projects_and_packages = obj.involved_packages.includes(:project).pluck('projects.name', 'packages.name')
         @packages_query = projects_and_packages.map { |project, package| "(#{quote(project)},#{quote(package)})" }.join(',')
