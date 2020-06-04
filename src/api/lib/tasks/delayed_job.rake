@@ -43,6 +43,7 @@ namespace :jobs do
   task(updateissues: :environment) do
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
+
       t.update_issues
     end
   end
@@ -51,6 +52,7 @@ namespace :jobs do
   task(enforceissuesupdate: :environment) do
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
+
       t.enforced_update_all_issues
     end
   end

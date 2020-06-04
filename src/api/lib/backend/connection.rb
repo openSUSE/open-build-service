@@ -60,6 +60,7 @@ module Backend
       key_list ||= hash.keys
       query = key_list.map do |key|
         next unless hash.key?(key)
+
         str = hash[key].to_s
         str.toutf8
 

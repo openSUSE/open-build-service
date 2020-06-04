@@ -26,6 +26,7 @@ module Backend
       # @return [String]
       def self.upload_jobs(job_ids = [])
         return "<clouduploadjoblist>\n</clouduploadjoblist>\n" if job_ids.empty?
+
         http_get('/cloudupload', params: { name: job_ids }, expand: [:name])
       end
 

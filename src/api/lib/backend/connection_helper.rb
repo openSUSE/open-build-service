@@ -76,11 +76,13 @@ module Backend
 
     def calculate_params(options)
       return nil if options.blank?
+
       params = rename_params(options[:params] || {}, options[:rename] || {})
       params = accept_params(params, options[:accepted] || [])
       params = merge_defaults(params, options[:defaults] || {})
       params = expand_params(params, options[:expand] || [])
       return nil if params.blank?
+
       params.join('&')
     end
 
@@ -104,6 +106,7 @@ module Backend
       expanded_params = []
       expand.each do |key|
         next if params[key].is_a?(String)
+
         expanded_params += params.delete(key).map { |value| value.to_query(key) } if params.key?(key)
       end
       expanded_params += [params.to_query] unless params.empty?

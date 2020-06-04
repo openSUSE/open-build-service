@@ -60,6 +60,7 @@ module Suse
       end
 
       return true if @user.can_modify?(pkg)
+
       false
     end
 

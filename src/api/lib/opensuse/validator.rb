@@ -35,6 +35,7 @@ module Suse
         unless opt.key?(:request) || opt.key?(:response)
           raise "missing (or wrong) parameters, #{opt.inspect}"
         end
+
         # logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
 
         controller = controller.to_s
@@ -54,6 +55,7 @@ module Suse
         unless opt.key?(:controller) && opt.key?(:action) && opt.key?(:method) && opt.key?(:type)
           raise 'option hash needs keys :controller and :action'
         end
+
         c = opt[:controller].to_s
         key = opt[:action].to_s + '-' + opt[:method].to_s.downcase + '-' + opt[:type].to_s
         key2 = opt[:action].to_s + '-' + opt[:type].to_s
@@ -61,6 +63,7 @@ module Suse
         # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return if @schema_map.nil?
         return unless @schema_map.key?(c)
+
         @schema_map[c][key] || @schema_map[c][key2]
       end
 
@@ -91,6 +94,7 @@ module Suse
         end
 
         raise "illegal option; need content for #{schema_file}" if content.nil?
+
         content = content.to_s
         if content.empty?
           logger.debug "no content, skipping validation for #{schema_file}"
