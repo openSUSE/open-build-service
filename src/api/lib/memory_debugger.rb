@@ -13,6 +13,7 @@ class MemoryDebugger
       return if line.nil?
       return unless line.parent.nil?
       return unless check_up(line)
+
       line.parent = self
       lines << line
     end
@@ -20,6 +21,7 @@ class MemoryDebugger
     def check_up(line)
       return false if self == line
       return true unless parent
+
       parent.check_up(line)
     end
   end
@@ -102,6 +104,7 @@ class MemoryDebugger
     end
     ids.each_value do |d|
       next unless d.parent.nil?
+
       log_line(logger, d)
     end
     ret

@@ -2,6 +2,7 @@ require 'active_record/fixtures'
 
 def local_to_yaml(hash, file)
   return if hash.empty?
+
   keys = hash.keys.sort
   keys.each_with_index do |k, index| # <-- here's my addition (the 'sort')
     v = hash[k]
@@ -27,6 +28,7 @@ namespace :db do
 
   task extract_fixtures: :environment do
     raise 'You only want to run this in test environment' unless ENV['RAILS_ENV'] == 'test'
+
     sql = 'SELECT * FROM %s'
     skip_tables = ['schema_info', 'sessions', 'schema_migrations']
     ActiveRecord::Base.establish_connection
@@ -46,6 +48,7 @@ namespace :db do
       idtokey = {}
       force_hash(oldhash).each do |key, record|
         next unless record.key?('id')
+
         key = key.dup.force_encoding('UTF-8')
         id = Integer(record['id'])
         idtokey[id] = key
@@ -104,6 +107,7 @@ namespace :db do
           end
           ['db_project', 'project', 'develproject', 'maintenance_project'].each do |prefix|
             next unless record.key?(prefix + '_id')
+
             p = Project.find(record.delete(prefix + '_id'))
             prefix = 'project' if prefix == 'db_project'
             record[prefix] = p.name.tr(':', '_')
@@ -180,6 +184,7 @@ namespace :db do
           # puts "#{table_name} #{record.inspect} -#{key}-"
           key ||= defaultkey
           raise "duplicated record #{table_name}:#{key}" if hash.key?(key)
+
           hash[key] = record
         end
         local_to_yaml(hash, file)

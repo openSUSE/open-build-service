@@ -8,6 +8,7 @@ module Backend
       return unless Rails.env.test?
       return if @backend
       return if ENV['BACKEND_STARTED']
+
       print 'Starting test backend...'
       @backend = IO.popen("#{Rails.root}/script/start_test_backend")
       Rails.logger.debug "Test backend started with pid: #{@backend.pid}"
@@ -15,6 +16,7 @@ module Backend
         line = @backend.gets
         raise 'Backend died' unless line
         break if line =~ /DONE NOW/
+
         Rails.logger.debug line.strip
       end
       puts 'done'
@@ -29,11 +31,13 @@ module Backend
 
       # make sure it's actually tried to start
       return unless options[:wait_for_scheduler]
+
       Rails.logger.debug 'Wait for scheduler thread to finish start'
       counter = 0
       marker = Rails.root.join('tmp', 'scheduler.done')
       while counter < 100
         return if ::File.exist?(marker)
+
         sleep(0.5)
         counter += 1
       end

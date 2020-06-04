@@ -19,8 +19,6 @@ Layout/EmptyLineAfterGuardClause:
     - 'app/mixins/**/*'
     - 'app/helpers/**/*'
     - 'app/jobs/**/*'
-    - 'lib/**/*'
-    - 'script/**/*'
     - 'spec/**/*'
 
 # Offense count: 2
