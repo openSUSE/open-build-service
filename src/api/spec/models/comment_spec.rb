@@ -42,7 +42,7 @@ RSpec.describe Comment do
         comment_package
       end
 
-      it 'should be destroyed' do
+      it 'is destroyed' do
         expect { comment_package.blank_or_destroy }.to change(Comment, :count).by(-1)
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe Comment do
         comment_package.blank_or_destroy
       end
 
-      it 'should be destroyed' do
+      it 'is destroyed' do
         expect { comment_package_with_parent.blank_or_destroy }.to change(Comment, :count).by(-1)
       end
     end
@@ -66,7 +66,7 @@ RSpec.describe Comment do
         comment_package.blank_or_destroy
       end
 
-      it 'should be destroyed' do
+      it 'is destroyed' do
         expect { comment_package_with_grandparent.blank_or_destroy }.to change(Comment, :count).by(-3)
       end
     end
@@ -76,7 +76,7 @@ RSpec.describe Comment do
         comment_package_with_parent
       end
 
-      it "shouldn't be destroyed" do
+      it 'is not destroyed' do
         expect { comment_package.blank_or_destroy }.not_to(change(Comment, :count))
         expect(comment_package.body).to eq('This comment has been deleted')
         expect(comment_package.user.login).to eq('_nobody_')

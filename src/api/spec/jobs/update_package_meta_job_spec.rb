@@ -28,7 +28,7 @@ RSpec.describe UpdatePackageMetaJob, type: :job, vcr: true do
       Package.last.update_backendinfo
     end
 
-    it 'should remove BackendPackage with links_to_ids is nil and package_kind is patchinfo' do
+    it 'removes BackendPackage with links_to_ids is nil and package_kind is patchinfo' do
       expect { UpdatePackageMetaJob.new.perform }.to change(BackendPackage, :count).by(-1)
     end
   end

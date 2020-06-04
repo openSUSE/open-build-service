@@ -133,7 +133,7 @@ RSpec.describe Backend::File, vcr: true do
         expect(subject.valid?).to be_falsy
       end
 
-      it 'it will have error messages' do
+      it 'displays error messages' do
         subject.file
         expect(subject.errors.full_messages).to match_array(['Content message'])
       end
@@ -216,7 +216,7 @@ RSpec.describe Backend::File, vcr: true do
         expect(subject.valid?).to be_falsy
       end
 
-      it 'it will have error messages' do
+      it 'displays error messages' do
         subject.save({}, 'hello')
         expect(subject.errors.full_messages).to match_array(['Content message'])
       end

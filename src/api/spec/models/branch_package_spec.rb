@@ -49,11 +49,11 @@ RSpec.describe BranchPackage, vcr: true do
     end
 
     context 'package with UpdateProject attribute' do
-      it 'should increase Package by one' do
+      it 'increases Package by one' do
         expect { branch_package.branch }.to change(Package, :count).by(1)
       end
 
-      it 'should create home:tom:branches:BaseDistro:Update project' do
+      it 'creates home:tom:branches:BaseDistro:Update project' do
         branch_package.branch
         expect(Project.where(name: "#{home_project.name}:branches:BaseDistro:Update")).to exist
       end

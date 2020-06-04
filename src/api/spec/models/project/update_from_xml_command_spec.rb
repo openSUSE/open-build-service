@@ -148,7 +148,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
     end
 
     describe 'repository architecture' do
-      it 'should create architectures for the repository' do
+      it 'creates architectures for the repository' do
         xml_hash = Xmlhash.parse(
           <<-EOF
             <project name="#{project.name}">
@@ -165,7 +165,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
         expect(repository_1.repository_architectures.map { |repoarch| repoarch.architecture.name }).to eq(['x86_64', 'i586'])
       end
 
-      it 'should raise an error for unkown architectures' do
+      it 'raises an error for unknown architectures' do
         xml_hash = Xmlhash.parse(
           <<-EOF
             <project name="#{project.name}">
@@ -180,7 +180,7 @@ RSpec.describe Project::UpdateFromXmlCommand do
         )
       end
 
-      it 'should raise an error for duplicated architecture elements' do
+      it 'raises an error for duplicated architecture elements' do
         xml_hash = Xmlhash.parse(
           <<-EOF
             <project name="#{project.name}">
