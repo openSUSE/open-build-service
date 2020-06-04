@@ -63,7 +63,7 @@ RSpec.describe Webui::CommentsController, type: :controller do
     end
 
     context "does not allow to overwrite the comment's user" do
-      it 'should not created' do
+      it 'raises an error' do
         params = { comment: { body: 'This project is AWESOME!', user_id: user }, commentable_type: project.class, commentable_id: project.id }
         expect { post :create, params: params }.to raise_error(ActionController::UnpermittedParameters)
       end

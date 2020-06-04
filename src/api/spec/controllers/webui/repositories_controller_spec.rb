@@ -115,7 +115,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
     context 'with a non valid repository name' do
       let(:action) { post :create, params: { project: user.home_project, repository: '_not/valid/name' } }
 
-      it 'should eq Successfully added repositories' do
+      it 'displays an error message' do
         action
         expect(flash[:error]).to eq("Can not add repository: Name must not start with '_' or contain any of these characters ':/'")
       end

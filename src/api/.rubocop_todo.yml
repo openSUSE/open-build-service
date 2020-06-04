@@ -269,21 +269,6 @@ RSpec/EmptyLineAfterFinalLet:
 RSpec/ExampleLength:
   Enabled: false
 
-# Offense count: 17
-# Cop supports --auto-correct.
-# Configuration parameters: CustomTransform, IgnoredWords.
-RSpec/ExampleWording:
-  Exclude:
-    - 'spec/controllers/webui/comments_controller_spec.rb'
-    - 'spec/controllers/webui/packages/build_reason_controller_spec.rb'
-    - 'spec/controllers/webui/packages/job_history_controller_spec.rb'
-    - 'spec/controllers/webui/repositories_controller_spec.rb'
-    - 'spec/jobs/update_package_meta_job_spec.rb'
-    - 'spec/models/backend/file_spec.rb'
-    - 'spec/models/branch_package_spec.rb'
-    - 'spec/models/comment_spec.rb'
-    - 'spec/models/project/update_from_xml_command_spec.rb'
-
 # Offense count: 7
 # Cop supports --auto-correct.
 RSpec/ExpectActual:
