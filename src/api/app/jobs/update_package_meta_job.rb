@@ -12,6 +12,7 @@ class UpdatePackageMetaJob < ApplicationJob
         pkg = Package.find_by_project_and_name(p['project'], p['name'])
         # if there is a linkinfo for a package not in database, there can not be a linked_package either
         next unless pkg
+
         pkg.update_if_dirty
       end
     end
