@@ -5,6 +5,7 @@ class ProjectPolicy < ApplicationPolicy
 
   def create?
     return false unless user
+
     user.can_create_project?(record.name)
   end
 
@@ -14,6 +15,7 @@ class ProjectPolicy < ApplicationPolicy
     # The ordering is important because of the lock status check
     return true if user.is_admin?
     return false unless user.can_modify?(record, true)
+
     # Regular users are not allowed to modify projects with remote references
     no_remote_instance_defined_and_has_not_remote_repositories?
   end
@@ -32,6 +34,7 @@ class ProjectPolicy < ApplicationPolicy
 
   def unlock?
     return false unless user
+
     user.can_modify?(record, true)
   end
 
@@ -42,6 +45,7 @@ class ProjectPolicy < ApplicationPolicy
   # staging project
   def accept?
     return false unless update?
+
     record.staged_requests.each do |request|
       # we pretend the user asked for force, we only want to check permissions
       # not if it makes sense
