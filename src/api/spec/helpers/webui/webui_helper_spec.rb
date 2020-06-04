@@ -9,27 +9,27 @@ RSpec.describe Webui::WebuiHelper do
     end
 
     it 'does elide 20 character by default in the middle' do
-      expect('Rocking t... Service').to eq(elide(input))
+      expect(elide(input)).to eq('Rocking t... Service')
     end
 
     it 'does elide from the left' do
-      expect('...the Open Build Service').to eq(elide(input, 25, :left))
+      expect(elide(input, 25, :left)).to eq('...the Open Build Service')
     end
 
     it 'does elide from the right' do
-      expect('R...').to eq(elide(input, 4, :right))
+      expect(elide(input, 4, :right)).to eq('R...')
     end
 
     it 'returns three dots for eliding two characters' do
-      expect('...').to eq(elide(input, 2, :right))
+      expect(elide(input, 2, :right)).to eq('...')
     end
 
     it 'returns three dots for eliding three characters' do
-      expect('...').to eq(elide(input, 3, :right))
+      expect(elide(input, 3, :right)).to eq('...')
     end
 
     it 'reduces a string to 10 characters and elides in the middle by default' do
-      expect('Rock...ice').to eq(elide(input, 10))
+      expect(elide(input, 10)).to eq('Rock...ice')
     end
   end
 

@@ -269,14 +269,6 @@ RSpec/EmptyLineAfterFinalLet:
 RSpec/ExampleLength:
   Enabled: false
 
-# Offense count: 7
-# Cop supports --auto-correct.
-RSpec/ExpectActual:
-  Exclude:
-    - 'spec/routing/**/*'
-    - 'spec/controllers/webui/webui_controller_spec.rb'
-    - 'spec/helpers/webui/webui_helper_spec.rb'
-
 # Offense count: 2
 RSpec/ExpectInHook:
   Exclude:
