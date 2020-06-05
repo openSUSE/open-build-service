@@ -8,7 +8,7 @@ class IssueTracker < ApplicationRecord
   end
 
   validates :name, :regex, :url, :kind, presence: true
-  validates :name, :regex, uniqueness: true
+  validates :name, :regex, uniqueness: { case_sensitive: true }
   validates :kind, inclusion: { in: ['other', 'bugzilla', 'cve', 'fate', 'trac', 'launchpad', 'sourceforge', 'github', 'jira'] }
   validates :description, presence: true
   validates :show_url, presence: true

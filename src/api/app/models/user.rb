@@ -92,7 +92,7 @@ class User < ApplicationRecord
   validates :login, :state, presence: { message: 'must be given' }
 
   validates :login,
-            uniqueness: { message: 'is the name of an already existing user' }
+            uniqueness: { case_sensitive: true, message: 'is the name of an already existing user' }
 
   validates :login,
             format: { with: %r{\A[\w $\^\-.#*+&'"]*\z},

@@ -16,7 +16,7 @@ class Status::Check < ApplicationRecord
     message: "State '%{value}' is not a valid. Valid states are: #{VALID_STATES.join(', ')}"
   }
 
-  validates :name, uniqueness: { scope: :status_report }
+  validates :name, uniqueness: { scope: :status_report, case_sensitive: true }
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :status_report, class_name: 'Status::Report', foreign_key: 'status_reports_id'

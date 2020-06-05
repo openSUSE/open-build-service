@@ -23,7 +23,7 @@ module Cloud
       belongs_to :user
 
       validates :external_id, uniqueness: true
-      validates :arn, uniqueness: true, allow_nil: true
+      validates :arn, uniqueness: { case_sensitive: true }, allow_nil: true
       # http://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html
       validates :arn, format: { with: /\Aarn:([\w\/:* +=,.@\-_])+\z/, message: 'not a valid format', allow_blank: true }
 

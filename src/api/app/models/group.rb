@@ -27,7 +27,7 @@ class Group < ApplicationRecord
                       allow_nil: false }
   # We want to validate a group's title pretty thoroughly.
   validates :title,
-            uniqueness: { message: 'is the name of an already existing group' }
+            uniqueness: { case_sensitive: true, message: 'is the name of an already existing group' }
 
   # groups have a n:m relation to groups
   has_and_belongs_to_many :roles, -> { distinct }
