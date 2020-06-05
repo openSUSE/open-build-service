@@ -1783,11 +1783,13 @@ GET /statistics/activity/<project>/<package>
 XmlResult: activity
 
 
-GET /statistics/most_active?type=<type>&limit=<limit>
-  Get list of most active packages (type=packages) or projects (type=projects).
-  Also returns count of updates since package was created when type=packages.
-  Also returns count of packages that are in this project when type=projects.
-XmlResult: most_active
+GET /statistics/most_active_projects?limit=<limit>
+  Get list of most active projects.
+XmlResult: most_active_projects
+
+GET /statistics/most_active_packages?limit=<limit>
+  Get list of most active packages.
+XmlResult: most_active_packages
 
 
 GET /statistics/download_counter?limit=<limit>
