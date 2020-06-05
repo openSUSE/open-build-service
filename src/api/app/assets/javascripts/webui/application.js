@@ -12,7 +12,6 @@
 //
 //= require jquery3
 //= require jquery_ujs
-//= require peek
 //= require popper
 //= require bootstrap
 //= require cocoon

@@ -60,11 +60,6 @@ gem 'xmlrpc'
 # Multiple feature switch
 gem 'flipper'
 gem 'flipper-active_record'
-# for profiling
-gem 'peek'
-gem 'peek-dalli'
-gem 'peek-host'
-gem 'peek-mysql2'
 # for kerberos authentication
 gem 'gssapi', require: false
 # for sending events to rabbitmq

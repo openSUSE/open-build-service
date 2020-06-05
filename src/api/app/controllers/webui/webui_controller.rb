@@ -222,13 +222,6 @@ class Webui::WebuiController < ActionController::Base
     @is_displayed_user = (User.session == @displayed_user)
   end
 
-  # Don't show performance of database queries to users
-  def peek_enabled?
-    return false if CONFIG['peek_enabled'] != 'true'
-
-    User.admin_session? || User.possibly_nobody.is_staff?
-  end
-
   def require_package
     required_parameters :package
     params[:rev], params[:package] = params[:pkgrev].split('-', 2) if params[:pkgrev]
