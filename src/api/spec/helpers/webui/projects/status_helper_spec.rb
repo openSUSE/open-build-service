@@ -22,9 +22,11 @@ RSpec.describe Webui::Projects::StatusHelper do
         develproject: 'foo',
         develmtime: 5.days.ago,
         currently_declined: '5',
+        upstream_url: 'http://example.org/foo',
         problems: problems
       )
     end
+
     context 'no error is raised' do
       it { expect { helper.parse_status('foo', package) }.not_to raise_error }
     end
@@ -41,6 +43,37 @@ RSpec.describe Webui::Projects::StatusHelper do
       it { expect(subject).to be_an(Array) }
       it { expect(subject).not_to be_empty }
       it { expect(subject.count).to be >= 5 }
+    end
+
+    context 'icon when error was the last evaluated error' do
+      let(:problems) { ['error-foo'] }
+
+      subject { helper.parse_status('foo', package)[:icon_type] }
+
+      it { expect(subject).to eq('error') }
+    end
+
+    context 'icon when ok when there are no problems' do
+      let(:problems) { [] }
+
+      subject { helper.parse_status('foo', package)[:icon_type] }
+
+      it { expect(subject).to eq('ok') }
+    end
+
+    context 'sortkey when there are no problems' do
+      let(:problems) { [] }
+      subject { helper.parse_status('foo', package)[:sortkey] }
+
+      it { expect(subject).to eq("9-ok-#{package[:name]}") }
+    end
+
+    context 'icon when diff_against_link was the last evaluated error' do
+      let(:problems) { ['diff_against_link'] }
+
+      subject { helper.parse_status('foo', package)[:icon_type] }
+
+      it { expect(subject).to eq('changes') }
     end
 
     context 'icon when currently_declined was the last evaluated error' do
