@@ -6,13 +6,13 @@ class Webui::PackageController < Webui::WebuiController
   include BuildLogSupport
 
   before_action :set_project, only: [:show, :edit, :update, :index, :users, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove, :save_file,
+                                     :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
                                      :binary_download]
 
   before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
-                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove, :save_file,
+                                         :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
                                          :binary_download]
@@ -36,7 +36,7 @@ class Webui::PackageController < Webui::WebuiController
 
   prepend_before_action :lockout_spiders, only: [:revisions, :dependency, :rdiff, :binary, :binaries, :requests, :binary_download]
 
-  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :save_file, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
+  after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
@@ -357,68 +357,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Services couldn't be triggered: " + Xmlhash::XMLHash.new(error: e.summary)[:error]
     end
     redirect_to package_show_path(@project, @package)
-  end
-
-  def save_file
-    authorize @package, :update?
-
-    file = params[:file]
-    file_url = params[:file_url]
-    filename = params[:filename]
-
-    errors = []
-
-    begin
-      if file.present?
-        # We are getting an uploaded file
-        filename = file.original_filename if filename.blank?
-        @package.save_file(file: file, filename: filename, comment: params[:comment])
-      elsif file_url.present?
-        # we have a remote file URI, so we have to download and save it
-        services = @package.services
-
-        # detects automatically git://, src.rpm formats
-        services.addDownloadURL(file_url, filename)
-
-        unless services.save
-          errors << "Failed to add file from URL '#{file_url}'"
-        end
-      elsif filename.present? # No file is provided so we just create an empty new file (touch)
-        @package.save_file(filename: filename)
-      else
-        errors << 'No file or URI given'
-      end
-    rescue APIError => e
-      errors << e.message
-    rescue Backend::Error => e
-      errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
-    rescue StandardError => e
-      errors << e.message
-    end
-
-    if errors.empty?
-      message = "The file '#{filename}' has been successfully saved."
-      # We have to check if it's an AJAX request or not
-      if request.xhr?
-        flash.now[:success] = message
-      else
-        redirect_to({ action: :show, project: @project, package: @package }, success: message)
-        return
-      end
-    else
-      message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
-      # We have to check if it's an AJAX request or not
-      if request.xhr?
-        flash.now[:error] = message
-        status = 400
-      else
-        redirect_back(fallback_location: root_path, error: message)
-        return
-      end
-    end
-
-    status ||= 200
-    render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
   end
 
   def remove_file
