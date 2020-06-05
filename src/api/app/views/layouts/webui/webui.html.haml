@@ -51,7 +51,7 @@
           .col-auto.ml-auto#personal-navigation
             = render partial: 'layouts/webui/personal_navigation'
 
-    .container-xxl.sticky-top.flash-and-announcement.text-word-break-all
+    .container-xxl.sticky-top.flash-and-announcement.text-break
       = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
       #flash= render partial: 'layouts/webui/flash', object: flash
     .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
