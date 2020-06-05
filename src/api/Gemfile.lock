@@ -407,7 +407,7 @@ GEM
       hashdiff
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.3)
+    websocket-extensions (0.1.5)
     xmlhash (1.3.7)
       pkg-config
     xmlrpc (0.3.0)
