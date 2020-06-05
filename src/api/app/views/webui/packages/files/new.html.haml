@@ -8,7 +8,7 @@
         .col-12
           %h3 Upload file to #{@project.name}/#{@package.name}
         .col-md-8.col-lg-6
-          = form_tag(package_save_file_path(@project, @package), multipart: true) do
+          = form_tag(project_package_files_path(@project, @package), multipart: true) do
             .form-group.package-add-file
               %label{ for: :filename }
                 %strong Filename:
