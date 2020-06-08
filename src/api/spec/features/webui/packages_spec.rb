@@ -188,7 +188,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     click_link('Add file')
 
     fill_in 'Filename', with: 'new_file'
-    click_button('Save')
+    click_button('Add File')
 
     expect(page).to have_text("The file 'new_file' has been successfully saved.")
     expect(page).to have_link('new_file')
@@ -201,7 +201,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     click_link('Add file')
 
     fill_in 'Filename', with: 'inv/alid'
-    click_button('Save')
+    click_button('Add File')
 
     expect(page).to have_text("Error while creating 'inv/alid' file: 'inv/alid' is not a valid filename.")
 

@@ -1,0 +1,29 @@
+- @pagetitle = "Upload file to #{truncate(@project.name, length: 50)}/#{truncate(@package.name, length: 50)}"
+
+.row
+  .col
+    .card
+      = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
+      .card-body
+        .col-12
+          %h3 Upload file to #{@project.name}/#{@package.name}
+        .col-md-8.col-lg-6
+          = form_tag(project_package_files_path(@project, @package), multipart: true) do
+            .form-group.package-add-file
+              %label{ for: :filename }
+                %strong Filename:
+              = text_field_tag :filename, '', size: 80, maxlength: 200, class: 'form-control',
+              required: true, placeholder: 'Taken from uploaded file if empty...'
+              %small.form-text.text-muted
+                If only a filename is provided, an empty file is created (touched).
+            .form-group.package-add-file
+              %label{ for: :file_url }
+                %strong File URL:
+              = text_field_tag :file_url, '', size: 80, maxlength: 200, class: 'form-control', required: true, type: :url
+              %small.form-text.text-muted
+                URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
+            .form-group.package-add-file
+              .custom-file
+                = file_field_tag 'file', class: 'custom-file-input', id: 'file', required: true
+                %label.custom-file-label-with-overflow{ for: 'file' } Choose a file
+            = submit_tag 'Add File', class: 'btn btn-sm btn-primary', id: :submit_button

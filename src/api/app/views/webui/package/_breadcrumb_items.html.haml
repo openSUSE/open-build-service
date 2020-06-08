@@ -11,9 +11,6 @@
       = link_to(@package, package_show_path(@project, @package))
     - else
       = link_to truncate(@package.to_s, length: 50), package_show_path(@project, @package)
-  - if current_page?(package_add_file_path(@project, @package))
-    %li.breadcrumb-item.active{ 'aria-current' => 'page' }
-      Add File
   - if current_page?(package_view_revisions_path(@project, @package))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Revisions
