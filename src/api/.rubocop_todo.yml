@@ -442,17 +442,6 @@ Rails/CreateTableWithTimestamps:
 Rails/FilePath:
   Enabled: false
 
-# Offense count: 10
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: app/models/**/*.rb
-Rails/FindEach:
-  Exclude:
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/project.rb'
-    - 'app/models/repository.rb'
-
 # Offense count: 23
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb
@@ -478,19 +467,6 @@ Rails/HelperInstanceVariable:
     - 'app/helpers/webui/projects/status_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Rails/IndexBy:
-  Exclude:
-    - 'app/models/architecture.rb'
-    - 'app/models/role.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Rails/IndexWith:
-  Exclude:
-    - 'app/controllers/configurations_controller.rb'
-
 # Offense count: 66
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb
@@ -514,12 +490,6 @@ Rails/OutputSafety:
     - 'app/helpers/webui/request_helper.rb'
     - 'app/helpers/webui/user_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Rails/Presence:
-  Exclude:
-    - 'app/helpers/webui/package_helper.rb'
 
 # Offense count: 31
 # Configuration parameters: Include.

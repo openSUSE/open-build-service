@@ -76,7 +76,7 @@ class Repository < ApplicationRecord
   def cleanup_before_destroy
     # change all linking repository pathes
     linking_repositories.each do |lrep|
-      lrep.path_elements.includes(:link, :repository).each do |pe|
+      lrep.path_elements.includes(:link, :repository).find_each do |pe|
         next unless pe.link == self # this is not pointing to our repo
 
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).present?
@@ -92,7 +92,7 @@ class Repository < ApplicationRecord
     # target repos
     logger.debug "remove target repositories from repository #{project.name}/#{name}"
     linking_target_repositories.each do |lrep|
-      lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
+      lrep.targetlinks.includes(:target_repository, :repository).find_each do |rt|
         next unless rt.target_repository == self # this is not pointing to our repo
 
         repo = rt.repository
@@ -160,7 +160,7 @@ class Repository < ApplicationRecord
 
   def is_local_channel?
     # is any our path elements the target of a channel package in this project?
-    path_elements.includes(:link).each do |pe|
+    path_elements.includes(:link).find_each do |pe|
       return true if ChannelTarget.find_by_repo(pe.link, [project]).any?
     end
     return true if ChannelTarget.find_by_repo(self, [project]).any?

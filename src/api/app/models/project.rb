@@ -625,7 +625,7 @@ class Project < ApplicationRecord
   def cleanup_linking_repos
     # replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |linking_repository|
-      linking_repository.path_elements.includes(:link).each do |path_element|
+      linking_repository.path_elements.includes(:link).find_each do |path_element|
         next unless path_element.link.db_project_id == id && path_element.repository.db_project_id != id
 
         if linking_repository.path_elements.find_by_repository_id(Repository.deleted_instance)
@@ -644,7 +644,7 @@ class Project < ApplicationRecord
   def cleanup_linking_targets
     # replace links to this projects with links to the "deleted" project
     find_repos(:linking_target_repositories) do |linking_target_repository|
-      linking_target_repository.release_targets.includes(:target_repository, :link).each do |release_target|
+      linking_target_repository.release_targets.includes(:target_repository, :link).find_each do |release_target|
         next unless release_target.link.db_project_id == id
 
         release_target.target_repository = Repository.deleted_instance
@@ -676,7 +676,7 @@ class Project < ApplicationRecord
 
   def is_unreleased?
     # returns true if NONE of the defined release targets are used
-    repositories.includes(:release_targets).each do |repo|
+    repositories.includes(:release_targets).find_each do |repo|
       repo.release_targets.each do |rt|
         return false unless rt.trigger == 'maintenance'
       end
@@ -861,7 +861,7 @@ class Project < ApplicationRecord
 
   def can_be_released_to_project?(target_project)
     # is this package source going to a project which is specified as release target ?
-    repositories.includes(:release_targets).each do |repo|
+    repositories.includes(:release_targets).find_each do |repo|
       repo.release_targets.each do |rt|
         return true if rt.target_repository.project == target_project
       end
