@@ -210,30 +210,19 @@ module Webui
       end
 
       def status_gather_attributes
-        project_status_attributes(@status.keys, 'OBS', 'ProjectStatusPackageFailComment') do |package, value|
+        ProjectStatusControllerService::ProjectStatusFailCommentFinder.call(@status.keys).each do |package, value|
           @status[package].failed_comment = value
         end
 
         return unless @include_versions || @limit_to_old
 
-        project_status_attributes(@status.keys, 'openSUSE', 'UpstreamVersion') do |package, value|
+        ProjectStatusControllerService::OpenSUSEUpstreamVersionFinder.call(@status.keys).each do |package, value|
           @status[package].upstream_version = value
         end
-        project_status_attributes(@status.keys, 'openSUSE', 'UpstreamTarballURL') do |package, value|
+
+        ProjectStatusControllerService::OpenSUSEUpstreamTarballURLFinder.call(@status.keys).each do |package, value|
           @status[package].upstream_url = value
         end
-      end
-
-      def project_status_attributes(packages, namespace, name)
-        ret = {}
-        at = AttribType.find_by_namespace_and_name(namespace, name)
-        return unless at
-
-        attribs = at.attribs.where(package_id: packages)
-        AttribValue.where(attrib_id: attribs).joins(:attrib).pluck('attribs.package_id, value').each do |id, value|
-          yield id, value
-        end
-        ret
       end
 
       def project_status_set_version(p)
