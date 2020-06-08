@@ -1,5 +1,5 @@
 module MetaControllerService
-  class MetaXMLValidator
+  class MetaXmlValidator
     require_dependency 'opensuse/validator'
 
     attr_reader :meta, :request_data, :errors

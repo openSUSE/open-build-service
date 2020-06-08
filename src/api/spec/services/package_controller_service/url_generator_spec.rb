@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe ::PackageControllerService::URLGenerator do
+RSpec.describe ::PackageControllerService::UrlGenerator do
   describe '#get_frontend_url_for' do
-    let(:url_generator) { ::PackageControllerService::URLGenerator.new({}) }
+    let(:url_generator) { ::PackageControllerService::UrlGenerator.new({}) }
     it 'generates a url' do
       url = url_generator.get_frontend_url_for(controller: 'foo', host: 'bar.com', port: 80, protocol: 'http')
       expect(url).to eq('http://bar.com:80/foo')

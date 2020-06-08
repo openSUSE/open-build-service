@@ -201,7 +201,7 @@ class Project < ApplicationRecord
 
     def load_from_remote(project, path)
       Rails.cache.fetch("remote_image_templates_#{project.id}", expires_in: 1.hour) do
-        Project::RemoteURL.load(project, path)
+        Project::RemoteUrl.load(project, path)
       end
     end
 
@@ -1529,7 +1529,7 @@ class Project < ApplicationRecord
   end
 
   def categories
-    OBSQualityCategoriesFinder.call(self)
+    ObsQualityCategoriesFinder.call(self)
   end
 
   def build_results

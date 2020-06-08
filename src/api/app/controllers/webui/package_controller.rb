@@ -179,7 +179,7 @@ class Webui::PackageController < Webui::WebuiController
       raise ActiveRecord::RecordNotFound, 'Not Found'
     end
 
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
+    url_generator = ::PackageControllerService::UrlGenerator.new(project: @project, package: @package_name,
                                                                  user: User.possibly_nobody, arch: @arch,
                                                                  repository: @repository, filename: @filename)
     @download_url = url_generator.download_url_for_file_in_repo
@@ -629,7 +629,7 @@ class Webui::PackageController < Webui::WebuiController
     filename = File.basename(params[:filename]) # Ensure it really is just a file name, no '/..', etc.
     repository = Repository.find_by_project_and_name(@project.to_s, params[:repository].to_s)
 
-    url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: package_name,
+    url_generator = ::PackageControllerService::UrlGenerator.new(project: @project, package: package_name,
                                                                  user: User.possibly_nobody, arch: architecture,
                                                                  repository: repository, filename: filename)
 

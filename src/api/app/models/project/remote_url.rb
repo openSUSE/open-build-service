@@ -1,4 +1,4 @@
-class Project::RemoteURL
+class Project::RemoteUrl
   require 'open-uri'
 
   def self.load(remote_project, path)
