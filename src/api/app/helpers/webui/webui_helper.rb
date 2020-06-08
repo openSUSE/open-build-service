@@ -178,24 +178,6 @@ module Webui::WebuiHelper
     end
   end
 
-  def sprite_tag(icon, opts = {})
-    if opts.key?(:class)
-      opts[:class] += " icons-#{icon}"
-    else
-      opts[:class] = "icons-#{icon}"
-    end
-    unless opts.key?(:alt)
-      alt = icon
-      if opts[:title]
-        alt = opts[:title]
-      else
-        Rails.logger.warn 'No alt/title text for sprite_tag'
-      end
-      opts[:alt] = alt
-    end
-    image_tag('s.gif', opts)
-  end
-
   def next_codemirror_uid
     return @codemirror_editor_setup = 0 unless @codemirror_editor_setup
 
