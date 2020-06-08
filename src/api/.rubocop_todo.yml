@@ -342,17 +342,6 @@ RSpec/NamedSubject:
 RSpec/NestedGroups:
   Max: 7
 
-# Offense count: 47
-# Cop supports --auto-correct.
-# Configuration parameters: Strict, EnforcedStyle, AllowedExplicitMatchers.
-# SupportedStyles: inflected, explicit
-RSpec/PredicateMatcher:
-  Exclude:
-    - 'spec/controllers/webui/request_controller_spec.rb'
-    - 'spec/models/attrib_value_spec.rb'
-    - 'spec/models/backend/file_spec.rb'
-    - 'spec/models/cloud/backend/upload_job_spec.rb'
-
 # Offense count: 2
 RSpec/RepeatedDescription:
   Exclude:

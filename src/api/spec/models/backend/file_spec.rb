@@ -103,7 +103,7 @@ RSpec.describe Backend::File, vcr: true do
         subject { Backend::File.new }
 
         it { expect(subject.file).to be_nil }
-        it { expect(subject.valid?).to be_falsy }
+        it { is_expected.not_to be_valid }
       end
 
       context 'and a valid object' do
@@ -130,7 +130,7 @@ RSpec.describe Backend::File, vcr: true do
 
       it 'left the object invalid if errors are present' do
         subject.file
-        expect(subject.valid?).to be_falsy
+        expect(subject).not_to be_valid
       end
 
       it 'displays error messages' do
@@ -213,7 +213,7 @@ RSpec.describe Backend::File, vcr: true do
 
       it 'left the object invalid if errors are present' do
         subject.save({}, 'hello')
-        expect(subject.valid?).to be_falsy
+        expect(subject).not_to be_valid
       end
 
       it 'displays error messages' do
@@ -229,7 +229,7 @@ RSpec.describe Backend::File, vcr: true do
     end
 
     it { expect { Backend::Connection.get(somefile_txt_url) }.to raise_error(Backend::NotFoundError) }
-    it { expect(subject.frozen?).to be_truthy }
+    it { is_expected.to be_frozen }
     it { expect(subject.response[:type]).to eq('text/xml') }
     it { expect(subject.response[:status]).to eq('200') }
     it { expect(subject.response[:size]).to be > 0 }
@@ -245,8 +245,8 @@ RSpec.describe Backend::File, vcr: true do
         subject.destroy
       end
 
-      it { expect(subject.frozen?).to be_falsy }
-      it { expect(subject.valid?).to be_falsy }
+      it { is_expected.not_to be_frozen }
+      it { is_expected.not_to be_valid }
       it { expect(subject.errors.full_messages).to match_array(['Content message']) }
       it { expect(subject.response[:type]).to eq('application/octet-stream') }
       it { expect(subject.response[:status]).to eq('200') }

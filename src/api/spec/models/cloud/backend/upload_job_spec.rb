@@ -52,7 +52,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
 
       subject { Cloud::Backend::UploadJob.create(params) }
 
-      it { expect(subject.valid?).to be_truthy }
+      it { is_expected.to be_valid }
       it { expect(subject.id).to eq('6') }
       it { expect(subject.state).to eq('created') }
       it { expect(subject.details).to eq('waiting to receive image') }
@@ -84,7 +84,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
         stub_request(:post, url).and_return(body: error_response, status: 400)
       end
 
-      it { expect(subject.valid?).to be_falsy }
+      it { is_expected.not_to be_valid }
 
       it 'has the correct error message' do
         subject.valid?
@@ -99,7 +99,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
 
       subject { Cloud::Backend::UploadJob.create(params) }
 
-      it { expect(subject.valid?).to be_falsy }
+      it { is_expected.not_to be_valid }
 
       it 'has the correct error message' do
         subject.valid?
