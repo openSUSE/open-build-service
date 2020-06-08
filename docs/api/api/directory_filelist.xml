@@ -1,0 +1,10 @@
+<directory name="notmuch" rev="54" vrev="57" srcmd5="230b02edd1c26728721ae0b03d5b5283">
+  <linkinfo project="openSUSE:Factory" package="notmuch" srcmd5="9e47261dc1fd93ce2744131619671fbc" baserev="9e47261dc1fd93ce2744131619671fbc" xsrcmd5="f516416f687b247b04d3c313a5b70e6c" lsrcmd5="230b02edd1c26728721ae0b03d5b5283"/>
+  <entry name="_link" md5="c69b492d162910ea13be95b90b21d675" size="124" mtime="1578437805"/>
+  <entry name="database-v1.tar.xz" md5="934228459565fbd7956a2eb2d0f64c53" size="204876" mtime="1551092319"/>
+  <entry name="notmuch-0.29.3.tar.xz" md5="d2697458d1ae087ee385a9912db29c95" size="660536" mtime="1574936762"/>
+  <entry name="notmuch-0.29.3.tar.xz.asc" md5="5595358fce14489e688868d287b28247" size="833" mtime="1574936762"/>
+  <entry name="notmuch.changes" md5="39d8bd04680c8ee4bb2405a1feb87c14" size="15247" mtime="1578351012"/>
+  <entry name="notmuch.keyring" md5="bffffb2323097035476d87fc2f7b0ce2" size="13400" mtime="1573125108"/>
+  <entry name="notmuch.spec" md5="dcd69f2a2f1d86bbde53dc3d712d98f8" size="7746" mtime="1578412371"/>
+</directory>

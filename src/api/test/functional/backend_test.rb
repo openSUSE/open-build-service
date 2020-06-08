@@ -13,7 +13,7 @@ class BackendTests < ActionDispatch::IntegrationTest
       # map schema names
       if ['about', 'activity', 'added_timestamp', 'announcement', 'announcements', 'new_announcement', 'architecture', 'attrib', 'attrib_type',
           'attrib_namespace', 'attribute_namespace_meta', 'collection_objects_by_tag',
-          'collection_objects_with_tags_by_user', 'configuration', 'directory_view', 'download_counter',
+          'collection_objects_with_tags_by_user', 'configuration', 'directory_filelist', 'directory_view', 'download_counter',
           'download_counter_summary', 'download_stats', 'group', 'highest_rated', 'issue_tracker',
           'latest_added', 'latest_updated', 'message', 'messages', 'most_active_packages', 'most_active_projects', 'newest_stats',
           'packageresult', 'projectresult', 'projects', 'rating', 'redirect_stats', 'status_message',
