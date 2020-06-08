@@ -506,7 +506,7 @@ class BsRequestAction < ApplicationRecord
         tprj = tprj.update_instance
         if tprj.is_maintenance_incident?
           release_target = nil
-          pkg.project.repositories.includes(:release_targets).each do |repo|
+          pkg.project.repositories.includes(:release_targets).find_each do |repo|
             repo.release_targets.each do |rt|
               next if rt.trigger != 'maintenance'
               next unless rt.target_repository.project.is_maintenance_release?
@@ -527,7 +527,7 @@ class BsRequestAction < ApplicationRecord
         # take into account that an additional local link with spec file might got added
         unless data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
           if is_maintenance_release?
-            pkg.project.repositories.includes(:release_targets).each do |repo|
+            pkg.project.repositories.includes(:release_targets).find_each do |repo|
               repo.release_targets.each do |rt|
                 new_targets << rt.target_repository.project.name
               end
