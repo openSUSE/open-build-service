@@ -4102,6 +4102,12 @@ if (!$ex) {
   $code = 'unchanged';
   my $statsfile = "$buildroot/.build.packages/OTHER/_statistics";
   push @send, {name => '_statistics', filename => $statsfile} if -e $statsfile;
+
+  # ccache is enabled and there is no tar from previous builds,
+  # this is a good ccache archive and should be used for subsequent builds.
+  my $ccachetar = "$buildroot/.build.packages/OTHER/_ccache.tar";
+  my $occachetar = "$buildroot/.build.oldpackages/_ccache.tar";
+  push @send, {name => '_ccache.tar', filename => $ccachetar} if -e $ccachetar && !-e $occachetar;
 } elsif ($ex == 3 && $buildinfo->{'nobadhost'}) {
   print "build failed (ignored bad build host flag)...\n";
   BSUtil::appendstr("$buildroot/.build.log", "\n$buildinfo->{'nobadhost'}\n");

@@ -546,6 +546,11 @@ sub jobfinished {
     BSUtil::appendstr("$dst/logfile", "\nRetried build at ".localtime(time())." returned same result, skipped\n");
     my $jobhist = makejobhist($info, $status, $js, 'unchanged');
     addbuildstats($jobdatadir, $dst, $jobhist) if $all{'_statistics'};
+
+    my $ccachetar = "$jobdatadir/_ccache.tar";
+    my $occachetar = "$dst/_ccache.tar";
+    rename($ccachetar, $occachetar) if $all{'_ccache.tar'} && !-e $occachetar;
+
     unlink("$gdst/:logfiles.fail/$packid");
     rename($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
@@ -1046,7 +1051,9 @@ sub create {
   unshift @bdeps, @{$info->{'dep'} || []}, @btdeps, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps || $buildtype eq 'simpleimage';
   if ($packid && exists($bconf->{'buildflags:useccache'}) && ($buildtype eq 'arch' || $buildtype eq 'spec' || $buildtype eq 'dsc')) {
-    if (grep {$_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
+    my $opackid = $packid;
+    $opackid = $pdata->{'releasename'} if $pdata->{'releasename'};
+    if (grep {$_ eq "useccache:$opackid" || $_ eq "useccache:$packid"} @{$bconf->{'buildflags'} || []}) {
       push @bdeps, @{$bconf->{'substitute'}->{'build-packages:ccache'} || [ 'ccache' ] };
     }
   }
