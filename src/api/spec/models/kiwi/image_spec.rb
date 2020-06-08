@@ -24,7 +24,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with a valid Kiwi File' do
       subject { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
 
-      it { expect(subject.valid?).to be_truthy }
+      it { is_expected.to be_valid }
       it { expect(subject.name).to eq('Christians_openSUSE_13.2_JeOS') }
 
       it 'parses the repository elements of the xml into a KiwiImage model' do
@@ -149,8 +149,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       context 'obsrepositories' do
         subject { Kiwi::Image.build_from_xml(kiwi_xml_with_obsrepositories, 'some_md5') }
 
-        it { expect(subject.valid?).to be_truthy }
-        it { expect(subject.use_project_repositories?).to be_truthy }
+        it { is_expected.to be_valid }
+        it { is_expected.to be_use_project_repositories }
 
         it { expect(subject.repositories.length).to eq(0) }
       end
@@ -158,8 +158,8 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
       context 'obsrepositories and others' do
         subject { Kiwi::Image.build_from_xml(invalid_kiwi_xml_with_obsrepositories, 'some_md5') }
 
-        it { expect(subject.valid?).to be_falsey }
-        it { expect(subject.use_project_repositories?).to be_truthy }
+        it { is_expected.not_to be_valid }
+        it { is_expected.to be_use_project_repositories }
 
         it { expect(subject.repositories.length).to eq(1) }
 
@@ -183,13 +183,13 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with an invalid Kiwi File' do
       subject { Kiwi::Image.build_from_xml(invalid_kiwi_xml, 'some_md5') }
 
-      it { expect(subject.valid?).to be_falsey }
+      it { is_expected.not_to be_valid }
     end
 
     context 'with a non xml Kiwi File it creates an empty image' do
       subject { Kiwi::Image.build_from_xml('', 'some_md5') }
 
-      it { expect(subject.valid?).to be_falsey }
+      it { is_expected.not_to be_valid }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
     end
@@ -197,7 +197,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with multiple descriptions in the xml file' do
       subject { Kiwi::Image.build_from_xml(kiwi_xml_with_multiple_descriptions, 'some_md5') }
 
-      it { expect(subject.valid?).to be_truthy }
+      it { is_expected.to be_valid }
       it { expect(subject.repositories).to be_empty }
       it { expect(subject.kiwi_packages).to be_empty }
 

@@ -48,20 +48,20 @@ RSpec.describe User do
 
   describe '#is_active?' do
     it 'returns true if user is confirmed' do
-      expect(confirmed_user.is_active?).to be_truthy
+      expect(confirmed_user).to be_is_active
     end
 
     it 'returns false if user is NOT confirmed' do
-      expect(user.is_active?).to be_falsey
+      expect(user).not_to be_is_active
     end
 
     context 'when user has owner' do
       it 'returns true if owner is confirmed' do
-        expect(user_belongs_to_confirmed_owner.is_active?).to be_truthy
+        expect(user_belongs_to_confirmed_owner).to be_is_active
       end
 
       it 'returns false if owner not confirmed' do
-        expect(user_belongs_to_unconfirmed_owner.is_active?).to be_falsey
+        expect(user_belongs_to_unconfirmed_owner).not_to be_is_active
       end
     end
   end
@@ -377,9 +377,9 @@ RSpec.describe User do
       subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
-      it { expect(subject.any? { |x| x.subscriber != confirmed_user }).to be_falsey }
-      it { expect(subject.any? { |x| x.subscriber == group }).to be_falsey }
-      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+      it { is_expected.not_to(be_any { |x| x.subscriber != confirmed_user }) }
+      it { is_expected.not_to(be_any { |x| x.subscriber == group }) }
+      it { is_expected.not_to(be_any { |x| x.subscriber == user }) }
     end
 
     context 'with a lot notifications from the group' do
@@ -394,7 +394,7 @@ RSpec.describe User do
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to eq(1) }
       it { expect(subject.select { |x| x.subscriber == group }.length).to eq(max_items_per_user - 1) }
-      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+      it { is_expected.not_to(be_any { |x| x.subscriber == user }) }
     end
 
     context 'with a notifications mixed' do
@@ -413,7 +413,7 @@ RSpec.describe User do
       it { expect(subject.count).to be(max_items_per_user) }
       it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to be >= batch * 2 }
       it { expect(subject.select { |x| x.subscriber == group }.length).to eq(batch * 2) }
-      it { expect(subject.any? { |x| x.subscriber == user }).to be_falsey }
+      it { is_expected.not_to(be_any { |x| x.subscriber == user }) }
     end
   end
 
@@ -441,7 +441,7 @@ RSpec.describe User do
         end
 
         it 'converts the password to bcrypt' do
-          expect(BCrypt::Password.new(user.password_digest).is_password?('buildservice')).to be_truthy
+          expect(BCrypt::Password.new(user.password_digest)).to be_is_password('buildservice')
         end
 
         it 'resets the hash of the deprecated password' do
