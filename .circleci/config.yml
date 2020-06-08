@@ -1,0 +1,8 @@
+version: 2.0
+
+# Disable CircleCI completely on the 2.9 branch
+jobs:
+  build:
+    branches:
+      ignore:
+        - /.*/
