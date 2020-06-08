@@ -26,7 +26,7 @@ class Architecture < ApplicationRecord
 
   def self.archcache
     Rails.cache.fetch('archcache') do
-      Architecture.all.map { |arch| [arch.name, arch] }.to_h
+      Architecture.all.index_by(&:name)
     end
   end
 

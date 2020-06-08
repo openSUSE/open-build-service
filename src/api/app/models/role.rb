@@ -48,7 +48,7 @@ class Role < ApplicationRecord
   # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
   def self.hashed
     Rails.cache.fetch('hashed_roles') do
-      Hash[Role.all.map { |role| [role.title, role] }]
+      Role.all.index_by(&:title)
     end
   end
 

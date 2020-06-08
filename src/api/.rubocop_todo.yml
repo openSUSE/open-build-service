@@ -480,13 +480,6 @@ Rails/HelperInstanceVariable:
 
 # Offense count: 2
 # Cop supports --auto-correct.
-Rails/IndexBy:
-  Exclude:
-    - 'app/models/architecture.rb'
-    - 'app/models/role.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
 Rails/IndexWith:
   Exclude:
     - 'app/controllers/configurations_controller.rb'
