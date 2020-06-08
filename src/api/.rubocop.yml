@@ -247,7 +247,6 @@ Style/MethodCallWithArgsParentheses:
     - set_content_type
     - shared_context
     - shared_examples
-    - sprite_tag
     - start
     - stopped
     - strftime
