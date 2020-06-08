@@ -113,7 +113,7 @@ RSpec.describe Webui::WebuiController do
     end
 
     it 'prepends an underscore if id does not start with a valid character' do
-      expect('_10_2').to eq(controller.valid_xml_id('10.2'))
+      expect(controller.valid_xml_id('10.2')).to eq('_10_2')
     end
   end
 

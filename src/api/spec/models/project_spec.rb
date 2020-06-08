@@ -208,6 +208,9 @@ RSpec.describe Project, vcr: true do
         </project>
         XML_DATA
       end
+      let(:path_elements2) { new_repository.path_elements.second.link }
+      let(:path_elements) { new_repository.path_elements.first.link }
+      let(:new_repository) { project.repositories.second }
       let(:expected_xml_meta) do
         <<-XML_DATA
         <project name="#{project}">
@@ -231,9 +234,6 @@ RSpec.describe Project, vcr: true do
         project.reload
       end
 
-      let(:path_elements2) { new_repository.path_elements.second.link }
-      let(:path_elements) { new_repository.path_elements.first.link }
-      let(:new_repository) { project.repositories.second }
       it 'has proper project xml' do
         expect(Xmlhash.parse(project.render_xml)).to eq(Xmlhash.parse(expected_xml_meta))
       end
