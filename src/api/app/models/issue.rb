@@ -151,12 +151,12 @@ end
 #
 #  id               :integer          not null, primary key
 #  name             :string(255)      not null, indexed => [issue_tracker_id]
-#  issue_tracker_id :integer          not null, indexed => [name], indexed
+#  state            :string(7)
 #  summary          :string(255)
-#  owner_id         :integer          indexed
 #  created_at       :datetime
 #  updated_at       :datetime
-#  state            :string(7)
+#  issue_tracker_id :integer          not null, indexed => [name], indexed
+#  owner_id         :integer          indexed
 #
 # Indexes
 #

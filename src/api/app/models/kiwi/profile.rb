@@ -38,3 +38,21 @@ module Kiwi
     #### Alias of methods
   end
 end
+
+# == Schema Information
+#
+# Table name: kiwi_profiles
+#
+#  id          :integer          not null, primary key
+#  description :string(191)      not null
+#  name        :string(191)      not null, indexed => [image_id]
+#  selected    :boolean          not null
+#  created_at  :datetime         not null
+#  updated_at  :datetime         not null
+#  image_id    :integer          not null, indexed, indexed => [name]
+#
+# Indexes
+#
+#  index_kiwi_profiles_on_image_id  (image_id)
+#  name_once_per_image              (name,image_id) UNIQUE
+#

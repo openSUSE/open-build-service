@@ -38,11 +38,11 @@ end
 #
 #  id          :integer          not null, primary key
 #  eventtype   :string(255)      not null, indexed
+#  mails_sent  :boolean          default(FALSE), indexed
 #  payload     :text(65535)
+#  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime
-#  undone_jobs :integer          default(0)
-#  mails_sent  :boolean          default(FALSE), indexed
 #
 # Indexes
 #

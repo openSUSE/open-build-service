@@ -281,12 +281,13 @@ end
 # Table name: repositories
 #
 #  id                  :integer          not null, primary key
-#  db_project_id       :integer          not null, indexed => [name, remote_project_name]
-#  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
-#  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
-#  rebuild             :string(10)
 #  block               :string(5)
 #  linkedbuild         :string(8)
+#  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
+#  rebuild             :string(10)
+#  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
+#  required_checks     :string(255)
+#  db_project_id       :integer          not null, indexed => [name, remote_project_name]
 #  hostsystem_id       :integer          indexed
 #
 # Indexes

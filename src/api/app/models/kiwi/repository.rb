@@ -125,19 +125,19 @@ end
 # Table name: kiwi_repositories
 #
 #  id             :integer          not null, primary key
-#  image_id       :integer          indexed, indexed => [order]
-#  repo_type      :string(255)
-#  source_path    :string(255)
-#  order          :integer          indexed => [image_id]
-#  priority       :integer
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
 #  alias          :string(255)
 #  imageinclude   :boolean
+#  order          :integer          indexed => [image_id]
 #  password       :string(255)
 #  prefer_license :boolean
+#  priority       :integer
 #  replaceable    :boolean
+#  repo_type      :string(255)
+#  source_path    :string(255)
 #  username       :string(255)
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  image_id       :integer          indexed, indexed => [order]
 #
 # Indexes
 #

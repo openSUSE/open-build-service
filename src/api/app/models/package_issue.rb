@@ -50,9 +50,9 @@ end
 # Table name: package_issues
 #
 #  id         :integer          not null, primary key
-#  package_id :integer          not null, indexed => [issue_id]
-#  issue_id   :integer          not null, indexed, indexed => [package_id]
 #  change     :string(7)
+#  issue_id   :integer          not null, indexed, indexed => [package_id]
+#  package_id :integer          not null, indexed => [issue_id]
 #
 # Indexes
 #

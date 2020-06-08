@@ -23,12 +23,12 @@ end
 # Table name: channel_targets
 #
 #  id             :integer          not null, primary key
+#  disabled       :boolean          default(FALSE)
+#  id_template    :string(255)
+#  prefix         :string(255)
+#  requires_issue :boolean
 #  channel_id     :integer          not null, indexed => [repository_id]
 #  repository_id  :integer          not null, indexed => [channel_id], indexed
-#  prefix         :string(255)
-#  id_template    :string(255)
-#  disabled       :boolean          default(FALSE)
-#  requires_issue :boolean
 #
 # Indexes
 #

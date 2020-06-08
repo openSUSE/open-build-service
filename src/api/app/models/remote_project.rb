@@ -14,22 +14,25 @@ end
 #
 # Table name: projects
 #
-#  id              :integer          not null, primary key
-#  name            :string(200)      not null, indexed
-#  title           :string(255)
-#  description     :text(65535)
-#  created_at      :datetime
-#  updated_at      :datetime         indexed
-#  remoteurl       :string(255)
-#  remoteproject   :string(255)
-#  develproject_id :integer          indexed
-#  delta           :boolean          default(TRUE), not null
-#  kind            :string(20)       default("standard")
-#  url             :string(255)
+#  id                  :integer          not null, primary key
+#  delta               :boolean          default(TRUE), not null
+#  description         :text(65535)
+#  kind                :string(20)       default("standard")
+#  name                :string(200)      not null, indexed
+#  remoteproject       :string(255)
+#  remoteurl           :string(255)
+#  required_checks     :string(255)
+#  title               :string(255)
+#  url                 :string(255)
+#  created_at          :datetime
+#  updated_at          :datetime         indexed
+#  develproject_id     :integer          indexed
+#  staging_workflow_id :integer          indexed
 #
 # Indexes
 #
-#  devel_project_id_index  (develproject_id)
-#  projects_name_index     (name) UNIQUE
-#  updated_at_index        (updated_at)
+#  devel_project_id_index                 (develproject_id)
+#  index_projects_on_staging_workflow_id  (staging_workflow_id)
+#  projects_name_index                    (name) UNIQUE
+#  updated_at_index                       (updated_at)
 #

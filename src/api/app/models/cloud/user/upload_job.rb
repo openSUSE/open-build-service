@@ -17,10 +17,10 @@ end
 # Table name: cloud_user_upload_jobs
 #
 #  id         :integer          not null, primary key
-#  user_id    :integer          indexed
-#  job_id     :integer          indexed
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  job_id     :integer          indexed
+#  user_id    :integer          indexed
 #
 # Indexes
 #

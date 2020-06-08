@@ -18,10 +18,11 @@ end
 #
 # Table name: repository_architectures
 #
-#  repository_id   :integer          not null, indexed => [architecture_id]
-#  architecture_id :integer          not null, indexed => [repository_id], indexed
-#  position        :integer          default(0), not null
 #  id              :integer          not null, primary key
+#  position        :integer          default(0), not null
+#  required_checks :string(255)
+#  architecture_id :integer          not null, indexed => [repository_id], indexed
+#  repository_id   :integer          not null, indexed => [architecture_id]
 #
 # Indexes
 #

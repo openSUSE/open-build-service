@@ -15,8 +15,8 @@ end
 # Table name: maintained_projects
 #
 #  id                     :integer          not null, primary key
-#  project_id             :integer          not null, indexed => [maintenance_project_id]
 #  maintenance_project_id :integer          not null, indexed, indexed => [project_id]
+#  project_id             :integer          not null, indexed => [maintenance_project_id]
 #
 # Indexes
 #

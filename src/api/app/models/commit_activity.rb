@@ -21,3 +21,21 @@ class CommitActivity < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: commit_activities
+#
+#  id      :integer          not null, primary key
+#  count   :integer          default(0), not null
+#  date    :date             not null, indexed => [user_id], indexed => [user_id, project, package]
+#  package :string(255)      not null, indexed => [date, user_id, project]
+#  project :string(255)      not null, indexed => [date, user_id, package]
+#  user_id :integer          not null, indexed, indexed => [date], indexed => [date, project, package]
+#
+# Indexes
+#
+#  index_commit_activities_on_user_id           (user_id)
+#  index_commit_activities_on_user_id_and_date  (user_id,date)
+#  unique_activity_day                          (date,user_id,project,package) UNIQUE
+#

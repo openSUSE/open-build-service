@@ -23,13 +23,13 @@ end
 # Table name: kiwi_descriptions
 #
 #  id               :integer          not null, primary key
-#  image_id         :integer          indexed
-#  description_type :integer          default("system")
 #  author           :string(255)
 #  contact          :string(255)
+#  description_type :integer          default("system")
 #  specification    :string(255)
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  image_id         :integer          indexed
 #
 # Indexes
 #

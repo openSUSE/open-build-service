@@ -111,14 +111,14 @@ end
 # Table name: channel_binaries
 #
 #  id                     :integer          not null, primary key
+#  binaryarch             :string(255)
 #  name                   :string(255)      not null, indexed => [channel_binary_list_id]
+#  package                :string(255)      indexed => [project_id]
+#  supportstatus          :string(255)
+#  architecture_id        :integer          indexed
 #  channel_binary_list_id :integer          not null, indexed, indexed => [name]
 #  project_id             :integer          indexed => [package]
 #  repository_id          :integer          indexed
-#  architecture_id        :integer          indexed
-#  package                :string(255)      indexed => [project_id]
-#  binaryarch             :string(255)
-#  supportstatus          :string(255)
 #
 # Indexes
 #

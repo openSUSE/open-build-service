@@ -173,13 +173,13 @@ end
 # Table name: products
 #
 #  id          :integer          not null, primary key
-#  name        :string(255)      not null, indexed => [package_id]
-#  package_id  :integer          not null, indexed => [name], indexed
-#  cpe         :string(255)
-#  version     :string(255)
 #  baseversion :string(255)
+#  cpe         :string(255)
+#  name        :string(255)      not null, indexed => [package_id]
 #  patchlevel  :string(255)
 #  release     :string(255)
+#  version     :string(255)
+#  package_id  :integer          not null, indexed => [name], indexed
 #
 # Indexes
 #

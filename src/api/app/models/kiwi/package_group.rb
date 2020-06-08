@@ -54,11 +54,11 @@ end
 #
 #  id           :integer          not null, primary key
 #  kiwi_type    :integer          not null
-#  profiles     :string(255)
 #  pattern_type :string(255)
-#  image_id     :integer          indexed
+#  profiles     :string(255)
 #  created_at   :datetime         not null
 #  updated_at   :datetime         not null
+#  image_id     :integer          indexed
 #
 # Indexes
 #

@@ -44,11 +44,12 @@ end
 # Table name: kiwi_preferences
 #
 #  id                        :integer          not null, primary key
-#  image_id                  :integer          indexed
-#  type_image                :integer
+#  profile                   :string(191)
 #  type_containerconfig_name :string(255)
 #  type_containerconfig_tag  :string(255)
+#  type_image                :integer
 #  version                   :string(255)
+#  image_id                  :integer          indexed
 #
 # Indexes
 #

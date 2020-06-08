@@ -19,10 +19,10 @@ end
 # Table name: incident_updateinfo_counter_values
 #
 #  id                    :integer          not null, primary key
-#  updateinfo_counter_id :integer          not null, indexed => [project_id]
-#  project_id            :integer          not null, indexed, indexed => [updateinfo_counter_id]
-#  value                 :integer          not null
 #  released_at           :datetime         not null
+#  value                 :integer          not null
+#  project_id            :integer          not null, indexed, indexed => [updateinfo_counter_id]
+#  updateinfo_counter_id :integer          not null, indexed => [project_id]
 #
 # Indexes
 #

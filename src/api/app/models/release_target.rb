@@ -8,9 +8,9 @@ end
 # Table name: release_targets
 #
 #  id                   :integer          not null, primary key
+#  trigger              :string(12)
 #  repository_id        :integer          not null, indexed
 #  target_repository_id :integer          not null, indexed
-#  trigger              :string(12)
 #
 # Indexes
 #

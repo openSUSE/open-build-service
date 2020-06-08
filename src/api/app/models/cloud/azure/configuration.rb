@@ -39,11 +39,11 @@ end
 # Table name: cloud_azure_configurations
 #
 #  id              :integer          not null, primary key
-#  user_id         :integer          indexed
-#  application_id  :text(65535)
 #  application_key :text(65535)
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null
+#  application_id  :text(65535)
+#  user_id         :integer          indexed
 #
 # Indexes
 #

@@ -85,11 +85,11 @@ end
 # Table name: roles
 #
 #  id         :integer          not null, primary key
-#  title      :string(100)      default(""), not null
-#  parent_id  :integer          indexed
 #  global     :boolean          default(FALSE)
+#  title      :string(100)      default(""), not null
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
+#  parent_id  :integer          indexed
 #
 # Indexes
 #

@@ -156,9 +156,9 @@ end
 # Table name: attribs
 #
 #  id             :integer          not null, primary key
+#  binary         :string(255)      indexed => [attrib_type_id, package_id, project_id], indexed => [attrib_type_id, project_id, package_id]
 #  attrib_type_id :integer          not null, indexed => [package_id, project_id, binary], indexed => [project_id, package_id, binary]
 #  package_id     :integer          indexed => [attrib_type_id, project_id, binary], indexed => [attrib_type_id, project_id, binary], indexed
-#  binary         :string(255)      indexed => [attrib_type_id, package_id, project_id], indexed => [attrib_type_id, project_id, package_id]
 #  project_id     :integer          indexed => [attrib_type_id, package_id, binary], indexed => [attrib_type_id, package_id, binary], indexed
 #
 # Indexes

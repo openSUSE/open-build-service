@@ -11,9 +11,9 @@ end
 #
 #  id             :integer          not null, primary key
 #  attrib_type_id :integer          not null, indexed => [user_id, group_id, role_id]
-#  user_id        :integer          indexed => [attrib_type_id, group_id, role_id], indexed
 #  group_id       :integer          indexed => [attrib_type_id, user_id, role_id], indexed
 #  role_id        :integer          indexed => [attrib_type_id, user_id, group_id], indexed
+#  user_id        :integer          indexed => [attrib_type_id, group_id, role_id], indexed
 #
 # Indexes
 #

@@ -342,15 +342,15 @@ end
 # Table name: issue_trackers
 #
 #  id             :integer          not null, primary key
-#  name           :string(255)      not null
-#  kind           :string(11)       not null
 #  description    :string(255)
-#  url            :string(255)      not null
-#  show_url       :string(255)
-#  regex          :string(255)      not null
-#  user           :string(255)
-#  password       :string(255)
-#  label          :text(65535)      not null
-#  issues_updated :datetime         not null
 #  enable_fetch   :boolean          default(FALSE)
+#  issues_updated :datetime         not null
+#  kind           :string(11)       not null
+#  label          :text(65535)      not null
+#  name           :string(255)      not null
+#  password       :string(255)
+#  regex          :string(255)      not null
+#  show_url       :string(255)
+#  url            :string(255)      not null
+#  user           :string(255)
 #

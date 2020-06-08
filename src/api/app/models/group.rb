@@ -215,11 +215,11 @@ end
 # Table name: groups
 #
 #  id         :integer          not null, primary key
+#  email      :string(255)
+#  title      :string(200)      default(""), not null, indexed
 #  created_at :datetime
 #  updated_at :datetime
-#  title      :string(200)      default(""), not null, indexed
 #  parent_id  :integer          indexed
-#  email      :string(255)
 #
 # Indexes
 #

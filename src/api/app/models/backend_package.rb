@@ -34,15 +34,15 @@ end
 #
 # Table name: backend_packages
 #
-#  package_id  :integer          not null, primary key
-#  links_to_id :integer          indexed
-#  updated_at  :datetime
-#  srcmd5      :string(255)
 #  changesmd5  :string(255)
-#  verifymd5   :string(255)
-#  expandedmd5 :string(255)
 #  error       :text(65535)
+#  expandedmd5 :string(255)
 #  maxmtime    :datetime
+#  srcmd5      :string(255)
+#  verifymd5   :string(255)
+#  updated_at  :datetime
+#  links_to_id :integer          indexed
+#  package_id  :integer          not null, primary key
 #
 # Indexes
 #

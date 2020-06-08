@@ -56,13 +56,13 @@ end
 # Table name: flags
 #
 #  id              :integer          not null, primary key
-#  status          :string(7)        not null
-#  repo            :string(255)
-#  project_id      :integer          indexed
-#  package_id      :integer          indexed
-#  architecture_id :integer          indexed
-#  position        :integer          not null
 #  flag            :string(14)       not null, indexed
+#  position        :integer          not null
+#  repo            :string(255)
+#  status          :string(7)        not null
+#  architecture_id :integer          indexed
+#  package_id      :integer          indexed
+#  project_id      :integer          indexed
 #
 # Indexes
 #
