@@ -16,7 +16,7 @@ module Webui::PackageHelper
   end
 
   def title_or_name(package)
-    package.title.blank? ? package.name : package.title
+    package.title.presence || package.name
   end
 
   def guess_code_class(filename)
