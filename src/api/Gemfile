@@ -181,6 +181,11 @@ group :development, :test do
   # BRAKEMAN
 end
 
+group :development do
+  # add a comment summarizing the current schema
+  gem 'annotate'
+end
+
 # Gems used only for assets and not required in production environments by default.
 group :assets do
   # for minifying CSS
