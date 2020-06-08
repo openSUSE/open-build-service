@@ -297,7 +297,7 @@ RSpec.describe Webui::RequestController, vcr: true do
           number: bs_request.number, accepted: 'accepted', add_submitter_as_maintainer_0: "#{target_project}_#_#{target_package}"
         }
         expect(bs_request.reload.state).to eq(:accepted)
-        expect(target_package.relationships.map(&:user_id).include?(submitter.id)).to be_truthy
+        expect(target_package.relationships.map(&:user_id)).to include(submitter.id)
       end
 
       it 'forwards' do

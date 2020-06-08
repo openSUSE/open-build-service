@@ -13,13 +13,13 @@ RSpec.describe AttribValue, type: :model do
       let!(:attrib_value) { create(:attrib_value, attrib: attrib) }
 
       it 'adds new elements on top' do
-        expect(create(:attrib_value, attrib: attrib).first?).to be_truthy
-        expect(attrib_value.reload.last?).to be_truthy
+        expect(create(:attrib_value, attrib: attrib)).to be_first
+        expect(attrib_value.reload).to be_last
       end
 
       it 'adds new elements to assigned position' do
-        expect(create(:attrib_value, attrib: attrib, position: 2).last?).to be_truthy
-        expect(attrib_value.reload.first?).to be_truthy
+        expect(create(:attrib_value, attrib: attrib, position: 2)).to be_last
+        expect(attrib_value.reload).to be_first
       end
     end
   end
