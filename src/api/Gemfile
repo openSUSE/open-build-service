@@ -191,10 +191,6 @@ group :assets do
   gem 'sassc-rails'
   # assets for jQuery DataTables
   gem 'jquery-datatables'
-  # to create our sprite images/stylesheets
-  gem 'sprite-factory', '>= 1.5.2'
-  # to read and write PNG images
-  gem 'chunky_png'
   # assets for jQuery and jQuery-ujs
   gem 'jquery-rails'
   # assets for jQuery-ui
