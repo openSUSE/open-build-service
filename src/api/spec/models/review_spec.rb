@@ -446,11 +446,11 @@ RSpec.describe Review do
     end
 
     it 'returns false if review configuration does not match provided hash' do
-      expect(review_by_user.reviewable_by?(by_user:       other_user.login)).to be_falsy
-      expect(review_by_group.reviewable_by?(by_group:     other_group.title)).to be_falsy
-      expect(review_by_project.reviewable_by?(by_project: other_project.name)).to be_falsy
-      expect(review_by_package.reviewable_by?(by_package: other_package.name, by_project: other_package.project.name)).to be_falsy
-      expect(review_by_package.reviewable_by?(by_package: other_package_with_same_name.name, by_project: other_package_with_same_name.project.name)).to be_falsy
+      expect(review_by_user).not_to be_reviewable_by(by_user:       other_user.login)
+      expect(review_by_group).not_to be_reviewable_by(by_group:     other_group.title)
+      expect(review_by_project).not_to be_reviewable_by(by_project: other_project.name)
+      expect(review_by_package).not_to be_reviewable_by(by_package: other_package.name, by_project: other_package.project.name)
+      expect(review_by_package).not_to be_reviewable_by(by_package: other_package_with_same_name.name, by_project: other_package_with_same_name.project.name)
     end
   end
 

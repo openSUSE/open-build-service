@@ -56,7 +56,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
 
       subject { Cloud::UploadJob.create(params) }
 
-      it { expect(subject.valid?).to be_truthy }
+      it { is_expected.to be_valid }
     end
 
     context 'with an invalid Backend::UploadJob' do
@@ -67,7 +67,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
 
       subject { Cloud::UploadJob.create(params) }
 
-      it { expect(subject.valid?).to be_falsy }
+      it { is_expected.not_to be_valid }
 
       it 'has the correct error message' do
         subject.valid?
@@ -83,7 +83,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
 
       subject { Cloud::UploadJob.create(params) }
 
-      it { expect(subject.valid?).to be_falsy }
+      it { is_expected.not_to be_valid }
 
       it 'has the correct error message' do
         subject.valid?

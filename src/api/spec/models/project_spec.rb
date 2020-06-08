@@ -390,17 +390,17 @@ RSpec.describe Project, vcr: true do
 
   describe '.deleted?' do
     it 'returns false if the project exists in the app' do
-      expect(Project.deleted?(project.name)).to be_falsey
+      expect(Project).not_to be_deleted(project.name)
     end
 
     it 'returns false if backend responds with nothing' do
       allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return(nil)
-      expect(Project.deleted?('never-existed-before')).to be_falsey
+      expect(Project).not_to be_deleted('never-existed-before')
     end
 
     it 'returns false if revision list element of _history file is empty' do
       allow_any_instance_of(ProjectFile).to receive(:content).with(deleted: 1).and_return("<revisionlist>\n</revisionlist>\n")
-      expect(Project.deleted?('never-existed-before')).to be_falsey
+      expect(Project).not_to be_deleted('never-existed-before')
     end
 
     it 'returns true if _history element has elements' do
@@ -410,7 +410,7 @@ RSpec.describe Project, vcr: true do
         "</revision>\n</revisionlist>\n"
       )
 
-      expect(Project.deleted?('very-nice-project-name')).to be_truthy
+      expect(Project).to be_deleted('very-nice-project-name')
     end
   end
 
@@ -496,7 +496,7 @@ RSpec.describe Project, vcr: true do
         project.destroy!
       end
 
-      it { expect(Project.deleted?(project.name)).to be_truthy }
+      it { expect(Project).to be_deleted(project.name) }
     end
   end
 
@@ -538,7 +538,7 @@ RSpec.describe Project, vcr: true do
     subject! { project.remove_all_persons }
 
     it 'deletes the relationship' do
-      expect(Relationship.exists?(relationship.id)).to be_falsey
+      expect(Relationship).not_to exist(relationship.id)
     end
   end
 
@@ -557,7 +557,7 @@ RSpec.describe Project, vcr: true do
     subject! { project.remove_all_groups }
 
     it 'deletes the relationship' do
-      expect(Relationship.exists?(relationship.id)).to be_falsey
+      expect(Relationship).not_to exist(relationship.id)
     end
   end
 
