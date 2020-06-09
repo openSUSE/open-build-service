@@ -16,9 +16,9 @@ module Webui::MaintenanceIncidentHelper
 
     path = (requests.count == 1 ? request_show_path(requests.first) : project_requests_path(project: incident.name))
 
-    content_tag(:div) do
+    tag.div do
       link_to(path) do
-        concat content_tag(:i, nil, class: 'fas fa-exclamation-circle text-danger pr-1')
+        concat tag.i(nil, class: 'fas fa-exclamation-circle text-danger pr-1')
         concat pluralize(requests.count, 'open request')
       end
     end
@@ -29,8 +29,8 @@ module Webui::MaintenanceIncidentHelper
     if requests.present?
       safe_join(outgoing_request_links(requests), '<div/>'.html_safe)
     elsif incident.is_locked?
-      content_tag(:div) do
-        concat content_tag(:i, nil, class: 'fas fa-lock text-info pr-1')
+      tag.div do
+        concat tag.i(nil, class: 'fas fa-lock text-info pr-1')
         concat 'Locked'
       end
     end
@@ -53,7 +53,7 @@ module Webui::MaintenanceIncidentHelper
               class: "patchinfo-category-#{patchinfo[:category]}")
     else
       link_to(patchinfo_path(project: incident.name, package: 'patchinfo'), method: :post, class: 'text-danger') do
-        content_tag(:i, nil, class: 'fas fa-exclamation-circle text-danger')
+        tag.i(nil, class: 'fas fa-exclamation-circle text-danger')
         'Missing Patchinfo'
       end
     end
@@ -77,8 +77,8 @@ module Webui::MaintenanceIncidentHelper
   def stopped_icon(patchinfo)
     return unless patchinfo[:stopped]
 
-    content_tag(:div) do
-      safe_join([content_tag(:i, nil, class: 'fas fa-clock text-info pr-1'), "Stopped: #{patchinfo[:stopped]}"])
+    tag.div do
+      safe_join([tag.i(nil, class: 'fas fa-clock text-info pr-1'), "Stopped: #{patchinfo[:stopped]}"])
     end
   end
 
@@ -86,11 +86,11 @@ module Webui::MaintenanceIncidentHelper
     safe_join(
       [
         incident.target_repositories.map do |target_repo|
-          content_tag(:div) do
+          tag.div do
             safe_join(
               [
                 link_to(project_show_path(project: incident.name)) do
-                  content_tag(:i, nil, class: "fas pr-1 #{incident_build_icon_class(incident, target_repo.name)}", title: 'Build results')
+                  tag.i(nil, class: "fas pr-1 #{incident_build_icon_class(incident, target_repo.name)}", title: 'Build results')
                 end,
                 link_to(target_repo.project, project_show_path(project: target_repo.project))
               ]
@@ -108,7 +108,7 @@ module Webui::MaintenanceIncidentHelper
       safe_join(
         [
           link_to(request_show_path(request['number'])) do
-            content_tag(:i, nil, class: "fas fa-flag pr-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
+            tag.i(nil, class: "fas fa-flag pr-1 request-flag-#{request['state']}", title: "Release request in state '#{request['state']}'")
           end,
           # rubocop:disable Rails/OutputSafety
           "Created #{fuzzy_time(request.created_at)}".html_safe

@@ -18,7 +18,7 @@ module Webui::NotificationHelper
     link_to(my_notifications_path(filter_item), class: filter_css(filter_item)) do
       capture do
         concat(link_text)
-        concat(content_tag(:span, amount, class: "badge #{badge_color} align-text-top ml-2"))
+        concat(tag.span(amount, class: "badge #{badge_color} align-text-top ml-2"))
       end
     end
   end

@@ -3,7 +3,7 @@ class MaintainedProjectDatatable < Datatable
   def_delegator :@view, :project_show_path
   def_delegator :@view, :policy
   def_delegator :@view, :project_maintained_project_path
-  def_delegator :@view, :content_tag
+  def_delegator :@view, :tag
 
   def initialize(params, opts = {})
     @project = opts[:project]
@@ -42,7 +42,7 @@ class MaintainedProjectDatatable < Datatable
   def link_to_delete(project_name)
     link_to('#', title: 'Delete Project', data: { toggle: 'modal', target: '#delete-maintained-project-modal',
                                                   action: project_maintained_project_path(project_name: @project, maintained_project: project_name) }) do
-      content_tag(:i, nil, class: 'fas fa-times-circle text-danger')
+      tag.i(nil, class: 'fas fa-times-circle text-danger')
     end
   end
 end

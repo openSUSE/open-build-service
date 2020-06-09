@@ -1,5 +1,5 @@
 class Product < ApplicationRecord
-  belongs_to :package, foreign_key: :package_id
+  belongs_to :package
   has_many :product_update_repositories, dependent: :destroy
   has_many :product_media, dependent: :destroy
 

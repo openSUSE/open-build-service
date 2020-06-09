@@ -24,13 +24,13 @@ module Webui::RepositoryHelper
       data['user-set'] = 1
     end
 
-    content_tag(:div) do
-      content_tag(:i, nil, class: 'fas fa-spinner fa-spin d-none') +
+    tag.div do
+      tag.i(nil, class: 'fas fa-spinner fa-spin d-none') +
         link_to('javascript:;', title: title(flag, is_flag_set_by_user), class: 'flag-popup', data: data) do
-          content_tag(:span, class: 'text-nowrap current_flag_state') do
-            content_tag(:i, nil, class: icon_class(flag, is_flag_set_by_user)) +
+          tag.span(class: 'text-nowrap current_flag_state') do
+            tag.i(nil, class: icon_class(flag, is_flag_set_by_user)) +
               if is_flag_set_by_user
-                content_tag(:i, nil, class: 'fas fa-circle text-gray-500 text-40p-size')
+                tag.i(nil, class: 'fas fa-circle text-gray-500 text-40p-size')
               end
           end
         end

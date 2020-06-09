@@ -55,9 +55,9 @@ module Webui::Staging::WorkflowHelper
       when 'by_user'
         tags << image_tag_for(users_hash[review[:by]], size: 20)
       when 'by_project'
-        tags << content_tag(:i, nil, class: 'fa fa-cubes', title: review[:by])
+        tags << tag.i(nil, class: 'fa fa-cubes', title: review[:by])
       when 'by_package'
-        tags << content_tag(:i, nil, class: 'fa fa-archive', title: review[:by])
+        tags << tag.i(nil, class: 'fa fa-archive', title: review[:by])
       end
     end
     tags
@@ -70,7 +70,7 @@ module Webui::Staging::WorkflowHelper
     css += ' delete' if request[:request_type] == 'delete'
     link_content = [request[:package]]
     link_content << reviewers_icon(request, users_hash, groups_hash) if request[:missing_reviews].present?
-    content_tag(:span, class: "badge state-#{css}") do
+    tag.span(class: "badge state-#{css}") do
       link_to(request_show_path(request[:number]), class: 'request') do
         safe_join(link_content)
       end
@@ -97,11 +97,11 @@ module Webui::Staging::WorkflowHelper
     output += link_to('#', class: 'collapsed', 'data-toggle': 'collapse', href: ".collapse-#{staging_project.id}",
                            role: 'button', aria: { expanded: 'false', controls: "collapse-#{staging_project.id}" }) do
       safe_join([
-                  content_tag(:i, nil, class: 'fas fa-chevron-up collapser text-secondary ml-1 mr-1'),
-                  content_tag(:i, nil, class: 'fas fa-chevron-down expander text-secondary ml-1 mr-1')
+                  tag.i(nil, class: 'fas fa-chevron-up collapser text-secondary ml-1 mr-1'),
+                  tag.i(nil, class: 'fas fa-chevron-down expander text-secondary ml-1 mr-1')
                 ])
     end
-    output + content_tag(:div, class: "collapse collapse-#{staging_project.id}") do
+    output + tag.div(class: "collapse collapse-#{staging_project.id}") do
       safe_join(requests_links[requests_visible_by_default..-1])
     end
   end

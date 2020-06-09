@@ -17,7 +17,7 @@ class BackendInfo < ApplicationRecord
   end
 
   def self.lastnotification_nr
-    BackendInfo.where(key: 'lastnotification_nr').pluck(:value).first.to_i
+    BackendInfo.where(key: 'lastnotification_nr').pick(:value).to_i
   end
   #### private
   #### Instance methods (public and then protected/private)

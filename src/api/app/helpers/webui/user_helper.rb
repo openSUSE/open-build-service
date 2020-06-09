@@ -3,13 +3,13 @@ module Webui::UserHelper
     safe_join(
       [
         link_to(edit_user_path(user.login)) do
-          content_tag(:i, nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
+          tag.i(nil, class: 'fas fa-edit text-secondary pr-1', title: 'Edit User')
         end,
         mail_to(user.email) do
-          content_tag(:i, nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
+          tag.i(nil, class: 'fas fa-envelope text-secondary pr-1', title: 'Send Email to User')
         end,
         link_to(user_path(user.login), method: :delete, data: { confirm: 'Are you sure?' }) do
-          content_tag(:i, nil, class: 'fas fa-times-circle text-danger pr-1', title: 'Delete User')
+          tag.i(nil, class: 'fas fa-times-circle text-danger pr-1', title: 'Delete User')
         end
       ]
     )

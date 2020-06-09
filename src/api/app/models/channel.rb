@@ -1,7 +1,7 @@
 class Channel < ApplicationRecord
   include ModelHelper
 
-  belongs_to :package, foreign_key: :package_id, touch: true
+  belongs_to :package, touch: true
   has_many :channel_targets, dependent: :destroy
   has_many :channel_binary_lists, dependent: :destroy
 

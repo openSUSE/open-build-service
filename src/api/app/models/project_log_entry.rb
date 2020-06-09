@@ -13,7 +13,7 @@ class ProjectLogEntry < ApplicationRecord
   # Creates a new LogEntry record from the payload, timestamp, and model name of
   # an Event
   def self.create_from(payload, created_at, event_model_name)
-    project_id = Project.unscoped.where(name: payload['project']).pluck(:id).first
+    project_id = Project.unscoped.where(name: payload['project']).pick(:id)
     # Map request number to internal id
     bs_request_id = BsRequest.find_by_number(payload['requestid']).try(:id)
     entry = new(project_id: project_id,
