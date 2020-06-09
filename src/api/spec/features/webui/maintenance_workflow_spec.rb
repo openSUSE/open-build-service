@@ -57,7 +57,7 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
       source_project: "#{user.home_project}:branches:#{update_project}",
       source_package: package.name
     )
-    expect(new_bs_request_action.pluck(:source_rev).first).not_to be(nil)
+    expect(new_bs_request_action.pick(:source_rev)).not_to be(nil)
 
     logout
 
