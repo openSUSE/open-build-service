@@ -83,3 +83,7 @@ end
 class ProjectNotLocked < APIError
   setup 'not_locked'
 end
+
+class AbstractMethodCalled < APIError
+  setup 'not_implemented', 501, 'Called unimplemented abstract method'
+end
