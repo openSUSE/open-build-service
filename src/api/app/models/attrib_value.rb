@@ -36,9 +36,9 @@ end
 # Table name: attrib_values
 #
 #  id        :integer          not null, primary key
-#  attrib_id :integer          not null, indexed
-#  value     :text(65535)      not null
 #  position  :integer          not null
+#  value     :text(65535)      not null
+#  attrib_id :integer          not null, indexed
 #
 # Indexes
 #

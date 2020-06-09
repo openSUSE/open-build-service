@@ -92,12 +92,12 @@ end
 #
 #  id               :integer          not null, primary key
 #  body             :text(65535)
-#  parent_id        :integer          indexed
+#  commentable_type :string(255)      indexed => [commentable_id]
 #  created_at       :datetime
 #  updated_at       :datetime
-#  user_id          :integer          not null, indexed
-#  commentable_type :string(255)      indexed => [commentable_id]
 #  commentable_id   :integer          indexed => [commentable_type]
+#  parent_id        :integer          indexed
+#  user_id          :integer          not null, indexed
 #
 # Indexes
 #

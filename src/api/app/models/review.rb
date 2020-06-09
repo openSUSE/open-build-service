@@ -317,22 +317,22 @@ end
 # Table name: reviews
 #
 #  id            :integer          not null, primary key
-#  bs_request_id :integer          indexed
-#  creator       :string(255)      indexed
-#  reviewer      :string(255)      indexed
-#  reason        :text(65535)
-#  state         :string(255)      indexed => [by_project], indexed => [by_user]
-#  by_user       :string(255)      indexed, indexed => [state]
-#  by_group      :string(255)      indexed
-#  by_project    :string(255)      indexed => [by_package], indexed, indexed => [state]
+#  by_group      :string(255)      indexed, indexed => [state]
 #  by_package    :string(255)      indexed => [by_project]
+#  by_project    :string(255)      indexed => [by_package], indexed, indexed => [state]
+#  by_user       :string(255)      indexed, indexed => [state]
+#  creator       :string(255)      indexed
+#  reason        :text(65535)
+#  reviewer      :string(255)      indexed
+#  state         :string(255)      indexed => [by_group], indexed => [by_project], indexed => [by_user]
 #  created_at    :datetime         not null
 #  updated_at    :datetime         not null
+#  bs_request_id :integer          indexed
+#  group_id      :integer          indexed
+#  package_id    :integer          indexed
+#  project_id    :integer          indexed
 #  review_id     :integer          indexed
 #  user_id       :integer          indexed
-#  group_id      :integer          indexed
-#  project_id    :integer          indexed
-#  package_id    :integer          indexed
 #
 # Indexes
 #
@@ -347,6 +347,7 @@ end
 #  index_reviews_on_project_id                 (project_id)
 #  index_reviews_on_review_id                  (review_id)
 #  index_reviews_on_reviewer                   (reviewer)
+#  index_reviews_on_state_and_by_group         (state,by_group)
 #  index_reviews_on_state_and_by_project       (state,by_project)
 #  index_reviews_on_state_and_by_user          (state,by_user)
 #  index_reviews_on_user_id                    (user_id)

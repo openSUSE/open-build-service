@@ -142,3 +142,19 @@ class Staging::Workflow < ApplicationRecord
     project.store
   end
 end
+
+# == Schema Information
+#
+# Table name: staging_workflows
+#
+#  id                :integer          not null, primary key
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  managers_group_id :integer          indexed
+#  project_id        :integer          indexed
+#
+# Indexes
+#
+#  index_staging_workflows_on_managers_group_id  (managers_group_id)
+#  index_staging_workflows_on_project_id         (project_id) UNIQUE
+#

@@ -15,10 +15,10 @@ end
 # Table name: channel_binary_lists
 #
 #  id              :integer          not null, primary key
+#  architecture_id :integer          indexed
 #  channel_id      :integer          not null, indexed
 #  project_id      :integer          indexed
 #  repository_id   :integer          indexed
-#  architecture_id :integer          indexed
 #
 # Indexes
 #

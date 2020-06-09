@@ -15,9 +15,9 @@ end
 # Table name: path_elements
 #
 #  id            :integer          not null, primary key
+#  position      :integer          not null
 #  parent_id     :integer          not null, indexed => [repository_id]
 #  repository_id :integer          not null, indexed => [parent_id], indexed
-#  position      :integer          not null
 #
 # Indexes
 #

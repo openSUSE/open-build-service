@@ -10,7 +10,7 @@ end
 # Table name: distribution_icons
 #
 #  id     :integer          not null, primary key
+#  height :integer
 #  url    :string(255)      not null
 #  width  :integer
-#  height :integer
 #

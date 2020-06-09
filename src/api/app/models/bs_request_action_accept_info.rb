@@ -33,15 +33,15 @@ end
 # Table name: bs_request_action_accept_infos
 #
 #  id                   :integer          not null, primary key
-#  bs_request_action_id :integer          indexed
+#  opackage             :string(255)
+#  oproject             :string(255)
+#  osrcmd5              :string(255)
+#  oxsrcmd5             :string(255)
 #  rev                  :string(255)
 #  srcmd5               :string(255)
 #  xsrcmd5              :string(255)
-#  osrcmd5              :string(255)
-#  oxsrcmd5             :string(255)
 #  created_at           :datetime
-#  oproject             :string(255)
-#  opackage             :string(255)
+#  bs_request_action_id :integer          indexed
 #
 # Indexes
 #

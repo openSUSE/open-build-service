@@ -21,14 +21,14 @@ end
 # Table name: kiwi_packages
 #
 #  id               :integer          not null, primary key
-#  name             :string(255)      not null
 #  arch             :string(255)
-#  replaces         :string(255)
-#  bootinclude      :boolean
 #  bootdelete       :boolean
-#  package_group_id :integer          indexed
+#  bootinclude      :boolean
+#  name             :string(255)      not null
+#  replaces         :string(255)
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
+#  package_group_id :integer          indexed
 #
 # Indexes
 #

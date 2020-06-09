@@ -64,3 +64,19 @@ class Status::Report < ApplicationRecord
 
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: status_reports
+#
+#  id             :integer          not null, primary key
+#  checkable_type :string(191)      indexed => [checkable_id]
+#  uuid           :string(255)
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  checkable_id   :integer          indexed => [checkable_type]
+#
+# Indexes
+#
+#  index_status_reports_on_checkable_type_and_checkable_id  (checkable_type,checkable_id)
+#

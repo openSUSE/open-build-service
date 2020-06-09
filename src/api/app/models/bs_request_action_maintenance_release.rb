@@ -181,22 +181,22 @@ end
 # Table name: bs_request_actions
 #
 #  id                    :integer          not null, primary key
-#  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
-#  type                  :string(255)
-#  target_project        :string(255)      indexed
-#  target_package        :string(255)      indexed
-#  target_releaseproject :string(255)
-#  source_project        :string(255)      indexed
+#  group_name            :string(255)
+#  makeoriginolder       :boolean          default(FALSE)
+#  person_name           :string(255)
+#  role                  :string(255)
 #  source_package        :string(255)      indexed
+#  source_project        :string(255)      indexed
 #  source_rev            :string(255)
 #  sourceupdate          :string(255)
-#  updatelink            :boolean          default(FALSE)
-#  person_name           :string(255)
-#  group_name            :string(255)
-#  role                  :string(255)
-#  created_at            :datetime
+#  target_package        :string(255)      indexed
+#  target_project        :string(255)      indexed
+#  target_releaseproject :string(255)
 #  target_repository     :string(255)
-#  makeoriginolder       :boolean          default(FALSE)
+#  type                  :string(255)
+#  updatelink            :boolean          default(FALSE)
+#  created_at            :datetime
+#  bs_request_id         :integer          indexed, indexed => [target_package_id], indexed => [target_project_id]
 #  target_package_id     :integer          indexed => [bs_request_id], indexed
 #  target_project_id     :integer          indexed => [bs_request_id], indexed
 #

@@ -1442,19 +1442,19 @@ end
 # Table name: packages
 #
 #  id              :integer          not null, primary key
-#  project_id      :integer          not null, indexed => [name]
-#  name            :string(200)      not null, indexed => [project_id]
-#  title           :string(255)
-#  description     :text(65535)
-#  created_at      :datetime
-#  updated_at      :datetime         indexed
-#  url             :string(255)
 #  activity_index  :float(24)        default(100.0)
 #  bcntsynctag     :string(255)
-#  develpackage_id :integer          indexed
 #  delta           :boolean          default(TRUE), not null
+#  description     :text(65535)
+#  name            :string(200)      not null, indexed => [project_id]
 #  releasename     :string(255)
+#  title           :string(255)
+#  url             :string(255)
+#  created_at      :datetime
+#  updated_at      :datetime         indexed
+#  develpackage_id :integer          indexed
 #  kiwi_image_id   :integer          indexed
+#  project_id      :integer          not null, indexed => [name]
 #
 # Indexes
 #
@@ -1468,3 +1468,4 @@ end
 #  fk_rails_...     (kiwi_image_id => kiwi_images.id)
 #  packages_ibfk_3  (develpackage_id => packages.id)
 #  packages_ibfk_4  (project_id => projects.id)
+#

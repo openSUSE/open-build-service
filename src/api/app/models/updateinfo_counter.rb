@@ -23,9 +23,9 @@ end
 # Table name: updateinfo_counters
 #
 #  id                        :integer          not null, primary key
-#  maintenance_db_project_id :integer
+#  counter                   :integer          default(0)
 #  day                       :integer
 #  month                     :integer
 #  year                      :integer
-#  counter                   :integer          default(0)
+#  maintenance_db_project_id :integer
 #

@@ -162,9 +162,9 @@ end
 # Table name: kiwi_images
 #
 #  id                       :integer          not null, primary key
-#  name                     :string(255)
 #  md5_last_revision        :string(32)
+#  name                     :string(255)
+#  use_project_repositories :boolean          default(FALSE)
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  use_project_repositories :boolean          default(FALSE)
 #

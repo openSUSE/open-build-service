@@ -29,9 +29,9 @@ end
 #
 #  id         :integer          not null, primary key
 #  string     :string(255)      indexed
-#  user_id    :integer          not null, indexed
-#  package_id :integer          indexed
 #  type       :string(255)
+#  package_id :integer          indexed
+#  user_id    :integer          not null, indexed
 #
 # Indexes
 #

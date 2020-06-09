@@ -54,12 +54,13 @@ end
 #
 # Table name: status_messages
 #
-#  id         :integer          not null, primary key
-#  created_at :datetime         indexed => [deleted_at]
-#  deleted_at :datetime         indexed => [created_at]
-#  message    :text(65535)
-#  user_id    :integer          indexed
-#  severity   :integer
+#  id                  :integer          not null, primary key
+#  communication_scope :integer          default("all_users")
+#  deleted_at          :datetime         indexed => [created_at]
+#  message             :text(65535)
+#  severity            :integer
+#  created_at          :datetime         indexed => [deleted_at]
+#  user_id             :integer          indexed
 #
 # Indexes
 #

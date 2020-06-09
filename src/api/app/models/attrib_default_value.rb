@@ -8,9 +8,9 @@ end
 # Table name: attrib_default_values
 #
 #  id             :integer          not null, primary key
-#  attrib_type_id :integer          not null, indexed
-#  value          :text(65535)      not null
 #  position       :integer          not null
+#  value          :text(65535)      not null
+#  attrib_type_id :integer          not null, indexed
 #
 # Indexes
 #

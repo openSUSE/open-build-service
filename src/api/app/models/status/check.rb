@@ -53,3 +53,25 @@ class Status::Check < ApplicationRecord
 
   #### Alias of methods
 end
+
+# == Schema Information
+#
+# Table name: status_checks
+#
+#  id                :integer          not null, primary key
+#  name              :string(255)
+#  short_description :string(255)
+#  state             :string(255)
+#  url               :string(255)
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  status_reports_id :integer          indexed
+#
+# Indexes
+#
+#  index_status_checks_on_status_reports_id  (status_reports_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (status_reports_id => status_reports.id)
+#

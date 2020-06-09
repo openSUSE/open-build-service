@@ -12,8 +12,8 @@ end
 # Table name: watched_projects
 #
 #  id         :integer          not null, primary key
-#  user_id    :integer          default(0), not null, indexed
 #  project_id :integer          not null
+#  user_id    :integer          default(0), not null, indexed
 #
 # Indexes
 #

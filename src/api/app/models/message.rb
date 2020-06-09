@@ -9,15 +9,15 @@ end
 # Table name: messages
 #
 #  id             :integer          not null, primary key
-#  db_object_id   :integer          indexed
 #  db_object_type :string(255)
-#  user_id        :integer          indexed
-#  created_at     :datetime
+#  private        :boolean
 #  send_mail      :boolean
 #  sent_at        :datetime
-#  private        :boolean
 #  severity       :integer
 #  text           :text(65535)
+#  created_at     :datetime
+#  db_object_id   :integer          indexed
+#  user_id        :integer          indexed
 #
 # Indexes
 #

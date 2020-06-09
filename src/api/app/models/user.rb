@@ -990,21 +990,23 @@ end
 # Table name: users
 #
 #  id                            :integer          not null, primary key
-#  created_at                    :datetime
-#  updated_at                    :datetime
-#  last_logged_in_at             :datetime
-#  login_failure_count           :integer          default(0), not null
-#  login                         :text(65535)      indexed
-#  email                         :string(200)      default(""), not null
-#  realname                      :string(200)      default(""), not null
-#  password_digest               :string(255)
+#  adminnote                     :text(65535)
 #  deprecated_password           :string(255)      indexed
 #  deprecated_password_hash_type :string(255)
 #  deprecated_password_salt      :string(255)
-#  adminnote                     :text(65535)
-#  state                         :string(11)       default("unconfirmed")
-#  owner_id                      :integer
+#  email                         :string(200)      default(""), not null
 #  ignore_auth_services          :boolean          default(FALSE)
+#  in_beta                       :boolean          default(FALSE)
+#  in_rollout                    :boolean          default(TRUE)
+#  last_logged_in_at             :datetime
+#  login                         :text(65535)      indexed
+#  login_failure_count           :integer          default(0), not null
+#  password_digest               :string(255)
+#  realname                      :string(200)      default(""), not null
+#  state                         :string(11)       default("unconfirmed")
+#  created_at                    :datetime
+#  updated_at                    :datetime
+#  owner_id                      :integer
 #
 # Indexes
 #

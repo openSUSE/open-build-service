@@ -43,11 +43,11 @@ end
 # Table name: cloud_ec2_configurations
 #
 #  id          :integer          not null, primary key
-#  user_id     :integer          indexed
-#  external_id :string(255)      indexed => [arn]
 #  arn         :string(255)      indexed => [external_id]
 #  created_at  :datetime         not null
 #  updated_at  :datetime         not null
+#  external_id :string(255)      indexed => [arn]
+#  user_id     :integer          indexed
 #
 # Indexes
 #

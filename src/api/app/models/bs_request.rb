@@ -1233,24 +1233,27 @@ end
 #
 # Table name: bs_requests
 #
-#  id            :integer          not null, primary key
-#  description   :text(65535)
-#  creator       :string(255)      indexed
-#  state         :string(255)      indexed
-#  comment       :text(65535)
-#  commenter     :string(255)
-#  superseded_by :integer          indexed
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  accept_at     :datetime
-#  priority      :string(9)        default("moderate")
-#  number        :integer          indexed
-#  updated_when  :datetime
+#  id                 :integer          not null, primary key
+#  accept_at          :datetime
+#  approver           :string(255)
+#  comment            :text(65535)
+#  commenter          :string(255)
+#  creator            :string(255)      indexed
+#  description        :text(65535)
+#  number             :integer          indexed
+#  priority           :string(9)        default("moderate")
+#  state              :string(255)      indexed
+#  superseded_by      :integer          indexed
+#  updated_when       :datetime
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  staging_project_id :integer          indexed
 #
 # Indexes
 #
-#  index_bs_requests_on_creator        (creator)
-#  index_bs_requests_on_number         (number) UNIQUE
-#  index_bs_requests_on_state          (state)
-#  index_bs_requests_on_superseded_by  (superseded_by)
+#  index_bs_requests_on_creator             (creator)
+#  index_bs_requests_on_number              (number) UNIQUE
+#  index_bs_requests_on_staging_project_id  (staging_project_id)
+#  index_bs_requests_on_state               (state)
+#  index_bs_requests_on_superseded_by       (superseded_by)
 #

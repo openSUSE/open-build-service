@@ -81,13 +81,14 @@ end
 # Table name: event_subscriptions
 #
 #  id            :integer          not null, primary key
+#  channel       :integer          default("disabled"), not null
+#  enabled       :boolean          default(FALSE)
 #  eventtype     :string(255)      not null
 #  receiver_role :string(255)      not null
-#  user_id       :integer          indexed
 #  created_at    :datetime
 #  updated_at    :datetime
 #  group_id      :integer          indexed
-#  channel       :integer          default("disabled"), not null
+#  user_id       :integer          indexed
 #
 # Indexes
 #

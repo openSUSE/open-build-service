@@ -8,10 +8,10 @@ end
 # Table name: ratings
 #
 #  id             :integer          not null, primary key
-#  score          :integer
-#  db_object_id   :integer          indexed
 #  db_object_type :string(255)
+#  score          :integer
 #  created_at     :datetime
+#  db_object_id   :integer          indexed
 #  user_id        :integer          indexed
 #
 # Indexes
