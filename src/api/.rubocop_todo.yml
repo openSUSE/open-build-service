@@ -661,14 +661,6 @@ Style/RescueStandardError:
 Style/SafeNavigation:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'config/initializers/inflector.rb'
-
 # Offense count: 380
 # Cop supports --auto-correct.
 # Configuration parameters: MinSize.
