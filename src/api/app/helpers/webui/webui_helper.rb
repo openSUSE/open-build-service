@@ -111,7 +111,7 @@ module Webui::WebuiHelper
 
     data_options = {}
     data_options.merge!(content: description, placement: 'top', toggle: 'popover') unless flipper_responsive?
-    content_tag(:i, '', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
+    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
   end
 
   # NOTE: reponsive_ux
@@ -286,12 +286,12 @@ module Webui::WebuiHelper
     return text if text.to_s.length < slice_length
 
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
-    short = content_tag(:span, 'data-toggle-id' => id) do
-      content_tag(:span, text.slice(0, slice_length) + ' ') +
+    short = tag.span('data-toggle-id' => id) do
+      tag.span(text.slice(0, slice_length) + ' ') +
         link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
-    long = content_tag(:span, 'data-toggle-id' => id, :style => 'display: none;') do
-      content_tag(:span, text + ' ') +
+    long = tag.span('data-toggle-id' => id, :style => 'display: none;') do
+      tag.span(text + ' ') +
         link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     short + long
@@ -379,8 +379,8 @@ module Webui::WebuiHelper
   def link_content(text, css_class, icon)
     if css_class && css_class.include?('nav-link')
       capture do
-        concat(content_tag(:i, '', class: "fas #{icon}"))
-        concat(content_tag(:div, text, class: 'small'))
+        concat(tag.i('', class: "fas #{icon}"))
+        concat(tag.div(text, class: 'small'))
       end
     else
       text

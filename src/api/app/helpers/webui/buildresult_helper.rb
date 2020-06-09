@@ -20,8 +20,8 @@ module Webui::BuildresultHelper
 
     capture do
       if enable_help && status['code']
-        concat(content_tag(:i, nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
-                                    data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
+        concat(tag.i(nil, class: ['fa', 'fa-question-circle', 'text-info', 'mr-1'],
+                          data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
       end
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
         concat(link_to(code, 'javascript:void(0);', id: status_id, class: theclass, data: { content: link_title, placement: 'right', toggle: 'popover' }))
@@ -59,8 +59,8 @@ module Webui::BuildresultHelper
     link_to('#', aria: { controls: "collapse-#{collapse_id}", expanded: expanded }, class: 'px-2 ml-auto',
                  data: { toggle: 'collapse' }, href: ".collapse-#{collapse_id}", role: 'button') do
       capture do
-        concat(content_tag(:i, nil, class: ['fas', 'fa-chevron-left', 'expander'], title: "Show build results for this #{collapse_text}"))
-        concat(content_tag(:i, nil, class: ['fas', 'fa-chevron-down', 'collapser'], title: "Hide build results for this #{collapse_text}"))
+        concat(tag.i(nil, class: ['fas', 'fa-chevron-left', 'expander'], title: "Show build results for this #{collapse_text}"))
+        concat(tag.i(nil, class: ['fas', 'fa-chevron-down', 'collapser'], title: "Hide build results for this #{collapse_text}"))
       end
     end
   end
