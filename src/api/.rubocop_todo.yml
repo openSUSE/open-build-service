@@ -296,9 +296,6 @@ RSpec/InstanceVariable:
 # SupportedStyles: it_behaves_like, it_should_behave_like
 RSpec/ItBehavesLike:
   Exclude:
-    - 'spec/controllers/person_controller_spec.rb'
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/helpers/webui/package_helper_spec.rb'
     - 'spec/models/bs_request_action_spec.rb'
     - 'spec/models/bs_request_spec.rb'

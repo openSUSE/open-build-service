@@ -414,7 +414,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
 
-      it_should_behave_like 'a valid project saved'
+      it_behaves_like 'a valid project saved'
     end
 
     context 'with a param called maintenance_project' do
@@ -424,7 +424,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(assigns(:project).kind).to eq('maintenance') }
 
-      it_should_behave_like 'a valid project saved'
+      it_behaves_like 'a valid project saved'
     end
 
     context 'with a param that disables a flag' do
@@ -436,12 +436,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
         it { expect(assigns(:project).flags.first.flag).to eq(flag_name) }
         it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
 
-        it_should_behave_like 'a valid project saved'
+        it_behaves_like 'a valid project saved'
       end
 
-      it_should_behave_like 'a param that creates a disabled flag', :access_protection, 'access'
-      it_should_behave_like 'a param that creates a disabled flag', :source_protection, 'sourceaccess'
-      it_should_behave_like 'a param that creates a disabled flag', :disable_publishing, 'publish'
+      it_behaves_like 'a param that creates a disabled flag', :access_protection, 'access'
+      it_behaves_like 'a param that creates a disabled flag', :source_protection, 'sourceaccess'
+      it_behaves_like 'a param that creates a disabled flag', :disable_publishing, 'publish'
     end
 
     context 'with an invalid project data' do

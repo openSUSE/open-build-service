@@ -132,7 +132,7 @@ RSpec.describe PersonController do
           login admin_user
         end
 
-        it_should_behave_like 'not allowed to change user details'
+        it_behaves_like 'not allowed to change user details'
       end
 
       context 'as a user' do
@@ -140,7 +140,7 @@ RSpec.describe PersonController do
           login user
         end
 
-        it_should_behave_like 'not allowed to change user details'
+        it_behaves_like 'not allowed to change user details'
       end
     end
   end
