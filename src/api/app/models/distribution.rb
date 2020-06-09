@@ -40,7 +40,7 @@ class Distribution < ApplicationRecord
 
     Project.remote.each do |prj|
       body = Rails.cache.fetch("remote_distribution_#{prj.id}", expires_in: 1.hour) do
-        Project::RemoteUrl.load(prj, '/distributions.xml')
+        Project::RemoteURL.load(prj, '/distributions.xml')
       end
       next if body.blank? # don't let broken remote instances break us
 

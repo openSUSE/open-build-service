@@ -1,4 +1,4 @@
-class ObsQualityCategoriesFinder
+class OBSQualityCategoriesFinder
   def self.call(project)
     AttribValue
       .joins(attrib: { attrib_type: :attrib_namespace })

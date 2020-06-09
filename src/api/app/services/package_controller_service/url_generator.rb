@@ -1,5 +1,5 @@
 module PackageControllerService
-  class UrlGenerator
+  class URLGenerator
     def initialize(params = {})
       @project = params[:project]
       @repository = params[:repository]

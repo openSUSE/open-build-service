@@ -129,7 +129,7 @@ RSpec.describe Webui::PackageController do
     context 'with a valid download url' do
       before do
         allow(Backend::Api::BuildResults::Binaries).to receive(:fileinfo_ext).and_return(fake_fileinfo)
-        allow_any_instance_of(::PackageControllerService::UrlGenerator).to receive(:download_url_for_file_in_repo).and_return('http://fake.com/filename.txt')
+        allow_any_instance_of(::PackageControllerService::URLGenerator).to receive(:download_url_for_file_in_repo).and_return('http://fake.com/filename.txt')
       end
 
       context 'and normal html request' do

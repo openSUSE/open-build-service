@@ -1,11 +1,11 @@
 require 'rails_helper'
 
-RSpec.describe IssueTracker::CveParser, vcr: true do
+RSpec.describe IssueTracker::CVEParser, vcr: true do
   let(:issue_tracker) { create(:issue_tracker) }
-  let(:cve_parser) { IssueTracker::CveParser.new }
+  let(:cve_parser) { IssueTracker::CVEParser.new }
 
   describe '.new' do
-    it { expect(IssueTracker::CveParser.new).not_to be_nil }
+    it { expect(IssueTracker::CVEParser.new).not_to be_nil }
   end
 
   describe 'set_tracker' do
