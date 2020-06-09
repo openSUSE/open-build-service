@@ -1,4 +1,4 @@
-require_dependency 'api_error'
+require 'api_error'
 
 class UnregisteredUser < User
   class ErrRegisterSave < APIError

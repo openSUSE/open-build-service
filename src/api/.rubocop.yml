@@ -349,7 +349,6 @@ Style/MethodCallWithArgsParentheses:
     - render_error
     - render_ok
     - require
-    - require_dependency
     - required_parameters
     - require_relative
     - run

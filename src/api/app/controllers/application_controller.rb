@@ -2,8 +2,8 @@
 # Likewise, all the methods added will be available for all controllers.
 
 require 'opensuse/validator'
-require_dependency 'api_error'
-require_dependency 'authenticator'
+require 'api_error'
+require 'authenticator'
 
 class ApplicationController < ActionController::Base
   include Pundit

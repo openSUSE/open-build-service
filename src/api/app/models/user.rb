@@ -1,5 +1,5 @@
 require 'kconv'
-require_dependency 'api_error'
+require 'api_error'
 
 class UserBasicStrategy
   def is_in_group?(user, group)
