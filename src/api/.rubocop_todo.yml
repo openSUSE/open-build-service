@@ -502,15 +502,6 @@ Rails/RakeEnvironment:
     - 'lib/tasks/dev.rake'
     - 'lib/tasks/migrate_options_yml.rake'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Include.
-# SupportedStyles: assert_not, refute
-# Include: **/test/**/*
-Rails/RefuteMethods:
-  Exclude:
-    - 'test/models/project_log_entry_test.rb'
-
 # Offense count: 8
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
