@@ -3382,6 +3382,8 @@ sub dobuild {
     if (!$kiwimode) {
       # some builds like python-venv also write a .packages file
       createreport($buildinfo, "$buildroot/.build.packages/OTHER", $kiwiorigins, $srcdir);
+    } elsif ($kiwimode eq 'docker') {
+      createreport($buildinfo, "$buildroot/.build.packages/DOCKER", $kiwiorigins, $srcdir);
     } elsif ($kiwimode ne 'product') {
       createreport($buildinfo, "$buildroot/.build.packages/KIWI", $kiwiorigins, $srcdir);
     } else {
