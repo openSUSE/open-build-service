@@ -206,7 +206,7 @@ sub sourcepublish {
       my $symlink = "$odir/$projid/$packid/$srcmd5/INCLUDED";
       mkdir_p($symlink);
       $symlink .= "/$source->{'project'}::${package}::$source->{'srcmd5'}";
-      if ( ! -e $symlink && ! -l $symlink ) {
+      if ( ! -l $symlink ) {
         symlink("../../../../$source->{'project'}/$package/$source->{'srcmd5'}", $symlink) || die("symlink creation failed for $symlink: $!");
       }
       $update = 1;
