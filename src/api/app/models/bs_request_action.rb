@@ -406,8 +406,6 @@ class BsRequestAction < ApplicationRecord
     Package.source_path(self.source_project, self.source_package)
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity
-  # rubocop:disable Metrics/PerceivedComplexity
   def create_expand_package(packages, opts = {})
     newactions = []
     incident_suffix = ''
@@ -607,8 +605,6 @@ class BsRequestAction < ApplicationRecord
 
     newactions
   end
-  # rubocop:enable Metrics/CyclomaticComplexity
-  # rubocop:enable Metrics/PerceivedComplexity
 
   def check_action_permission!(skip_source = nil)
     # find objects if specified or report error

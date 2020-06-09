@@ -98,13 +98,17 @@ namespace :dev do
 
         desc 'Autogenerate rubocop config in rails'
         task :rails do
-          sh 'rubocop --auto-gen-config --ignore_parent_exclusion --auto-gen-only-exclude'
+          # We set `exclude-limit` to 100 (from the default of 15) to make it easier to tackle TODOs one file at a time
+          # A cop will be disabled only if it triggered offenses for more than 100 files
+          sh 'rubocop --auto-gen-config --ignore_parent_exclusion --auto-gen-only-exclude --exclude-limit 100'
         end
 
         desc 'Run the ruby linter in root'
         task :root do
           Dir.chdir('../..') do
-            sh 'rubocop --auto-gen-config --auto-gen-only-exclude'
+            # We set `exclude-limit` to 100 (from the default of 15) to make it easier to tackle TODOs one file at a time
+            # A cop will be disabled only if it triggered offenses for more than 100 files
+            sh 'rubocop --auto-gen-config --auto-gen-only-exclude --exclude-limit 100'
           end
         end
       end
