@@ -68,9 +68,9 @@ class Project < ApplicationRecord
 
   # projects can maintain other projects
   has_many :maintained_projects, class_name: 'MaintainedProject', foreign_key: :maintenance_project_id, dependent: :delete_all
-  has_many :maintenance_projects, class_name: 'MaintainedProject', foreign_key: :project_id, dependent: :delete_all
+  has_many :maintenance_projects, class_name: 'MaintainedProject', dependent: :delete_all
 
-  has_many :incident_updateinfo_counter_values, foreign_key: :project_id, dependent: :delete_all
+  has_many :incident_updateinfo_counter_values, dependent: :delete_all
 
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
   has_many :develprojects, class_name: 'Project', foreign_key: 'develproject_id'

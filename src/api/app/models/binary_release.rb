@@ -7,7 +7,7 @@ class BinaryRelease < ApplicationRecord
   #### Attributes
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :repository
-  belongs_to :release_package, class_name: 'Package', foreign_key: 'release_package_id' # optional
+  belongs_to :release_package, class_name: 'Package' # optional
   belongs_to :on_medium, class_name: 'BinaryRelease'
 
   #### Callbacks macros: before_save, after_save, etc.

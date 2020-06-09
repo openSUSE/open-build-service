@@ -42,7 +42,7 @@ class Review < ApplicationRecord
   belongs_to :package
 
   belongs_to :review_assigned_from, class_name: 'Review', foreign_key: :review_id
-  has_one :review_assigned_to, class_name: 'Review', foreign_key: :review_id
+  has_one :review_assigned_to, class_name: 'Review'
 
   scope :assigned, lambda {
     left_outer_joins(:history_elements_assigned).having('COUNT(history_elements.id) > 0').group('reviews.id')

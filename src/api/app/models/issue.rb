@@ -3,7 +3,7 @@ require 'api_error'
 class Issue < ApplicationRecord
   include Issue::Errors
 
-  has_many :package_issues, foreign_key: 'issue_id', dependent: :delete_all
+  has_many :package_issues, dependent: :delete_all
 
   belongs_to :issue_tracker
   belongs_to :owner, class_name: 'User'
