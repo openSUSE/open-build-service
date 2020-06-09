@@ -555,14 +555,6 @@ Style/ClassVars:
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'test/functional/request_controller_test.rb'
-
 # Offense count: 5
 Style/CommentedKeyword:
   Exclude:
