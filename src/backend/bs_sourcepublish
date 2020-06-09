@@ -150,7 +150,7 @@ sub has_publishedsource {
   my ($projid, $packid, $srcmd5) = @_;
 
   my $h = $publishedsourcedb->{'sqlite'} || BSSQLite::connectdb($publishedsourcedbfile);
-  my @ary = BSSQLite::selectrow($h, "project,package,srcmd5 FROM publishedsource WHERE project = ? AND package = ? AND srcmd5 = ?", $projid, $packid, $srcmd5);
+  my @ary = BSSQLite::selectrow($h, "SELECT project,package,srcmd5 FROM publishedsource WHERE project = ? AND package = ? AND srcmd5 = ?", $projid, $packid, $srcmd5);
   return $ary[0] ? 1 : 0;
 }
 
