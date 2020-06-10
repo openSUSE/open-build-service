@@ -1283,8 +1283,6 @@ Rails/OutputSafety:
 # Include: **/Rakefile, **/*.rake
 Rails/RakeEnvironment:
   Exclude:
-    - 'lib/capistrano/tasks/**/*.rake'
-    - 'lib/tasks/capistrano.rake'
     - 'lib/tasks/coverage.rake'
     - 'lib/tasks/dev.rake'
     - 'lib/tasks/migrate_options_yml.rake'
@@ -1543,7 +1541,6 @@ Style/IfUnlessModifier:
     - 'lib/authenticator.rb'
     - 'lib/opensuse/permission.rb'
     - 'lib/opensuse/validator.rb'
-    - 'lib/tasks/capistrano.rake'
     - 'lib/tasks/extract.rake'
     - 'lib/xpath_engine.rb'
     - 'script/import_database.rb'
