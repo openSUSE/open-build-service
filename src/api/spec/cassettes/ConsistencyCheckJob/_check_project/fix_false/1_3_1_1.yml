@@ -7,7 +7,7 @@ http_interactions:
       encoding: UTF-8
       string: |
         <project name="super_project">
-          <title>The Last Enemy</title>
+          <title>The Moon by Night</title>
           <description/>
         </project>
     headers:
@@ -29,16 +29,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="super_project">
-          <title>The Last Enemy</title>
+          <title>The Moon by Night</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Wed, 06 May 2020 13:08:28 GMT
+  recorded_at: Wed, 10 Jun 2020 12:21:44 GMT
 - request:
     method: get
     uri: http://backend:5352/source/super_project
@@ -70,6 +69,5 @@ http_interactions:
       string: |
         <directory>
         </directory>
-    http_version: null
-  recorded_at: Wed, 06 May 2020 13:08:28 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Wed, 10 Jun 2020 12:21:44 GMT
+recorded_with: VCR 6.0.0
