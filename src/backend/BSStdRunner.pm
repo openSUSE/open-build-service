@@ -141,7 +141,7 @@ sub compile_dispatches {
     for my $var (@vars) {
       my ($arg, $quant) = (0, '');
       $arg = 1 if $var =~ s/^\$//;
-      $quant = $1 if $var =~ s/([?])$//;
+      $quant = $1 if $var =~ s/([+*?])$//;
       my $vartype = $var;
       ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
       push @{$dis->{'must'}}, $var unless $quant eq '?' || $quant eq '*';
