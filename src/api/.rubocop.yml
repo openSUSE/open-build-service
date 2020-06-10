@@ -362,3 +362,9 @@ Style/MethodCallWithArgsParentheses:
     - write
     - yield
     - ymp
+
+##################### Bundler ##################################
+
+Bundler/OrderedGems:
+  Enabled: false
+
