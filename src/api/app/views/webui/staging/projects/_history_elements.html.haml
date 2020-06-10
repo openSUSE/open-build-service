@@ -10,6 +10,6 @@
         by
         %b= element.user_name
       - when 'staging_project_created'
-        %b #{time_ago_in_words(Time.at(element.datetime.to_i))} ago
+        %b #{time_ago_in_words(Time.zone.at(element.datetime.to_i))} ago
         by
         %b= element.user_name

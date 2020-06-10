@@ -24,7 +24,7 @@
                 %strong Sectors read or written:
                 = disk.io_sectors
         - memory = @statistics.memory
-        - if memory && memory.size
+        - if memory&.size
           .col-md-4
             %h3 Memory Statistics
             %p

@@ -2,7 +2,7 @@
 - build_count = worker_status.elements('building').length
 #building-all
   %h2 Building
-  - if build_count > 0
+  - if build_count.positive?
     %p.info Hover the job time field to see the start time.
     %p.info
       = configuration_title

@@ -10,7 +10,7 @@
   .card-body
     %h3
       Rebuildtime:
-      = distance_of_time_in_words(Time.now, Time.now - @rebuildtime)
+      = distance_of_time_in_words(Time.zone.now, Time.zone.now - @rebuildtime)
       (#{format_seconds(@rebuildtime)})
     %p
       %img.rebuildgraph{ alt: 'Rebuild time graph', src: rebuild_time_png_project_rebuild_time_path(project_name: @project, key: @pngkey) }/
@@ -28,7 +28,7 @@
     %h3 Longest Paths
     %table.grid_16.alpha.omega
       %tbody
-        - while p1.size + p2.size + p3.size > 0
+        - while (p1.size + p2.size + p3.size).positive?
           %tr
             %td= rebuild_time_col(p1.shift)
             %td= rebuild_time_col(p2.shift)

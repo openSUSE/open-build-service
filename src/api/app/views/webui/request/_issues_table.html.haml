@@ -12,7 +12,7 @@
             - if issue[:owner]
               = user_with_realname_and_icon issue[:owner], short: true
           %td
-            = issue[:state].capitalize if issue[:state]
+            = issue[:state]&.capitalize
       - else
         %tr.even
           %td{ colspan: '3' }

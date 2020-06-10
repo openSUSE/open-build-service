@@ -13,7 +13,7 @@
     - @repository.architectures.each do |arch|
       - cycles = @repository.cycles(arch.name)
       - cycles.each_with_index do |cycle, index|
-        - if index == 0
+        - if index.zero?
           %h5
             Cycles for #{arch.name} (##{cycle.length})
         %ul

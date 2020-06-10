@@ -4,7 +4,7 @@
                                                                                 project: project,
                                                                                 maintained_projects: maintained_projects }
   - else
-    - if nr_of_problem_packages && nr_of_problem_packages.positive?
+    - if nr_of_problem_packages&.positive?
       = render partial: 'webui/project/side_links/project_monitor', locals: { project: project,
                                                                               nr_of_problem_packages: nr_of_problem_packages }
 

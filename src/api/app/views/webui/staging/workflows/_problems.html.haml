@@ -16,7 +16,7 @@
     - build_problems.each do |name, states|
       = render partial: 'build_problems', locals: { name: name, states: states, staging_project: staging_project }
     - remain_count = remaining_checks.length + remaining_build_problems.length
-    - if remain_count > 0
+    - if remain_count.positive?
       %span.collapse{ 'id': item_project_class }
         - remaining_checks.each do |check|
           = render partial: 'status_problems', locals: { check: check }

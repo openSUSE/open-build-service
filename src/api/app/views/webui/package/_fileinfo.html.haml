@@ -26,7 +26,7 @@
 
   %dt.col-md-2.text-truncate Build Time
   %dd.col-md-10
-    - btime = Time.at(fileinfo.value('mtime').to_i)
+    - btime = Time.zone.at(fileinfo.value('mtime').to_i)
     #{btime} (#{fuzzy_time_string(btime.ctime)})
 
 = render partial: 'deps', locals: { fileinfo: fileinfo,
