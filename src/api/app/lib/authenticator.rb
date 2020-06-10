@@ -1,4 +1,3 @@
-require 'opensuse/permission'
 require 'gssapi' if CONFIG['kerberos_service_principal']
 
 class Authenticator

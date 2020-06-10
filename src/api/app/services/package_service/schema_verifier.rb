@@ -1,5 +1,3 @@
-require 'opensuse/validator'
-
 module PackageService
   class SchemaVerifier
     SCHEMAS = ['aggregate', 'constraints', 'link',

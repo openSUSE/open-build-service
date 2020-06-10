@@ -1,8 +1,6 @@
 require 'api_error'
 require 'builder/xchar'
 require 'rexml/document'
-require 'opensuse/validator'
-require 'authenticator'
 
 # rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
