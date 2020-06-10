@@ -31,7 +31,7 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
           history = HistoryElement::RequestSuperseded
           p[:description_extension] = request.superseded_by.to_s
         end
-        history.create(p) if history
+        history&.create(p)
       end
 
       puts "Creating some history elements based on #{Review.count} reviews..."
@@ -50,7 +50,7 @@ class ConvertRequestHistory < ActiveRecord::Migration[4.2]
         when :declined then
           history = HistoryElement::ReviewDeclined
         end
-        history.create(p) if history
+        history&.create(p)
       end
       s = OldHistory.find_by_sql 'SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC'
 
