@@ -1755,14 +1755,6 @@ Style/RescueStandardError:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Exclude:
-    - 'app/controllers/configurations_controller.rb'
-    - 'app/controllers/services/webhooks_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/webui/attribute_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/patchinfo_controller.rb'
-    - 'app/controllers/webui/session_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
     - 'app/helpers/maintenance_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
     - 'app/jobs/consistency_check_job.rb'

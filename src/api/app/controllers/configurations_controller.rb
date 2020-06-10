@@ -48,7 +48,7 @@ class ConfigurationsController < ApplicationController
       value = xml[key.to_s] || params[key.to_s]
 
       # is it defined in options.yml
-      next unless value && value.present?
+      next unless value&.present?
 
       v = ::Configuration.map_value(key, value)
       ov = ::Configuration.map_value(key, ::Configuration::OPTIONS_YML[key])
