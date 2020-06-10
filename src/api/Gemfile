@@ -53,8 +53,6 @@ gem 'activemodel-serializers-xml'
 gem 'voight_kampff'
 # support coffeescript
 gem 'coffee-rails'
-# bind keyboard shortcuts to actions
-gem 'mousetrap-rails'
 # for issue tracker communication
 gem 'xmlrpc'
 # Multiple feature switch

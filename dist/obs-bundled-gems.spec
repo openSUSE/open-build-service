@@ -149,8 +149,6 @@ rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/diff-lcs-*/bin
 # and often cause errors / warning in rpmlint
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/spec/
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/*/test/
-# we do not verify signing of the gem
-rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/mousetrap-rails-*/gem-public_cert.pem
 
 # remove prebuilt binaries causing broken dependencies
 rm -rf %{buildroot}%_libdir/obs-api/ruby/*/gems/selenium-webdriver-*/lib/selenium/webdriver/firefox/native
