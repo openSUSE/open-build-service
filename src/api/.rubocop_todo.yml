@@ -1777,10 +1777,6 @@ Style/SafeNavigation:
     - 'app/validators/allowed_user_validator.rb'
     - 'app/views/public/binary_packages.xml.builder'
     - 'app/views/status.xml.builder'
-    - 'script/reformat_memprof'
-    - 'script/start_test_backend'
-    - 'spec/factories/project.rb'
-    - 'test/node_matcher.rb'
 
 # Offense count: 380
 # Cop supports --auto-correct.

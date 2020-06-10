@@ -130,10 +130,8 @@ FactoryBot.define do
       end
 
       before(:create) do |project, evaluator|
-        if evaluator.maintenance_project
-          evaluator.maintenance_project.relationships.each do |role|
-            project.relationships.create(user: role.user, role: role.role, group: role.group)
-          end
+        evaluator.maintenance_project&.relationships&.each do |role|
+          project.relationships.create(user: role.user, role: role.role, group: role.group)
         end
       end
     end
