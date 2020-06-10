@@ -752,19 +752,6 @@ RSpec/InstanceVariable:
     - 'spec/models/relationship_spec.rb'
     - 'spec/models/review_spec.rb'
 
-# Offense count: 54
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: it_behaves_like, it_should_behave_like
-RSpec/ItBehavesLike:
-  Exclude:
-    - 'spec/helpers/webui/package_helper_spec.rb'
-    - 'spec/models/bs_request_action_spec.rb'
-    - 'spec/models/bs_request_spec.rb'
-    - 'spec/models/project_status/pack_info_spec.rb'
-    - 'spec/models/review_spec.rb'
-    - 'spec/models/user_ldap_strategy_spec.rb'
-
 # Offense count: 1
 RSpec/IteratedExpectation:
   Exclude:

@@ -28,7 +28,7 @@ RSpec.describe ProjectStatus::PackInfo do
         pack_info.set_versrel('2.0-43', two_hours_ago)
       end
 
-      it_should_behave_like 'a PackInfo object'
+      it_behaves_like 'a PackInfo object'
     end
 
     context 'with newer version time' do
@@ -42,7 +42,7 @@ RSpec.describe ProjectStatus::PackInfo do
           pack_info.set_versrel("#{version}-#{release}", time)
         end
 
-        it_should_behave_like 'a PackInfo object'
+        it_behaves_like 'a PackInfo object'
       end
 
       context 'with long version' do
@@ -52,7 +52,7 @@ RSpec.describe ProjectStatus::PackInfo do
           pack_info.set_versrel("#{version}-#{release}", time)
         end
 
-        it_should_behave_like 'a PackInfo object'
+        it_behaves_like 'a PackInfo object'
       end
     end
   end

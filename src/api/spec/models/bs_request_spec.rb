@@ -311,7 +311,7 @@ RSpec.describe BsRequest, vcr: true do
       let!(:request) { create(:set_bugowner_request, creator: user) }
       let(:user) { create(:admin_user) }
 
-      it_should_behave_like "the subject's cache is reset when it's request changes"
+      it_behaves_like "the subject's cache is reset when it's request changes"
     end
 
     context 'direct maintainer of a target_project' do
@@ -324,7 +324,7 @@ RSpec.describe BsRequest, vcr: true do
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's request changes"
+      it_behaves_like "the subject's cache is reset when it's request changes"
     end
 
     context 'group maintainer of a target_project' do
@@ -341,10 +341,10 @@ RSpec.describe BsRequest, vcr: true do
       let!(:groups_user) { create(:groups_user, group: group) }
       let(:user) { groups_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's request changes" do
+      it_behaves_like "the subject's cache is reset when it's request changes" do
         subject { user }
       end
-      it_should_behave_like "the subject's cache is reset when it's request changes" do
+      it_behaves_like "the subject's cache is reset when it's request changes" do
         subject { group }
       end
     end
@@ -354,7 +354,7 @@ RSpec.describe BsRequest, vcr: true do
       let!(:relationship_package_user) { create(:relationship_package_user, package: target_package) }
       let(:user) { relationship_package_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's request changes"
+      it_behaves_like "the subject's cache is reset when it's request changes"
     end
 
     context 'group maintainer of a target_package' do
@@ -364,10 +364,10 @@ RSpec.describe BsRequest, vcr: true do
       let!(:groups_user) { create(:groups_user, group: group) }
       let(:user) { groups_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's request changes" do
+      it_behaves_like "the subject's cache is reset when it's request changes" do
         subject { user }
       end
-      it_should_behave_like "the subject's cache is reset when it's request changes" do
+      it_behaves_like "the subject's cache is reset when it's request changes" do
         subject { group }
       end
     end
