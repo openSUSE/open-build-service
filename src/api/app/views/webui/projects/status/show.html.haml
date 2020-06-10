@@ -33,7 +33,7 @@
       .mt-4
         %p
           Displaying #{@packages.size} packages that need handling, including:
-          #{@packages.count { |p| p['firstfail'].to_i > 0 }} not building,
+          #{@packages.count { |p| p['firstfail'].to_i.positive? }} not building,
           #{@packages.count { |p| !p['problems'].empty? }} with a diff in the devel project,
           #{@packages.count { |p| !p['requests_to'].empty? || !p['requests_from'].empty? }} with a pending request.
 

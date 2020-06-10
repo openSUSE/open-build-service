@@ -28,7 +28,7 @@
             %td
               = jobhistory.ready_time
             %td
-              = time_tag(Time.at(jobhistory.ready_time))
+              = time_tag(Time.zone.at(jobhistory.ready_time))
             %td
               - if jobhistory.reason == 'source change'
                 = link_to(jobhistory.reason, package_rdiff_path(project: @project.name,

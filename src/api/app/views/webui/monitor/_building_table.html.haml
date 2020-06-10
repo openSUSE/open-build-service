@@ -33,7 +33,7 @@
                   \-------
                 - else
                   = link_to(repository + ' - ' + architecture, package_live_build_log_path(project, package, repository, architecture))
-              - start_time = Time.at(building['starttime'].to_i)
+              - start_time = Time.zone.at(building['starttime'].to_i)
               - warning_style = nil
               - if start_time < dead_line
                 :ruby

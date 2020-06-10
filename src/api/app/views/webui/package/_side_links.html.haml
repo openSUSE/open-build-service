@@ -1,5 +1,5 @@
 %ul.list-unstyled
-  - if failures > 0
+  - if failures.positive?
     = render partial: 'webui/package/side_links/show_failures', locals: { failures: failures, package_name: package.name, project: project }
 
   - if devel_package

@@ -23,5 +23,5 @@
           %td.avgjobtime
             - worker_status.elements('buildavg') do |build_avg|
               - if build_avg['arch'] == entrywaiting['arch']
-                - outbuildavg = distance_of_time_in_words(Time.at(build_avg['buildavg'].to_i), Time.at(0), include_seconds: true)
+                - outbuildavg = distance_of_time_in_words(Time.zone.at(build_avg['buildavg'].to_i), Time.zone.at(0), include_seconds: true)
             = outbuildavg || ' - '
