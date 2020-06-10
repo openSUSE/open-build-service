@@ -65,15 +65,6 @@ Metrics/PerceivedComplexity:
   Exclude:
     - 'dist/obs_mirror_project'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: **/Rakefile, **/*.rake
-Rails/RakeEnvironment:
-  Exclude:
-    - 'lib/capistrano/tasks/**/*.rake'
-    - 'Rakefile'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.
