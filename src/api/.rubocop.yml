@@ -28,6 +28,12 @@ Lint/StructNewOverride:
 
 #################### Style ###########################
 
+Style/CommentAnnotation:
+  # Default keywords were TODO, FIXME, OPTIMIZE, HACK, REVIEW.
+  # We never use the last three and they can sometime trigger false positives,
+  # especially when a comment starts with "review" since we have those in OBS
+  Keywords: ['TODO', 'FIXME']
+
 # We need to allow some variables related to rabbiMQ.
 Style/GlobalVars:
   AllowedVariables: ['$rabbitmq_conn', '$rabbitmq_exchange', '$rabbitmq_channel']

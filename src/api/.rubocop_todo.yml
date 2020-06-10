@@ -296,9 +296,6 @@ RSpec/InstanceVariable:
 # SupportedStyles: it_behaves_like, it_should_behave_like
 RSpec/ItBehavesLike:
   Exclude:
-    - 'spec/controllers/person_controller_spec.rb'
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/controllers/webui/project_controller_spec.rb'
     - 'spec/helpers/webui/package_helper_spec.rb'
     - 'spec/models/bs_request_action_spec.rb'
     - 'spec/models/bs_request_spec.rb'
@@ -502,15 +499,6 @@ Rails/RakeEnvironment:
     - 'lib/tasks/dev.rake'
     - 'lib/tasks/migrate_options_yml.rake'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, Include.
-# SupportedStyles: assert_not, refute
-# Include: **/test/**/*
-Rails/RefuteMethods:
-  Exclude:
-    - 'test/models/project_log_entry_test.rb'
-
 # Offense count: 8
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
@@ -554,14 +542,6 @@ Style/ClassVars:
     - 'app/models/user_ldap_strategy.rb'
     - 'test/functional/branch_publish_flag_test.rb'
     - 'test/test_helper.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: Keywords.
-# Keywords: TODO, FIXME, OPTIMIZE, HACK, REVIEW
-Style/CommentAnnotation:
-  Exclude:
-    - 'test/functional/request_controller_test.rb'
 
 # Offense count: 5
 Style/CommentedKeyword:
@@ -660,14 +640,6 @@ Style/RescueStandardError:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Enabled: false
-
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
-  Exclude:
-    - 'config/initializers/inflector.rb'
 
 # Offense count: 380
 # Cop supports --auto-correct.

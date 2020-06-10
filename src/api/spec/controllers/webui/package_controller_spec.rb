@@ -721,7 +721,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :live_build_log, params: params
       end
 
-      it_should_behave_like 'build log'
+      it_behaves_like 'build log'
 
       context 'with a nonexistant repository' do
         before do
@@ -789,7 +789,7 @@ RSpec.describe Webui::PackageController, vcr: true do
         get :update_build_log, params: params, xhr: true
       end
 
-      it_should_behave_like 'build log'
+      it_behaves_like 'build log'
 
       context 'with a nonexistant repository' do
         before do
