@@ -317,9 +317,11 @@ class Webui::RequestController < Webui::WebuiController
     raise ActiveRecord::RecordNotFound
   end
 
-  # @abstract Subcontroller is expected to implement #bs_request_params
-  # @!method bs_request_params
-  #    Strong parameters for BsRequest with nested attributes for its bs_request_actions association
+  # Subcontroller is expected to implement #bs_request_params
+  # Strong parameters for BsRequest with nested attributes for its bs_request_actions association
+  def bs_request_params
+    raise AbstractMethodCalled
+  end
 
   # FIXME: We should rely on strong parameters, so implement `bs_request_params` in subcontrollers as explained above
   def request_action_attributes(type)
