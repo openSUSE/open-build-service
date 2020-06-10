@@ -8,7 +8,7 @@ class StatusHistoryRescalerJob < ApplicationJob
       StatusHistory.where('time < ?', maxtime - 365 * 24 * 3600).delete_all
     end
 
-    keys = StatusHistory.pluck('DISTINCT `key`')
+    keys = StatusHistory.distinct.pluck(:key)
     keys.each do |key|
       StatusHistory.transaction do
         # first rescale a month old
