@@ -133,10 +133,10 @@ RSpec.describe Webui::PackageHelper, type: :helper do
         end
       end
 
-      it_should_behave_like 'file with extension', 'group', 'xml'
-      it_should_behave_like 'file with extension', 'kiwi', 'xml'
-      it_should_behave_like 'file with extension', 'product', 'xml'
-      it_should_behave_like 'file with extension', 'xml', 'xml'
+      it_behaves_like 'file with extension', 'group', 'xml'
+      it_behaves_like 'file with extension', 'kiwi', 'xml'
+      it_behaves_like 'file with extension', 'product', 'xml'
+      it_behaves_like 'file with extension', 'xml', 'xml'
     end
 
     context 'is shell' do
@@ -178,51 +178,51 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context 'is diff' do
-      it_should_behave_like 'file with extension', 'patch', 'diff'
-      it_should_behave_like 'file with extension', 'dif', 'diff'
-      it_should_behave_like 'file with extension', 'diff', 'diff'
+      it_behaves_like 'file with extension', 'patch', 'diff'
+      it_behaves_like 'file with extension', 'dif', 'diff'
+      it_behaves_like 'file with extension', 'diff', 'diff'
     end
 
     context 'is perl' do
-      it_should_behave_like 'file with extension', 'pl', 'perl'
-      it_should_behave_like 'file with extension', 'pm', 'perl'
-      it_should_behave_like 'file with extension', 'perl', 'perl'
+      it_behaves_like 'file with extension', 'pl', 'perl'
+      it_behaves_like 'file with extension', 'pm', 'perl'
+      it_behaves_like 'file with extension', 'perl', 'perl'
     end
 
     context 'is python' do
-      it_should_behave_like 'file with extension', 'py', 'python'
+      it_behaves_like 'file with extension', 'py', 'python'
     end
 
     context 'is ruby' do
-      it_should_behave_like 'file with extension', 'rb', 'ruby'
+      it_behaves_like 'file with extension', 'rb', 'ruby'
     end
 
     context 'is latex' do
-      it_should_behave_like 'file with extension', 'tex', 'latex'
+      it_behaves_like 'file with extension', 'tex', 'latex'
     end
 
     context 'is javascript' do
-      it_should_behave_like 'file with extension', 'js', 'javascript'
+      it_behaves_like 'file with extension', 'js', 'javascript'
     end
 
     context 'is shell' do
-      it_should_behave_like 'file with extension', 'sh', 'shell'
+      it_behaves_like 'file with extension', 'sh', 'shell'
     end
 
     context 'is rpm-spec' do
-      it_should_behave_like 'file with extension', 'spec', 'rpm-spec'
+      it_behaves_like 'file with extension', 'spec', 'rpm-spec'
     end
 
     context 'is rpm-changes' do
-      it_should_behave_like 'file with extension', 'changes', 'rpm-changes'
+      it_behaves_like 'file with extension', 'changes', 'rpm-changes'
     end
 
     context 'is php' do
-      it_should_behave_like 'file with extension', 'php', 'php'
+      it_behaves_like 'file with extension', 'php', 'php'
     end
 
     context 'is html' do
-      it_should_behave_like 'file with extension', 'html', 'html'
+      it_behaves_like 'file with extension', 'html', 'html'
     end
 
     context 'is dockerfile' do
@@ -239,7 +239,7 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     end
 
     context 'css' do
-      it_should_behave_like 'file with extension', 'css', 'css'
+      it_behaves_like 'file with extension', 'css', 'css'
     end
 
     context 'other' do

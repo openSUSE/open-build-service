@@ -63,8 +63,8 @@ RSpec.describe BsRequestAction do
       end
     end
 
-    it_should_behave_like 'it skips validation for type', 'add_role'
-    it_should_behave_like 'it skips validation for type', 'maintenance_incident'
+    it_behaves_like 'it skips validation for type', 'add_role'
+    it_behaves_like 'it skips validation for type', 'maintenance_incident'
   end
 
   it { is_expected.to belong_to(:bs_request).touch(true) }

@@ -358,7 +358,7 @@ RSpec.describe Review do
       let!(:review) { create(:user_review) }
       subject { review.user }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes"
+      it_behaves_like "the subject's cache is reset when it's review changes"
     end
 
     context 'by_group' do
@@ -367,10 +367,10 @@ RSpec.describe Review do
       let(:user) { groups_user.user }
       let!(:review) { create(:review, by_group: group) }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { user }
       end
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { group }
       end
     end
@@ -381,7 +381,7 @@ RSpec.describe Review do
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
       subject { relationship_package_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes"
+      it_behaves_like "the subject's cache is reset when it's review changes"
     end
 
     context 'by_package with a group relationship' do
@@ -392,10 +392,10 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { user }
       end
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { group }
       end
     end
@@ -406,7 +406,7 @@ RSpec.describe Review do
       let!(:review) { create(:review, by_project: project) }
       subject { relationship_project_user.user }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes"
+      it_behaves_like "the subject's cache is reset when it's review changes"
     end
 
     context 'by_project with a group relationship' do
@@ -417,10 +417,10 @@ RSpec.describe Review do
       let!(:user) { groups_user.user }
       let!(:review) { create(:review, by_project: project) }
 
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { user }
       end
-      it_should_behave_like "the subject's cache is reset when it's review changes" do
+      it_behaves_like "the subject's cache is reset when it's review changes" do
         subject { group }
       end
     end

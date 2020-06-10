@@ -99,7 +99,7 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :on))
         end
 
-        it_should_behave_like 'a ldap connection'
+        it_behaves_like 'a ldap connection'
       end
 
       context 'configured for TSL' do
@@ -109,7 +109,7 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge('ldap_start_tls' => :on))
         end
 
-        it_should_behave_like 'a ldap connection'
+        it_behaves_like 'a ldap connection'
       end
 
       context 'not configured for TSL or SSL' do
@@ -119,7 +119,7 @@ RSpec.describe UserLdapStrategy do
           stub_const('CONFIG', CONFIG.merge('ldap_ssl' => :off))
         end
 
-        it_should_behave_like 'a ldap connection'
+        it_behaves_like 'a ldap connection'
       end
     end
   end
