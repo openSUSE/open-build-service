@@ -34,6 +34,29 @@ linters:
       - Style/IfUnlessModifier
       - Style/Next
       - Style/WhileUntilModifier
+    # FIXME: Address offenses in the following views
+    exclude:
+      - "app/views/webui/monitor/_building.html.haml"
+      - "app/views/webui/monitor/_building_table.html.haml"
+      - "app/views/webui/monitor/_stats.html.haml"
+      - "app/views/webui/package/_commit_item.html.haml"
+      - "app/views/webui/package/_file.html.haml"
+      - "app/views/webui/package/_fileinfo.html.haml"
+      - "app/views/webui/package/_linking_packages.html.haml"
+      - "app/views/webui/package/_side_links.html.haml"
+      - "app/views/webui/package/side_links/_show_developed_packages.html.haml"
+      - "app/views/webui/package/statistics.html.haml"
+      - "app/views/webui/packages/job_history/index.html.haml"
+      - "app/views/webui/project/_side_links.html.haml"
+      - "app/views/webui/project/_tabs.html.haml"
+      - "app/views/webui/project/side_links/_incident_project.html.haml"
+      - "app/views/webui/project/side_links/_requests.html.haml"
+      - "app/views/webui/projects/rebuild_times/show.html.haml"
+      - "app/views/webui/projects/status/show.html.haml"
+      - "app/views/webui/repositories/state.html.haml"
+      - "app/views/webui/request/_issues_table.html.haml"
+      - "app/views/webui/staging/projects/_history_elements.html.haml"
+      - "app/views/webui/staging/workflows/_problems.html.haml"
 
 exclude:
 - 'vendor/bundle/**/*'
