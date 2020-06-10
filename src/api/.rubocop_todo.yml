@@ -1755,9 +1755,6 @@ Style/RescueStandardError:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Exclude:
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/jobs/consistency_check_job.rb'
     - 'app/models/attrib.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request_action.rb'

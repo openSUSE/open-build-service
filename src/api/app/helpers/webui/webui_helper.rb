@@ -377,7 +377,7 @@ module Webui::WebuiHelper
   end
 
   def link_content(text, css_class, icon)
-    if css_class && css_class.include?('nav-link')
+    if css_class&.include?('nav-link')
       capture do
         concat(tag.i('', class: "fas #{icon}"))
         concat(tag.div(text, class: 'small'))

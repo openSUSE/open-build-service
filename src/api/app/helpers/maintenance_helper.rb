@@ -180,7 +180,7 @@ module MaintenanceHelper
                                                                      :freezelink, :withacceptinfo])
     result = Backend::Connection.post(cp_path)
     result = Xmlhash.parse(result.body)
-    action.set_acceptinfo(result['acceptinfo']) if action
+    action&.set_acceptinfo(result['acceptinfo'])
   end
 
   def copy_binaries(filter_source_repository, source_package, target_package_name, target_project,
@@ -263,7 +263,7 @@ module MaintenanceHelper
     # expand a possible defined update info template in release target of channel
     project_filter = nil
     prj = source_package.project.parent
-    if prj && prj.is_maintenance?
+    if prj&.is_maintenance?
       project_filter = prj.maintained_projects.map(&:project)
     end
     # prefer a channel in the source project to avoid double hits exceptions
@@ -274,7 +274,7 @@ module MaintenanceHelper
       msg = cts.map { |cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}" }.join(', ')
       raise MultipleUpdateInfoTemplate, "Multiple channel targets found in #{msg} for repository #{target_repo.project.name}/#{target_repo.name}"
     end
-    id_template = cts.first.id_template if cts.first && cts.first.id_template
+    id_template = cts.first.id_template if cts.first&.id_template
 
     u_id = mi.getUpdateinfoId(id_template, patch_name)
     u_id
