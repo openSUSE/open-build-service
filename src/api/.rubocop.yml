@@ -94,10 +94,6 @@ Metrics/BlockLength:
     - 'test/test_consistency_helper.rb'
     - 'test/unit/package_test.rb'
 
-Metrics/ClassLength:
-  Exclude:
-    - 'app/controllers/webui/package_controller.rb'
-
 ##################### Rails ##################################
 
 Rails:
