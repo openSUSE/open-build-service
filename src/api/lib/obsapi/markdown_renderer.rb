@@ -24,9 +24,8 @@ module OBSApi
 
     def block_html(raw_html)
       # sanitize the HTML we get
-      Sanitize.fragment(raw_html, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
-                                                         elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
-                                                         remove_contents: true))
+      scrubber = Rails::Html::PermitScrubber.new.tap { |a| a.tags = ['b', 'em', 'i', 'strong', 'u', 'pre'] }
+      Rails::Html::SafeListSanitizer.new.sanitize(raw_html, scrubber: scrubber)
     end
 
     # unfortunately we can't call super (into C) - see vmg/redcarpet#51
