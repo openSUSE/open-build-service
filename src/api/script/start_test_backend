@@ -331,7 +331,7 @@ User.session = nil
 scheduler_thread = nil
 
 at_exit do
-  scheduler_thread.join if scheduler_thread
+  scheduler_thread&.join
 
   system("cd #{backend_config}; exec ./bs_srcserver --stop")
   system("cd #{backend_config}; exec ./bs_repserver --stop")

@@ -281,7 +281,7 @@ class NodeMatcher #:nodoc:
     when String
       value && value == condition
     when Regexp
-      value && value.match(condition)
+      value&.match(condition)
     when Numeric
       value == condition.to_s
     when true
