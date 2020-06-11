@@ -25,43 +25,43 @@ Options help:
 "
 
   # Define the options, and what they do
-  options[:proj] = ""
+  options[:proj] = ''
   opts.on('-p', '--proj PROJECT',
-          "Project Name:      eg. openSUSE:13.1,Ubuntu:14.04,etc.") do |f|
+          'Project Name:      eg. openSUSE:13.1,Ubuntu:14.04,etc.') do |f|
     options[:proj] = f
   end
 
-  options[:repo] = ""
+  options[:repo] = ''
   opts.on('-r', '--repo REPOSITORY',
-          "Repository Name:   eg. standard,qemu,etc.") do |f|
+          'Repository Name:   eg. standard,qemu,etc.') do |f|
     options[:repo] = f
   end
 
-  options[:arch] = ""
+  options[:arch] = ''
   opts.on('-a', '--arch Architecture',
-          "Architecture Name: eg. i586,x86_64,etc.") do |f|
+          'Architecture Name: eg. i586,x86_64,etc.') do |f|
     options[:arch] = f
   end
 
-  options[:dest] = ""
+  options[:dest] = ''
   opts.on('-d', '--dest DESTINATION',
-          "Destination Path:  eg. /obs          Default: PWD (current working directory)") do |f|
+          'Destination Path:  eg. /obs          Default: PWD (current working directory)') do |f|
     options[:dest] = f
   end
 
-  options[:apiurl] = ""
+  options[:apiurl] = ''
   opts.on('-A', '--api APIURL',
-          "OSC API URL:                         Default: https://api.opensuse.org") do |f|
+          'OSC API URL:                         Default: https://api.opensuse.org') do |f|
     options[:apiurl] = f
   end
 
   options[:trialrun] = false
-  opts.on('-t', '--trialrun', "Trial run: not executing actions") do
+  opts.on('-t', '--trialrun', 'Trial run: not executing actions') do
     options[:trialrun] = true
   end
 
   options[:verbose] = false
-  opts.on('-v', '--verbose', "Verbose") do
+  opts.on('-v', '--verbose', 'Verbose') do
     options[:verbose] = true
   end
 
@@ -83,7 +83,7 @@ proj = options[:proj]
 repo = options[:repo]
 arch = options[:arch]
 dest = !options[:dest].empty? ? options[:dest] : Dir.pwd
-apiurl = !options[:apiurl].empty? ? options[:apiurl] : "https://api.opensuse.org"
+apiurl = !options[:apiurl].empty? ? options[:apiurl] : 'https://api.opensuse.org'
 trialrun = options[:trialrun]
 verbose = options[:verbose]
 
@@ -162,27 +162,27 @@ end
 # method for verify directory
 def directory_verify(path, name, verbose, trialrun)
   puts "\nVerify #{name} directory '#{path}':" if verbose
-  if !FileTest.directory?("#{path}")
+  unless FileTest.directory?(path.to_s)
     puts "Creating #{name} directory: #{path}"
-    system("mkdir -p #{path}") if !trialrun
+    system("mkdir -p #{path}") unless trialrun
   end
-  if FileTest.directory?("#{path}") && FileTest.writable?("#{path}")
+  if FileTest.directory?(path.to_s) && FileTest.writable?(path.to_s)
     puts "Verify #{name} directory '#{path}': ok"
   else
     puts "Verify #{name} directory '#{path}': failed"
-    exit(1) if !trialrun
+    exit(1) unless trialrun
   end
   return
 end
 
 # verify dest dir
-directory_verify("#{dest}", "dest", verbose, trialrun)
+directory_verify(dest.to_s, 'dest', verbose, trialrun)
 
 # verify project dir
-directory_verify("#{dest}/projects", "projects", verbose, trialrun)
+directory_verify("#{dest}/projects", 'projects', verbose, trialrun)
 
 # verify :full dir
-directory_verify("#{dest}/build/#{proj}/#{repo}/#{arch}/:full", ":full", verbose, trialrun)
+directory_verify("#{dest}/build/#{proj}/#{repo}/#{arch}/:full", ':full', verbose, trialrun)
 
 puts "
 ################
@@ -193,7 +193,7 @@ if verbose
   puts "\nRetrieve project meta data:
   osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml"
 end
-if !trialrun
+unless trialrun
   system("
   osc -A #{apiurl} meta prj     #{proj} > #{dest}/projects/#{proj}.xml")
 end
@@ -202,7 +202,7 @@ if verbose
   puts "\nRetrieve project configuration data:
   osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf"
 end
-if !trialrun
+unless trialrun
   system("
   osc -A #{apiurl} meta prjconf #{proj} > #{dest}/projects/#{proj}.conf")
 end
@@ -215,7 +215,7 @@ require 'rexml/document'
 include REXML
 
 # retrieve full binary lists
-if !trialrun
+unless trialrun
   puts "\nRetrieve full binary list:
 osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names > #{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst"
   system("
@@ -226,24 +226,24 @@ end
 if File.file?("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst")
   puts "\nOpen full binary list file:
 File::open(\"#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst\", \"r\")"
-  process = File.open("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst", "r")
+  process = File.open("#{dest}/build/#{proj}/#{repo}/#{arch}/binarylist.lst", 'r')
 else
   puts "\nOpen full binary list file:
 File::popen(\"osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names\", \"r\")"
-  process = File.popen("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names", "r")
+  process = File.popen("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch}/_repository?view=names", 'r')
 end
 
 # process full binary list file
-puts ""
+puts ''
 filelist = Document.new(process)
-filelist.elements.each("binarylist/binary") do |binary|
-  fname  = binary.attributes["filename"]
-  fsize  = binary.attributes["size"]
-  fmtime = binary.attributes["mtime"]
+filelist.elements.each('binarylist/binary') do |binary|
+  fname  = binary.attributes['filename']
+  fsize  = binary.attributes['size']
+  fmtime = binary.attributes['mtime']
   puts "Process: #{fname} (#{fsize})"
 
   # skip src, nosrc, debuginfo, and debugsource packages
-  if fname[-7..-1] == "src.rpm" || fname.include?("-debuginfo") || fname.include?("-debugsource")
+  if fname[-7..-1] == 'src.rpm' || fname.include?('-debuginfo') || fname.include?('-debugsource')
     puts "  skip debug: #{fname}"
     next
   end
@@ -257,12 +257,12 @@ filelist.elements.each("binarylist/binary") do |binary|
     puts "  size from original source: #{fsize}" if verbose
 
     if tsize.to_i == fsize.to_i
-      puts "  skip download: size identical"
+      puts '  skip download: size identical'
       next
     else
-      puts "  remove: size differnt"
+      puts '  remove: size differnt'
       puts "  remove: #{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}"
-      File.delete("#{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}") if !trialrun
+      File.delete("#{dest}/build/#{proj}/#{repo}/#{arch}/:full/#{fname}") unless trialrun
     end
   end
 
@@ -273,18 +273,18 @@ filelist.elements.each("binarylist/binary") do |binary|
     #{cmd}"
   end
   if trialrun
-    puts "  trialrun: skip download"
+    puts '  trialrun: skip download'
     next
   end
 
   # re-try download 3 times
   (0..2).each do |i|
     if system(cmd)
-      puts "  success: download finished" if verbose
+      puts '  success: download finished' if verbose
       break
     end
 
     puts "  retry #{i}: download failure" if verbose
-    puts "  failure: download failure" if i == 2
+    puts '  failure: download failure' if i == 2
   end
 end
