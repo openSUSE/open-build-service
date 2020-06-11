@@ -65,15 +65,6 @@ Metrics/PerceivedComplexity:
   Exclude:
     - 'dist/obs_mirror_project'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: **/Rakefile, **/*.rake
-Rails/RakeEnvironment:
-  Exclude:
-    - 'lib/capistrano/tasks/**/*.rake'
-    - 'Rakefile'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, EnforcedStyle.
@@ -118,14 +109,6 @@ Style/NegatedIf:
 
 # Offense count: 1
 # Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, MinBodyLength.
-# SupportedStyles: skip_modifier_ifs, always
-Style/Next:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
 Style/PerlBackrefs:
   Exclude:
     - 'dist/clouduploader.rb'
@@ -135,19 +118,12 @@ Style/PerlBackrefs:
 Style/RedundantBegin:
   Exclude:
     - 'Rakefile'
-    - 'dist/openQA_mail_notification.rb'
 
 # Offense count: 4
 # Cop supports --auto-correct.
 Style/RedundantInterpolation:
   Exclude:
     - 'dist/obs_mirror_project'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/StderrPuts:
-  Exclude:
-    - 'dist/openQA_mail_notification.rb'
 
 # Offense count: 69
 # Cop supports --auto-correct.
@@ -157,18 +133,9 @@ Style/StringLiterals:
   Exclude:
     - 'dist/clouduploader.rb'
     - 'dist/obs_mirror_project'
-    - 'dist/openQA_mail_notification.rb'
     - 'dist/t/spec/features/0010_authentication_spec.rb'
     - 'dist/t/spec/features/0020_interconnect_spec.rb'
     - 'dist/t/spec/features/0030_project_spec.rb'
     - 'dist/t/spec/features/0040_package_spec.rb'
     - 'dist/t/spec/spec_helper.rb'
     - 'dist/t/spec/support/capybara.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Exclude:
-    - 'dist/clouduploader.rb'

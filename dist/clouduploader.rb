@@ -27,7 +27,7 @@ module CloudUploader
     end
 
     diff = Time.zone.now - start
-    STDOUT.write("Upload took: #{Time.at(diff).utc.strftime("%H:%M:%S")}\n")
+    STDOUT.write("Upload took: #{Time.at(diff).utc.strftime('%H:%M:%S')}\n")
   end
 
   class EC2

@@ -71,3 +71,10 @@ Layout/LineLength:
 
 Metrics/ModuleLength:
   Severity: refactor
+
+##################### Rails ####################################
+
+Rails/RakeEnvironment:
+  Exclude:
+    # All tasks are executing scripts and those don't need application code nor the environment
+    - 'Rakefile'
