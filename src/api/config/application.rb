@@ -48,7 +48,7 @@ module OBSApi
     # Use SQL instead of Active Record's schema dumper when creating the database.
     # This is necessary if your schema can't be completely dumped by the schema dumper,
     # like if you have constraints or database-specific column types
-    # config.active_record.schema_format = :sql
+    config.active_record.schema_format = :sql
 
     # Skip frameworks you're not going to use
     # config.frameworks -= [ :action_web_service, :active_resource ]
@@ -82,8 +82,6 @@ module OBSApi
 
     # Make Active Record use UTC-base instead of local time
     # config.active_record.default_timezone = :utc
-
-    config.active_record.schema_format = :sql
 
     config.action_controller.perform_caching = true
 
