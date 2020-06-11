@@ -126,7 +126,7 @@ class Attrib < ApplicationRecord
   private
 
   def validate_value_count
-    return unless attrib_type && attrib_type.allowed_values.any?
+    return unless attrib_type&.allowed_values&.any?
 
     values.map(&:value).each do |value|
       allowed_values = attrib_type.allowed_values.map(&:value)

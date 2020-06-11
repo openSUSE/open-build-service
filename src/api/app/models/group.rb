@@ -72,17 +72,16 @@ class Group < ApplicationRecord
     cache = groups_users.index_by(&:user_id)
 
     persons = xmlhash.elements('person').first
-    if persons
-      persons.elements('person') do |person|
-        next unless person['userid']
+    # user has already a role in this package
+    persons&.elements('person') do |person|
+      next unless person['userid']
 
-        user = User.find_by_login!(person['userid'])
-        if cache.key?(user.id)
-          # user has already a role in this package
-          cache.delete(user.id)
-        else
-          GroupsUser.create(user: user, group: self)
-        end
+      user = User.find_by_login!(person['userid'])
+      if cache.key?(user.id)
+        # user has already a role in this package
+        cache.delete(user.id)
+      else
+        GroupsUser.create(user: user, group: self)
       end
     end
 

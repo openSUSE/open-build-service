@@ -43,7 +43,7 @@ class BsRequestPermissionCheck
       end
 
       tip = Project.get_by_name(action.target_project + ':' + opts[:incident])
-      raise ProjectLocked if tip && tip.is_locked?
+      raise ProjectLocked if tip&.is_locked?
     end
 
     require_permissions_in_target_or_source
@@ -123,7 +123,7 @@ class BsRequestPermissionCheck
     end
 
     target_project = req.bs_request_actions.first.target_project_object
-    if target_project && target_project.staging
+    if target_project&.staging
       user_is_staging_manager = User.session!.groups_users.where(group: target_project.staging.managers_group).exists?
     end
 

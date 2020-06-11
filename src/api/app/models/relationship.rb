@@ -138,7 +138,7 @@ class Relationship < ApplicationRecord
   end
 
   def check_global_role
-    return unless role && role.global
+    return unless role&.global
 
     errors.add(:base,
                "global role #{role.title} is not allowed.")
@@ -148,7 +148,7 @@ class Relationship < ApplicationRecord
   # Relationship::AddRole#add_role handling.
   # We could also check other banned users, not only nobody.
   def allowed_user
-    raise NotFoundError, "Couldn't find user #{user.login}" if user && user.is_nobody?
+    raise NotFoundError, "Couldn't find user #{user.login}" if user&.is_nobody?
   end
 end
 

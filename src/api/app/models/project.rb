@@ -1049,7 +1049,7 @@ class Project < ApplicationRecord
       repo_name = opts[:extend_names] ? repo.extended_name : repo.name
       next if repo.is_local_channel?
 
-      pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
+      pkg_to_enable&.enable_for_repository(repo_name)
       next if repositories.find_by_name(repo_name)
 
       if repositories.where(name: repo_name).exists?
@@ -1066,7 +1066,7 @@ class Project < ApplicationRecord
       next if skip_repos.include?(repo.name)
 
       # copy target repository when operating on a channel
-      targets = repo.release_targets if pkg_to_enable && pkg_to_enable.is_channel?
+      targets = repo.release_targets if pkg_to_enable&.is_channel?
       # base is a maintenance incident, take its target instead (kgraft case)
       targets = repo.release_targets if repo.project.is_maintenance_incident?
 

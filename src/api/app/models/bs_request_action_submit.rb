@@ -112,7 +112,7 @@ class BsRequestActionSubmit < BsRequestAction
     return unless skip_source
 
     target_project = Project.get_by_name(self.target_project)
-    return unless target_project && target_project.is_a?(Project)
+    return unless target_project&.is_a?(Project)
 
     target_package = target_project.packages.find_by_name(self.target_package)
     initialize_devel_package = target_project.find_attribute('OBS', 'InitializeDevelPackage')

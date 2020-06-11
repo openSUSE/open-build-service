@@ -1752,23 +1752,6 @@ Style/RescueStandardError:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Exclude:
-    - 'app/models/attrib.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/query_builder.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/comment.rb'
-    - 'app/models/full_text_search.rb'
-    - 'app/models/group.rb'
-    - 'app/models/kiwi/image/xml_builder.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/models/project/update_from_xml_command.rb'
-    - 'app/models/relationship.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/policies/status/report_policy.rb'
     - 'app/services/notification_creator.rb'
     - 'app/validators/allowed_user_validator.rb'

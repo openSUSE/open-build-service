@@ -211,12 +211,10 @@ class BsRequest < ApplicationRecord
       # to be overwritten if we find history
       request.creator = request.commenter
 
-      if actions
-        actions.each do |ac|
-          a = BsRequestAction.new_from_xml_hash(ac)
-          request.bs_request_actions << a
-          a.bs_request = request
-        end
+      actions&.each do |ac|
+        a = BsRequestAction.new_from_xml_hash(ac)
+        request.bs_request_actions << a
+        a.bs_request = request
       end
 
       str = state.delete('when')
@@ -242,10 +240,8 @@ class BsRequest < ApplicationRecord
 
       reviews = hashed.delete('review')
       reviews = [reviews] if reviews.is_a?(Hash)
-      if reviews
-        reviews.each do |r|
-          request.reviews << Review.new_from_xml_hash(r)
-        end
+      reviews&.each do |r|
+        request.reviews << Review.new_from_xml_hash(r)
       end
 
       raise ArgumentError, "too much information #{hashed.inspect}" if hashed.present?
@@ -1003,12 +999,10 @@ class BsRequest < ApplicationRecord
             lprj = linkinfo['project']
             lpkg = linkinfo['package']
             link_is_already_devel = false
-            if action[:forward]
-              action[:forward].each do |forward|
-                if forward[:project] == lprj && forward[:package] == lpkg
-                  link_is_already_devel = true
-                  break
-                end
+            action[:forward]&.each do |forward|
+              if forward[:project] == lprj && forward[:package] == lpkg
+                link_is_already_devel = true
+                break
               end
             end
             unless link_is_already_devel

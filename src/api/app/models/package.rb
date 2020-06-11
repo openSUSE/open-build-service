@@ -1342,7 +1342,7 @@ class Package < ApplicationRecord
 
     # Fallback for releasing into a release project outside of maintenance incident
     # avoid overwriting existing binaries in this case
-    return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo && target_repo.project.is_maintenance_release?
+    return "#{basename}.#{time.strftime('%Y%m%d%H%M%S')}" if target_repo&.project&.is_maintenance_release?
 
     basename
   end

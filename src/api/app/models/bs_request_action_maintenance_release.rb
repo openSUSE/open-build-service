@@ -139,7 +139,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
-    return unless spkg && spkg.is_patchinfo?
+    return unless spkg&.is_patchinfo?
 
     pi = Xmlhash.parse(spkg.patchinfo.document.to_xml)
     pi['rating']

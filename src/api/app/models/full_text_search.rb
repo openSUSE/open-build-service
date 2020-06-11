@@ -15,10 +15,8 @@ class FullTextSearch
   attr_reader :result
 
   def initialize(attrib = {})
-    if attrib
-      attrib.each do |att, value|
-        send(:"#{att}=", value)
-      end
+    attrib&.each do |att, value|
+      send(:"#{att}=", value)
     end
     @result = nil
   end

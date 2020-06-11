@@ -129,13 +129,13 @@ class UserLdapStrategy
       end
 
       # user memberof attr exist?
-      if user_memberof_attr && user_memberof_attr.include?(group_dn)
+      if user_memberof_attr&.include?(group_dn)
         result << eachgroup
         Rails.logger.debug("#{user} is in #{group}")
         next
       end
       # group member attr exist?
-      if group_member_attr && group_member_attr.include?(user_dn)
+      if group_member_attr&.include?(user_dn)
         result << eachgroup
         Rails.logger.debug("#{user} is in #{group}")
         next

@@ -59,7 +59,7 @@ class Comment < ApplicationRecord
   end
 
   def delete_parent_if_unused
-    parent.destroy if parent && parent.user.is_nobody? && parent.children.length.zero?
+    parent.destroy if parent&.user&.is_nobody? && parent.children.length.zero?
   end
 
   # build an array of users, commenting or being mentioned on the commentable of this comment

@@ -257,7 +257,7 @@ class User < ApplicationRecord
   end
 
   def self.admin_session?
-    current && current.is_admin?
+    current&.is_admin?
   end
 
   # set the user as current session user (should be real user)

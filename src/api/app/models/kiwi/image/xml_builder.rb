@@ -9,7 +9,7 @@ module Kiwi
         doc = Nokogiri::XML::DocumentFragment.parse(@image.kiwi_body)
         image = doc.at_css('image')
 
-        return nil unless image && image.first_element_child
+        return nil unless image&.first_element_child
 
         doc = update_packages(doc)
         doc = update_repositories(doc)

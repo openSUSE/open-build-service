@@ -208,7 +208,7 @@ class BsRequestAction < ApplicationRecord
           action.makeoriginolder('true') if makeoriginolder
         end
       end
-      bs_request_action_accept_info.render_xml(builder) unless bs_request_action_accept_info.nil?
+      bs_request_action_accept_info&.render_xml(builder)
     end
   end
 
@@ -791,7 +791,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def is_target_maintainer?(user)
-    user && user.can_modify?(target_package_object || target_project_object)
+    user&.can_modify?(target_package_object || target_project_object)
   end
 
   def set_sourceupdate_default(user)
@@ -875,7 +875,7 @@ class BsRequestAction < ApplicationRecord
                                      'a submit self is not possible, please use the maintenance workflow instead.'
       end
       a = tprj.find_attribute('OBS', 'RejectRequests')
-      if a && a.values.first
+      if a&.values&.first
         if a.values.length < 2 || a.values.find_by_value(action_type)
           raise RequestRejected, "The target project #{target_project} is not accepting requests because: #{a.values.first.value}"
         end

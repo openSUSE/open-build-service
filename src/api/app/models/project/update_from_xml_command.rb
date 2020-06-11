@@ -118,7 +118,7 @@ class Project
       prj = project
       processed = {}
 
-      while prj && prj.develproject
+      while prj&.develproject
         if processed[prj.name]
           raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
         end

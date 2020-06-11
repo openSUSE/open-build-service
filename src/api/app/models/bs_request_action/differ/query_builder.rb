@@ -16,7 +16,7 @@ class BsRequestAction
 
         # maintenance release targets will have a base link
         tprj = Project.get_by_name(target_project)
-        if tprj && tprj.is_maintenance_release?
+        if tprj&.is_maintenance_release?
           tpkg = tprj.find_package(target_package.gsub(/\.[^.]*$/, ''))
           if tpkg
             if tpkg.project.is_maintenance_release? && tpkg.is_local_link?
@@ -78,7 +78,7 @@ class BsRequestAction
         return unless linkinfo['project'] == action.source_project
 
         # a local link, check if the real source change gets also transported in a seperate action
-        action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo['package']) } if action.bs_request
+        action.bs_request&.bs_request_actions&.any? { |a| check_action_target(a, linkinfo['package']) }
       end
 
       # check if the action is the same target
