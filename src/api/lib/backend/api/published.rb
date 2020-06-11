@@ -20,6 +20,11 @@ module Backend
           Xmlhash.parse(response)['buildid']
         end
       end
+
+      def self.published_repository_exist?(project_name, repository_name)
+        response = http_get(['/published/:project/:repository', project_name, repository_name])
+        !Xmlhash.parse(response).empty?
+      end
     end
   end
 end

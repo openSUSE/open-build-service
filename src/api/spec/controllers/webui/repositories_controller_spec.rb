@@ -5,7 +5,7 @@ RSpec.describe Webui::RepositoriesController, vcr: true do
   let(:admin_user) { create(:admin_user, login: 'admin') }
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }
-  let(:repo_for_user_home) { create(:repository, project: user.home_project) }
+  let(:repo_for_user_home) { create(:repository, name: 'repository_6', project: user.home_project) }
 
   describe 'GET #index' do
     before do

@@ -114,7 +114,9 @@ class Webui::RepositoriesController < Webui::WebuiController
   end
 
   # GET project/repository_state/:project/:repository
-  def state; end
+  def state
+    @state_presenter = Repositories::StatePresenter.new(@project, @repository, @configuration)
+  end
 
   # POST /project/create_dod_repository
   def create_dod_repository
