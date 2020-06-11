@@ -26,9 +26,9 @@ RSpec.describe "Package" do
       click_link('Home Project')
     end
     click_link('hello_world')
-    click_link('Add file')
+    click_link('Add File')
     attach_file("file", File.expand_path('../fixtures/hello_world.spec', __dir__), make_visible: true)
-    click_button('Add file')
+    click_button('Add File')
     expect(page).to have_content("The file 'hello_world.spec' has been successfully saved.")
   end
 
