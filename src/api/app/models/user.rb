@@ -75,7 +75,7 @@ class User < ApplicationRecord
   scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
-  scope :active, -> { confirmed.or(User.where(state: :subaccount, owner: User.confirmed)) }
+  scope :active, -> { confirmed.or(User.unscoped.where(state: :subaccount, owner: User.unscoped.confirmed)) }
   scope :staff, -> { joins(:roles).where('roles.title = ?', 'Staff') }
   scope :not_staff, -> { where.not(id: User.staff.pluck(:id)) }
   scope :admins, -> { joins(:roles).where('roles.title = ?', 'Admin') }
