@@ -99,14 +99,6 @@ Style/MixinUsage:
   Exclude:
     - 'dist/obs_mirror_project'
 
-# Offense count: 7
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: both, prefix, postfix
-Style/NegatedIf:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/PerlBackrefs:
@@ -119,12 +111,6 @@ Style/RedundantBegin:
   Exclude:
     - 'Rakefile'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/RedundantInterpolation:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 69
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
@@ -132,7 +118,6 @@ Style/RedundantInterpolation:
 Style/StringLiterals:
   Exclude:
     - 'dist/clouduploader.rb'
-    - 'dist/obs_mirror_project'
     - 'dist/t/spec/features/0010_authentication_spec.rb'
     - 'dist/t/spec/features/0020_interconnect_spec.rb'
     - 'dist/t/spec/features/0030_project_spec.rb'
