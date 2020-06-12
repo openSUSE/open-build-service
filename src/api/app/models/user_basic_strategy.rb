@@ -1,0 +1,17 @@
+class UserBasicStrategy
+  def is_in_group?(user, group)
+    user.groups_users.where(group_id: group.id).exists?
+  end
+
+  def local_role_check(_role, _object)
+    false # all is checked, nothing remote
+  end
+
+  def local_permission_check(_roles, _object)
+    false # all is checked, nothing remote
+  end
+
+  def groups(user)
+    user.groups
+  end
+end
