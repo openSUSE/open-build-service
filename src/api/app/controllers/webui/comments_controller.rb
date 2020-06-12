@@ -7,18 +7,14 @@ class Webui::CommentsController < Webui::WebuiController
     User.session!.comments << comment
     @commentable = comment.commentable
 
-    respond_to do |format|
-      if comment.save
-        flash.now[:success] = 'Comment created successfully.'
-        status = :ok
-      else
-        flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
-        status = :unprocessable_entity
-      end
-      format.html do
-        render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
-      end
-    end
+    status = if comment.save
+               flash.now[:success] = 'Comment created successfully.'
+               :ok
+             else
+               flash.now[:error] = "Failed to create comment: #{comment.errors.full_messages.to_sentence}."
+               :unprocessable_entity
+             end
+    render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
   end
 
   def destroy
@@ -26,18 +22,14 @@ class Webui::CommentsController < Webui::WebuiController
     authorize comment, :destroy?
     @commentable = comment.commentable
 
-    respond_to do |format|
-      if comment.blank_or_destroy
-        flash.now[:success] = 'Comment deleted successfully.'
-        status = :ok
-      else
-        flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
-        status = :unprocessable_entity
-      end
-      format.html do
-        render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
-      end
-    end
+    status = if comment.blank_or_destroy
+               flash.now[:success] = 'Comment deleted successfully.'
+               :ok
+             else
+               flash.now[:error] = "Failed to delete comment: #{comment.errors.full_messages.to_sentence}."
+               :unprocessable_entity
+             end
+    render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
   end
 
   private
