@@ -31,7 +31,7 @@ class Webui::MainController < Webui::WebuiController
 
   def gather_busy
     busy = []
-    starttime = Time.now.to_i - 168.to_i * 3600
+    starttime = (Time.now.utc - 7.days).to_i
     Architecture.available.select(:name).distinct.each do |arch|
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch.worker)
       values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
