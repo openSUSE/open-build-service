@@ -48,6 +48,7 @@ sub get_frozenlinks {
     $frozen = {};
     for my $fp (@{$frozenx->{'frozenlink'} || []}) {
       my $n = defined($fp->{'project'}) ? $fp->{'project'} : '/all';
+      $frozen->{$n} ||= {};
       for my $p (@{$fp->{'package'} || []}) {
         my $pn = delete $p->{'name'};
         $frozen->{$n}->{$pn} = $p if defined($pn) && $p->{'srcmd5'};
