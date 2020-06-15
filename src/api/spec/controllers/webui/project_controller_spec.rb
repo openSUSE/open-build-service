@@ -10,7 +10,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }
   let(:apache2_project) { create(:project, name: 'Apache2') }
-  let(:openSUSE_project) { create(:project, name: 'openSUSE') }
+  let(:opensuse_project) { create(:project, name: 'openSUSE') }
   let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI', maintenance_project: nil) }
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
@@ -68,7 +68,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
     before do
       apache_project
       apache2_project
-      openSUSE_project
+      opensuse_project
       apache_maintenance_incident_project
     end
 
@@ -78,7 +78,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name, openSUSE_project.name) }
+      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name, opensuse_project.name) }
       it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
     end
 
@@ -90,7 +90,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name) }
       it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
-      it { expect(@json_response).not_to include(openSUSE_project.name) }
+      it { expect(@json_response).not_to include(opensuse_project.name) }
     end
 
     context 'with a subprojects' do

@@ -2,9 +2,9 @@ require 'browser_helper'
 
 RSpec.describe 'MaintainedProjects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user) }
-  let(:openSUSE_project) { create(:project, name: 'openSUSE') }
-  let(:openSUSE_project_update) { create(:project, name: 'openSUSE_Update') }
-  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: openSUSE_project) }
+  let(:opensuse_project) { create(:project, name: 'openSUSE') }
+  let(:opensuse_project_update) { create(:project, name: 'openSUSE_Update') }
+  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project) }
 
   describe 'index page' do
     context 'without login' do
@@ -70,7 +70,7 @@ RSpec.describe 'MaintainedProjects', type: :feature, js: true do
         expect(page).to have_css('#flash')
 
         within('#flash') do
-          expect(page).to have_text("Disabled maintenance for #{openSUSE_project}")
+          expect(page).to have_text("Disabled maintenance for #{opensuse_project}")
         end
       end
     end
