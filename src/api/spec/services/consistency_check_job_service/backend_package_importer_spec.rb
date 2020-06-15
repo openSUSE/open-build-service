@@ -15,11 +15,13 @@ RSpec.describe ::ConsistencyCheckJobService::BackendPackageImporter, vcr: true d
 
     context 'it raises ActiveRecord::RecordInvalid' do
       let(:custom_exception) { ActiveRecord::RecordInvalid }
+
       it { expect(backend_package_importer.errors).to include(error_message) }
     end
 
     context 'it raises Backend::NotFoundError' do
       let(:custom_exception) { Backend::NotFoundError }
+
       it { expect(backend_package_importer.errors).to include(error_message) }
     end
   end

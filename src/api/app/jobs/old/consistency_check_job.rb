@@ -154,14 +154,14 @@ module Old
       project.commit_opts = { no_backend_write: 1 }
       project.update_from_xml!(Xmlhash.parse(meta))
       project.save!
-      return ''
+      ''
     rescue APIError => e
-      return "Invalid project meta data hosted in src server for project #{project}: #{e}"
+      "Invalid project meta data hosted in src server for project #{project}: #{e}"
     rescue ActiveRecord::RecordInvalid
       Backend::Api::Sources::Project.delete(project)
-      return "DELETED #{project} on backend due to invalid data\n"
+      "DELETED #{project} on backend due to invalid data\n"
     rescue Backend::NotFoundError
-      return "specified #{project} does not exist on backend\n"
+      "specified #{project} does not exist on backend\n"
     end
 
     def package_existence_consistency_check(project, fix = nil)
@@ -258,11 +258,11 @@ module Old
           b_ = b_.map { |i| "#{i['groupid']}/#{i['role']}" }.sort!
         end
         if a_ != b_
-          if a[k].class == Hash && b[k].class == Hash
-            diff[k] = hash_diff(a[k], b[k])
-          else
-            diff[k] = [a[k], b[k]]
-          end
+          diff[k] = if a[k].class == Hash && b[k].class == Hash
+                      hash_diff(a[k], b[k])
+                    else
+                      [a[k], b[k]]
+                    end
         end
         diff
       end

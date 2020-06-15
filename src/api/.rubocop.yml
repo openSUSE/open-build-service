@@ -16,6 +16,8 @@ AllCops:
     - 'test/fixtures/backend/**/*'
     - 'files/*'
     - 'db/data_schema.rb'
+    # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
+    - 'app/jobs/old/consistency_check_job.rb'
 
 #################### Style ###########################
 
