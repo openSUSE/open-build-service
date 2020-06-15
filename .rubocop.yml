@@ -60,6 +60,10 @@ Style/HashTransformKeys:
 Style/HashTransformValues:
   Enabled: false
 
+# We agreed on disabling this cop since it's often a sign of a code smell when we need to use `something&.my_method`
+Style/SafeNavigation:
+  Enabled: false
+
 ##################### Metrics ##################################
 
 Metrics/ClassLength:
