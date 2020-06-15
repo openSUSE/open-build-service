@@ -6,7 +6,7 @@ module MonitorControllerService
     end
 
     def call
-      Rails.cache.fetch(cache_key, expires_in: (@range.to_i * 3600) / 150, shared: true) do
+      Rails.cache.fetch(custom_cache_key, expires_in: (@range.to_i * 3600) / 150, shared: true) do
         status_history
       end
     end
@@ -21,7 +21,7 @@ module MonitorControllerService
       24 * 365
     end
 
-    def cache_key
+    def custom_cache_key
       "#{@key}-#{@range}"
     end
 
