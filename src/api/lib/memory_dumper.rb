@@ -8,7 +8,7 @@ class MemoryDumper
     Memprof.start
     old_handler = trap('URG') do
       @toexit = 1
-      old_handler&.call
+      old_handler.call if old_handler
     end
   end
 

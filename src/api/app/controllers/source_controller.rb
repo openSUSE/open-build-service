@@ -929,7 +929,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend(path)
 
-    @package&.sources_changed # except in case of _project package
+    @package.sources_changed if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=commitfilelist
@@ -938,7 +938,7 @@ class SourceController < ApplicationController
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink, :withvalidate])
     answer = pass_to_backend(path)
 
-    @package&.sources_changed(dir_xml: answer) # except in case of _project package
+    @package.sources_changed(dir_xml: answer) if @package # except in case of _project package
   end
 
   # POST /source/<project>/<package>?cmd=diff

@@ -49,8 +49,10 @@ class Webui::AttributeController < Webui::WebuiController
     authorize @attribute
 
     # build the default values
-    @attribute.attrib_type.value_count&.times do
-      @attribute.values.build(attrib: @attribute)
+    if @attribute.attrib_type.value_count
+      @attribute.attrib_type.value_count.times do
+        @attribute.values.build(attrib: @attribute)
+      end
     end
 
     if @attribute.save
