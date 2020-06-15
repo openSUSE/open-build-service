@@ -32,6 +32,7 @@ class BsRequestAction < ApplicationRecord
   validates :type, presence: true
   validates :type, uniqueness: {
     scope: [:target_project, :target_package, :bs_request_id],
+    case_sensitive: false,
     conditions: -> { where.not(type: ['add_role', 'maintenance_incident']) }
   }
 

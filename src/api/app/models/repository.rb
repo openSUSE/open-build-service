@@ -30,6 +30,7 @@ class Repository < ApplicationRecord
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
   validates :name, uniqueness: { scope: [:db_project_id, :remote_project_name],
+                                 case_sensitive: true,
                                  message: '%{value} is already used by a repository of this project' }
 
   validates :project, presence: true

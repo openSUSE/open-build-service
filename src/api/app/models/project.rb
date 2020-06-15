@@ -121,7 +121,7 @@ class Project < ApplicationRecord
     ProjectsWithVeryImportantAttributeFinder.new.call
   }
 
-  validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
+  validates :name, presence: true, length: { maximum: 200 }, uniqueness: { case_sensitive: true }
   validates :title, length: { maximum: 250 }
   validate :valid_name
 

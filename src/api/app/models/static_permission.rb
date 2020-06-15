@@ -10,7 +10,7 @@ class StaticPermission < ApplicationRecord
 
   # We want to validate a static permission's title pretty thoroughly.
   validates :title,
-            uniqueness: { message: 'is the name of an already existing static permission' }
+            uniqueness: { case_sensitive: false, message: 'is the name of an already existing static permission' }
   validates :title, presence: { message: 'must be given.' }
 
   validates :title, format: { with: %r{\A[\w\-]*\z},
