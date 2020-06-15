@@ -62,6 +62,6 @@ class Webui::SessionController < Webui::WebuiController
   end
 
   def referer_was_login?
-    request.referer&.end_with?(new_session_path)
+    request.referer && request.referer.end_with?(new_session_path)
   end
 end

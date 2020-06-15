@@ -153,7 +153,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
 
-    return if @package&.patchinfo
+    return if @package && @package.patchinfo
 
     # FIXME: should work for remote packages
     flash[:error] = "Patchinfo not found for #{params[:project]}"

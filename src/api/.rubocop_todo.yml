@@ -1752,6 +1752,17 @@ Style/RescueStandardError:
 # AllowedMethods: present?, blank?, presence, try, try!
 Style/SafeNavigation:
   Exclude:
+    - 'app/controllers/configurations_controller.rb'
+    - 'app/controllers/services/webhooks_controller.rb'
+    - 'app/controllers/source_controller.rb'
+    - 'app/controllers/webui/attribute_controller.rb'
+    - 'app/controllers/webui/package_controller.rb'
+    - 'app/controllers/webui/patchinfo_controller.rb'
+    - 'app/controllers/webui/session_controller.rb'
+    - 'app/controllers/webui/webui_controller.rb'
+    - 'app/helpers/maintenance_helper.rb'
+    - 'app/helpers/webui/webui_helper.rb'
+    - 'app/jobs/consistency_check_job.rb'
     - 'app/models/attrib.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request_action.rb'
@@ -1774,6 +1785,15 @@ Style/SafeNavigation:
     - 'app/validators/allowed_user_validator.rb'
     - 'app/views/public/binary_packages.xml.builder'
     - 'app/views/status.xml.builder'
+    - 'db/migrate/20140908125426_convert_request_history.rb'
+    - 'db/migrate/20141125105426_add_github_issue_parser.rb'
+    - 'lib/memory_debugger.rb'
+    - 'lib/memory_dumper.rb'
+    - 'lib/xpath_engine.rb'
+    - 'script/reformat_memprof'
+    - 'script/start_test_backend'
+    - 'spec/factories/project.rb'
+    - 'test/node_matcher.rb'
 
 # Offense count: 380
 # Cop supports --auto-correct.

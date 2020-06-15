@@ -75,21 +75,27 @@ class MemoryDebugger
         end
       end
       if type == 'scope'
-        d.line['variables']&.each do |key, value|
-          d.add(ids[key])
-          d.add(ids[value])
+        if d.line['variables']
+          d.line['variables'].each do |key, value|
+            d.add(ids[key])
+            d.add(ids[value])
+          end
         end
       end
       if type == 'class'
-        d.line['methods']&.each do |key, value|
-          d.add(ids[key])
-          d.add(ids[value])
+        if d.line['methods']
+          d.line['methods'].each do |key, value|
+            d.add(ids[key])
+            d.add(ids[value])
+          end
         end
       end
       if type == 'object'
-        d.line['ivars']&.each do |key, value|
-          d.add(ids[key])
-          d.add(ids[value])
+        if d.line['ivars']
+          d.line['ivars'].each do |key, value|
+            d.add(ids[key])
+            d.add(ids[value])
+          end
         end
       end
       ['n1', 'n2', 'n3', 'block', 'scope', 'shared'].each do |key|
