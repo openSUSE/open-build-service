@@ -365,15 +365,15 @@ class BsRequest < ApplicationRecord
 
   def to_axml(opts = {})
     if opts[:withfullhistory]
-      Rails.cache.fetch("xml_bs_request_fullhistory_#{cache_key}") do
+      Rails.cache.fetch("xml_bs_request_fullhistory_#{cache_key_with_version}") do
         render_xml(withfullhistory: 1)
       end
     elsif opts[:withhistory]
-      Rails.cache.fetch("xml_bs_request_history_#{cache_key}") do
+      Rails.cache.fetch("xml_bs_request_history_#{cache_key_with_version}") do
         render_xml(withhistory: 1)
       end
     else
-      Rails.cache.fetch("xml_bs_request_#{cache_key}") do
+      Rails.cache.fetch("xml_bs_request_#{cache_key_with_version}") do
         render_xml
       end
     end

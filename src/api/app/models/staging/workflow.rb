@@ -63,7 +63,7 @@ class Staging::Workflow < ApplicationRecord
     # Group.where(id: group_ids).each do |group|
     #
     # TODO: Refactor this code using to_h when updating to Ruby 2.6 (performance improvement)
-    Rails.cache.fetch("groups_hash_#{Group.all.cache_key}") do
+    Rails.cache.fetch("groups_hash_#{Group.all.cache_key_with_version}") do
       groups_hash = {}
       Group.find_each do |group|
         groups_hash[group.title] = group

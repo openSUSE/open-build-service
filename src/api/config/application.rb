@@ -85,8 +85,7 @@ module OBSApi
 
     config.action_controller.perform_caching = true
 
-    # Don't use cache versioning for now
-    config.active_record.cache_versioning = false
+    config.active_record.cache_versioning = true
     config.active_record.collection_cache_versioning = false
 
     config.action_controller.action_on_unpermitted_parameters = :raise

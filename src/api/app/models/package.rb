@@ -125,7 +125,7 @@ class Package < ApplicationRecord
   def self.check_cache(project, package, opts)
     @key = { 'get_by_project_and_name' => 1, :package => package, :opts => opts }
 
-    @key[:user] = User.session.cache_key if User.session
+    @key[:user] = User.session.cache_key_with_version if User.session
 
     # the cache is only valid if the user, prj and pkg didn't change
     if project.is_a?(Project)
