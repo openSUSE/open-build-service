@@ -202,7 +202,7 @@ Rails/HttpStatus:
 # Checks for the use of output calls like puts and print
 Rails/Output:
   Exclude:
-    - 'app/jobs/*'
+    - 'app/jobs/**/*'
     - 'config/*'
     - 'db/**/*'
     - 'lib/**/*'

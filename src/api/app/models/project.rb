@@ -103,7 +103,10 @@ class Project < ApplicationRecord
   scope :filtered_for_list, lambda {
     where.not('name rlike ?', ::Configuration.unlisted_projects_filter) if ::Configuration.unlisted_projects_filter.present?
   }
+
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
+  scope :local, -> { where.not('NOT ISNULL(projects.remoteurl)') }
+
   scope :autocomplete, ->(search) { AutocompleteProjectsFinder.new(Project.all, search).call }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
