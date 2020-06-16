@@ -1,5 +1,4 @@
 class Webui::PackageController < Webui::WebuiController
-  require_dependency 'opensuse/validator'
   include ParsePackageDiff
   include Webui::PackageHelper
   include Webui::ManageRelationships

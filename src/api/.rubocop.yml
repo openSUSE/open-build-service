@@ -217,6 +217,8 @@ Rails/Output:
     - 'config/*'
     - 'db/**/*'
     - 'lib/**/*'
+    # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
+    - 'app/lib/backend/test.rb'
 
 # We decided not to modify old migrations
 Rails/BulkChangeTable:
@@ -349,7 +351,6 @@ Style/MethodCallWithArgsParentheses:
     - render_error
     - render_ok
     - require
-    - require_dependency
     - required_parameters
     - require_relative
     - run

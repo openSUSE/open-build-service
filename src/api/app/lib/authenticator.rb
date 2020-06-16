@@ -1,5 +1,5 @@
-require_dependency 'opensuse/permission'
-require_dependency 'gssapi' if CONFIG['kerberos_service_principal']
+require 'gssapi' if CONFIG['kerberos_service_principal']
+require 'api_error'
 
 class Authenticator
   class AuthenticationRequiredError < APIError

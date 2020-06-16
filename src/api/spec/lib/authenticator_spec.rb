@@ -1,5 +1,4 @@
 require 'rails_helper'
-require 'authenticator'
 require 'gssapi'
 
 RSpec.describe Authenticator do

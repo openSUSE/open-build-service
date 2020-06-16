@@ -1,5 +1,5 @@
 class SearchController < ApplicationController
-  require_dependency 'xpath_engine'
+  require 'xpath_engine'
 
   def project
     search(:project, true)
