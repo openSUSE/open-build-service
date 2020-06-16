@@ -6,10 +6,10 @@ class RequestDelegateAttribute < ActiveRecord::Migration[6.0]
 
     AttribTypeModifiableBy.reset_column_information
 
-    at = AttribType.create(attrib_namespace: ans, name: 'DelegateRequestTarget')
+    at = AttribType.find_or_create_by(attrib_namespace: ans, name: 'DelegateRequestTarget')
 
     role = Role.find_by_title('maintainer')
-    AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
+    AttribTypeModifiableBy.find_or_create_by(role_id: role.id, attrib_type_id: at.id)
 
     update_all_attrib_type_descriptions
   end
