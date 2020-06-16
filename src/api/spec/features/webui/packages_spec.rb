@@ -54,6 +54,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       click_link('home:package_test_user...ome:package_test_user')
       # Wait for the new page being loaded (aka. the ajax request to finish)
       expect(page).to have_text("Links to #{user.home_project} / #{package}")
+      expect(page).to have_text('Has a link diff')
       expect(page).to have_current_path(package_show_path(project: branched_project, package: branched_project.packages.first), ignore_query: true)
     end
   end

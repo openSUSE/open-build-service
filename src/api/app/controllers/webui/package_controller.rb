@@ -797,10 +797,13 @@ class Webui::PackageController < Webui::WebuiController
   def set_linkinfo
     return unless @package.is_link?
 
-    linked_package = @package.backend_package.links_to
+    # https://github.com/rails/rails/issues/38709
+    linked_package = @package.backend_package.links_to&.reload
     return set_remote_linkinfo unless linked_package
 
     @linkinfo = { package: linked_package, error: @package.backend_package.error }
+    # when linked_package reloads then the md5 differs and the if kicks in
+    # with the foreign_key: :package_id
     @linkinfo[:diff] = true if linked_package.backend_package.verifymd5 != @package.backend_package.verifymd5
   end
 
