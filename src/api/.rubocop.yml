@@ -117,6 +117,11 @@ RSpec/FilePath:
   Exclude:
     - 'spec/controllers/webui/package_controller/binaries.spec'
 
+# We disabled this cop because named subject isn't a better construction then
+# using let
+RSpec/NamedSubject:
+  Enabled: false
+
 # We sometimes have a lot of expectations when testing complete workflows
 RSpec/MultipleExpectations:
   Exclude:
