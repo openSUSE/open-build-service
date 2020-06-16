@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'WebuiMatcher' do
+RSpec.describe 'RoutesHelper::WebuiMatcher' do
   it 'routes html format request to Webui controllers' do
     expect(get('/')).to route_to('webui/main#index')
   end
