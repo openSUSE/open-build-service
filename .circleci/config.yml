@@ -63,6 +63,9 @@ jobs:
       - <<: *frontend_base
     steps:
       - checkout
+      - run:
+          name: Run scripts linters
+          command: make -C dist scripts_linters
       - run: *install_dependencies
       - run: *install_circle_cli
       - restore_cache:
@@ -71,7 +74,7 @@ jobs:
           name: Install jshint
           command: sudo npm install -g jshint
       - run:
-          name: Run linters
+          name: Run src/api linters
           command: cd src/api; bundle exec rake dev:lint RAILS_ENV=test
       - save_cache:
           key: v4-lint-{{ epoch }}
