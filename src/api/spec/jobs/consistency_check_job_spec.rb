@@ -4,7 +4,9 @@ RSpec.describe ConsistencyCheckJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do
+    # rubocop:disable RSpec/LetSetup
     let!(:admin_user) { create(:admin_user, login: 'Admin') }
+    # rubocop:enable  RSpec/LetSetup
 
     it { expect { ConsistencyCheckJob.new.perform }.not_to raise_error }
   end
