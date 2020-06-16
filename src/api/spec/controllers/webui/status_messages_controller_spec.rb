@@ -96,4 +96,53 @@ RSpec.describe Webui::StatusMessagesController do
       end
     end
   end
+
+  describe 'POST acknowledge' do
+    let(:message) { create(:status_message, user: admin_user) }
+
+    context 'when the status message is not yet acknowledged' do
+      before do
+        allow(RabbitmqBus).to receive(:send_to_bus)
+        login(admin_user)
+        post :acknowledge, params: { id: message.id }, xhr: true
+      end
+
+      it 'collects metrics on rabbitmq' do
+        expect(RabbitmqBus).to have_received(:send_to_bus).with('metrics', /user.acknowledged_status/)
+      end
+
+      it 'returns a success response' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'shows no error' do
+        expect(assigns[:flash]).to be_nil
+      end
+
+      it 'the message is acknowledged' do
+        expect(message.reload).to be_acknowledged
+      end
+    end
+
+    context 'when the status message is already acknowledged' do
+      before do
+        allow(RabbitmqBus).to receive(:send_to_bus)
+        login(admin_user)
+        message.acknowledge!
+        post :acknowledge, params: { id: message.id }, xhr: true
+      end
+
+      it 'returns a success response' do
+        expect(response).to have_http_status(:success)
+      end
+
+      it 'shows no error' do
+        expect(flash['error']).to be_nil
+      end
+
+      it 'does not collect any metrics' do
+        expect(RabbitmqBus).not_to have_received(:send_to_bus).with('metrics', /user.acknowledged_status/)
+      end
+    end
+  end
 end

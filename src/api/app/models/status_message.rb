@@ -28,7 +28,14 @@ class StatusMessage < ApplicationRecord
   end
 
   def acknowledge!
+    return false if acknowledged?
+
     users << User.session!
+    true
+  end
+
+  def acknowledged?
+    users.include?(User.session!)
   end
 
   def self.latest_for_current_user

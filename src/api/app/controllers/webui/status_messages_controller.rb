@@ -33,13 +33,16 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def acknowledge
     status_message = StatusMessage.find(params[:id])
-    if status_message.acknowledge!
-      RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{status_message.id}")
-    else
-      flash.now[:error] = "Could not accept status message: #{status_message.errors.full_messages.to_sentence}"
-    end
+    collect_metrics(status_message) if status_message.acknowledge!
+
     respond_to do |format|
       format.js { render controller: 'status_message', action: 'acknowledge' }
     end
+  end
+
+  private
+
+  def collect_metrics(status_message)
+    RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{status_message.id}")
   end
 end
