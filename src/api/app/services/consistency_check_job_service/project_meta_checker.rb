@@ -28,8 +28,8 @@ module ConsistencyCheckJobService
     end
 
     # transform hash to array, compare it and transform it back to hash
-    def hash_diff(a, b)
-      difference = a.size > b.size ? a.to_a - b.to_a : b.to_a - a.to_a
+    def hash_diff(array_a, array_b)
+      difference = array_a.size > array_b.size ? array_a.to_a - array_b.to_a : array_b.to_a - array_a.to_a
       Hash[*difference.flatten]
     end
   end

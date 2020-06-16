@@ -20,7 +20,7 @@ module ConsistencyCheckJobService
       dir_to_array(Xmlhash.parse(Backend::Api::Sources::Project.packages(@project.name)))
     # project disappeared ... may happen in running system
     rescue Backend::NotFoundError
-      return []
+      []
     end
   end
 end

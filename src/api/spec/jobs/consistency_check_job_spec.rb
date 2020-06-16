@@ -4,7 +4,9 @@ RSpec.describe ConsistencyCheckJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
 
   describe '#perform' do
+    # rubocop:disable RSpec/LetSetup
     let!(:admin_user) { create(:admin_user, login: 'Admin') }
+    # rubocop:enable  RSpec/LetSetup
 
     it { expect { ConsistencyCheckJob.new.perform }.not_to raise_error }
   end
@@ -14,7 +16,9 @@ RSpec.describe ConsistencyCheckJob, type: :job, vcr: true do
     let(:consistency_checkjob) { described_class.new }
 
     before do
+      # rubocop:disable RSpec/AnyInstance
       allow_any_instance_of(ConsistencyCheckJobService::ProjectMetaChecker).to receive(:diff).and_return({})
+      # rubocop:enable RSpec/AnyInstance
     end
 
     it { expect(consistency_checkjob.check_one_project(project, false)).to be_empty }
@@ -26,7 +30,9 @@ RSpec.describe ConsistencyCheckJob, type: :job, vcr: true do
     let(:error_message) { "Project meta is different in backend for super_project\n{:foo=>\"bar\"}" }
 
     before do
+      # rubocop:disable RSpec/AnyInstance
       allow_any_instance_of(ConsistencyCheckJobService::ProjectMetaChecker).to receive(:diff).and_return({ foo: 'bar' })
+      # rubocop:enable RSpec/AnyInstance
     end
 
     context 'fix = false' do

@@ -16,6 +16,8 @@ AllCops:
     - 'test/fixtures/backend/**/*'
     - 'files/*'
     - 'db/data_schema.rb'
+    # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
+    - 'app/jobs/old/consistency_check_job.rb'
 
 #################### Style ###########################
 
@@ -114,6 +116,11 @@ Rails/Exit:
 RSpec/FilePath:
   Exclude:
     - 'spec/controllers/webui/package_controller/binaries.spec'
+
+# We disabled this cop because named subject isn't a better construction than
+# using let
+RSpec/NamedSubject:
+  Enabled: false
 
 # We sometimes have a lot of expectations when testing complete workflows
 RSpec/MultipleExpectations:
@@ -371,4 +378,3 @@ Style/MethodCallWithArgsParentheses:
 
 Bundler/OrderedGems:
   Enabled: false
-

@@ -9,6 +9,7 @@ RSpec.describe ::ConsistencyCheckJobService::ProjectMetaChecker, vcr: true do
     context 'different meta in frontend and backend' do
       let(:frontend_meta) { { 'name' => 'Test', 'title' => 'test project', 'description' => {}, 'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } } }
       let(:backend_meta) { { 'name' => 'Test', 'title' => 'test project foo', 'description' => {}, 'person' => { 'userid' => 'Admin', 'role' => 'maintainer' } } }
+
       before do
         allow(project_meta_checker).to receive(:frontend_meta).and_return(frontend_meta)
         allow(project_meta_checker).to receive(:backend_meta).and_return(backend_meta)
