@@ -1,5 +1,5 @@
 class ProjectsWithDelegateRequestTargetFinder < AttribFinder
-  def initialize(relation = Project.all, namespace = 'OBS', name = 'DelegateRequestTarget')
+  def initialize(relation = Project.default_scoped, namespace = 'OBS', name = 'DelegateRequestTarget')
     super(relation, namespace, name)
   end
 end

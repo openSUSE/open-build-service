@@ -107,9 +107,10 @@ class Project < ApplicationRecord
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
   scope :local, -> { where.not('NOT ISNULL(projects.remoteurl)') }
 
-  scope :autocomplete, ->(search) { AutocompleteProjectsFinder.new(Project.all, search).call }
+  scope :autocomplete, ->(search) { AutocompleteProjectsFinder.new(Project.default_scoped, search).call }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
+  # FIXME: still generates deprecation warning
   scope :local_image_templates, lambda {
     ProjectsWithImageTemplatesFinder.new.call
   }
