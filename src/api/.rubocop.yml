@@ -117,7 +117,7 @@ RSpec/FilePath:
   Exclude:
     - 'spec/controllers/webui/package_controller/binaries.spec'
 
-# We disabled this cop because named subject isn't a better construction then
+# We disabled this cop because named subject isn't a better construction than
 # using let
 RSpec/NamedSubject:
   Enabled: false
@@ -378,4 +378,3 @@ Style/MethodCallWithArgsParentheses:
 
 Bundler/OrderedGems:
   Enabled: false
-
