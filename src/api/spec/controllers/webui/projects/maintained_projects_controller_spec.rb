@@ -4,9 +4,9 @@ require 'webmock/rspec'
 RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
   let(:admin_user) { create(:admin_user, login: 'admin') }
-  let(:openSUSE_project) { create(:project, name: 'openSUSE') }
-  let(:openSUSE_project_update) { create(:project, name: 'openSUSE_Update') }
-  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: openSUSE_project) }
+  let(:opensuse_project) { create(:project, name: 'openSUSE') }
+  let(:opensuse_project_update) { create(:project, name: 'openSUSE_Update') }
+  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project', target_project: opensuse_project) }
 
   describe 'GET #index' do
     context 'showing all projects' do
@@ -43,7 +43,7 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
     context 'successfully create' do
       before do
         login admin_user
-        post :create, params: { maintained_project: openSUSE_project_update.name,
+        post :create, params: { maintained_project: opensuse_project_update.name,
                                 project_name: maintenance_project.name }, format: :html
       end
 
@@ -56,7 +56,7 @@ RSpec.describe Webui::Projects::MaintainedProjectsController, vcr: true do
     context 'successfully destroyed' do
       before do
         login admin_user
-        delete :destroy, params: { maintained_project: openSUSE_project.name,
+        delete :destroy, params: { maintained_project: opensuse_project.name,
                                    project_name: maintenance_project.name }, format: :html
       end
 

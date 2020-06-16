@@ -69,25 +69,25 @@ RSpec.describe FullTextSearch do
     end
 
     context 'develpackage' do
-      let(:kdelibs_DEVEL_package) { create(:package, name: 'kdelibs_DEVEL_package', title: '', description: '') }
-      let!(:kdelibs) { create(:package, name: 'kdelibs', title: '', description: '', develpackage: kdelibs_DEVEL_package) }
+      let(:kdelibs_devel_package) { create(:package, name: 'kdelibs_devel_package', title: '', description: '') }
+      let!(:kdelibs) { create(:package, name: 'kdelibs', title: '', description: '', develpackage: kdelibs_devel_package) }
 
       context 'search for kdelibs' do
         let(:search_params) { { text: 'kdelibs' } }
 
-        it { expect(subject).to eql([kdelibs, kdelibs_DEVEL_package]) }
+        it { expect(subject).to eql([kdelibs, kdelibs_devel_package]) }
       end
 
       context 'search for kdelibs_devel' do
         let(:search_params) { { text: 'kdelibs_devel' } }
 
-        it { expect(subject).to eql([kdelibs_DEVEL_package]) }
+        it { expect(subject).to eql([kdelibs_devel_package]) }
       end
 
       context 'search for "kdelibs devel", using two words' do
         let(:search_params) { { text: 'kdelibs devel' } }
 
-        it { expect(subject).to eql([kdelibs_DEVEL_package]) }
+        it { expect(subject).to eql([kdelibs_devel_package]) }
       end
     end
 

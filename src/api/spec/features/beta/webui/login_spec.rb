@@ -7,14 +7,14 @@ RSpec.describe 'Login', type: :feature, js: true do
 
   it 'login with home project shows a link to it' do
     login user
-    expect(page).to have_link('Your Home Project', visible: false)
+    expect(page).to have_link('Your Home Project', visible: :all)
   end
 
   it 'login without home project shows a link to create it' do
     login admin
     user.home_project.destroy
     login user
-    expect(page).to have_link('Create Your Home Project', visible: false)
+    expect(page).to have_link('Create Your Home Project', visible: :all)
   end
 
   it 'login via login page' do
@@ -26,7 +26,7 @@ RSpec.describe 'Login', type: :feature, js: true do
       click_button('Log In')
     end
 
-    expect(page).to have_link('Profile', visible: false)
+    expect(page).to have_link('Profile', visible: :all)
   end
 
   it 'login via widget' do
@@ -41,7 +41,7 @@ RSpec.describe 'Login', type: :feature, js: true do
       click_button('Log In')
     end
 
-    expect(page).to have_link('Your Home Project', visible: false)
+    expect(page).to have_link('Your Home Project', visible: :all)
   end
 
   it 'login with wrong data' do
@@ -99,8 +99,8 @@ RSpec.describe 'Login', type: :feature, js: true do
         click_button('Log In')
       end
 
-      expect(page).to have_link('Profile', visible: false)
-      expect(page).to have_link('Logout', visible: false)
+      expect(page).to have_link('Profile', visible: :all)
+      expect(page).to have_link('Logout', visible: :all)
     end
   end
 end

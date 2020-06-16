@@ -69,11 +69,11 @@ RSpec.describe StatusMessage do
       end
 
       context 'when there is more than one announcement in her scope' do
-        let!(:status_message_for_all_users_I) { create(:status_message, severity: 'announcement', communication_scope: :all_users, created_at: 1.day.ago) }
-        let!(:status_message_for_all_users_II) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
+        let!(:first_status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users, created_at: 1.day.ago) }
+        let!(:second_status_message) { create(:status_message, severity: 'announcement', communication_scope: :all_users) }
 
         it 'returns the newest one' do
-          expect(StatusMessage.latest_for_current_user).to eq(status_message_for_all_users_II)
+          expect(StatusMessage.latest_for_current_user).to eq(second_status_message)
         end
       end
     end
