@@ -4,7 +4,7 @@ module RoutesHelper
       arch: %r{[^/]*},
       binary: %r{[^/]*},
       filename: %r{[^/]*},
-      id: %r{\d*},
+      id: /\d*/,
       login: %r{[^/]*},
       package: %r{[^/]*},
       package_name: %r{[^/]*},
