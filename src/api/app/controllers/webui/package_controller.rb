@@ -796,6 +796,10 @@ class Webui::PackageController < Webui::WebuiController
   def set_linkinfo
     return unless @package.is_link?
 
+    # FIXME: We have a rails bug here.
+    # the `.backend_package.links_to` is an association chain.
+    # Due to this bug https://github.com/rails/rails/issues/38709 `linked_package` will not get the refreshed
+    # contents and then the md5 at the bottom of this method are the same, thus no rendering the linkinfo
     linked_package = @package.backend_package.links_to
     return set_remote_linkinfo unless linked_package
 
