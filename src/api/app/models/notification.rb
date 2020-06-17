@@ -13,6 +13,9 @@ class Notification < ApplicationRecord
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
+  # FIXME: This is to avoid creating a migration for a column which we are going to drop anyway
+  attribute :type, default: ''
+
   def event
     @event ||= event_type.constantize.new(event_payload)
   end
