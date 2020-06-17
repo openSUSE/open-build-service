@@ -81,7 +81,10 @@ sub check {
   my $dep2src = $ctx->{'dep2src'};
   my $dep2pkg = $ctx->{'dep2pkg'};
   my @blocked = grep {$notready->{$dep2src->{$_}}} @$edeps;
-  return ('blocked', join(', ', @blocked)) if @blocked;
+  if (@blocked) {
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
+    return ('blocked', join(', ', @blocked));
+  }
 
   # expand like in BSSched::BuildJob::create, so that we have all used packages
   # in the meta file

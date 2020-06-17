@@ -254,13 +254,10 @@ sub check {
     }
     @blocked = () if $neverblock;
     if (@blocked) {
+      splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
       if ($ctx->{'verbose'}) {
         print "      - $packid (kiwi-product)\n";
-        if (@blocked < 10) {
-          print "        blocked for sysbuild (@blocked)\n";
-        } else {
-          print "        blocked for sysbuild (@blocked[0..9] ...)\n";
-        }
+        print "        blocked for sysbuild (@blocked)\n";
       }
       return ('blocked', join(', ', @blocked));
     }
