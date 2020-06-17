@@ -296,13 +296,10 @@ sub check {
     push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$n" unless @blocked;
   }
   if (@blocked) {
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
-      if (@blocked < 11) {
-	print "        blocked (@blocked)\n";
-      } else {
-	print "        blocked (@blocked[0..9] ...)\n";
-      }
+      print "        blocked (@blocked)\n";
     }
     return ('blocked', join(', ', @blocked));
   }

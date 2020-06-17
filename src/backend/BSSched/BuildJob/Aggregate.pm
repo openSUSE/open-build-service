@@ -202,12 +202,9 @@ sub check {
     return ('broken', $error);
   }
   if (@blocked) {
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     print "      - $packid (aggregate)\n";
-    if (@blocked < 11) {
-      print "        blocked (@blocked)\n";
-    } else {
-      print "        blocked (@blocked[0..9] ...)\n";
-    }
+    print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
   my @new_meta;

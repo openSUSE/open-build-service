@@ -108,6 +108,7 @@ sub check {
       print "      - $packid ($buildtype)\n";
       print "        blocked by cycle builds ($blocked[0]...)\n";
     }
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     return ('blocked', join(', ', @blocked));
   }
   # prune cycle packages from blocked
@@ -119,6 +120,7 @@ sub check {
   if (@blocked) {
     # print "      - $packid ($buildtype)\n";
     # print "        blocked\n";
+    splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     return ('blocked', join(', ', @blocked));
   }
   my $reason;
