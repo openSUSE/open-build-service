@@ -1,5 +1,5 @@
 class CleanupNotifications < ApplicationJob
   def perform
-    Notification::RssFeedItem.cleanup
+    Notification.cleanup
   end
 end
