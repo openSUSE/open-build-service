@@ -4,7 +4,7 @@
   .bg-light
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
       %li.nav-item
-        - cache "#{User.session!.cache_key}-reviews-in" do
+        - cache "#{User.session!.cache_key_with_version}-reviews-in" do
           %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.session!} has to review" }
             Incoming Reviews
             %span.badge.badge-primary
@@ -19,7 +19,7 @@
   .bg-light
     %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
       %li.nav-item
-        - cache "#{User.session!.cache_key}-requests-in" do
+        - cache "#{User.session!.cache_key_with_version}-requests-in" do
           %a.nav-link.text-nowrap.active#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.session!} has to merge",
             'data-toggle': 'tab', 'aria-controls': 'requests-in-tab', 'aria-selected': 'true', role: 'tab' }
             Incoming Requests

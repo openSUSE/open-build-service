@@ -184,7 +184,7 @@ class BinaryRelease < ApplicationRecord
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch("xml_binary_release_#{cache_key}") { render_xml }
+    Rails.cache.fetch("xml_binary_release_#{cache_key_with_version}") { render_xml }
   end
 
   def identical_to?(binary_hash)
