@@ -4,15 +4,6 @@ RSpec.describe Notification do
   let(:payload) { { comment: 'SuperFakeComment', requestid: 1 } }
   let(:delete_package_event) { Event::DeletePackage.new(payload) }
 
-  describe '.cleanup' do
-    let!(:stale_notification) { create(:rss_notification, stale: true) }
-    let!(:new_notification) { create(:rss_notification) }
-
-    subject { Notification.cleanup }
-
-    it { expect { subject }.to change(Notification, :count).by(-1) }
-  end
-
   describe '#event' do
     subject { create(:rss_notification, event_type: 'Event::DeletePackage', event_payload: payload).event }
 

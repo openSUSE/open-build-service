@@ -20,10 +20,6 @@ class Notification < ApplicationRecord
     @event ||= event_type.constantize.new(event_payload)
   end
 
-  def self.cleanup
-    NotificationsFinder.new.stale.delete_all
-  end
-
   def user_active?
     !subscriber.away?
   end
