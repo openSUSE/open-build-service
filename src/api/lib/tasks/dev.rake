@@ -33,7 +33,8 @@ namespace :dev do
       Rake::Task['db:version'].invoke
     rescue
       Rake::Task['db:create'].invoke
-      Rake::Task['db:setup'].invoke
+      Rake::Task['db:structure:load'].invoke
+      Rake::Task['db:seed'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'
         Rake::Task['db:fixtures:load'].invoke
@@ -257,7 +258,8 @@ namespace :dev do
       Rails.cache.clear
       Rake::Task['db:drop'].invoke
       Rake::Task['db:create'].invoke
-      Rake::Task['db:setup'].invoke
+      Rake::Task['db:structure:load'].invoke
+      Rake::Task['db:seed'].invoke
 
       # enable responsive_ux as default
       Flipper[:responsive_ux].enable

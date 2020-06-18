@@ -14,7 +14,7 @@ bin/rake db:migrate:with_data db:structure:dump db:drop
 
 # entire test suite
 export RAILS_ENV=test
-bin/rake db:create db:setup
+bin/rake db:create db:structure:load db:seed
 
 bin/rails assets:precompile
 
