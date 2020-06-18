@@ -51,7 +51,7 @@ This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
 
 %define rake_version 12.3.3
-%define rack_version 2.0.9
+%define rack_version 2.1.4
 
 %package -n obs-api-deps
 Summary:        Holding dependencies required to run the OBS frontend
