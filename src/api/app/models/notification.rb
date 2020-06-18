@@ -15,6 +15,8 @@ class Notification < ApplicationRecord
 
   # FIXME: This is to avoid creating a migration for a column which we are going to drop anyway
   attribute :type, default: ''
+  # FIXME: Remove this once the column is removed in the database
+  self.ignored_columns = ['type']
 
   def event
     @event ||= event_type.constantize.new(event_payload)
