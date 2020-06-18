@@ -1,0 +1,39 @@
+.card
+  .card-body
+    - if notifications.empty?
+      %p
+        - case params[:type]
+        - when 'reviews', 'comments', 'requests'
+          There are no notifications for this filter
+        - when 'done'
+          Mark notifications as "Done" and they'll appear here
+        - else
+          There are no notifications, but there's a world of opportunities!
+    - else
+      .text-center
+        %span.ml-3= page_entries_info notifications, entry_name: 'notification'
+        = link_to_all unless notifications.total_pages == 1 && params['show_all'].nil?
+
+      .list-group.list-group-flush.mt-3
+        - notifications.each do |n|
+          - notification = NotificationPresenter.new(n)
+          .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+            .content
+              .text-nowrap
+                %span.badge.badge-secondary= notification.notification_badge
+                %small.text-muted= time_ago_in_words(notification.created_at)
+              = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
+              %p.text-muted= notification.excerpt
+            - unless params[:type] == 'read'
+              .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                = link_to(my_notification_path(id: notification, type: params[:type], project: params[:project]),
+                        method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Read"', remote: true) do
+                  %i.fas.fa-check
+            - unless notification.unread?
+              .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
+                = link_to(my_notification_path(id: notification, type: params[:type], project: params[:project]),
+                        method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Unread"', remote: true) do
+                  %i.fas.fa-undo
+
+      = paginate notifications, views_prefix: 'webui', window: 2
+
