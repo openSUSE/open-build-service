@@ -36,6 +36,11 @@ module Backend
       def self.packages_for_project(project_name)
         http_get('/search/package', params: { match: "@project='#{project_name}'" })
       end
+
+      def self.projects(projects)
+        xpath = projects.collect { |project| "@name='#{project}'" }.join(' or ')
+        http_get('/search/project', params: { match: xpath }) if xpath.present?
+      end
     end
   end
 end
