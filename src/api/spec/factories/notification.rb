@@ -41,29 +41,9 @@ FactoryBot.define do
 
   factory :rss_notification, parent: :notification do
     rss { true }
-
-    transient do
-      stale { false }
-    end
-    after(:create) do |notification, evaluator|
-      if evaluator.stale
-        notification.created_at = 6.months.ago
-        notification.save
-      end
-    end
   end
 
   factory :web_notification, parent: :notification do
     web { true }
-
-    transient do
-      stale { false }
-    end
-    after(:create) do |notification, evaluator|
-      if evaluator.stale
-        notification.created_at = 6.months.ago
-        notification.save
-      end
-    end
   end
 end
