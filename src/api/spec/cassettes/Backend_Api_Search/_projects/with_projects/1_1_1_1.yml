@@ -1,0 +1,119 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_0/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_0">
+          <title>The Painted Veil</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '98'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_0">
+          <title>The Painted Veil</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 Jun 2020 09:53:57 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foo_1/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_1">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo_1">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 18 Jun 2020 09:53:57 GMT
+- request:
+    method: get
+    uri: http://backend:5352/search/project?match=@name='foo_0'%20or%20@name='foo_1'
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '246'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+          <project name="foo_0">
+            <title>The Painted Veil</title>
+            <description></description>
+          </project>
+          <project name="foo_1">
+            <title>Butter In a Lordly Dish</title>
+            <description></description>
+          </project>
+        </collection>
+  recorded_at: Thu, 18 Jun 2020 09:53:57 GMT
+recorded_with: VCR 6.0.0
