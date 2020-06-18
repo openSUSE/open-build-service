@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe 'APIMatcher' do
+RSpec.describe 'RoutesHelper::APIMatcher' do
   it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
 
   context '/public and /about path use API routes with html format' do

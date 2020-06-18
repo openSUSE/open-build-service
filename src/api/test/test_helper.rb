@@ -167,8 +167,7 @@ module ActionDispatch
 
       def process(http_method, path, params: nil, headers: nil, env: nil, xhr: false, as: nil)
         CONFIG['global_write_through'] = true
-        # Hack to pass the APIMatcher (config/routes.rb) without
-        # explicitly setting format: xml
+        # Hack to pass the RoutesHelper::APIMatcher without explicitly setting format: xml
         self.accept = 'text/xml,application/xml'
 
         real_process(http_method, path, params: params, headers: add_auth(headers), env: env, xhr: xhr, as: as)

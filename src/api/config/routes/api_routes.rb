@@ -1,7 +1,7 @@
 OBSApi::Application.routes.draw do
-  cons = RoutesConstraints::CONS
+  cons = RoutesHelper::RoutesConstraints::CONS
 
-  constraints(APIMatcher) do
+  constraints(RoutesHelper::APIMatcher) do
     get '/' => 'main#index'
 
     resource :configuration, only: [:show, :update, :schedulers]

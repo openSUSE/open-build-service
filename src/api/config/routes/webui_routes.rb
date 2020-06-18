@@ -1,7 +1,7 @@
 OBSApi::Application.routes.draw do
-  cons = RoutesConstraints::CONS
+  cons = RoutesHelper::RoutesConstraints::CONS
 
-  constraints(WebuiMatcher) do
+  constraints(RoutesHelper::WebuiMatcher) do
     root 'webui/main#index'
 
     resources :status_messages, only: [:new, :create, :destroy], controller: 'webui/status_messages'
