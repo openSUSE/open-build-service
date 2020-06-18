@@ -1,6 +1,5 @@
 FactoryBot.define do
   factory :notification do
-    type { 'Notification' }
     event_type { 'Event::RequestStatechange' }
     event_payload { { fake: 'payload' } }
     subscription_receiver_role { 'owner' }

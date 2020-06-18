@@ -13,6 +13,9 @@ class Notification < ApplicationRecord
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
+  # FIXME: Remove this once the column is removed in the database
+  self.ignored_columns = ['type']
+
   def event
     @event ||= event_type.constantize.new(event_payload)
   end
