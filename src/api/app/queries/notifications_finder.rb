@@ -44,8 +44,4 @@ class NotificationsFinder
   def for_project_name(project_name)
     unread.joins(:projects).where(projects: { name: project_name })
   end
-
-  def stale
-    @relation.where('created_at < ?', 3.months.ago)
-  end
 end
