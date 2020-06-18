@@ -1,6 +1,6 @@
 FactoryBot.define do
-  factory :notification, class: 'Notification::RssFeedItem' do
-    type { 'Notification::RssFeedItem' }
+  factory :notification do
+    type { 'Notification' }
     event_type { 'Event::RequestStatechange' }
     event_payload { { fake: 'payload' } }
     subscription_receiver_role { 'owner' }
@@ -39,7 +39,7 @@ FactoryBot.define do
     end
   end
 
-  factory :rss_notification, parent: :notification, class: 'Notification::RssFeedItem' do
+  factory :rss_notification, parent: :notification do
     rss { true }
 
     transient do
@@ -53,7 +53,7 @@ FactoryBot.define do
     end
   end
 
-  factory :web_notification, parent: :notification, class: 'Notification::RssFeedItem' do
+  factory :web_notification, parent: :notification do
     web { true }
 
     transient do

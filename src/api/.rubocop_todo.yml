@@ -939,7 +939,6 @@ RSpec/NestedGroups:
     - 'spec/models/kiwi/image_spec.rb'
     - 'spec/models/kiwi/repository_spec.rb'
     - 'spec/models/local_build_result/for_package_spec.rb'
-    - 'spec/models/notification/rss_feed_item_spec.rb'
     - 'spec/models/owner_search_spec.rb'
     - 'spec/models/package_spec.rb'
     - 'spec/models/project/image_template_spec.rb'
