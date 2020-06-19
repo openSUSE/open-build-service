@@ -173,7 +173,7 @@ group :development, :test do
   # Use Puma as the app server
   gem 'puma'
   # to drive headless chrome
-  gem 'selenium-webdriver'
+  gem 'apparition'
 end
 
 group :development do

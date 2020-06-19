@@ -78,6 +78,9 @@ GEM
       activerecord (>= 3.2, < 7.0)
       rake (>= 10.4, < 14.0)
     ansi (1.5.0)
+    apparition (0.5.0)
+      capybara (~> 3.13, < 4)
+      websocket-driver (>= 0.6.5)
     ast (2.4.1)
     autoprefixer-rails (9.8.1)
       execjs
@@ -108,7 +111,6 @@ GEM
     capybara_minitest_spec (1.0.7)
       capybara (>= 2)
       minitest (>= 4)
-    childprocess (3.0.0)
     clockwork (2.0.4)
       activesupport
       tzinfo
@@ -359,7 +361,6 @@ GEM
     ruby-progressbar (1.10.1)
     ruby_parser (3.14.2)
       sexp_processor (~> 4.9)
-    rubyzip (2.3.0)
     safe_yaml (1.0.5)
     sassc (2.4.0)
       ffi (~> 1.9)
@@ -369,9 +370,6 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
-    selenium-webdriver (3.142.7)
-      childprocess (>= 0.5, < 4.0)
-      rubyzip (>= 1.2.2)
     sexp_processor (4.15.0)
     shoulda-matchers (4.3.0)
       activesupport (>= 4.2.0)
@@ -448,6 +446,7 @@ DEPENDENCIES
   airbrake-ruby
   ajax-datatables-rails
   annotate
+  apparition
   awesome_print
   bcrypt
   bigdecimal
@@ -514,7 +513,6 @@ DEPENDENCIES
   rubocop-rspec
   ruby-ldap
   sassc-rails
-  selenium-webdriver
   shoulda-matchers (~> 4.0)
   simplecov
   single_test
