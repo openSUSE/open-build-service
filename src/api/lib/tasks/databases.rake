@@ -85,8 +85,8 @@ namespace :db do
       puts 'Dropping database...'
       Rake::Task['db:drop'].invoke
       Rake::Task['db:create'].invoke
-      puts 'Running rails db:migrate:with_data'
-      Rake::Task['db:migrate:with_data'].invoke
+      puts 'Running rails db:migrate'
+      Rake::Task['db:migrate'].invoke
       normalize_structure
       puts 'Diffing the db/structure.sql'
       sh %(git diff --exit-code db/structure.sql) do |ok, _|
