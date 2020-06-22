@@ -280,7 +280,6 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     login user
     visit package_show_path(package: package, project: user.home_project)
     click_menu_link('Actions', 'Edit Package')
-    wait_for_ajax
 
     within('#edit_package_details') do
       fill_in('package_details[title]', with: 'test title')
