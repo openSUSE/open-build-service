@@ -25,7 +25,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       package
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: package.name
       click_button 'Search'
@@ -40,7 +39,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       apache2_subproject
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache2.name
       click_button 'Advanced'
@@ -60,7 +58,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       another_package
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'goal'
       click_button 'Advanced'
@@ -81,7 +78,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       apache2
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
@@ -101,7 +97,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       apache2
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
@@ -121,7 +116,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       apache2
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'fooo'
       click_button 'Search'
@@ -137,7 +131,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       apache2
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'awesome'
       click_button 'Advanced'
@@ -157,7 +150,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       russian_project
 
       visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: 'вокябюч'
       click_button 'Advanced'
@@ -177,7 +169,6 @@ RSpec.describe 'Search', type: :feature, js: true do
         create(:relationship_project_user, project: hidden_project, user: user)
 
         visit search_path
-        page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
@@ -198,7 +189,6 @@ RSpec.describe 'Search', type: :feature, js: true do
         login admin_user
 
         visit search_path
-        page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
         fill_in 'search_input', with: 'hidden'
         click_button 'Advanced'
@@ -243,7 +233,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       login(admin_user)
 
       visit search_owner_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
       click_button 'Search'
@@ -263,7 +252,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       login admin_user
 
       visit search_owner_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
 
@@ -282,7 +270,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       login admin_user
 
       visit search_owner_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
       click_button 'Search'
@@ -297,7 +284,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       login admin_user
 
       visit search_owner_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
 
       fill_in 'search_input', with: apache_package.name
       click_button 'Search'
