@@ -22,7 +22,7 @@ services:
     image: registry.opensuse.org/obs/server/unstable/container/leap151/containers/openbuildservice/backend
     volumes:
       - .:/obs
-    privileged: true 
+    privileged: true
     depends_on:
       - backend
     command: /obs/contrib/start_development_worker
@@ -32,6 +32,8 @@ services:
     build:
       dockerfile: docker-files/Dockerfile
       context: src/api
+      args:
+        CONTAINER_USERID: 1000
     volumes:
       - .:/obs
     ports:
