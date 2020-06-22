@@ -1,5 +1,3 @@
-require 'api_error'
-
 class ConsistencyCheckJob < ApplicationJob
   queue_as :consistency_check
 
@@ -44,10 +42,14 @@ class ConsistencyCheckJob < ApplicationJob
       project.destroy if fix
     end
     package_existence_consistency_check(project, fix)
-    @errors.flatten.reject(&:empty?).join("\n")
+    errors
   end
 
   private
+
+  def errors
+    @errors.flatten.reject(&:empty?)
+  end
 
   def initialize
     super
@@ -57,11 +59,11 @@ class ConsistencyCheckJob < ApplicationJob
   def _perform(fix = false)
     project_existence_consistency_check(fix)
     Project.local.find_each(batch_size: 100) { |project| check_one_project(project, fix) }
-    send_error_email unless @errors.flatten.reject(&:empty?).empty?
+    send_error_email unless errors.empty?
   end
 
   def send_error_email
-    AdminMailer.error(@errors.prepend('Fixing the following errors:').flatten.reject(&:empty?).join("\n")).deliver_now
+    ConsistencyMailer.errors(errors).deliver_now
   end
 
   def project_meta_check(project, fix = false)

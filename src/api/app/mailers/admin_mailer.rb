@@ -35,14 +35,16 @@ class AdminMailer < ActionMailer::Base
     # issues to the admins in webui and they can work on them
     # the problems should get updated or removed when we detect changes.
 
-    # find all admins. No opt-out atm
-    r = Role.find_by_title('Admin')
-    admins = RolesUser.where(role: r).map { |ru| ru.user.email }
-
     mail(to: admins,
          subject: "OBS Administrator #{level}",
          from: ::Configuration.admin_email,
          date: Time.now,
          body: message)
+  end
+
+  def admins
+    # find all admins. No opt-out atm
+    r = Role.find_by_title('Admin')
+    RolesUser.where(role: r).map { |ru| ru.user.email }
   end
 end
