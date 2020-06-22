@@ -819,7 +819,7 @@ CREATE TABLE `messages` (
 
 CREATE TABLE `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `type` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
   `event_type` varchar(255) CHARACTER SET utf8 NOT NULL,
   `event_payload` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `subscription_receiver_role` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -1507,6 +1507,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200522092917'),
 ('20200522145733'),
 ('20200522151615'),
-('20200601083057');
+('20200601083057'),
+('20200618152542');
 
 
