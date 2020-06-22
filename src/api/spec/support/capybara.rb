@@ -20,7 +20,7 @@ end
 
 Capybara.register_driver :mobile do |app|
   options = {
-    window_size: [360, 667],
+    window_size: [360, 1024],
     js_errors: false,
     headless: true,
     browser_options: { 'disable-gpu': true, 'no-sandbox': true }
