@@ -1,0 +1,7 @@
+%ul.list-inline.d-flex.flex-row-reverse.avatars.m-0
+  - if avatar_objects.size > 6
+    %li.list-inline-item
+      - hidden = (avatar_objects.size - 6)
+      %span.rounded-circle.bg-light.border.border-gray-400.avatars-counter{ title: "#{hidden} more users involved" }
+        +#{hidden}
+  = render partial: 'notification_avatar', collection: avatar_objects.first(6).reverse, as: :avatar_object

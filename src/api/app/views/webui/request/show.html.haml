@@ -40,7 +40,7 @@
       = render partial: 'sourcediff_tab', collection: @actions, as: :action, locals: { bs_request: @bs_request }
 .row
   .col-md-8
-    .card.mb-3
+    .card.mb-3#comments-list
       = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request }
     - if @can_handle_request || (@can_add_reviews && @my_open_reviews.any?)
       .card.mb-3

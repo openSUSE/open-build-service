@@ -16,6 +16,21 @@ module Webui::NotificationHelper
     end
   end
 
+  def request_badge_color(state)
+    case state
+    when :review, :new
+      'secondary'
+    when :declined, :revoke
+      'danger'
+    when :superseded
+      'warning'
+    when :accepted
+      'success'
+    else
+      'dark'
+    end
+  end
+
   private
 
   def filter_css(filter_item)
