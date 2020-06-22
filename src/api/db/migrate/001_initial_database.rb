@@ -269,6 +269,8 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
       t.string   'admin_email',                                     default: 'unconfigured@openbuildservice.org'
     end
 
+    create_table :data_migrations, primary_key: 'version', id: :string
+
     create_table 'db_project_types', force: :cascade, options: 'ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin' do |t|
       t.string 'name', null: false, collation: 'utf8_general_ci'
     end
