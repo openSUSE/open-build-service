@@ -9,17 +9,10 @@ module Webui::NotificationHelper
     end
   end
 
-  def filter_by_type_link(link_text, filter_item)
-    link_to(link_text, my_notifications_path(filter_item), class: filter_css(filter_item))
-  end
-
-  def filter_by_project_link(link_text, amount, filter_item)
-    badge_color = notification_filter_active?(filter_item) ? 'badge-light' : 'badge-primary'
+  def filter_notification_link(link_text, amount, filter_item)
     link_to(my_notifications_path(filter_item), class: filter_css(filter_item)) do
-      capture do
-        concat(link_text)
-        concat(tag.span(amount, class: "badge #{badge_color} align-text-top ml-2"))
-      end
+      concat(link_text)
+      concat(tag.span(amount, class: "badge #{badge_color(filter_item)} align-text-top ml-2")) if amount && amount.positive?
     end
   end
 
@@ -39,5 +32,9 @@ module Webui::NotificationHelper
     else
       filter_item[:type] == 'unread'
     end
+  end
+
+  def badge_color(filter_item)
+    notification_filter_active?(filter_item) ? 'badge-light' : 'badge-primary'
   end
 end

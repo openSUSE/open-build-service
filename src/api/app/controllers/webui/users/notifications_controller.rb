@@ -14,6 +14,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                      end
 
     @projects_for_filter = projects_for_filter
+    @notifications_count = notifications_count
 
     @notifications = params['show_all'] ? show_all : @notifications.page(params[:page])
   end
@@ -61,5 +62,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
            .where(notifications: { subscriber: User.session, delivered: false, web: true })
            .order('name desc').group(:name).count # this query returns a sorted-by-name hash like { "home:b" => 1, "home:a" => 3  }
            .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
+  end
+
+  def notifications_count
+    counted_notifications = NotificationsFinder.new(User.session.notifications.for_web).unread.group(:notifiable_type).count
+    counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 end
