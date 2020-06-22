@@ -8,15 +8,15 @@ Capybara.javascript_driver = :desktop
 # Attempt to click the associated label element if a checkbox/radio button are non-visible (This is especially useful for Bootstrap custom controls)
 Capybara.automatic_label_click = true
 
+# rubocop:disable Style/HashSyntax
 Capybara.register_driver :desktop do |app|
-  options = { window_size: [1280, 1024] }
-  Capybara::Apparition::Driver.new(app, options)
+  Capybara::Apparition::Driver.new(app, :window_size => [1280, 1024], :js_errors => false)
 end
 
 Capybara.register_driver :mobile do |app|
-  options = { window_size: [320, 568] }
-  Capybara::Apparition::Driver.new(app, options)
+  Capybara::Apparition::Driver.new(app, :window_size => [320, 568], :js_errors => false)
 end
+# rubocop:enable Style/HashSyntax
 
 # Automatically save the page a test fails
 RSpec.configure do |config|
