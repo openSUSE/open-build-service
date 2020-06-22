@@ -30,8 +30,6 @@ RSpec.describe 'Admin user configuration page', type: :feature, js: true do
     within(find('td', text: /#{user.realname}/).ancestor('tr')) do
       expect(page).to have_css('td', text: 'confirmed')
       page.find('a[data-method=delete]').click
-      # Accept the confirmation dialog
-      page.driver.browser.switch_to.alert.accept
     end
     expect(page).to have_css('td', text: 'deleted')
   end
