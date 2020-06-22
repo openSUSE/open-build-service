@@ -310,7 +310,9 @@ workflows:
             - checkout_code
       - spider:
           requires:
-            - checkout_code
+            - rspec
+            - minitest
+            - feature
       - coverage:
           requires:
             - rspec
