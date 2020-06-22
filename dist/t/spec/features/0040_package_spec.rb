@@ -47,7 +47,9 @@ RSpec.describe "Package" do
     within("div#personal-navigation") do
       click_link('Home Project')
     end
-    click_link('build')
+    within("table#packages-table") do
+      click_link('build')
+    end
     click_link('Delete package')
     expect(page).to have_content('Do you really want to delete this package?')
     click_button('Delete')
