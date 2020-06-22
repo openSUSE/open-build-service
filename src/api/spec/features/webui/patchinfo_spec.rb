@@ -7,24 +7,6 @@ RSpec.describe 'Patchinfo', type: :feature, js: true do
   let(:project) { user.home_project }
 
   describe 'create Patchinfo' do
-    it 'form incomplete' do
-      login user
-      visit project_show_path(user.home_project)
-      expect(page).to have_link('Create Patchinfo')
-      click_link('Create Patchinfo')
-      expect(page).to have_current_path(edit_patchinfo_path(project: project, package: 'patchinfo'))
-      expect(page).to have_text("Edit Patchinfo for #{project.name}")
-      fill_in 'patchinfo[summary]', with: 'A' * 9
-      fill_in 'patchinfo[description]', with: 'A' * 30
-      click_button 'Save'
-      # We check this field using 'minlength' HTML5 control. It opens a tooltip and the error message inside can vary depending on the browser,
-      # so we just check its presence and not its content like follows.
-      message = page.find('#patchinfo_summary').native.attribute('validationMessage')
-      expect(message).not_to be_empty
-      message = page.find('#patchinfo_description').native.attribute('validationMessage')
-      expect(message).not_to be_empty
-    end
-
     it 'form complete' do
       login user
       visit project_show_path(user.home_project)
