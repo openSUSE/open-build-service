@@ -174,8 +174,6 @@ group :development, :test do
   gem 'puma'
   # to drive headless chrome
   gem 'selenium-webdriver'
-  # scan for security vulnerability (circleci only, do not touch)
-  # BRAKEMAN
 end
 
 group :development do
