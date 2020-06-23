@@ -57,7 +57,7 @@ bundle --local --path %_libdir/obs-api/
 ./script/prepare_spec_tests.sh
 
 export RAILS_ENV=test
-bin/rake db:create db:structure:load db:seed
+bin/rake db:setup
 bin/rails assets:precompile
 
 bin/rspec -f d --exclude-pattern 'spec/db/**/*_spec.rb'
