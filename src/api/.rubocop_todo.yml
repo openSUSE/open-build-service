@@ -1032,7 +1032,6 @@ Rails/AssertNot:
     - 'test/unit/bs_request_test.rb'
     - 'test/unit/package_test.rb'
     - 'test/unit/project_test.rb'
-    - 'test/unit/role_test.rb'
     - 'test/unit/user_test.rb'
 
 # Offense count: 60
