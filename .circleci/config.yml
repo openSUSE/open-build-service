@@ -40,7 +40,7 @@ aliases:
 
   - &create_test_db
     name: Create database
-    command: cd src/api; bundle exec rake db:create db:structure:load db:seed RAILS_ENV=test
+    command: cd src/api; bundle exec rake db:setup RAILS_ENV=test
 
   - &bootstrap_old_test_suite
     name: Setup application
