@@ -1,17 +1,18 @@
 require 'capybara'
+require 'capybara/apparition'
 require 'capybara/dsl'
-require 'selenium-webdriver'
 require 'socket'
 
-Selenium::WebDriver::Chrome::Service.driver_path = '/usr/lib64/chromium/chromedriver'
-
 Capybara.register_driver :selenium_chrome_headless do |app|
-  browser_options = ::Selenium::WebDriver::Chrome::Options.new
-  browser_options.args << '--headless'
-  browser_options.args << '--no-sandbox'
-  browser_options.args << '--allow-insecure-localhost'
-  browser_options.add_option('w3c', false)
-  Capybara::Selenium::Driver.new(app, browser: :chrome, options: browser_options)
+  options = {
+    window_size:         [1280, 1024],
+    js_errors:           false,
+    headless:            true,
+    ignore_https_errors: true,
+    w3c:                 false,
+    browser_options:     { 'disable-gpu': true, 'no-sandbox': true }
+  }
+  Capybara::Apparition::Driver.new(app, options)
 end
 
 Capybara.default_driver = :selenium_chrome_headless
