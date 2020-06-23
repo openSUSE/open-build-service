@@ -1763,7 +1763,16 @@ sub getprojpack {
 
 sub getprojectlist {
   my ($cgi) = @_;
-  my @projects = findprojects($cgi->{'deleted'});
+  my @projects;
+  my %projids = map {$_ => 1} @{$cgi->{'project'} || []};
+  if (%projids && !$cgi->{'deleted'}) {
+    for my $projid (sort keys %projids) {
+      push @projects, $projid if -s "$projectsdir/$projid.xml";
+    }
+  } else {
+    @projects = findprojects($cgi->{'deleted'});
+    @projects = grep {$projids{$_}} @projects if %projids;
+  }
   @projects = map {{'name' => $_}} @projects;
   return ({'entry' => \@projects}, $BSXML::dir);
 }
@@ -6837,7 +6846,7 @@ my $dispatches = [
   'POST:/source cmd: *:*' => \&unknowncmd,
 
   # /source name space: manage project and package data
-  '/source deleted:bool?' => \&getprojectlist,
+  '/source deleted:bool? project*' => \&getprojectlist,
 
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
