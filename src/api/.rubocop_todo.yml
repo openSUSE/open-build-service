@@ -1075,7 +1075,6 @@ Rails/FilePath:
     - 'db/migrate/20150127135426_add_channel_index.rb'
     - 'lib/tasks/databases.rake'
     - 'lib/tasks/extract.rake'
-    - 'script/check_database'
     - 'script/start_test_backend'
     - 'spec/cassette_rewinder.rb'
     - 'spec/lib/influx_db/obs/middleware/backend_subscriber_spec.rb'
