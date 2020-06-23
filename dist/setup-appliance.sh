@@ -277,7 +277,7 @@ function prepare_database_setup {
   if [ -n "$RUN_INITIAL_SETUP" ]; then
     logline "Initialize OBS api database (first time only)"
     cd $apidir
-    RAKE_COMMANDS="db:create db:setup writeconfiguration"
+    RAKE_COMMANDS="db:create db:structure:load db:seed writeconfiguration"
   else
     logline "Migrate OBS api database"
     cd $apidir

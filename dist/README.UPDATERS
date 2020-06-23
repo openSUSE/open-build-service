@@ -12,7 +12,7 @@ Note: Update from OBS 2.5 should also work, but it is not fully tested.
 
 
   1) The format of the OBS options.yml is now distinguishing between Rails environments.
-     Please run following commands: 
+     Please run following commands:
 
          cd /srv/www/obs/api/
          RAILS_ENV=production bin/rake migrate_options_yml
@@ -416,7 +416,7 @@ For Updaters to OBS 2.1 from OBS 2.0
 
    * populate the database
       # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rails db:setup
+      # sudo RAILS_ENV="production" rails db:structure:load db:seed
       # sudo chown lighttpd.lighttpd log/*
 
 
