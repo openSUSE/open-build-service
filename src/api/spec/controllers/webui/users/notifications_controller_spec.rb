@@ -97,13 +97,13 @@ RSpec.describe Webui::Users::NotificationsController do
   describe 'PUT #update' do
     context 'when a user marks one of his unread notifications as read' do
       subject! do
-        put :update, params: { id: state_change_notification.id, user_login: user_to_log_in.login }
+        put :update, params: { id: state_change_notification.id, user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:user_to_log_in) { user }
 
-      it 'redirects back' do
-        expect(response).to redirect_to(root_path)
+      it 'succeeds' do
+        expect(response).to have_http_status(:ok)
       end
 
       it 'flashes a success message' do
@@ -117,14 +117,14 @@ RSpec.describe Webui::Users::NotificationsController do
 
     context 'when a user marks one of his read notifications as unread' do
       subject! do
-        put :update, params: { id: read_notification.id, user_login: user_to_log_in.login }
+        put :update, params: { id: read_notification.id, user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
       let(:user_to_log_in) { user }
 
-      it 'redirects back' do
-        expect(response).to redirect_to(root_path)
+      it 'succeeds' do
+        expect(response).to have_http_status(:ok)
       end
 
       it 'flashes a success message' do

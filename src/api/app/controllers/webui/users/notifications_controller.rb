@@ -6,17 +6,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :check_param_type, :check_param_project, only: :index
 
   def index
-    notifications_for_subscribed_user = User.session.notifications.for_web
-    @notifications = if params[:project]
-                       NotificationsFinder.new(notifications_for_subscribed_user).for_project_name(params[:project])
-                     else
-                       NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
-                     end
-
+    @notifications = fetch_notifications
     @projects_for_filter = projects_for_filter
     @notifications_count = notifications_count
-
-    @notifications = params['show_all'] ? show_all : @notifications.page(params[:page])
   end
 
   def update
@@ -28,7 +20,16 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     else
       flash[:error] = "Couldn't mark the notification as #{notification.unread? ? 'read' : 'unread'}"
     end
-    redirect_back(fallback_location: root_path)
+
+    respond_to do |format|
+      format.js do
+        render partial: 'update', locals: {
+          notifications: fetch_notifications,
+          projects_for_filter: projects_for_filter,
+          notifications_count: notifications_count
+        }
+      end
+    end
   end
 
   private
@@ -67,5 +68,15 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   def notifications_count
     counted_notifications = NotificationsFinder.new(User.session.notifications.for_web).unread.group(:notifiable_type).count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
+  end
+
+  def fetch_notifications
+    notifications_for_subscribed_user = User.session.notifications.for_web
+    notifications = if params[:project]
+                      NotificationsFinder.new(notifications_for_subscribed_user).for_project_name(params[:project])
+                    else
+                      NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
+                    end
+    params['show_all'] ? show_all : notifications.page(params[:page])
   end
 end
