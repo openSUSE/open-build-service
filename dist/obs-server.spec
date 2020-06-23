@@ -892,7 +892,6 @@ usermod -a -G docker obsservicerun
 %dir %{__obs_api_prefix}/config/environments
 %dir %{__obs_api_prefix}/files
 %dir %{__obs_api_prefix}/db
-%{__obs_api_prefix}/db/checker.rb
 %{__obs_api_prefix}/Gemfile
 %verify(not mtime) %{__obs_api_prefix}/last_deploy
 %{__obs_api_prefix}/Gemfile.lock

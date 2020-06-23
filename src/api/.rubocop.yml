@@ -192,7 +192,6 @@ RSpec/MultipleExpectations:
     - 'spec/models/user_spec.rb'
     - 'spec/requests/package_undelete_spec.rb'
     - 'spec/routing/api_matcher_spec.rb'
-    - 'spec/script/db/checker_spec.rb'
     - 'spec/services/notification_creator_spec.rb'
     - 'spec/support/shared_examples/a_bs_requests_data_table_controller.rb'
     - 'spec/support/shared_examples/a_bs_requests_data_table_controller_with_state_and_type_options.rb'
