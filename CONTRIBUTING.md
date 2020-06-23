@@ -19,10 +19,10 @@ Read this guide on how to do that.
 
 **Prerequisites**: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests)
 
-If you want to contribute code, fork the repository and make a pull-request
-with your changes. A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service)
-will review your pull-request. And if the pull request gets a positive review
-the reviewer will merge it.
+If you want to contribute code, check the list of issues that we think are
+[easy to start with](https://github.com/openSUSE/open-build-service/contribute).
+
+Then fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
 
 But first, please bear in mind the following guidelines to create the perfect pull request:
 
@@ -163,13 +163,6 @@ In order to merge a pull request, it needs:
 
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
 * Enter your issue and a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will label and prioritize it for you.
-
-We are using priority labels from **P1** to **P4** for our issues. So if you are a member of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) you are supposed to
-
-* P1: Urgent - Fix this next even if you still have other issues assigned to you.
-* P2: High   - Fix this after you have fixed all your other issues.
-* P3: Medium - Fix this when you have time.
-* P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to Contribute Documentation
 
