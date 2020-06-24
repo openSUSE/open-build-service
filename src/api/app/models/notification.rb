@@ -49,7 +49,6 @@ end
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
 #  subscription_receiver_role :string(255)      not null
 #  title                      :string(255)
-#  type                       :string(255)      default(""), not null
 #  web                        :boolean          default(FALSE)
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
