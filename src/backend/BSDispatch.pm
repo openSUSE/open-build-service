@@ -27,6 +27,58 @@ package BSDispatch;
 
 use strict;
 
+=head1 NAME
+
+BSDispatch - Dispatch to functions depending on the URL path
+
+=head1 DESCRIPTION
+
+A parameter name can be followed by a quantifyer:
+
+ - ?   	zero or one, i.e. parameter is optional
+ - *	any number
+ - +	at least once
+ -	exactly once, i.e. parameter must be present
+
+The * and + quantified parameters are put as array reference in the cgi hash
+
+Prepending a cgi name with $ means that it is also passed as function parameter
+
+=head1 SYNOPSIS
+
+ use BSServer;
+ use BSDispatch;
+
+ sub hello {
+  my ($cgi) = @_;
+  return "hello @{$cgi->{'arg'}}";
+ }
+
+ sub myecho {
+  my ($cgi, $project) = @_;
+  my $concat = exists($cgi->{'concat'}) ?
+               $cgi->{'concat'} : ', ';
+  return join($concat, @$project)."\n";
+ }
+
+ my $dispatches = [
+  '/hello arg:*' => \&hello,
+  '/myecho $project+ concat:?' => \&myecho,
+ ];
+
+ my $conf = {
+    'dispatch' => \&BSDispatch::dispatch,
+    'stdreply' => \&stdreply,
+    'dispatches' => $dispatches,
+ };
+
+ BSServer::serveropen(7777);
+ BSDispatch::compile($conf);
+ BSServer::server($conf);
+
+=head1 FUNCTIONS
+=cut
+
 sub parse_cgi {
   # $req:
   #      the request data
