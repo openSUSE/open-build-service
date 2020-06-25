@@ -33,7 +33,7 @@ BSDispatch - Dispatch to functions depending on the URL path
 
 =head1 DESCRIPTION
 
-A parameter name can be followed by a quantifyer:
+A parameter name can be followed by a quantifier:
 
  - ?   	zero or one, i.e. parameter is optional
  - *	any number
