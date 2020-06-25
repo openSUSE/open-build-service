@@ -387,6 +387,9 @@ namespace :dev do
 
       # Trigger package builds for home:admin
       home_admin.store
+
+      # Create notifications by running the `dev:notifications:data` task two times
+      Rake::Task['dev:notifications:data'].invoke(2)
     end
   end
 end
