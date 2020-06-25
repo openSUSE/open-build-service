@@ -1240,7 +1240,6 @@ Rails/TimeZone:
     - 'test/test_helper.rb'
     - 'test/unit/binary_release.rb'
     - 'test/unit/package_remove_test.rb'
-    - 'test/unit/status_message_test.rb'
 
 # Offense count: 111
 # Cop supports --auto-correct.
