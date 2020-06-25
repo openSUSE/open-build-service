@@ -150,7 +150,7 @@ GEM
     factory_bot_rails (6.0.0)
       factory_bot (~> 6.0.0)
       railties (>= 5.0.0)
-    faker (2.12.0)
+    faker (2.13.0)
       i18n (>= 1.6, < 2)
     ffi (1.13.1)
     flipper (0.17.2)
