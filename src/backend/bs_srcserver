@@ -4098,6 +4098,14 @@ sub getpackagelist_build {
       if (!$BSStdServer::isajax) {
 	BSHandoff::handoff("/build/$projid/$repoid/$arch", undef, @args);
       }
+      if (@{$cgi->{'package'} || []} && ($view eq 'binaryversions' || $view eq 'binaryversionscode')) {
+	my $pbvl = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
+	return ($pbvl, $BSXML::packagebinaryversionlist);
+      }
+      if (@{$cgi->{'package'} || []} && $view eq 'binarychecksums') {
+	my $pbc = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
+	return ($pbc, $BSXML::packagebinarychecksums);
+      }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
       $param->{'proxy'} = $proxy;
     }

@@ -684,6 +684,41 @@ sub getremotebinaryversions {
   return $binaryversions;
 }
 
+sub getpackagebinaryversionlist {
+  my ($proj, $projid, $repoid, $arch, $packages, $view) = @_;
+  my $xmldtd = $view eq 'binarychecksums' ? $BSXML::packagebinarychecksums : $BSXML::packagebinaryversionlist;
+  my $elname = $view eq 'binarychecksums' ? 'binarychecksums' : 'binaryversionlist';
+  my $jev = $BSServerEvents::gev;
+  my $binaryversionlist;
+  $binaryversionlist = $jev->{'binaryversionlist'} if $BSStdServer::isajax;
+  $binaryversionlist ||= {};
+  $jev->{'binaryversionlist'} = $binaryversionlist if $BSStdServer::isajax;
+  my @missing = grep {!exists $binaryversionlist->{$_}} @$packages;
+  while (@missing) {
+    # chunk it
+    my $chunkl = 0;
+    for (splice @missing) {
+      $chunkl += 9 + length($_);
+      last if @missing && $chunkl > 1900;
+      push @missing, $_;
+    }
+    my $param = {
+     'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch",
+     'proxy' => $proj->{'remoteproxy'},
+    };
+    my @args = ("view=$view");
+    push @args, map {"package=$_"} @missing;
+    my $pbvl = BSWatcher::rpc($param, $xmldtd, @args);
+    return undef if $BSStdServer::isajax && !$pbvl;
+    for (@{$pbvl->{$elname} || []}) {
+      $binaryversionlist->{$_->{'package'}} = $_;
+    }
+    $binaryversionlist->{$_} ||= undef for @missing;
+    @missing = grep {!exists $binaryversionlist->{$_}} @$packages;
+  }
+  return { $elname => [ map {$binaryversionlist->{$_}} grep {$binaryversionlist->{$_}} @$packages ] };
+}
+
 sub clean_random_cache_slot {
   my $slot = sprintf("%02x", (int(rand(256))));
   print "cleaning slot $slot\n";
