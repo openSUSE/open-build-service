@@ -3,7 +3,7 @@ class StatusMessagesController < ApplicationController
   before_action :set_status_message, except: [:index, :create]
 
   def index
-    @status_messages = StatusMessage.alive.limit(params[:limit]).order('created_at DESC').includes(:user)
+    @status_messages = StatusMessage.limit(params[:limit]).order('created_at DESC').includes(:user)
     @count = @status_messages.size
   end
 
@@ -28,7 +28,7 @@ class StatusMessagesController < ApplicationController
 
   def destroy
     authorize @status_message
-    @status_message.delete
+    @status_message.destroy
     render_ok
   end
 
