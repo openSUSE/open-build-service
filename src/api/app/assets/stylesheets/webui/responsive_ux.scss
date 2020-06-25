@@ -65,6 +65,15 @@ body.responsive-ux {
       &.center { margin-left: calc(38% + .75rem); }
       &.left { left: .5rem; }
     }
+  }
+}
 
+@include media-breakpoint-between(xs, sm) {
+  body.responsive-ux {
+    #notifications-filter-desktop {
+      &.show { border-top: 1px solid $gray-300; }
+      &.sticky-top { top: $top-bar-height; }
+      #filters { height: 200px; overflow: auto; }
+    }
   }
 }
