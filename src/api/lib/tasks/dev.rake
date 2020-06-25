@@ -236,6 +236,9 @@ namespace :dev do
         )
         # Will create a notification (RequestStatechange event) for this request change.
         request2.change_state(newstate: ['accepted', 'declined'].sample, force: true, user: requestor.login, comment: 'Declined by requestor')
+
+        # Process notifications immediately to see them in the web UI
+        SendEventEmailsJob.new.perform_now
       end
     end
   end
