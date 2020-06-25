@@ -1,2 +1,3 @@
 $('#filters').html("<%= j(render partial: 'notifications_filter', locals: { projects_for_filter: projects_for_filter, notifications_count: notifications_count }) %>");
 $('#notifications-list').html("<%= j(render partial: 'notifications_list', locals: { notifications: notifications }) %>");
+$('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
