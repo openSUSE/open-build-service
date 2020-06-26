@@ -14,7 +14,7 @@
               .form-group
                 = f.label(:name)
                 %abbr.text-danger{ title: 'required' } *
-                = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name')
+                = f.text_field(:name, size: 80, required: true, class: 'form-control', placeholder: 'Enter Name', autofocus: true)
               .form-group
                 = f.label(:title)
                 = f.text_field(:title, size: 80, class: 'form-control', placeholder: 'Enter Title')
