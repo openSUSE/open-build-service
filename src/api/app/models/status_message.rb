@@ -60,14 +60,13 @@ end
 #
 #  id                  :integer          not null, primary key
 #  communication_scope :integer          default("all_users")
-#  deleted_at          :datetime         indexed => [created_at]
 #  message             :text(65535)
 #  severity            :integer
-#  created_at          :datetime         indexed => [deleted_at]
+#  created_at          :datetime         indexed
 #  user_id             :integer          indexed
 #
 # Indexes
 #
-#  index_status_messages_on_deleted_at_and_created_at  (deleted_at,created_at)
-#  user                                                (user_id)
+#  index_status_messages_on_created_at  (created_at)
+#  user                                 (user_id)
 #

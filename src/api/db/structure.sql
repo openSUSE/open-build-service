@@ -1241,14 +1241,13 @@ CREATE TABLE `status_message_acknowledgements` (
 CREATE TABLE `status_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `created_at` datetime DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL,
   `message` text COLLATE utf8mb4_unicode_ci,
   `user_id` int(11) DEFAULT NULL,
   `severity` int(11) DEFAULT NULL,
   `communication_scope` int(11) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `user` (`user_id`) USING BTREE,
-  KEY `index_status_messages_on_deleted_at_and_created_at` (`deleted_at`,`created_at`) USING BTREE
+  KEY `index_status_messages_on_created_at` (`created_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `status_reports` (
@@ -1508,6 +1507,7 @@ INSERT INTO `schema_migrations` (version) VALUES
 ('20200522151615'),
 ('20200601083057'),
 ('20200618152542'),
-('20200623084234');
+('20200623084234'),
+('20200626095558');
 
 
