@@ -4,14 +4,13 @@ RSpec.describe StatusMessagesController do
   render_views
 
   let(:user) { create(:confirmed_user) }
-  let(:status_message) { create(:status_message, user: user) }
 
   before do
     login user
   end
 
   describe 'GET #show' do
-    before { status_message }
+    let!(:status_message) { create(:status_message, user: user) }
 
     subject! { get :show, params: { id: status_message.id }, format: :xml }
 
@@ -93,11 +92,13 @@ RSpec.describe StatusMessagesController do
   end
 
   describe '#destroy' do
+    let!(:status_message) { create(:status_message, user: user) }
+
     context 'when user is not admin' do
-      subject! { delete :destroy, params: { id: status_message.id }, format: :xml }
+      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
 
       it { is_expected.to have_http_status(:forbidden) }
-      it { expect(status_message.deleted_at).to be_nil }
+      it { expect { subject }.not_to(change(StatusMessage, :count)) }
     end
 
     context 'when requester is admin' do
@@ -107,10 +108,10 @@ RSpec.describe StatusMessagesController do
         login admin
       end
 
-      subject! { delete :destroy, params: { id: status_message.id }, format: :xml }
+      subject { delete :destroy, params: { id: status_message.id }, format: :xml }
 
       it { is_expected.to have_http_status(:success) }
-      it { expect(status_message.reload.deleted_at).not_to be_nil }
+      it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
   end
 end

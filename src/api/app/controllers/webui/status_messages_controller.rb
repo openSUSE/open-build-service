@@ -22,7 +22,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   def destroy
     status_message = StatusMessage.find(params[:id])
 
-    if status_message.delete
+    if status_message.destroy
       flash[:success] = 'Status message was successfully deleted.'
     else
       flash[:error] = "Could not delete status message: #{status_message.errors.full_messages.to_sentence}"

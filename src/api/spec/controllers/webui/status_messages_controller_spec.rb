@@ -74,26 +74,28 @@ RSpec.describe Webui::StatusMessagesController do
   end
 
   describe 'DELETE destroy' do
-    let(:message) { create(:status_message, user: admin_user) }
+    let!(:message) { create(:status_message, user: admin_user) }
 
-    it 'marks a message as deleted' do
-      login(admin_user)
+    context 'as an admin' do
+      before do
+        login(admin_user)
+      end
 
-      delete :destroy, params: { id: message.id }
-      expect(response).to redirect_to(root_path)
-      expect(message.reload.deleted_at).to be_a_kind_of(ActiveSupport::TimeWithZone)
+      subject { delete :destroy, params: { id: message.id } }
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect { subject }.to change(StatusMessage, :count).by(-1) }
     end
 
     context 'non-admin users' do
       before do
         login(user)
-        delete :destroy, params: { id: message.id }
       end
 
-      it "can't delete messages" do
-        expect(response).to redirect_to(root_path)
-        expect(message.reload.deleted_at).to be(nil)
-      end
+      subject { delete :destroy, params: { id: message.id } }
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect { subject }.not_to(change(StatusMessage, :count)) }
     end
   end
 

@@ -5,11 +5,13 @@ class StatusMessage < ApplicationRecord
 
   validates :user, :severity, :message, presence: true
 
-  scope :alive, -> { where(deleted_at: nil).order('created_at DESC') }
-  scope :announcements, -> { alive.where(severity: 'announcement') }
+  scope :announcements, -> { order('created_at DESC').where(severity: 'announcement') }
 
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
   enum communication_scope: { all_users: 0, logged_in_users: 1, admin_users: 2, in_beta_users: 3, in_rollout_users: 4 }
+
+  # FIXME: Remove this once the `deleted_at` column is removed
+  self.ignored_columns = ['deleted_at']
 
   # xml: A Nokogiri object
   def self.from_xml(xml)
@@ -20,11 +22,6 @@ class StatusMessage < ApplicationRecord
     scope = doc.css('scope').text
     scope = 'all_users' if scope.blank?
     StatusMessage.new(message: message, severity: severity, communication_scope: scope, user: User.session!)
-  end
-
-  def delete
-    self.deleted_at = Time.now
-    save
   end
 
   def acknowledge!
