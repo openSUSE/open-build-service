@@ -32,6 +32,11 @@ class NotificationCreator
     notification = Notification.find_by(params)
 
     unless notification
+      scope = NotificationsFinder.new(Notification.for_web).with_notifiable
+      OutdatedNotificationsCollector
+        .new(scope, subscription.subscriber)
+        .collect
+        .each(&:destroy)
       notification = Notification.create(params)
       notification.projects << NotifiedProjects.new(notification).call
     end
