@@ -2802,6 +2802,22 @@ sub getsourcediffcache {
   die("cache entry '$cacheid' does not exist\n");
 }
 
+sub cleandiffcache {
+  my ($cacheid, $thr) = @_;
+  my $now = time();
+  my $slot = substr($cacheid, 0, 2);
+  my $dir = "$diffcache/$slot";
+  my $cnt = 0;
+  for my $e (sort(ls($dir))) {
+     next unless $e =~ /^[0-9a-f]{32}$/;
+     my @s = stat("$dir/$e");
+     next if $s[9] > $now - $thr;
+     unlink("$dir/$e");
+     $cnt++;
+  }
+  print "cleandiffcache: removed $cnt entries in slot $slot\n";
+}
+
 sub sourcediff {
   my ($cgi, $projid, $packid) = @_;
 
@@ -3009,7 +3025,11 @@ sub sourcediff {
     unlink("$cn.run");
     close LF;
   }
-  return ($d, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
+  BSServer::reply($d, $view eq 'xml' ? 'Content-Type: text/xml' : 'Content-Type: text/plain');
+  undef $d;
+  BSServer::done(1);
+  cleandiffcache($cacheid, 86400 * 100) if $cn && substr($cacheid, -2, 2) eq '00';
+  return undef;
 }
 
 sub linkdiff {
@@ -4077,6 +4097,14 @@ sub getpackagelist_build {
     if ($proj->{'remoteurl'}) {
       if (!$BSStdServer::isajax) {
 	BSHandoff::handoff("/build/$projid/$repoid/$arch", undef, @args);
+      }
+      if (@{$cgi->{'package'} || []} && ($view eq 'binaryversions' || $view eq 'binaryversionscode')) {
+	my $pbvl = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
+	return ($pbvl, $BSXML::packagebinaryversionlist);
+      }
+      if (@{$cgi->{'package'} || []} && $view eq 'binarychecksums') {
+	my $pbc = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
+	return ($pbc, $BSXML::packagebinarychecksums);
       }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
       $param->{'proxy'} = $proxy;
