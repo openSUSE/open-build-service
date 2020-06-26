@@ -668,6 +668,7 @@ class Project < ApplicationRecord
     raise WritePermissionError, "No permission to modify project '#{name}' for user '#{User.possibly_nobody.login}'"
   end
 
+  # FIXME: Rely on pundit policies instead of this
   def can_be_modified_by?(user, ignore_lock = nil)
     return user.can_create_project?(name) if new_record?
 

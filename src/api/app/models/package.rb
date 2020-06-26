@@ -320,6 +320,7 @@ class Package < ApplicationRecord
     /\A_product:\w[-+\w.]*\z/.match?(name) && project.packages.with_product_name.exists?
   end
 
+  # FIXME: Rely on pundit policies instead of this
   def can_be_modified_by?(user, ignore_lock = nil)
     user.can_modify?(master_product_object, ignore_lock)
   end
