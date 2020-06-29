@@ -3950,6 +3950,11 @@ sub getpackagelist_build {
       if (!$BSStdServer::isajax) {
 	BSHandoff::handoff("/build/$projid/$repoid/$arch", undef, @args);
       }
+      my $view = $cgi->{'view'};
+      if (@{$cgi->{'package'} || []} && ($view eq 'binaryversions' || $view eq 'binaryversionscode')) {
+	my $pbvl = BSSrcServer::Remote::getpackagebinaryversionlist($proj, $projid, $repoid, $arch, $cgi->{'package'}, $view);
+	return ($pbvl, $BSXML::packagebinaryversionlist);
+      }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
       $param->{'proxy'} = $proxy;
     }
