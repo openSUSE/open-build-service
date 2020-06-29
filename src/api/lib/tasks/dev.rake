@@ -67,12 +67,6 @@ namespace :dev do
   end
 
   namespace :lint do
-    task :db do
-      desc 'Verify DB structure'
-      Rake::Task['db:structure:verify'].invoke
-      Rake::Task['db:structure:verify_no_bigint'].invoke
-    end
-
     namespace :rubocop do
       desc 'Run the ruby linter in rails and in root'
       task all: [:root, :rails] do
