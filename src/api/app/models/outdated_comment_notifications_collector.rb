@@ -1,12 +1,14 @@
 class OutdatedCommentNotificationsCollector
-  def initialize(scope, subscriber)
+  def initialize(scope, notifiable)
     @scope = scope
-    @subscriber = subscriber
+    @notifiable = notifiable
   end
 
   def collect
     scope
+      .join(:comments)
       .where(notifiable_type: 'Comment')
-      .where(subscriber_id: @subscriber.id)
+      .where(comments: { commentable_type: @notifiable.commentable_type,
+                         commentable_id: @notifiable.commentable_id })
   end
 end

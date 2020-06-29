@@ -1,12 +1,12 @@
 class OutdatedRequestNotificationsCollector
-  def initialize(scope, subscriber)
+  def initialize(scope, notifiable)
     @scope = scope
-    @subscriber = subscriber
+    @notifiable = notifiable
   end
 
   def collect
     @scope
       .where(notifiable_type: 'BsRequest')
-      .where(subscriber_id: @subscriber.id)
+      .where(notifiable_id: @notifiable.id)
   end
 end

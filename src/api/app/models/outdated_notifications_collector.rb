@@ -2,12 +2,12 @@ class OutdatedNotificationsCollector
   COLLECTORS = [OutdatedCommentNotificationsCollector,
                 OutdatedRequestNotificationsCollector]
 
-  def initialize(scope, subscriber)
+  def initialize(scope, notifiable)
     @scope = scope
-    @subscriber = subscriber
+    @notifiable = notifiable
   end
   
   def collect
-    COLLECTORS.map { |collector_class| collector_class.new(@scope, @subscriber).collect }.flatten
+    COLLECTORS.map { |collector_class| collector_class.new(@scope, @notifiable).collect }.flatten
   end
 end
