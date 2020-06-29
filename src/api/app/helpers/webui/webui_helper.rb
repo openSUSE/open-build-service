@@ -72,7 +72,7 @@ module Webui::WebuiHelper
     'published' => 'Repository has been published',
     'publishing' => 'Repository is being created right now',
     'unpublished' => 'Build finished, but repository publishing is disabled',
-    'building' => 'Build jobs exists',
+    'building' => 'Build jobs exist',
     'finished' => 'Build jobs have been processed, new repository is not yet created',
     'blocked' => 'No build possible atm, waiting for jobs in other repositories',
     'broken' => 'The repository setup is broken, build or publish not possible',
