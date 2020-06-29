@@ -1,4 +1,4 @@
-class OutdatedNotifications::BsRequest
+class OutdatedNotificationsFinder::BsRequest
   def initialize(scope, notifiable)
     @scope = scope
     @notifiable = notifiable

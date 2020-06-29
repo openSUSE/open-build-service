@@ -1,4 +1,4 @@
-class OutdatedNotifications::Comment
+class OutdatedNotificationsFinder::Comment
   def initialize(scope, notifiable)
     @scope = scope
     @notifiable = notifiable
