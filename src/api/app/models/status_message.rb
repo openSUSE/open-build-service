@@ -10,9 +10,6 @@ class StatusMessage < ApplicationRecord
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
   enum communication_scope: { all_users: 0, logged_in_users: 1, admin_users: 2, in_beta_users: 3, in_rollout_users: 4 }
 
-  # FIXME: Remove this once the `deleted_at` column is removed
-  self.ignored_columns = ['deleted_at']
-
   # xml: A Nokogiri object
   def self.from_xml(xml)
     StatusMessage.create! if xml.blank?
