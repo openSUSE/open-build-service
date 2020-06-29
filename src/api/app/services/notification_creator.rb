@@ -29,15 +29,10 @@ class NotificationCreator
     return unless create_notification?(subscription.subscriber, channel)
 
     params = subscription.parameters_for_notification.merge!(@event.parameters_for_notification)
-    notification = Notification.find_by(params
-)
+    notification = Notification.find_by(params)
+
     unless notification
-      subscriber = subscription.subscriber
-      scope = NotificationsFinder.new(subscriber.notifications.for_web).with_notifiable
-      OutdatedNotificationsCollector
-        .new(scope, notification.notifiable)
-        .collect
-        .each(&:destroy)
+      OutdatedNotifications::Destroyer.new(notification.notifiable_type).call
       notification = Notification.create(params)
       notification.projects << NotifiedProjects.new(notification).call
     end

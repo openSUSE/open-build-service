@@ -1,10 +1,10 @@
-class OutdatedRequestNotificationsCollector
+class OutdatedNotifications::BsRequest
   def initialize(scope, notifiable)
     @scope = scope
     @notifiable = notifiable
   end
 
-  def collect
+  def call
     @scope
       .where(notifiable_type: 'BsRequest')
       .where(notifiable_id: @notifiable.id)

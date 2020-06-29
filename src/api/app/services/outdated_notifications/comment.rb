@@ -1,10 +1,10 @@
-class OutdatedCommentNotificationsCollector
+class OutdatedNotifications::Comment
   def initialize(scope, notifiable)
     @scope = scope
     @notifiable = notifiable
   end
 
-  def collect
+  def call
     scope
       .join(:comments)
       .where(notifiable_type: 'Comment')
