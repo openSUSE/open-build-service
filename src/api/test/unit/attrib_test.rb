@@ -7,12 +7,6 @@ class AttribTest < ActiveSupport::TestCase
     @namespace = AttribNamespace.find_by(name: 'OBS')
   end
 
-  test 'should have an attrib_type' do
-    attrib = Attrib.new
-    assert_not attrib.valid?
-    assert_equal ["can't be blank"], attrib.errors.messages[:attrib_type]
-  end
-
   test 'should have one object' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribOneObject')
     attrib = Attrib.new(attrib_type: attrib_type)
@@ -32,34 +26,6 @@ class AttribTest < ActiveSupport::TestCase
     attrib.package = Package.first
     assert_not attrib.valid?
     assert_equal ["can't also be present"], attrib.errors.messages[:package_id]
-  end
-
-  test 'should have no values' do
-    attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCount0')
-    attrib_value = AttribValue.new(value: 'xxx')
-    attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
-
-    attrib_type.value_count = 0
-    attrib.values << attrib_value
-    assert_not attrib.valid?
-    assert_equal ['has 1 values, but only 0 are allowed'], attrib.errors.messages[:values]
-  end
-
-  test 'should have one value' do
-    attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCount1')
-    attrib_value = AttribValue.new(value: 'xxx')
-    attrib_value_second = AttribValue.new(value: 'yyy')
-    attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
-
-    attrib_type.value_count = 1
-    attrib.values << attrib_value
-    assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
-    attrib.values << attrib_value_second
-    assert_not attrib.valid?
-    assert_equal ['has 2 values, but only 1 are allowed'], attrib.errors.messages[:values]
-    attrib.values.delete_all
-    assert_not attrib.valid?
-    assert_equal ['has 0 values, but only 1 are allowed'], attrib.errors.messages[:values]
   end
 
   test 'can have any number of values' do
@@ -140,13 +106,6 @@ class AttribTest < ActiveSupport::TestCase
     project = Project.find_by(name: 'BaseDistro2.0')
     attrib = Attrib.find_by_container_and_fullname(project, 'OBS:UpdateProject')
     assert_equal 103, attrib.id
-  end
-
-  test 'should show full name' do
-    attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribFullname')
-    attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
-
-    assert_equal 'OBS:AttribFullname', attrib.fullname
   end
 
   test 'should return container' do
