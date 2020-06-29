@@ -73,7 +73,19 @@ body.responsive-ux {
     #notifications-filter-desktop {
       &.show { border-top: 1px solid $gray-300; }
       &.sticky-top { top: $top-bar-height; }
-      #filters { height: 200px; overflow: auto; }
+      #filters {
+        max-height: 100vw; overflow: auto;
+        -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+        box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+      }
+    }
+  }
+  @media (orientation: landscape){
+    body.responsive-ux {
+      #notifications-filter-desktop{
+        #filters{ max-height: 20vw; }
+      }
     }
   }
 }
