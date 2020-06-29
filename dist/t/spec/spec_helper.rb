@@ -32,7 +32,7 @@ def take_screenshot(example)
   line_number = example.metadata[:line_number]
   screenshot_name = "screenshot-#{filename}-#{line_number}.png"
   screenshot_path = File.join(SCREENSHOT_DIR, screenshot_name)
-  page.save_screenshot(screenshot_path)
+  page.save_screenshot(screenshot_path, full: true)
 end
 
 def login

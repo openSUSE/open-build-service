@@ -4,4 +4,4 @@ gem 'capybara'
 gem 'rspec-core'
 gem 'rspec-expectations'
 # as driver for capybara
-gem 'selenium-webdriver'
+gem 'apparition'
