@@ -925,7 +925,7 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobsapisetup
 %endif
 %{__obs_api_prefix}/app
-%attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/structure.sql
+%attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/schema.rb
 %attr(-,%{apache_user},%{apache_group})  %{__obs_api_prefix}/db/data_schema.rb
 %{__obs_api_prefix}/db/attribute_descriptions.rb
 %{__obs_api_prefix}/db/data

@@ -4,7 +4,7 @@ require 'api_error'
 class User < ApplicationRecord
   include CanRenderModel
 
-  # Keep in sync with states defined in db/structure.sql
+  # Keep in sync with states defined in db/schema.rb
   STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
   NOBODY_LOGIN = '_nobody_'.freeze
 
