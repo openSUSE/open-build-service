@@ -1813,7 +1813,7 @@ sub publish {
 
   # do we need to do source publishing?
   my $do_sourcepublish;
-  if ($BSConfig::sourcepublish_sync || $BSConfig::sourcepublish_sync) {
+  if ($BSConfig::sourcepublish_sync) {
     if ($BSConfig::sourcepublish_filter) {
       $do_sourcepublish = 1 if grep {$prp =~ /^$_/} @$BSConfig::sourcepublish_filter;
     } else {

@@ -94,5 +94,6 @@ $BSConfig::cloudupload_pubkey       = $BSConfig::cloudupload_pubkey       || '/e
 
 $BSConfig::redisserver = undef unless $BSConfig::redisserver;
 $BSConfig::local_registry_signatures_extension = undef unless $BSConfig::local_registry_signatures_extension;
+$BSConfig::sourcepublish_sync = undef unless $BSConfig::sourcepublish_sync;
 
 1;
