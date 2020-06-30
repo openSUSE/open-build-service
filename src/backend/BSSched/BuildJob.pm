@@ -1029,9 +1029,9 @@ sub create {
 
   # calculate sysdeps
   my @sysdeps = @btdeps;
+  push @sysdeps, @{$ctx->{'extradeps'} || []} if $kiwimode;
   if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
     unshift @sysdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
-    push @sysdeps, @{$ctx->{'extradeps'} || []};
   }
   if (@sysdeps) {
     @sysdeps = Build::get_sysbuild($bconf, $buildtype, [ @sysdeps ]);	# cannot cache...
