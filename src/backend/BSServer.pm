@@ -43,6 +43,30 @@ our $request;		# FIXME: should not be global
 
 our $slot;		# put in request?
 
+=head1 NAME
+
+BSServer - A simple webserver
+
+=head1 SYNOPSIS
+
+ use BSServer;
+ 
+ my $conf = {dispatch => \&dispatch};
+
+ sub dispatch {
+	my ($conf, $req) = @_;
+	print "Hi $req->{'path'} $req->{'query'}\n";
+	die("500 ok\n") if $req->{'path'} eq '/die';
+	return "This is my reply\n";
+ }
+
+ BSServer::serveropen(7777);
+ BSServer::server($conf);	# does not return
+
+=head1 FUNCTIONS
+
+=cut
+
 sub deamonize {
   my (@args) = @_;
 
@@ -735,6 +759,14 @@ sub reply_stream {
   $sender->($param, $req->{'__socket'});
   swrite("0\r\n\r\n") if $chunked;
 }
+
+=head2 BSServer::reply_cpio - send back files in a cpio archiv
+
+ Example:
+
+ BSServer::reply_cpio({name => 'os-release', file => '/etc/os-release'}, @hdrs);
+
+=cut
 
 sub reply_cpio {
   my ($files, @hdrs) = @_;
