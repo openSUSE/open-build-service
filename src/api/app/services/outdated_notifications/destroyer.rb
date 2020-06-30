@@ -1,5 +1,5 @@
 class OutdatedNotifications::Destroyer
-  def new(subscriber, notification)
+  def initialize(subscriber, notification)
     @subscriber = subscriber
     @notification = notification
   end
