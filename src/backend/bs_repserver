@@ -3303,10 +3303,7 @@ sub getbuildinfo_post {
     my $services = readxml($cgi->{'_servicefile'}, $BSXML::services);
     for my $service (@{$services->{'service'} || []}) {
        next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
-       my $pkgname = "obs-service-$service->{'name'}";
-       # debian does not allow _ in package name
-       $pkgname =~ s/_/-/g if $bconf->{'binarytype'} eq 'deb';
-       push @{$info->{'dep'}}, $pkgname;
+       push @{$info->{'buildtimeservice'}}, $service->{'name'};
      }
   }
   $pdata->{'ldepfile'} = $cgi->{'_depfile'} if $cgi->{'_depfile'};
