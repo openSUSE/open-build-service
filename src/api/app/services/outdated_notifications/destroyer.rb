@@ -1,5 +1,5 @@
 class OutdatedNotifications::Destroyer
-  DESTROYABLE_NOTIFIABLES = ['BsRequest', 'Comment']
+  DESTROYABLE_NOTIFIABLES = ['BsRequest', 'Comment'].freeze
 
   def initialize(subscriber, notification)
     @subscriber = subscriber

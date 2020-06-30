@@ -6,10 +6,8 @@ class NotificationPresenter < SimpleDelegator
 
   def link_to_notification_target
     case @model.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate'
+    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number)
-    when 'Event::ReviewWanted'
-      Rails.application.routes.url_helpers.request_show_path(@model.notifiable.bs_request.number)
     when 'Event::CommentForRequest'
       Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, anchor: "comment-#{@model.notifiable_id}")
     when 'Event::CommentForProject'

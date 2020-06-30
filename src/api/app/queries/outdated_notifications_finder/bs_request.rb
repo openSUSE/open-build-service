@@ -5,8 +5,6 @@ class OutdatedNotificationsFinder::BsRequest
   end
 
   def call
-    @scope
-      .where(notifiable_type: 'BsRequest')
-      .where(notifiable_id: @notifiable.id)
+    @scope.where(notifiable_type: 'BsRequest', notifiable_id: @notifiable.id)
   end
 end

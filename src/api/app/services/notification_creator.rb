@@ -27,17 +27,7 @@ class NotificationCreator
 
   def create_notification_per_subscription(subscription, channel)
     return unless create_notification?(subscription.subscriber, channel)
-
-    params = subscription.parameters_for_notification.merge!(@event.parameters_for_notification)
-    notification = Notification.find_by(params)
-
-    unless notification
-      OutdatedNotifications::Destroyer.new(notification.notifiable_type).call
-      notification = Notification.create(params)
-      notification.projects << NotifiedProjects.new(notification).call
-    end
-
-    notification.update("#{channel}": true)
+    channel == :web ? for_web(subscription) : for_rss(subscription)
   end
 
   def create_notification?(subscriber, channel)
@@ -54,5 +44,28 @@ class NotificationCreator
     notifiable_type = @event.parameters_for_notification[:notifiable_type]
     notifiable_id = @event.parameters_for_notification[:notifiable_id]
     notifiable_type.constantize.exists?(notifiable_id)
+  end
+
+  def for_web(subscription)
+    params = subscription.parameters_for_notification.merge!(@event.parameters_for_notification)
+    notification = Notification.find_by(notifiable_type: params[:notifiable_type], notifiable_id:params[:notifiable_id], web: true)
+
+    OutdatedNotifications::Destroyer.new(notification).call if notification
+
+    notification = Notification.create(params)
+    notification.projects << NotifiedProjects.new(notification).call
+    notification.update(web: true)
+  end
+
+  def for_rss(subscription)
+    params = subscription.parameters_for_notification.merge!(@event.parameters_for_notification)
+    notification = Notification.find_by(params)
+
+    unless notification
+      notification = Notification.create(params)
+      notification.projects << NotifiedProjects.new(notification).call
+    end
+
+    notification.update(rss: true)
   end
 end
