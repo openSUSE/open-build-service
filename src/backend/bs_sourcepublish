@@ -42,7 +42,7 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
 my $uploaddir = "$srcrep/:upload";
 
-my $rsyncserver = $BSConfig::sourcepublish_sync || $BSConfig::sourcepublish_sync;
+my $rsyncserver = $BSConfig::sourcepublish_sync;
 
 my $maxchild = 1;
 $maxchild = $BSConfig::sourcepublish_maxchild if defined $BSConfig::sourcepublish_maxchild;
