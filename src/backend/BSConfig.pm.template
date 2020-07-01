@@ -187,9 +187,10 @@ our $relsync_pool = {
 #our $sign = '/usr/bin/sign';
 #Extend sign call with project name as argument "--project $NAME"
 #our $sign_project = 1;
-#Global sign key 
+#Global sign key / cert
 #our $keyfile = '/srv/obs/openSUSE-Build-Service.asc';
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
+#our $certfile = '/srv/obs/openSUSE-Build-Service.cert'
 
 # Use a special local arch for product building
 # our $localarch = "x86_64";
