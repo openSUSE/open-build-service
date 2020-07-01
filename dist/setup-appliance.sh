@@ -550,7 +550,6 @@ function prepare_obssigner {
     perl -p -i -e 's,^\s*#\s*our \$gpg_standard_key.*,our \$gpg_standard_key = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
     perl -p -i -e 's,^\s*#\s*our \$keyfile.*,our \$keyfile = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
     perl -p -i -e 's,^\s*#\s*our \$sign = .*,our \$sign = "/usr/bin/sign";,' /usr/lib/obs/server/BSConfig.pm
-    perl -p -i -e 's,^\s*#\s*our \$forceprojectkeys.*,our \$forceprojectkeys = 1;,' /usr/lib/obs/server/BSConfig.pm
     chmod 4755 /usr/bin/sign
 
     # create default gpg key if not existing
@@ -590,7 +589,6 @@ EOF
       echo done
       rm /tmp/obs-gpg.$$
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
-      sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       # ensure that $OBS_SIGND gets restarted if already started
       systemctl is-enabled $OBS_SIGND 2>&1 > /dev/null
       if [ $? -eq 0 ] ; then
@@ -600,7 +598,6 @@ EOF
     fi
     if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
         sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
-        sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
     fi
 
   fi
