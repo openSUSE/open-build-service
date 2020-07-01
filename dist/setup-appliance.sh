@@ -598,6 +598,7 @@ EOF
     fi
     if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
         sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+        ENABLE_FORCEPROJECTKEYS=0
     fi
 
   fi
@@ -640,6 +641,16 @@ function prepare_os_settings {
   done
 }
 
+function enable_forceprojectkeys {
+  # Only run on initial setup
+  [ -n "$RUN_INITIAL_SETUP" ] || return
+  # This is not done via the api to avoid authentication and service dependency
+  # problems.
+  cd $apidir
+  mysql -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production
+  RAILS_ENV=production bin/rails writeconfiguration
+}
+
 ###############################################################################
 #
 # MAIN
@@ -651,6 +662,7 @@ export LC_ALL=C
 prepare_os_settings
 
 ENABLE_OPTIONAL_SERVICES=0
+ENABLE_FORCEPROJECTKEYS=1
 
 # package or appliance defaults
 if [ -e /etc/sysconfig/obs-server ]; then
@@ -678,6 +690,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
       --setup-only) SETUP_ONLY=1;;
       --enable-optional-services) ENABLE_OPTIONAL_SERVICES=1;;
       --force) OBS_API_AUTOSETUP="yes";;
+      --disable-forceprojectkeys) ENABLE_FORCEPROJECTKEYS=0;;
     esac
     shift
   done
@@ -745,6 +758,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   RUN_INITIAL_SETUP=""
 
   prepare_database_setup
+
+  enable_forceprojectkeys
 
   check_server_key
 
