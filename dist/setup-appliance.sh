@@ -237,7 +237,7 @@ function adapt_worker_jobs {
 ###############################################################################
 function prepare_database_setup {
 
-  cd /srv/www/obs/api
+  cd $apidir
   RAILS_ENV=production bin/rails db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
