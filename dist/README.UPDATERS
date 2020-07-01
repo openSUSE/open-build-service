@@ -416,7 +416,7 @@ For Updaters to OBS 2.1 from OBS 2.0
 
    * populate the database
       # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rails db:structure:load db:seed
+      # sudo RAILS_ENV="production" rails db:schema:load db:seed
       # sudo chown lighttpd.lighttpd log/*
 
 

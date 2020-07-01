@@ -41,10 +41,10 @@ module OBSApi
     # Configure sensitive parameters which will be filtered from the log file.
     config.filter_parameters += [:password]
 
-    # Use SQL instead of Active Record's schema dumper when creating the database.
-    # This is necessary if your schema can't be completely dumped by the schema dumper,
+    # Use SQL instead of Active Record's schema dumper when creating the database
+    # if your schema can't be completely dumped by the schema dumper,
     # like if you have constraints or database-specific column types
-    config.active_record.schema_format = :sql
+    config.active_record.schema_format = :ruby
 
     # Skip frameworks you're not going to use
     # config.frameworks -= [ :action_web_service, :active_resource ]
