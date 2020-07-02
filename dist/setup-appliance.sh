@@ -567,7 +567,7 @@ function prepare_obssigner {
            Name-Real: private OBS
            Name-Comment: key without passphrase
            Name-Email: defaultkey@localobs
-           Expire-Date: 0
+           Expire-Date: 30y
            %no-protection
            %commit
            %echo done
@@ -605,6 +605,8 @@ EOF
 
 }
 
+###############################################################################
+
 function prepare_os_settings {
   . /etc/os-release
   for d in $ID_LIKE $ID;do
@@ -622,6 +624,7 @@ function prepare_os_settings {
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE apache2-mod_xforward rubygem-passenger-apache2 memcached"
         CONFIGURE_APACHE=1
         OBS_SIGND=obssignd
+        SIGND_BIN="/usr/sbin/signd"
       ;;
       fedora)
         MYSQL_SERVICE=mariadb
@@ -636,10 +639,13 @@ function prepare_os_settings {
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE mod_xforward mod_passenger memcached"
         CONFIGURE_APACHE=0
         OBS_SIGND=signd
+        SIGND_BIN="/usr/sbin/signd"
       ;;
     esac
   done
 }
+
+###############################################################################
 
 function enable_forceprojectkeys {
   # Only run on initial setup
@@ -657,6 +663,18 @@ function enable_forceprojectkeys {
 
   echo " - Starting 'rails writeconfiguration'"
   RAILS_ENV=production bin/rails writeconfiguration || exit 1
+}
+
+###############################################################################
+
+function create_sign_cert {
+  echo "Starting create_sign_cert"
+  if [ -f "$backenddir/obs-default-gpg.asc" -a ! -f "$backenddir/obs-default-gpg.cert" ];then
+    echo "Creating new signer cert"
+    GNUPGHOME="$backenddir/gnupg" sign --test-sign $SIGND_BIN -C $backenddir/obs-default-gpg.asc > $backenddir/obs-default-gpg.cert
+  else
+    echo "Skipping new signer cert"
+  fi
 }
 
 ###############################################################################
@@ -810,6 +828,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   else
     network_failure_warning
   fi
+
+  create_sign_cert
 
   exit 0
 
