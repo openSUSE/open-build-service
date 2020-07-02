@@ -394,7 +394,6 @@ sub mergeservicerun {
   die("package has no service\n") unless $servicemark;
   $files = BSSrcServer::Service::handleservice($rev, $files, $servicemark);
   # merge
-  delete $files->{'_service'};
   for (sort keys %$files) {
     next unless /^_service:.*:(.*?)$/s;
     die("cannot create a link from a service") if $1 eq '_link';
@@ -402,6 +401,20 @@ sub mergeservicerun {
     delete $files->{$_};
     BSSrcrep::copyonefile($projid, $packid, $1, $projid, $packid, $_, $files->{$1});
   }
+
+  # filter services, but the "buildtime" ones
+  my $services = BSRevision::revreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1) || {};
+  my @btservices = grep {$_->{'mode'} && $_->{'mode'} eq 'buildtime'} @{$services->{'service'} || []};
+  if (@btservices) {
+    # write services using buildtime back
+    $services->{'service'} = \@btservices;
+    mkdir_p($uploaddir);
+    writexml("$uploaddir/$$", undef, $services, $BSXML::services);
+    $files->{'_service'} = BSSrcrep::addfile($projid, $packid, "$uploaddir/$$", '_service');
+  } else {
+    delete $files->{'_service'}
+  }
+
   $rev = addrev_runservice($cgi, $projid, $packid, $files);
   delete $rev->{'project'};
   delete $rev->{'package'};
