@@ -263,7 +263,7 @@ function prepare_database_setup {
     echo " - restarting mysql"
     systemctl restart $MYSQL_SERVICE
     echo " - setting new password for user root in mysql"
-    mysqladmin -u root password "opensuse"
+    mysqladmin -u $MYSQL_USER password $MYSQL_PASS
     if [[ $? > 0 ]];then
       echo "ERROR: Your mysql setup doesn't fit your rails setup"
       echo "Please check your database settings for mysql and rails"
@@ -643,12 +643,20 @@ function prepare_os_settings {
 
 function enable_forceprojectkeys {
   # Only run on initial setup
-  [ -n "$RUN_INITIAL_SETUP" ] || return
-  # This is not done via the api to avoid authentication and service dependency
-  # problems.
+  echo "Starting enable_forceprojectkeys"
+  if [ -z "$RUN_INITIAL_SETUP" ];then
+    echo "Not running in intial setup mode. Skipping"
+    return
+  fi
+
+  # This is done manually and not via api to avoid authentication
+  # and service dependency (systemd) problems.
   cd $apidir
-  mysql -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production
-  RAILS_ENV=production bin/rails writeconfiguration
+  echo " - Setting enforce_project_keys in api_production.configurations to '$ENABLE_FORCEPROJECTKEYS'"
+  mysql -u $MYSQL_USER -p $MYSQL_PASS -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production || exit 1
+
+  echo " - Starting 'rails writeconfiguration'"
+  RAILS_ENV=production bin/rails writeconfiguration || exit 1
 }
 
 ###############################################################################
@@ -663,6 +671,8 @@ prepare_os_settings
 
 ENABLE_OPTIONAL_SERVICES=0
 ENABLE_FORCEPROJECTKEYS=1
+MYSQL_USER=root
+MYSQL_PASS=opensuse
 
 # package or appliance defaults
 if [ -e /etc/sysconfig/obs-server ]; then
