@@ -312,6 +312,55 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_service_merge_with_buildtime_service
+    login_tom
+    # Setup package
+    put '/source/home:tom/service/_meta', params: "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    put '/source/home:tom/service/pack.spec', params: "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    put '/source/home:tom/service/_service', params: '<services> <service name="download_url" >
+           <param name="host">localhost</param>
+           <param name="path">/directory/subdirectory/file</param>
+         </service>
+         <service name="set_version" mode="buildtime" >
+           <param name="version">0815</param>
+           <param name="file">pack.spec</param>
+         </service>  </services>'
+    assert_response :success
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
+
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag tag: 'serviceinfo', attributes: { code: 'succeeded' }
+    assert_no_xml_tag parent: { tag: 'serviceinfo' }, tag: 'error'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
+    assert_response :success
+    post '/source/home:tom/service?cmd=mergeservice'
+    assert_response :success
+    get '/source/home:tom/service'
+    assert_response :success
+    # result got commited as usual file
+    get '/source/home:tom/service/file'
+    assert_response :success
+    # _service file still exists
+    get '/source/home:tom/service/_service'
+    assert_response :success
+    assert_xml_tag parent: { tag: 'service', attributes: { name: 'set_version', mode: 'buildtime' } },
+                   tag: 'param', attributes: { name: 'version' }, content: '0815'
+    assert_no_xml_tag tag: 'service', attributes: { name: 'download_url' }
+    # old file remained
+    get '/source/home:tom/service/pack.spec'
+    assert_response :success
+
+    delete '/source/home:tom/service'
+    assert_response :success
+  end
+
   def test_buildtime_service
     login_Iggy
     put '/source/home:Iggy/service/_meta',
