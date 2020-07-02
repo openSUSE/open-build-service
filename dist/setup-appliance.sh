@@ -659,7 +659,7 @@ function enable_forceprojectkeys {
   # and service dependency (systemd) problems.
   cd $apidir
   echo " - Setting enforce_project_keys in api_production.configurations to '$ENABLE_FORCEPROJECTKEYS'"
-  mysql -u $MYSQL_USER -p $MYSQL_PASS -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production || exit 1
+  mysql -u $MYSQL_USER -p$MYSQL_PASS -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production || exit 1
 
   echo " - Starting 'rails writeconfiguration'"
   RAILS_ENV=production bin/rails writeconfiguration || exit 1
