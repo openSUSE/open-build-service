@@ -237,7 +237,7 @@ function adapt_worker_jobs {
 ###############################################################################
 function prepare_database_setup {
 
-  cd /srv/www/obs/api
+  cd $apidir
   RAILS_ENV=production bin/rails db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
@@ -263,7 +263,7 @@ function prepare_database_setup {
     echo " - restarting mysql"
     systemctl restart $MYSQL_SERVICE
     echo " - setting new password for user root in mysql"
-    mysqladmin -u root password "opensuse"
+    mysqladmin -u $MYSQL_USER password $MYSQL_PASS
     if [[ $? > 0 ]];then
       echo "ERROR: Your mysql setup doesn't fit your rails setup"
       echo "Please check your database settings for mysql and rails"
@@ -277,7 +277,7 @@ function prepare_database_setup {
   if [ -n "$RUN_INITIAL_SETUP" ]; then
     logline "Initialize OBS api database (first time only)"
     cd $apidir
-    RAKE_COMMANDS="db:setup writeconfiguration"
+    RAKE_COMMANDS="db:setup writeconfiguration data:schema:load"
   else
     logline "Migrate OBS api database"
     cd $apidir
@@ -550,7 +550,6 @@ function prepare_obssigner {
     perl -p -i -e 's,^\s*#\s*our \$gpg_standard_key.*,our \$gpg_standard_key = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
     perl -p -i -e 's,^\s*#\s*our \$keyfile.*,our \$keyfile = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
     perl -p -i -e 's,^\s*#\s*our \$sign = .*,our \$sign = "/usr/bin/sign";,' /usr/lib/obs/server/BSConfig.pm
-    perl -p -i -e 's,^\s*#\s*our \$forceprojectkeys.*,our \$forceprojectkeys = 1;,' /usr/lib/obs/server/BSConfig.pm
     chmod 4755 /usr/bin/sign
 
     # create default gpg key if not existing
@@ -568,7 +567,7 @@ function prepare_obssigner {
            Name-Real: private OBS
            Name-Comment: key without passphrase
            Name-Email: defaultkey@localobs
-           Expire-Date: 0
+           Expire-Date: 30y
            %no-protection
            %commit
            %echo done
@@ -590,7 +589,6 @@ EOF
       echo done
       rm /tmp/obs-gpg.$$
       sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
-      sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
       # ensure that $OBS_SIGND gets restarted if already started
       systemctl is-enabled $OBS_SIGND 2>&1 > /dev/null
       if [ $? -eq 0 ] ; then
@@ -600,12 +598,14 @@ EOF
     fi
     if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
         sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
-        sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+        ENABLE_FORCEPROJECTKEYS=0
     fi
 
   fi
 
 }
+
+###############################################################################
 
 function prepare_os_settings {
   . /etc/os-release
@@ -624,6 +624,7 @@ function prepare_os_settings {
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE apache2-mod_xforward rubygem-passenger-apache2 memcached"
         CONFIGURE_APACHE=1
         OBS_SIGND=obssignd
+        SIGND_BIN="/usr/sbin/signd"
       ;;
       fedora)
         MYSQL_SERVICE=mariadb
@@ -638,9 +639,42 @@ function prepare_os_settings {
         APACHE_ADDITIONAL_PACKAGES="$HTTPD_SERVICE mod_xforward mod_passenger memcached"
         CONFIGURE_APACHE=0
         OBS_SIGND=signd
+        SIGND_BIN="/usr/sbin/signd"
       ;;
     esac
   done
+}
+
+###############################################################################
+
+function enable_forceprojectkeys {
+  # Only run on initial setup
+  echo "Starting enable_forceprojectkeys"
+  if [ -z "$RUN_INITIAL_SETUP" ];then
+    echo "Not running in intial setup mode. Skipping"
+    return
+  fi
+
+  # This is done manually and not via api to avoid authentication
+  # and service dependency (systemd) problems.
+  cd $apidir
+  echo " - Setting enforce_project_keys in api_production.configurations to '$ENABLE_FORCEPROJECTKEYS'"
+  mysql -u $MYSQL_USER -p$MYSQL_PASS -e "update configurations SET enforce_project_keys=$ENABLE_FORCEPROJECTKEYS" api_production || exit 1
+
+  echo " - Starting 'rails writeconfiguration'"
+  RAILS_ENV=production bin/rails writeconfiguration || exit 1
+}
+
+###############################################################################
+
+function create_sign_cert {
+  echo "Starting create_sign_cert"
+  if [ -f "$backenddir/obs-default-gpg.asc" -a ! -f "$backenddir/obs-default-gpg.cert" ];then
+    echo "Creating new signer cert"
+    GNUPGHOME="$backenddir/gnupg" sign --test-sign $SIGND_BIN -C $backenddir/obs-default-gpg.asc > $backenddir/obs-default-gpg.cert
+  else
+    echo "Skipping new signer cert"
+  fi
 }
 
 ###############################################################################
@@ -654,6 +688,9 @@ export LC_ALL=C
 prepare_os_settings
 
 ENABLE_OPTIONAL_SERVICES=0
+ENABLE_FORCEPROJECTKEYS=1
+MYSQL_USER=root
+MYSQL_PASS=opensuse
 
 # package or appliance defaults
 if [ -e /etc/sysconfig/obs-server ]; then
@@ -681,6 +718,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
       --setup-only) SETUP_ONLY=1;;
       --enable-optional-services) ENABLE_OPTIONAL_SERVICES=1;;
       --force) OBS_API_AUTOSETUP="yes";;
+      --disable-forceprojectkeys) ENABLE_FORCEPROJECTKEYS=0;;
     esac
     shift
   done
@@ -749,6 +787,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   prepare_database_setup
 
+  enable_forceprojectkeys
+
   check_server_key
 
   generate_proposed_dnsnames
@@ -788,6 +828,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   else
     network_failure_warning
   fi
+
+  create_sign_cert
 
   exit 0
 

@@ -1,0 +1,20 @@
+#!/bin/bash
+
+export BASH_TAP_ROOT=$(dirname $0)
+
+. $(dirname $0)/bash-tap-bootstrap
+
+plan tests 3
+
+for file in \
+  obs-default-gpg.asc\
+  obs-default-gpg.cert
+do
+  [ -e /srv/obs/$file ]
+  is "$?" 0 "Checking file $file"
+done
+
+openssl x509 -text -noout < /srv/obs/obs-default-gpg.cert |grep -q "private OBS"
+is "$?" 0 "X509 Certificate for package signing"
+
+exit 0
