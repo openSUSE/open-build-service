@@ -528,7 +528,7 @@ class BsRequestAction < ApplicationRecord
           if is_maintenance_release?
             pkg.project.repositories.includes(:release_targets).find_each do |repo|
               repo.release_targets.each do |rt|
-                new_targets << rt.target_repository.project.name
+                new_targets << rt.target_repository.project
               end
             end
             new_packages << pkg
@@ -541,10 +541,10 @@ class BsRequestAction < ApplicationRecord
       new_action = dup
       new_action.source_package = pkg.name
       if is_maintenance_incident?
-        new_targets << tprj.name if tprj
+        new_targets << tprj if tprj
         new_action.target_releaseproject = releaseproject.name if releaseproject
       elsif !pkg.is_channel?
-        new_targets << tprj.name
+        new_targets << tprj
         new_action.target_project = tprj.name
         new_action.target_package = tpkg + incident_suffix
       end
@@ -559,7 +559,7 @@ class BsRequestAction < ApplicationRecord
           new_action.destroy
           new_action = submit_action
         else # non-channel package
-          next unless maintenance_trigger?(pkg.project.repositories, tprj.repositories)
+          next unless has_matching_target?(pkg.project, tprj)
 
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource, 'According to the source link of package ' \
@@ -588,11 +588,11 @@ class BsRequestAction < ApplicationRecord
       release_targets = pkg.is_patchinfo? ? Patchinfo.new.fetch_release_targets(pkg) : nil
       new_targets.each do |new_target_project|
         if release_targets.present?
-          next unless release_targets.any? { |rt| rt['project'] == new_target_project }
+          next unless release_targets.any? { |rt| rt['project'] == new_target_project.name }
         end
 
         # skip if there is no active maintenance trigger for this package
-        next if is_maintenance_incident? && !maintenance_trigger?(pkg.project.repositories, Project.find_by_name(new_target_project).repositories)
+        next if is_maintenance_release? && !has_matching_target?(pkg.project, new_target_project)
 
         new_action = dup
         new_action.source_package = pkg.name
@@ -841,9 +841,9 @@ class BsRequestAction < ApplicationRecord
     "The repository '#{prj}' / '#{repo}' / #{arch} did not finish the #{state} yet"
   end
 
-  def maintenance_trigger?(repos, target_repos)
-    ReleaseTarget.where(repository: repos,
-                        target_repository: target_repos,
+  def has_matching_target?(source_project, target_project)
+    ReleaseTarget.where(repository: source_project.repositories,
+                        target_repository: target_project.repositories,
                         trigger: 'maintenance').exists?
   end
 
