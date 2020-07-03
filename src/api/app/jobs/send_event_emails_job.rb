@@ -6,7 +6,7 @@ class SendEventEmailsJob < ApplicationJob
       subscribers = event.subscribers
       event.update(mails_sent: true) if subscribers.empty?
 
-      NotificationCreator.new(event).call
+      NotificationService::Notifier.new(event).call
       send_email(subscribers, event)
     end
     true
