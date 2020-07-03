@@ -44,6 +44,7 @@ end
 #  delivered                  :boolean          default(FALSE)
 #  event_payload              :text(65535)      not null
 #  event_type                 :string(255)      not null
+#  last_seen_at               :datetime
 #  notifiable_type            :string(255)      indexed => [notifiable_id]
 #  rss                        :boolean          default(FALSE)
 #  subscriber_type            :string(255)      indexed => [subscriber_id]
