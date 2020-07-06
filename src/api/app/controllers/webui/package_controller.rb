@@ -23,7 +23,7 @@ class Webui::PackageController < Webui::WebuiController
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
-                                         :users, :requests, :statistics, :commit, :revisions, :rdiff, :view_file, :live_build_log,
+                                         :users, :requests, :statistics, :revisions, :rdiff, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
