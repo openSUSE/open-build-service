@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=user_1
+    uri: http://backend:5352/source/home:tom/package_with_file/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Ducimus voluptatum sed necessitatibus.</description>
+          <title>It's a Battlefield</title>
+          <description>Perspiciatis dolorem dicta in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '171'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="package_with_file" project="home:tom">
-          <title>Ring of Bright Water</title>
-          <description>Ducimus voluptatum sed necessitatibus.</description>
+          <title>It's a Battlefield</title>
+          <description>Perspiciatis dolorem dicta in.</description>
         </package>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/_config
     body:
       encoding: UTF-8
-      string: Maiores voluptatem ipsam. Sit mollitia consequatur. Sit dicta sed.
+      string: Rem molestiae est. Qui porro tenetur. Assumenda sit eveniet.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -107,22 +107,21 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>ce8344f8011f0021478f6c46a5b10078</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>b55ccb684938bbe58dbab3898f109918</srcmd5>
           <version>unknown</version>
-          <time>1591356340</time>
+          <time>1594043408</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Quis ipsum illum. Excepturi possimus praesentium. Consequatur voluptate
-        est.
+      string: Ut sint dolorem. Eaque sunt voluptatibus. Et animi corrupti.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -146,15 +145,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="4" vrev="4">
-          <srcmd5>0e0dc7edb4b30d15e382fc5bc8bd774b</srcmd5>
+        <revision rev="6" vrev="6">
+          <srcmd5>9cb2be9b18494297a85f1ff1172c0ce2</srcmd5>
           <version>unknown</version>
-          <time>1591356340</time>
+          <time>1594043408</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -184,11 +183,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="4" vrev="4" srcmd5="0e0dc7edb4b30d15e382fc5bc8bd774b">
-          <entry name="_config" md5="c781f7481bf72efc6623c709838e8ab1" size="66" mtime="1591356340"/>
-          <entry name="somefile.txt" md5="09f078b4b3344e14eb2395e1cba2023e" size="76" mtime="1591356340"/>
+        <directory name="package_with_file" rev="6" vrev="6" srcmd5="9cb2be9b18494297a85f1ff1172c0ce2">
+          <entry name="_config" md5="49d170202658c269bc56fd4327210ce0" size="60" mtime="1594043408"/>
+          <entry name="somefile.txt" md5="11880be2f56f8d08559e658b3a3e7957" size="60" mtime="1594043408"/>
         </directory>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/package_with_file
@@ -218,14 +217,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="4" vrev="4" srcmd5="0e0dc7edb4b30d15e382fc5bc8bd774b">
-          <entry name="_config" md5="c781f7481bf72efc6623c709838e8ab1" size="66" mtime="1591356340"/>
-          <entry name="somefile.txt" md5="09f078b4b3344e14eb2395e1cba2023e" size="76" mtime="1591356340"/>
+        <directory name="package_with_file" rev="6" vrev="6" srcmd5="9cb2be9b18494297a85f1ff1172c0ce2">
+          <entry name="_config" md5="49d170202658c269bc56fd4327210ce0" size="60" mtime="1594043408"/>
+          <entry name="somefile.txt" md5="11880be2f56f8d08559e658b3a3e7957" size="60" mtime="1594043408"/>
         </directory>
-  recorded_at: Fri, 05 Jun 2020 11:25:40 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/package_with_file?cacheonly=1&cmd=diff&expand=1&rev=&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&rev=&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -257,10 +256,10 @@ http_interactions:
         <status code="400">
           <summary>revision is empty</summary>
         </status>
-  recorded_at: Fri, 05 Jun 2020 11:25:41 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/package_with_file?cacheonly=1&cmd=diff&expand=0&rev=&view=xml&withissues=1
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=0&rev=&view=xml&withissues=1
     body:
       encoding: UTF-8
       string: ''
@@ -292,5 +291,5 @@ http_interactions:
         <status code="400">
           <summary>revision is empty</summary>
         </status>
-  recorded_at: Fri, 05 Jun 2020 11:25:41 GMT
+  recorded_at: Mon, 06 Jul 2020 13:50:08 GMT
 recorded_with: VCR 6.0.0
