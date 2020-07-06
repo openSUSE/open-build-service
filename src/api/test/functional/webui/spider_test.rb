@@ -5,6 +5,7 @@ require 'nokogiri'
 
 class Webui::SpiderTest < Webui::IntegrationTest
   def ignore_link?(link)
+    return true if link =~ %r{/package/dependency/}
     return true if link =~ %r{/mini-profiler-resources}
     # that link is just a top ref
     return true if link =~ %r{/package/rdiff}
