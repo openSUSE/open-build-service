@@ -525,6 +525,7 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe 'GET #rdiff' do
     context 'when no difference in sources diff is empty' do
       before do
+        login user
         get :rdiff, params: { project: source_project, package: package, oproject: source_project, opackage: package }
       end
 
@@ -533,6 +534,7 @@ RSpec.describe Webui::PackageController, vcr: true do
 
     context 'when an empty revision is provided' do
       before do
+        login user
         get :rdiff, params: { project: source_project, package: package, rev: '' }
       end
 
