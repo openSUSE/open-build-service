@@ -22,8 +22,8 @@ class Webui::PackageController < Webui::WebuiController
   before_action :require_architecture, only: [:binary, :binary_download]
   before_action :check_ajax, only: [:update_build_log, :devel_project, :buildresult, :rpmlint_result]
   # make sure it's after the require_, it requires both
-  before_action :require_login, except: [:show, :index, :dependency, :branch_diff_info, :binary, :binaries,
-                                         :users, :requests, :statistics, :commit, :revisions, :rdiff, :view_file, :live_build_log,
+  before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
+                                         :users, :requests, :statistics, :revisions, :view_file, :live_build_log,
                                          :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
@@ -235,9 +235,10 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    revision = (params[:rev] || @package.rev).to_i
-    per_page = params['show_all'] ? revision : 20
-    @revisions = Kaminari.paginate_array((1..revision).to_a.reverse).page(params[:page]).per(per_page)
+    per_page = 20
+    revision_count = (params[:rev] || @package.rev).to_i
+    per_page = params['show_all'] ? revision_count : per_page if User.session
+    @revisions = Kaminari.paginate_array((1..revision_count).to_a.reverse).page(params[:page]).per(per_page)
   end
 
   def rdiff
