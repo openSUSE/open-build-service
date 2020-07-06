@@ -235,9 +235,10 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    revision = (params[:rev] || @package.rev).to_i
-    per_page = params['show_all'] ? revision : 20
-    @revisions = Kaminari.paginate_array((1..revision).to_a.reverse).page(params[:page]).per(per_page)
+    per_page = 20
+    revision_count = (params[:rev] || @package.rev).to_i
+    per_page = params['show_all'] ? revision_count : per_page if User.session
+    @revisions = Kaminari.paginate_array((1..revision_count).to_a.reverse).page(params[:page]).per(per_page)
   end
 
   def rdiff

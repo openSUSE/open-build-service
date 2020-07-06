@@ -19,9 +19,10 @@
       - unless params['show_all']
         = paginate @revisions, views_prefix: 'webui'
         - unless @revisions.total_pages == 1
-          .text-center= link_to('Show all',
-                                package_view_revisions_path(project: @project, package: @package, show_all: 1),
-                                class: 'btn btn-sm btn-secondary')
+          - if User.session
+            .text-center= link_to('Show all',
+                                  package_view_revisions_path(project: @project, package: @package, show_all: 1),
+                                  class: 'btn btn-sm btn-secondary')
     - else
       %p
         %i No commits exists yet.
