@@ -521,7 +521,7 @@ make -C dist test
 
 %pre
 getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
     -c "User for the build service source service" obsservicerun
 
 %service_add_pre obsscheduler.service
