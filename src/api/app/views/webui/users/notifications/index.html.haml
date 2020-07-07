@@ -8,7 +8,7 @@
     .card.mb-3
       %strong.d-block.d-md-none.p-3{ data: { toggle: 'collapse', target: '#filters' },
                                   aria: { expanded: true, controls: 'filters' } }
-        Filtered by: #{(params[:type] || 'Inbox').humanize}
+        Filtered by: #{(params[:type] || params[:project] || 'Inbox').humanize}
         %i.float-right.mt-1.fa.fa-chevron-down
       .card-body.collapse#filters
         = render partial: 'notifications_filter', locals: { projects_for_filter: @projects_for_filter, notifications_count: @notifications_count }
