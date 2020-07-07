@@ -250,7 +250,7 @@ class Review < ApplicationRecord
 
   def event_parameters(params = {})
     params = params.merge(_get_attributes)
-    params[:id] = id
+    params[:id] = bs_request.id
     params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
     params[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
