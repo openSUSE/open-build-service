@@ -7,6 +7,14 @@ module NotificationService
                         'Event::CommentForPackage',
                         'Event::CommentForRequest'].freeze
     CHANNELS = [:web, :rss].freeze
+    ALLOWED_NOTIFIABLE_TYPES = {
+      'BsRequest' => ::BsRequest,
+      'Comment' => ::Comment
+    }.freeze
+    ALLOWED_CHANNELS = {
+      web: NotificationService::WebChannel,
+      rss: NotificationService::RSSChannel
+    }.freeze
 
     def initialize(event)
       @event = event
@@ -29,8 +37,7 @@ module NotificationService
     def create_notification_per_subscription(subscription, channel)
       return unless create_notification?(subscription.subscriber, channel)
 
-      klass = channel == :web ? 'Web' : 'RSS'
-      "NotificationService::#{klass}Channel".constantize.new(subscription, @event).call
+      ALLOWED_CHANNELS[channel].new(subscription, @event).call
     end
 
     def create_notification?(subscriber, channel)
@@ -44,9 +51,11 @@ module NotificationService
     def notifiable_exists?
       # We need this check because the notification is created in a delayed job.
       # So the notifiable object could have been removed in the meantime.
-      notifiable_type = @event.parameters_for_notification[:notifiable_type]
+      notifiable_type = ALLOWED_NOTIFIABLE_TYPES[@event.parameters_for_notification[:notifiable_type]]
+      return false unless notifiable_type
+
       notifiable_id = @event.parameters_for_notification[:notifiable_id]
-      notifiable_type.constantize.exists?(notifiable_id)
+      notifiable_type.exists?(notifiable_id)
     end
   end
 end

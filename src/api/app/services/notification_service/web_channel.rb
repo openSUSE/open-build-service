@@ -1,6 +1,11 @@
 # This class ensures the :web channel will have only the most up-to-date notifications
 module NotificationService
   class WebChannel
+    ALLOWED_FINDERS = {
+      'BsRequest' => OutdatedNotificationsFinder::BsRequest,
+      'Comment' => OutdatedNotificationsFinder::Comment
+    }.freeze
+
     def initialize(subscription, event)
       @subscription = subscription
       @event = event
@@ -22,8 +27,7 @@ module NotificationService
     private
 
     def finder_class
-      type = @parameters_for_notification[:notifiable_type]
-      "OutdatedNotificationsFinder::#{type}".constantize
+      ALLOWED_FINDERS[@parameters_for_notification[:notifiable_type]]
     end
 
     def notification_scope
