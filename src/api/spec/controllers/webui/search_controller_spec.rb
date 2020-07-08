@@ -88,15 +88,6 @@ RSpec.describe Webui::SearchController, vcr: true do
       end
     end
 
-    context 'with no search scope' do
-      before do
-        get :index, params: { search_text: 'whatever' }
-      end
-
-      it { expect(flash[:error]).to eq('You have to search for whatever in something. Click the advanced button...') }
-      it { expect(response).to have_http_status(:success) }
-    end
-
     context 'with proper parameters but no results' do
       before do
         allow(ThinkingSphinx).to receive(:search).and_return([])
