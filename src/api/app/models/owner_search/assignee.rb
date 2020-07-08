@@ -94,6 +94,7 @@ module OwnerSearch
 
       package_name = b['package']
       package_name.gsub!(/\.[^.]*$/, '') if prj.is_maintenance_release?
+      package_name = Package.striping_multibuild_suffix(package_name)
       pkg = prj.packages.find_by_name(package_name)
 
       return false if pkg.nil? || pkg.is_patchinfo?
