@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_26_095558) do
+ActiveRecord::Schema.define(version: 2020_07_03_110429) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -672,6 +672,7 @@ ActiveRecord::Schema.define(version: 2020_06_26_095558) do
     t.string "title", collation: "utf8_unicode_ci"
     t.boolean "rss", default: false
     t.boolean "web", default: false
+    t.datetime "last_seen_at"
     t.index ["notifiable_type", "notifiable_id"], name: "index_notifications_on_notifiable_type_and_notifiable_id"
     t.index ["subscriber_type", "subscriber_id"], name: "index_notifications_on_subscriber_type_and_subscriber_id"
   end
