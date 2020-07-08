@@ -113,13 +113,13 @@ RSpec.describe RegenerateNotifications, type: :migration do
           subject
         end
 
-        it 'creates a ReviewWanted Notification' do
+        it 'creates a ReviewWanted Notification of type Request' do
           expect(Notification.where(event_type: 'Event::ReviewWanted').count).to eq(1)
           notification = Notification.find_by(event_type: 'Event::ReviewWanted')
 
           # Checks the Notification's attributes have correct values:
           expect(notification.event_payload['number']).to eq(review_request.number)
-          expect(notification.notifiable).to eq(review)
+          expect(notification.notifiable).to eq(review_request)
           expect(notification.created_at.to_s).to eq(review.updated_at.to_s)
           expect(notification.title).to eq("Request #{review_request.number} requires review (submit #{project}/#{package})")
         end
@@ -137,13 +137,13 @@ RSpec.describe RegenerateNotifications, type: :migration do
           subject
         end
 
-        it 'creates a ReviewWanted Notification' do
+        it 'creates a ReviewWanted Notification of type Request' do
           expect(Notification.where(event_type: 'Event::ReviewWanted').count).to eq(1)
           notification = Notification.find_by(event_type: 'Event::ReviewWanted')
 
           # Checks the Notification's attributes have correct values:
           expect(notification.event_payload['number']).to eq(review_request.number)
-          expect(notification.notifiable).to eq(review_by_package)
+          expect(notification.notifiable).to eq(review_request)
           expect(notification.title).to eq("Request #{review_request.number} requires review (submit #{project}/#{package})")
           expect(notification).to be_web
           expect(notification).not_to be_rss

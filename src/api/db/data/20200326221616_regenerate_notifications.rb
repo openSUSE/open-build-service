@@ -35,7 +35,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
 
     new_requests.each do |request|
       event = Event::RequestCreate.new(request.event_parameters)
-      NotificationCreator.new(event).call
+      NotificationService::Notifier.new(event).call
     end
   end
 
@@ -47,7 +47,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     declined_requests.each do |request|
       event = Event::RequestStatechange.new(request.event_parameters)
       event.payload['oldstate'] = request_old_state(request)
-      NotificationCreator.new(event).call
+      NotificationService::Notifier.new(event).call
     end
   end
 
@@ -84,7 +84,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     new_reviews.each do |review|
       params = review.event_parameters(review.bs_request.event_parameters)
       event = Event::ReviewWanted.new(params)
-      NotificationCreator.new(event).call
+      NotificationService::Notifier.new(event).call
     end
   end
 
@@ -95,7 +95,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
 
     recent_request_comments.each do |comment|
       event = Event::CommentForRequest.new(comment.event_parameters)
-      NotificationCreator.new(event).call
+      NotificationService::Notifier.new(event).call
     end
   end
 end

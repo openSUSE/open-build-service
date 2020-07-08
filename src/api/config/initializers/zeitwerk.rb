@@ -8,6 +8,7 @@ Rails.autoloaders.each do |autoloader|
     'opensuse_upstream_tarball_url_finder' => 'OpenSUSEUpstreamTarballURLFinder',
     'opensuse_upstream_version_finder' => 'OpenSUSEUpstreamVersionFinder',
     'remote_url' => 'RemoteURL',
+    'rss_channel' => 'RSSChannel',
     'url_generator' => 'URLGenerator'
   )
 end
