@@ -66,6 +66,8 @@ class Review < ApplicationRecord
   before_validation :set_reviewable_association
   after_commit :update_cache
 
+  delegate :number, to: :bs_request
+
   def review_assignment
     errors.add(:unknown, 'no reviewer defined') unless by_user || by_group || by_project
     errors.add(:base, 'it is not allowed to have more than one reviewer entity: by_user, by_group, by_project') if invalid_reviewers?
