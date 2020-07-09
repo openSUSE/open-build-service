@@ -3,10 +3,11 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread'].freeze
 
   before_action :require_login
-  before_action :check_param_type, :projects_for_filter, :check_param_project, only: :index
+  before_action :check_param_type, :check_param_project, only: :index
 
   def index
     @notifications = fetch_notifications
+    @projects_for_filter = projects_for_filter
     @notifications_count = notifications_count
   end
 
@@ -41,9 +42,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def check_param_project
-    return if params[:project].nil? || @projects_for_filter.keys.include?(params[:project])
+    return unless params[:project] == ''
 
-    flash[:error] = 'Project filter not valid.'
+    flash[:error] = 'Filter not valid.'
     redirect_to my_notifications_path
   end
 
@@ -58,10 +59,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   # Returns a hash where the key is the name of the project and the value is the amount of notifications
   # associated to that project. The hash is sorted by amount and then name.
   def projects_for_filter
-    @projects_for_filter = Project.joins(:notifications)
-                                  .where(notifications: { subscriber: User.session, delivered: false, web: true })
-                                  .order('name desc').group(:name).count # this returns a sorted-by-name hash: { "home:b" => 1, "home:a" => 3  }
-                                  .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
+    Project.joins(:notifications)
+           .where(notifications: { subscriber: User.session, delivered: false, web: true })
+           .order('name desc').group(:name).count # this query returns a sorted-by-name hash like { "home:b" => 1, "home:a" => 3  }
+           .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
   end
 
   def notifications_count
