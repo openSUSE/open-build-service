@@ -109,6 +109,7 @@ sub periodic {
     unlink("$rundir/$conf->{'name'}.exit");
     exit(0);
   }
+  checkandmemoize($conf);
   if (-e "$rundir/$conf->{'name'}.restart") {
     BSServer::msg("$conf->{'name'} restarting...");
     if (system($0, "--test")) {
@@ -152,6 +153,55 @@ sub periodic_ajax {
   if (@events <= 1 || --$conf->{'exiting'} == 0) {
     BSServer::msg("AJAX: $conf->{'name'} goodbye.");
     exit(0);
+  }
+}
+
+my %memoized_files;
+my $memoized_size = 0;
+sub checkandmemoize {
+  my ($conf) = @_;
+  my $fn = $conf->{'memoize'};
+  return unless $fn;
+  my $msize = $conf->{'memoize_max_size'};
+  return unless $msize;
+  do_memoize("$fn.read", $msize);
+  do_memoize($fn, $msize);
+}
+
+sub do_memoize {
+  my ($fn, $msize) = @_;
+  if (-e "$fn") {
+    my $file;
+    BSUtil::lockopen($file, '<', "$fn");
+    rename($fn, "$fn.read") || die("rename $fn $fn.read $!\n");
+    my $sizechange = 0;
+    my ($toread, $d, @s);
+    while (<$file>) {
+      next unless chop($_) eq "\n";
+      $toread = $_;
+      #BSUtil::printlog("file to memoize $toread");
+      if (exists $memoized_files{$toread} && !-e $toread) {
+        $_ = $memoized_files{$toread}->[0] =~ /.*\/(.*)\/.*/;
+        $sizechange -= $1;
+        delete $memoized_files{$toread};
+        next
+      }
+      @s = stat($toread);
+      next unless @s;
+      next if $s[7] > $msize;
+      if (! $memoized_files{$toread} || $memoized_files{$toread}->[0] ne "$s[9]/$s[7]/$s[1]") {
+        $d = readstr($toread, 1);
+        next unless $d;
+        ($memoized_files{$toread}->[0] || "0/0/0") =~ /.*\/(.*)\/.*/;
+        $sizechange += -$1 + $s[7];
+        $memoized_files{$toread} = ["$s[9]/$s[7]/$s[1]", $d];
+      }
+    }
+    $memoized_size += $sizechange;
+    my $inmb = $memoized_size/(1024*1024);
+    BSUtil::printlog("memoized_size is $inmb MB") if abs($sizechange)/($memoized_size || 1) > 0.1;
+    close $file;
+    unlink("$fn.read");
   }
 }
 
