@@ -9,6 +9,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     @notifications = fetch_notifications
     @projects_for_filter = projects_for_filter
     @notifications_count = notifications_count
+    @filtered_project = Project.find_by(name: params[:project])
   end
 
   def update
