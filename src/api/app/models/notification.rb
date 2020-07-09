@@ -29,8 +29,16 @@ class Notification < ApplicationRecord
     event_type.gsub('Event::', '').underscore
   end
 
+  def read?
+    delivered?
+  end
+
   def unread?
-    !delivered?
+    !read?
+  end
+
+  def unread_date
+    last_seen_at || created_at
   end
 end
 
