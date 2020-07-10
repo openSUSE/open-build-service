@@ -133,26 +133,6 @@ RSpec.describe 'Search', type: :feature, js: true do
       expect(page).to have_selector('#search-results', count: 0)
     end
 
-    it 'search in no fields' do
-      apache2
-
-      visit search_path
-      page.evaluate_script('$.fx.off = true;') # Needed to disable javascript animations that can end in not checking the checkboxes properly
-
-      fill_in 'search_input', with: 'awesome'
-      click_button 'Advanced'
-      uncheck 'title'
-      uncheck 'name'
-      uncheck 'description'
-      click_button 'Search'
-
-      within('#flash') do
-        expect(page).to have_text('You have to search for awesome in something. Click the advanced button...')
-      end
-
-      expect(page).to have_selector('#search-results', count: 0)
-    end
-
     it 'search Russian project in UTF-8' do
       russian_project
 
