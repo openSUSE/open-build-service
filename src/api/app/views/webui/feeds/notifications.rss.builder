@@ -9,7 +9,7 @@ xml.rss version: '2.0' do
 
     @notifications.each do |notification|
       xml.item do
-        if notification.notifiable
+        if notification.notifiable && notification.event_type != 'Event::ReviewWanted'
           xml.title notification.title
           xml.description render(
             template: "notifications/#{notification.template_name}",
