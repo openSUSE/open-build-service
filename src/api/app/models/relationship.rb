@@ -125,10 +125,8 @@ class Relationship < ApplicationRecord
     end
 
     def cache_sequence
-      # rubocop:disable Style/RedundantFetchBlock
       # False positive: https://github.com/rubocop-hq/rubocop/issues/8196
       Rails.cache.fetch(RELATIONSHIP_CACHE_SEQUENCE) { 0 }
-      # rubocop:enable Style/RedundantFetchBlock
     end
 
     def cache_user_centric_key
