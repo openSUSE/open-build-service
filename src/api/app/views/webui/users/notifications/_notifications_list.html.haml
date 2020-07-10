@@ -17,23 +17,27 @@
       .list-group.list-group-flush.mt-3
         - notifications.each do |n|
           - notification = NotificationPresenter.new(n)
-          .list-group-item.d-flex.flex-column.flex-sm-row.justify-content-sm-between
+          .list-group-item.px-2.grid-container
+            .notifiable
+              - if notification.notifiable_type == 'BsRequest'
+                = image_tag('icons/request-icon', height: 18, title: 'Request notification')
+                = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
+                %span.badge{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
+                  = notification.notifiable.state
+              - else
+                %i.fas.fa-comments{ title: 'Comment notification' }
+                = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
+            .actions.ml-auto.align-self-end.align-self-md-start
+              - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
+              = link_to(my_notification_path(id: notification),
+                        method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
+                %i.fas{ class: "#{icon}" }
             .content
-              .text-nowrap
-                %span.badge.badge-secondary= notification.notification_badge
-                %small.text-muted= time_ago_in_words(notification.created_at)
-              = link_to(n.title, notification.link_to_notification_target, class: 'text-word-break-all')
-              %p.text-muted= notification.excerpt
-            - unless params[:type] == 'read'
-              .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                = link_to(my_notification_path(id: notification, type: params[:type], project: params[:project]),
-                        method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Read"', remote: true) do
-                  %i.fas.fa-check
-            - unless notification.unread?
-              .actions.align-self-end.align-self-sm-start.pl-3.pt-3.pt-sm-0
-                = link_to(my_notification_path(id: notification, type: params[:type], project: params[:project]),
-                        method: :put, class: 'btn btn-sm btn-outline-success px-4', title: 'Mark as "Unread"', remote: true) do
-                  %i.fas.fa-undo
+              - if notification.kind_of_request
+                %p.text-word-break-all.m-0.mb-2= notification.kind_of_request
+              %p.d-none.d-md-block.font-weight-light= notification.excerpt
+            %small.who-when.d-flex.align-self-center.align-self-md-start.justify-content-start.justify-content-md-end.font-weight-light
+              = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
+              %span.d-inline-block.text-nowrap.ml-2 #{time_ago_in_words(notification.created_at)} ago
 
       = paginate notifications, views_prefix: 'webui', window: 2
-

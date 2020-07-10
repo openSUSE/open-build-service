@@ -64,7 +64,7 @@
         .tab-pane.fade#inherited-packages{ role: 'tabpanel', aria: { labelledby: 'inherited-packages-tab' } }
           = render partial: 'project_inherited_packages', locals: { project: @project, inherited_packages: @inherited_packages }
   .comments
-    .card
+    .card#comments-list
       %h5.card-header.text-word-break-all
         Comments for #{@project}
         %span.badge.badge-primary{ id: "comment-counter-project-#{@project.id}" }

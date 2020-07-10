@@ -1,0 +1,9 @@
+%li.list-inline-item
+  - case avatar_object.class.name
+  - when 'User', 'Group'
+    = image_tag_for(avatar_object, size: 23, custom_class: 'rounded-circle bg-light border border-gray-400')
+  - when 'Package'
+    - title = "Package #{avatar_object.project}/#{avatar_object}"
+    %span.fa.fa-archive.text-warning.rounded-circle.bg-light.border.border-gray-400.simulated-avatar{ title: title }
+  - when 'Project'
+    %span.fa.fa-cubes.text-secondary.rounded-circle.bg-light.border.border-gray-400.simulated-avatar{ title: "Project #{avatar_object}" }

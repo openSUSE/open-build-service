@@ -58,6 +58,7 @@ class Review < ApplicationRecord
   scope :bs_request_ids_of_involved_users, ->(user_ids) { where(user_id: user_ids).select(:bs_request_id) }
 
   scope :declined, -> { where(state: :declined) }
+  scope :in_state_new, -> { where(state: :new) }
 
   before_validation(on: :create) do
     self.state = :new if self[:state].nil?
@@ -263,6 +264,13 @@ class Review < ApplicationRecord
     params = event_parameters(params)
 
     Event::ReviewWanted.create(params)
+  end
+
+  def reviewed_by
+    return User.find_by(login: by_user) if by_user
+    return Group.find_by(title: by_group) if by_group
+    return Package.find_by_project_and_name(by_project, by_package) if by_package
+    return Project.find_by(name: by_project) if by_project
   end
 
   private

@@ -4,37 +4,31 @@ class NotificationPresenter < SimpleDelegator
     super(@model)
   end
 
-  def link_to_notification_target
+  def notifiable_link
     case @model.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number)
+      { text: "Request ##{@model.notifiable.number}",
+        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number) }
     when 'Event::CommentForRequest'
-      Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, anchor: "comment-#{@model.notifiable_id}")
+      { text: "Request ##{@model.notifiable.commentable.number}",
+        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, anchor: 'comments-list') }
     when 'Event::CommentForProject'
-      Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, anchor: "comment-#{@model.notifiable_id}")
+      { text: @model.notifiable.commentable.name,
+        path: Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, anchor: 'comments-list') }
     when 'Event::CommentForPackage'
-      Rails.application.routes.url_helpers.package_show_path(package: @model.notifiable.commentable,
-                                                             project: @model.notifiable.commentable.project,
-                                                             anchor: "comment-#{@model.notifiable_id}")
+      commentable = @model.notifiable.commentable
+      { text: "#{commentable.project.name} / #{commentable.name}",
+        path: Rails.application.routes.url_helpers.package_show_path(package: @model.notifiable.commentable,
+                                                                     project: @model.notifiable.commentable.project,
+                                                                     anchor: 'comments-list') }
     else
-      ''
-    end
-  end
-
-  def notification_badge
-    case @model.event_type
-    when 'Event::RequestStatechange', 'Event::RequestCreate'
-      'Request'
-    when 'Event::ReviewWanted'
-      'Review'
-    when 'Event::CommentForRequest', 'Event::CommentForProject', 'Event::CommentForPackage'
-      'Comment'
+      {}
     end
   end
 
   def excerpt
     text =  case @model.notifiable_type
-            when 'Request'
+            when 'BsRequest'
               @model.notifiable.description
             when 'Review'
               @model.notifiable.reason
@@ -44,5 +38,27 @@ class NotificationPresenter < SimpleDelegator
               ''
             end
     text.to_s.truncate(100)
+  end
+
+  def kind_of_request
+    return unless @model.notifiable_type == 'BsRequest'
+
+    request = @model.notifiable
+    return "Multiple actions for project #{request.bs_request_actions.first.target_project}" if request.bs_request_actions.size > 1
+
+    BsRequest.actions_summary(@model.event_payload)
+  end
+
+  def commenters
+    commentable = @model.notifiable.commentable
+    commentable.comments.where('updated_at >= ?', @model.unread_date).map(&:user).uniq
+  end
+
+  def avatar_objects
+    if @model.notifiable_type == 'Comment'
+      commenters
+    else
+      @model.notifiable.reviews.in_state_new.map(&:reviewed_by) + User.where(login: @model.notifiable.creator)
+    end
   end
 end
