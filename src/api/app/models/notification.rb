@@ -40,10 +40,6 @@ class Notification < ApplicationRecord
   def unread_date
     last_seen_at || created_at
   end
-
-  def unread_date
-    last_seen_at || created_at
-  end
 end
 
 # == Schema Information
