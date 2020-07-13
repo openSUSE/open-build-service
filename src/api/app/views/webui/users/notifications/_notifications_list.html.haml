@@ -20,7 +20,7 @@
           .list-group-item.px-2.grid-container
             .notifiable
               - if notification.notifiable_type == 'BsRequest'
-                = image_tag('icons/request-icon', height: 18, title: 'Request notification')
+                = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
                 = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
                 %span.badge{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
                   = notification.notifiable.state
