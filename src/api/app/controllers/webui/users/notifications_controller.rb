@@ -49,12 +49,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     redirect_to my_notifications_path
   end
 
-  def show_all
-    total = @notifications.size
+  def show_all(notifications)
+    total = notifications.size
     if total > MAX_PER_PAGE
       flash.now[:info] = "You have too many notifications. Displaying a maximum of #{MAX_PER_PAGE} notifications per page."
     end
-    @notifications = @notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
+    notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
   end
 
   # Returns a hash where the key is the name of the project and the value is the amount of notifications
@@ -78,6 +78,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                     else
                       NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
                     end
-    params['show_all'] ? show_all : notifications.page(params[:page])
+    params['show_all'] ? show_all(notifications) : notifications.page(params[:page])
   end
 end
