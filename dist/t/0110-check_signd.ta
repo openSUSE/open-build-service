@@ -1,20 +1,22 @@
-#!/bin/bash
+#!/usr/bin/perl
 
-export BASH_TAP_ROOT=$(dirname $0)
+use strict;
+use warnings;
+use Test::More tests => 3;
 
-. $(dirname $0)/bash-tap-bootstrap
+my $file = "obs-default-gpg.asc";
+ok(-f "/srv/obs/$file", "Checking file $file");
 
-plan tests 3
+`grep -q "function create_sign_cert" /usr/lib/obs/server/setup-appliance.sh`;
 
-for file in \
-  obs-default-gpg.asc\
-  obs-default-gpg.cert
-do
-  [ -e /srv/obs/$file ]
-  is "$?" 0 "Checking file $file"
-done
+SKIP: {
+  skip "create_sign_cert missing in setup-appliance.sh", 2 if $?;
 
-openssl x509 -text -noout < /srv/obs/obs-default-gpg.cert |grep -q "private OBS"
-is "$?" 0 "X509 Certificate for package signing"
+  $file = "obs-default-gpg.cert";
+  ok(-f "/srv/obs/$file", "Checking for cert file $file");
 
-exit 0
+  `openssl x509 -text -noout < /srv/obs/obs-default-gpg.cert |grep -q "private OBS"`;
+  ok($? == 0, "X509 Certificate for package signing");
+}
+
+exit 0;
