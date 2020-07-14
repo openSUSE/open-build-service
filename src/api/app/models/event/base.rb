@@ -19,8 +19,7 @@ module Event
     }.freeze
 
     class << self
-      attr_accessor :description
-      attr_accessor :message_bus_routing_key
+      attr_accessor :description, :message_bus_routing_key
 
       @payload_keys = nil
       @create_jobs = nil

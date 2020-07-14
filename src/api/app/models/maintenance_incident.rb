@@ -63,8 +63,7 @@ class MaintenanceIncident < ApplicationRecord
                                       maintenance_db_project_id]
       self.incident_id = r[0]
     end
-    name = maintenance_db_project.name + ':' + incident_id.to_s
-    name
+    maintenance_db_project.name + ':' + incident_id.to_s
   end
 
   def getUpdateinfoCounter(time, template = '%Y-%C')

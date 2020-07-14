@@ -12,9 +12,9 @@ require 'pathname'
 TABLES_TO_REMOVE = ['cache_lines', 'project_log_entries'].freeze
 @params = {}
 @params[:environment] = 'development'
-@options_path = ::File.expand_path('../../config/options.yml', __FILE__)
-@database_path = ::File.expand_path('../../config/database.yml', __FILE__)
-@data_path = ::File.expand_path('../../db/data', __FILE__)
+@options_path = ::File.expand_path('../config/options.yml', __dir__)
+@database_path = ::File.expand_path('../config/database.yml', __dir__)
+@data_path = ::File.expand_path('../db/data', __dir__)
 
 OptionParser.new do |opts|
   opts.banner = 'Usage: import_database.rb [options]'
