@@ -17,7 +17,7 @@ FactoryBot.define do
       after(:create) do |staging_workflow, evaluator|
         # StagingWorkflow have some staging projects already after initialize
         new_staging_projects_count = evaluator.staging_project_count - staging_workflow.staging_projects.count
-        letters = [*'A'..'Z']
+        letters = Array('A'..'Z')
         new_staging_projects_count.times do |index|
           letter = letters[index + staging_workflow.staging_projects.count]
           staging_workflow.staging_projects << create(:staging_project, name: "#{staging_workflow.project.name}:Staging:#{letter}", maintainer: staging_workflow.managers_group)

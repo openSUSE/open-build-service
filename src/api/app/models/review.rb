@@ -233,11 +233,12 @@ class Review < ApplicationRecord
     Event::ReviewChanged.create(bs_request.event_parameters)
 
     arguments = { review: self, comment: comment, user: User.session! }
-    if new_state == :accepted
+    case new_state
+    when :accepted
       HistoryElement::ReviewAccepted.create(arguments)
-    elsif new_state == :declined
+    when :declined
       HistoryElement::ReviewDeclined.create(arguments)
-    elsif new_state == :new
+    else
       HistoryElement::ReviewReopened.create(arguments)
     end
     true

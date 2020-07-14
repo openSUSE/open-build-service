@@ -367,9 +367,10 @@ class Project < ApplicationRecord
     end
 
     def has_dod_elements?(request_data)
-      if request_data.is_a?(Array)
+      case request_data
+      when Array
         request_data.any? { |r| r['download'] }
-      elsif request_data.is_a?(Hash)
+      when Hash
         request_data['download'].present?
       end
     end

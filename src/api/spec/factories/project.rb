@@ -14,11 +14,12 @@ FactoryBot.define do
 
       if evaluator.maintainer
         role = Role.find_by_title('maintainer')
-        maintainers = [*evaluator.maintainer]
+        maintainers = Array(evaluator.maintainer)
         maintainers.each do |maintainer|
-          if maintainer.is_a?(User)
+          case maintainer
+          when User
             project.relationships.build(user: maintainer, role: role)
-          elsif maintainer.is_a?(Group)
+          when Group
             project.relationships.build(group: maintainer, role: role)
           end
         end
@@ -191,7 +192,7 @@ FactoryBot.define do
 
     factory :staging_project do
       # Staging workflows have 2 staging projects by default, *:Staging:A and *:Staging:B.
-      sequence(:name, [*'C'..'Z'].cycle) { |letter| "#{staging_workflow.project.name}:Staging:#{letter}" }
+      sequence(:name, Array('C'..'Z').cycle) { |letter| "#{staging_workflow.project.name}:Staging:#{letter}" }
     end
   end
 end

@@ -41,10 +41,11 @@ class Hash
   private
 
   def traverse_value(value, &block)
-    if value.is_a?(Hash)
+    case value
+    when Hash
       value.each { |key, sub_value| value[key] = traverse_value(sub_value, &block) }
 
-    elsif value.is_a?(Array)
+    when Array
       value.map { |element| traverse_value(element, &block) }
 
     else

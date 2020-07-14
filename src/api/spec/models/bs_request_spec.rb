@@ -377,7 +377,7 @@ RSpec.describe BsRequest, vcr: true do
     context "when there is no action with type 'submit'" do
       let(:request_actions) do
         [
-          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: :foo, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] },
           { type: 'bar' }
         ]
       end
@@ -388,7 +388,7 @@ RSpec.describe BsRequest, vcr: true do
     context 'when there is no sourcediff' do
       let(:request_actions) do
         [
-          { type: :foo, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] },
+          { type: :foo, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] },
           { type: :submit }
         ]
       end
@@ -409,7 +409,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'when the diff is at least one diff that has a shown attribute' do
       let(:request_actions) do
-        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]]] }]
+        [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'shown' => '200' } }]] }] }]
       end
 
       it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(true) }
@@ -417,7 +417,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context 'when none of the diffs has a shown attribute' do
       let(:request_actions) do
-        [{ type: :submit, sourcediff: ['files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]]] }]
+        [{ type: :submit, sourcediff: [{ 'files' => [['./my_file', { 'diff' => { 'rev' => '1' } }]] }] }]
       end
 
       it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }
@@ -425,7 +425,7 @@ RSpec.describe BsRequest, vcr: true do
 
     context "when there is a sourcediff attribute with no 'files'" do
       let(:request_actions) do
-        [{ type: :submit, sourcediff: ['other_data' => 'foo'] }]
+        [{ type: :submit, sourcediff: [{ 'other_data' => 'foo' }] }]
       end
 
       it { expect(BsRequest.truncated_diffs?(request_actions)).to eq(false) }

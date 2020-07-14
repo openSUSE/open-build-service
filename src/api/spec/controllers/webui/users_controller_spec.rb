@@ -369,7 +369,7 @@ RSpec.describe Webui::UsersController do
 
     it 'returns user token as array of hash' do
       get :tokens, params: { q: 'foo', format: :json }
-      expect(JSON.parse(response.body)).to match_array(['name' => 'foobaz'])
+      expect(JSON.parse(response.body)).to match_array([{ 'name' => 'foobaz' }])
     end
   end
 

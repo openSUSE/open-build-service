@@ -194,9 +194,10 @@ class Webui::RepositoriesController < Webui::WebuiController
   def follow_change_flag_command(flag_type)
     architecture = Architecture.from_cache!(params[:architecture]) if params[:architecture]
 
-    if params[:command] == 'remove'
+    case params[:command]
+    when 'remove'
       @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
-    elsif %r{^set-(?<status>disable|enable)$} =~ params[:command]
+    when %r{^set-(?<status>disable|enable)$}
       flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
       flag.update(status: status)
     end

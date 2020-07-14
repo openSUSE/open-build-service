@@ -21,9 +21,10 @@ module Suse
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      if project.is_a?(Project)
+      case project
+      when Project
         prj = project
-      elsif project.is_a?(String)
+      when String
         prj = Project.find_by_name(project)
         # avoid remote projects
         return false unless prj.is_a?(Project)

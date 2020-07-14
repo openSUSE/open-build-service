@@ -11,15 +11,15 @@ RSpec.configure do |config|
   config.before(:suite) do
     # Truncate all tables loaded in db/seeds.rb, except the static ones, in the
     # beginning to be consistent.
-    DatabaseCleaner.clean_with(:truncation, except: STATIC_TABLES)
+    DatabaseCleaner.clean_with(:deletion, except: STATIC_TABLES)
   end
 
   config.before do |example|
-    # For feature test we use truncation instead of transactions because the
+    # For feature test we use deletion instead of transactions because the
     # test suite and the capybara driver do not use the same server thread.
     if example.metadata[:type] == :feature || example.metadata[:type] == :migration || example.metadata[:thinking_sphinx] == true
       # Omit truncating what we have set up in db/seeds.rb except users and roles_user
-      DatabaseCleaner.strategy = :truncation, { except: STATIC_TABLES }
+      DatabaseCleaner.strategy = :deletion, { except: STATIC_TABLES }
     else
       DatabaseCleaner.strategy = :transaction
     end

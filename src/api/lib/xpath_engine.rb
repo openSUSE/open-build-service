@@ -389,7 +389,8 @@ class XpathEngine
         __send__(fname_int, root, *stack.shift)
       when :child
         qtype = stack.shift
-        if qtype == :qname
+        case qtype
+        when :qname
           stack.shift
           root << stack.shift
           qtype = stack.shift
@@ -404,7 +405,7 @@ class XpathEngine
             parse_predicate(root, qtype)
           end
           root.pop
-        elsif qtype == :any
+        when :any
           # noop, already shifted
         else
           raise IllegalXpathError, "unhandled token '#{t.inspect}'"

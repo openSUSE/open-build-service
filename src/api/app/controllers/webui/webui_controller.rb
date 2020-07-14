@@ -51,9 +51,10 @@ class Webui::WebuiController < ActionController::Base
 
   rescue_from Backend::Error, Timeout::Error do |exception|
     Airbrake.notify(exception)
-    message = if exception.is_a?(Backend::Error)
+    message = case exception
+              when Backend::Error
                 'There has been an internal error. Please try again.'
-              elsif exception.is_a?(Timeout::Error)
+              when Timeout::Error
                 'The request timed out. Please try again.'
               end
 
