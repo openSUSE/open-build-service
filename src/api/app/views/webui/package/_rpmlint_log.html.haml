@@ -1,8 +1,2 @@
--# FIXME: move this into a helper
 - @log.lines.each do |line|
-  - if /\w+(?:\.\w+)+: W: /.match?(line)
-    = tag.span(line.strip, style: 'color: olive;')
-  - elsif /\w+(?:\.\w+)+: E: /.match?(line)
-    = tag.span(line.strip, style: 'color: red;')
-  - else
-    = line.strip
+  = colorize_line(line)
