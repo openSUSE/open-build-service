@@ -118,7 +118,7 @@ if ($options->{'testconstraints'}) {
     my $constraints;
     if ($constraints_file) {
       $constraints = readxml($constraints_file, $BSXML::constraints);
-      $constraints = overwriteconstraints($jobinfo, $constraints);
+      $constraints = BSDispatcher::Constraints::overwriteconstraints($jobinfo, $constraints);
     }
     if ($constraintsprj_file) {
       my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
@@ -401,40 +401,6 @@ sub staleness {
   $ret = 0 if $ret < 0;
   #BSUtil::printlog("staleness $prpa: $ret");
   return $ret;
-}
-
-sub overwrite {
-  my ($dst, $src) = @_;
-  for my $k (sort keys %$src) {
-    next if $k eq "conditions";
-    my $d = $src->{$k};
-    if (!exists($dst->{$k}) || !ref($d) || ref($d) ne 'HASH') {
-      $dst->{$k} = $d;
-    } else {
-      overwrite($dst->{$k}, $d);
-    }
-  }
-}
-
-sub overwriteconstraints {
-  my ($info, $constraints) = @_;
-  # use condition specific constraints to merge it properly
-  for my $o (@{$constraints->{'overwrite'}||[]}) {
-    next unless $o && $o->{'conditions'};
-    if ($o->{'conditions'}->{'arch'}) {
-      next unless grep {$_ eq $info->{'arch'}} @{$o->{'conditions'}->{'arch'}};
-    }
-    if ($o->{'conditions'}->{'package'}) {
-      my $packagename = $info->{'package'};
-      my $shortpackagename = $info->{'package'};
-      $shortpackagename =~ s/\..*//;
-      next unless grep {$_ eq $packagename or $_ eq $shortpackagename} @{$o->{'conditions'}->{'package'}};
-    }
-    # conditions are matching, overwrite...
-    $constraints = BSUtil::clone($constraints);
-    overwrite($constraints, $o);
-  }
-  return $constraints;
 }
 
 sub getconstraints {
@@ -1277,7 +1243,7 @@ while (1) {
 	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
 	  next;
 	}
-        $constraints = overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
+        $constraints = BSDispatcher::Constraints::overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
       }
       if ($info->{'prjconfconstraint'}) {
 	my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
