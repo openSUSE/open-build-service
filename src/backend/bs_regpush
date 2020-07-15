@@ -567,9 +567,10 @@ for my $tarfile (@tarfiles) {
 
   # process config
   my $config_blobid = BSContar::blobid_entry($config_ent);
+  my $media_type = $manifest->{'config'}->{'MediaType'};
   # create layer data
   my $config_data = { 
-    'mediaType' => 'application/vnd.docker.container.image.v1+json',
+    'mediaType' => $media_type || 'application/vnd.docker.container.image.v1+json',
     'size' => $config_ent->{'size'},
     'digest' => $config_blobid,
   }; 
@@ -599,9 +600,13 @@ for my $tarfile (@tarfiles) {
     my $blobid = BSContar::blobid_entry($layer_ent);
     #print "$layer_file -> $blobid\n";
 
+    my $layer_mediatype = 'application/vnd.docker.image.rootfs.diff.tar.gzip' 
+    if $mediaType eq 'application/vnd.oci.image.manifest.v1+json' {
+      $layer_mediatype = 'application/tar+gzip' 
+    }
     # create layer data
     my $layer_data = {
-      'mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'mediaType' => $layer_mediatype,
       'size' => $layer_ent->{'size'},
       'digest' => $blobid,
     };
