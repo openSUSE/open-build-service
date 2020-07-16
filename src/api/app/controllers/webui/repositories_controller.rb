@@ -197,9 +197,9 @@ class Webui::RepositoriesController < Webui::WebuiController
     case params[:command]
     when 'remove'
       @main_object.flags.of_type(flag_type).where(repo: params[:repository], architecture: architecture).delete_all
-    when %r{^set-(?<status>disable|enable)$}
+    when /^set-(?<status>disable|enable)$/
       flag = @main_object.flags.find_or_create_by(flag: flag_type, repo: params[:repository], architecture: architecture)
-      flag.update(status: status)
+      flag.update(status: $LAST_MATCH_INFO['status'])
     end
     @main_object.store
   end
