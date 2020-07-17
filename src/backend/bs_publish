@@ -2623,8 +2623,8 @@ sub publish {
       if ($do_sourcepublish) {
         my $pt = $packtrack->{$bin};
         if ($pt->{'disturl'} && $pt->{'disturl'} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)$/) {
-	  $sourceid = "$1/$3/$2";
-	  $sources->{$sourceid} = [];
+          $sourceid = "$1/$3/$2";
+          $sources->{$sourceid} = [];
         }
       }
 

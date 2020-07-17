@@ -167,13 +167,8 @@ sub sourcepublish {
   my ($projid, $packid, $srcmd5, $included) = @_;
 
   return unless $BSConfig::sourcepublish_sync && $BSConfig::sourcepublish_sync =~ /^rsync:\//;
-  if ($BSConfig::sourcepublish_filter) {
-    my $match;
-    for my $filter (@{$BSConfig::sourcepublish_filter||[]}) {
-      $match = 1 if $projid =~ /^$filter/;
-    }
-    return unless $match;
-  }
+  # Filtering by $BSConfig::sourcepublish_filter happens in bs_publish since
+  # it must happend by released project name and not build project.
 
   BSUtil::printlog("source publish event for $projid/$packid $srcmd5");
 
