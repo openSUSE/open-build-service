@@ -308,4 +308,10 @@ our $local_registry_signatures_extension = 1;
 # public cloud uploader configuration
 # our $cloudupload_pubkey = "/etc/obs/cloudupload/_pubkey"; # default setting
 
+# user/password to be used by services which needs to authenticate at
+# OBS (e.g. kiwi_import)
+
+# our $obs_service_user = "";
+# our $obs_service_pass = "";
+
 1;
