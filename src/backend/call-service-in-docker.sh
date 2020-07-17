@@ -21,6 +21,8 @@ DOCKER_IMAGE=`obs_admin --query-config docker_image`
 DOCKER_CUSTOM_OPT=`obs_admin --query-config docker_custom_opt`
 SERVICES_DIR=`obs_admin --query-config servicetempdir`
 OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=`obs_admin --query-config gems_mirror`
+OBS_SERVICE_USER=`obs_admin --query-config obs_service_user`
+OBS_SERVICE_PASS=`obs_admin --query-config obs_service_pass`
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
@@ -119,6 +121,8 @@ echo "#!/bin/bash"                                                              
 echo "export OBS_SERVICE_APIURL=\"$OBS_SERVICE_APIURL\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=\"$OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL\""   >> "$MOUNTDIR/$INNERSCRIPT"
 echo "export OBS_SERVICE_DAEMON=\"$OBS_SERVICE_DAEMON\""                                   >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_USER=\"$OBS_SERVICE_USER\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
+echo "export OBS_SERVICE_PASS=\"$OBS_SERVICE_PASS\""                                       >> "$MOUNTDIR/$INNERSCRIPT"
 echo "cd $INNERSRCDIR"                                                                     >> "$MOUNTDIR/$INNERSCRIPT"
 echo -n "${INNERSCRIPT}.command"                                                           >> "$MOUNTDIR/$INNERSCRIPT"
 
