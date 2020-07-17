@@ -1654,7 +1654,7 @@ sub mapsleimage {
     $milestone ||= 'GM';
     $milestone = Build::Rpm::expandmacros($data->{'config'}, $milestone) if $milestone =~ /%/;
     $milestone =~ s/[\/\n]/_/sg;
-    $p =~ s/-Build\d+(\.\d+)?/-$milestone/;
+    $p =~ s/-Build\d+(\.\d+)?(\.\d+)?/-$milestone/;
   }
   $p =~ s/-Media/-DVD/ if $data->{'media'} eq 'dvd';
   $data->{'mapped'}->{$origp} = $p if $p ne $origp;
