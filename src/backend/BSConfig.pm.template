@@ -314,4 +314,7 @@ our $local_registry_signatures_extension = 1;
 # our $obs_service_user = "";
 # our $obs_service_pass = "";
 
+# network name required for services using a local proxy/cache like gemianbox
+# our $obs_service_network = "obs_services";
+
 1;

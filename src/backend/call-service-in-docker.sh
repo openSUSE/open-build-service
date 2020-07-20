@@ -23,6 +23,9 @@ SERVICES_DIR=`obs_admin --query-config servicetempdir`
 OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=`obs_admin --query-config gems_mirror`
 OBS_SERVICE_USER=`obs_admin --query-config obs_service_user`
 OBS_SERVICE_PASS=`obs_admin --query-config obs_service_pass`
+OBS_SERVICE_NETWORK=`obs_admin --query-config obs_service_pass`
+# Fallback to bridge for legacy setup w/o docker user-defined networks
+[ -z "$OBS_SERVICE_NETWORK" ] && OBS_SERVICE_NETWORK="bridge"
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
@@ -48,7 +51,12 @@ case "$COMMAND" in
   */bundle_gems)
     GEMINABOX=`obs_admin --query-config geminabox_container`
     if  [ -n "$GEMINABOX" ];then
-      LINK="--link $GEMINABOX:$GEMINABOX"
+      if [ "$OBS_SERVICE_NETWORK" == "bridge";then
+        LINK="--link $GEMINABOX:$GEMINABOX"
+      fi
+    else
+      # use default bridge if no proxy service like geminabox is required
+      OBS_SERVICE_NETWORK=bridge
     fi
     WITH_NET="1"
     ;;
@@ -133,7 +141,7 @@ echo "#!/bin/bash"               			>  "$MOUNTDIR/${INNERSCRIPT}.command"
 #echo "set -x" 						>> "$MOUNTDIR/${INNERSCRIPT}.command"
 echo "echo Running ${COMMAND[@]} --outdir $INNEROUTDIR" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
-DOCKER_OPTS_NET="--net=bridge"
+DOCKER_OPTS_NET="--network $OBS_SERVICE_NETWORK"
 if [ "$WITH_NET" != "1" ] ; then
   printlog "Using docker without network"
   DOCKER_OPTS_NET="--net=none"
