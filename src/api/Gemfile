@@ -193,4 +193,6 @@ group :assets do
   gem 'bootstrap'
   # assets for font-awesome vector icons
   gem 'font-awesome-sass'
+  # assets for openSUSE chameleon theme
+  gem 'chameleon', git: 'https://github.com/openSUSE/chameleon.git', branch: 'rel-3.0'
 end

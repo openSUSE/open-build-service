@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/openSUSE/chameleon.git
+  revision: 10f107e0997992c22fbd38640436da2a119dd17f
+  branch: rel-3.0
+  specs:
+    chameleon (3.0.0)
+      bootstrap
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -456,6 +464,7 @@ DEPENDENCIES
   bunny-mock
   capybara
   capybara_minitest_spec
+  chameleon!
   clockwork (>= 0.7)
   cocoon
   codecov
@@ -528,4 +537,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.17.2
+   1.17.1
