@@ -229,23 +229,43 @@
       <interleave>
         <zeroOrMore>
           <element name="download">
+            <!-- Download On Demand section. Can be used to integrate content from
+                 external package repositories -->
             <attribute name="arch">
+              <!-- Valid for this scheduler architecture only -->
               <data type="string" />
             </attribute>
             <attribute name="url">
+              <!--
+              Url to a repository. For rpm-md repositories it is just the URL. 
+              For Debian it can be an URL to a "flat repo". But usually it is
+              a distribution URL following the <baseurl>/<dist>/[components] 
+              schema (Note: this is not a working URL).
+              -->
               <data type="string" />
             </attribute>
             <attribute name="repotype">
               <data type="string" />
+              <!--
+              Type of the repository meta data.
+              -->
             </attribute>
             <interleave>
               <optional>
                 <element name="archfilter">
+                  <!--
+                  A coma seperated list of binary architectures to import.
+                  By default all of them are made available.
+                  -->
                   <text/>
                 </element>
               </optional>
               <optional>
                 <element name="master">
+                  <!--
+                  Verify meta data from this specific host.
+                  The SSL certificate is *not* checked via CA on purpose, but requires the fingerprint.
+                  -->
                   <attribute name="url">
                     <data type="string" />
                   </attribute>
@@ -256,6 +276,9 @@
               </optional>
               <optional>
                 <element name="pubkey">
+                  <!--
+                  gpg pubkeys to verify meta data signatures.
+                  -->
                   <text/>
                 </element>
               </optional>
