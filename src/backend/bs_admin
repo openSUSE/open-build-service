@@ -105,8 +105,12 @@ Job Controlling
  --check-package <project> <package> <architecture>
    Check status of a package in all repositories
 
+ --publish-source-via-report <reportfile>
+   Creates an event for the source publisher based on a report file.
+
  --publish-source <project> <package> <md5sum>
-   Creates an event for the source publisher. It won't get executed if not enabled.
+   Creates a single event for the source publisher. This does not handles
+   included content information (eg. images or containers).
 
  --publish-repository <project> <repository>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
@@ -522,12 +526,13 @@ sub write_publish_event {
 }
 
 sub write_source_publish_event {
-  my ($project, $package, $md5) = @_;
+  my ($project, $package, $md5, $included) = @_;
   my $evname = "${project}::${package}::${md5}";
   my $ev = { 'type' => "sourcepublish" };
   $ev->{'project'} = $project;
   $ev->{'package'} = $package;
   $ev->{'srcmd5'} = $md5;
+  $ev->{'included'} = $included if @{$included || []};
   writexml("$eventroot/sourcepublish/.$evname$$", "$eventroot/sourcepublish/$evname", $ev, $BSXML::event);
   BSUtil::ping("$eventroot/sourcepublish/.ping");
 }
@@ -806,6 +811,27 @@ while (@ARGV) {
     $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
     check_project($project, $repo, $arch, 1);
+  } elsif ( $arg eq "--publish-source-via-report" ) {
+    die("ERROR: need a report file as argument!\n") if @ARGV != 1;
+    my $project;
+    my $package;
+    my $md5;
+    my @included;
+    my $report = readxml(shift @ARGV, $BSXML::report);
+    if ($report->{'disturl'} && $report->{'disturl'} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)$/) {
+      $project = $1;
+      $package = $3;
+      $md5 = $2;
+    } else {
+      die("broken report file, no disturl in root element");
+    }
+
+    for my $b (@{$report->{'binary'} || []}) {
+      if ($b->{disturl} =~ /^obs:\/\/[^\/]*\/([^\/]*)\/[^\/]*\/([^-]*)-(.*)$/) {
+        push @included, { "project" => $1, "package" => $3, "srcmd5" =>$2 };
+      }
+    }
+    write_source_publish_event($project, $package, $md5, \@included);
   } elsif ( $arg eq "--publish-source" ) {
     die("ERROR: need project, package and md5sum as argument!\n") if @ARGV != 3;
     my $project = shift @ARGV;
