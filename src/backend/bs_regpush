@@ -190,7 +190,7 @@ sub manifest_upload {
   return $maniid if manifest_exists($manifest, $tag, $content_type);
   $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
   my $fat = '';
-  $fat = 'fat ' if $content_type eq 'application/vnd.docker.distribution.manifest.list.v2+json';
+  $fat = 'fat ' if $content_type eq 'application/vnd.docker.distribution.manifest.list.v2+json' || $content_type eq 'application/vnd.oci.image.index.v1+json';
   if (!$quiet) {
     if (defined($tag)) {
       print "uploading ${fat}manifest $maniid for tag '$tag'... ";
@@ -283,7 +283,7 @@ sub get_manifest_for_tag {
   my $replyheaders;
   my $param = {
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
-    'headers' => [ "Accept: application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json" ],
+    'headers' => [ "Accept: application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json" ],
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
@@ -340,6 +340,10 @@ sub list_tag {
     printf "%-20s %s %s\n", $tag, $maniid, 'list';
   } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.v2+json') {
     printf "%-20s %s %s\n", $tag, $maniid, 'image';
+  } elsif ($mani->{'mediaType'} eq 'application/vnd.oci.image.manifest.v1+json') {
+    printf "%-20s %s %s\n", $tag, $maniid, 'ociimage';
+  } elsif ($mani->{'mediaType'} eq 'application/vnd.oci.image.index.v1+json') {
+    printf "%-20s %s %s\n", $tag, $maniid, 'ocilist';
   } else {
     printf "%-20s %s %s\n", $tag, $maniid, 'unknown';
   }
