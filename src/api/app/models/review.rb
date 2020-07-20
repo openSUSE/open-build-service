@@ -143,7 +143,7 @@ class Review < ApplicationRecord
     r.reviewer = r.creator = hash.delete('who')
     r.reason = hash.delete('comment')
     begin
-      r.created_at = Time.zone.parse(hash.delete('when'))
+      r.updated_at = Time.zone.parse(hash.delete('when'))
     rescue TypeError
       # no valid time -> ignore
     end
@@ -156,7 +156,7 @@ class Review < ApplicationRecord
   def _get_attributes
     attributes = { state: state.to_s }
     # old requests didn't have who and when
-    attributes[:when] = created_at.strftime('%Y-%m-%dT%H:%M:%S')
+    attributes[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
     attributes[:who] = reviewer if reviewer
     attributes[:by_group] = by_group if by_group
     attributes[:by_user] = by_user if by_user
@@ -178,7 +178,7 @@ class Review < ApplicationRecord
   def webui_infos
     ret = _get_attributes
     # XML has this perl format, don't use that here
-    ret[:when] = created_at
+    ret[:when] = updated_at
     ret[:creator] = creator
     ret[:reason] = reason
     ret[:id] = id
