@@ -764,6 +764,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_request_review_and_supersede
     login_Iggy
+    Timecop.freeze(2010, 7, 12)
     req = load_backend_file('request/works')
     post '/request?cmd=create', params: req
     assert_response :success
@@ -778,7 +779,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom' })
+    assert_xml_tag(tag: 'review', attributes: { by_user: 'tom', when: '2010-07-12T00:00:00' })
     # try update comment
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response 403
@@ -792,7 +793,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom' } }, tag: 'comment', content: 'blahfasel')
+    assert_xml_tag(parent: { tag: 'review', attributes: { by_user: 'tom', when: '2010-07-12T00:00:00' } }, tag: 'comment', content: 'blahfasel')
     request = BsRequest.find_by_number(id)
     h2 = request.request_history_elements
     hr2 = request.history_elements
@@ -805,8 +806,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'status', attributes: { code: 'request_not_modifiable' })
 
     # superseded review
+    Timecop.freeze(2010, 7, 13)
     post "/request/#{id}?cmd=changereviewstate&newstate=superseded&by_user=tom&superseded_by=1"
     assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    # state and time updated
+    assert_xml_tag(tag: 'review', attributes: { state: 'superseded', by_user: 'tom', when: '2010-07-13T00:00:00' })
 
     # another final state is not allowed
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=blahfasel"
@@ -1089,7 +1095,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    },
                    'review' => [{
                      'state' => 'accepted',
-                     'when' => '2010-07-12T00:00:01',
+                     'when' => '2010-07-12T00:00:02',
                      'who' => 'tom',
                      'by_user' => 'tom',
                      'comment' => 'review1',
@@ -1101,7 +1107,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      }
                    }, {
                      'state' => 'new',
-                     'when' => '2010-07-12T00:00:03',
+                     'when' => '2010-07-12T00:00:05',
                      'who' => 'tom',
                      'by_user' => 'tom',
                      'comment' => 'reopen2',
