@@ -748,16 +748,17 @@ class BsRequest < ApplicationRecord
       self.comment = review.reason
       self.state = new_request_state
       self.commenter = User.session!.login
-      if new_request_state == :new
+      case new_request_state
+      when :new
         self.comment = 'All reviewers accepted request'
         save!
         Event::RequestReviewsDone.create(event_parameters)
         HistoryElement::RequestAllReviewsApproved.create(history_parameters)
         # pre-approved requests can be processed
         BsRequestAutoAcceptJob.perform_later(id) if approver
-      elsif new_request_state == :review
+      when :review
         save!
-      elsif new_request_state == :declined
+      when :declined
         HistoryElement::RequestDeclined.create(history_parameters)
         save!
       end

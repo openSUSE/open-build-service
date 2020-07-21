@@ -565,7 +565,7 @@ RSpec.describe User do
     describe '#autocomplete_token' do
       subject { User.autocomplete_token('foo') }
 
-      it { expect(subject).to match_array([name: 'foobar']) }
+      it { expect(subject).to match_array([{ name: 'foobar' }]) }
     end
   end
 

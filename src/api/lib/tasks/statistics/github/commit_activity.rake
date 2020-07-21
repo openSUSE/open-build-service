@@ -7,9 +7,10 @@ namespace :statistics do
 
       # The first time you make this request to github, it returns an empty json response with status 202
       # because github generates the statistics asynchronously. Once they are generated will be 200.
-      if response.code == '202'
+      case response.code
+      when '202'
         puts 'Statistics are being generated in the background by github. Please re-run this task in a minute to get the results.'
-      elsif response.code == '200'
+      when '200'
         weeks = JSON.parse(response.body)
 
         File.open('commit_activity.csv', 'w') do |file|

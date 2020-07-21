@@ -476,9 +476,10 @@ class Webui::PackageController < Webui::WebuiController
     rescue Timeout::Error, IOError
       @log_chunk = ''
     rescue Backend::Error => e
-      if %r{Logfile is not that big}.match?(e.summary)
+      case e.summary
+      when %r{Logfile is not that big}
         @log_chunk = ''
-      elsif /start out of range/.match?(e.summary)
+      when /start out of range/
         # probably build compare has cut log and offset is wrong, reset offset
         @log_chunk = ''
         @offset = old_offset

@@ -51,9 +51,10 @@ class Webui::WebuiController < ActionController::Base
 
   rescue_from Backend::Error, Timeout::Error do |exception|
     Airbrake.notify(exception)
-    message = if exception.is_a?(Backend::Error)
+    message = case exception
+              when Backend::Error
                 'There has been an internal error. Please try again.'
-              elsif exception.is_a?(Timeout::Error)
+              when Timeout::Error
                 'The request timed out. Please try again.'
               end
 
@@ -246,17 +247,11 @@ class Webui::WebuiController < ActionController::Base
   private
 
   def send_login_information_rabbitmq(msg)
-    message = case msg
-              when :success
-                'login,access_point=webui value=1'
-              when :disabled
-                'login,access_point=webui,failure=disabled value=1'
-              when :logout
-                'logout,access_point=webui value=1'
-              when :unauthenticated
-                'login,access_point=webui,failure=unauthenticated value=1'
-              end
-    RabbitmqBus.send_to_bus('metrics', message)
+    message_mapping = { success: 'login,access_point=webui value=1',
+                        disabled: 'login,access_point=webui,failure=disabled value=1',
+                        logout: 'logout,access_point=webui value=1',
+                        unauthenticated: 'login,access_point=webui,failure=unauthenticated value=1' }
+    RabbitmqBus.send_to_bus('metrics', message_mapping[msg])
   end
 
   def authenticator

@@ -15,9 +15,10 @@ class Webui::SitemapsController < Webui::WebuiController
     projects_table = Project.arel_table
 
     predication =
-      if %r{home}.match?(project_name)
+      case project_name
+      when %r{home}
         projects_table[:name].matches("#{project_name}%")
-      elsif project_name == 'opensuse'
+      when 'opensuse'
         projects_table[:name].matches('openSUSE:%')
       else
         projects_table[:name].does_not_match_all(['home:%', 'DISCONTINUED:%', 'openSUSE:%'])

@@ -22,15 +22,16 @@ class SourceProjectController < SourceController
 
     # we let the backend list the packages after we verified the project is visible
     if params.key?(:view)
-      if params[:view] == 'verboseproductlist'
+      case params[:view]
+      when 'verboseproductlist'
         @products = Product.all_products(@project, params[:expand])
         render 'source/verboseproductlist'
         return
-      elsif params[:view] == 'productlist'
+      when 'productlist'
         @products = Product.all_products(@project, params[:expand])
         render 'source/productlist'
         return
-      elsif params[:view] == 'issues'
+      when 'issues'
         render_project_issues
       else
         pass_to_backend

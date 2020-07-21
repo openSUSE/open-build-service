@@ -4,7 +4,7 @@ require 'rails/all'
 
 # Assets should be precompiled for production (so we don't need the gems loaded then)
 Bundler.require(*Rails.groups(assets: ['development', 'test']))
-require_relative '../lib/rabbitmq_bus.rb'
+require_relative '../lib/rabbitmq_bus'
 
 module OBSApi
   class Application < Rails::Application

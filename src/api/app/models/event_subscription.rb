@@ -31,9 +31,10 @@ class EventSubscription < ApplicationRecord
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
   scope :defaults, -> { where(user_id: nil, group_id: nil) }
   scope :for_subscriber, lambda { |subscriber|
-    if subscriber.is_a?(User)
+    case subscriber
+    when User
       where(user: subscriber)
-    elsif subscriber.is_a?(Group)
+    when Group
       where(group: subscriber)
     else
       defaults
@@ -49,9 +50,10 @@ class EventSubscription < ApplicationRecord
   end
 
   def subscriber=(subscriber)
-    if subscriber.is_a?(User)
+    case subscriber
+    when User
       self.user = subscriber
-    elsif subscriber.is_a?(Group)
+    when Group
       self.group = subscriber
     end
   end

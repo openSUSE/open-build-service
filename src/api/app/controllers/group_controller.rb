@@ -70,11 +70,12 @@ class GroupController < ApplicationController
 
     user = User.find_by_login!(params[:userid]) if params[:userid]
 
-    if params[:cmd] == 'add_user'
+    case params[:cmd]
+    when 'add_user'
       group.add_user(user)
-    elsif params[:cmd] == 'remove_user'
+    when 'remove_user'
       group.remove_user(user)
-    elsif params[:cmd] == 'set_email'
+    when 'set_email'
       group.set_email(params[:email])
     else
       raise UnknownCommandError, 'cmd must be set to add_user or remove_user'

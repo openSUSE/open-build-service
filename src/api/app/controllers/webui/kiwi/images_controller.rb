@@ -132,7 +132,7 @@ module Webui
         package_groups_attributes = [
           :id,
           :_destroy,
-          packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy]
+          { packages_attributes: [:id, :name, :arch, :replaces, :bootdelete, :bootinclude, :_destroy] }
         ]
 
         profiles_attributes = [
