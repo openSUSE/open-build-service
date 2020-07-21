@@ -159,7 +159,8 @@ sub syncsource {
 
   my @rsync_extra_options;
   @rsync_extra_options = split(' ', $BSConfig::rsync_extra_options) if $BSConfig::rsync_extra_options;
-  qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncserver) && die("    rsync failed at ".localtime(time).": $?\n");
+  # we can trust our sym links...
+  qsystem('echo', "$projid/$packid/$srcmd5\0", 'rsync', '-ar0', '--copy-unsafe-links', '--no-munge-links', @rsync_extra_options, '--fuzzy', '--timeout', '7200', '--files-from=-', $dir, $rsyncserver) && die("    rsync failed at ".localtime(time).": $?\n");
 
 }
 
