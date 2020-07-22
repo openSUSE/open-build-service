@@ -1362,6 +1362,80 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(tag: 'target', attributes: { project: 'HiddenProject' })
   end
 
+  def test_release_package_via_request
+    login_adrian
+    # define manual release target
+    put '/source/home:adrian:RT/_meta', params: "<project name='home:adrian:RT'> <title/> <description/>
+          <repository name='rt'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+
+    login_Iggy
+    get '/source/home:Iggy/_meta'
+    assert_response :success
+    orig_project_meta = @response.body
+    doc = REXML::Document.new(@response.body)
+    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
+    rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
+    rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
+    put '/source/home:Iggy/_meta', params: doc.to_s
+    assert_response :success
+
+    # create request
+    post '/request?cmd=create&ignore_build_state=1', params: "<request>
+                                   <action type='release'>
+                                     <source project='home:Iggy' package='TestPack' />
+                                   </action>
+                                   <state name='new' />
+                                 </request>"
+    assert_response :success
+    assert_xml_tag tag: 'source', attributes: { project: 'home:Iggy', package: 'TestPack' }
+    assert_xml_tag tag: 'target', attributes: { project: 'home:adrian:RT', package: 'TestPack', repository: 'rt' }
+    node = Xmlhash.parse(@response.body)
+    assert node['id']
+    reqid = node['id']
+
+    # release via request, ignoring reviewers
+    login_adrian
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+    assert_xml_tag tag: 'status', attributes: { code: 'ok' }
+
+    # process events
+    run_scheduler('i586')
+
+    # verify result
+    get '/source/home:adrian:RT'
+    assert_response :success
+    assert_xml_tag tag: 'entry', attributes: { name: 'TestPack' }
+
+    # check released binaries
+    get '/build/home:Iggy/10.2/i586/TestPack/'
+    assert_response :success
+    assert_xml_tag tag: 'binarylist', children: { count: 4 }
+    assert_xml_tag tag: 'binary', attributes: { filename: 'package-1.0-1.i586.rpm' }
+
+    get '/build/home:adrian:RT/rt/i586/TestPack/'
+    assert_response :success
+    assert_xml_tag tag: 'binarylist', children: { count: 4 }
+    assert_xml_tag tag: 'binary', attributes: { filename: 'package-1.0-1.i586.rpm' }
+
+    # cleanup
+    login_Iggy
+    put '/source/home:Iggy/_meta', params: orig_project_meta
+    assert_response :success
+    login_adrian
+    delete '/source/home:adrian:RT'
+    assert_response :success
+  end
+
   def test_process_devel_request
     login_king
 

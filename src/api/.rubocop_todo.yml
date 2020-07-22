@@ -96,7 +96,7 @@ Lint/UriEscapeUnescape:
 # Offense count: 807
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:
-  Max: 208
+  Max: 235
 
 # Offense count: 19
 # Configuration parameters: CountBlocks, Max.

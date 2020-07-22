@@ -1,4 +1,4 @@
-class BsRequestActionMaintenanceRelease < BsRequestAction
+class BsRequestActionRelease < BsRequestAction
   #### Includes and extends
   include BsRequestAction::Differ
   #### Constants
@@ -16,91 +16,37 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   #### Class methods using self. (public and then private)
   def self.sti_name
-    :maintenance_release
+    :release
   end
 
   #### To define class methods as private use private_class_method
   #### private
   #### Instance methods (public and then protected/private)
-  def is_maintenance_release?
+
+  # For consistency reasons with the other BsRequestActions
+  # rubocop:disable Naming/PredicateName
+  def is_release?
     true
   end
+  # rubocop:enable Naming/PredicateName
 
   def execute_accept(opts)
     pkg = Package.get_by_project_and_name(source_project, source_package)
 
     # have a unique time stamp for release
-    opts[:acceptTimeStamp] ||= Time.now
+    opts[:acceptTimeStamp] ||= Time.zone.now
 
-    opts[:updateinfoIDs] = release_package(pkg, Project.get_by_name(target_project), target_package, { action: self })
-    opts[:projectCommit] ||= {}
-    opts[:projectCommit][target_project] = source_project
-
-    # lock project when last package is released
-    return if pkg.project.is_locked?
-
-    f = pkg.project.flags.find_by_flag_and_status('lock', 'disable')
-    pkg.project.flags.delete(f) if f # remove possible existing disable lock flag
-    pkg.project.flags.create(status: 'enable', flag: 'lock')
-    pkg.project.store(comment: 'maintenance_release request accepted')
-  end
-
-  def per_request_cleanup(opts)
-    cleaned_projects = {}
-    # log release events once in target project
-    opts[:projectCommit].each do |tprj, sprj|
-      commit_params = {
-        requestid: bs_request.number,
-        rev: 'latest',
-        comment: "Releasing from project #{sprj}"
-      }
-      commit_params[:comment] += " the update #{opts[:updateinfoIDs].join(', ')}" if opts[:updateinfoIDs]
-      Backend::Api::Sources::Project.commit(tprj, User.session!.login, commit_params)
-
-      next if cleaned_projects[sprj]
-
-      # cleanup published binaries to save disk space on ftp server and mirrors
-      Backend::Api::Build::Project.wipe_published_locked(sprj)
-      cleaned_projects[sprj] = 1
-    end
-    opts[:projectCommit] = {}
+    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self })
   end
 
   def check_permissions!
     sanity_check!
-
-    # check for open release requests with same target, the binaries can't get merged automatically
-    # either exact target package match or with same prefix (when using the incident extension)
-
-    # patchinfos don't get a link, all others should not conflict with any other
-    # FIXME2.4 we have a directory model
-    xml = REXML::Document.new(Backend::Api::Sources::Package.files(source_project, source_package))
-    rel = BsRequest.where(state: [:new, :review]).joins(:bs_request_actions)
-    rel = rel.where(bs_request_actions: { target_project: target_project })
-    if xml.elements["/directory/entry/@name='_patchinfo'"]
-      rel = rel.where(bs_request_actions: { target_package: target_package })
-    else
-      tpkgprefix = target_package.gsub(/\.[^.]*$/, '')
-      rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', target_package, "#{tpkgprefix}.%")
-    end
-
-    # run search
-    open_ids = rel.select('bs_requests').pluck(:number)
-    open_ids.delete(bs_request.number) if bs_request
-    if open_ids.count > 0
-      msg = "The following open requests have the same target #{target_project} / #{tpkgprefix}: " + open_ids.join(', ')
-      raise OpenReleaseRequests, msg
-    end
-
-    # creating release requests is also locking the source package, therefore we require write access there.
-    spkg = Package.find_by_project_and_name(source_project, source_package)
-    return if spkg || !User.session!.can_modify?(spkg)
-
-    raise LackingReleaseMaintainership, 'Creating a maintenance release request action requires maintainership in source package'
   end
 
-  def set_acceptinfo(ai)
-    # packages in maintenance_release projects are expanded copies, so we can not use
+  # For consistency reasons with the other BsRequestActions
+  # rubocop:disable Naming/AccessorMethodName
+  def set_acceptinfo(acceptinfo)
+    # released packages are expanded copies, so we can not use
     # the link information. We need to patch the "old" part
     base_package_name = target_package.gsub(/\.[^.]*$/, '')
     pkg = Package.find_by_project_and_name(target_project, base_package_name)
@@ -113,8 +59,9 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         ai['oxsrcmd5'] = opkg.backend_package.expandedmd5 if opkg.backend_package.expandedmd5
       end
     end
-    self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
+    self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(acceptinfo)
   end
+  # rubocop:enable Naming/AccessorMethodName
 
   def create_post_permissions_hook(opts)
     object = nil
@@ -151,12 +98,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
     prj.repositories.includes(:release_targets).find_each do |repo|
-      if repo.release_targets.empty?
-        raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}"
-      end
-      if repo.architectures.empty?
-        raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}"
-      end
+      raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}" if repo.release_targets.empty?
+      raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
 
       repo.release_targets.each do |rt|
         unless repo.architectures.size == rt.target_repository.architectures.size
