@@ -243,6 +243,8 @@ sub normalize_container {
     'Config' => $newconfig,
     'RepoTags' => $repotags || $manifest->{'RepoTags'},
     'Layers' => \@newlayers,
+    'config' => $manifest->{"config"} || [],
+    'layers' => $manifest->{"layers"} || [],
   };  
   my $newmanifest_ent = create_manifest_entry($newmanifest, $mtime);
 

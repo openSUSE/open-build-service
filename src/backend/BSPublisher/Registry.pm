@@ -485,6 +485,7 @@ sub push_containers {
       my @layers = @{$manifest->{'Layers'} || []};
       die("container has no layers\n") unless @layers;
       my $config_layers = $config->{'rootfs'}->{'diff_ids'};
+      $config_layers = $manifest->{'layers'} unless $config_layers;
       die("layer number mismatch\n") if @layers != @{$config_layers || []};
 
       # see if a already have this arch/os combination
@@ -501,8 +502,9 @@ sub push_containers {
       # put config blob into repo
       my $config_blobid = push_blob($repodir, $containerinfo, $config_ent);
       $knownblobs{$config_blobid} = 1;
+      my $mediaType = $manifest->{config}->{'mediaType'};
       my $config_data = {
-	'mediaType' => 'application/vnd.docker.container.image.v1+json',
+	'mediaType' => $mediaType || 'application/vnd.docker.container.image.v1+json',
 	'size' => $config_ent->{'size'},
 	'digest' => $config_blobid,
       };
@@ -520,8 +522,12 @@ sub push_containers {
 	die("File $layer_file not included in tar\n") unless $layer_ent;
 	my $blobid = push_blob($repodir, $containerinfo, $layer_ent);
         $knownblobs{$blobid} = 1;
+        my $layer_mType = "application/vnd.cncf.helm.config.v1+json";
+        if ($mediaType eq 'application/vnd.cncf.helm.config.v1+json') {
+            $layer_mType = 'application/tar+gzip';
+        }
 	my $layer_data = {
-	  'mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+	  'mediaType' => $layer_mType,
 	  'size' => $layer_ent->{'size'},
 	  'digest' => $blobid,
 	};
