@@ -168,6 +168,8 @@ Requires(pre):  obs-common
 Requires:       %{__obs_build_package_name} >= 20200110
 Requires:       perl-BSSolv >= 0.36
 Requires:       perl(Date::Parse)
+Requires:       perl(DBI)
+Requires:       perl(DBD::SQLite)
 # Required by source server
 Requires:       diffutils
 PreReq:         git-core
