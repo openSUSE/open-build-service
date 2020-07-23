@@ -82,7 +82,7 @@ GEM
     autoprefixer-rails (9.8.5)
       execjs
     awesome_print (1.8.0)
-    bcrypt (3.1.13)
+    bcrypt (3.1.15)
     bigdecimal (2.0.0)
     bootstrap (4.5.0)
       autoprefixer-rails (>= 9.1.0)
