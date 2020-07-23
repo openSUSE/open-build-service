@@ -15,6 +15,18 @@ if [ $UID != 0 ];then
   exit 1
 fi
 
+MTU=1500
+
+while [ -n "$1" ];do
+  case $1 in 
+    --mtu)
+      shift
+      MTU=$1
+      shift
+    ;;
+  esac
+done
+
 if [ "$SUSE" == "opensuse" ]; then
   SUSE=openSUSE
   downloadserver="http://download.opensuse.org"
@@ -74,7 +86,8 @@ cat <<EOF > /etc/docker/daemon.json
     "dm.thinp_autoextend_threshold=80",
     "dm.thinp_autoextend_percent=20",
     "dm.directlvm_device_force=false"
-   ]
+   ],
+   "mtu": $MTU
 }
 EOF
 }
