@@ -77,7 +77,7 @@ Requires:       obs-build
 Requires:       memcached >= 1.4
 Requires:       mysql
 Requires:       obs-bundled-gems = %{version}
-Requires:       sphinx >= 2.1.8
+Requires:       sphinx >= 2.2.11
 Requires:       perl(GD)
 %if 0%{?suse_version}
 Requires:       rubygem(ruby:%{__obs_ruby_version}:bundler)
