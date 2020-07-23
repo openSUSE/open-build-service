@@ -189,7 +189,8 @@ sub signisofiles {
 	writeblk($fd, $e->[1], $sig . ("\0" x (2048 - length($sig))));
 	my $dirblk = readblk($fd, $e->[3]);
 	# patch in new content len
-	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig));
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($sig)); # little endian
+	substr($dirblk, $e->[4] + 14, 4) = pack('N', length($sig)); # big endian
 	writeblk($fd, $e->[3], $dirblk);
 	$signed++;
       }
@@ -203,7 +204,8 @@ sub signisofiles {
 	writeblk($fd, $e->[1], $pubkey . ("\0" x (8192 - length($pubkey))));
 	my $dirblk = readblk($fd, $e->[3]);
 	# patch in new content len
-	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($pubkey));
+	substr($dirblk, $e->[4] + 10, 4) = pack('V', length($pubkey)); # little endian
+	substr($dirblk, $e->[4] + 14, 4) = pack('N', length($pubkey)); # big endian
 	writeblk($fd, $e->[3], $dirblk);
 	$signed++;
       }
