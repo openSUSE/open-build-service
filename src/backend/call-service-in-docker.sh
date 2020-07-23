@@ -23,7 +23,7 @@ SERVICES_DIR=`obs_admin --query-config servicetempdir`
 OBS_SERVICE_BUNDLE_GEMS_MIRROR_URL=`obs_admin --query-config gems_mirror`
 OBS_SERVICE_USER=`obs_admin --query-config obs_service_user`
 OBS_SERVICE_PASS=`obs_admin --query-config obs_service_pass`
-OBS_SERVICE_NETWORK=`obs_admin --query-config obs_service_pass`
+OBS_SERVICE_NETWORK=`obs_admin --query-config obs_service_network`
 # Fallback to bridge for legacy setup w/o docker user-defined networks
 [ -z "$OBS_SERVICE_NETWORK" ] && OBS_SERVICE_NETWORK="bridge"
 SCM_COMMAND=0
