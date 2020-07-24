@@ -1,0 +1,9 @@
+::selection {
+  background: $cyan; /* WebKit/Blink Browsers */
+  color: $white;
+}
+
+::-moz-selection {
+  background: $cyan; /* Gecko Browsers */
+  color: $white;
+}

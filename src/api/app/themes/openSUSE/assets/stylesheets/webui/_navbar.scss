@@ -1,0 +1,104 @@
+.navbar {
+  background: $light;
+  border-bottom: 2px solid $green;
+
+  &.navbar-transparent {
+    background-color: transparent;
+    border: 0;
+  }
+
+  .navbar-brand {
+    color: $navbar-light-brand-color;
+    display: inline-flex;
+
+    img {
+      margin-right: $spacer/2;
+    }
+
+    @include hover-focus {
+      color: $navbar-light-brand-hover-color;
+    }
+  }
+
+  .navbar-nav {
+    .nav-link {
+      color: $navbar-light-color;
+
+      @include hover-focus {
+        color: $navbar-light-hover-color;
+      }
+
+      &.disabled {
+        color: $navbar-light-disabled-color;
+      }
+    }
+
+    .show > .nav-link,
+    .active > .nav-link,
+    .nav-link.show,
+    .nav-link.active {
+      color: $navbar-light-active-color;
+    }
+  }
+
+  .navbar-toggler {
+    color: $navbar-light-color;
+    border-color: $navbar-light-toggler-border-color;
+  }
+
+  .navbar-text {
+    color: $navbar-light-color;
+    a {
+      color: $navbar-light-active-color;
+
+      @include hover-focus {
+        color: $navbar-light-active-color;
+      }
+    }
+  }
+
+  .form-control {
+    border: 0;
+  }
+
+  .btn-secondary {
+    border: 0;
+    background-color: $white;
+    color: $navbar-light-color;
+
+    @include hover-focus {
+      color: $navbar-light-hover-color;
+    }
+  }
+
+  .avatar {
+    width: 1.5em;
+    height: 1.5em;
+    border-radius: 1em;
+    margin-top: -0.3em;
+    margin-bottom: -0.2em;
+  }
+
+  .dropdown-menu {
+    max-height: calc(100vh - 3.3em);
+    overflow: auto;
+  }
+}
+
+.navbar-toggler {
+  margin-left: auto;
+}
+
+.megamenu-toggler,
+.darkmode-toggler {
+  display: block !important; // make it always visible
+  margin-left: 10px;
+}
+
+@include media-breakpoint-down(sm) {
+  // TODO: deal with different navbar break point
+  .navbar-collapse {
+    order: 1;
+    margin-top: $navbar-padding-y;
+  }
+}
