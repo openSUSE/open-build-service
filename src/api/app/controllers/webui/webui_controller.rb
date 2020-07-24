@@ -169,7 +169,6 @@ class Webui::WebuiController < ActionController::Base
 
   def check_user
     @spider_bot = request.bot?
-    previous_user = User.possibly_nobody.login
     User.session = nil # reset old users hanging around
 
     user_checker = WebuiControllerService::UserChecker.new(http_request: request, config: CONFIG)
@@ -188,7 +187,6 @@ class Webui::WebuiController < ActionController::Base
         User.session!.count_login_failure
         session[:login] = nil
         User.session = User.find_nobody!
-        send_login_information_rabbitmq(:disabled) if previous_user != User.possibly_nobody.login
         redirect_to(CONFIG['proxy_auth_logout_page'], error: 'Your account is disabled. Please contact the administrator for details.')
         return
       end
@@ -197,12 +195,6 @@ class Webui::WebuiController < ActionController::Base
     User.session = User.find_by_login(session[:login]) if session[:login]
 
     User.session ||= User.possibly_nobody
-
-    if !User.session
-      send_login_information_rabbitmq(:unauthenticated)
-    elsif previous_user != User.possibly_nobody.login
-      send_login_information_rabbitmq(:success)
-    end
   end
 
   def check_displayed_user
