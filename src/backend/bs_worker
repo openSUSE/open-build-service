@@ -3926,12 +3926,14 @@ eval {
   $ex = dobuild($buildinfo);
 };
 if ($@) {
-  append_nonfatal("$buildroot/.build.log", $workerid ? "$@(worker was $workerid)\n" : $@);
-  print $@;
   $ex = 1;
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
   $ex = 3 if $@ =~ /^500 /;
+  # catch disk full errors before the build script could be even started
+  $ex = 3 if $@ =~ /No space left on device/;
+  append_nonfatal("$buildroot/.build.log", $workerid ? "$@(worker was $workerid)\n" : $@);
+  print $@;
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
@@ -4097,7 +4099,7 @@ if ($ex == 0) {
 }
 my $code;
 if (!$ex) {
-  print "build succeeded, send everything back...\n";
+  print "build succeeded, sending everything back...\n";
   $code = 'succeeded';
 } elsif ($ex == 2) {
   print "build succeeded, but does not differ from old build result...\n";
