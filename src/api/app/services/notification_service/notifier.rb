@@ -41,8 +41,7 @@ module NotificationService
     end
 
     def create_notification?(subscriber, channel)
-      return false if subscriber&.away?
-      return false if channel == :rss && !subscriber&.rss_token
+      return false if subscriber.nil? || subscriber.away? || (channel == :rss && !subscriber.try(:rss_token))
       return false unless notifiable_exists?
 
       true
