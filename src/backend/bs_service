@@ -157,7 +157,7 @@ sub run_source_update {
     for my $service (@{$serviceinfo->{'service'}}) {
       my $name = $service->{'name'};
       BSVerify::verify_filename($name);
-      if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled' || $service->{'mode'} eq 'buildtime')) {
+      if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled' || $service->{'mode'} eq 'manual' || $service->{'mode'} eq 'buildtime')) {
         print "Skip $name\n";
         next;
       }
