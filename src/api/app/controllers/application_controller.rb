@@ -455,6 +455,7 @@ class ApplicationController < ActionController::Base
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
+      session_id: Digest::SHA1.hexdigest(OBSApi::Application.config.secret_key_base[0..8] + User.possibly_nobody.login + request.port.to_s),
       anonymous: !User.session,
       interface: :api
     }

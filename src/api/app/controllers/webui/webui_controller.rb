@@ -323,7 +323,8 @@ class Webui::WebuiController < ActionController::Base
   def set_influxdb_additional_tags
     tags = {
       beta: User.possibly_nobody.in_beta?,
-      anonymous: !User.session
+      anonymous: !User.session,
+      session_id: Digest::SHA1.hexdigest(OBSApi::Application.config.secret_key_base[0..8] + User.possibly_nobody.login + request.port.to_s)
     }
 
     InfluxDB::Rails.current.tags = InfluxDB::Rails.current.tags.merge(tags)
