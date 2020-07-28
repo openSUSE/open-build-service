@@ -86,12 +86,13 @@
 
   <define ns="" name="service-modes">
     <choice>
-                                   <!-- DEFAULT: the attribute is not used, service running on server and locally on build time -->
+                                   <!-- DEFAULT: the attribute is not used, service running on server and locally before starting a build -->
       <value>trylocal</value>      <!-- try on local clients and merge result, but run also on server side -->
-      <value>localonly</value>     <!-- never run on server side, but on the clients (not enforced) -->
+      <value>localonly</value>     <!-- never run on server side, but on the clients before commit or build -->
       <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
-      <value>buildtime</value>     <!-- run during build time, pulls in services as build dependencies -->
-      <value>disabled</value>      <!-- never run, except user explicit starts it locally -->
+      <value>buildtime</value>     <!-- run during build time inside build env, pulls in services as build dependencies -->
+      <value>manual</value>        <!-- never run, except user explicit starts it locally -->
+      <value>disabled</value>      <!-- never run, except user explicit starts it locally (old termonology) -->
     </choice>
   </define>
 
