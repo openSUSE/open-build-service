@@ -18,6 +18,7 @@ module OwnerSearch
     def initialize(params = {})
       self.params = params
       self.attribute = AttribType.find_by_name!(params[:attribute] || 'OBS:OwnerRootProject')
+      raise AttributeNotSetError unless attribute
 
       self.limit = (params[:limit] || 1).to_i
 
@@ -31,10 +32,11 @@ module OwnerSearch
       return [Project.get_by_name(params[:project])] if params[:project]
 
       # Find all marked projects
-      projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id })
+      projects = nil
+      projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id }) if attribute.present?
       return projects unless projects.empty?
 
-      raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
+      raise Project::UnknownObjectError, 'Root project could not be found via attribute'
     end
 
     def project_attrib(project)
