@@ -388,7 +388,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
-    strong_migrations (0.6.8)
+    strong_migrations (0.7.1)
       activerecord (>= 5)
     sync (0.5.0)
     sysexits (1.2.0)
