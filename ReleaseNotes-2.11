@@ -48,7 +48,6 @@ Intentional changes:
 
 Backend:
  * .sha256 files get gpg signed in detached mode now
- * .packages files get not anymore published
  * Switched from OR to AND when checking CPU flags in _constraints file
 
 Webui:
