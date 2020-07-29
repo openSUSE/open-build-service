@@ -31,6 +31,7 @@ module OwnerSearch
       return [Project.get_by_name(params[:project])] if params[:project]
 
       # Find all marked projects
+      projects = nil
       projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id })
       return projects unless projects.empty?
 
