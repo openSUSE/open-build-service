@@ -125,7 +125,6 @@ class Relationship < ApplicationRecord
     end
 
     def cache_sequence
-      # False positive: https://github.com/rubocop-hq/rubocop/issues/8196
       Rails.cache.fetch(RELATIONSHIP_CACHE_SEQUENCE) { 0 }
     end
 
