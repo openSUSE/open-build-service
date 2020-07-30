@@ -10,8 +10,8 @@ class Flag < ApplicationRecord
   validates :position, presence: true
   validates :position, numericality: { only_integer: true }
 
-  after_save :discard_forbidden_project_cache
   after_destroy :discard_forbidden_project_cache
+  after_save :discard_forbidden_project_cache
 
   before_validation(on: :create) do
     self.position = main_object.flags.maximum(:position).to_i + 1

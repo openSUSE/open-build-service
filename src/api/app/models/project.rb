@@ -15,6 +15,7 @@ class Project < ApplicationRecord
   TYPES = ['standard', 'maintenance', 'maintenance_incident',
            'maintenance_release'].freeze
 
+  after_initialize :init
   before_destroy :cleanup_before_destroy
   after_destroy_commit :delete_on_backend
 
@@ -22,7 +23,6 @@ class Project < ApplicationRecord
   after_save :populate_sphinx, if: -> { name_previously_changed? || title_previously_changed? || description_previously_changed? }
   after_rollback :reset_cache
   after_rollback :discard_cache
-  after_initialize :init
 
   serialize :required_checks, Array
   attr_accessor :commit_opts, :commit_user

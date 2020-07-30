@@ -95,12 +95,12 @@ class BsRequest < ApplicationRecord
   validates :number, uniqueness: true
   validates_associated :bs_request_actions, message: ->(_, record) { record[:value].map { |r| r.errors.full_messages }.flatten.to_sentence }
 
-  before_save :assign_number
-  before_save :accept_staged_request
-  before_update :send_state_change
   before_validation :sanitize!, if: :sanitize?, on: :create
-  after_commit :update_cache
+  before_save :accept_staged_request
+  before_save :assign_number
   after_create :notify
+  before_update :send_state_change
+  after_commit :update_cache
 
   accepts_nested_attributes_for :bs_request_actions
 
