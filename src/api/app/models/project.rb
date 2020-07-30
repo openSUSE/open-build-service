@@ -338,7 +338,7 @@ class Project < ApplicationRecord
       (1..atoms.length).each do |i|
         p = atoms.slice(0, i).join(':')
         r = atoms.slice(unused, i - unused).join(':')
-        if Project.where(name: p).exists? # ignore remote projects here
+        if Project.exists?(name: p) # ignore remote projects here
           projects << [p, r]
           unused = i
         end
@@ -677,7 +677,7 @@ class Project < ApplicationRecord
   end
 
   def is_locked?
-    @is_locked ||= flags.where(flag: 'lock', status: 'enable').exists?
+    @is_locked ||= flags.exists?(flag: 'lock', status: 'enable')
   end
 
   def is_unreleased?
@@ -1027,7 +1027,7 @@ class Project < ApplicationRecord
 
     # add repository targets
     add_target_repos.each do |repo|
-      unless trepo.release_targets.where(target_repository: repo).exists?
+      unless trepo.release_targets.exists?(target_repository: repo)
         trepo.release_targets.create(target_repository: repo, trigger: trigger)
       end
     end
@@ -1058,7 +1058,7 @@ class Project < ApplicationRecord
       pkg_to_enable.enable_for_repository(repo_name) if pkg_to_enable
       next if repositories.find_by_name(repo_name)
 
-      if repositories.where(name: repo_name).exists?
+      if repositories.exists?(name: repo_name)
         skip_repos.push(repo_name)
         next
       end
@@ -1210,7 +1210,7 @@ class Project < ApplicationRecord
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
-      next if flags.where(flag: f.flag, architecture: f.architecture, repo: f.repo).exists?
+      next if flags.exists?(flag: f.flag, architecture: f.architecture, repo: f.repo)
 
       flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
@@ -1491,7 +1491,7 @@ class Project < ApplicationRecord
   end
 
   def has_remote_repositories?
-    DownloadRepository.where(repository_id: repositories.select(:id)).exists?
+    DownloadRepository.exists?(repository_id: repositories.select(:id))
   end
 
   def to_s
@@ -1504,7 +1504,7 @@ class Project < ApplicationRecord
 
   def image_template?
     attribs.joins(attrib_type: :attrib_namespace)
-           .where(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' }).exists?
+           .exists?(attrib_types: { name: 'ImageTemplates' }, attrib_namespaces: { name: 'OBS' })
   end
 
   def key_info

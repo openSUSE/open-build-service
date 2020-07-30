@@ -478,7 +478,7 @@ class Package < ApplicationRecord
   end
 
   def is_of_kind?(kind)
-    package_kinds.where(kind: kind).exists?
+    package_kinds.exists?(kind: kind)
   end
 
   def ignored_requests

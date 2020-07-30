@@ -394,13 +394,13 @@ class User < ApplicationRecord
   def is_admin?
     return @is_admin unless @is_admin.nil?
 
-    @is_admin = roles.where(title: 'Admin').exists?
+    @is_admin = roles.exists?(title: 'Admin')
   end
 
   def is_staff?
     return @is_staff unless @is_staff.nil?
 
-    @is_staff = roles.where(title: 'Staff').exists?
+    @is_staff = roles.exists?(title: 'Staff')
   end
 
   def is_nobody?

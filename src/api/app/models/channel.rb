@@ -116,7 +116,7 @@ class Channel < ApplicationRecord
 
       # add repositories
       unless package.project.repositories.find_by_name(repo_name)
-        unless target_package.project.repositories.where(name: repo_name).exists?
+        unless target_package.project.repositories.exists?(name: repo_name)
           target_repo = target_package.project.repositories.create(name: repo_name)
           target_package.project.add_repository_targets(target_repo, ct.repository, [ct.repository])
         end

@@ -9,7 +9,7 @@ class GroupPolicy < ApplicationPolicy
   end
 
   def update?
-    user.is_admin? || record.group_maintainers.where(user: user).exists?
+    user.is_admin? || record.group_maintainers.exists?(user: user)
   end
 
   def destroy?

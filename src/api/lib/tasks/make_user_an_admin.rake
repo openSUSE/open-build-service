@@ -5,7 +5,7 @@ namespace :user do
 
     user = User.where(login: login).first
     if user
-      if user.roles.where(title: 'Admin').exists?
+      if user.roles.exists?(title: 'Admin')
         puts "Nothing to do here. User '#{user.login}' already is an admin."
       else
         puts "Making user '#{login}' an admin"

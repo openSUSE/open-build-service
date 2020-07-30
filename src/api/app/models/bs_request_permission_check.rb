@@ -124,7 +124,7 @@ class BsRequestPermissionCheck
 
     target_project = req.bs_request_actions.first.target_project_object
     if target_project && target_project.staging
-      user_is_staging_manager = User.session!.groups_users.where(group: target_project.staging.managers_group).exists?
+      user_is_staging_manager = User.session!.groups_users.exists?(group: target_project.staging.managers_group)
     end
 
     permission_granted = false

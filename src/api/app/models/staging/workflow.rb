@@ -134,7 +134,7 @@ class Staging::Workflow < ApplicationRecord
     # update reviewer group in staging workflow project
     reviewer_role = Role.find_by_title('reviewer')
     relationship = project.relationships.find_by(group: old_managers_group, role: reviewer_role)
-    if project.relationships.where(group: new_managers_group, role: reviewer_role).exists?
+    if project.relationships.exists?(group: new_managers_group, role: reviewer_role)
       relationship.destroy
     else
       relationship.update(group: new_managers_group)

@@ -193,7 +193,7 @@ class Group < ApplicationRecord
   end
 
   def maintainer?(user)
-    group_maintainers.where(user: user).exists?
+    group_maintainers.exists?(user: user)
   end
 
   private

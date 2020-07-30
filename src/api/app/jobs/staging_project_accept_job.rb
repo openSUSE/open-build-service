@@ -10,7 +10,7 @@ class StagingProjectAcceptJob < ApplicationJob
   def accept(staging_project)
     staging_project.send(:clear_memoized_data)
     staging_project.staged_requests.each do |staged_request|
-      if staged_request.reviews.where(by_project: staging_project.name).exists?
+      if staged_request.reviews.exists?(by_project: staging_project.name)
         staged_request.change_review_state(:accepted, by_project: staging_project.name, comment: "Staging Project #{staging_project.name} got accepted.")
       end
       staged_request.change_state(newstate: 'accepted', comment: "Staging Project #{staging_project.name} got accepted.")

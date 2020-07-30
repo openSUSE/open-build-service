@@ -1,6 +1,6 @@
 class UserBasicStrategy
   def is_in_group?(user, group)
-    user.groups_users.where(group_id: group.id).exists?
+    user.groups_users.exists?(group_id: group.id)
   end
 
   def local_role_check(_role, _object)
