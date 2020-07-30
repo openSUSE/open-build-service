@@ -57,6 +57,7 @@ use BSPGP;
 use BSHTTP;
 use BSRepServer::Containerinfo;
 use BSPublisher::Container;
+use BSPublisher::Helm;
 use BSPublisher::Util;
 use BSPublisher::Blobstore;
 
@@ -2037,6 +2038,19 @@ sub publish {
 	  $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
+	} elsif ($bin =~ /\.helm\.tar$/) {
+	  my @s = stat("$r/$rbin");
+	  next unless @s;
+	  eval { $containerinfo = BSPublisher::Helm::readcontainerinfo($r, $rbin) };
+	  warn("$@") if $@;
+          if ($containerinfo) {
+	    $p = $multicontainer ? "$arch/$bin" : $bin;
+	    $containerinfo->{'arch'} = $arch;
+	    $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
+	    $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
+	    $containerinfo->{'publishfile'} = "$extrep/$p";
+	    $containers{$p} = $containerinfo;
+	  }
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");

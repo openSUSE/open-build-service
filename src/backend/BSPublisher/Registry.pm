@@ -449,7 +449,9 @@ sub push_containers {
       warn("ignoring tag: $@");
       next;
     }
-    die("must use multiarch if multiple containers are to be pushed\n") if @{$tags->{$tag}} > 1 && !$multiarch;
+    my $multiarchtag = $multiarch;
+    $multiarchtag = 0 if @{$tags->{$tag}} == 1 && ($tags->{$tag}->[0]->{'type'} || '') eq 'helm';
+    die("must use multiarch if multiple containers are to be pushed\n") if @{$tags->{$tag}} > 1 && !$multiarchtag;
     my %multiplatforms;
     my @multimanifests;
     my @imginfos;
@@ -473,7 +475,11 @@ sub push_containers {
       my $tarfd;
       if ($containerinfo->{'uploadfile'}) {
 	open($tarfd, '<', $containerinfo->{'uploadfile'}) || die("$containerinfo->{'uploadfile'}: $!\n");
-	($tar, $mtime) = BSContar::normalize_container($tarfd, 1);
+	if ($containerinfo->{'type'} && $containerinfo->{'type'} eq 'helm') {
+	  ($tar, $mtime) = BSContar::container_from_helm($tarfd);
+	} else {
+	  ($tar, $mtime) = BSContar::normalize_container($tarfd, 1);
+	}
       } else {
 	($tar, $mtime) = construct_container_tar($containerinfo);
       }
@@ -484,13 +490,18 @@ sub push_containers {
 
       my @layers = @{$manifest->{'Layers'} || []};
       die("container has no layers\n") unless @layers;
-      my $config_layers = $config->{'rootfs'}->{'diff_ids'};
-      die("layer number mismatch\n") if @layers != @{$config_layers || []};
+      my $config_layers;
+      if ($config->{'rootfs'} && $config->{'rootfs'}->{'diff_ids'}) {
+        $config_layers = $config->{'rootfs'}->{'diff_ids'};
+        die("layer number mismatch\n") if @layers != @{$config_layers || []};
+      }
 
       # see if a already have this arch/os combination
-      my $variant = $config->{'variant'} || $containerinfo->{'govariant'};
-      my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
-      $platformstr .= " variant:$variant" if $variant;
+      my $govariant = $config->{'variant'} || $containerinfo->{'govariant'};
+      my $goarch = $config->{'architecture'} || 'any';
+      my $goos = $config->{'os'} || 'any';
+      my $platformstr = "architecture:$goarch os:$goos";
+      $platformstr .= " variant:$govariant" if $govariant;
       if ($multiplatforms{$platformstr}) {
 	print "ignoring $containerinfo->{'file'}, already have $platformstr\n";
 	close $tarfd if $tarfd;
@@ -502,7 +513,7 @@ sub push_containers {
       my $config_blobid = push_blob($repodir, $containerinfo, $config_ent);
       $knownblobs{$config_blobid} = 1;
       my $config_data = {
-	'mediaType' => 'application/vnd.docker.container.image.v1+json',
+	'mediaType' => $config_ent->{'mimetype'} || 'application/vnd.docker.container.image.v1+json',
 	'size' => $config_ent->{'size'},
 	'digest' => $config_blobid,
       };
@@ -521,7 +532,7 @@ sub push_containers {
 	my $blobid = push_blob($repodir, $containerinfo, $layer_ent);
         $knownblobs{$blobid} = 1;
 	my $layer_data = {
-	  'mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+	  'mediaType' => $layer_ent->{'mimetype'} || 'application/vnd.docker.image.rootfs.diff.tar.gzip',
 	  'size' => $layer_ent->{'size'},
 	  'digest' => $blobid,
 	};
@@ -536,7 +547,7 @@ sub push_containers {
 	'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
 	'config' => $config_data,
 	'layers' => \@layer_data,
-      };  
+      };
       my $mani_json = BSContar::create_dist_manifest($mani);
       my $mani_id = push_manifest($repodir, $mani_json);
       $knownmanifests{$mani_id} = 1;
@@ -545,18 +556,19 @@ sub push_containers {
 	'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
 	'size' => length($mani_json),
 	'digest' => $mani_id,
-	'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
+	'platform' => {'architecture' => $goarch, 'os' => $goos},
       };
-      $multimani->{'platform'}->{'variant'} = $variant if $variant;
+      $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
       push @multimanifests, $multimani;
 
       my $imginfo = {
 	'imageid' => $config_blobid,
-        'goarch' => $config->{'architecture'},
-        'goos' => $config->{'os'},
+        'goarch' => $goarch,
+        'goos' => $goos,
 	'distmanifest' => $mani_id,
       };
-      $imginfo->{'govariant'} = $variant if $variant;
+      $imginfo->{'govariant'} = $govariant if $govariant;
+      $imginfo->{'type'} = $containerinfo->{'type'} if $containerinfo->{'type'};
       $imginfo->{'package'} = $containerinfo->{'_origin'} if $containerinfo->{'_origin'};
       $imginfo->{'disturl'} = $containerinfo->{'disturl'} if $containerinfo->{'disturl'};
       $imginfo->{'buildtime'} = $containerinfo->{'buildtime'} if $containerinfo->{'buildtime'};
@@ -565,11 +577,9 @@ sub push_containers {
       $imginfo->{'arch'} = $containerinfo->{'arch'};		# scheduler arch
       my @diff_ids = @{$config_layers || []};
       for (@layer_data) {
-        push @{$imginfo->{'layers'}}, {
-	  'diffid' => shift @diff_ids,
-	  'blobid' => $_->{'digest'},
-	  'blobsize' => $_->{'size'},
-	};
+        my $l = { 'blobid' => $_->{'digest'}, 'blobsize' => $_->{'size'} };
+        $l->{'diffid'} = shift @diff_ids if @diff_ids;
+        push @{$imginfo->{'layers'}}, $l;
       }
       push @imginfos, $imginfo;
       $knownimagedigests{$imginfo->{'distmanifest'}}->{$tag} = 1;
@@ -581,7 +591,7 @@ sub push_containers {
       'images' => \@imginfos,
     };
     my ($mani_id, $mani_size);
-    if ($multiarch) {
+    if ($multiarchtag) {
       # create fat manifest
       my $mani = {
         'schemaVersion' => 2,
