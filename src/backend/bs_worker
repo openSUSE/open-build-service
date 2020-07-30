@@ -204,11 +204,12 @@ sub cleanup_job {
 
   # if this is a chroot like case, get rid of it after the build
   if ((!$vm || $vm eq 'lxc' || $vm eq 'docker' || $vm eq 'nspwan') && $cleanup_chroot && -d $buildroot) {
-      printf "Removing buildroot $buildroot";
+      print "Removing buildroot $buildroot...";
       eval {
         rm_rf($buildroot);
         mkdir_p($buildroot);
-      }
+      };
+      print "\n";
   }
 
 }
