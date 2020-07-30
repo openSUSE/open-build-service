@@ -14,7 +14,7 @@ RSpec.describe Webui::Packages::BranchesController, vcr: true do
 
     it 'shows an error if source package does not exist' do
       post :create, params: { linked_project: source_project, linked_package: 'does_not_exist' }
-      expect(flash[:error]).to eq('Failed to branch: Package does not exist.')
+      expect(flash[:error]).to eq('Failed to branch: Package not found: home:tom/does_not_exist')
       expect(response).to redirect_to(root_path)
     end
 
@@ -26,7 +26,7 @@ RSpec.describe Webui::Packages::BranchesController, vcr: true do
 
     it 'shows an error if source project does not exist' do
       post :create, params: { linked_project: 'does_not_exist', linked_package: source_package }
-      expect(flash[:error]).to eq('Failed to branch: Package does not exist.')
+      expect(flash[:error]).to eq('Failed to branch: Project not found: does_not_exist')
       expect(response).to redirect_to(root_path)
     end
 
