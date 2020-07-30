@@ -314,7 +314,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
     it 'when request is in a final state' do
       bs_request.update_attributes(state: :accepted)
       visit request_show_path(bs_request)
-      expect(page).to have_text("Auto-accept was set to #{I18n.localize bs_request.accept_at, format: :only_date}.")
+      expect(page).to have_text("Auto-accept was set to #{I18n.l(bs_request.accept_at, format: :only_date)}.")
     end
 
     it 'when request auto_accept is in the past and not in a final state' do
