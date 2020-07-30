@@ -113,7 +113,7 @@ class Webui::RequestController < Webui::WebuiController
 
     # search for a project, where the user is not a package maintainer but a project maintainer and show
     # a hint if that package has some package maintainers (issue#1970)
-    @show_project_maintainer_hint = !@package_maintainers.empty? && !@package_maintainers.include?(User.session) && any_project_maintained_by_current_user?
+    @show_project_maintainer_hint = !@package_maintainers.empty? && @package_maintainers.exclude?(User.session) && any_project_maintained_by_current_user?
     @comments = @bs_request.comments
     @comment = Comment.new
 

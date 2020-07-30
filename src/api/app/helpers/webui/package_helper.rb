@@ -76,11 +76,11 @@ module Webui::PackageHelper
   end
 
   def expand_diff?(filename, state)
-    state != 'deleted' && !filename.include?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
+    state != 'deleted' && filename.exclude?('/') && (filename == '_patchinfo' || filename.ends_with?('.spec', '.changes'))
   end
 
   def viewable_file?(filename)
-    !Package.is_binary_file?(filename) && !filename.include?('/')
+    !Package.is_binary_file?(filename) && filename.exclude?('/')
   end
 
   def calculate_revision_on_state(revision, state)

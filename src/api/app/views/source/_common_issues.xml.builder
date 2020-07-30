@@ -2,8 +2,8 @@
 issues.each do |i|
   change = nil
   change = i.change if i.class == PackageIssue
-  next if @filter_changes && (!change || !@filter_changes.include?(change))
-  next if @states && (!i.issue.state || !@states.include?(i.issue.state))
+  next if @filter_changes && (!change || @filter_changes.exclude?(change))
+  next if @states && (!i.issue.state || @states.exclude?(i.issue.state))
 
   o = nil
   if i.issue.owner_id

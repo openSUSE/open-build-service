@@ -524,7 +524,7 @@ class Webui::ProjectController < Webui::WebuiController
     find_maintenance_infos
 
     @packages = @project.packages.pluck(:name)
-    @inherited_packages = @project.expand_all_packages.find_all { |inherited_package| !@packages.include?(inherited_package[0]) }
+    @inherited_packages = @project.expand_all_packages.find_all { |inherited_package| @packages.exclude?(inherited_package[0]) }
     @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests

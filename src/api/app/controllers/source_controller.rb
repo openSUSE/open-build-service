@@ -192,9 +192,9 @@ class SourceController < ApplicationController
       end
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name(@target_project_name)
-      if !PACKAGE_CREATING_COMMANDS.include?(@command) || Package.exists_by_project_and_name(@target_project_name,
-                                                                                             @target_package_name,
-                                                                                             follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
+      if PACKAGE_CREATING_COMMANDS.exclude?(@command) || Package.exists_by_project_and_name(@target_project_name,
+                                                                                            @target_package_name,
+                                                                                            follow_project_links: SOURCE_UNTOUCHED_COMMANDS.include?(@command))
         validate_target_for_package_command_exists!
       end
     end
