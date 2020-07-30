@@ -178,16 +178,6 @@ class Review < ApplicationRecord
     end
   end
 
-  def webui_infos
-    ret = _get_attributes
-    # XML has this perl format, don't use that here
-    ret[:when] = created_at
-    ret[:creator] = creator
-    ret[:reason] = reason
-    ret[:id] = id
-    ret
-  end
-
   def reviewers_for_obj(obj)
     return [] unless obj
 
