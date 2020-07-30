@@ -146,7 +146,7 @@ class Review < ApplicationRecord
     r.reviewer = r.creator = hash.delete('who')
     r.reason = hash.delete('comment')
     begin
-      r.updated_at = Time.zone.parse(hash.delete('when'))
+      r.changed_state_at = Time.zone.parse(hash.delete('when'))
     rescue TypeError
       # no valid time -> ignore
     end
@@ -159,7 +159,7 @@ class Review < ApplicationRecord
   def _get_attributes
     attributes = { state: state.to_s }
     # old requests didn't have who and when
-    attributes[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
+    attributes[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
     attributes[:who] = reviewer if reviewer
     attributes[:by_group] = by_group if by_group
     attributes[:by_user] = by_user if by_user
@@ -222,6 +222,7 @@ class Review < ApplicationRecord
     self.reason = comment
     self.state = new_state
     self.reviewer = User.session!.login
+    self.changed_state_at = Time.now.utc
     save!
     Event::ReviewChanged.create(bs_request.event_parameters)
 
@@ -250,7 +251,7 @@ class Review < ApplicationRecord
     params[:id] = bs_request.id
     params[:comment] = reason
     params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
-    params[:when] = updated_at.strftime('%Y-%m-%dT%H:%M:%S')
+    params[:when] = changed_state_at&.strftime('%Y-%m-%dT%H:%M:%S')
     params
   end
 
@@ -265,6 +266,11 @@ class Review < ApplicationRecord
     return Group.find_by(title: by_group) if by_group
     return Package.find_by_project_and_name(by_project, by_package) if by_package
     return Project.find_by(name: by_project) if by_project
+  end
+
+  # Make sure this is always set, also for old records
+  def changed_state_at
+    self[:changed_state_at] || self[:updated_at]
   end
 
   private
@@ -320,23 +326,24 @@ end
 #
 # Table name: reviews
 #
-#  id            :integer          not null, primary key
-#  by_group      :string(255)      indexed, indexed => [state]
-#  by_package    :string(255)      indexed => [by_project]
-#  by_project    :string(255)      indexed => [by_package], indexed, indexed => [state]
-#  by_user       :string(255)      indexed, indexed => [state]
-#  creator       :string(255)      indexed
-#  reason        :text(65535)
-#  reviewer      :string(255)      indexed
-#  state         :string(255)      indexed => [by_group], indexed => [by_project], indexed => [by_user]
-#  created_at    :datetime         not null
-#  updated_at    :datetime         not null
-#  bs_request_id :integer          indexed
-#  group_id      :integer          indexed
-#  package_id    :integer          indexed
-#  project_id    :integer          indexed
-#  review_id     :integer          indexed
-#  user_id       :integer          indexed
+#  id               :integer          not null, primary key
+#  by_group         :string(255)      indexed, indexed => [state]
+#  by_package       :string(255)      indexed => [by_project]
+#  by_project       :string(255)      indexed => [by_package], indexed, indexed => [state]
+#  by_user          :string(255)      indexed, indexed => [state]
+#  changed_state_at :datetime
+#  creator          :string(255)      indexed
+#  reason           :text(65535)
+#  reviewer         :string(255)      indexed
+#  state            :string(255)      indexed => [by_group], indexed => [by_project], indexed => [by_user]
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
+#  bs_request_id    :integer          indexed
+#  group_id         :integer          indexed
+#  package_id       :integer          indexed
+#  project_id       :integer          indexed
+#  review_id        :integer          indexed
+#  user_id          :integer          indexed
 #
 # Indexes
 #
