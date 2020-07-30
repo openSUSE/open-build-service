@@ -85,7 +85,7 @@ def ignore_by_class?(notice)
                           'Timeout::Error', 'Net::HTTPBadResponse', 'RoutesHelper::WebuiMatcher::InvalidRequestFormat',
                           'ActionController::UnknownFormat', 'Backend::NotFoundError']
 
-  (notice[:errors].map { |error| error[:type] } & exceptions_to_ignore).any?
+  (notice[:errors].pluck(:type) & exceptions_to_ignore).any?
 end
 
 def ignore_exception?(notice)
