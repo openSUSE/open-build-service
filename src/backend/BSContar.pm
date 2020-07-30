@@ -297,4 +297,41 @@ sub create_dist_manifest_list {
   return $json;
 }
 
+sub container_from_helm {
+  my ($tarfd) = @_; 
+  my @tarstat = stat($tarfd);
+  die("stat: $!\n") unless @tarstat;
+  my $mtime = $tarstat[9];
+  my $tar = BSTar::list($tarfd);
+  $_->{'file'} = $tarfd for @$tar;
+  my %tar = map {$_->{'name'} => $_} @$tar;
+  # read helm manifest
+  my $helmmanifest_ent = $tar{'manifest.json'};
+  die("helm.tar file has no manifest.json\n") unless $helmmanifest_ent;
+  my $helmmanifest_json = BSTar::extract($helmmanifest_ent->{'file'}, $helmmanifest_ent);
+  my $helmmanifest = JSON::XS::decode_json($helmmanifest_json);
+  my $chart = $helmmanifest->{'chart'};
+  die("helm manifest does not contain a chart\n") unless $chart && ref($chart) eq '';
+  my $repotags = $helmmanifest->{'tags'};
+  $repotags = undef unless $repotags && ref($repotags) eq 'ARRAY';
+  die("helm.tar file has no config.json\n") unless $tar{'config.json'};
+  die("helm.tar file has no $chart\n") unless $tar{$chart};
+  # replace helm manifest with fake container manifest
+  my $manifest = { 
+    'Layers' => [ $chart ],
+    'Config' => 'config.json',
+    'RepoTags' => $repotags || [], 
+  };
+  my $manifest_ent = create_manifest_entry($manifest, $mtime);
+  %{$tar{'manifest.json'}} = %$manifest_ent;
+  # set mime types
+  $tar{'config.json'}->{'mimetype'} = 'application/vnd.cncf.helm.config.v1+json';
+  if ($chart =~ /($?:\.tar\.gz|\.tgz)$/) {
+    $tar{$chart}->{'mimetype'} = 'application/tar+gzip';
+  } else {
+    $tar{$chart}->{'mimetype'} = 'application/tar';
+  }
+  return ($tar, $mtime);
+}
+
 1;
