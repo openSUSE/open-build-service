@@ -317,7 +317,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
-    assert !repos.include?('HiddenProject/nada'), 'HiddenProject repos public'
+    assert repos.exclude?('HiddenProject/nada'), 'HiddenProject repos public'
 
     login_king
     get '/search/repository/id'

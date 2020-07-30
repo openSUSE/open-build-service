@@ -56,8 +56,8 @@ class Relationship < ApplicationRecord
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
   after_create :discard_cache
-  after_rollback :discard_cache
   after_destroy :discard_cache
+  after_rollback :discard_cache
 
   RELATIONSHIP_CACHE_SEQUENCE = 'cache_sequence_for_forbidden_projects'.freeze
 

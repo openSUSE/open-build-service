@@ -317,7 +317,6 @@ Style/MethodCallWithArgsParentheses:
     - info
     - kill
     - load
-    - localize
     - match_array
     - merge_timeout
     - message

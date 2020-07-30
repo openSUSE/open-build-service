@@ -487,7 +487,7 @@ class BranchPackage
           # FIXME: this will not find packages on linked remote projects
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
-          next if pkg2.nil? || @packages.map { |p| p[:package] }.include?(pkg2) # avoid double instances
+          next if pkg2.nil? || @packages.pluck(:package).include?(pkg2) # avoid double instances
 
           logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" \
                       "for attribute #{at.name} and given package name #{params[:package]}"

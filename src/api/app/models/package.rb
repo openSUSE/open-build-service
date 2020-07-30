@@ -61,6 +61,7 @@ class Package < ApplicationRecord
   has_many :target_of_bs_request_actions, class_name: 'BsRequestAction', foreign_key: 'target_package_id'
   has_many :target_of_bs_requests, through: :target_of_bs_request_actions, source: :bs_request
 
+  before_update :update_activity
   before_destroy :delete_on_backend
   before_destroy :close_requests
   before_destroy :update_project_for_product
@@ -69,7 +70,6 @@ class Package < ApplicationRecord
 
   after_save :write_to_backend
   after_save :populate_sphinx, if: -> { name_previously_changed? || title_previously_changed? || description_previously_changed? }
-  before_update :update_activity
   after_rollback :reset_cache
 
   # The default scope is necessary to exclude the forbidden projects.
@@ -478,7 +478,7 @@ class Package < ApplicationRecord
   end
 
   def is_of_kind?(kind)
-    package_kinds.where(kind: kind).exists?
+    package_kinds.exists?(kind: kind)
   end
 
   def ignored_requests

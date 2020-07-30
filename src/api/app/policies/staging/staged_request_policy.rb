@@ -1,7 +1,7 @@
 class Staging::StagedRequestPolicy < ApplicationPolicy
   def create?
     group = record.managers_group
-    user.groups_users.where(group: group).exists? ||
+    user.groups_users.exists?(group: group) ||
       ProjectPolicy.new(user, record.project).update?
   end
 

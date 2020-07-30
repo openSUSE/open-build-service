@@ -68,7 +68,7 @@ RSpec.describe Project, vcr: true do
           review_2.update(state: 'accepted')
         end
 
-        it { expect(subject.map { |review| review[:id] }).not_to include(review_2.id) }
+        it { expect(subject.pluck(:id)).not_to include(review_2.id) }
       end
     end
 

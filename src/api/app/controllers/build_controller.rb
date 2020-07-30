@@ -1,7 +1,7 @@
 class BuildController < ApplicationController
   def index
     # for read access and visibility permission check
-    if params[:package] && !['_repository', '_jobhistory'].include?(params[:package])
+    if params[:package] && ['_repository', '_jobhistory'].exclude?(params[:package])
       Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_multibuild: true)
     else
       Project.get_by_name(params[:project])

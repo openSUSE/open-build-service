@@ -40,8 +40,8 @@ class Role < ApplicationRecord
 
   scope :global, -> { where(global: true) }
 
-  after_save :delete_hashed_cache
   after_destroy :delete_hashed_cache
+  after_save :delete_hashed_cache
 
   # Fetches all roles and stores them as a hash. Uses title attribute as hash key.
   #

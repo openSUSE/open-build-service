@@ -22,9 +22,9 @@ OBSApi::Application.routes.draw do
     match 'person/changepasswd' => 'person#change_my_password', via: [:post, :put] # use /person/:login?cmd=changepassword POST instead
     get 'person/:login/group' => 'person#grouplist', constraints: cons # Use /group?person=:login GET instead
     # /FIXME3.0
-    match 'person/:login' => 'person#get_userinfo', constraints: cons, via: [:get]
-    match 'person/:login' => 'person#put_userinfo', constraints: cons, via: [:put]
-    match 'person/:login' => 'person#post_userinfo', constraints: cons, via: [:post]
+    get 'person/:login' => 'person#get_userinfo', constraints: cons
+    put 'person/:login' => 'person#put_userinfo', constraints: cons
+    post 'person/:login' => 'person#post_userinfo', constraints: cons
 
     ### /group
     controller :group do

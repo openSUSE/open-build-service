@@ -38,7 +38,7 @@ module OwnerSearch
       return params[:filter].split(',') if params[:filter]
 
       attrib = project_attrib(project)
-      if attrib && attrib.values.where(value: 'BugownerOnly').exists?
+      if attrib && attrib.values.exists?(value: 'BugownerOnly')
         ['bugowner']
       else
         ['maintainer', 'bugowner']
@@ -49,7 +49,7 @@ module OwnerSearch
       return ['0', 'false'].include?(params[:devel]) if params[:devel]
 
       attrib = project_attrib(project)
-      attrib && attrib.values.where(value: 'DisableDevel').exists?
+      attrib && attrib.values.exists?(value: 'DisableDevel')
     end
 
     def filter_roles(relation, rolefilter)

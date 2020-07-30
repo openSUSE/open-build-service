@@ -40,13 +40,13 @@ module HasRelationships
   end
 
   def user_has_role?(user, role)
-    return true if relationships.where(role_id: role.id, user_id: user.id).exists?
+    return true if relationships.exists?(role_id: role.id, user_id: user.id)
 
-    relationships.where(role_id: role).joins(:groups_users).where(groups_users: { user_id: user.id }).exists?
+    relationships.where(role_id: role).joins(:groups_users).exists?(groups_users: { user_id: user.id })
   end
 
   def group_has_role?(group, role)
-    relationships.where(role_id: role.id, group_id: group.id).exists?
+    relationships.exists?(role_id: role.id, group_id: group.id)
   end
 
   def remove_role(what, role)

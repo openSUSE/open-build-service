@@ -842,9 +842,9 @@ class BsRequestAction < ApplicationRecord
   end
 
   def has_matching_target?(source_project, target_project)
-    ReleaseTarget.where(repository: source_project.repositories,
-                        target_repository: target_project.repositories,
-                        trigger: 'maintenance').exists?
+    ReleaseTarget.exists?(repository: source_project.repositories,
+                          target_repository: target_project.repositories,
+                          trigger: 'maintenance')
   end
 
   def check_action_permission_source!
