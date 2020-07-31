@@ -91,7 +91,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
 
   describe 'branching', vcr: true do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
-    let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
+    let(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
       login user
@@ -106,29 +106,6 @@ RSpec.describe 'Projects', type: :feature, js: true do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
-      expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
-    end
-
-    it 'an existing package, but chose a different target package name' do
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-      fill_in('Branch package name', with: 'some_different_name')
-      # This needs global write through
-      click_button('Branch')
-
-      expect(page).to have_text('Successfully branched package')
-      expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name", ignore_query: true)
-    end
-
-    it 'an existing package were the target package already exists' do
-      create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
-
-      fill_in('linked_project', with: other_user.home_project_name)
-      fill_in('linked_package', with: package_of_another_project.name)
-      # This needs global write through
-      click_button('Branch')
-
-      expect(page).to have_text('You have already branched this package')
       expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
   end

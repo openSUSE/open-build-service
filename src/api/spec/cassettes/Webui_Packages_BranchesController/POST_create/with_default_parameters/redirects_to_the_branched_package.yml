@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '142'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -113,8 +111,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -154,17 +151,16 @@ http_interactions:
           <description>This project was created for package my_package via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+        <package name="my_package" project="home:tom:branches:home:tom">
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -185,19 +181,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+        <package name="my_package" project="home:tom:branches:home:tom">
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=branch&noservice=1&opackage=my_package&oproject=home:tom&user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package?cmd=branch&noservice=1&opackage=my_package&oproject=home:tom&user=tom
     body:
       encoding: UTF-8
       string: ''
@@ -226,25 +221,24 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>49bd231e56677e1dfd80e906f4f5dbe4</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>83a26953292465b9db7b73e54859d7e0</srcmd5>
           <version>unknown</version>
-          <time>1589466832</time>
+          <time>1596207527</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package/_meta?user=tom
     body:
       encoding: UTF-8
       string: |
-        <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+        <package name="my_package" project="home:tom:branches:home:tom">
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -265,19 +259,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '169'
     body:
       encoding: UTF-8
       string: |
-        <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Ut et omnis in.</description>
+        <package name="my_package" project="home:tom:branches:home:tom">
+          <title>The Wings of the Dove</title>
+          <description>Tenetur ut voluptas quo.</description>
         </package>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package
     body:
       encoding: US-ASCII
       string: ''
@@ -300,19 +293,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '426'
+      - '420'
     body:
       encoding: UTF-8
       string: |
-        <directory name="new_package_name" rev="1" vrev="1" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
-          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
-          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1589466832"/>
+        <directory name="my_package" rev="4" vrev="4" srcmd5="83a26953292465b9db7b73e54859d7e0">
+          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0"/>
+          <entry name="_link" md5="702b2f782cb222a3f9124aa00cdb6bf4" size="116" mtime="1596207360"/>
         </directory>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?view=info
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package?view=info
     body:
       encoding: US-ASCII
       string: ''
@@ -335,19 +327,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '329'
+      - '323'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="new_package_name" rev="1" vrev="1" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="my_package" rev="4" vrev="4" srcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:tom" package="my_package"/>
         </sourceinfo>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:47 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package
     body:
       encoding: US-ASCII
       string: ''
@@ -370,19 +361,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '426'
+      - '420'
     body:
       encoding: UTF-8
       string: |
-        <directory name="new_package_name" rev="1" vrev="1" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
-          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
-          <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1589466832"/>
+        <directory name="my_package" rev="4" vrev="4" srcmd5="83a26953292465b9db7b73e54859d7e0">
+          <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="c688657843e10f988f2fb32c79413ce4" lsrcmd5="83a26953292465b9db7b73e54859d7e0"/>
+          <entry name="_link" md5="702b2f782cb222a3f9124aa00cdb6bf4" size="116" mtime="1596207360"/>
         </directory>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:48 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -407,22 +397,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '346'
+      - '334'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1a713416959d63bc720116f7a5ffe6dd">
-          <old project="home:tom:branches:home:tom" package="new_package_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:home:tom" package="new_package_name" rev="1" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
+        <sourcediff key="38794fd5375e0e53700b2476ad153250">
+          <old project="home:tom:branches:home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom:branches:home:tom" package="my_package" rev="4" srcmd5="83a26953292465b9db7b73e54859d7e0"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:48 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    uri: http://backend:5352/source/home:tom:branches:home:tom/my_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
     body:
       encoding: UTF-8
       string: ''
@@ -447,19 +436,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '384'
+      - '355'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="08ba20ab5b2558f61bc8787701f7de3d">
+        <sourcediff key="cfd8c7a8066dcbd43b2ad2f21933b9a3">
           <old project="home:tom" package="my_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:home:tom" package="new_package_name" rev="0a2e3813e4d7ad4b6b72066efa8587cc" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc"/>
+          <new project="home:tom:branches:home:tom" package="my_package" rev="c688657843e10f988f2fb32c79413ce4" srcmd5="c688657843e10f988f2fb32c79413ce4"/>
           <files/>
-          <issues>
-          </issues>
         </sourcediff>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:48 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -505,6 +491,5 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:52 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 31 Jul 2020 14:58:48 GMT
+recorded_with: VCR 6.0.0

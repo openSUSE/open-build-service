@@ -6,6 +6,7 @@ RSpec.describe Webui::Packages::BranchesController, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
+  let(:existing_project) { create(:project_with_package, name: 'existing_project', package_name: 'existing_package', maintainer: user) }
 
   describe 'POST #create' do
     before do
@@ -46,6 +47,24 @@ RSpec.describe Webui::Packages::BranchesController, vcr: true do
       post :create, params: { linked_project: source_project, linked_package: source_package, current_revision: true, revision: 2 }
       expect(flash[:error]).to eq('Package has no source revision yet')
       expect(response).to redirect_to(root_path)
+    end
+
+    it 'shows an error if the target package exists already' do
+      post :create, params: { linked_project: source_project, linked_package: source_package, target_project: existing_project.name, target_package: 'existing_package' }
+      expect(flash[:notice]).to eq('You have already branched this package')
+    end
+
+    context 'with default parameters' do
+      before do
+        post :create, params: { linked_project: source_project, linked_package: source_package }
+      end
+
+      it { expect(flash[:success]).to eq('Successfully branched package') }
+
+      it 'redirects to the branched package' do
+        expect(response).to redirect_to(package_show_path(project: "#{source_project.name}:branches:#{source_project.name}",
+                                                          package: "#{source_package.name}"))
+      end
     end
 
     context 'with target package name' do

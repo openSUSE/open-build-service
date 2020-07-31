@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Et molestiae omnis dolore.</description>
+          <title>Quo Vadis</title>
+          <description>Et fuga ut et.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '129'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>A Time to Kill</title>
-          <description>Et molestiae omnis dolore.</description>
+          <title>Quo Vadis</title>
+          <description>Et fuga ut et.</description>
         </package>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -113,6 +111,5 @@ http_interactions:
       string: |
         <collection>
         </collection>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+recorded_with: VCR 6.0.0
