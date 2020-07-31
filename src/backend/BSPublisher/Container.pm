@@ -369,6 +369,13 @@ sub upload_to_registry {
       die("need a blobdir for containerinfo uploads\n") unless $blobdir;
       push @uploadfiles, "$blobdir/container.".scalar(@uploadfiles).".containerinfo";
       BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
+    } elsif ($file =~ /(.*)\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
+      my $helminfofile = "$1.helminfo";
+      $blobdir = $containerinfo->{'blobdir'};
+      die("need a blobdir for helminfo uploads\n") unless $blobdir;
+      die("bad publishfile\n") unless $helminfofile =~ /^\Q$blobdir\E\//;	# just in case
+      push @uploadfiles, $helminfofile;
+      BSRepServer::Containerinfo::writecontainerinfo($uploadfiles[-1], undef, $containerinfo);
     } elsif ($file =~ /\.tar$/) {
       push @uploadfiles, $file;
     } else {
@@ -533,6 +540,8 @@ sub do_local_uploads {
       if (!defined($file)) {
         die("need a blobdir for containerinfo uploads\n") unless $containerinfo->{'blobdir'};
       } elsif ($file =~ /\.tar$/) {
+	$containerinfo->{'uploadfile'} = $file;
+      } elsif ($file =~ /\.tgz$/ && ($containerinfo->{'type'} || '') eq 'helm') {
 	$containerinfo->{'uploadfile'} = $file;
       } else {
         my $tmpfile = decompress_container($file);

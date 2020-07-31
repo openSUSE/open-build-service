@@ -475,8 +475,8 @@ sub push_containers {
       my $tarfd;
       if ($containerinfo->{'uploadfile'}) {
 	open($tarfd, '<', $containerinfo->{'uploadfile'}) || die("$containerinfo->{'uploadfile'}: $!\n");
-	if ($containerinfo->{'type'} && $containerinfo->{'type'} eq 'helm') {
-	  ($tar, $mtime) = BSContar::container_from_helm($tarfd);
+	if (($containerinfo->{'type'} || '') eq 'helm') {
+	  ($tar, $mtime) = BSContar::container_from_helm($containerinfo->{'uploadfile'}, $containerinfo->{'config_json'}, $containerinfo->{'tags'});
 	} else {
 	  ($tar, $mtime) = BSContar::normalize_container($tarfd, 1);
 	}

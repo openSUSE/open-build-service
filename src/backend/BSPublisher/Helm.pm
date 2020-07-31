@@ -23,51 +23,35 @@
 package BSPublisher::Helm;
 
 use BSTar;
+use BSUtil;
 
 use strict;
 
-sub readcontainerinfo {
-  my ($dir, $helmtar) = @_;
-  my $h;
-  return undef unless open($h, '<', "$dir/$helmtar");
-  my $tar = BSTar::list($h);
-  return undef unless $tar;
-  my %tar = map {$_->{'name'} => $_} @$tar;
-  my $manifest_ent = $tar{'manifest.json'};
-  return undef unless $manifest_ent && $manifest_ent->{'size'} < 100000;
-  my $manifest_json = BSTar::extract($h, $manifest_ent);
-  my $manifest = JSON::XS::decode_json($manifest_json);
-  close $h;
-
-  my $d; 
-  eval { $d = JSON::XS::decode_json($manifest_json) };
+# this also works as a containerinfo substitute
+sub readhelminfo {
+  my ($dir, $helminfofile) = @_;
+  return undef unless -e "$dir/$helminfofile";
+  return undef unless (-s _) < 1000000;
+  my $m = readstr("$dir/$helminfofile");
+  my $d;
+  eval { $d = JSON::XS::decode_json($m); };
   return undef unless $d && ref($d) eq 'HASH';
-  my $tags = $d->{'tags'};
-  $tags = [] unless $tags && ref($tags) eq 'ARRAY';
-  for (@$tags) {
-    $_ = undef unless defined($_) && ref($_) eq ''; 
+  if (exists $d->{'tags'}) {
+    $d->{'tags'} = [] unless ref($d->{'tags'}) eq 'ARRAY';
+    for (splice @{$d->{'tags'}}) {
+      push @{$d->{'tags'}}, $_ if defined($_) && ref($_) eq '';
+    }
   }
-  @$tags = grep {defined($_)} @$tags;
-
-  my $name = $d->{'name'};
-  $name = undef unless defined($name) && ref($name) eq ''; 
-  if (!defined($name) && @$tags) {
-    # no name specified, get it from first tag
-    $name = $tags->[0];
-    $name =~ s/[:\/]/-/g;
-  }
-
-  my $containerinfo = { 'type' => 'helm' };
-  $containerinfo->{'name'} = $name if defined $name;
-  $containerinfo->{'tags'} = $tags if @$tags;
-  for my $k (qw{chart disturl buildtime version release}) {
+  for my $k (qw{disturl buildtime name version release config_json}) {
     my $v = $d->{$k};
-    $containerinfo->{$k} = $v if defined($v) && ref($v) eq '';
+    $d->{$k} = $v if defined($v) && ref($v) eq '';
   }
-
-  return undef unless $containerinfo->{'chart'} && $tar{$containerinfo->{'chart'}};
-
-  return $containerinfo;
+  return undef unless $d->{'name'} && $d->{'config_json'};
+  $d->{'chart'} = $helminfofile;
+  $d->{'chart'} =~ s/.*\///;
+  $d->{'chart'} =~ s/\.helminfo$/.tgz/;
+  $d->{'type'} = 'helm';
+  return $d;
 }
 
 1;

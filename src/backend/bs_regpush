@@ -391,9 +391,13 @@ sub open_tarfile {
     my $containerinfo = JSON::XS::decode_json($containerinfo_json);
     $govariant = $containerinfo->{'govariant'};
     $tar = construct_container_tar($containerinfo);
-  } elsif ($tarfile =~ /\.helm.tar$/) {
-    open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
-    ($tar) = BSContar::container_from_helm($tarfd);
+  } elsif ($tarfile =~ /\.helminfo$/) {
+    my $chart = $tarfile;
+    $chart =~ s/\.helminfo$/.tgz/;
+    die("$chart: $!\n") unless -e $chart;
+    my $helminfo_json = readstr($tarfile);
+    my $helminfo = JSON::XS::decode_json($helminfo_json);
+    ($tar) = BSContar::container_from_helm($chart, $helminfo->{'config_json'}, $helminfo->{'tags'});
   } else {
     open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
     $tar = BSTar::list($tarfd);

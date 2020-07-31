@@ -1522,6 +1522,13 @@ sub sync_to_stage {
   qsystem('rsync', '-a', @rsync_extra_options, '--timeout', '120', "$extrepodir_sync/$filename", $BSConfig::stageserver_sync."/".$filename) && warn("    trigger rsync failed at ".localtime(time).": $?\n");
 }
 
+sub create_blobdir {
+  my $blobdir = "$uploaddir/publisher.$$.blobs";
+  BSUtil::cleandir($blobdir);
+  mkdir_p($blobdir);
+  return $blobdir;
+}
+
 sub clean_blobdir {
   my ($blobdir) = @_;
   return unless $blobdir;
@@ -1981,11 +1988,7 @@ sub publish {
       }
       if ($bin =~ /^_blob\.sha256:[0-9a-f]{64}$/) {
 	# container blobid, collect
-	if (!$blobdir) {
-	  $blobdir = "$uploaddir/publisher.$$.blobs";
-	  BSUtil::cleandir($blobdir);
-	  mkdir_p($blobdir);
-	}
+	$blobdir ||= create_blobdir();
 	if (! -e "$blobdir/$bin") {
 	  link("$r/$bin", "$blobdir/$bin") || die("link $r/$bin: $blobdir/$bin$!\n");
 	}
@@ -2038,13 +2041,12 @@ sub publish {
 	  $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	  $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
-	} elsif ($bin =~ /\.helm\.tar$/) {
+	} elsif ($bin =~ /(.*)\.tgz$/ && -e "$r/$1.helminfo") {
 	  my @s = stat("$r/$rbin");
 	  next unless @s;
-	  eval { $containerinfo = BSPublisher::Helm::readcontainerinfo($r, $rbin) };
-	  warn("$@") if $@;
+	  eval { $containerinfo = BSPublisher::Helm::readhelminfo($r, "$1.helminfo") };
           if ($containerinfo) {
-	    $p = $multicontainer ? "$arch/$bin" : $bin;
+	    $p = $bin;
 	    $containerinfo->{'arch'} = $arch;
 	    $containerinfo->{'_id'} = "$s[9]/$s[7]/$s[1]";
 	    $containerinfo->{'_origin'} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
@@ -2258,11 +2260,7 @@ sub publish {
       my $containerinfo = $containers{$p};
       if ($containerinfo->{'publishfile'}) {
 	# link container into the blobdir
-	if (!$blobdir) {
-	  $blobdir = "$uploaddir/publisher.$$.blobs";
-	  BSUtil::cleandir($blobdir);
-	  mkdir_p($blobdir);
-	}
+	$blobdir ||= create_blobdir();
 	my $tmpfile = "$blobdir/$containerinfo->{'arch'}:$pp";
 	link($bins{$p}, $tmpfile) || die("link $bins{$p} $tmpfile: $!\n");
 	$containerinfo->{'publishfile'} = $tmpfile;
