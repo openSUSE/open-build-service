@@ -20,6 +20,4 @@ module Backend
       xml['summary'] || message
     end
   end
-
-  class NotFoundError < Error; end
 end
