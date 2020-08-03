@@ -39,6 +39,5 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:47 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+recorded_with: VCR 6.0.0

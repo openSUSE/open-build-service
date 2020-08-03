@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:43 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Mr Standfast</title>
-          <description>Neque odio ratione eum.</description>
+          <title>The Sun Also Rises</title>
+          <description>Voluptatem alias aut non.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,16 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Mr Standfast</title>
-          <description>Neque odio ratione eum.</description>
+          <title>The Sun Also Rises</title>
+          <description>Voluptatem alias aut non.</description>
         </package>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:43 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/my_package?expand=1&rev=2
@@ -113,6 +111,5 @@ http_interactions:
           <summary>no such revision</summary>
           <details>404 no such revision</details>
         </status>
-    http_version: null
-  recorded_at: Thu, 14 May 2020 14:33:48 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Fri, 31 Jul 2020 14:58:43 GMT
+recorded_with: VCR 6.0.0

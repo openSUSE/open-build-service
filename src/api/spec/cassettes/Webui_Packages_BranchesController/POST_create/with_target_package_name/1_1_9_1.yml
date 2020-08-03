@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: post
     uri: http://backend:5352/search/package/id?match=(linkinfo/@package=%22my_package%22%20and%20linkinfo/@project=%22home:tom%22%20and%20@project=%22home:tom%22)
@@ -111,7 +111,7 @@ http_interactions:
       string: |
         <collection>
         </collection>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -151,7 +151,7 @@ http_interactions:
           <description>This project was created for package my_package via attribute OBS:Maintained</description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
@@ -159,8 +159,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -181,15 +181,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=branch&noservice=1&opackage=my_package&oproject=home:tom&user=tom
@@ -221,15 +221,15 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="2" vrev="2">
+        <revision rev="3" vrev="3">
           <srcmd5>49bd231e56677e1dfd80e906f4f5dbe4</srcmd5>
           <version>unknown</version>
-          <time>1596207524</time>
+          <time>1596207525</time>
           <user>tom</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name/_meta?user=tom
@@ -237,8 +237,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,15 +259,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '187'
+      - '168'
     body:
       encoding: UTF-8
       string: |
         <package name="new_package_name" project="home:tom:branches:home:tom">
-          <title>Unweaving the Rainbow</title>
-          <description>Assumenda rerum tenetur dignissimos.</description>
+          <title>The Last Temptation</title>
+          <description>Dicta et qui natus.</description>
         </package>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
@@ -297,11 +297,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="new_package_name" rev="2" vrev="2" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
+        <directory name="new_package_name" rev="3" vrev="3" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
           <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
           <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1596207431"/>
         </directory>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?view=info
@@ -331,11 +331,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="new_package_name" rev="2" vrev="2" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="new_package_name" rev="3" vrev="3" srcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>bad build configuration, no build type defined or detected</error>
           <linked project="home:tom" package="my_package"/>
         </sourceinfo>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name
@@ -365,11 +365,11 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="new_package_name" rev="2" vrev="2" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
+        <directory name="new_package_name" rev="3" vrev="3" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4">
           <linkinfo project="home:tom" package="my_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="0a2e3813e4d7ad4b6b72066efa8587cc" lsrcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
           <entry name="_link" md5="324a67e2c9fe0d6cdc38c625b1c416f5" size="137" mtime="1596207431"/>
         </directory>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -401,14 +401,14 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="c7ffe26cb047167f4060511e479109d9">
+        <sourcediff key="7bd9bdc12dea0e56f2a5f9ea2429f778">
           <old project="home:tom:branches:home:tom" package="new_package_name" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom:branches:home:tom" package="new_package_name" rev="2" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
+          <new project="home:tom:branches:home:tom" package="new_package_name" rev="3" srcmd5="49bd231e56677e1dfd80e906f4f5dbe4"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom:branches:home:tom/new_package_name?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
@@ -447,7 +447,7 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom:branches:home:tom/_meta?user=tom
@@ -493,5 +493,5 @@ http_interactions:
             <disable/>
           </publish>
         </project>
-  recorded_at: Fri, 31 Jul 2020 14:58:44 GMT
+  recorded_at: Fri, 31 Jul 2020 14:58:45 GMT
 recorded_with: VCR 6.0.0

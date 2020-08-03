@@ -83,16 +83,10 @@ module Webui
       rescue BranchPackage::DoubleBranchPackageError => e
         flash[:notice] = 'You have already branched this package'
         redirect_to(package_show_path(project: e.project, package: e.package))
-      rescue Package::UnknownObjectError, Project::UnknownObjectError
-        flash[:error] = 'Failed to branch: Package does not exist.'
-        redirect_back(fallback_location: root_path)
-      rescue ArgumentError => e
-        flash[:error] = "Failed to branch: #{e.message}"
-        redirect_back(fallback_location: root_path)
       rescue CreateProjectNoPermission
         flash[:error] = 'Sorry, you are not authorized to create this Project.'
         redirect_back(fallback_location: root_path)
-      rescue APIError, ActiveRecord::RecordInvalid => e
+      rescue ArgumentError, Package::UnknownObjectError, Project::UnknownObjectError, APIError, ActiveRecord::RecordInvalid => e
         flash[:error] = "Failed to branch: #{e.message}"
         redirect_back(fallback_location: root_path)
       end

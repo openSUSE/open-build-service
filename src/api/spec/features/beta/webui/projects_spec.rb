@@ -131,16 +131,6 @@ RSpec.describe 'Projects', type: :feature, js: true do
       expect(page).to have_text('You have already branched this package')
       expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
-
-    it 'a non-existing package' do
-      fill_in('linked_project', with: 'non-existing_package')
-      fill_in('linked_package', with: package_of_another_project.name)
-
-      click_button('Branch')
-
-      expect(page).to have_text('Failed to branch: Package does not exist.')
-      expect(page).to have_current_path(project_new_packages_branch_path('home:Jane'))
-    end
   end
 
   describe 'maintenance projects' do
