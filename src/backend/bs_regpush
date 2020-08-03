@@ -385,18 +385,25 @@ sub construct_container_tar {
 sub open_tarfile {
   my ($tarfile) = @_;
 
-  my ($tar, $tarfd, $variant);
+  my ($tar, $tarfd, $govariant);
   if ($tarfile =~ /\.containerinfo$/) {
     my $containerinfo_json = readstr($tarfile);
     my $containerinfo = JSON::XS::decode_json($containerinfo_json);
-    $variant = $containerinfo->{'govariant'};
+    $govariant = $containerinfo->{'govariant'};
     $tar = construct_container_tar($containerinfo);
+  } elsif ($tarfile =~ /\.helminfo$/) {
+    my $chart = $tarfile;
+    $chart =~ s/\.helminfo$/.tgz/;
+    die("$chart: $!\n") unless -e $chart;
+    my $helminfo_json = readstr($tarfile);
+    my $helminfo = JSON::XS::decode_json($helminfo_json);
+    ($tar) = BSContar::container_from_helm($chart, $helminfo->{'config_json'}, $helminfo->{'tags'});
   } else {
     open($tarfd, '<', $tarfile) || die("$tarfile: $!\n");
     $tar = BSTar::list($tarfd);
     $_->{'file'} = $tarfd for @$tar;
   }
-  return ($tar, $tarfd, $variant);
+  return ($tar, $tarfd, $govariant);
 }
 
 sub die_with_usage {
@@ -535,7 +542,7 @@ if ($use_image_tags && @tarfiles > 1) {
 my @multimanifests;
 my %multiplatforms;
 for my $tarfile (@tarfiles) {
-  my ($tar, $tarfd, $variant) = open_tarfile($tarfile);
+  my ($tar, $tarfd, $govariant) = open_tarfile($tarfile);
   my %tar = map {$_->{'name'} => $_} @$tar;
 
   my ($manifest_ent, $manifest) = BSContar::get_manifest(\%tar);
@@ -555,11 +562,13 @@ for my $tarfile (@tarfiles) {
   my $config_layers = $config->{'rootfs'}->{'diff_ids'};
   die("layer number mismatch\n") if @layers != @{$config_layers || []};
 
-  $variant = $config->{'variant'} if $config->{'variant'};
+  my $goarch = $config->{'architecture'} || 'any';
+  my $goos = $config->{'os'} || 'any';
+  $govariant = $config->{'variant'} if $config->{'variant'};
   if ($multiarch) {
     # see if a already have this arch/os combination
-    my $platformstr = "architecture:$config->{'architecture'} os:$config->{'os'}";
-    $platformstr .= " variant:$variant" if $variant;
+    my $platformstr = "architecture:$goarch os:$goos";
+    $platformstr .= " variant:$govariant" if $govariant;
     if ($multiplatforms{$platformstr}) {
       print "ignoring $tarfile, already have $platformstr\n";
       close $tarfd if $tarfd;
@@ -573,7 +582,7 @@ for my $tarfile (@tarfiles) {
   my $config_blobid = BSContar::blobid_entry($config_ent);
   # create layer data
   my $config_data = { 
-    'mediaType' => 'application/vnd.docker.container.image.v1+json',
+    'mediaType' => $config_ent->{'mimetype'} || 'application/vnd.docker.container.image.v1+json',
     'size' => $config_ent->{'size'},
     'digest' => $config_blobid,
   }; 
@@ -605,7 +614,7 @@ for my $tarfile (@tarfiles) {
 
     # create layer data
     my $layer_data = {
-      'mediaType' => 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'mediaType' => $layer_ent->{'mimetype'} || 'application/vnd.docker.image.rootfs.diff.tar.gzip',
       'size' => $layer_ent->{'size'},
       'digest' => $blobid,
     };
@@ -631,9 +640,9 @@ for my $tarfile (@tarfiles) {
       'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
       'size' => length($mani_json),
       'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
-      'platform' => {'architecture' => $config->{'architecture'}, 'os' => $config->{'os'}},
+      'platform' => {'architecture' => $goarch, 'os' => $goos},
     };
-    $multimani->{'platform'}->{'variant'} = $variant if $variant;
+    $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
     push @multimanifests, $multimani;
   } else {
     manifest_upload_tags($mani_json, \@tags);
