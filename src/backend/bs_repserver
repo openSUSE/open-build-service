@@ -2126,6 +2126,7 @@ sub receivekiwitree {
       'timeout' => 600,
       'acceptsubdirs' => 1,
       'accept' => sub {$todo{$_[1]}},
+      'cpiopostfile' => sub {alarm(600)},
       'receiver' => \&BSHTTP::cpio_receiver,
     };
     my $res = BSRPC::rpc($param, undef, map {"file=$_"} sort keys %todo);
