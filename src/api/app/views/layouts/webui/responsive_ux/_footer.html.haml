@@ -1,6 +1,6 @@
-.d-flex
+.d-flex.justify-content-around
   - if User.session
-    .flex-fill.d-none.d-md-block
+    .d-none.d-md-block
       %strong.text-uppercase User
       %ul
         %li= link_to('Your Profile', user_path(User.session!))
@@ -9,14 +9,14 @@
         - else
           %li= link_to('Create Home Project', new_project_path(name: User.session!.home_project_name))
         %li= link_to('Logout', session_path, method: :delete)
-  .flex-fill.d-none.d-md-block
+  .d-none.d-md-block
     %strong.text-uppercase Locations
     %ul
       %li= link_to('Projects', projects_path)
       %li= link_to('Search', search_path, class: 'search-link')
       - unless @spider_bot
         %li= link_to('Status Monitor', monitor_path)
-  .flex-fill
+  %div
     %strong.text-uppercase Help
     %ul
       %li= link_to('Open Build Service', 'http://openbuildservice.org/')
@@ -24,7 +24,7 @@
       %li= link_to('API Documentation', apidocs_index_path)
       %li= link_to('OBS Portal', 'http://en.opensuse.org/Portal:Build_service')
       %li= link_to('Reporting a Bug', 'http://openbuildservice.org/support/')
-  .flex-fill
+  %div
     %strong.text-uppercase Contact
     %ul
       %li= link_to('Mailing List', 'http://lists.opensuse.org/opensuse-buildservice/')

@@ -19,7 +19,7 @@ RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     expect(page).to have_css('.list-group .list-group-item', count: 0)
 
     expect(page).to have_css('#toggle-watch', text: 'Watch this project')
-    find('#toggle-watch').click
+    click_link('Watch this project')
 
     click_on('Watchlist')
     expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
@@ -28,7 +28,7 @@ RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     visit project_show_path(project: project.name)
     click_on('Watchlist')
     expect(page).to have_css('#toggle-watch', text: 'Watch this project')
-    find('#toggle-watch').click
+    click_link('Watch this project')
 
     click_on('Watchlist')
     expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
@@ -46,7 +46,7 @@ RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     expect(page).to have_css('.list-group .list-group-item', count: 1)
     expect(page).to have_css('#toggle-watch', text: 'Remove this project from Watchlist')
 
-    find('#toggle-watch').click
+    click_link('Remove this project from Watchlist')
 
     visit project_show_path(project: 'brian_s_watched_project')
     click_on('Watchlist')

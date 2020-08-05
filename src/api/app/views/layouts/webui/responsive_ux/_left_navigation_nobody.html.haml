@@ -1,0 +1,13 @@
+%h5.pt-2.pl-2.text-light
+  Places
+
+%ul.nav.flex-column.ml-auto.pt-0.text-nowrap.menu-options
+  %li.nav-item
+    = link_to(projects_path, class: 'nav-link') do
+      %i.fas.fa-list.fa-lg.mr-2
+      All Projects
+  - unless @spider_bot
+    %li.nav-item
+      = link_to(monitor_path, class: 'nav-link') do
+        %i.fas.fa-heartbeat.fa-lg.mr-2
+        Status Monitor

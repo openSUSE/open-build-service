@@ -1,7 +1,7 @@
 $(function () {
-  $('[data-toggle="offcanvas"]').on('click', function () {
-    $('a[data-toggle="offcanvas"]').toggleClass('active');
-    $('.offcanvas-collapse').toggleClass('open');
+  $('[data-toggle="places"]').on('click', function () {
+    $('a[data-toggle="places"]').toggleClass('active');
+    $('.places-collapse').toggleClass('open');
     $('.watchlist-collapse').removeClass('open');
     $('.actions-collapse').removeClass('open');
     $('a[data-toggle="watchlist"]').removeClass('active');
@@ -11,18 +11,18 @@ $(function () {
   $('[data-toggle="watchlist"]').on('click', function () {
     $('a[data-toggle="watchlist"]').toggleClass('active');
     $('.watchlist-collapse').toggleClass('open');
-    $('.offcanvas-collapse').removeClass('open');
+    $('.places-collapse').removeClass('open');
     $('.actions-collapse').removeClass('open');
-    $('a[data-toggle="offcanvas"]').removeClass('active');
+    $('a[data-toggle="places"]').removeClass('active');
     $('a[data-toggle="actions"]').removeClass('active');
   });
 
   $('[data-toggle="actions"]').on('click', function () {
     $('a[data-toggle="actions"]').toggleClass('active');
     $('.actions-collapse').toggleClass('open');
-    $('.offcanvas-collapse').removeClass('open');
+    $('.places-collapse').removeClass('open');
     $('.watchlist-collapse').removeClass('open');
-    $('a[data-toggle="offcanvas"]').removeClass('active');
+    $('a[data-toggle="places"]').removeClass('active');
     $('a[data-toggle="watchlist"]').removeClass('active');
   });
 
@@ -35,7 +35,7 @@ $(function () {
     $('#username').focus();
   });
 
-  $('#navigation .nav-item').on('click', function (){
+  $('.actions-collapse .nav-item').on('click', function (){
     $('.actions-collapse').removeClass('open');
     $('a[data-toggle="actions"]').removeClass('active');
   });

@@ -1,0 +1,58 @@
+.navbar-dark {
+  .dropdown-menu {
+    @extend .bg-dark;
+
+    .dropdown-item:hover {
+      @extend .bg-dark;
+      color: $gray-300;
+    }
+  }
+
+  &.navbar-collapse {
+    &.watchlist-collapse, &.places-collapse, &.actions-collapse {
+      position: fixed;
+      top: $top-navigation-height;
+      left: 100%;
+      bottom: $bottom-navigation-height;
+      width: 100%;
+      padding-right: 1rem;
+      padding-left: 1rem;
+      overflow-y: auto;
+      visibility: hidden;
+      background-color: #343a40;
+      color: $gray-400;
+      transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+      transition: transform .3s ease-in-out, visibility .3s ease-in-out;
+      transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+
+      & a {
+        color: $gray-300;
+        &:hover { color: white; }
+      }
+
+      &.open {
+        visibility: visible;
+        -webkit-transform: translateX(-100%);
+        transform: translateX(-100%);
+        z-index: calc(#{$zindex-fixed} - 1); // To not overlap fixed elements
+      }
+
+      button.navbar-toggler {
+        color: $gray-300;
+
+        .fas.fa-times {
+          line-height: 1.875rem;
+          width: 20px;
+        }
+      }
+    }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .navbar-dark.navbar-collapse {
+    &.watchlist-collapse, &.places-collapse, &.actions-collapse {
+      width: 23.75rem;
+    }
+  }
+}

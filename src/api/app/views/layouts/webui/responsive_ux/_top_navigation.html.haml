@@ -1,0 +1,38 @@
+%nav.navbar.navbar-dark.bg-dark.fixed-top
+  .d-flex.flex-nowrap.justify-content-between.w-100
+    = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
+      = image_tag('obs-logo_small.svg')
+    .d-flex
+      = render partial: 'layouts/webui/responsive_ux/top_navigation_search'
+      - if User.session
+        .toggler.text-center.justify-content-center
+          = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
+            %i.fas.fa-bookmark
+            %span.d-block Watchlist
+        - if feature_enabled?(:notifications_redesign)
+          .toggler.text-center.justify-content-center
+            = link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
+              %i.fas.fa-bell
+              - unless User.session.unread_notifications.zero?
+                %span.badge.badge-primary.align-text-top= User.session.unread_notifications
+              %span.d-block Notifications
+        .toggler.text-center.justify-content-center.nav-item.dropdown
+          = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
+                    'data-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
+            = image_tag_for(User.session, size: 32, custom_class: 'rounded-circle bg-light mr-2')
+          .dropdown-menu.dropdown-menu-right{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
+            .dropdown-item
+              = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link text-light p-0 w-100') do
+                = image_tag_for(User.session, size: 20, custom_class: 'rounded-circle bg-light mr-2')
+                Your profile
+            .dropdown-item
+              = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link text-light p-0 w-100') do
+                %i.fas.fa-sign-out-alt.fa-lg.mr-2
+                Logout
+      - else
+        = render partial: 'layouts/webui/responsive_ux/top_navigation_nobody'
+
+- if User.possibly_nobody.is_nobody? && !kerberos_mode?
+  - if !proxy_mode? && can_sign_up?
+    = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
+  = render partial: 'layouts/webui/responsive_ux/login_modal'

@@ -14,7 +14,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
       it 'creates a BsRequest with target package name' do
         login submitter
         visit package_show_path(source_project, source_package)
-        click_menu_link('Actions', 'Submit Package')
+        desktop? ? click_link('Submit Package') : click_menu_link('Actions', 'Submit Package')
         fill_in('To target project:', with: target_project.name)
         fill_in('To target package:', with: target_package.name)
         fill_in('bs_request_description', with: bs_request_description)
@@ -30,7 +30,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
       it 'creates a BsRequest with the source package name' do
         login submitter
         visit package_show_path(source_project, source_package)
-        click_menu_link('Actions', 'Submit Package')
+        desktop? ? click_link('Submit Package') : click_menu_link('Actions', 'Submit Package')
         fill_in('To target project:', with: target_project.name)
         fill_in('bs_request_description', with: bs_request_description)
         click_button('Submit')
@@ -56,7 +56,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
       it 'creates a BsRequest and supersede only the selected request(s)' do
         login submitter
         visit package_show_path(source_project, source_package)
-        click_menu_link('Actions', 'Submit Package')
+        desktop? ? click_link('Submit Package') : click_menu_link('Actions', 'Submit Package')
         fill_in('To target project:', with: target_project.name)
         fill_in('To target package:', with: target_package.name)
         fill_in('bs_request_description', with: bs_request_description)
@@ -92,7 +92,7 @@ RSpec.describe 'Bootstrap_Requests_Submissions', type: :feature, js: true, vcr: 
 
       it 'fills in the submission reasons and creates a BsRequest' do
         visit package_show_path(source_project, branched_package_name)
-        click_menu_link('Actions', 'Submit Package')
+        desktop? ? click_link('Submit Package') : click_menu_link('Actions', 'Submit Package')
         expect(page).to have_field('To target project:', with: source_project.name)
         expect(page).to have_field('To target package:', with: source_package.name)
         fill_in('bs_request_description', with: bs_request_description)

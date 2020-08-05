@@ -1,7 +1,7 @@
 module FeaturesBeta
   def click_menu_link(menu_name, action_name)
     click_link(menu_name, visible: true)
-    within('#navigation') do
+    within('#bottom-navigation-area') do
       click_link(action_name)
     end
   end

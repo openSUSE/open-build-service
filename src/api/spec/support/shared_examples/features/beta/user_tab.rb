@@ -41,7 +41,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add non existent user' do
-      click_menu_link('Actions', 'Add User')
+      desktop? ? click_link('Add User') : click_menu_link('Actions', 'Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -53,7 +53,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add an existing user' do
-      click_menu_link('Actions', 'Add User')
+      desktop? ? click_link('Add User') : click_menu_link('Actions', 'Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -69,7 +69,7 @@ RSpec.shared_examples 'user tab' do
       end
 
       # Adding a user twice...
-      click_menu_link('Actions', 'Add User')
+      desktop? ? click_link('Add User') : click_menu_link('Actions', 'Add User')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-user-role-modal') do
@@ -148,7 +148,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add non existent group' do
-      click_menu_link('Actions', 'Add Group')
+      desktop? ? click_link('Add Group') : click_menu_link('Actions', 'Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -160,7 +160,7 @@ RSpec.shared_examples 'user tab' do
     end
 
     scenario 'Add an existing group' do
-      click_menu_link('Actions', 'Add Group')
+      desktop? ? click_link('Add Group') : click_menu_link('Actions', 'Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do
@@ -175,7 +175,7 @@ RSpec.shared_examples 'user tab' do
       end
 
       # Adding a group twice...
-      click_menu_link('Actions', 'Add Group')
+      desktop? ? click_link('Add Group') : click_menu_link('Actions', 'Add Group')
       sleep 1 # FIXME: Needed to avoid a flickering test because the animation of the modal is sometimes faster than capybara
 
       within('#add-group-role-modal') do

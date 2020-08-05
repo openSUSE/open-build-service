@@ -31,7 +31,7 @@ RSpec.describe 'Login', type: :feature, js: true do
 
   it 'login via widget' do
     visit root_path
-    within(desktop? ? '#navigation' : '#bottom-navigation') do
+    within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
     end
 
@@ -46,7 +46,7 @@ RSpec.describe 'Login', type: :feature, js: true do
 
   it 'login with wrong data' do
     visit root_path
-    within(desktop? ? '#navigation' : '#bottom-navigation') do
+    within(desktop? ? '#top-navigation-area' : '#bottom-navigation-area') do
       click_link('Log In')
     end
 
@@ -62,7 +62,14 @@ RSpec.describe 'Login', type: :feature, js: true do
   it 'logout' do
     login(user)
 
-    click_menu_link('Places', 'Logout')
+    if desktop?
+      click_link(id: 'top-navigation-profile-dropdown')
+      within('#top-navigation-area') do
+        click_link('Logout')
+      end
+    else
+      click_menu_link('Places', 'Logout')
+    end
 
     expect(page).not_to have_css('a#link-to-user-home')
     expect(page).to have_link('Log')
