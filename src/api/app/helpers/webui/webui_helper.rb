@@ -345,6 +345,10 @@ module Webui::WebuiHelper
     Flipper.enabled?(:responsive_ux, User.possibly_nobody)
   end
 
+  def flipper_notifications?
+    Flipper.enabled?(:notifications_redesign, User.possibly_nobody)
+  end
+
   # responsive_ux:
   def responsive_namespace
     flipper_responsive? ? 'webui/responsive_ux' : 'webui'
