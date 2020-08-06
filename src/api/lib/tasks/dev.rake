@@ -3,6 +3,8 @@
 require 'fileutils'
 require 'yaml'
 
+ENABLED_FEATURE_FLAGS = [:responsive_ux, :notifications_redesign].freeze
+
 namespace :dev do
   task :prepare do
     puts 'Setting up the database configuration...'
@@ -54,8 +56,10 @@ namespace :dev do
       puts 'Configure default signing'
       Rake::Task['assets:clobber'].invoke
       ::Configuration.update(enforce_project_keys: true)
-      # we enable responsive_ux as default
-      Flipper[:responsive_ux].enable
+      # Enable all the feature flags for all logged-in and not-logged-in users in development env.
+      ENABLED_FEATURE_FLAGS.each do |feature_flag|
+        Flipper[feature_flag].enable
+      end
     end
   end
 
@@ -238,6 +242,7 @@ namespace :dev do
     end
   end
 
+  # This is automatically run in Review App or manually in development env.
   namespace :development_testdata do
     task create: :environment do
       unless Rails.env.development?
@@ -254,8 +259,10 @@ namespace :dev do
       Rails.cache.clear
       Rake::Task['db:reset'].invoke
 
-      # enable responsive_ux as default
-      Flipper[:responsive_ux].enable
+      # Enable all the feature flags for all logged-in and not-logged-in users in development env.
+      ENABLED_FEATURE_FLAGS.each do |feature_flag|
+        Flipper[feature_flag].enable
+      end
 
       iggy = create(:confirmed_user, login: 'Iggy')
       admin = User.where(login: 'Admin').first
