@@ -9,8 +9,8 @@
       %strong.d-block.d-md-none.p-3{ data: { toggle: 'collapse', target: '#filters' },
                                   aria: { expanded: true, controls: 'filters' } }
         Filtered by: #{params[:type]&.humanize || @filtered_project || 'Unread'}
-        %i.float-right.mt-1.fa.fa-chevron-down
+        %i.float-right.mt-1.fa.fa-chevron-down#notifications-dropdown-trigger
       .card-body.collapse#filters
-        = render partial: 'notifications_filter', locals: { projects_for_filter: @projects_for_filter, notifications_count: @notifications_count }
+        = render partial: 'notifications_filter', locals: { filter: @notifications_filter }
   .col-md-8.col-lg-9#notifications-list
-    = render partial: 'notifications_list', locals: { notifications: @notifications }
+    = render partial: 'notifications_list', locals: { notifications: @notifications, selected_filter: @notifications_filter.selected_filter }

@@ -8,9 +8,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def index
     @notifications = fetch_notifications
-    @projects_for_filter = projects_for_filter
-    @notifications_count = notifications_count
     @filtered_project = Project.find_by(name: params[:project])
+    @notifications_filter = notifications_filter
   end
 
   def update
@@ -27,8 +26,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
       format.js do
         render partial: 'update', locals: {
           notifications: fetch_notifications,
-          projects_for_filter: projects_for_filter,
-          notifications_count: notifications_count
+          notifications_filter: notifications_filter
         }
       end
     end
@@ -84,5 +82,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                       NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
                     end
     params['show_all'] ? show_all(notifications) : notifications.page(params[:page])
+  end
+
+  def notifications_filter
+    NotificationsFilterPresenter.new(projects_for_filter,
+                                     notifications_count,
+                                     params[:type],
+                                     params[:project])
   end
 end
