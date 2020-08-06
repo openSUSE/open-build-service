@@ -38,7 +38,7 @@
     - if User.session.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
-  %body.d-flex.flex-column{ class: "#{'responsive-ux' if flipper_responsive?}" }
+  %body.d-flex.flex-column{ class: feature_css_class }
     #navigation
       = render partial: "layouts/#{responsive_namespace}/navigation"
     - unless flipper_responsive?

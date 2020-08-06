@@ -349,6 +349,13 @@ module Webui::WebuiHelper
     Flipper.enabled?(:notifications_redesign, User.possibly_nobody)
   end
 
+  def feature_css_class
+    css_classes = []
+    css_classes << 'responsive-ux' if flipper_responsive?
+    css_classes << 'notifications-redesign' if flipper_notifications?
+    css_classes.join(' ')
+  end
+
   # responsive_ux:
   def responsive_namespace
     flipper_responsive? ? 'webui/responsive_ux' : 'webui'
