@@ -9,6 +9,14 @@
         = pluralize(tasks, 'Task')
     - else
       Tasks
+- if flipper_notifications?
+  %li.nav-item
+    - notifications = User.session.unread_notifications
+    = link_to(my_notifications_path, class: 'nav-link', alt: 'Notifications') do
+      - if notifications.positive?
+        = pluralize(notifications, 'Notifications')
+      - else
+        Notifications
 %li.nav-item
   - if User.session!.home_project
     = link_to(project_show_path(User.session!.home_project), class: 'nav-link') do
