@@ -7,21 +7,13 @@ body.responsive-ux {
   // open space to not overlap top navigation with content
   padding-top: 3.5rem !important;
 
-  @import 'responsive_ux/layout';
-  @import 'responsive_ux/build-result';
-  @import 'responsive_ux/sponsors';
-  @import 'responsive_ux/tabs';
-  @import 'responsive_ux/notifications';
+  @import 'layout';
+  @import 'build-result';
+  @import 'sponsors';
+  @import 'tabs';
 
   .build-results .sticky-top { top: $top-bar-height; }
   #log-space-wrapper #log-info.position-sticky { top: $top-bar-height; }
-  #notifications-filter-desktop {
-    strong { cursor: pointer; }
-    .collapse {
-      &.show { border-top: 1px solid $gray-300;}
-    }
-  }
-
 }
 
 // FIXME: move to somewhere else?
@@ -53,18 +45,6 @@ body.responsive-ux {
     .build-info .triangle {
       &.left { left: .25rem; }
     }
-
-    #notifications-filter-desktop {
-      .collapse { display: block !important; }
-    }
-
-    .grid-container {
-      min-height: 6.25rem;
-      grid-template-columns: 1fr auto 3rem;
-      grid-template-areas:
-        "notifiable who-when action"
-        "content content content";
-    }
   }
 }
 
@@ -73,28 +53,6 @@ body.responsive-ux {
     .build-info .triangle {
       &.center { margin-left: calc(38% + .75rem); }
       &.left { left: .5rem; }
-    }
-  }
-}
-
-@include media-breakpoint-between(xs, sm) {
-  body.responsive-ux {
-    #notifications-filter-desktop {
-      &.show { border-top: 1px solid $gray-300; }
-      &.sticky-top { top: $top-bar-height; }
-      #filters {
-        max-height: 100vw; overflow: auto;
-        -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-        -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-        box-shadow: 2px 3px 5px rgba(0,0,0,.2);
-      }
-    }
-  }
-  @media (orientation: landscape){
-    body.responsive-ux {
-      #notifications-filter-desktop{
-        #filters{ max-height: 20vw; }
-      }
     }
   }
 }
