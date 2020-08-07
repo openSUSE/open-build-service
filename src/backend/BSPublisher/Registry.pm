@@ -542,9 +542,12 @@ sub push_containers {
       close $tarfd if $tarfd;
 
       # put manifest into repo
+      # helm has a static set of mediatypes supported
+      # https://github.com/helm/helm/blob/d6f6184351f7aecd9d0efdfb8aba7da5664031eb/internal/experimental/registry/constants.go
+      my $mediaType = "application/vnd.oci.image.manifest.v1+json" if (($containerinfo->{'type'} || '') eq 'helm');
       my $mani = { 
 	'schemaVersion' => 2,
-	'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+	'mediaType' => $mediaType || 'application/vnd.docker.distribution.manifest.v2+json',
 	'config' => $config_data,
 	'layers' => \@layer_data,
       };
