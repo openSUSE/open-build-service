@@ -445,6 +445,19 @@ sub getsignkey {
   return ($algo, $signkey, $pubkey, $cert);
 }
 
+sub getsigdata {
+  my ($rpm) = @_;
+  my $sigdata;
+  eval {
+    my %res = Build::Rpm::rpmq($rpm, 'SIGTAG_GPG', 'SIGTAG_PGP');
+    my $sig = $res{'SIGTAG_PGP'} || $res{'SIGTAG_GPG'};
+    $sig = $sig->[0] if $sig;
+    $sigdata = BSPGP::pk2sigdata($sig) if $sig;
+  };
+  warn("getsigdata $rpm: $@") if $@;
+  return $sigdata ? $sigdata : {};
+}
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -530,21 +543,20 @@ sub signjob {
 	  rsasign("$jobdir/$signfile", $jobstatus, @signargs) if $followupfile;
 	  next;
 	}
-	my $signtime;
+	my $signfilefinal;
+	my ($signtime, $signissuer);
 	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
 	  # newer rpm versions sometimes do in-place signature replacement,
 	  # so create a copy first
 	  # (we should add a delsign option to our sign utility...)
-	  BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile", "$jobdir/$signfile");
+	  BSUtil::cp("$jobdir/$signfile", "$jobdir/.$signfile");
+	  $signfilefinal = $signfile;
+	  $signfile = ".$signfile";
 	  # special aggregate handling: remove old sigs
 	  # but get old sig time first
-	  eval {
-	    my %res = Build::Rpm::rpmq("$jobdir/$signfile", 'SIGTAG_GPG', 'SIGTAG_PGP');
-	    my $sig = $res{'SIGTAG_PGP'} || $res{'SIGTAG_GPG'};
-	    $sig = $sig->[0] if $sig;
-	    $signtime = BSPGP::pk2signtime($sig) if $sig;
-	  };
-	  warn("get signtime: $@") if $@;
+	  my $sigdata = getsigdata("$jobdir/$signfile");
+	  $signtime = $sigdata->{'signtime'};
+	  $signissuer = $sigdata->{'issuer'};
 	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
 	  print "using signtime $signtime\n" if $signtime;
 	}
@@ -582,7 +594,21 @@ sub signjob {
 	      $jobstatus->{'result'} = 'rebuild';
 	    }
 	  }
+	  unlink("$jobdir/$signfile") if $signfilefinal;	# delete tmp file
 	  die("sign $jobdir/$signfile failed\n");
+	}
+	if ($signfilefinal) {
+	  # check if the signed rpm has the same issuer
+	  my $sigdata = getsigdata("$jobdir/$signfile");
+	  if ($sigdata->{'issuer'} && $signissuer && $sigdata->{'issuer'} eq $signissuer) {
+	    # old rpm was already signed with the same issuer, reuse
+	    print "same issuer, reusing old rpm\n";
+	    unlink("$jobdir/$signfile");
+	  } else {
+	    rename("$jobdir/$signfile", "$jobdir/$signfilefinal");
+	  }
+	  $signfile = $signfilefinal;
+	  undef $signfilefinal;
 	}
 	if ($signfile =~ /\.AppImage$/ && -e "$jobdir/$signfile.zsync") {
 	  print("regenerating zsync file\n");
