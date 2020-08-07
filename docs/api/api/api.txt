@@ -445,24 +445,26 @@ tained version of this package
   release: release sources and binaries according to release target specification
 
 Additional Parameters:
-  noaccess: the new created project will be read protected
-  repository: set_flag for given repository or release just this repository (optional)
+  comment: description for the history
+  # for set_flag command only:
   arch: set_flag for given arch (optional)
   flag: modify this flag (build/publish/..) for set_flag command
+  repository: set_flag for given repository or release just this repository (optional)
   status: enable or disable for set_flag command
-  comment: description for the history
   # for modifychannels and addchannels command only:
   mode: how to deal with disabled channels: add_disabled(default), skip_disabled, enable_all
   # for copy command only:
   oproject: origin project name (required)
-  resign: resign all binaries with new target project key
   makeolder: make target older, the source vrev is bumped by two numbers and target by one
   makeoriginolder: make origin older, the source vrev is extended and target is guaranteed to be newer
-  withhistory: copies sources with history on copy command
-  withbinaries: copies also binaries on copy command
+  noaccess: the new created project will be read protected
+  nodelay: disables background copy operation, request will return after the job is finished
   noservice: do not run source services
+  resign: resign all binaries with new target project key
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string. Note: this modifies only the filename.
+  withbinaries: copies also binaries on copy command
+  withhistory: copies sources with history on copy command
 
 XmlResult: status
 
