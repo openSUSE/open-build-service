@@ -458,6 +458,28 @@ sub getsigdata {
   return $sigdata ? $sigdata : {};
 }
 
+sub rpmdelsign {
+  my ($rpm) = @_;
+  # rpm --delsign clobbers the lead data, so copy it over
+  my ($rfd, $wfd);
+  if (!open($rfd, '<', $rpm)) {
+    warn("rpmdelsign $rpm: $!\n");
+    return;
+  }
+  my $lead = '';
+  sysread($rfd, $lead, 96);
+  close($rfd);
+  system('rpm', '--delsign', $rpm) && warn("delsign $rpm failed: $?\n");
+  if (length($lead) == 96) {
+    if (!open($wfd, '+<', $rpm)) {
+      warn("rpmdelsign $rpm: $!\n");
+      return;
+    }
+    syswrite($wfd, $lead, 96);
+    close($wfd);
+  }
+}
+
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -557,7 +579,7 @@ sub signjob {
 	  my $sigdata = getsigdata("$jobdir/$signfile");
 	  $signtime = $sigdata->{'signtime'};
 	  $signissuer = $sigdata->{'issuer'};
-	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
+	  rpmdelsign("$jobdir/$signfile");
 	  print "using signtime $signtime\n" if $signtime;
 	}
 	my @signmode;
