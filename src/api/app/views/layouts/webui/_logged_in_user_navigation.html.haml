@@ -9,7 +9,7 @@
         = pluralize(tasks, 'Task')
     - else
       Tasks
-- if flipper_notifications?
+- if feature_enabled?(:notifications_redesign)
   %li.nav-item
     - notifications = User.session.unread_notifications
     = link_to(my_notifications_path, class: 'nav-link', alt: 'Notifications') do

@@ -10,7 +10,7 @@
       = render partial: 'webui/package/bottom_actions/submit_package', locals: { package: package, project: project,
                                                                                  revision: revision }
     - if User.possibly_nobody.can_modify?(package)
-      - unless flipper_responsive?
+      - unless feature_enabled?(:responsive_ux)
         = render partial: 'webui/package/bottom_actions/edit_description'
       = render partial: 'webui/package/bottom_actions/delete_package'
 

@@ -3,7 +3,7 @@
   %li.breadcrumb-item.active{ 'aria-current' => 'page' }
     Projects
 - else
-  - unless flipper_responsive?
+  - unless feature_enabled?(:responsive_ux)
     %li.breadcrumb-item
       = link_to 'Projects', projects_path
   - if current_page?(project_list_all_path)
@@ -14,7 +14,7 @@
       = @namespace.nil? ? 'Create Project' : 'Create Subproject'
   - else
     %li.breadcrumb-item.text-word-break-all
-      - if flipper_responsive?
+      - if feature_enabled?(:responsive_ux)
         %i.fa.fa-cubes
       = link_to @project, project_show_path(@project)
     - if current_page?(project_show_path(@project))

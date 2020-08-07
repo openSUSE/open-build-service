@@ -110,7 +110,7 @@ module Webui::WebuiHelper
     repo_state_class = repository_state_class(outdated, status)
 
     data_options = {}
-    data_options.merge!(content: description, placement: 'top', toggle: 'popover') unless flipper_responsive?
+    data_options.merge!(content: description, placement: 'top', toggle: 'popover') unless feature_enabled?(:responsive_ux)
     tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
   end
 
@@ -340,25 +340,20 @@ module Webui::WebuiHelper
     return checks, build_problems, remaining_checks, remaining_build_problems
   end
 
-  # responsive_ux:
-  def flipper_responsive?
-    Flipper.enabled?(:responsive_ux, User.possibly_nobody)
-  end
-
-  def flipper_notifications?
-    Flipper.enabled?(:notifications_redesign, User.possibly_nobody)
+  def feature_enabled?(feature)
+    Flipper.enabled?(feature, User.possibly_nobody)
   end
 
   def feature_css_class
     css_classes = []
-    css_classes << 'responsive-ux' if flipper_responsive?
-    css_classes << 'notifications-redesign' if flipper_notifications?
+    css_classes << 'responsive-ux' if feature_enabled?(:responsive_ux)
+    css_classes << 'notifications-redesign' if feature_enabled?(:notifications_redesign)
     css_classes.join(' ')
   end
 
   # responsive_ux:
   def responsive_namespace
-    flipper_responsive? ? 'webui/responsive_ux' : 'webui'
+    feature_enabled?(:responsive_ux) ? 'webui/responsive_ux' : 'webui'
   end
 
   def sign_up_link(css_class: nil)

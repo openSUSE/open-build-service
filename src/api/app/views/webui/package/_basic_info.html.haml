@@ -1,4 +1,4 @@
-.basic-info.mb-3{ class: flipper_responsive? ? 'in-place-editing' : '' }
+.basic-info.mb-3{ class: feature_enabled?(:responsive_ux) ? 'in-place-editing' : '' }
   %h3#package-title
     = package.title.presence || package.name
   - if package.url.present?

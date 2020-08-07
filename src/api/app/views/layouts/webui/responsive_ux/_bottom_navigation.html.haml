@@ -6,7 +6,7 @@
         = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
           %i.fas.fa-bookmark
           .small Watchlist
-      - if flipper_notifications?
+      - if feature_enabled?(:notifications_redesign)
         %li.nav-item.border-left.border-gray-500
           = link_to(my_notifications_path, class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
             %i.fas.fa-bell

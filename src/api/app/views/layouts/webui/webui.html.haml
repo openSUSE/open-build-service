@@ -41,13 +41,13 @@
   %body.d-flex.flex-column{ class: feature_css_class }
     #navigation
       = render partial: "layouts/#{responsive_namespace}/navigation"
-    - unless flipper_responsive?
+    - unless feature_enabled?(:responsive_ux)
       .w-100.m-2
     .container-xxl
       .row
         .col
           = render partial: 'layouts/webui/breadcrumbs'
-        - unless flipper_responsive?
+        - unless feature_enabled?(:responsive_ux)
           .col-auto.ml-auto#personal-navigation
             = render partial: 'layouts/webui/personal_navigation'
 
@@ -58,12 +58,12 @@
 
     .container-xxl.flex-grow#content
       = yield
-    - if flipper_responsive?
+    - if feature_enabled?(:responsive_ux)
       .container-fluid.py-4.mt-4#sponsor
         .container-xxl
           = render partial: "layouts/#{responsive_namespace}/sponsors"
     .container-fluid.py-4.bg-dark#footer
       .container-xxl
         = render partial: "layouts/#{responsive_namespace}/footer"
-    - if flipper_responsive? && !current_page?(signup_path) && !current_page?(new_session_path)
+    - if feature_enabled?(:responsive_ux) && !current_page?(signup_path) && !current_page?(new_session_path)
       = render partial: "layouts/#{responsive_namespace}/bottom_navigation"
