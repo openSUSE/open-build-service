@@ -605,6 +605,23 @@ Parameters:
   oproject: old project, optional
   opackage: old package, optional
   orev: old revision, optional
+  unified: set to 1 to use unified format without looking into archives,
+           instead of custom format with showing diff of files inside archives
+  expand: set to 1 to expand any link before diffing, optional
+  filelimit: integer to limit the diff size by line numbers. built-in default
+             is used by default, disable it via 0, optional
+  tarlimit: integer to limit the diff size by line numbers. built-in default is
+            used by default for tar ball content, disable it via 0, optional
+  linkrev: specify a link revision in base package, use linkrev=base to use the
+           commit revision, optional
+  olinkrev: specify a link revision in origin package, use linkrev=base to use
+            the commit revision, optional
+  missingok: for diffing against inexisting origin, optional
+  meta: diff meta data instead of sources by setting it to 1, optional
+  file: limit diff to the given file name, optional
+  view: view=xml for structured content, optional
+  withissues: includes parsed issue tracker issues and their change state, optional
+  onlyissues: no source diff, just the tracker issues and their change state, optional
 
 Result: diff as text/plain
 
