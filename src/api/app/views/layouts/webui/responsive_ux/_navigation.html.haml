@@ -1,36 +1,21 @@
-%nav.navbar.navbar-dark.bg-dark.border-bottom.border-gray-500.fixed-top
-  .d-flex.flex-nowrap.justify-content-between.w-100
-    = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
-      = image_tag('obs-logo_small.svg')
-    .d-flex
-      = render partial: "layouts/#{responsive_namespace}/search"
+%nav.navbar.navbar-expand-lg.sticky-top
+  = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
+    = image_tag(CONFIG['navbar_logo'] || 'obs-logo_small.svg', size: 30)
+    = CONFIG['navbar_name'] || 'Open Build Service'
+  %button.navbar-toggler{ type: 'button', 'data-toggle': 'collapse', 'data-target': '#navbar-collapse' }
+    %svg{ width: '1em', height: '1em', viewBox: '0 0 16 16', fill: 'currentColor', xmlns: 'http://www.w3.org/2000/svg' }
+      %path{ d: 'M2.5 11.5A.5.5 0 0 1 3 11h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4A.5.5 0 0 1 3 3h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z'}
+  #navbar-collapse.collapse.navbar-collapse
+    %ul.navbar-nav.mr-auto
+      = render partial: 'layouts/webui/responsive_ux/navigation_main'
+    = render partial: "layouts/#{responsive_namespace}/search"
+    %ul.navbar-nav
       - if User.session
-        .toggler.text-center.justify-content-center
-          = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
-            %i.fas.fa-bookmark
-            .small Watchlist
-        .toggler.text-center.justify-content-center
-          = link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
-            %i.fas.fa-bell
-            - unless User.session.unread_notifications.zero?
-              %span.badge.badge-primary.align-text-top= User.session.unread_notifications
-            .small Notifications
-        - if content_for?(:actions)
-          .toggler.text-center.justify-content-center
-            = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Actions', data: { toggle: 'actions' }) do
-              %i.fas.fa-ellipsis-v
-              .small Actions
-        .toggler.text-center.justify-content-center
-          = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Places', data: { toggle: 'offcanvas' }) do
-            %i.fas.fa-bars
-            .small Places
+        = render partial: 'layouts/webui/responsive_ux/navigation_user'
       - else
-        = render partial: 'layouts/webui/responsive_ux/nobody_navigation'
-
-- if User.session
-  = render partial: 'layouts/webui/responsive_ux/actions'
-  = render partial: 'layouts/webui/responsive_ux/user_navigation'
-- elsif !kerberos_mode?
+        = render partial: 'layouts/webui/responsive_ux/navigation_auth'
+  != CONFIG['navbar_extra']
+- if !User.session && !kerberos_mode?
   - if !proxy_mode? && can_sign_up?
     = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
   = render partial: 'layouts/webui/responsive_ux/login_modal'

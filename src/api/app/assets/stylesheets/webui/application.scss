@@ -12,10 +12,9 @@
 
 @import 'codemirror';
 @import 'bootstrap_variables/breakpoints';
-@import 'bootstrap_variables/colors';
 @import 'bootstrap_variables/spacers';
 @import 'bootstrap_variables/fonts';
-@import 'bootstrap';
+@import 'chameleon';
 @import 'bootstrap-modal';
 @import "font-awesome-sprockets";
 @import 'font-awesome';
@@ -61,7 +60,3 @@
 @import 'cloud_upload';
 
 @import 'responsive_ux';
-
-html {
-    overflow-y: scroll !important;
-}

@@ -1,34 +1,11 @@
-.navbar-dark .navbar-toggler { color: $gray-300; }
 .flash-and-announcement.sticky-top { top: $top-bar-height + .25rem; }
 #top_0.sticky-top { top: $top-bar-height; }
 
 // NAVIGATION
 
-#navigation {
-  .fixed-top { height: $top-bar-height; }
-  .toggler {
-    @extend .ml-2;
-    @extend .d-none;
-    @extend .d-md-flex;
-    @extend .align-items-center;
-    cursor: pointer;
-    &.text-center { min-width: 3.875rem; }
-    &:first-of-type { @extend .ml-3;  }
-  }
-
-  .navbar-nav .nav-link {
-    color: $gray-300;
-    &:hover { color: white; }
-  }
-
-  .menu-right { cursor: pointer; }
-  .menu-options { font-size: 1.1rem }
-
-  .navbar-brand img { height: 1.875rem; }
-}
-
-#bottom-navigation { height: $bottom-bar-height; }
-#navigation, #bottom-navigation {
+#bottom-navigation {
+  height: $bottom-bar-height;
+  
   a.nav-link {
     .small { line-height: 1rem; }
 

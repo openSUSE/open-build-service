@@ -4,9 +4,6 @@ $top-bar-height: 3.5625rem;
 $bottom-bar-height: 3.5rem;
 
 body.responsive-ux {
-  // open space to not overlap top navigation with content
-  padding-top: 3.5rem !important;
-
   @import 'responsive_ux/layout';
   @import 'responsive_ux/build-result';
   @import 'responsive_ux/sponsors';
@@ -16,6 +13,7 @@ body.responsive-ux {
   .build-results .sticky-top { top: $top-bar-height; }
   #log-space-wrapper #log-info.position-sticky { top: $top-bar-height; }
   #notifications-filter-desktop {
+    top: $top-bar-height;
     strong { cursor: pointer; }
     .collapse {
       &.show { border-top: 1px solid $gray-300;}
