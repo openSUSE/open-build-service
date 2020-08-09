@@ -43,10 +43,6 @@ module RescueHandler
       render_error message: exception.message, status: 404, errorcode: 'not_found'
     end
 
-    rescue_from ActionController::RoutingError do |exception|
-      render_error message: exception.message, status: 404, errorcode: 'not_route'
-    end
-
     rescue_from Pundit::NotAuthorizedError do |exception|
       message = 'You are not authorized to perform this action.'
 
