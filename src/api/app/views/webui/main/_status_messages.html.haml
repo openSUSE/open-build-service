@@ -8,7 +8,7 @@
   .list-group
     = render partial: 'status_message', collection: status_messages
     - if User.admin_session?
-      - unless flipper_responsive?
+      - unless feature_enabled?(:responsive_ux)
         .card-footer
           = link_to(new_status_message_path, class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary

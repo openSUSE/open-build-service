@@ -6,12 +6,13 @@
         = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
           %i.fas.fa-bookmark
           .small Watchlist
-      %li.nav-item.border-left.border-gray-500
-        = link_to(my_notifications_path, class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
-          %i.fas.fa-bell
-          - unless User.session.unread_notifications.zero?
-            %span.badge.badge-primary.align-text-top= User.session.unread_notifications
-          .small Notifications
+      - if feature_enabled?(:notifications_redesign)
+        %li.nav-item.border-left.border-gray-500
+          = link_to(my_notifications_path, class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
+            %i.fas.fa-bell
+            - unless User.session.unread_notifications.zero?
+              %span.badge.badge-primary.align-text-top= User.session.unread_notifications
+            .small Notifications
       - if content_for?(:actions)
         %li.nav-item.border-left.border-gray-500
           = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Actions', data: { toggle: 'actions' }) do

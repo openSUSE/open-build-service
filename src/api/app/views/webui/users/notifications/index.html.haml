@@ -1,5 +1,5 @@
 :ruby
-  if flipper_responsive?
+  if feature_enabled?(:responsive_ux)
     render partial: 'webui/users/notifications/responsive_ux/index_actions'
   end
 

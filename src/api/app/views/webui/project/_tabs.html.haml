@@ -1,4 +1,4 @@
-- if flipper_responsive?
+- if feature_enabled?(:responsive_ux)
   .bg-light.scrollable-tabs
     = tab_link('Overview', [project_show_path(project), keys_and_certificates_path(project)], false, 'scrollable-tab-link')
     - unless @spider_bot

@@ -14,7 +14,7 @@ module Webui::BuildresultHelper
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
     end
 
-    if flipper_responsive?
+    if feature_enabled?(:responsive_ux)
       return build_state(code: code, css_class: theclass, package_name: package_name, status_id: status_id, repo: repo, arch: arch)
     end
 

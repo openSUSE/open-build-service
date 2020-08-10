@@ -1,6 +1,6 @@
 :ruby
   @pagetitle = "Subprojects of #{@project}"
-  if flipper_responsive?
+  if feature_enabled?(:responsive_ux)
     render partial: 'webui/project/responsive_ux/subprojects_actions', locals: { project: @project }
   end
 
@@ -18,7 +18,7 @@
         - else
           %p
             %i This project has no subprojects
-        - if User.possibly_nobody.can_modify?(@project) && !flipper_responsive?
+        - if User.possibly_nobody.can_modify?(@project) && !feature_enabled?(:responsive_ux)
           = link_to(new_project_path(namespace: @project), class: 'nav-link') do
             %i.fas.fa-plus-circle.text-primary
             Create Subproject

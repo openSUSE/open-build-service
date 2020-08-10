@@ -6,7 +6,7 @@
     Create Package
 - else
   %li.breadcrumb-item.text-word-break-all
-    - if flipper_responsive?
+    - if feature_enabled?(:responsive_ux)
       %i.fa.fa-archive
       = link_to(@package, package_show_path(@project, @package))
     - else

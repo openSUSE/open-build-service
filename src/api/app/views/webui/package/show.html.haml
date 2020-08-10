@@ -4,7 +4,7 @@
 
   content_for(:meta_title, @package.title.presence || @package.name)
   content_for(:meta_description, @package.description)
-  if flipper_responsive?
+  if feature_enabled?(:responsive_ux)
     render partial: 'webui/package/responsive_ux/show_actions', locals: { bugowners_mail: @bugowners_mail,
                                                     configuration: @configuration,
                                                     revision: @revision,
@@ -30,7 +30,7 @@
                                                   revision: @revision,
                                                   project: @project,
                                                   package: @package }
-      - unless flipper_responsive?
+      - unless feature_enabled?(:responsive_ux)
         = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowners_mail,
                                                     configuration: @configuration,
                                                     revision: @revision,

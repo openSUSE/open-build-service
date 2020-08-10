@@ -1,4 +1,4 @@
-- if flipper_responsive?
+- if feature_enabled?(:responsive_ux)
   .bg-light.scrollable-tabs
     = tab_link('Overview', package_show_path(project, package), false, 'scrollable-tab-link')
     - if package.name == 'patchinfo'

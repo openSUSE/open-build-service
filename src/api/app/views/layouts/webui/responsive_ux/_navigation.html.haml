@@ -9,12 +9,13 @@
           = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
             %i.fas.fa-bookmark
             .small Watchlist
-        .toggler.text-center.justify-content-center
-          = link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
-            %i.fas.fa-bell
-            - unless User.session.unread_notifications.zero?
-              %span.badge.badge-primary.align-text-top= User.session.unread_notifications
-            .small Notifications
+        - if feature_enabled?(:notifications_redesign)
+          .toggler.text-center.justify-content-center
+            = link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
+              %i.fas.fa-bell
+              - unless User.session.unread_notifications.zero?
+                %span.badge.badge-primary.align-text-top= User.session.unread_notifications
+              .small Notifications
         - if content_for?(:actions)
           .toggler.text-center.justify-content-center
             = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Actions', data: { toggle: 'actions' }) do

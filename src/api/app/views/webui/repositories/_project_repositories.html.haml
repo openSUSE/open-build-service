@@ -1,4 +1,4 @@
-- if flipper_responsive?
+- if feature_enabled?(:responsive_ux)
   .card.mb-3
     = render partial: 'webui/project/tabs', locals: { project: project }
     .card-body

@@ -1,10 +1,10 @@
 -# haml-lint:disable ViewLength
-  This is going to be fine once again when we remove the flipper_responsive? calls
+  This is going to be fine once again when we remove the feature_enabled?(:responsive_ux) calls
 :ruby
   content_for(:meta_title, @project.title.presence || @project)
   content_for(:meta_description, @project.description)
   @pagetitle = "Show #{@project}"
-  if flipper_responsive?
+  if feature_enabled?(:responsive_ux)
     render partial: 'webui/project/responsive_ux/show_actions', locals: { bugowners_mail: @bugowner_mail,
                                                                           project: @project,
                                                                           packages: @packages,
@@ -31,7 +31,7 @@
                                                   package: @package,
                                                   linking_projects: @linking_projects,
                                                   project_maintenance_project: @project_maintenance_project }
-      - unless flipper_responsive?
+      - unless feature_enabled?(:responsive_ux)
         = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowner_mail,
                                                       project: @project,
                                                       packages: @packages,

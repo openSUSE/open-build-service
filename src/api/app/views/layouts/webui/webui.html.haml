@@ -38,16 +38,16 @@
     - if User.session.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
-  %body.d-flex.flex-column{ class: "#{'responsive-ux' if flipper_responsive?}" }
+  %body.d-flex.flex-column{ class: feature_css_class }
     #navigation
       = render partial: "layouts/#{responsive_namespace}/navigation"
-    - unless flipper_responsive?
+    - unless feature_enabled?(:responsive_ux)
       .w-100.m-2
     .container-xxl
       .row
         .col
           = render partial: 'layouts/webui/breadcrumbs'
-        - unless flipper_responsive?
+        - unless feature_enabled?(:responsive_ux)
           .col-auto.ml-auto#personal-navigation
             = render partial: 'layouts/webui/personal_navigation'
 
@@ -58,12 +58,12 @@
 
     .container-xxl.flex-grow#content
       = yield
-    - if flipper_responsive?
+    - if feature_enabled?(:responsive_ux)
       .container-fluid.py-4.mt-4#sponsor
         .container-xxl
           = render partial: "layouts/#{responsive_namespace}/sponsors"
     .container-fluid.py-4.bg-dark#footer
       .container-xxl
         = render partial: "layouts/#{responsive_namespace}/footer"
-    - if flipper_responsive? && !current_page?(signup_path) && !current_page?(new_session_path)
+    - if feature_enabled?(:responsive_ux) && !current_page?(signup_path) && !current_page?(new_session_path)
       = render partial: "layouts/#{responsive_namespace}/bottom_navigation"

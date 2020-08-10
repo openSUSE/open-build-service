@@ -60,7 +60,8 @@
 @import 'project-monitor';
 @import 'cloud_upload';
 
-@import 'responsive_ux';
+@import 'responsive_ux/responsive_ux';
+@import 'notifications_redesign/notifications';
 
 html {
     overflow-y: scroll !important;

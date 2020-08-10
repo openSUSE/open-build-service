@@ -12,7 +12,7 @@
     data['save-group'] = project_save_group_path
   end
 
-- if flipper_responsive? && user_is_maintainer
+- if feature_enabled?(:responsive_ux) && user_is_maintainer
   = render partial: 'webui/shared/user_or_groups_roles/responsive_ux/actions'
   = render partial: 'webui/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param }
   = render partial: 'webui/shared/user_or_groups_roles/delete_dialog'
@@ -35,7 +35,7 @@
                            user_is_maintainer: user_is_maintainer,
                            project: project, package: package }
 
-  - if !flipper_responsive? && user_is_maintainer
+  - if !feature_enabled?(:responsive_ux) && user_is_maintainer
     %ul.list-inline
       %li.list-inline-item
         = render(partial: 'webui/shared/user_or_groups_roles/add_user_dialog', locals: { project: project.to_param, package: package.to_param })
@@ -61,7 +61,7 @@
                  locals: { records: groups, roles: roles, type: 'group',
                            user_is_maintainer: user_is_maintainer,
                            project: project, package: package }
-  - if !flipper_responsive? && user_is_maintainer
+  - if !feature_enabled?(:responsive_ux) && user_is_maintainer
     %ul.list-inline
       %li.list-inline-item
         = render(partial: 'webui/shared/user_or_groups_roles/add_group_dialog', locals: { project: project.to_param, package: package.to_param })

@@ -1,6 +1,6 @@
 :ruby
   @pagetitle = 'Welcome'
-  if flipper_responsive?
+  if feature_enabled?(:responsive_ux)
     render partial: 'webui/main/responsive_ux/index_actions'
   end
 
@@ -13,7 +13,7 @@
         -# rubocop:disable Rails/OutputSafety
         = raw @configuration['description']
         -# rubocop:enable Rails/OutputSafety
-        - unless flipper_responsive?
+        - unless feature_enabled?(:responsive_ux)
           .row.no-gutters.text-center#proceed-list
             = render partial: 'proceed-list'
     = render(partial: 'system_status', locals: { busy: @busy,
@@ -23,7 +23,7 @@
                                                  host_title: @configuration['title'],
                                                  system_stats: @system_stats })
   .col-md-4.col-lg-5
-    - unless flipper_responsive?
+    - unless feature_enabled?(:responsive_ux)
       = render partial: 'layouts/webui/legacy_sponsors'
     - if !User.session && can_register?
       .card.mb-3
