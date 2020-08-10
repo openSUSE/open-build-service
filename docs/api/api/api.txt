@@ -37,7 +37,7 @@ GET /architectures
 XmlResult: architecture list
 
 
-== Issue Trackers
+== Issues
 
 GET /issue_trackers
 
@@ -53,30 +53,30 @@ GET /issue_trackers/<name>
 
 XmlResult: issue_tracker
 
-PUT /issue_tracker/<name>
+PUT /issue_trackers/<name>
 
   Update issue tracker data.
 
 XmlResult: status
 
-POST /issue_tracker/<name>
+POST /issue_trackers/<name>
 
   Create new issue tracker.
 
 XmlResult: status
 
-DELETE /issue_tracker/<name>
+DELETE /issue_trackers/<name>
 
   Delete issue tracker.
 
 XmlBody: none
 XmlResult: status
 
-GET /issue_trackers/show_url_for
+GET /issue_trackers/<tracker_name>/issues/<issue_name>
 
-Parameters:
-  issue: attribute used for issue search (example: 'bnc#123456')
+  Show the issue
 
+XmlResult: issue
 
 
 == Distribution List
