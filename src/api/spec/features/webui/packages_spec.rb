@@ -23,7 +23,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     let(:branching_data) { BranchPackage.new(project: user.home_project.name, package: package.name).branch }
     let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
     let(:package_mime) do
-      create(:package, name: 'test.json', project: user.home_project, description: 'A package with a mime type suffix')
+      create(:package, name: 'test.yaml', project: user.home_project, description: 'A package with a mime type suffix')
     end
 
     before do
@@ -33,7 +33,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
 
     it "has a mime like suffix in it's name" do
       visit package_show_path(project: user.home_project, package: package_mime)
-      expect(page).to have_text('test.json')
+      expect(page).to have_text('test.yaml')
       expect(page).to have_text('A package with a mime type suffix')
     end
 
@@ -75,6 +75,31 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
 
       expect(page).to have_text("The file 'somefile.txt' has been successfully saved.")
       expect(file_edit_test_package.source_file('somefile.txt')).to eq('added some new text')
+    end
+  end
+
+  describe 'editing the package description' do
+    let(:file_edit_test_package) { create(:package_with_file, name: 'file_edit_test_package', project: user.home_project) }
+
+    before do
+      login(user)
+      visit package_show_path(project: user.home_project, package: file_edit_test_package)
+    end
+
+    it 'updated the package description' do
+      click_link('Edit description')
+      within('.modal-body') do
+        fill_in('Title:', with: 'Updated title')
+        fill_in('Description:', with: 'Updated description')
+      end
+      within('.modal-footer') do
+        click_on('Update')
+      end
+      expect(page).to have_text('was saved successfully')
+      within('.basic-info') do
+        expect(page).to have_text('Updated title')
+        expect(page).to have_text('Updated description')
+      end
     end
   end
 
