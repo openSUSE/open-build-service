@@ -74,6 +74,7 @@ Metrics/BlockLength:
     - 'spec/**/*'
     - '**/*.rake'
     # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
+    - 'app/controllers/concerns/rescue_handler.rb'
     - 'app/models/binary_release.rb'
     - 'app/models/branch_package.rb'
     - 'app/models/bs_request.rb'
