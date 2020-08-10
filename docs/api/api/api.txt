@@ -988,7 +988,12 @@ POST /request/<id>?cmd=diff
 
   Shows the diff of all affected packages.
 
-Result: diff as text/plain
+Parameters:
+  diff_to_superseded: diff relative to a given superseded request
+  view: can be set to "xml" for structured diff
+  withissues: included parsed issues
+
+Result: diff as text/plain or xml based on view parameter
 
 
 POST /request/<id>
