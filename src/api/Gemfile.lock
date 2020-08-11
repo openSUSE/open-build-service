@@ -252,7 +252,7 @@ GEM
     parallel (1.19.2)
     parser (2.7.1.4)
       ast (~> 2.4.1)
-    pkg-config (1.4.1)
+    pkg-config (1.4.2)
     popper_js (1.16.0)
     power_assert (1.2.0)
     pry (0.13.1)
