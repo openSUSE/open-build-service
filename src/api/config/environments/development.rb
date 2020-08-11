@@ -68,3 +68,19 @@ CONFIG['response_schema_validation'] = true
 
 CONFIG['frontend_host'] = 'localhost'
 CONFIG['frontend_protocol'] = 'http'
+
+# Display fake sponsors above the footer on every page
+CONFIG['sponsors'] = [
+  HashWithIndifferentAccess.new(
+    name: 'Greens Food Supplies',
+    description: 'Direct delivery service',
+    icon: 'sponsor_greens-food-supplies',
+    url: '#'
+  ),
+  HashWithIndifferentAccess.new(
+    name: 'Auto Speed',
+    description: 'Same day auto parts',
+    icon: 'sponsor_auto-speed',
+    url: '#'
+  )
+]
