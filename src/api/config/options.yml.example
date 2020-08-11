@@ -197,6 +197,13 @@ default: &default
   # Disable the contribution graph on the user home page
   # contribution_graph: :off
 
+  # Display sponsors above the footer on every page
+  # sponsors:
+  # - name: Sponsor ABC
+  #   description: We are the best at ABC
+  #   icon: sponsor_abc
+  #   url: https://www.example.com
+
 production:
   <<: *default
 
