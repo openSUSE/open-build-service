@@ -67,6 +67,8 @@ class User < ApplicationRecord
     all_without_nobody.includes(:owner).select(:id, :login, :email, :state, :realname, :owner_id, :updated_at, :ignore_auth_services)
   }
 
+  scope :with_email, -> { where.not(email: [nil, '']) }
+
   scope :recently_seen, -> { where('last_logged_in_at > ?', 3.months.ago) }
 
   validates :login, :state, presence: { message: 'must be given' }
