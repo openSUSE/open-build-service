@@ -23,11 +23,11 @@ module OwnerSearch
       return [Project.get_by_name(params[:project])] if params[:project]
 
       # Find all marked projects
-      projects = []
+      projects = nil
       projects = Project.find_by_attribute_type(attribute) if attribute.present?
-      return projects if projects.count.positive?
+      return projects unless projects.empty?
 
-      raise Project::UnknownObjectError, 'Root project could not be found via attribute'
+      raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
     end
 
     def project_attrib(project)
