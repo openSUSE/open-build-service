@@ -36,7 +36,7 @@ module OwnerSearch
       projects = Project.joins(:attribs).where(attribs: { attrib_type_id: attribute.id }) if attribute.present?
       return projects unless projects.empty?
 
-      raise Project::UnknownObjectError, 'Root project could not be found via attribute'
+      raise AttributeNotSetError, "The attribute #{attribute.fullname} is not set to define default projects."
     end
 
     def project_attrib(project)

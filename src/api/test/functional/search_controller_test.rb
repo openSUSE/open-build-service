@@ -1,6 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'xmlhash'
 
+# rubocop:disable Metrics/MethodLength
+
 class SearchControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
@@ -438,6 +440,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy/_attribute', params: "<attributes><attribute namespace='OBS' name='OwnerRootProject' /></attributes>"
     assert_response :success
 
+    # search via binaries
     get '/search/owner?binary=DOES_NOT_EXIST'
     assert_response :success
     assert_xml_tag tag: 'collection', children: { count: 0 }
@@ -454,6 +457,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'owner', attributes: { rootproject: 'home:Iggy', project: 'home:Iggy', package: 'TestPack' }
     assert_no_xml_tag tag: 'person', attributes: { name: 'fred', role: 'maintainer' }
     assert_no_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'maintainer' }
+    assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'bugowner' }
+
+    # search via package container name
+    get '/search/owner?package=DOES_NOT_EXIST'
+    assert_response :success
+    assert_xml_tag tag: 'collection', children: { count: 0 }
+
+    get '/search/owner?package=TestPack'
+    assert_response :success
+    assert_xml_tag tag: 'owner', attributes: { rootproject: 'home:Iggy', project: 'home:Iggy', package: 'TestPack' }
+    assert_xml_tag tag: 'person', attributes: { name: 'fred', role: 'maintainer' }
+    assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'maintainer' }
     assert_xml_tag tag: 'person', attributes: { name: 'Iggy', role: 'bugowner' }
 
     # disable filter
@@ -853,3 +868,5 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag child: { tag: 'project', attributes: { name: 'RemoteInstance' } }
   end
 end
+
+# rubocop:enable Metrics/MethodLength
