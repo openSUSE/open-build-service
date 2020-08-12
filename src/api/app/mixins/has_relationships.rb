@@ -21,12 +21,8 @@ module HasRelationships
   end
 
   def bugowner_emails
-    ret = []
-    relationships.where(role: Role.hashed['bugowner']).joins(:user).each do |bugowner|
-      mail = bugowner.user.email
-      ret.push(mail.to_s) if mail
-    end
-    ret
+    # TODO: why on User.rb we accept email blank?
+    relationships.bugowners_with_email.pluck(:email)
   end
 
   def render_relationships(xml)

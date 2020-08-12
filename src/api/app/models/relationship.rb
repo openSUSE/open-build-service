@@ -52,6 +52,9 @@ class Relationship < ApplicationRecord
   scope :maintainers, lambda {
     where(role_id: Role.hashed['maintainer'])
   }
+  scope :bugowners, lambda {
+    where(role_id: Role.hashed['bugowner'])
+  }
 
   scope :bugowners_with_email, lambda {
     bugowners.joins(:user).merge(User.with_email)
