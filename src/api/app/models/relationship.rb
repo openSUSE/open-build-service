@@ -53,6 +53,10 @@ class Relationship < ApplicationRecord
     where(role_id: Role.hashed['maintainer'])
   }
 
+  scope :bugowners_with_email, lambda {
+    bugowners.joins(:user).merge(User.with_email)
+  }
+
   # we only care for project<->user relationships, but the cache is not *that* expensive
   # to recalculate
   after_create :discard_cache
