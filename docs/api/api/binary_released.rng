@@ -49,10 +49,29 @@
         </element>
         <optional>
           <element name="publish">
+            <optional>
+              <!-- exists only if not identical. This is the case if it is 
+                   part of a medium, but the binary is taken from another
+                   project -->
+              <attribute name="project">
+                <data type="string" />
+              </attribute>
+            </optional>
             <attribute name="package">
               <data type="string" />
             </attribute>
             <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
+          <!-- exists only if the binary is on a tracked medium -->
+          <element name="medium">
+            <attribute name="project">
+              <data type="string" />
+            </attribute>
+            <attribute name="package">
               <data type="string" />
             </attribute>
           </element>

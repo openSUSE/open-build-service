@@ -89,7 +89,7 @@ class BinaryRelease < ApplicationRecord
         end
         source_package = Package.striping_multibuild_suffix(binary['package'])
         rp = Package.find_by_project_and_name(binary['project'], source_package)
-        if source_package.include?(':')
+        if source_package.include?(':') && !source_package.start_with?('_product:')
           flavor_name = binary['package'].gsub(/^#{source_package}:/, '')
           hash[:flavor] = flavor_name
         end
@@ -145,7 +145,10 @@ class BinaryRelease < ApplicationRecord
       binary.operation(operation)
 
       node = {}
-      node[:package] = release_package.name if release_package
+      if release_package
+        node[:project] = release_package.project.name if release_package.project != repository.project
+        node[:package] = release_package.name
+      end
       node[:time] = binary_releasetime if binary_releasetime
       node[:flavor] = flavor if flavor
       binary.publish(node) unless node.empty?
@@ -166,6 +169,11 @@ class BinaryRelease < ApplicationRecord
 
       update_for_product.each do |up|
         binary.updatefor(up.extend_id_hash(project: up.package.project.name, product: up.name))
+      end
+
+      if medium && (medium_package = on_medium.try(:release_package))
+        binary.medium(project: medium_package.project.name,
+                      package: medium_package.name)
       end
 
       if product_medium
