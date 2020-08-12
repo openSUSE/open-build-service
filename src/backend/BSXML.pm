@@ -1745,6 +1745,7 @@ our @constraint = (
 	    'jobs',
 	  [ 'disk' => $size ],
 	  [ 'memory' => $size ],
+	  [ 'memoryperjob' => $size ],
 	  [ 'physicalmemory' => $size ],
       ]
 );

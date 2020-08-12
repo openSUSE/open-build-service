@@ -111,6 +111,7 @@ sub oracle {
     my $memory = ($worker->{'hardware'}->{'memory'} || 0);
     my $swap = ($worker->{'hardware'}->{'swap'} || 0);
     return 0 if $constraints->{'hardware'}->{'memory'} && getmbsize($constraints->{'hardware'}->{'memory'}) > ( $memory + $swap );
+    return 0 if $constraints->{'hardware'}->{'memoryperjob'} && getmbsize($constraints->{'hardware'}->{'memoryperjob'} * ($worker->{'hardware'}->{'jobs'} || 1)) > ( $memory + $swap );
     return 0 if $constraints->{'hardware'}->{'physicalmemory'} && getmbsize($constraints->{'hardware'}->{'physicalmemory'}) > $memory;
     if ($constraints->{'hardware'}->{'cpu'}) {
       return 0 unless $worker->{'hardware'}->{'cpu'};
