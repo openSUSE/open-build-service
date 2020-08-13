@@ -1461,7 +1461,7 @@ Style/IfUnlessModifier:
     - 'test/unit/schema_test.rb'
 
 # Offense count: 1
-Style/MethodMissingSuper:
+Lint/MissingSuper:
   Exclude:
     - 'app/lib/suse/permission.rb'
 
