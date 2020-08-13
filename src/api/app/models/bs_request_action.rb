@@ -242,7 +242,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def contains_change?
-    return sourcediff.present?
+    return sourcediff(nodiff: 1).present?
   rescue BsRequestAction::Errors::DiffError
     # if the diff can'be created we can't say
     # but let's assume the reason for the problem lies in the change
