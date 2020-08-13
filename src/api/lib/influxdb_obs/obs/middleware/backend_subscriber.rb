@@ -4,7 +4,7 @@ module InfluxDB
   module OBS
     module Middleware
       class BackendSubscriber
-        def initialize(series_name, logger = Logger.new(STDOUT))
+        def initialize(series_name, logger = Logger.new($stdout))
           @series_name = series_name
           @logger = logger
         end
