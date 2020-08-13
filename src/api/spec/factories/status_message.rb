@@ -4,5 +4,9 @@ FactoryBot.define do
     severity { :green }
     communication_scope { 'all_users' }
     user
+
+    trait :admins_only do
+      communication_scope { 'admin_users' }
+    end
   end
 end
