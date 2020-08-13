@@ -25,12 +25,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '89'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="source_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="source_package" rev="16" vrev="16" srcmd5="48a586f8770e715b0b29cb1803d84528">
+          <entry name="_config" md5="b30a78f507b83c0d96a4028a80e7176f" size="60" mtime="1597244450"/>
+          <entry name="somefile.txt" md5="856af786fd61ce41ce16d2b20c173ee7" size="57" mtime="1597244450"/>
         </directory>
-    http_version: 
-  recorded_at: Fri, 30 Nov 2018 17:24:40 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 12 Aug 2020 16:03:19 GMT
+recorded_with: VCR 6.0.0

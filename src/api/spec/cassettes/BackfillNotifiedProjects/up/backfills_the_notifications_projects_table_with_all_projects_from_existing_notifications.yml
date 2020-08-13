@@ -349,7 +349,7 @@ http_interactions:
   recorded_at: Thu, 23 Apr 2020 19:17:34 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=target_project&tarlimit=10000
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=target_project
     body:
       encoding: UTF-8
       string: ''
@@ -439,7 +439,7 @@ http_interactions:
   recorded_at: Thu, 23 Apr 2020 19:17:34 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package_2&oproject=target_project_2&tarlimit=10000
+    uri: http://backend:5352/source/source_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package_2&oproject=target_project_2
     body:
       encoding: UTF-8
       string: ''

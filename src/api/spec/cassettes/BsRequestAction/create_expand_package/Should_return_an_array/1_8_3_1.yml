@@ -232,7 +232,7 @@ http_interactions:
   recorded_at: Fri, 21 Feb 2020 10:46:57 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/super_source_pkg/super_source_pkg?cmd=diff&expand=1&filelimit=10000&opackage=super_target_prj&oproject=super_target_prj&tarlimit=10000
+    uri: http://backend:5352/source/super_source_pkg/super_source_pkg?cmd=diff&expand=1&nodiff=1&opackage=super_target_prj&oproject=super_target_prj
     body:
       encoding: UTF-8
       string: ''

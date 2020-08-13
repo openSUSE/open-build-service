@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta
+    uri: http://backend:5352/source/target_project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>To Sail Beyond the Sunset</title>
+          <title>The Moving Toyshop</title>
           <description/>
         </project>
     headers:
@@ -29,59 +29,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '116'
+      - '109'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>To Sail Beyond the Sunset</title>
+          <title>The Moving Toyshop</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_config
-    body:
-      encoding: UTF-8
-      string: Optio ullam repellat necessitatibus et animi. Voluptas tempora quo exercitationem.
-        Non nihil voluptates qui repudiandae.
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Recalled to Life</title>
-          <description>Aliquam voluptates labore assumenda aut.</description>
+          <title>Ring of Bright Water</title>
+          <description>Vitae est sunt possimus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -102,63 +67,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '172'
+      - '160'
     body:
       encoding: UTF-8
       string: |
         <package name="target_package" project="target_project">
-          <title>Recalled to Life</title>
-          <description>Aliquam voluptates labore assumenda aut.</description>
+          <title>Ring of Bright Water</title>
+          <description>Vitae est sunt possimus.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Recalled to Life</title>
-          <description>Aliquam voluptates labore assumenda aut.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '172'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>Recalled to Life</title>
-          <description>Aliquam voluptates labore assumenda aut.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta
+    uri: http://backend:5352/source/source_project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Ring of Bright Water</title>
+          <title>Consider Phlebas</title>
           <description/>
         </project>
     headers:
@@ -180,24 +105,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '111'
+      - '107'
     body:
       encoding: UTF-8
       string: |
         <project name="source_project">
-          <title>Ring of Bright Water</title>
+          <title>Consider Phlebas</title>
           <description></description>
         </project>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/_config
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_3
     body:
       encoding: UTF-8
-      string: Hic molestiae omnis earum explicabo corporis culpa. Repellat beatae
-        esse expedita veritatis soluta provident. Autem sunt quod amet qui voluptatibus.
-        Sequi quo nam atque minima error sit optio.
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -217,23 +142,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '170'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
+      string: |
+        <revision rev="122">
+          <srcmd5>6aab2c5e83adc8c393700492d1d5ba3a</srcmd5>
+          <time>1597244492</time>
+          <user>user_3</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Tirra Lirra by the River</title>
-          <description>Culpa cupiditate pariatur et aut maxime.</description>
+          <title>Specimen Days</title>
+          <description>Exercitationem alias est voluptatibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -254,96 +183,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '180'
+      - '167'
     body:
       encoding: UTF-8
       string: |
         <package name="source_package" project="source_project">
-          <title>Tirra Lirra by the River</title>
-          <description>Culpa cupiditate pariatur et aut maxime.</description>
+          <title>Specimen Days</title>
+          <description>Exercitationem alias est voluptatibus.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Tirra Lirra by the River</title>
-          <description>Culpa cupiditate pariatur et aut maxime.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '180'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Tirra Lirra by the River</title>
-          <description>Culpa cupiditate pariatur et aut maxime.</description>
-        </package>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_1">
-          <title/>
-          <description/>
-          <person userid="user_1" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '135'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_1">
-          <title></title>
-          <description></description>
-          <person userid="user_1" role="maintainer" />
-        </project>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -374,15 +222,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux">
           <title></title>
           <description></description>
-          <person userid="tux" role="maintainer" />
+          <person userid="tux" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 30 Apr 2018 09:41:40 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 12 Aug 2020 15:01:32 GMT
+recorded_with: VCR 6.0.0
