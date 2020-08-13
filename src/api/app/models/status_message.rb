@@ -6,7 +6,7 @@ class StatusMessage < ApplicationRecord
   validates :user, :severity, :message, presence: true
 
   scope :announcements, -> { order('created_at DESC').where(severity: 'announcement') }
-  scope :messages_for_me, -> { where(communication_scope: communication_scopes_for_current_user) }
+  scope :for_current_user, -> { where(communication_scope: communication_scopes_for_current_user) }
   scope :newest, -> { order('created_at DESC') }
 
   enum severity: { information: 0, green: 1, yellow: 2, red: 3, announcement: 4 }
