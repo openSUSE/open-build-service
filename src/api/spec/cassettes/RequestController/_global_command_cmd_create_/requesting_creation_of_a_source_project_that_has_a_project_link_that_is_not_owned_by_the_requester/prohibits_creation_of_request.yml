@@ -70,7 +70,7 @@ http_interactions:
   recorded_at: Mon, 16 Jul 2018 09:38:58 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&filelimit=10000&opackage=target_package&oproject=home:project_link_test_user&tarlimit=10000
+    uri: http://backend:5352/source/Base:my_project/source_package?cmd=diff&expand=1&nodiff=1&opackage=target_package&oproject=home:project_link_test_user
     body:
       encoding: UTF-8
       string: ''

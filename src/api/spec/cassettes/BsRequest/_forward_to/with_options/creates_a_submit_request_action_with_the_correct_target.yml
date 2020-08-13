@@ -2,314 +2,13 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta
+    uri: http://backend:5352/source/target_project/_meta?user=user_26
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>The Little Foxes</title>
+          <title>By Grand Central Station I Sat Down and Wept</title>
           <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '107'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>The Little Foxes</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/_config
-    body:
-      encoding: UTF-8
-      string: "<project name=\"target_project\">\n  <title/>\n  <description/>\n  \n</project>\n"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '186'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/target_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '186'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="target_package" project="target_project">
-          <title>The Widening Gyre</title>
-          <description>Nihil pariatur ipsam enim quam doloribus dignissimos.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>The Other Side of Silence</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '116'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="source_project">
-          <title>The Other Side of Silence</title>
-          <description></description>
-        </project>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/_config
-    body:
-      encoding: UTF-8
-      string: "<project name=\"source_project\">\n  <title/>\n  <description/>\n  \n</project>\n"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta?user=_nobody_
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/source_project/source_package/_meta
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '179'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="source_package" project="source_project">
-          <title>Everything is Illuminated</title>
-          <description>Omnis neque quo debitis rerum ducimus.</description>
-        </package>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:user_1/_meta?user=user_1
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:user_1">
-          <title/>
-          <description/>
-          <person userid="user_1" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -334,13 +33,165 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <project name="home:user_1">
-          <title></title>
+        <project name="target_project">
+          <title>By Grand Central Station I Sat Down and Wept</title>
           <description></description>
-          <person userid="user_1" role="maintainer" />
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/target_package/_meta?user=user_27
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Nam sapiente nostrum eligendi.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="target_package" project="target_project">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Nam sapiente nostrum eligendi.</description>
+        </package>
+  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_meta?user=user_28
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>In a Dry Season</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="source_project">
+          <title>In a Dry Season</title>
+          <description></description>
+        </project>
+  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/_project/_attribute?meta=1&user=user_28
+    body:
+      encoding: UTF-8
+      string: |
+        <attributes>
+          <attribute name="ApprovedRequestSource" namespace="OBS"/>
+        </attributes>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '171'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="132">
+          <srcmd5>4ab463ddf2214537196313bd00a8ae08</srcmd5>
+          <time>1597244494</time>
+          <user>user_28</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/source_project/source_package/_meta?user=user_29
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Way Through the Woods</title>
+          <description>Molestiae eligendi id error.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="source_package" project="source_project">
+          <title>The Way Through the Woods</title>
+          <description>Molestiae eligendi id error.</description>
+        </package>
+  recorded_at: Wed, 12 Aug 2020 15:01:34 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tux/_meta?user=tux
@@ -371,17 +222,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tux">
           <title></title>
           <description></description>
-          <person userid="tux" role="maintainer" />
+          <person userid="tux" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -407,15 +257,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
+          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
+          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -441,15 +291,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
+          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
+          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/target_package
@@ -475,18 +325,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
+          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
+          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&filelimit=10000&orev=0&rev=56&tarlimit=10000
+    uri: http://backend:5352/source/target_project/target_package?cmd=diff&expand=1&nodiff=1&orev=0&rev=37
     body:
       encoding: UTF-8
       string: ''
@@ -506,34 +356,35 @@ http_interactions:
     headers:
       Content-Type:
       - text/plain
-      Content-Length:
-      - '165'
       Cache-Control:
       - no-cache
       Connection:
       - close
+      Content-Length:
+      - '174'
     body:
       encoding: UTF-8
       string: |2
 
         new:
         ----
+          _config
           somefile.txt
 
         other changes:
         --------------
 
+        ++++++ _config (new)
+        --- _config
+        +++ _config
+
         ++++++ somefile.txt (new)
         --- somefile.txt
         +++ somefile.txt
-        @@ -0,0 +1,1 @@
-        +1
-        \ No newline at end of file
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/target_project/target_package?expand=1&rev=56
+    uri: http://backend:5352/source/target_project/target_package?expand=1&rev=37
     body:
       encoding: US-ASCII
       string: ''
@@ -556,13 +407,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '301'
     body:
       encoding: UTF-8
       string: |
-        <directory name="target_package" rev="56" vrev="56" srcmd5="efbe5f0a5dd48df5129b4319df43aa45">
-          <entry name="somefile.txt" md5="c4ca4238a0b923820dcc509a6f75849b" size="1" mtime="1530301540" />
+        <directory name="target_package" rev="37" vrev="37" srcmd5="38b543b7f5fd1354c9276faf878a7986">
+          <entry name="_config" md5="631637c11f0335ca7c0f3679be77613d" size="71" mtime="1597244450"/>
+          <entry name="somefile.txt" md5="25a21547792b5685e25ab319e5d461aa" size="57" mtime="1597244450"/>
         </directory>
-    http_version: 
-  recorded_at: Tue, 03 Jul 2018 10:31:04 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 12 Aug 2020 15:01:35 GMT
+recorded_with: VCR 6.0.0

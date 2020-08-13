@@ -343,7 +343,7 @@ http_interactions:
   recorded_at: Fri, 29 May 2020 10:27:02 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&orev=0&rev=24&tarlimit=10000
+    uri: http://backend:5352/source/home:tom/package_with_file?cmd=diff&expand=1&nodiff=1&orev=0&rev=24
     body:
       encoding: UTF-8
       string: ''

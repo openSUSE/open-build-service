@@ -8,6 +8,7 @@ RSpec.describe EventMailer, vcr: true do
   # Needed for X-OBS-URL
   before do
     allow_any_instance_of(Configuration).to receive(:obs_url).and_return('https://build.example.com')
+    allow_any_instance_of(BsRequestAction).to receive(:contains_change?).and_return(true)
   end
 
   let!(:receiver) { create(:confirmed_user) }

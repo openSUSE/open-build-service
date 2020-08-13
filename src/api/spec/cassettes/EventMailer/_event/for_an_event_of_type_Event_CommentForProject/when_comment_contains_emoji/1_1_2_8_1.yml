@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=user_31
+    uri: http://backend:5352/source/project_8/_meta?user=user_44
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Fear and Trembling</title>
+        <project name="project_8">
+          <title>The Proper Study</title>
           <description/>
         </project>
     headers:
@@ -29,13 +29,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '102'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Fear and Trembling</title>
+        <project name="project_8">
+          <title>The Proper Study</title>
           <description></description>
         </project>
-  recorded_at: Wed, 12 Aug 2020 16:19:01 GMT
+  recorded_at: Wed, 12 Aug 2020 16:19:02 GMT
 recorded_with: VCR 6.0.0

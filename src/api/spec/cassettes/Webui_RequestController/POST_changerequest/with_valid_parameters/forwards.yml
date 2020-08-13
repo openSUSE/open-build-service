@@ -904,7 +904,7 @@ http_interactions:
   recorded_at: Mon, 16 Apr 2018 11:54:57 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&filelimit=10000&opackage=goal&oproject=devel:project&rev=87&tarlimit=10000
+    uri: http://backend:5352/source/home:titan/goal?cmd=diff&expand=1&nodiff=1&opackage=goal&oproject=devel:project&rev=87
     body:
       encoding: UTF-8
       string: ''

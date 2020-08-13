@@ -3,6 +3,8 @@ class BsRequestAction
     class ForSource
       include ActiveModel::Model
 
+      # FIXME: this default either must be changed in backend
+      # or it should only be used for specific views
       DEFAULT_FILE_LIMIT = 10_000
 
       attr_accessor :bs_request_action, :source_package_names
@@ -44,8 +46,12 @@ class BsRequestAction
         query = {}
         query[:view] = :xml if options[:view].to_s == 'xml'
         query[:withissues] = 1 if options[:withissues].present?
-        query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : DEFAULT_FILE_LIMIT
-        query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : DEFAULT_FILE_LIMIT
+        if options[:nodiff].present?
+          query[:nodiff] = 1
+        else
+          query[:filelimit] = options[:filelimit] ? options[:filelimit].to_i : DEFAULT_FILE_LIMIT
+          query[:tarlimit] = options[:tarlimit] ? options[:tarlimit].to_i : DEFAULT_FILE_LIMIT
+        end
         query
       end
 

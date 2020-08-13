@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_4/_meta?user=user_31
+    uri: http://backend:5352/source/project_3/_meta?user=user_28
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Fear and Trembling</title>
+        <project name="project_3">
+          <title>Eyeless in Gaza</title>
           <description/>
         </project>
     headers:
@@ -29,12 +29,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '104'
+      - '101'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_4">
-          <title>Fear and Trembling</title>
+        <project name="project_3">
+          <title>Eyeless in Gaza</title>
           <description></description>
         </project>
   recorded_at: Wed, 12 Aug 2020 16:19:01 GMT

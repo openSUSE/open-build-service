@@ -10,7 +10,7 @@ FactoryBot.define do
     title { Faker::Book.title }
 
     after(:build) do |project, evaluator|
-      project.commit_user ||= build(:confirmed_user)
+      project.commit_user ||= create(:confirmed_user)
 
       if evaluator.maintainer
         role = Role.find_by_title('maintainer')
@@ -40,7 +40,9 @@ FactoryBot.define do
 
     trait :as_submission_source do
       after(:create) do |project, _evaluator|
-        create(:approved_request_source_attrib, project: project)
+        project.commit_user.run_as do
+          create(:approved_request_source_attrib, project: project)
+        end
       end
     end
 
