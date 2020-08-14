@@ -9,10 +9,10 @@ module Webui::NotificationHelper
     end
   end
 
-  def filter_notification_link(link_text, amount, filter_item)
-    link_to(my_notifications_path(filter_item), class: filter_css(filter_item)) do
+  def filter_notification_link(link_text, amount, filter_item, selected_filter)
+    link_to(my_notifications_path(filter_item), class: css_for_filter_link(filter_item, selected_filter)) do
       concat(link_text)
-      concat(tag.span(amount, class: "badge #{badge_color(filter_item)} align-text-top ml-2")) if amount && amount.positive?
+      concat(tag.span(amount, class: "badge #{badge_color(filter_item, selected_filter)} align-text-top ml-2")) if amount && amount.positive?
     end
   end
 
@@ -33,23 +33,23 @@ module Webui::NotificationHelper
 
   private
 
-  def filter_css(filter_item)
+  def css_for_filter_link(filter_item, selected_filter)
     css_class = 'list-group-item list-group-item-action'
-    css_class += ' active' if notification_filter_active?(filter_item)
+    css_class += ' active' if notification_filter_matches(filter_item, selected_filter)
     css_class
   end
 
-  def notification_filter_active?(filter_item)
-    if params[:project].present?
-      filter_item[:project] == params[:project]
-    elsif params[:type].present?
-      filter_item[:type] == params[:type]
+  def notification_filter_matches(filter_item, selected_filter)
+    if selected_filter[:project].present?
+      filter_item[:project] == selected_filter[:project]
+    elsif selected_filter[:type].present?
+      filter_item[:type] == selected_filter[:type]
     else
       filter_item[:type] == 'unread'
     end
   end
 
-  def badge_color(filter_item)
-    notification_filter_active?(filter_item) ? 'badge-light' : 'badge-primary'
+  def badge_color(filter_item, selected_filter)
+    notification_filter_matches(filter_item, selected_filter) ? 'badge-light' : 'badge-primary'
   end
 end
