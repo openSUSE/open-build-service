@@ -775,16 +775,7 @@ class User < ApplicationRecord
   end
 
   def user_relevant_packages_for_status
-    role_id = Role.hashed['maintainer'].id
-    # First fetch the project ids
-    projects_ids = involved_projects.select(:id)
-    packages = Package.joins("LEFT OUTER JOIN relationships ON (relationships.package_id = packages.id AND relationships.role_id = #{role_id})")
-    # No maintainers
-    packages = packages.where([
-                                '(relationships.user_id = ?) OR '\
-                                '(relationships.user_id is null AND packages.project_id in (?) )', id, projects_ids
-                              ])
-    packages.pluck(:id)
+    MaintainedPackagesByUserFinder.new(self).call.pluck(:id)
   end
 
   def state
