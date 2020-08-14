@@ -23,27 +23,13 @@
 # is a bad idea. Try to find out what junk ended up in the tree today.
 #
 
-
-BEGIN {
-  my ($wd) = $0 =~ m-(.*)/- ;
-  $wd ||= '.';
-  unshift @INC,  "$wd/build";
-  unshift @INC,  "$wd";
-}
+use strict;
+use warnings;
+use FindBin '$Bin';
+use lib "$Bin/build";
+use lib "$Bin";
 
 $| = 1;
-
-
-my $check_jobs = 0;
-my $check_db = 0;
-my $check_event = 0;
-my $check_worker = 0;
-my $check_build = 0;
-my $do_check_meta = 0;
-my $do_check_signatures = 0;
-my $check_one_project = "";
-my $check_one_package = "";
-my $fix; # undef|1=soft|2=hard
 
 use POSIX;
 use Data::Dumper;
@@ -67,77 +53,80 @@ use BSSolv;
 use BSVerify;
 
 sub usage {
-   my $basedir = "$BSConfig::bsdir";
-   print "bs_check_consistency:   check integrity of the buildservice data tree\n";
-   print "        --check-jobs        check consistency for $basedir/jobs\n";
-   print "        --check-db          check consistency for $basedir/db\n";
-   print "        --check-event       check consistency for $basedir/events\n";
-   print "        --check-worker      check consistency for $basedir/workers\n";
-   print "        --check-request     check consistency for $basedir/requests\n";
-   print "        --check-build       check consistency for $basedir/build\n";
-   print "                            (WARNING: takes very long)\n";
-   print "        --check-all         (all of the above)\n";
-   print "\n";
-   print "        --do-check-meta                     check content of .meta files (otherwise ignored for speed)\n";
-   print "        --do-check-signatures               check signatures of .rpm files (otherwise just the magic is checked)\n";
-   print "        --do-check-project-build PROJECT    check build tree of one project\n";
-   print "\n";
-   print "        --do-check-package-source PROJECT PACKAGE   check source references of one package\n";
-   print "\n";
-   print "        --fix                               fix data which can be re-created, scheduler cold start needed\n";
-   print "        --forced-fix                        fix data by breaking data which can be manually fixed by admin\n";
-   print "\n";
-   print "not yet implemented:\n";
-   print "        --check-projects\n";
-   print "        --check-sources\n";
-   print "    no checking yet for .deb files yet\n";
+  my ($rc) = @_;
+  my $basedir = "$BSConfig::bsdir";
+  print <<"EOM";
+bs_check_consistency:   check integrity of the buildservice data tree
+        --check-jobs        check consistency for $basedir/jobs
+        --check-db          check consistency for $basedir/db
+        --check-event       check consistency for $basedir/events
+        --check-worker      check consistency for $basedir/workers
+        --check-request     check consistency for $basedir/requests
+        --check-build       check consistency for $basedir/build
+                            (WARNING: takes very long)
+        --check-all         (all of the above)
+
+        --do-check-meta                     check content of .meta files (otherwise ignored for speed)
+        --do-check-signatures               check signatures of .rpm files (otherwise just the magic is checked)
+        --do-check-project-build PROJECT    check build tree of one project
+
+        --do-check-package-source PROJECT PACKAGE   check source references of one package
+
+        --fix                               fix data which can be re-created, scheduler cold start needed
+        --forced-fix                        fix data by breaking data which can be manually fixed by admin
+
+not yet implemented:
+        --check-projects
+        --check-sources
+    no checking yet for .deb files
+EOM
+    exit $rc;
 }
 
-while (@ARGV) {
-  my $arg = shift @ARGV;
-  if ($arg eq "--help") {
-	usage();
-	exit(0);
-  } elsif ($arg eq "--check-jobs") {
-	$check_jobs = 1;
-  } elsif ($arg eq "--check-db") {
-	$check_db = 1;
-  } elsif ($arg eq "--check-event") {
-	$check_event = 1;
-  } elsif ($arg eq "--check-worker") {
-	$check_worker = 1;
-  } elsif ($arg eq "--check-build") {
-	$check_build = 1;
-  } elsif ($arg eq "--check-all") {
-	$check_jobs = 1;
-	$check_db = 1;
-	$check_event = 1;
-	$check_worker = 1;
-	$check_build = 1;
-  } elsif ($arg eq "--do-check-project-build") {
-	$check_build = 1;
-	$check_one_project = shift @ARGV;
-  } elsif ($arg eq "--do-check-package-source") {
-	$check_package_source = 1;
-	$check_one_project = shift @ARGV;
-	$check_one_package = shift @ARGV;
-  } elsif ($arg eq "--do-check-meta") {
-	$do_check_meta = 1;
-  } elsif ($arg eq "--do-check-signatures") {
-	$do_check_signatures = 1;
-  } elsif ($arg eq "--fix") {
-	$fix = 1;
-  } elsif ($arg eq "--forced-fix") {
-	$fix = 2;
-  } else {
-    usage();
-    exit 1;
-  }
+GetOptions(
+  'help|h'                       => \my $help,
+  'check-jobs'                   => \my $check_jobs,
+  'check-db'                     => \my $check_db,
+  'check-event'                  => \my $check_event,
+  'check-worker'                 => \my $check_worker,
+  'check-build'                  => \my $check_build,
+  'check-all'                    => \my $check_all,
+  'do-check-project-build=s'     => \my $check_project_build,
+  'do-check-package-source=s{2}' => \my @check_package_source,
+  'do-check-meta'                => \my $do_check_meta,
+  'do-check-signatures'          => \my $do_check_signatures,
+  'fix'                          => \my $fix,
+  'forced-fix'                   => \my $forced_fix,
+) or usage(1);
+
+if ($help) {
+  usage(0);
 }
 
-unless ($check_jobs || $check_db || $check_event || $check_worker || $check_build || $check_package_source) {
-  usage();
-  exit 1;
+my $check_one_project = "";
+my $check_one_package = "";
+
+# $fix: undef|1=soft|2=hard
+if ($forced_fix) {
+  $fix = 2;
+}
+if ($check_all) {
+  $check_jobs = 1;
+  $check_db = 1;
+  $check_event = 1;
+  $check_worker = 1;
+  $check_build = 1;
+}
+if ($check_project_build) {
+  $check_build = 1;
+  $check_one_project = $check_project_build;
+}
+if (@check_package_source) {
+  ($check_one_project, $check_one_package) = @check_package_source;
+}
+
+unless ($check_jobs || $check_db || $check_event || $check_worker || $check_build || @check_package_source) {
+  usage(1);
 }
 
 # to drop files which can be recreated
@@ -310,10 +299,10 @@ my $requestsroot = "$BSConfig::bsdir/requests";
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 my $eventlay = [qw{number time type project package repository arch}];
 
-if (-d $projectsdir && $check_package_source) {
+if (-d $projectsdir && @check_package_source) {
   my $metafile;
   eval {
-    $file = readxml("$projectsdir/$check_one_project.pkg/$check_one_package.xml",$BSXML::pack,0);
+    my $file = readxml("$projectsdir/$check_one_project.pkg/$check_one_package.xml",$BSXML::pack,0);
   } || warn ("ERROR: package meta of check_one_project/$check_one_package is not parseable");
 
   for my $suffix ("rev","mrev","rev.del","mrev.del") {
@@ -365,17 +354,18 @@ if (-d $jobsroot && $check_jobs) {
       } elsif ($file =~ /:dir$/) {
 	warn ("ERROR: $jobsdir/$file is not a directory") unless -d "$jobsdir/$file";
 	my $curjob = "$jobsdir/$file";
-	opendir (JOB,$curjob);
-	my @jfile_a = readdir(JOB);
-        closedir(JOB);
+	opendir my $dh, $curjob or die $!;
+	my @jfile_a = readdir $dh;
+        closedir $dh;
         for my $jfile (sort(@jfile_a)) {
 	  next if ($jfile =~ /^\./);
           if ($jfile = "meta" && -f "$curjob/$jfile") {
-	    open(META,"$curjob/$jfile");
-            while (<META>) {
-	      warnORremove("$curjob/$jfile", "broken entry $_") unless /^[0-9a-f]{32}  ..*$/;
-	    }
-            close (META);
+	    if (open my $fh,"$curjob/$jfile") {
+              while (<$fh>) {
+                warnORremove("$curjob/$jfile", "broken entry $_") unless /^[0-9a-f]{32}  ..*$/;
+              }
+              close $fh
+            }
 	  }
 	}
       } else {
@@ -402,7 +392,7 @@ if (-d "$dbroot" && $check_db) {
       } else {
 	warn "ERROR: $dbroot/$dbdir is not a directory";
       }
-      my $progress;
+      my $progress = '';
       opendir (DBP, "$dbroot/$dbdir");
       while (my $dbp = readdir(DBP)) {
 	next if $dbp =~ /^\./;
@@ -488,7 +478,7 @@ if (-d "$workersroot" && $check_worker) {
       warn ("ERROR: $workersroot/$wrk strange directory entry");
     }
   }
-  closedir(EVT);
+  closedir(WRK);
 }
 
 if (-d "$buildroot" && $check_build) {
