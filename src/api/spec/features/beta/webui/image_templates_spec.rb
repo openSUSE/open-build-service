@@ -25,7 +25,7 @@ RSpec.describe 'ImageTemplatesBeta', type: :feature, js: true do
 
       login(user)
       visit project_show_path(user.home_project)
-      click_menu_link('Actions', 'New Image')
+      desktop? ? click_link('New Image') : click_menu_link('Actions', 'New Image')
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)
@@ -55,7 +55,7 @@ RSpec.describe 'ImageTemplatesBeta', type: :feature, js: true do
 
       login(user)
       visit project_show_path(user.home_project)
-      click_menu_link('Actions', 'New Image')
+      click_link('New Image')
 
       expect(page).to have_text(package1.title)
       expect(page).to have_selector("input[data-package='#{package1}']:checked", visible: :hidden)

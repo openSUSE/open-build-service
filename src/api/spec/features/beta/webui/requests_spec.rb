@@ -65,7 +65,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit project_show_path(project: target_project)
-        click_menu_link('Actions', 'Request Role Addition')
+        desktop? ? click_link('Request Role Addition') : click_menu_link('Actions', 'Request Role Addition')
         choose 'Bugowner'
         choose 'Group'
         fill_in 'Group:', with: roleaddition_group.title
@@ -101,7 +101,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
-        click_menu_link('Actions', 'Request Role Addition')
+        desktop? ? click_link('Request Role Addition') : click_menu_link('Actions', 'Request Role Addition')
         choose 'Maintainer'
         choose 'Group'
         fill_in 'Group:', with: roleaddition_group.title
@@ -130,7 +130,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit project_show_path(project: target_project)
-        click_menu_link('Actions', 'Request Role Addition')
+        desktop? ? click_link('Request Role Addition') : click_menu_link('Actions', 'Request Role Addition')
         choose 'Bugowner'
         choose 'User'
         fill_in 'User:', with: "#{submitter.login}"
@@ -165,7 +165,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'can be submitted' do
         login submitter
         visit package_show_path(project: target_project, package: target_package)
-        click_menu_link('Actions', 'Request Role Addition')
+        desktop? ? click_link('Request Role Addition') : click_menu_link('Actions', 'Request Role Addition')
         choose 'Maintainer'
         choose 'User'
         fill_in 'User:', with: submitter.login

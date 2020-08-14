@@ -1,0 +1,96 @@
+.flash-and-announcement.sticky-top { top: $top-navigation-height + .25rem; }
+
+// Place CodeMirror editor header under the top navigation
+#top_0.sticky-top { top: $top-navigation-height; }
+
+// NAVIGATION
+
+#top-navigation-area {
+  .fixed-top { height: $top-navigation-height; }
+  .toggler {
+    @extend .ml-2;
+    @extend .d-none;
+    @extend .d-xl-flex;
+    @extend .align-items-center;
+    cursor: pointer;
+    &.text-center { min-width: 3.875rem; }
+    &:first-of-type { @extend .ml-3;  }
+  }
+
+  .nav .nav-link {
+    color: $gray-300;
+    &:hover { color: white; }
+  }
+
+  .menu-options { font-size: 1.1rem }
+
+  .navbar-brand img { height: 1.875rem; }
+}
+
+#top-navigation-area, #bottom-navigation-area {
+  a.nav-link {
+    span.d-block { line-height: 1rem; }
+
+    &.active {
+      background-color: darken($dark, 10%);
+      @extend .rounded;
+    }
+  }
+}
+
+// BREADCRUMBS
+
+.breadcrumb {
+  padding-bottom: 0;
+  @extend .mt-2;
+  .breadcrumb-item {
+    display: block;
+    line-height: 1.5rem;
+  }
+  .breadcrumb-item::after {
+    display: inline-block;
+    padding: 0 0.5rem 0 0.25rem;
+    color: #6c757d;
+    content: "/";
+  }
+  .breadcrumb-item:last-child::after { content: ''; }
+  .breadcrumb-item + .breadcrumb-item { padding-left: 0; }
+
+  // FIXME: This could be done overriding the variable $breadcrumb-divider: none;
+  .breadcrumb-item + .breadcrumb-item::before { display: none; }
+}
+
+// LOG IN AND SIGN UP
+
+.access-modal {
+  background-color: #00000080;
+  .close { cursor: pointer; }
+  .login-separator {
+    position: relative;
+    span {
+      position: absolute;
+      top: -.7rem;
+      left: 50%;
+      padding: 0 .5rem;
+      margin-left: -1.5rem;
+    }
+  }
+}
+
+// FOOTER
+
+#footer {
+  strong { color: $gray-700; }
+
+  & a {
+    color: $gray-700;
+    &:hover { color: $gray-900; }
+  }
+
+  li { @extend .my-2; }
+
+  #footer-legal {
+    font-size: .9rem;
+    p { color: $gray-700; }
+  }
+}

@@ -2,7 +2,7 @@
 # Likewise, all the methods added will be available for all controllers.
 
 class Webui::WebuiController < ActionController::Base
-  layout 'webui/webui'
+  layout :select_layout
 
   helper_method :valid_xml_id
 
@@ -187,6 +187,10 @@ class Webui::WebuiController < ActionController::Base
   end
 
   private
+
+  def select_layout
+    Flipper.enabled?(:responsive_ux, User.possibly_nobody) ? 'webui/responsive_ux' : 'webui/webui'
+  end
 
   def send_login_information_rabbitmq(msg)
     message_mapping = { success: 'login,access_point=webui value=1',

@@ -1,58 +1,12 @@
 // Variables
 // TODO: move to app/assets/stylesheets/webui/bootstrap_variables/sizes.scss
-$top-bar-height: 3.5625rem;
-$bottom-bar-height: 3.5rem;
+$top-navigation-height: 3.5625rem;
+$bottom-navigation-height: 3.5rem;
+$left-navigation-width: 16rem;
 
-body.responsive-ux {
-  // open space to not overlap top navigation with content
-  padding-top: 3.5rem !important;
-
-  @import 'layout';
-  @import 'build-result';
-  @import 'sponsors';
-  @import 'tabs';
-
-  .build-results .sticky-top { top: $top-bar-height; }
-  #log-space-wrapper #log-info.position-sticky { top: $top-bar-height; }
-}
-
-// FIXME: move to somewhere else?
-
-@include media-breakpoint-up(md) {
-
-  body.responsive-ux {
-    // START LAYOUT
-    .watchlist-collapse, .offcanvas-collapse, .actions-collapse {
-      bottom: 0;
-      width: 23.75rem;
-
-      .navbar-nav {
-        width: 100%;
-        padding-top: 1rem;
-        margin-left: 0 !important;
-        -webkit-box-orient: vertical;
-        flex-direction: column;
-        align-self: flex-start;
-      }
-      .navbar-toggler { display: none; }
-    }
-
-    #footer {
-      .footer-logged { padding-bottom: 0; }
-    }
-    // END LAYOUT
-
-    .build-info .triangle {
-      &.left { left: .25rem; }
-    }
-  }
-}
-
-@include media-breakpoint-between(sm, md) {
-  body.responsive-ux {
-    .build-info .triangle {
-      &.center { margin-left: calc(38% + .75rem); }
-      &.left { left: .5rem; }
-    }
-  }
-}
+@import 'build-result';
+@import 'grid';
+@import 'layout';
+@import 'navbar';
+@import 'sponsors';
+@import 'tabs';

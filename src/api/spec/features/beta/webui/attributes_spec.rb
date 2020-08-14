@@ -40,7 +40,7 @@ RSpec.describe 'Attributes', type: :feature, js: true do
         login user
 
         visit index_attribs_path(project: user.home_project_name)
-        click_menu_link('Actions', 'Add Attribute')
+        desktop? ? click_link('Add Attribute') : click_menu_link('Actions', 'Add Attribute')
         find('select#attrib_attrib_type_id').select('OBS:VeryImportantProject')
         click_button('Add')
         expect(page).to have_content('Sorry, you are not authorized to create this Attrib.')

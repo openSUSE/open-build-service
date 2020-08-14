@@ -1,5 +1,9 @@
 .toggle-build-info { cursor: pointer; }
-.toggle-build-info-parent{ z-index: 2; }
+.toggle-build-info-parent { z-index: 2; }
+
+.build-results .sticky-top, #log-space-wrapper #log-info.position-sticky {
+  top: $top-navigation-height;
+}
 
 .build-info {
   @extend .d-flex;
@@ -11,7 +15,7 @@
   font-size: 90%;
   transition: max-height .3s 0s ease-in-out, margin-bottom .1s .1s linear;
 
-  .triangle{
+  .triangle {
     position: absolute;
     width: 0;
     height: 0;
@@ -49,5 +53,16 @@
       top: -.5rem;
       opacity: 1;
     }
+  }
+}
+
+@include media-breakpoint-up(md) {
+  .build-info .triangle.left { left: .25rem; }
+}
+
+@include media-breakpoint-between(sm, md) {
+  .build-info .triangle {
+    &.center { margin-left: calc(38% + .75rem); }
+    &.left { left: .5rem; }
   }
 }

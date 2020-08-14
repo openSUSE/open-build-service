@@ -6,7 +6,7 @@
 
     - if params[:project]
       .nav-item.pb-2.mb-4.border-bottom.border-gray-500
-        .h6.text-word-break-all Project #{params[:project]}
+        .h6.text-word-break-all.text-light Project #{params[:project]}
         %a.nav-link#toggle-watch{ href: project_toggle_watch_path(params[:project]) }
           - if User.session!.watches? params[:project]
             %p.mb-0.text-light
@@ -17,7 +17,7 @@
               %i.fas.fa-plus-circle
               %span Watch this project
 
-    .h5.pt-2 Projects you are watching
+    %h5.pt-2.text-light Projects you are watching
 
     .list-group.list-group-flush
       - User.session!.watched_project_names.each do |project|

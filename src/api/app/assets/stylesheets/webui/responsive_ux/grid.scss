@@ -1,0 +1,58 @@
+#grid {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 100%;
+  grid-template-rows: $top-navigation-height auto $bottom-navigation-height;
+  grid-template-areas:
+    'top-navigation'
+    'content'
+    'bottom-navigation';
+
+  #top-navigation-area {
+    grid-area: top-navigation;
+  }
+
+  #content-area {
+    grid-area: content;
+  }
+
+  #bottom-navigation-area {
+    grid-area: bottom-navigation;
+  }
+
+  #left-navigation-area {
+    display: none;
+  }
+}
+
+@include media-breakpoint-up(xl) {
+  #grid {
+    grid-template-columns: $left-navigation-width auto;
+    grid-template-rows: $top-navigation-height auto;
+    grid-template-areas:
+      'top-navigation top-navigation'
+      'left-navigation content';
+
+    #left-navigation-area {
+      grid-area: left-navigation;
+      display: block;
+
+      #left-navigation {
+        position: fixed;
+        top: $top-navigation-height;
+        left: 0;
+
+        & a {
+          color: $gray-300;
+          width: $left-navigation-width;
+          white-space: normal !important;
+          &:hover { color: white; }
+        }
+      }
+    }
+
+    #bottom-navigation-area {
+      display: none;
+    }
+  }
+}

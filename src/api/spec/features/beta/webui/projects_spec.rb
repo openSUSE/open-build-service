@@ -28,7 +28,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     login user
     visit project_show_path(project: project)
 
-    click_menu_link('Actions', 'Edit Project')
+    desktop? ? click_link('Edit Project') : click_menu_link('Actions', 'Edit Project')
     expect(page).to have_text("Edit Project #{project}")
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
@@ -47,7 +47,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       click_link('Subprojects')
 
       expect(page).to have_text('This project has no subprojects')
-      click_menu_link('Actions', 'Create Subproject')
+      desktop? ? click_link('Create Subproject') : click_menu_link('Actions', 'Create Subproject')
       fill_in 'project_name', with: 'coolstuff'
       click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
@@ -67,7 +67,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     end
 
     it 'unlock' do
-      click_menu_link('Actions', 'Unlock Project')
+      desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content('Successfully unlocked project')
@@ -79,7 +79,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     it 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
-      click_menu_link('Actions', 'Unlock Project')
+      desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content("Project can't be unlocked")
@@ -96,7 +96,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project)
-      click_menu_link('Actions', 'Branch Package')
+      desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
     end
 
     it 'an existing package' do
@@ -139,7 +139,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       visit project_show_path(project)
 
       click_link('Attributes')
-      click_menu_link('Actions', 'Add Attribute')
+      desktop? ? click_link('Add Attribute') : click_menu_link('Actions', 'Add Attribute')
       select('OBS:MaintenanceProject')
       click_button('Add')
 

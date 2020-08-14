@@ -346,7 +346,6 @@ module Webui::WebuiHelper
 
   def feature_css_class
     css_classes = []
-    css_classes << 'responsive-ux' if feature_enabled?(:responsive_ux)
     css_classes << 'notifications-redesign' if feature_enabled?(:notifications_redesign)
     css_classes.join(' ')
   end
@@ -386,7 +385,7 @@ module Webui::WebuiHelper
     if css_class && css_class.include?('nav-link')
       capture do
         concat(tag.i('', class: "fas #{icon}"))
-        concat(tag.div(text, class: 'small'))
+        concat(tag.div(text, class: feature_enabled?(:responsive_ux) ? '' : 'small'))
       end
     else
       text
