@@ -4,7 +4,7 @@ class Webui::MainController < Webui::WebuiController
   skip_before_action :check_anonymous, only: [:index]
 
   def index
-    @status_messages = StatusMessage.order('created_at DESC').where(communication_scope: StatusMessage.communication_scopes_for_current_user).includes(:user).limit(4)
+    @status_messages = StatusMessage.newest.for_current_user.includes(:user).limit(4)
     @workerstatus = Rails.cache.fetch('workerstatus_hash', expires_in: 10.minutes) do
       Xmlhash.parse(WorkerStatus.hidden.to_xml)
     end

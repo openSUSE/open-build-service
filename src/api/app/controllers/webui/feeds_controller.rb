@@ -5,7 +5,7 @@ class Webui::FeedsController < Webui::WebuiController
   before_action :set_project, only: [:commits]
 
   def news
-    @news = StatusMessage.order('created_at DESC').includes(:user).limit(5)
+    @news = StatusMessage.newest.for_current_user.includes(:user).limit(5)
   end
 
   def latest_updates

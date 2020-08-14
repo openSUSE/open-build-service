@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Webui::FeedsController do
-  let!(:project) { create(:project) }
-  let!(:commit) { create(:project_log_entry, project: project) }
-  let!(:old_commit) { create(:project_log_entry, project: project, datetime: 'Tue, 09 Feb 2015') }
+  let(:project) { create(:project) }
+  let(:commit) { create(:project_log_entry, project: project) }
+  let(:old_commit) { create(:project_log_entry, project: project, datetime: 'Tue, 09 Feb 2015') }
   let(:admin_user) { create(:admin_user) }
 
   describe 'GET commits' do
@@ -42,20 +42,41 @@ RSpec.describe Webui::FeedsController do
   end
 
   describe 'GET news' do
-    before do
-      (1..5).each do |n|
-        create(:status_message, message: "message #{n}", user: admin_user)
-        # Make sure created_at timestamps differ
-        Timecop.travel(1.second)
+    context 'when having status messages for admins only' do
+      context 'and the user checking the messages is the admin' do # rubocop:todo RSpec/NestedGroups
+        before do
+          (1..5).each do |n|
+            create(:status_message, message: "message #{n}", user: admin_user)
+            # Make sure created_at timestamps differ
+            Timecop.travel(1.second)
+          end
+
+          get :news, params: { project: project, format: 'rss' }
+        end
+
+        it 'provides a rss feed' do
+          expect(response).to have_http_status(:success)
+          expect(assigns(:news).map(&:message)).to match_array(['message 1', 'message 2', 'message 3', 'message 4', 'message 5'])
+          expect(response).to render_template('webui/feeds/news')
+        end
       end
 
-      get :news, params: { project: project, format: 'rss' }
-    end
+      context 'and the user checking the messages is not the admin' do # rubocop:todo RSpec/NestedGroups
+        let(:regular_user) { create(:confirmed_user) }
+        let(:status_message) { create(:status_message) }
+        let(:status_message_for_admins_only) { create(:status_message, :admins_only) }
 
-    it 'provides a rss feed' do
-      expect(response).to have_http_status(:success)
-      expect(assigns(:news).map(&:message)).to match_array(['message 1', 'message 2', 'message 3', 'message 4', 'message 5'])
-      expect(response).to render_template('webui/feeds/news')
+        before do
+          login regular_user
+          status_message
+          status_message_for_admins_only
+          get :news, params: { project: project, format: 'rss' }
+        end
+
+        it 'does not show any message' do
+          expect(assigns(:news)).to contain_exactly(status_message)
+        end
+      end
     end
   end
 
