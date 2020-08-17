@@ -4,9 +4,11 @@ $top-navigation-height: 3.5625rem;
 $bottom-navigation-height: 3.5rem;
 $left-navigation-width: 16rem;
 
-@import 'build-result';
-@import 'grid';
-@import 'layout';
-@import 'navbar';
-@import 'sponsors';
-@import 'tabs';
+body.responsive-ux {
+  @import 'build-result';
+  @import 'grid';
+  @import 'layout';
+  @import 'navbar';
+  @import 'sponsors';
+  @import 'tabs';
+}
