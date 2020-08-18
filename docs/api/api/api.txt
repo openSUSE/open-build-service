@@ -1308,7 +1308,7 @@ GET /worker/_status
 XmlResult: workerstatus
 
 
-GET /worker/<workerid>
+GET /worker/<hostarch>:<workerid>
 
   Lists all capabilities of the worker. Can be used for constraints
 
