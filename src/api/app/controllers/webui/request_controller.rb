@@ -257,27 +257,21 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_state(newstate, params)
-    request = BsRequest.find_by_number(params[:number])
-    if request.nil?
-      flash[:error] = 'Unable to load request'
-    else
-      # FIXME: make force optional, it hides warnings!
-      opts = {
-        newstate: newstate,
-        force: true,
-        user: User.session!.login,
-        comment: params[:reason]
-      }
-      begin
-        request.change_state(opts)
-        flash[:success] = "Request #{newstate}!"
-        return true
-      rescue APIError => e
-        flash[:error] = "Failed to change state: #{e.message}!"
-        return false
-      end
+    # FIXME: make force optional, it hides warnings!
+    opts = {
+      newstate: newstate,
+      force: true,
+      user: User.session!.login,
+      comment: params[:reason]
+    }
+    begin
+      @bs_request.change_state(opts)
+      flash[:success] = "Request #{newstate}!"
+      return true
+    rescue APIError => e
+      flash[:error] = "Failed to change state: #{e.message}!"
+      return false
     end
-
     false
   end
 
