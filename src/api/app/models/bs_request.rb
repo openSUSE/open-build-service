@@ -970,31 +970,6 @@ class BsRequest < ApplicationRecord
         target_package = Package.find_by_project_and_name(action[:tprj], action[:tpkg])
         action[:creator_is_target_maintainer] = true if creator.has_local_role?(Role.hashed['maintainer'], target_package)
 
-        if target_package
-          linkinfo = target_package.linkinfo
-          target_package.developed_packages.each do |dev_pkg|
-            action[:forward] ||= []
-            action[:forward] << { project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
-          end
-          if linkinfo
-            lprj = linkinfo['project']
-            lpkg = linkinfo['package']
-            link_is_already_devel = false
-            if action[:forward]
-              action[:forward].each do |forward|
-                if forward[:project] == lprj && forward[:package] == lpkg
-                  link_is_already_devel = true
-                  break
-                end
-              end
-            end
-            unless link_is_already_devel
-              action[:forward] ||= []
-              action[:forward] << { project: linkinfo['project'], package: linkinfo['package'], type: 'link' }
-            end
-          end
-        end
-
       when :delete then
         if action[:tpkg]
           action[:name] = "Delete #{action[:tpkg]}"
@@ -1047,27 +1022,6 @@ class BsRequest < ApplicationRecord
 
     oldactions.each { |a| bs_request_actions.destroy(a) }
     newactions.each { |a| bs_request_actions << a }
-  end
-
-  def forward_to(project:, package: nil, options: {})
-    new_request = BsRequest.new(description: options[:description])
-    BsRequest.transaction do
-      bs_request_actions.where(type: 'submit').find_each do |action|
-        rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
-
-        opts = { source_project: action.target_project,
-                 source_package: action.target_package,
-                 source_rev: rev,
-                 target_project: project,
-                 target_package: package,
-                 type: action.type }
-        new_request.bs_request_actions.build(opts)
-
-        new_request.save!
-      end
-    end
-
-    new_request
   end
 
   def required_checks
