@@ -56,3 +56,13 @@
     }
   }
 }
+
+@include media-breakpoint-up(xl) {
+  .navbar-dark.navbar-collapse {
+    &.watchlist-collapse, &.places-collapse, &.actions-collapse {
+      bottom: 0;
+
+      button.navbar-toggler { display: none; }
+    }
+  }
+}
