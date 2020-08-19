@@ -70,7 +70,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_sanity
-    if action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
+    if action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release, :change_devel])
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
       unless is_maintenance_incident?
         errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
@@ -96,6 +96,10 @@ class BsRequestAction < ApplicationRecord
 
   # convenience functions to check types
   def is_submit?
+    false
+  end
+
+  def is_release?
     false
   end
 
@@ -189,11 +193,12 @@ class BsRequestAction < ApplicationRecord
   def render_xml_target(node)
     attributes = xml_package_attributes('target')
     attributes[:releaseproject] = target_releaseproject if target_releaseproject.present?
+    attributes[:repository] = target_repository if target_repository.present?
     node.target(attributes)
   end
 
   def render_xml_attributes(node)
-    return unless action_type.in?([:submit, :maintenance_incident, :maintenance_release, :change_devel])
+    return unless action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release, :change_devel])
 
     render_xml_source(node)
     render_xml_target(node)
@@ -464,7 +469,7 @@ class BsRequestAction < ApplicationRecord
 
       # overwrite target if defined
       tprj = Project.get_by_name(target_project) if target_project
-      raise UnknownTargetProject unless tprj || is_maintenance_release?
+      raise UnknownTargetProject unless tprj || is_maintenance_release? || is_release?
 
       # do not allow release requests without binaries
       if is_maintenance_release? && pkg.is_patchinfo? && data && !opts[:ignore_build_state]
@@ -525,7 +530,7 @@ class BsRequestAction < ApplicationRecord
         # check if the main package container exists in target.
         # take into account that an additional local link with spec file might got added
         unless data_linkinfo && tprj && tprj.exists_package?(ltpkg, follow_project_links: true, allow_remote_packages: false)
-          if is_maintenance_release?
+          if is_maintenance_release? || is_release?
             pkg.project.repositories.includes(:release_targets).find_each do |repo|
               repo.release_targets.each do |rt|
                 new_targets << rt.target_repository.project
@@ -549,7 +554,7 @@ class BsRequestAction < ApplicationRecord
         new_action.target_package = tpkg + incident_suffix
       end
       new_action.source_rev = rev if rev
-      if is_maintenance_release?
+      if is_maintenance_release? || is_release?
         if pkg.is_channel?
 
           # create submit request for possible changes in the _channel file
@@ -594,13 +599,30 @@ class BsRequestAction < ApplicationRecord
         # skip if there is no active maintenance trigger for this package
         next if is_maintenance_release? && !has_matching_target?(pkg.project, new_target_project)
 
-        new_action = dup
-        new_action.source_package = pkg.name
-        unless is_maintenance_incident?
-          new_action.target_project = new_target_project
-          new_action.target_package = pkg.name + incident_suffix
+        if is_release?
+          # unfiltered release actions got to all release targets in addition
+          pkg.project.repositories.includes(:release_targets).find_each do |repo|
+            repo.release_targets.each do |rt|
+              next unless rt.trigger == 'manual'
+
+              new_action = dup
+              new_action.source_project = pkg.project.name
+              new_action.source_package = pkg.name
+              new_action.target_project = new_target_project
+              new_action.target_package = pkg.name
+              new_action.target_repository = rt.target_repository.name
+              newactions << new_action
+            end
+          end
+        else
+          new_action = dup
+          new_action.source_package = pkg.name
+          unless is_maintenance_incident?
+            new_action.target_project = new_target_project
+            new_action.target_package = pkg.name + incident_suffix
+          end
+          newactions << new_action
         end
-        newactions << new_action
       end
     end
 
@@ -635,7 +657,7 @@ class BsRequestAction < ApplicationRecord
       if action_type == :add_role
         raise UnknownRole, 'No role specified' unless role
       end
-    elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident])
+    elsif action_type.in?([:submit, :change_devel, :maintenance_release, :maintenance_incident, :release])
       # check existence of source
       unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
@@ -690,10 +712,9 @@ class BsRequestAction < ApplicationRecord
     end
 
     # complete in formation available already?
-    return if action_type == :submit && target_package
-    return if action_type == :maintenance_release && target_package
+    return if action_type.in?([:submit, :release, :maintenance_release]) && target_package
 
-    if action_type == :maintenance_incident && target_releaseproject && source_package
+    if action_type.in?([:release, :maintenance_incident]) && target_releaseproject && source_package
       pkg = Package.get_by_project_and_name(source_project, source_package)
       prj = Project.get_by_name(target_releaseproject).update_instance
       self.target_releaseproject = prj.name
@@ -701,7 +722,7 @@ class BsRequestAction < ApplicationRecord
       return
     end
 
-    if action_type.in?([:submit, :maintenance_release, :maintenance_incident])
+    if action_type.in?([:submit, :release, :maintenance_release, :maintenance_incident])
       packages = []
       per_package_locking = false
       if source_package
@@ -770,7 +791,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def check_for_expand_errors!(add_revision)
-    return unless action_type.in?([:submit, :maintenance_incident, :maintenance_release])
+    return unless action_type.in?([:submit, :release, :maintenance_incident, :maintenance_release])
 
     # validate that the sources are not broken
     begin

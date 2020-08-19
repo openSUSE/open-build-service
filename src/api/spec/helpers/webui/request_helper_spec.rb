@@ -179,7 +179,7 @@ RSpec.describe Webui::RequestHelper do
 
     context 'when action is :maintenance_release' do
       let(:expected_regex) do
-        Regexp.new("Release package .*#{source_package.project}.* / .*#{source_package}.* to package " \
+        Regexp.new("Maintenance release package .*#{source_package.project}.* / .*#{source_package}.* to package " \
                    ".*#{target_package.project}.* / .*#{target_package}.* ")
       end
 

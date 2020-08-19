@@ -64,7 +64,8 @@
           <value>set_bugowner</value>
           <value>maintenance_incident</value>
           <value>maintenance_release</value>
-          <value>group</value>
+          <value>release</value>
+          <value>group</value> <!-- should not be used anymore -->
         </choice>
       </attribute>
       <interleave>
