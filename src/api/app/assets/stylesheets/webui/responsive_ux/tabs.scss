@@ -17,11 +17,3 @@
     }
   }
 }
-
-@include media-breakpoint-up(xl) {
-  // This prevents tabs from breaking the layout by overflowing outside the viewport
-  .scrollable-tabs {
-    // 2rem is the sum of the left and right padding for the scrollable tabs
-    max-width: calc(100vw - (#{$left-navigation-width} + 2rem));
-  }
-}
