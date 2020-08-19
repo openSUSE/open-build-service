@@ -6,9 +6,7 @@ if ENV['CIRCLECI']
   require 'support/coverage'
 end
 # to clean old unused cassettes
-if ENV['CLEAN_UNUSED_CASSETTES']
-  require 'cassette_rewinder'
-end
+require 'cassette_rewinder' if ENV['CLEAN_UNUSED_CASSETTES']
 
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../config/environment', __dir__)

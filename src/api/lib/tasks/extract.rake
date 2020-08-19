@@ -126,12 +126,8 @@ namespace :db do
             end
           end
           if table_name == 'taggings'
-            if record['taggable_type'] == 'Project'
-              record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.tr(':', '_'))
-            end
-            if record['taggable_type'] == 'Package'
-              record['taggable_id'] = ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name)
-            end
+            record['taggable_id'] = ActiveRecord::FixtureSet.identify(Project.find(record['taggable_id']).name.tr(':', '_')) if record['taggable_type'] == 'Project'
+            record['taggable_id'] = ActiveRecord::FixtureSet.identify(Package.find(record['taggable_id']).fixtures_name) if record['taggable_type'] == 'Package'
           end
 
           if table_name == 'distributions'
@@ -143,19 +139,13 @@ namespace :db do
           key = idtokey[id]
           key = nil if key == defaultkey
 
-          if table_name == 'roles_users'
-            defaultkey = "#{record['user']}_#{record['role']}"
-          end
-          if table_name == 'roles_static_permissions'
-            defaultkey = "#{record['role']}_#{record['static_permission']}"
-          end
+          defaultkey = "#{record['user']}_#{record['role']}" if table_name == 'roles_users'
+          defaultkey = "#{record['role']}_#{record['static_permission']}" if table_name == 'roles_static_permissions'
           if table_name == 'projects' || table_name == 'architectures'
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
-          if ['static_permissions', 'packages'].include?(table_name)
-            key = classname.find(record.delete(primary)).fixtures_name
-          end
+          key = classname.find(record.delete(primary)).fixtures_name if ['static_permissions', 'packages'].include?(table_name)
           defaultkey = record['package'] if table_name == 'backend_packages'
           if ['event_subscriptions', 'ratings', 'package_kinds', 'package_issues',
               'linked_db_projects', 'relationships', 'watched_projects', 'path_elements',

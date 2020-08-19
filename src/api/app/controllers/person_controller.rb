@@ -180,9 +180,7 @@ class PersonController < ApplicationController
     status = xml.elements['/unregisteredperson/state'].text if xml.elements['/unregisteredperson/status']
 
     if authenticator.proxy_mode?
-      if request.env['HTTP_X_USERNAME'].blank?
-        raise ErrRegisterSave, 'Missing iChain header'
-      end
+      raise ErrRegisterSave, 'Missing iChain header' if request.env['HTTP_X_USERNAME'].blank?
 
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?

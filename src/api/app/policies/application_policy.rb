@@ -2,9 +2,7 @@ class ApplicationPolicy
   attr_reader :user, :record
 
   def initialize(user, record, opts = {})
-    unless user || opts[:user_optional]
-      raise Pundit::NotAuthorizedError, 'must be logged in'
-    end
+    raise Pundit::NotAuthorizedError, 'must be logged in' unless user || opts[:user_optional]
     raise Pundit::NotAuthorizedError, 'record does not exist' unless record
 
     @user = user

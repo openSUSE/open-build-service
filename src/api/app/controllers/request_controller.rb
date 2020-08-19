@@ -59,9 +59,7 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def global_command
-    unless params[:cmd] == 'create'
-      raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}"
-    end
+    raise UnknownCommandError, "Unknown command '#{params[:cmd]}' for path #{request.path}" unless params[:cmd] == 'create'
 
     # refuse request creation for anonymous users
     require_login
@@ -174,9 +172,7 @@ class RequestController < ApplicationController
     end
 
     diff_text = ''
-    if params[:view] == 'xml'
-      xml_request = Nokogiri::XML("<request id='#{req.number}'/>", &:strict).root
-    end
+    xml_request = Nokogiri::XML("<request id='#{req.number}'/>", &:strict).root if params[:view] == 'xml'
 
     req.bs_request_actions.each do |action|
       withissues = params[:withissues].to_s.in?(['1', 'true'])

@@ -50,14 +50,10 @@ module Suse
       if package.is_a?(Package)
         pkg = package
       else
-        if project.nil?
-          raise 'autofetch of project only works with objects of class Package'
-        end
+        raise 'autofetch of project only works with objects of class Package' if project.nil?
 
         pkg = Package.find_by_project_and_name(project, package)
-        if pkg.nil?
-          raise ArgumentError, "unable to find package object for #{project} / #{package}"
-        end
+        raise ArgumentError, "unable to find package object for #{project} / #{package}" if pkg.nil?
       end
 
       return true if @user.can_modify?(pkg)

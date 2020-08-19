@@ -66,17 +66,13 @@ end
 
 def backend_config
   backend_dir_suffix = ''
-  if ENV['origin_RAILS_ENV'] == 'development'
-    backend_dir_suffix = '_development'
-  end
+  backend_dir_suffix = '_development' if ENV['origin_RAILS_ENV'] == 'development'
   "#{ENV['OBS_BACKEND_TEMP']}/config#{backend_dir_suffix}"
 end
 
 def backend_data
   backend_dir_suffix = ''
-  if ENV['origin_RAILS_ENV'] == 'development'
-    backend_dir_suffix = '_development'
-  end
+  backend_dir_suffix = '_development' if ENV['origin_RAILS_ENV'] == 'development'
   "#{ENV['OBS_BACKEND_TEMP']}/data#{backend_dir_suffix}"
 end
 
@@ -156,9 +152,7 @@ module ActionDispatch
     class Session
       def add_auth(headers)
         headers = {} if headers.nil?
-        if !headers.key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
-          headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth
-        end
+        headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth if !headers.key?('HTTP_AUTHORIZATION') && IntegrationTest.basic_auth
 
         headers
       end
@@ -213,9 +207,7 @@ module Webui
       visit opts[:to] if opts[:to]
 
       @current_user = user
-      if opts[:do_assert] != false
-        assert_match %r{^#{user}( |$)}, find(:css, '#link-to-user-home').text
-      end
+      assert_match %r{^#{user}( |$)}, find(:css, '#link-to-user-home').text if opts[:do_assert] != false
       # login into API to ease test cases
       prepare_request_with_user(user, password)
     end

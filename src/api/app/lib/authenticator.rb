@@ -48,9 +48,7 @@ class Authenticator
       @http_user = User.find_with_credentials(@login, @passwd) if @login && @passwd
     end
 
-    if !@http_user && session[:login]
-      @http_user = User.find_by_login(session[:login])
-    end
+    @http_user = User.find_by_login(session[:login]) if !@http_user && session[:login]
 
     check_extracted_user
   end
@@ -69,11 +67,7 @@ class Authenticator
   # For this rare special operations we simply skip the require login before filter!
   # At the moment these operations are the /public, /trigger and /about controller actions.
   def require_login
-    # rubocop:disable Style/GuardClause
-    unless User.session
-      raise AnonymousUser, 'Anonymous user is not allowed here - please login'
-    end
-    # rubocop:enable Style/GuardClause
+    raise AnonymousUser, 'Anonymous user is not allowed here - please login' unless User.session
   end
 
   def require_admin
@@ -100,13 +94,9 @@ class Authenticator
   def initialize_krb_session
     principal = CONFIG['kerberos_service_principal']
 
-    if principal.blank?
-      raise AuthenticationRequiredError, 'Kerberos configuration is broken. Principal is empty.'
-    end
+    raise AuthenticationRequiredError, 'Kerberos configuration is broken. Principal is empty.' if principal.blank?
 
-    unless CONFIG['kerberos_realm']
-      CONFIG['kerberos_realm'] = principal.rpartition('@')[2]
-    end
+    CONFIG['kerberos_realm'] = principal.rpartition('@')[2] unless CONFIG['kerberos_realm']
 
     krb = GSSAPI::Simple.new(
       principal.partition('/')[2].rpartition('@')[0],
@@ -138,9 +128,7 @@ class Authenticator
         raise_and_invalidate(authorization, 'Received invalid GSSAPI context.')
       end
 
-      unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
-        raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.')
-      end
+      raise_and_invalidate(authorization, 'User authenticated in wrong Kerberos realm.') unless krb.display_name.match?("@#{CONFIG['kerberos_realm']}$")
 
       unless tok == true
         tok = Base64.strict_encode64(tok)

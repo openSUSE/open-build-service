@@ -407,9 +407,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
         login other_user
         visit project_show_path(project: global_project)
         # TODO: Remove `if` once responsive_ux is out of beta.
-        if page.has_link?('Actions')
-          click_link('Actions')
-        end
+        click_link('Actions') if page.has_link?('Actions')
         expect(page).not_to have_link('Create package')
 
         # Use direct path instead

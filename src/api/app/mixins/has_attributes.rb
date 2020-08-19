@@ -58,9 +58,7 @@ module HasAttributes
   def find_attribute(namespace, name, binary = nil)
     raise AttributeFindError, 'Namespace must be given' unless namespace
     raise AttributeFindError, 'Name must be given' unless name
-    if is_a?(Project) && binary
-      raise AttributeFindError, 'binary packages are not allowed in project attributes'
-    end
+    raise AttributeFindError, 'binary packages are not allowed in project attributes' if is_a?(Project) && binary
 
     query = attribs.joins(attrib_type: :attrib_namespace)
     query = query.where(attrib_types: { name: name },

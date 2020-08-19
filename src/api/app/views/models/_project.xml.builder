@@ -48,9 +48,7 @@ xml.project(project_attributes) do
         params[:trigger] = rt.trigger if rt.trigger.present?
         xml_repository.releasetarget(params)
       end
-      if repo.hostsystem
-        xml_repository.hostsystem(project: repo.hostsystem.project.name, repository: repo.hostsystem.name)
-      end
+      xml_repository.hostsystem(project: repo.hostsystem.project.name, repository: repo.hostsystem.name) if repo.hostsystem
       repo.path_elements.includes(:link).each do |pe|
         if pe.link.remote_project_name.present?
           project_name = pe.link.project.name + ':' + pe.link.remote_project_name

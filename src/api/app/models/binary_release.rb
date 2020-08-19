@@ -104,9 +104,7 @@ class BinaryRelease < ApplicationRecord
         end
 
         # put a reference to the medium aka container
-        if binary['medium'].present?
-          hash[:on_medium] = medium_hash[binary['medium']]
-        end
+        hash[:on_medium] = medium_hash[binary['medium']] if binary['medium'].present?
 
         # new entry, also for modified binaries.
         entry = repository.binary_releases.create(hash)
@@ -176,9 +174,7 @@ class BinaryRelease < ApplicationRecord
                       package: medium_package.name)
       end
 
-      if product_medium
-        binary.product(product_medium.product.extend_id_hash(name: product_medium.product.name))
-      end
+      binary.product(product_medium.product.extend_id_hash(name: product_medium.product.name)) if product_medium
     end
     builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                               Nokogiri::XML::Node::SaveOptions::FORMAT)

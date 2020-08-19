@@ -292,7 +292,7 @@ Metrics/CyclomaticComplexity:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/node_matcher.rb'
 
-# Offense count: 928
+# Offense count: 913
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
 Metrics/MethodLength:
   Max: 227
@@ -1338,102 +1338,6 @@ Style/IdenticalConditionalBranches:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
 
-# Offense count: 274
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/architectures_controller.rb'
-    - 'app/controllers/attribute_controller.rb'
-    - 'app/controllers/build_controller.rb'
-    - 'app/controllers/issue_trackers_controller.rb'
-    - 'app/controllers/person/token_controller.rb'
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/request_controller.rb'
-    - 'app/controllers/source_attribute_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/source_project_controller.rb'
-    - 'app/controllers/source_project_package_meta_controller.rb'
-    - 'app/controllers/staging/workflows_controller.rb'
-    - 'app/controllers/webui/attribute_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/packages/files_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-    - 'app/controllers/webui/projects/status_controller.rb'
-    - 'app/controllers/webui/repositories_controller.rb'
-    - 'app/controllers/webui/search_controller.rb'
-    - 'app/controllers/webui/users/notifications_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-    - 'app/helpers/flag_helper.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/helpers/validation_helper.rb'
-    - 'app/helpers/webui/buildresult_helper.rb'
-    - 'app/helpers/webui/repository_helper.rb'
-    - 'app/helpers/webui/staging/workflow_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/jobs/status_history_rescaler_job.rb'
-    - 'app/lib/authenticator.rb'
-    - 'app/lib/suse/permission.rb'
-    - 'app/lib/suse/validator.rb'
-    - 'app/mailers/event_mailer.rb'
-    - 'app/mixins/build_log_support.rb'
-    - 'app/mixins/has_attributes.rb'
-    - 'app/models/architecture.rb'
-    - 'app/models/attrib_namespace.rb'
-    - 'app/models/attrib_type.rb'
-    - 'app/models/binary_release.rb'
-    - 'app/models/branch_package.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/query_builder.rb'
-    - 'app/models/bs_request_action_delete.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/channel.rb'
-    - 'app/models/channel_binary.rb'
-    - 'app/models/configuration.rb'
-    - 'app/models/event/base.rb'
-    - 'app/models/event_subscription/find_for_event.rb'
-    - 'app/models/issue.rb'
-    - 'app/models/kiwi/image/xml_builder.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'app/models/package.rb'
-    - 'app/models/package_build_status.rb'
-    - 'app/models/patchinfo.rb'
-    - 'app/models/project.rb'
-    - 'app/models/project/key_info.rb'
-    - 'app/models/project/remote_url.rb'
-    - 'app/models/project/update_from_xml_command.rb'
-    - 'app/models/project_status/calculator.rb'
-    - 'app/models/project_status/pack_info.rb'
-    - 'app/models/repository.rb'
-    - 'app/models/unregistered_user.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'app/policies/application_policy.rb'
-    - 'app/services/package_controller_service/url_generator.rb'
-    - 'app/views/models/_package.xml.builder'
-    - 'app/views/models/_project.xml.builder'
-    - 'app/views/models/_remote_project.xml.builder'
-    - 'app/views/models/staging/_staging_project.xml.builder'
-    - 'db/migrate/20170704212201_increase_timestamp_precision.rb'
-    - 'lib/tasks/extract.rake'
-    - 'lib/xpath_engine.rb'
-    - 'script/import_database.rb'
-    - 'spec/factories/bs_requests.rb'
-    - 'spec/factories/packages.rb'
-    - 'spec/factories/project.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/rails_helper.rb'
-    - 'test/functional/maintenance_test.rb'
-    - 'test/functional/published_controller_test.rb'
-    - 'test/functional/request_controller_test.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/test_helper.rb'
-    - 'test/unit/schema_test.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:
@@ -1617,7 +1521,7 @@ Style/SymbolArray:
 Style/WordArray:
   Enabled: false
 
-# Offense count: 1836
+# Offense count: 1944
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

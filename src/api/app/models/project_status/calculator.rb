@@ -18,9 +18,7 @@ module ProjectStatus
       get_list_of_project_and_packages(mypackages.keys).each do |project_id, project_name, package_name|
         package_info = mypackages[package_name]
         package_info.project = project_name
-        if package_info.links_to_id
-          package_info.links_to = mypackages[package_info.links_to_id]
-        end
+        package_info.links_to = mypackages[package_info.links_to_id] if package_info.links_to_id
         projects[project_id] = project_name
       end
 

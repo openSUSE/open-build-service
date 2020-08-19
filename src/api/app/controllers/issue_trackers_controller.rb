@@ -18,9 +18,7 @@ class IssueTrackersController < ApplicationController
   # GET /issue_trackers/<id>
   def show
     @issue_tracker = IssueTracker.find_by_name(params[:id])
-    unless @issue_tracker
-      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
-    end
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return unless @issue_tracker
 
     respond_to do |format|
       format.xml  { render xml: @issue_tracker.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS) }
@@ -77,9 +75,7 @@ class IssueTrackersController < ApplicationController
   # DELETE /issue_trackers/bnc
   def destroy
     @issue_tracker = IssueTracker.find_by_name(params[:id])
-    unless @issue_tracker
-      render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return
-    end
+    render_error(status: 404, errorcode: 'not_found', message: "Unable to find issue tracker '#{params[:id]}'") && return unless @issue_tracker
 
     @issue_tracker.destroy
 

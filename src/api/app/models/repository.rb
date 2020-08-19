@@ -54,9 +54,7 @@ class Repository < ApplicationRecord
     # no local repository found, check if remote repo possible
 
     local_project, remote_project = Project.find_remote_project(project)
-    if local_project
-      return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project)
-    end
+    return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project) if local_project
 
     return
   end

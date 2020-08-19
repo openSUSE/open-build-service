@@ -40,9 +40,7 @@ class SourceAttributeController < SourceController
     attrib = @attribute_container.find_attribute(@at.namespace, @at.name, @binary)
 
     # checks
-    unless attrib
-      raise ActiveRecord::RecordNotFound, "Attribute #{params[:attribute]} does not exist"
-    end
+    raise ActiveRecord::RecordNotFound, "Attribute #{params[:attribute]} does not exist" unless attrib
     unless User.possibly_nobody.can_create_attribute_in?(@attribute_container, @at)
       raise ChangeAttributeNoPermission, "User #{User.possibly_nobody.login} has no permission to change attribute"
     end
@@ -70,9 +68,7 @@ class SourceAttributeController < SourceController
 
       attrib.container = @attribute_container
 
-      unless attrib.valid?
-        raise APIError, message: attrib.errors.full_messages.join('\n'), status: 400
-      end
+      raise APIError, message: attrib.errors.full_messages.join('\n'), status: 400 unless attrib.valid?
 
       authorize attrib, :create?
     end

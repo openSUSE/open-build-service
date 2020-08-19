@@ -8,14 +8,10 @@ class SchemaTest < ActiveSupport::TestCase
       case f
       when %r{\.rng$}
         testfile = f.gsub(%r{\.rng$}, '.xml')
-        if File.exist?(testfile)
-          io = IO.popen("xmllint --noout --relaxng #{f} #{testfile} 2>&1 > /dev/null", 'r')
-        end
+        io = IO.popen("xmllint --noout --relaxng #{f} #{testfile} 2>&1 > /dev/null", 'r') if File.exist?(testfile)
       when %r{xsd}
         testfile = f.gsub(%r{\.xsd$}, '.xml')
-        if File.exist?(testfile)
-          io = IO.popen("xmllint --noout --schema #{f} #{testfile} 2>&1 > /dev/null", 'r')
-        end
+        io = IO.popen("xmllint --noout --schema #{f} #{testfile} 2>&1 > /dev/null", 'r') if File.exist?(testfile)
       end
       next unless io
 

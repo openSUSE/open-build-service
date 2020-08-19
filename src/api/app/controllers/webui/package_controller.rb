@@ -174,9 +174,7 @@ class Webui::PackageController < Webui::WebuiController
     @filename = File.basename(params[:filename])
 
     @fileinfo = Backend::Api::BuildResults::Binaries.fileinfo_ext(@project, @package_name, @repository.name, @arch.name, @filename)
-    unless @fileinfo
-      raise ActiveRecord::RecordNotFound, 'Not Found'
-    end
+    raise ActiveRecord::RecordNotFound, 'Not Found' unless @fileinfo
 
     url_generator = ::PackageControllerService::URLGenerator.new(project: @project, package: @package_name,
                                                                  user: User.possibly_nobody, arch: @arch,
@@ -193,9 +191,7 @@ class Webui::PackageController < Webui::WebuiController
     @package_name = params[:package]
 
     results_from_backend = Buildresult.find_hashed(project: @project, package: @package_name, repository: @repository, view: ['binarylist', 'status'])
-    if results_from_backend.empty?
-      raise ActiveRecord::RecordNotFound, 'Not Found'
-    end
+    raise ActiveRecord::RecordNotFound, 'Not Found' if results_from_backend.empty?
 
     @buildresults = []
     repository = Repository.find_by_project_and_name(@project.to_s, @repository)
@@ -596,17 +592,11 @@ class Webui::PackageController < Webui::WebuiController
 
     authorize @package, :save_meta_update?
 
-    if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
-      errors << 'admin rights are required to raise the protection level of a package'
-    end
+    errors << 'admin rights are required to raise the protection level of a package' if FlagHelper.xml_disabled_for?(@meta_xml, 'sourceaccess')
 
-    if @meta_xml['project'] && @meta_xml['project'] != @project.name
-      errors << 'project name in xml data does not match resource path component'
-    end
+    errors << 'project name in xml data does not match resource path component' if @meta_xml['project'] && @meta_xml['project'] != @project.name
 
-    if @meta_xml['name'] && @meta_xml['name'] != @package.name
-      errors << 'package name in xml data does not match resource path component'
-    end
+    errors << 'package name in xml data does not match resource path component' if @meta_xml['name'] && @meta_xml['name'] != @package.name
 
     if errors.empty?
       begin
