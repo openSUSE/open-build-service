@@ -51,6 +51,12 @@
       }
     }
 
+    // This prevents content from breaking the layout by overflowing outside the viewport
+    #content {
+      // 2rem is the sum of the left and right padding for the content
+      max-width: calc(100vw - (#{$left-navigation-width} + 2rem));
+    }
+
     #bottom-navigation-area {
       display: none;
     }
