@@ -3,7 +3,7 @@ namespace :sphinx do
   task start: :environment do
     if index_to_build?
       puts 'Index does not exist, creating it...'
-      Rake::Task['ts:rebuild'].invoke
+      Rake::Task['ts:rt:rebuild'].invoke
     else
       Rake::Task['ts:start'].invoke
     end
@@ -12,7 +12,7 @@ namespace :sphinx do
   desc 'Start the sphinx daemon for the development environment'
   task start_for_development: :environment do
     if index_to_build?
-      Rake::Task['ts:clear'].invoke
+      Rake::Task['ts:rt:clear'].invoke
       Rake::Task['ts:configure'].invoke
       t = Thread.new do
         retries = 0

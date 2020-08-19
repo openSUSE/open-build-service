@@ -306,7 +306,7 @@ use port 443 now.
     also to call the following once to have a working search:
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rails ts:index
+    # RAILS_ENV="production" rails ts:rt:index
 
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================

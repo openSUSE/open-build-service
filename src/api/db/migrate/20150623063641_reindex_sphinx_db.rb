@@ -2,7 +2,7 @@ class ReindexSphinxDb < ActiveRecord::Migration[4.2]
   def self.up
     rake = 'rake'
     # we do not use ThinkingSphinx class, since searchd might not be able to startup
-    system("cd #{Rails.root}; rm -rf tmp/binlog; exec #{rake} ts:index")
+    system("cd #{Rails.root}; rm -rf tmp/binlog; exec #{rake} ts:rt:index")
   end
 
   def self.down; end
