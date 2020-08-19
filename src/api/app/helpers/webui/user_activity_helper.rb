@@ -17,7 +17,7 @@ module Webui::UserActivityHelper
   end
 
   def activity_classname(activity, percentiles)
-    if activity == 0
+    if activity.zero?
       'activity-percentil0'
     elsif activity <= percentiles[0]
       'activity-percentil1'

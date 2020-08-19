@@ -156,7 +156,7 @@ class BinaryRelease < ApplicationRecord
       build_node = {}
       build_node[:time] = binary_buildtime if binary_buildtime
       build_node[:binaryid] = binary_id if binary_id
-      binary.build(build_node) if build_node.count > 0
+      binary.build(build_node) if build_node.count.positive?
       binary.modify(time: modify_time) if modify_time
       binary.obsolete(time: obsolete_time) if obsolete_time
 

@@ -433,7 +433,7 @@ class Package < ApplicationRecord
       rescue ActiveRecord::StatementInvalid
         # mysql lock errors in delayed job handling... we need to retry
         retries -= 1
-        retry if retries > 0
+        retry if retries.positive?
       end
     end
   end
@@ -1241,7 +1241,7 @@ class Package < ApplicationRecord
   # the revision might match a backend revision that is not in _history
   # e.g. on expanded links - in this case we return nil
   def commit(rev = nil)
-    if rev && rev.to_i < 0
+    if rev && rev.to_i.negative?
       # going backward from not yet known current revision, find out ...
       r = self.rev.to_i + rev.to_i + 1
       rev = r.to_s

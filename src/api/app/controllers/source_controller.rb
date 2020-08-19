@@ -1064,7 +1064,7 @@ class SourceController < ApplicationController
     raise UnknownRepository, "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
     repo = pkg.project.repositories.where(name: params[:repository])
-    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count > 0
+    raise UnknownRepository, "Repository does not exist #{params[:repository]}" unless repo.count.positive?
 
     repo = repo.first
 

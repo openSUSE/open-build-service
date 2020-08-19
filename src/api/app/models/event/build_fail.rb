@@ -28,7 +28,7 @@ module Event
     def faillog
       size = get_size_of_log(payload['project'], payload['package'], payload['repository'], payload['arch'])
       offset = size - 18 * 1024
-      offset = 0 if offset < 0
+      offset = 0 if offset.negative?
       log = raw_log_chunk(payload['project'], payload['package'], payload['repository'], payload['arch'], offset, size)
       log.encode!(invalid: :replace, undef: :replace, universal_newline: true)
       log = log.chomp.lines

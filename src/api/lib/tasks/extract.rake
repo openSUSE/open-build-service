@@ -120,7 +120,7 @@ namespace :db do
           end
           if record.key?('linked_db_project_id')
             pid = record.delete('linked_db_project_id')
-            if pid > 0
+            if pid.positive?
               p = Project.find(pid)
               record['linked_db_project'] = p.name.tr(':', '_')
             end

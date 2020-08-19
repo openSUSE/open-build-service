@@ -166,7 +166,7 @@ module Event
 
         self.undone_jobs += 1
       end
-      save if self.undone_jobs > 0
+      save if self.undone_jobs.positive?
     end
 
     # to be overwritten in subclasses

@@ -9,7 +9,7 @@ module Webui::Staging::WorkflowHelper
 
     total = to_build + final
 
-    return 100 if total == 0
+    return 100 if total.zero?
 
     # if we have building repositories, make sure we don't exceed 99
     [final * 100 / total, 99].min
@@ -81,7 +81,7 @@ module Webui::Staging::WorkflowHelper
     classified_requests = staging_project.classified_requests
     number_of_requests = classified_requests.size
 
-    return 'None' if number_of_requests == 0
+    return 'None' if number_of_requests.zero?
 
     requests_visible_by_default = 10
     requests_links = classified_requests.map do |request|

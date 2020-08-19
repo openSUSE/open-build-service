@@ -8,7 +8,7 @@ Such requests get not created for projects with open requests or if you remove t
   def perform
     # disabled ?
     cleanup_days = ::Configuration.cleanup_after_days
-    return unless cleanup_days && cleanup_days > 0
+    return unless cleanup_days && cleanup_days.positive?
 
     # defaults
     User.find_by!(login: 'Admin').run_as do
@@ -30,7 +30,7 @@ Such requests get not created for projects with open requests or if you remove t
                                    .joins(:bs_request_actions)
                                    .where('bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?', prj.name, prj.name)
                                    .count
-    return if open_requests_count > 0
+    return if open_requests_count.positive?
 
     # check the time in project attribute
     time = nil

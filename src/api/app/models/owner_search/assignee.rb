@@ -2,7 +2,7 @@ module OwnerSearch
   class Assignee < Base
     def for(search_string)
       @match_all = limit.zero?
-      @deepest = (limit < 0)
+      @deepest = limit.negative?
 
       @instances_without_definition = []
       @maintainers = []

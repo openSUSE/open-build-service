@@ -20,7 +20,7 @@ class UpdateNotificationEvents
           event.save!
         rescue ActiveRecord::StatementInvalid => e
           retries -= 1
-          retry if retries > 0
+          retry if retries.positive?
           Airbrake.notify("Failed to create Event : #{type.inspect}: #{data} #{e}")
         rescue => e
           if Rails.env.test?
