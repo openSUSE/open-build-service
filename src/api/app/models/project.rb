@@ -914,12 +914,12 @@ class Project < ApplicationRecord
         raise CycleError, 'project links against itself, this is not allowed'
       end
 
-      if lp.linked_db_project.nil?
-        # We can't get a package object from a remote instance ... how shall we handle this ?
-        pkg = nil
-      else
-        pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
-      end
+      pkg = if lp.linked_db_project.nil?
+              # We can't get a package object from a remote instance ... how shall we handle this ?
+              nil
+            else
+              lp.linked_db_project.find_package(package_name, check_update_project, processed)
+            end
       unless pkg.nil?
         return pkg if Package.check_access?(pkg)
       end
@@ -1343,15 +1343,15 @@ class Project < ApplicationRecord
                          .with_types(:maintenance_incident)
                          .pluck(:number)
 
-    if is_maintenance?
-      maintenance_release = BsRequest.with_target_subprojects(name + ':%')
+    maintenance_release = if is_maintenance?
+                            BsRequest.with_target_subprojects(name + ':%')
                                      .or(BsRequest.with_source_subprojects(name + ':%'))
                                      .in_states(:new)
                                      .with_types(:maintenance_release)
                                      .pluck(:number)
-    else
-      maintenance_release = []
-    end
+                          else
+                            []
+                          end
 
     { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
   end

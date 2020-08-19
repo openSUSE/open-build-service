@@ -488,11 +488,11 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    if lval.nil? || rval.nil?
-      condition = '0'
-    else
-      condition = "#{lval} = #{rval}"
-    end
+    condition = if lval.nil? || rval.nil?
+                  '0'
+                else
+                  "#{lval} = #{rval}"
+                end
     # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -504,11 +504,11 @@ class XpathEngine
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
 
-    if lval.nil? || rval.nil?
-      condition = '1'
-    else
-      condition = "#{lval} != #{rval}"
-    end
+    condition = if lval.nil? || rval.nil?
+                  '1'
+                else
+                  "#{lval} != #{rval}"
+                end
 
     # logger.debug "-- condition: [#{condition}]"
 
@@ -564,13 +564,13 @@ class XpathEngine
     parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
-    if lv_cond == '0'
-      condition = rv_cond
-    elsif rv_cond == '0'
-      condition = lv_cond
-    else
-      condition = "((#{lv_cond}) OR (#{rv_cond}))"
-    end
+    condition = if lv_cond == '0'
+                  rv_cond
+                elsif rv_cond == '0'
+                  lv_cond
+                else
+                  "((#{lv_cond}) OR (#{rv_cond}))"
+                end
     # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
@@ -582,11 +582,11 @@ class XpathEngine
     hs = evaluate_expr(haystack, root)
     ne = evaluate_expr(needle, root, true)
 
-    if hs.nil? || ne.nil?
-      condition = '0'
-    else
-      condition = "LOWER(#{hs}) LIKE LOWER(CONCAT('%',#{ne},'%'))"
-    end
+    condition = if hs.nil? || ne.nil?
+                  '0'
+                else
+                  "LOWER(#{hs}) LIKE LOWER(CONCAT('%',#{ne},'%'))"
+                end
     # logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition

@@ -184,11 +184,11 @@ module Event
       # not to break user's filters for now
       ret = {}
       ret['X-OBS-event-type'] = template_name # cheating
-      if Rails.env.test?
-        ret['Message-ID'] = "<notrandom@#{self.class.message_domain}>"
-      else
-        ret['Message-ID'] = "<#{Mail.random_tag}@#{self.class.message_domain}>"
-      end
+      ret['Message-ID'] = if Rails.env.test?
+                            "<notrandom@#{self.class.message_domain}>"
+                          else
+                            "<#{Mail.random_tag}@#{self.class.message_domain}>"
+                          end
       ret
     end
 

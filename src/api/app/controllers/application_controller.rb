@@ -208,19 +208,19 @@ class ApplicationController < ActionController::Base
     @exception = opt[:exception]
     @errorcode = opt[:errorcode]
 
-    if opt[:status]
-      @status = opt[:status].to_i
-    else
-      @status = 400
-    end
+    @status = if opt[:status]
+                opt[:status].to_i
+              else
+                400
+              end
 
     if @status == 401
       unless response.headers['WWW-Authenticate']
-        if CONFIG['kerberos_mode']
-          response.headers['WWW-Authenticate'] = 'Negotiate'
-        else
-          response.headers['WWW-Authenticate'] = 'basic realm="API login"'
-        end
+        response.headers['WWW-Authenticate'] = if CONFIG['kerberos_mode']
+                                                 'Negotiate'
+                                               else
+                                                 'basic realm="API login"'
+                                               end
       end
     end
     if @status == 404
@@ -230,11 +230,11 @@ class ApplicationController < ActionController::Base
 
     @summary ||= 'Internal Server Error'
 
-    if @exception
-      @errorcode ||= 'uncaught_exception'
-    else
-      @errorcode ||= 'unknown'
-    end
+    @errorcode ||= if @exception
+                     'uncaught_exception'
+                   else
+                     'unknown'
+                   end
   end
 
   def render_error(opt = {})

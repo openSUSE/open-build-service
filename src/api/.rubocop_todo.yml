@@ -442,11 +442,12 @@ Naming/HeredocDelimiterNaming:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 1
+# Offense count: 2
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
 # SupportedStylesForLeadingUnderscores: disallowed, required, optional
 Naming/MemoizedInstanceVariableName:
   Exclude:
+    - 'app/controllers/application_controller.rb'
     - 'app/lib/authenticator.rb'
 
 # Offense count: 11
@@ -1242,7 +1243,7 @@ Rails/UniqueValidationWithoutIndex:
 Style/ClassAndModuleChildren:
   Enabled: false
 
-# Offense count: 14
+# Offense count: 13
 Style/ClassVars:
   Exclude:
     - 'app/models/user.rb'
@@ -1258,61 +1259,6 @@ Style/CommentedKeyword:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/user_ldap_strategy_test.rb'
     - 'test/unit/user_test.rb'
-
-# Offense count: 74
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
-# SupportedStyles: assign_to_condition, assign_inside_condition
-Style/ConditionalAssignment:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/message_controller.rb'
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/search_controller.rb'
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/controllers/status/checks_controller.rb'
-    - 'app/controllers/status/reports_controller.rb'
-    - 'app/controllers/webui/attribute_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-    - 'app/controllers/webui/projects/pulse_controller.rb'
-    - 'app/helpers/maintenance_helper.rb'
-    - 'app/helpers/webui/request_helper.rb'
-    - 'app/helpers/webui/user_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/lib/backend/connection.rb'
-    - 'app/lib/suse/validator.rb'
-    - 'app/mailers/event_mailer.rb'
-    - 'app/mixins/has_ratings.rb'
-    - 'app/mixins/parse_package_diff.rb'
-    - 'app/mixins/webui/manage_relationships.rb'
-    - 'app/models/branch_package.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request/find_for/project.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action_submit.rb'
-    - 'app/models/event/base.rb'
-    - 'app/models/event/request.rb'
-    - 'app/models/group.rb'
-    - 'app/models/issue_tracker.rb'
-    - 'app/models/owner_search/assignee.rb'
-    - 'app/models/owner_search/container.rb'
-    - 'app/models/package.rb'
-    - 'app/models/package_build_status.rb'
-    - 'app/models/project.rb'
-    - 'app/models/unregistered_user.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'app/views/message/_messages.xml.builder'
-    - 'app/views/models/_project.xml.builder'
-    - 'app/views/models/_remote_project.xml.builder'
-    - 'app/views/models/staging/_staging_project.xml.builder'
-    - 'config/initializers/02_apiversion.rb'
-    - 'config/initializers/airbrake.rb'
-    - 'lib/rabbitmq_bus.rb'
-    - 'lib/tasks/extract.rake'
-    - 'lib/xpath_engine.rb'
-    - 'spec/support/database_cleaner.rb'
-    - 'test/functional/source_controller_test.rb'
 
 # Offense count: 845
 Style/Documentation:

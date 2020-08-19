@@ -26,11 +26,11 @@ class BsRequestActionSubmit < BsRequestAction
   def execute_accept(opts)
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
-    if target_package
-      target_package = target_project.packages.find_by_name(self.target_package)
-    else
-      target_package = target_project.packages.find_by_name(source_package)
-    end
+    target_package = if target_package
+                       target_project.packages.find_by_name(self.target_package)
+                     else
+                       target_project.packages.find_by_name(source_package)
+                     end
 
     relink_source = false
     unless target_package

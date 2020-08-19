@@ -52,12 +52,12 @@ module MaintenanceHelper
       comment = "Release request #{action.bs_request.number}"
     end
 
-    if target.is_a?(Repository)
-      target_project = target.project
-    else
-      # project
-      target_project = target
-    end
+    target_project = if target.is_a?(Repository)
+                       target.project
+                     else
+                       # project
+                       target
+                     end
     target_project.check_write_access!
     # lock the scheduler
     target_project.suspend_scheduler(comment)
@@ -70,11 +70,11 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if target.is_a?(Repository)
-      u_ids = copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
-    else
-      u_ids = copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
-    end
+    u_ids = if target.is_a?(Repository)
+              copy_binaries_to_repository(filter_source_repository, source_package, target, target_package_name, multibuild_container, setrelease)
+            else
+              copy_binaries(filter_source_repository, source_package, target_package_name, target_project, multibuild_container, setrelease)
+            end
 
     # create or update main package linking to incident package
     unless source_package.is_patchinfo? || manual

@@ -225,21 +225,21 @@ class BranchPackage
         end
         tpkg.branch_from(oproject, opackage, opts)
 
-        if response
-          # multiple package transfers, just tell the target project
-          response = { targetproject: tpkg.project.name }
-        else
-          # just a single package transfer, detailed answer
-          response = { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
-        end
+        response = if response
+                     # multiple package transfers, just tell the target project
+                     { targetproject: tpkg.project.name }
+                   else
+                     # just a single package transfer, detailed answer
+                     { targetproject: tpkg.project.name, targetpackage: tpkg.name, sourceproject: oproject, sourcepackage: opackage }
+                   end
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] && p[:copy_from_devel].project != tpkg.project && !p[:rev]
-          if p[:copy_from_devel].project.is_maintenance_incident?
-            msg = "fetch updates from open incident project #{p[:copy_from_devel].project.name}"
-          else
-            msg = "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
-          end
+          msg = if p[:copy_from_devel].project.is_maintenance_incident?
+                  "fetch updates from open incident project #{p[:copy_from_devel].project.name}"
+                else
+                  "fetch updates from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
+                end
           Backend::Api::Sources::Package.copy(tpkg.project.name, tpkg.name, p[:copy_from_devel].project.name, p[:copy_from_devel].name,
                                               User.session!.login, comment: msg, keeplink: 1, expand: 1)
         end

@@ -52,11 +52,11 @@ module Webui::ManageRelationships
     respond_to do |format|
       format.js { render json: {}, status: :ok }
       format.html do
-        if params[:userid]
-          flash[:success] = "Removed user #{params[:userid]}"
-        else
-          flash[:success] = "Removed group '#{params[:groupid]}'"
-        end
+        flash[:success] = if params[:userid]
+                            "Removed user #{params[:userid]}"
+                          else
+                            "Removed group '#{params[:groupid]}'"
+                          end
         redirect_to custom_users_path
       end
     end

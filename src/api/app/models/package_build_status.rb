@@ -110,11 +110,11 @@ class PackageBuildStatus
     return unless currentcode == 'succeeded'
 
     dir = current_dir
-    if @srcmd5 == dir['srcmd5'] || @srcmd5 == dir['verifymd5']
-      @buildcode = 'building' # guesssing
-    else
-      @buildcode = 'outdated'
-    end
+    @buildcode = if @srcmd5 == dir['srcmd5'] || @srcmd5 == dir['verifymd5']
+                   'building' # guesssing
+                 else
+                   'outdated'
+                 end
   end
 
   def check_missingdeps(srep, arch)

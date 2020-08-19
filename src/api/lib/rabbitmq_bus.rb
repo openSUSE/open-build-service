@@ -31,14 +31,14 @@ class RabbitmqBus
 
     connection.start
     rabbitmq_channel = connection.create_channel
-    if CONFIG['amqp_exchange_name']
-      self.exchange = rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
-    else
-      # can't cover due to https://github.com/arempe93/bunny-mock/pull/25
-      #:nocov:
-      self.exchange = rabbitmq_channel.default_exchange
-      #:nocov:
-    end
+    self.exchange = if CONFIG['amqp_exchange_name']
+                      rabbitmq_channel.exchange(CONFIG['amqp_exchange_name'], CONFIG['amqp_exchange_options'].try(:symbolize_keys) || {})
+                    else
+                      # can't cover due to https://github.com/arempe93/bunny-mock/pull/25
+                      #:nocov:
+                      rabbitmq_channel.default_exchange
+                      #:nocov:
+                    end
   end
 
   # this function is skipped in tests by putting a BunnyMock in self.connection

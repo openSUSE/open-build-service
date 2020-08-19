@@ -37,11 +37,11 @@ class EventMailer < ActionMailer::Base
     template_name = e.template_name
     orig = e.originator
 
-    if orig
-      orig = orig.display_name
-    else
-      orig = mail_sender
-    end
+    orig = if orig
+             orig.display_name
+           else
+             mail_sender
+           end
 
     mail(to: recipients.sort,
          subject: e.subject,

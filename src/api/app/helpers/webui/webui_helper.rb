@@ -39,11 +39,11 @@ module Webui::WebuiHelper
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
-      if login && splitted[1] == login
-        prjname = '~'
-      else
-        prjname = "~#{splitted[1]}"
-      end
+      prjname = if login && splitted[1] == login
+                  '~'
+                else
+                  "~#{splitted[1]}"
+                end
       prjname += ":#{splitted[-1]}" if splitted.length > 2
     end
     prjname
@@ -209,11 +209,11 @@ module Webui::WebuiHelper
         elide_two(opts[:project_text], opts[:package_text], opts[:trim_to])
     end
 
-    if opts[:short]
-      out = ''.html_safe
-    else
-      out = 'package '.html_safe
-    end
+    out = if opts[:short]
+            ''.html_safe
+          else
+            'package '.html_safe
+          end
 
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
@@ -233,11 +233,11 @@ module Webui::WebuiHelper
 
   def link_to_project(prj, opts)
     opts[:project_text] ||= opts[:project]
-    if opts[:short]
-      out = ''.html_safe
-    else
-      out = 'project '.html_safe
-    end
+    out = if opts[:short]
+            ''.html_safe
+          else
+            'project '.html_safe
+          end
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
     out + link_to_if(prj, project_text,
                      { controller: '/webui/project', action: 'show', project: opts[:project] },

@@ -204,11 +204,11 @@ class SearchController < ApplicationController
     output = "<collection matches=\"#{matches}\">\n"
 
     xml = {} # filled by filter
-    if render_all
-      key_template = "xml_#{what}_%d"
-    else
-      key_template = "xml_id_#{what}_%d"
-    end
+    key_template = if render_all
+                     "xml_#{what}_%d"
+                   else
+                     "xml_id_#{what}_%d"
+                   end
     search_items = filter_items_from_cache(items, xml, key_template)
 
     includes = []
@@ -288,15 +288,15 @@ class SearchController < ApplicationController
     attrib = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # gather the relation for attributes depending on project/package combination
-    if params[:package] && params[:project]
-      attribs = Package.get_by_project_and_name(params[:project], params[:package]).attribs
-    elsif params[:package]
-      attribs = attrib.attribs.where(package_id: Package.where(name: params[:package]))
-    elsif params[:project]
-      attribs = attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
-    else
-      attribs = attrib.attribs
-    end
+    attribs = if params[:package] && params[:project]
+                Package.get_by_project_and_name(params[:project], params[:package]).attribs
+              elsif params[:package]
+                attrib.attribs.where(package_id: Package.where(name: params[:package]))
+              elsif params[:project]
+                attrib.attribs.where(package_id: Project.get_by_name(params[:project]).packages)
+              else
+                attrib.attribs
+              end
 
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)

@@ -89,11 +89,11 @@ module Webui::RequestHelper
   def target_project_link(row)
     result = ''
     if row.target_project
-      if row.target_package && row.source_package != row.target_package
-        result = project_or_package_link(project: row.target_project, package: row.target_package, trim_to: 40, short: true)
-      else
-        result = project_or_package_link(project: row.target_project, trim_to: 40, short: true)
-      end
+      result = if row.target_package && row.source_package != row.target_package
+                 project_or_package_link(project: row.target_project, package: row.target_package, trim_to: 40, short: true)
+               else
+                 project_or_package_link(project: row.target_project, trim_to: 40, short: true)
+               end
     end
     result
   end

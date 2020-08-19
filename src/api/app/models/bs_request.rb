@@ -1020,13 +1020,13 @@ class BsRequest < ApplicationRecord
         end
 
       when :delete then
-        if action[:tpkg]
-          action[:name] = "Delete #{action[:tpkg]}"
-        elsif action[:trepo]
-          action[:name] = "Delete #{action[:trepo]}"
-        else
-          action[:name] = "Delete #{action[:tprj]}"
-        end
+        action[:name] = if action[:tpkg]
+                          "Delete #{action[:tpkg]}"
+                        elsif action[:trepo]
+                          "Delete #{action[:trepo]}"
+                        else
+                          "Delete #{action[:tprj]}"
+                        end
 
         if action[:tpkg] # API / Backend don't support whole project diff currently
           action[:sourcediff] = xml.webui_infos if with_diff

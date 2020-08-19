@@ -295,21 +295,21 @@ class BsRequestAction < ApplicationRecord
 
     tpkg = nil
     if target_package
-      if is_maintenance_release?
-        # use orignal/stripped name and also GA projects for maintenance packages.
-        # But do not follow project links, if we have a branch target project, like in Evergreen case
-        if tprj.find_attribute('OBS', 'BranchTarget')
-          tpkg = tprj.packages.find_by_name(target_package.gsub(/\.[^.]*$/, ''))
-        else
-          tpkg = tprj.find_package(target_package.gsub(/\.[^.]*$/, ''))
-        end
-      elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
-        # target must exists
-        tpkg = tprj.packages.find_by_name!(target_package)
-      else
-        # just the direct affected target
-        tpkg = tprj.packages.find_by_name(target_package)
-      end
+      tpkg = if is_maintenance_release?
+               # use orignal/stripped name and also GA projects for maintenance packages.
+               # But do not follow project links, if we have a branch target project, like in Evergreen case
+               if tprj.find_attribute('OBS', 'BranchTarget')
+                 tprj.packages.find_by_name(target_package.gsub(/\.[^.]*$/, ''))
+               else
+                 tprj.find_package(target_package.gsub(/\.[^.]*$/, ''))
+               end
+             elsif action_type.in?([:set_bugowner, :add_role, :change_devel, :delete])
+               # target must exists
+               tprj.packages.find_by_name!(target_package)
+             else
+               # just the direct affected target
+               tprj.packages.find_by_name(target_package)
+             end
     elsif source_package
       tpkg = tprj.packages.find_by_name(source_package)
     end

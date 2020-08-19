@@ -41,11 +41,11 @@ module Suse
         controller = controller.to_s
         @schema_map ||= {}
         @schema_map[controller] ||= {}
-        if opt.key?(:method)
-          key = action.to_s + '-' + opt[:method].to_s
-        else
-          key = action.to_s
-        end
+        key = if opt.key?(:method)
+                action.to_s + '-' + opt[:method].to_s
+              else
+                action.to_s
+              end
         @schema_map[controller][key + '-request'] = opt[:request].to_s if opt[:request] # have a request validation schema?
         @schema_map[controller][key + '-response'] = opt[:response].to_s if opt[:response] # have a reponse validate schema?
       end

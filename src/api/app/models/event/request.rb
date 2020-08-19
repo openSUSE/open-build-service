@@ -114,11 +114,11 @@ module Event
     def headers_for_actions
       ret = {}
       payload['actions'].each_with_index do |a, index|
-        if payload['actions'].length == 1 || index.zero?
-          suffix = 'X-OBS-Request-Action'
-        else
-          suffix = "X-OBS-Request-Action-#{index}"
-        end
+        suffix = if payload['actions'].length == 1 || index.zero?
+                   'X-OBS-Request-Action'
+                 else
+                   "X-OBS-Request-Action-#{index}"
+                 end
 
         ret[suffix + '-type'] = a['type']
         if a['targetpackage']

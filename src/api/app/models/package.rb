@@ -125,11 +125,11 @@ class Package < ApplicationRecord
     @key[:user] = User.session.cache_key_with_version if User.session
 
     # the cache is only valid if the user, prj and pkg didn't change
-    if project.is_a?(Project)
-      @key[:project] = project.id
-    else
-      @key[:project] = project
-    end
+    @key[:project] = if project.is_a?(Project)
+                       project.id
+                     else
+                       project
+                     end
     pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
     if pid
       pkg = Package.where(id: pid).includes(:project).first
@@ -416,11 +416,11 @@ class Package < ApplicationRecord
 
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: id).delete_all
-    if dir_xml.is_a?(Net::HTTPSuccess)
-      dir_xml = dir_xml.body
-    else
-      dir_xml = source_file(nil)
-    end
+    dir_xml = if dir_xml.is_a?(Net::HTTPSuccess)
+                dir_xml.body
+              else
+                source_file(nil)
+              end
     private_set_package_kind(Xmlhash.parse(dir_xml))
     update_project_for_product
     if opts[:wait_for_update]
@@ -1085,11 +1085,11 @@ class Package < ApplicationRecord
     bp.verifymd5 = dir['verifymd5']
     bp.changesmd5 = dir['changesmd5']
     bp.expandedmd5 = dir['srcmd5']
-    if dir['revtime'].blank? # no commit, no revtime
-      bp.maxmtime = nil
-    else
-      bp.maxmtime = Time.at(Integer(dir['revtime']))
-    end
+    bp.maxmtime = if dir['revtime'].blank? # no commit, no revtime
+                    nil
+                  else
+                    Time.at(Integer(dir['revtime']))
+                  end
 
     # now check the unexpanded sources
     update_backendinfo_unexpanded(bp)
