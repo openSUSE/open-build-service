@@ -541,11 +541,11 @@ class ProjectTest < ActiveSupport::TestCase
 
   test 'invalid names' do # spec/models/project_spec.rb
     # no ::
-    assert !Project.valid_name?('home:M0ses:raspi::qtdesktop')
-    assert !Project.valid_name?(10)
-    assert !Project.valid_name?('')
-    assert !Project.valid_name?('_foobar')
-    assert !Project.valid_name?('4' * 250)
+    assert_not Project.valid_name?('home:M0ses:raspi::qtdesktop')
+    assert_not Project.valid_name?(10)
+    assert_not Project.valid_name?('')
+    assert_not Project.valid_name?('_foobar')
+    assert_not Project.valid_name?('4' * 250)
   end
 
   test 'valid name' do # spec/models/project_spec.rb

@@ -16,7 +16,7 @@ class UserTest < ActiveSupport::TestCase
 
     Configuration.stubs(:allow_user_to_create_home_project).returns(false)
     User.create(login: 'bob', email: 'bob@home.com', password: '123456')
-    assert !Project.find_by(name: 'home:bob')
+    assert_not Project.find_by(name: 'home:bob')
   end
 
   def test_can_modify_project
@@ -64,31 +64,31 @@ class UserTest < ActiveSupport::TestCase
     assert @user.has_local_role?(m, packages(:home_Iggy_TestPack))
 
     b = Role.find_by_title('bugowner')
-    assert !@user.has_local_role?(b, @project)
-    assert !@user.has_local_role?(m, projects(:kde4))
+    assert_not @user.has_local_role?(b, @project)
+    assert_not @user.has_local_role?(m, projects(:kde4))
 
     user = users(:adrian)
-    assert !user.has_local_role?(m, @project)
-    assert !user.has_local_role?(m, packages(:home_Iggy_TestPack))
+    assert_not user.has_local_role?(m, @project)
+    assert_not user.has_local_role?(m, packages(:home_Iggy_TestPack))
     assert user.has_local_role?(m, projects(:kde4))
     assert user.has_local_role?(m, packages(:kde4_kdelibs))
 
     tom = users(:tom)
-    assert !tom.has_local_permission?('change_project', projects(:kde4))
-    assert !tom.has_local_permission?('change_package', packages(:kde4_kdelibs))
+    assert_not tom.has_local_permission?('change_project', projects(:kde4))
+    assert_not tom.has_local_permission?('change_package', packages(:kde4_kdelibs))
   end
 
   def test_group
-    assert !@user.is_in_group?('notexistant')
-    assert !@user.is_in_group?('test_group')
+    assert_not @user.is_in_group?('notexistant')
+    assert_not @user.is_in_group?('test_group')
     assert users(:adrian).is_in_group?('test_group')
-    assert !users(:adrian).is_in_group?('test_group_b')
-    assert !users(:adrian).is_in_group?('notexistant')
+    assert_not users(:adrian).is_in_group?('test_group_b')
+    assert_not users(:adrian).is_in_group?('notexistant')
   end
 
   def test_attribute
     obs = attrib_namespaces(:obs)
-    assert !@user.can_modify_attribute_definition?(obs)
+    assert_not @user.can_modify_attribute_definition?(obs)
 
     assert users(:king).can_modify_attribute_definition?(obs)
   end

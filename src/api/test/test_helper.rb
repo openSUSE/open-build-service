@@ -369,7 +369,7 @@ class ActiveSupport::TestCase
 
   def assert_no_xml_tag(data, conds)
     ret = check_xml_tag(data, conds)
-    assert !ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{data}" if ret
+    assert_not ret, "expected no tag, but found tag matching #{conds.inspect} in:\n#{data}" if ret
   end
 
   def load_fixture(path)

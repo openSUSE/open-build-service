@@ -990,19 +990,6 @@ Rails/ApplicationMailer:
     - 'app/mailers/admin_mailer.rb'
     - 'app/mailers/event_mailer.rb'
 
-# Offense count: 24
-# Cop supports --auto-correct.
-# Configuration parameters: Include.
-# Include: **/test/**/*
-Rails/AssertNot:
-  Exclude:
-    - 'test/functional/request_controller_test.rb'
-    - 'test/test_helper.rb'
-    - 'test/unit/bs_request_test.rb'
-    - 'test/unit/package_test.rb'
-    - 'test/unit/project_test.rb'
-    - 'test/unit/user_test.rb'
-
 # Offense count: 60
 # Configuration parameters: Include.
 # Include: db/migrate/*.rb
