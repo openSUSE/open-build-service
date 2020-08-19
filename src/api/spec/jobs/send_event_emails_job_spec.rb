@@ -71,6 +71,7 @@ RSpec.describe SendEventEmailsJob, type: :job do
 
     context 'when user has rss token' do
       let!(:subscription) { create(:event_subscription_comment_for_project, receiver_role: 'maintainer', user: user, channel: :rss) }
+
       before do
         user.create_rss_token
       end

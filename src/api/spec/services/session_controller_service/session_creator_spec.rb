@@ -8,6 +8,7 @@ RSpec.describe ::SessionControllerService::SessionCreator do
       described_class.new(username: admin_user.login,
                           password: admin_user.password)
     end
+
     it { expect { session_creator }.not_to raise_error }
   end
 
@@ -17,6 +18,7 @@ RSpec.describe ::SessionControllerService::SessionCreator do
         described_class.new(username: admin_user.login,
                             password: admin_user.password)
       end
+
       it { expect(session_creator).to be_valid }
     end
 
@@ -25,6 +27,7 @@ RSpec.describe ::SessionControllerService::SessionCreator do
         described_class.new(username: '',
                             password: '')
       end
+
       it { expect(session_creator).not_to be_valid }
     end
   end
@@ -35,6 +38,7 @@ RSpec.describe ::SessionControllerService::SessionCreator do
         described_class.new(username: admin_user.login,
                             password: admin_user.password)
       end
+
       it { expect(session_creator).to exist }
     end
 
@@ -43,6 +47,7 @@ RSpec.describe ::SessionControllerService::SessionCreator do
         described_class.new(username: 'foo',
                             password: 'bar')
       end
+
       it { expect(session_creator).not_to exist }
     end
   end

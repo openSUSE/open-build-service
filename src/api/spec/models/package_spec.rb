@@ -235,6 +235,7 @@ RSpec.describe Package, vcr: true do
           <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1530259187" />
         </directory>'
     end
+
     it 'returns empty hash' do
       stub_request(:get, url).and_return(body: no_serviceinfo)
       expect(package_with_service.serviceinfo).to eq({})
@@ -615,6 +616,7 @@ RSpec.describe Package, vcr: true do
       let!(:target_package) do
         create(:package_with_changes_file, project: target_project, name: 'package_with_changes_file', changes_file_content: changes_file)
       end
+
       subject { package.commit_message_from_changes_file(target_project, target_package) }
 
       it { expect(subject).to include('- Testing the submit diff') }

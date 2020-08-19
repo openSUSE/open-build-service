@@ -888,6 +888,7 @@ RSpec.describe Webui::PackageController, vcr: true do
       let(:other_user) { create(:confirmed_user, login: 'bar') }
       let(:project) { create(:project, name: 'foo_project') }
       let!(:package_with_maintainer) { create(:package_with_maintainer, maintainer: user, project: project) }
+
       before do
         login other_user
         post :trigger_rebuild, params: { project: project, package: package_with_maintainer }

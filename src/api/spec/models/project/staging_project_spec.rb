@@ -176,6 +176,7 @@ RSpec.describe Project, vcr: true do
 
       context 'with disabled repository' do
         let!(:flag) { create(:build_flag, status: 'disable', project: staging_project, repo: repository.name) }
+
         it { expect(staging_project.overall_state).to eq(:acceptable) }
       end
     end

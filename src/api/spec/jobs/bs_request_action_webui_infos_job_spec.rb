@@ -54,6 +54,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
         request
       end
       let(:request_action) { request.bs_request_actions.first }
+
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
       it { expect { subject }.not_to raise_error }
@@ -73,6 +74,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
         request
       end
       let(:request_action) { request.bs_request_actions.first }
+
       subject { BsRequestActionWebuiInfosJob.new.perform(request_action) }
 
       it { expect { subject }.not_to raise_error }
@@ -102,6 +104,7 @@ RSpec.describe BsRequestActionWebuiInfosJob, type: :job, vcr: true do
       end
 
       let(:path) { "#{CONFIG['source_url']}/source/#{another_source_project}/#{another_source_package}?#{params.to_param}" }
+
       before do
         request.update(superseded_by: superseding_request.number, state: :superseded)
       end

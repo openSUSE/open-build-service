@@ -219,6 +219,7 @@ RSpec.describe Webui::WebuiHelper do
 
   describe '#pick_max_problems' do
     let(:max_shown) { 5 }
+
     subject { pick_max_problems(checks, builds, max_shown) }
 
     context 'with no failed checks' do
@@ -226,11 +227,13 @@ RSpec.describe Webui::WebuiHelper do
 
       context 'with no fails' do
         let(:builds) { [] }
+
         it { is_expected.to eq([[], [], [], []]) }
       end
 
       context 'with 7 fails' do
         let(:builds) { [1, 2, 3, 4, 5, 6, 7] }
+
         it { is_expected.to eq([[], [1, 2, 3, 4, 5], [], [6, 7]]) }
       end
     end
@@ -240,11 +243,13 @@ RSpec.describe Webui::WebuiHelper do
 
       context 'with no fails' do
         let(:builds) { [] }
+
         it { is_expected.to eq([[1, 2, 3, 4, 5], [], [6, 7], []]) }
       end
 
       context 'with 7 fails' do
         let(:builds) { [1, 2, 3, 4, 5, 6, 7] }
+
         it { is_expected.to eq([[1, 2, 3, 4], [1], [5, 6, 7], [2, 3, 4, 5, 6, 7]]) }
       end
     end

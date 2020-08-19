@@ -23,6 +23,7 @@ RSpec.describe PackagesFinder, vcr: true do
     let(:project) { create(:project, name: 'foo') }
     let!(:package) { create(:package, name: 'foo_pack', project: project) }
     let(:maintained_attrib) { create(:maintained_attrib, project: project, package: package) }
+
     context 'when package is nil' do
       before do
         User.session = admin_user
@@ -63,6 +64,7 @@ RSpec.describe PackagesFinder, vcr: true do
                         attrib_namespace: AttribNamespace.find_by!(name: 'OBS'), value_count: 1)
     end
     let(:embargo_date_attrib) { create(:embargo_date_attrib, project: project, package: package) }
+
     context 'when package is nil' do
       before do
         User.session = admin_user

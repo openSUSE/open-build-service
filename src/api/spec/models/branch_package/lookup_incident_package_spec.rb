@@ -70,6 +70,7 @@ RSpec.describe BranchPackage::LookupIncidentPackage, vcr: false do
     let(:maintenance_project) { create(:maintenance_project, target_project: link_target_project) }
     let(:package_1) { link_target_project.packages.first }
     let(:lookup_incident_package) { BranchPackage::LookupIncidentPackage.new(package: 'chromium', link_target_project: link_target_project) }
+
     before do
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:possible_packages).and_return(link_target_project.packages)
       allow_any_instance_of(BranchPackage::LookupIncidentPackage).to receive(:maintenance_projects).and_return([maintenance_project])

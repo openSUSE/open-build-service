@@ -14,6 +14,7 @@ RSpec.describe ::TriggerControllerService::TokenExtractor do
 
     context 'with HTTP_AUTHORIZATION' do
       let(:request) { OpenStruct.new(env: { 'HTTP_AUTHORIZATION' => 'FOO1234' }) }
+
       it { expect(token_extractor.extract_auth_token).to eq('FOO1234') }
     end
   end

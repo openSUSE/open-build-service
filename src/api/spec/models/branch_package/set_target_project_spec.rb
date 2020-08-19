@@ -17,6 +17,7 @@ RSpec.describe BranchPackage::SetTargetProject, vcr: true do
   describe '#target_project' do
     context 'when target_project is provided' do
       let(:set_target_project) { BranchPackage::SetTargetProject.new(target_project: project.name) }
+
       it { expect(set_target_project.target_project).to eq(project.name) }
     end
 
@@ -26,6 +27,7 @@ RSpec.describe BranchPackage::SetTargetProject, vcr: true do
                                                source_package: package)
       end
       let(:set_target_project) { BranchPackage::SetTargetProject.new(request: bs_request.number) }
+
       it { expect(set_target_project.target_project).to eq("#{home_project}:branches:REQUEST_#{bs_request.number}") }
     end
   end
@@ -37,6 +39,7 @@ RSpec.describe BranchPackage::SetTargetProject, vcr: true do
 
     context 'with target_project and autocleanup' do
       let(:set_target_project) { BranchPackage::SetTargetProject.new(target_project: project.name, autocleanup: 'true') }
+
       it { expect(set_target_project.auto_cleanup).to eq(3) }
     end
   end
@@ -50,6 +53,7 @@ RSpec.describe BranchPackage::SetTargetProject, vcr: true do
 
     context 'invalid name' do
       let(:set_target_project) { BranchPackage::SetTargetProject.new(target_project: '0', autocleanup: 'true') }
+
       it { expect(set_target_project).not_to be_valid }
     end
   end

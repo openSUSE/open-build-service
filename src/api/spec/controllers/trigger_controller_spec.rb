@@ -74,6 +74,7 @@ RSpec.describe TriggerController, vcr: true do
     context 'when user has no rights for source' do
       let(:user) { create(:confirmed_user, login: 'mrfluffy') }
       let(:token) { Token::Release.create(user: user, package: package) }
+
       before do
         allow(User).to receive(:session!).and_return(user)
         allow(::TriggerControllerService::TokenExtractor).to receive(:new) {

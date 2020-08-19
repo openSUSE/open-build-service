@@ -71,6 +71,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
             </services>
           XML
         end
+
         before do
           do_request(project_name: source_project, package_name: source_package, filename: 'remote_file',
                      file_url: 'https://raw.github.com/openSUSE/open-build-service/master/.gitignore')

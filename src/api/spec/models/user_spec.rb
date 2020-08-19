@@ -71,11 +71,13 @@ RSpec.describe User do
 
     context 'user do not logged in recently' do
       let(:user) { create(:dead_user, login: 'foo') }
+
       it { expect(subject).to be_away }
     end
 
     context 'user logged in recently' do
       let(:user) { create(:confirmed_user, login: 'foo') }
+
       it { expect(subject).not_to be_away }
     end
 

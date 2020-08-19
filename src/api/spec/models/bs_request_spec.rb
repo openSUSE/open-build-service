@@ -228,6 +228,7 @@ RSpec.describe BsRequest do
       end
       let!(:relationship_project_user) { create(:relationship_project_user, project: target_project) }
       let(:user) { relationship_project_user.user }
+
       before do
         login user
         request.state = 'accepted'
@@ -283,6 +284,7 @@ RSpec.describe BsRequest do
             </revision>
           XML
         end
+
         before do
           allow(Backend::Api::Sources::Package).to receive(:copy).and_return(backend_response)
           bs_request.change_review_state(:accepted, by_project: staging_project.name, comment: 'accepted')

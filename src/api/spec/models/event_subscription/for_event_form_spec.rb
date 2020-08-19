@@ -7,6 +7,7 @@ RSpec.describe EventSubscription::ForEventForm do
 
   describe '#call' do
     let(:roles) { subject.roles }
+
     subject { EventSubscription::ForEventForm.new(event_class, subscriber).call }
 
     context 'for Event::CommentForProject' do

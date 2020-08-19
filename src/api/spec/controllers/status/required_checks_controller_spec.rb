@@ -136,6 +136,7 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
 
       context 'without permission' do
         let(:status) { :forbidden }
+
         include_context 'does not create a required check'
         include_context 'returns correct status'
       end
@@ -249,6 +250,7 @@ RSpec.describe Status::RequiredChecksController, type: :controller do
 
       context 'without permissions' do
         let(:status) { :forbidden }
+
         include_context 'does not delete the required check'
         include_context 'returns correct status'
       end

@@ -9,6 +9,7 @@ RSpec.describe ProjectLogEntryUserName, type: :model do
     let!(:entry1) { create(:project_log_entry_comment_for_project, user_name: user.id) }
     let!(:entry2) { create(:project_log_entry_comment_for_package, user_name: other_user.id) }
     let!(:entry5) { create(:project_log_entry_comment_for_package, user_name: User.last.id + 42) }
+
     before do
       ProjectLogEntryUserName.new.send(:up)
     end

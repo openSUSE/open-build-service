@@ -74,6 +74,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
   describe '#index' do
     let(:path) { "#{CONFIG['source_url']}/cloudupload?name=#{upload_job.job_id}" }
+
     context 'without an EC2 configuration' do
       let(:user) { create(:confirmed_user) }
 

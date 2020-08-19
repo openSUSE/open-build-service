@@ -23,11 +23,13 @@ RSpec.describe OpenRequestsWithProjectAsSourceOrTargetFinder do
 
     context 'project as source' do
       let(:project) { source_project }
+
       it { expect(subject).not_to be_empty }
     end
 
     context 'project as target' do
       let(:project) { target_project }
+
       it { expect(subject).not_to be_empty }
     end
   end

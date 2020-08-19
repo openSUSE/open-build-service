@@ -314,6 +314,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with a kiwi file with packages, repositories and a description' do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(kiwi_xml, 'some_md5') }
+
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
 
       before do
@@ -333,6 +334,7 @@ RSpec.describe Kiwi::Image, type: :model, vcr: true do
     context 'with a kiwi file without packages and repositories' do
       let(:package) { create(:package) }
       let(:kiwi_image) { Kiwi::Image.build_from_xml(Kiwi::Image::DEFAULT_KIWI_BODY, 'some_md5') }
+
       subject { Nokogiri::XML::DocumentFragment.parse(kiwi_image.to_xml) }
 
       before do

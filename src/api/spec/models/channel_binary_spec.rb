@@ -28,6 +28,7 @@ RSpec.describe ChannelBinary, vcr: true do
       create(:channel_binary, name: 'bar', project: project, architecture: repository.architectures.first,
                               repository: repository, channel_binary_list: channel_binary_list, package: package.name)
     end
+
     it { expect(channel_binary.create_channel_package_into(project, 'foo')).not_to be_nil }
     it { expect(channel_binary.create_channel_package_into(project, 'foo')).to be_a(Package) }
   end

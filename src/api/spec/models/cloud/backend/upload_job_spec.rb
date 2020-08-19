@@ -174,6 +174,7 @@ RSpec.describe Cloud::Backend::UploadJob, type: :model do
   describe '.all' do
     context 'with a valid backend response' do
       let(:upload_job) { create(:upload_job, user: user) }
+
       context 'with one upload job' do
         let(:xml_response) do
           <<-HEREDOC

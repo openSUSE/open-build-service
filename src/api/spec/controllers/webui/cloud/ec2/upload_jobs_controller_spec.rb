@@ -55,16 +55,19 @@ RSpec.describe Webui::Cloud::Ec2::UploadJobsController, type: :controller, vcr: 
 
       context 'with a not existing package' do
         let(:params) { { project: 'EC2Images', package: 'not-existent', repository: 'standard', arch: 'x86_64', filename: 'appliance.raw.xz' } }
+
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid filename' do
         let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'x86_64', filename: 'appliance.rpm' } }
+
         include_context 'it redirects and assigns flash error'
       end
 
       context 'with an invalid architecture' do
         let(:params) { { project: 'EC2Images', package: 'MyEC2Image', repository: 'standard', arch: 'i386', filename: 'appliance.raw.xz' } }
+
         include_context 'it redirects and assigns flash error'
       end
     end

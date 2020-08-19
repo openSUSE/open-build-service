@@ -64,6 +64,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
           source_package: source_package
         ).build
       end
+
       it { expect(differ[:oproject]).to eq('release_project_name') }
       it { expect(differ.keys.length).to eq(4) }
     end
@@ -79,6 +80,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilder, vcr: true do
           source_package: source_package.name
         ).build
       end
+
       it 'has proper diff' do
         login user
         create(:package, project: maintenance_release_project, name: 'the_package')

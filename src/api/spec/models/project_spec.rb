@@ -96,6 +96,7 @@ RSpec.describe Project, vcr: true do
         let!(:other_distribution_repository) { create(:repository, name: 'BaseDistro3_repo', project: other_distribution) }
         let(:other_repository) { create(:repository, name: 'Base_repo3', project: project) }
         let!(:path_element) { create(:path_element, parent_id: other_repository.id, repository_id: other_distribution_repository.id, position: 1) }
+
         it { expect(project.has_distribution('BaseDistro3.0', 'standard')).to be(false) }
         it { expect(project.has_distribution('BaseDistro4.0', 'BaseDistro3_repo')).to be(false) }
       end
@@ -760,6 +761,7 @@ RSpec.describe Project, vcr: true do
       </resultlist>
       HEREDOC
     end
+
     before do
       allow(Backend::Api::BuildResults::Status).to receive(:version_releases).and_return(fake_build_results)
     end

@@ -336,6 +336,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
 
     describe 'as common user' do
       let(:other_user) { create(:confirmed_user, :with_home, login: 'common_user') }
+
       before do
         login other_user
       end
