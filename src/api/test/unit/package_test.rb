@@ -131,7 +131,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_can_be_deleted
-    assert !packages(:kde4_kdelibs).check_weak_dependencies!
+    assert_not packages(:kde4_kdelibs).check_weak_dependencies!
   end
 
   def test_store
@@ -212,7 +212,7 @@ class PackageTest < ActiveSupport::TestCase
 
   test 'invalid names are catched' do
     @package.name = '_coolproject'
-    assert !@package.save
+    assert_not @package.save
     assert_raise(ActiveRecord::RecordInvalid) do
       @package.save!
     end
@@ -224,7 +224,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.name = '_product'
     assert @package.valid?
     @package.name = '.product'
-    assert !@package.valid?
+    assert_not @package.valid?
     @package.name = 'product.i586'
     assert @package.valid?
   end
@@ -338,7 +338,7 @@ class PackageTest < ActiveSupport::TestCase
     generate_suffixes(['diff', 'txt', 'csv', 'pm', 'c', 'rb', 'h']).each do |suffix|
       file_paths.each do |file_path|
         filename = file_path + '.' + suffix
-        assert !Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"
+        assert_not Package.is_binary_file?(filename), "File #{filename} should not be treated as binary"
       end
     end
   end

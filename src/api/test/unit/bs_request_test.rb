@@ -33,7 +33,7 @@ class BsRequestTest < ActiveSupport::TestCase
     req = bs_requests(:missing_source_project)
 
     assert req.is_target_maintainer?(users(:adrian))
-    assert !req.is_target_maintainer?(users(:user1))
+    assert_not req.is_target_maintainer?(users(:user1))
   end
 
   def test_incremental_request_numbers
