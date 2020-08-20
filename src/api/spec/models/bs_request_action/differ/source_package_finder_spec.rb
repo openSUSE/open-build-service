@@ -47,6 +47,7 @@ RSpec.describe BsRequestAction::Differ::SourcePackageFinder do
       end
       let!(:bs_request_action) { bs_request.bs_request_actions.first }
       let!(:finder) { BsRequestAction::Differ::SourcePackageFinder.new(bs_request_action: bs_request_action) }
+
       context 'and source access' do
         it { expect(finder.all).to match_array(['another_source_package', 'source_package']) }
       end

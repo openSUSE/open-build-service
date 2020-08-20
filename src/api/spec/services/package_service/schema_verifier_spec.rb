@@ -10,6 +10,7 @@ RSpec.describe ::PackageService::SchemaVerifier do
     context 'no error' do
       let(:file_name) { 'foo' }
       let(:content) { 'bar' }
+
       it { expect { subject }.not_to raise_error }
     end
 
@@ -34,6 +35,7 @@ RSpec.describe ::PackageService::SchemaVerifier do
             </pattern>
         XML_DATA
       end
+
       it { expect { subject }.not_to raise_error }
     end
 
@@ -41,6 +43,7 @@ RSpec.describe ::PackageService::SchemaVerifier do
       let!(:package) { create(:package, name: '_pattern') }
       let(:file_name) { 'OBS-Server' }
       let(:content) { 'foo' }
+
       it { expect { subject }.to raise_error(Suse::ValidationError) }
     end
   end

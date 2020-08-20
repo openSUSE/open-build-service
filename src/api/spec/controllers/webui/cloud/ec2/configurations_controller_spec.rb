@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Webui::Cloud::Ec2::ConfigurationsController, type: :controller do
   let(:user) { create(:confirmed_user, login: 'tom') }
+
   before do
     login(user)
   end

@@ -111,6 +111,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       context 'full diff not requested' do
         let(:expected_diff_size) { file_size_threshold + diff_header_size }
+
         context 'for ASCII files' do
           let(:target_package) do
             create(:package_with_file, name: 'test-package-ascii',
@@ -174,6 +175,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
       context 'with :diff_to_superseded set' do
         let(:superseded_bs_request) { create(:set_bugowner_request) }
+
         context 'and the superseded request is superseded' do
           before do
             superseded_bs_request.update(state: :superseded, superseded_by: bs_request.number)
@@ -345,6 +347,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
   describe 'POST #set_bugowner_request' do
     let(:bs_request) { BsRequest.find_by(creator: submitter_with_group.login, description: 'blah blah blash', state: 'new') }
+
     context 'with valid parameters' do
       before do
         login(submitter_with_group)

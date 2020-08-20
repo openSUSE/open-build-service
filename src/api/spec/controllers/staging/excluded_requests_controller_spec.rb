@@ -80,6 +80,7 @@ RSpec.describe Staging::ExcludedRequestsController do
 
     context 'fails: project without staging_workflow' do
       let(:project_without_staging) { create(:project, name: 'no_staging') }
+
       before do
         post :create, params: { staging_workflow_project: project_without_staging, format: :xml },
                       body: "<excluded_requests><request id='#{bs_request.number}' description='hey'/></excluded_requests>"

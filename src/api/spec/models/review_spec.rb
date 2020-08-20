@@ -107,6 +107,7 @@ RSpec.describe Review do
 
     context 'with invalid attributes' do
       let!(:nobody) { create(:user_nobody) }
+
       it 'does not set user association when by_user object does not exist' do
         review = Review.new(by_user: 'not-existent')
         expect(review.user).to eq(nil)
@@ -356,6 +357,7 @@ RSpec.describe Review do
 
     context 'by_user' do
       let!(:review) { create(:user_review) }
+
       subject { review.user }
 
       it_behaves_like "the subject's cache is reset when it's review changes"
@@ -379,6 +381,7 @@ RSpec.describe Review do
       let(:relationship_package_user) { create(:relationship_package_user) }
       let(:package) { relationship_package_user.package }
       let!(:review) { create(:review, by_package: package, by_project: package.project) }
+
       subject { relationship_package_user.user }
 
       it_behaves_like "the subject's cache is reset when it's review changes"
@@ -404,6 +407,7 @@ RSpec.describe Review do
       let(:relationship_project_user) { create(:relationship_project_user) }
       let(:project) { relationship_project_user.project }
       let!(:review) { create(:review, by_project: project) }
+
       subject { relationship_project_user.user }
 
       it_behaves_like "the subject's cache is reset when it's review changes"

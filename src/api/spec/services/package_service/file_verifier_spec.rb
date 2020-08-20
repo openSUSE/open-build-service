@@ -24,15 +24,18 @@ RSpec.describe ::PackageService::FileVerifier do
 
     context 'content is xml' do
       let(:content) { '<xml></xml>' }
+
       it { expect { file_verifier }.not_to raise_error }
     end
   end
 
   describe '.call' do
     let(:package) { project.packages.first }
+
     context 'invalid constraints' do
       let(:file_name) { '_constraints' }
       let(:content) { 'illegal' }
+
       subject { file_verifier.call }
 
       it { expect { subject }.to raise_error(Suse::ValidationError) }
@@ -41,6 +44,7 @@ RSpec.describe ::PackageService::FileVerifier do
     context 'invalid service file' do
       let(:file_name) { '_service' }
       let(:content) { 'illegal' }
+
       subject { file_verifier.call }
 
       it { expect { subject }.to raise_error(Suse::ValidationError) }
@@ -49,6 +53,7 @@ RSpec.describe ::PackageService::FileVerifier do
     context 'valid uploaded file' do
       let(:file_name) { 'foo.txt' }
       let(:content) { ActionDispatch::Http::UploadedFile.new(filename: file_name, type: 'text/plain', tempfile: temp_file) }
+
       subject { file_verifier.call }
 
       it { expect { subject }.not_to raise_error }
@@ -72,6 +77,7 @@ RSpec.describe ::PackageService::FileVerifier do
         </services>
         XML
       end
+
       subject { file_verifier.call }
 
       it { expect { subject }.not_to raise_error }

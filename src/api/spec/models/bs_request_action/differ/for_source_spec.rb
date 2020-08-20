@@ -37,6 +37,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
     RESPONSE
   end
   let(:options) { { filelimit: 42, tarlimit: 43, withissues: 1, view: :xml } }
+
   subject do
     BsRequestAction::Differ::ForSource.new(
       bs_request_action: bs_request_action,
@@ -61,6 +62,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
         }
       end
       let(:path) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?#{params.to_param}" }
+
       before do
         stub_request(:post, path).and_return(body: xml_response)
       end
@@ -71,6 +73,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
     context 'with error' do
       let(:path) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}" }
       let(:no_such_revision) { '<status code="404"><summary>no such revision</summary><details>404 no such revision</details></status>' }
+
       before do
         stub_request(:post, path).with(query: hash_including('cmd' => 'diff', 'opackage' => target_package.name)).and_return(body: no_such_revision, status: 404)
       end
@@ -98,6 +101,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
         }
       end
       let(:path) { "#{CONFIG['source_url']}/source/#{source_project}/#{source_package}?#{params.to_param}" }
+
       before do
         options[:superseded_bs_request_action] = superseded_bs_request_action
         stub_request(:post, path).and_return(body: xml_response)
@@ -123,6 +127,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
                osrcmd5: 3)
       end
       let(:path) { "#{CONFIG['source_url']}/source/#{target_project}/#{target_package}?#{params.to_param}" }
+
       before do
         stub_request(:post, path).and_return(body: xml_response)
       end

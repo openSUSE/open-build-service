@@ -28,6 +28,7 @@ RSpec.describe SourceProjectMetaController, vcr: true do
         </project>
       META
     end
+
     before do
       login user
       put :update, params: { project: project }, body: meta, format: :xml

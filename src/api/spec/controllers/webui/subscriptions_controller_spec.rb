@@ -17,6 +17,7 @@ RSpec.describe Webui::SubscriptionsController do
   describe 'PUT #update' do
     let!(:admin) { create(:admin_user) }
     let(:params) { { subscriptions: subscription_params } }
+
     include_context 'a user and subscriptions with defaults'
 
     before do

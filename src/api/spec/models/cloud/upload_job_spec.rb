@@ -77,6 +77,7 @@ RSpec.describe Cloud::UploadJob, type: :model do
 
     context 'with an invalid User::UploadJob' do
       let!(:job) { create(:upload_job, job_id: 6) }
+
       before do
         allow(Backend::Api::Cloud).to receive(:upload).with(params).and_return(response)
       end

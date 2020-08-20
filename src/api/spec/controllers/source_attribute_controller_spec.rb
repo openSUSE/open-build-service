@@ -116,6 +116,7 @@ RSpec.describe SourceAttributeController, vcr: true do
 
     context 'with invalid user' do
       let(:wrong_user) { create(:confirmed_user, login: 'tomtom') }
+
       before do
         login wrong_user
         main_attribute

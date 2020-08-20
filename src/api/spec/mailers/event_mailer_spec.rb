@@ -120,6 +120,7 @@ RSpec.describe EventMailer, vcr: true do
       let(:group) { create(:group, email: nil) }
       let(:empty_event) { nil }
       let(:subscribers) { [group] }
+
       subject! { EventMailer.event(subscribers, empty_event).deliver_now }
 
       it 'does not get delivered' do

@@ -27,6 +27,7 @@ RSpec.describe Notification do
 
   describe '#user_active?' do
     let(:rss_notification) { create(:rss_notification, subscriber: test_user) }
+
     subject { rss_notification.user_active? }
 
     context 'when subscriber is away' do
@@ -54,11 +55,13 @@ RSpec.describe Notification do
 
     context 'no active user in the group' do
       let!(:test_user) { create(:dead_user, login: 'foo') }
+
       it { expect(subject).to be_falsey }
     end
 
     context 'active user in the group' do
       let!(:test_user) { create(:confirmed_user, login: 'foo') }
+
       it { expect(subject).to be_truthy }
     end
   end

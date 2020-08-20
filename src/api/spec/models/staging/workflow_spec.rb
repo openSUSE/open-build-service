@@ -22,6 +22,7 @@ RSpec.describe Staging::Workflow, type: :model do
 
   context 'when created' do
     let(:role) { Role.find_by_title('reviewer') }
+
     it { expect(project.relationships.where(group: group, role: role)).to exist }
   end
 
@@ -97,6 +98,7 @@ RSpec.describe Staging::Workflow, type: :model do
              target_package: target_package,
              source_package: source_package)
     end
+
     it { expect(staging_workflow.autocomplete(bs_request_2.number)).to include(bs_request_2) }
     it { expect(staging_workflow.autocomplete(bs_request.number)).not_to include(bs_request_2) }
     it { expect(staging_workflow.autocomplete(-1)).to be_empty }

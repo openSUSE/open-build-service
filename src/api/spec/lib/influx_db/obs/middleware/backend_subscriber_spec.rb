@@ -3,6 +3,7 @@ require Rails.root.join('lib', 'influxdb_obs', 'obs', 'middleware', 'backend_sub
 
 RSpec.describe InfluxDB::OBS::Middleware::BackendSubscriber do
   let(:series_name) { 'rails' }
+
   subject { described_class.new(series_name) }
 
   describe '#call' do

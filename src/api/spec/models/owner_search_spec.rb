@@ -129,6 +129,7 @@ RSpec.describe OwnerSearch do
 
       context 'with owned user' do
         let(:owning) { create(:confirmed_user) }
+
         before do
           other_user.update(owner: owning, state: :subaccount)
         end

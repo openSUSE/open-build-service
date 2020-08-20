@@ -45,6 +45,7 @@ RSpec.describe Repository do
 
     describe '.cycles' do
       let(:repository) { create(:repository) }
+
       subject { repository.cycles('x64_64') }
 
       before do

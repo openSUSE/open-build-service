@@ -63,6 +63,7 @@ RSpec.describe Webui::Projects::StatusHelper do
 
     context 'sortkey when there are no problems' do
       let(:problems) { [] }
+
       subject { helper.parse_status('foo', package)[:sortkey] }
 
       it { expect(subject).to eq("9-ok-#{package[:name]}") }
@@ -86,6 +87,7 @@ RSpec.describe Webui::Projects::StatusHelper do
 
     context 'sortkey when currently_declined was the last evaluated error' do
       let(:problems) { ['currently_declined'] }
+
       subject { helper.parse_status('foo', package)[:sortkey] }
 
       it { expect(subject).to eq("2-declines-#{package[:name]}") }
