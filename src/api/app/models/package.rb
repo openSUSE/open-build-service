@@ -214,9 +214,7 @@ class Package < ApplicationRecord
     rescue Project::UnknownObjectError
       return false
     end
-    unless prj.is_a?(Project)
-      return opts[:allow_remote_packages] && exists_on_backend?(package, project)
-    end
+    return opts[:allow_remote_packages] && exists_on_backend?(package, project) unless prj.is_a?(Project)
 
     prj.exists_package?(package, opts)
   end
@@ -258,9 +256,7 @@ class Package < ApplicationRecord
   def check_source_access!
     return if check_source_access?
     # TODO: Use pundit for authorization instead
-    unless User.session
-      raise Authenticator::AnonymousUser, 'Anonymous user is not allowed here - please login'
-    end
+    raise Authenticator::AnonymousUser, 'Anonymous user is not allowed here - please login' unless User.session
 
     raise ReadSourceAccessError, "#{project.name}/#{name}"
   end
@@ -650,9 +646,7 @@ class Package < ApplicationRecord
     prj_name = pkg.project.name
     processed = {}
 
-    if pkg == pkg.develpackage
-      raise CycleError, 'Package defines itself as devel package'
-    end
+    raise CycleError, 'Package defines itself as devel package' if pkg == pkg.develpackage
 
     while pkg.develpackage || pkg.project.develproject
       # logger.debug "resolve_devel_package #{pkg.inspect}"
@@ -699,14 +693,10 @@ class Package < ApplicationRecord
         prj_name = devel['project'] || xmlhash['project']
         pkg_name = devel['package'] || xmlhash['name']
         develprj = Project.find_by_name(prj_name)
-        unless develprj
-          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
-        end
+        raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
 
         develpkg = develprj.packages.find_by_name(pkg_name)
-        unless develpkg
-          raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
-        end
+        raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)" unless develpkg
 
         self.develpackage = develpkg
       end
@@ -787,9 +777,7 @@ class Package < ApplicationRecord
       end
       logger.tagged('backend_sync') { logger.warn("Deleted Package #{project.name}/#{name}") }
     elsif @commit_opts[:no_backend_write]
-      unless @commit_opts[:project_destroy_transaction]
-        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " }
-      end
+      logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, backend_write is off " } unless @commit_opts[:project_destroy_transaction]
     else
       logger.tagged('backend_sync') { logger.warn "Not deleting Package #{project.name}/#{name}, global_write_through is off" }
     end
@@ -900,9 +888,7 @@ class Package < ApplicationRecord
     # local link, go one step deeper
     prj = Project.get_by_name(linkinfo['project'])
     pkg = prj.find_package(linkinfo['package'])
-    if !options[:local] && project != prj && !prj.is_maintenance_incident?
-      return pkg
-    end
+    return pkg if !options[:local] && project != prj && !prj.is_maintenance_incident?
 
     # If package is nil it's either broken or a remote one.
     # Otherwise we continue
@@ -989,9 +975,7 @@ class Package < ApplicationRecord
     # rubocop:enable Rails/SkipsModelValidations
 
     # and all possible existing local links
-    if opkg.project.is_maintenance_release? && opkg.is_link?
-      opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package'])
-    end
+    opkg = opkg.project.packages.find_by_name(opkg.linkinfo['package']) if opkg.project.is_maintenance_release? && opkg.is_link?
 
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
@@ -1192,9 +1176,7 @@ class Package < ApplicationRecord
     delete_opt[:user] = User.session!.login
     delete_opt[:comment] = opt[:comment] if opt[:comment]
 
-    unless User.session!.can_modify?(self)
-      raise DeleteFileNoPermission, 'Insufficient permissions to delete file'
-    end
+    raise DeleteFileNoPermission, 'Insufficient permissions to delete file' unless User.session!.can_modify?(self)
 
     Backend::Connection.delete source_path(name, delete_opt)
     sources_changed
@@ -1270,9 +1252,7 @@ class Package < ApplicationRecord
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
     Package.verify_file!(self, opt[:filename], content)
-    unless User.session!.can_modify?(self)
-      raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}"
-    end
+    raise PutFileNoPermission, "Insufficient permissions to store file in package #{name}, project #{project.name}" unless User.session!.can_modify?(self)
 
     params = {}
     params[:comment] = opt[:comment] if opt[:comment]

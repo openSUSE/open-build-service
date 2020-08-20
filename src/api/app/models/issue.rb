@@ -27,9 +27,7 @@ class Issue < ApplicationRecord
     end
 
     issue = issue_tracker.issues.find_by_name(name)
-    if issue.nil? && options[:create_missing]
-      issue = issue_tracker.issues.create(name: name)
-    end
+    issue = issue_tracker.issues.create(name: name) if issue.nil? && options[:create_missing]
 
     if options[:force_update] && issue
       issue.fetch_updates

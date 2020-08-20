@@ -173,9 +173,7 @@ class User < ApplicationRecord
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
-    if CONFIG['ldap_mode'] == :on
-      return find_with_credentials_via_ldap(login, password)
-    end
+    return find_with_credentials_via_ldap(login, password) if CONFIG['ldap_mode'] == :on
 
     user = find_by_login(login)
     user.try(:authenticate_via_password, password)
@@ -456,9 +454,7 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   # project is instance of Project
   def can_modify_project?(project, ignore_lock = nil)
-    unless project.is_a?(Project)
-      raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
-    end
+    raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}" unless project.is_a?(Project)
 
     if project.new_record?
       # Project.check_write_access(!) should have been used?
@@ -472,9 +468,7 @@ class User < ApplicationRecord
   # package is instance of Package
   def can_modify_package?(package, ignore_lock = nil)
     return false if package.nil? # happens with remote packages easily
-    unless package.is_a?(Package)
-      raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
-    end
+    raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}" unless package.is_a?(Package)
     return false if !ignore_lock && package.is_locked?
     return true if is_admin?
     return true if has_global_permission?('change_package')
@@ -519,9 +513,7 @@ class User < ApplicationRecord
   # FIXME: This should be a policy
   def can_create_attribute_definition?(object)
     object = object.attrib_namespace if object.is_a?(AttribType)
-    unless object.is_a?(AttribNamespace)
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
-    end
+    raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" unless object.is_a?(AttribNamespace)
 
     return true if is_admin?
 
@@ -538,9 +530,7 @@ class User < ApplicationRecord
 
   # FIXME: This should be a policy
   def can_create_attribute_in?(object, atype)
-    if !object.is_a?(Project) && !object.is_a?(Package)
-      raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}"
-    end
+    raise ArgumentError, "illegal parameter type to User#can_change?: #{object.class.name}" if !object.is_a?(Project) && !object.is_a?(Package)
 
     return true if is_admin?
 
@@ -878,9 +868,7 @@ class User < ApplicationRecord
     self.login_failure_count = 0
 
     if changes.any?
-      if changes.keys.include?('email')
-        logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}"
-      end
+      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}" if changes.keys.include?('email')
 
       # At this point some login value changed, so a successful log in is tracked
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')

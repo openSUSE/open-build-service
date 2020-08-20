@@ -28,9 +28,7 @@ class EventSubscription
 
           if receiver_subscription.present?
             # Use the receiver's subscription if it exists
-            if receiver_subscription.enabled?
-              receivers_and_subscriptions[receiver] = receiver_subscription
-            end
+            receivers_and_subscriptions[receiver] = receiver_subscription if receiver_subscription.enabled?
 
           # Only check the default_subscription if there is no receiver's subscription
           elsif default_subscription.present? && default_subscription.enabled?

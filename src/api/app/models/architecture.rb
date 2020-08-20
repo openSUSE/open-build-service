@@ -31,9 +31,7 @@ class Architecture < ApplicationRecord
   end
 
   def self.from_cache!(archname)
-    unless archcache.key?(archname)
-      raise ActiveRecord::RecordNotFound, "unknown architecture: '#{archname}'"
-    end
+    raise ActiveRecord::RecordNotFound, "unknown architecture: '#{archname}'" unless archcache.key?(archname)
 
     archcache[archname]
   end

@@ -6,9 +6,7 @@ class ChannelBinary < ApplicationRecord
 
   validate do |channel_binary|
     if channel_binary.project && channel_binary.repository
-      unless channel_binary.repository.project == channel_binary.project
-        errors.add_to_base('Associated project has to match with repository.project')
-      end
+      errors.add_to_base('Associated project has to match with repository.project') unless channel_binary.repository.project == channel_binary.project
     end
   end
 

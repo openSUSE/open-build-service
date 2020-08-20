@@ -126,9 +126,7 @@ class BsRequest < ApplicationRecord
     # All types means don't pass 'type'
     opts.delete(:types) if [opts[:types]].flatten.include?('all')
     # Do not allow a full collection to avoid server load
-    if [:project, :user, :package].all? { |filter| opts[filter].blank? }
-      raise 'This call requires at least one filter, either by user, project or package'
-    end
+    raise 'This call requires at least one filter, either by user, project or package' if [:project, :user, :package].all? { |filter| opts[filter].blank? }
 
     roles = opts[:roles] || []
     states = opts[:states] || []
@@ -338,9 +336,7 @@ class BsRequest < ApplicationRecord
   end
 
   def check_supersede_state
-    if state == :superseded && (!superseded_by.is_a?(Numeric) || superseded_by <= 0)
-      errors.add(:superseded_by, 'Superseded_by should be set')
-    end
+    errors.add(:superseded_by, 'Superseded_by should be set') if state == :superseded && (!superseded_by.is_a?(Numeric) || superseded_by <= 0)
 
     return unless superseded_by && state != :superseded
 
@@ -533,9 +529,7 @@ class BsRequest < ApplicationRecord
             rescue ArgumentError
               raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
             end
-            if embargo > Time.now
-              raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}"
-            end
+            raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}" if embargo > Time.now
           end
         end
       end
@@ -550,9 +544,7 @@ class BsRequest < ApplicationRecord
       incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
       opts[:check_for_patchinfo] = true
 
-      unless incident_project.name.start_with?(target_project.name)
-        raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !'
-      end
+      raise MultipleMaintenanceIncidents, 'This request handles different maintenance incidents, this is not allowed !' unless incident_project.name.start_with?(target_project.name)
 
       action.target_project = incident_project.name
       action.save!
@@ -636,9 +628,7 @@ class BsRequest < ApplicationRecord
   end
 
   def assignreview(opts = {})
-    unless state == :review || (state == :new && state == :new)
-      raise InvalidStateError, 'request is not in review state'
-    end
+    raise InvalidStateError, 'request is not in review state' unless state == :review || (state == :new && state == :new)
 
     reviewer = User.find_by_login!(opts[:reviewer])
 
@@ -667,9 +657,7 @@ class BsRequest < ApplicationRecord
   end
 
   def approval_handling(new_approver, opts)
-    unless state == :review
-      raise InvalidStateError, 'request is not in review state'
-    end
+    raise InvalidStateError, 'request is not in review state' unless state == :review
 
     # check if User.session! is allowed to potentially accept the request
     # (note: setting the :force key to true will skip some checks but
@@ -724,14 +712,10 @@ class BsRequest < ApplicationRecord
     with_lock do
       new_review_state = new_review_state.to_sym
 
-      unless state == :review || (state == :new && new_review_state == :new)
-        raise InvalidStateError, 'request is not in review state'
-      end
+      raise InvalidStateError, 'request is not in review state' unless state == :review || (state == :new && new_review_state == :new)
 
       check_if_valid_review!(opts)
-      unless new_review_state.in?([:new, :accepted, :declined, :superseded])
-        raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}"
-      end
+      raise InvalidStateError, "review state must be new, accepted, declined or superseded, was #{new_review_state}" unless new_review_state.in?([:new, :accepted, :declined, :superseded])
 
       old_request_state = state
       review = find_review_for_opts(opts)
@@ -814,9 +798,7 @@ class BsRequest < ApplicationRecord
   def setpriority(opts)
     permission_check_setpriority!
 
-    unless opts[:priority].in?(['low', 'moderate', 'important', 'critical'])
-      raise SaveError, "Illegal priority '#{opts[:priority]}'"
-    end
+    raise SaveError, "Illegal priority '#{opts[:priority]}'" unless opts[:priority].in?(['low', 'moderate', 'important', 'critical'])
 
     p = { request: self, user_id: User.session!.id, description_extension: "#{priority} => #{opts[:priority]}" }
     p[:comment] = opts[:comment] if opts[:comment]
@@ -927,12 +909,8 @@ class BsRequest < ApplicationRecord
     self.creator ||= User.session!.login
     self.commenter ||= User.session!.login
     # FIXME: Move permission checks to controller level
-    unless self.creator == User.session!.login || User.admin_session?
-      raise SaveError, 'Admin permissions required to set request creator to foreign user'
-    end
-    unless self.commenter == User.session!.login || User.admin_session?
-      raise SaveError, 'Admin permissions required to set request commenter to foreign user'
-    end
+    raise SaveError, 'Admin permissions required to set request creator to foreign user' unless self.creator == User.session!.login || User.admin_session?
+    raise SaveError, 'Admin permissions required to set request commenter to foreign user' unless self.commenter == User.session!.login || User.admin_session?
 
     # ensure correct initial values, no matter what has been sent to us
     self.state = :new
@@ -981,9 +959,7 @@ class BsRequest < ApplicationRecord
         action[:tpkg] = xml.target_package if xml.target_package
         action[:trepo] = xml.target_repository if xml.target_repository
       end
-      if xml.target_releaseproject
-        action[:releaseproject] = xml.target_releaseproject
-      end
+      action[:releaseproject] = xml.target_releaseproject if xml.target_releaseproject
 
       case xml.action_type # All further stuff depends on action type...
       when :submit then

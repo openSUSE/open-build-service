@@ -244,14 +244,10 @@ class Patchinfo
   def fetch_release_targets(pkg)
     data = read_patchinfo_xmlhash(pkg)
     # validate _patchinfo for completeness
-    if data.empty?
-      raise IncompletePatchinfo, 'The _patchinfo file is not parseble'
-    end
+    raise IncompletePatchinfo, 'The _patchinfo file is not parseble' if data.empty?
 
     ['rating', 'category', 'summary'].each do |field|
-      if data[field].blank?
-        raise IncompletePatchinfo, "The _patchinfo has no #{field} set"
-      end
+      raise IncompletePatchinfo, "The _patchinfo has no #{field} set" if data[field].blank?
     end
     # a patchinfo may limit the targets
     data.elements('releasetarget')

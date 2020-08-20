@@ -9,9 +9,7 @@ class Channel < ApplicationRecord
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
     xmlhash.elements('target') do |p|
       prj = Project.get_by_name(p['project'])
-      unless prj.repositories.find_by_name(p['repository'])
-        raise UnknownRepository, "Repository does not exist #{prj.name}/#{p['repository']}"
-      end
+      raise UnknownRepository, "Repository does not exist #{prj.name}/#{p['repository']}" unless prj.repositories.find_by_name(p['repository'])
     end
     xmlhash.elements('binaries').each do |p|
       project = p['project']
@@ -29,9 +27,7 @@ class Channel < ApplicationRecord
             pkg = prj.find_package(b['package'].gsub(/:.*$/, ''))
             raise UnknownPackage, "Package does not exist #{prj.name}/#{p['package']}" unless pkg
           end
-          if b['repository'] && !prj.repositories.find_by_name(b['repository'])
-            raise UnknownRepository, "Repository does not exist #{prj.name}/#{b['repository']}"
-          end
+          raise UnknownRepository, "Repository does not exist #{prj.name}/#{b['repository']}" if b['repository'] && !prj.repositories.find_by_name(b['repository'])
         end
       end
     end

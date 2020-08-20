@@ -40,9 +40,7 @@ module ProjectStatus
         maxmtime: maxmtime,
         release: release
       }
-      unless verifymd5.blank? || verifymd5 == srcmd5
-        options[:verifymd5] = verifymd5
-      end
+      options[:verifymd5] = verifymd5 unless verifymd5.blank? || verifymd5 == srcmd5
       options
     end
 

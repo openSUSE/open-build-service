@@ -99,12 +99,8 @@ class PackageBuildStatus
     rescue Backend::Error
       currentcode = nil
     end
-    if currentcode.in?(['unresolvable', 'failed', 'broken'])
-      @buildcode = 'failed'
-    end
-    if currentcode.in?(['building', 'scheduled', 'finished', 'signing', 'blocked'])
-      @buildcode = 'building'
-    end
+    @buildcode = 'failed' if currentcode.in?(['unresolvable', 'failed', 'broken'])
+    @buildcode = 'building' if currentcode.in?(['building', 'scheduled', 'finished', 'signing', 'blocked'])
     @buildcode = 'excluded' if currentcode == 'excluded'
     # if it's currently succeeded but !@everbuilt, it's different sources
     return unless currentcode == 'succeeded'
@@ -145,14 +141,10 @@ class PackageBuildStatus
     # two results per package. If the md5sum does not match, we have to dig deeper
     jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { code: 'lastfailures', limit: 2 })
     jobhistory.each do |entry|
-      if entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
-        @everbuilt = true
-      end
+      @everbuilt = true if entry.verifymd5 == @verifymd5 || entry.srcmd5 == @srcmd5
     end
 
-    unless @everbuilt
-      jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { limit: 20 })
-    end
+    jobhistory = @pkg.jobhistory(repository_name: srep['name'], arch_name: arch, filter: { limit: 20 }) unless @everbuilt
 
     # going through the job history to check if it built and if yes, succeeded
     jobhistory.each do |entry|

@@ -33,9 +33,7 @@ class UnregisteredUser < User
     end
 
     # Turn on registration if it's enabled
-    if ['allow', 'confirmation'].include?(::Configuration.registration)
-      return true
-    end
+    return true if ['allow', 'confirmation'].include?(::Configuration.registration)
 
     # This shouldn't happen, but disable registration by default.
     logger.debug "Huh? This shouldn't happen. UnregisteredUser.can_register ran out of options"
@@ -59,9 +57,7 @@ class UnregisteredUser < User
       ignore_auth_services: Configuration.ldap_enabled?
     )
 
-    unless newuser.save
-      raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}"
-    end
+    raise ErrRegisterSave, "Could not save the registration, details: #{newuser.errors.full_messages.to_sentence}" unless newuser.save
 
     return unless newuser.state == 'unconfirmed'
 
