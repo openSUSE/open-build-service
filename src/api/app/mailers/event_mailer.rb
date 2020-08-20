@@ -47,13 +47,9 @@ class EventMailer < ActionMailer::Base
          subject: e.subject,
          from: orig,
          date: e.created_at) do |format|
-      if template_exists?("event_mailer/#{template_name}", formats: [:html])
-        format.html { render template_name, locals: locals }
-      end
+      format.html { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:html])
 
-      if template_exists?("event_mailer/#{template_name}", formats: [:text])
-        format.text { render template_name, locals: locals }
-      end
+      format.text { render template_name, locals: locals } if template_exists?("event_mailer/#{template_name}", formats: [:text])
     end
   end
 end
