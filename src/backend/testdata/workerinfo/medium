@@ -17,6 +17,7 @@
       <flag>sse</flag>
     </cpu>
     <processors>2</processors>
+    <jobs>2</jobs>
     <memory>512</memory>
     <swap>1024</swap>
     <disk>4096</disk>
