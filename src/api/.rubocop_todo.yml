@@ -1365,7 +1365,6 @@ Style/IfUnlessModifier:
     - 'app/controllers/webui/search_controller.rb'
     - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/controllers/webui/webui_controller.rb'
-    - 'app/jobs/status_history_rescaler_job.rb'
     - 'app/mailers/event_mailer.rb'
     - 'app/mixins/build_log_support.rb'
     - 'app/mixins/has_attributes.rb'
