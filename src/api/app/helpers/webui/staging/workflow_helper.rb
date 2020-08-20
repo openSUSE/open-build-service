@@ -88,9 +88,7 @@ module Webui::Staging::WorkflowHelper
       create_request_links(request, users_hash, groups_hash)
     end
 
-    if number_of_requests <= requests_visible_by_default
-      return safe_join(requests_links)
-    end
+    return safe_join(requests_links) if number_of_requests <= requests_visible_by_default
 
     output = safe_join(requests_links[0, requests_visible_by_default])
 

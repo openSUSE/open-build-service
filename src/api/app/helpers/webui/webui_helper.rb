@@ -165,9 +165,7 @@ module Webui::WebuiHelper
     return '' if text.blank?
 
     text.force_encoding('UTF-8')
-    unless text.valid_encoding?
-      text = 'The file you look at is not valid UTF-8 text. Please convert the file.'
-    end
+    text = 'The file you look at is not valid UTF-8 text. Please convert the file.' unless text.valid_encoding?
     # Ged rid of stuff that shouldn't be part of PCDATA:
     text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
       if Regexp.last_match(1)[0].getbyte(0) < 32
@@ -252,12 +250,8 @@ module Webui::WebuiHelper
     prj = Project.where(name: opts[:project]).select(:id, :name, :updated_at).first
     # Expires in 2 hours so that changes of local and remote packages eventually result in an update
     Rails.cache.fetch(['project_or_package_link', prj.try(:id), opts], expires_in: 2.hours) do
-      if prj && opts[:creator]
-        opts[:project_text] ||= format_projectname(opts[:project], opts[:creator])
-      end
-      if opts[:package] && prj && opts[:package] != :multiple
-        pkg = prj.packages.where(name: opts[:package]).select(:id, :name, :project_id).first
-      end
+      opts[:project_text] ||= format_projectname(opts[:project], opts[:creator]) if prj && opts[:creator]
+      pkg = prj.packages.where(name: opts[:package]).select(:id, :name, :project_id).first if opts[:package] && prj && opts[:package] != :multiple
       if opts[:package]
         link_to_package(prj, pkg, opts)
       else

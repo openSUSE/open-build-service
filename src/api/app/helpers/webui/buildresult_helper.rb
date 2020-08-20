@@ -14,9 +14,7 @@ module Webui::BuildresultHelper
       theclass = 'text-warning' if code == 'scheduled' && link_title.present?
     end
 
-    if feature_enabled?(:responsive_ux)
-      return build_state(code: code, css_class: theclass, package_name: package_name, status_id: status_id, repo: repo, arch: arch)
-    end
+    return build_state(code: code, css_class: theclass, package_name: package_name, status_id: status_id, repo: repo, arch: arch) if feature_enabled?(:responsive_ux)
 
     capture do
       if enable_help && status['code']
