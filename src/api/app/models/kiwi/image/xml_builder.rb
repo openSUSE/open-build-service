@@ -50,9 +50,7 @@ module Kiwi
           return document
         end
 
-        if document.xpath("image/preferences[#{index}]").any?
-          document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>")
-        end
+        document.xpath("image/preferences[#{index}]").first.add_child("<version>#{preference.version}</version>") if document.xpath("image/preferences[#{index}]").any?
 
         document
       end
@@ -112,14 +110,10 @@ module Kiwi
       def update_profiles(document)
         comment = document.xpath('comment()[contains(., "OBS-Profiles:")]')
 
-        unless comment.empty?
-          document.xpath('comment()[contains(., "OBS-Profiles:")]').remove
-        end
+        document.xpath('comment()[contains(., "OBS-Profiles:")]').remove unless comment.empty?
 
         selected_profiles = @image.profiles.selected.pluck(:name)
-        unless selected_profiles.empty?
-          document.xpath('image').before(Nokogiri::XML::Comment.new(document, " OBS-Profiles: #{selected_profiles.join(' ')} "))
-        end
+        document.xpath('image').before(Nokogiri::XML::Comment.new(document, " OBS-Profiles: #{selected_profiles.join(' ')} ")) unless selected_profiles.empty?
 
         document
       end

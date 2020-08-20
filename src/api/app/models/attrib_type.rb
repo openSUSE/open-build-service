@@ -30,9 +30,7 @@ class AttribType < ApplicationRecord
 
   def self.find_by_name(name, or_fail = false)
     name_parts = name.split(/:/)
-    if name_parts.length != 2
-      raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style"
-    end
+    raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style" if name_parts.length != 2
 
     find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
   end
@@ -42,14 +40,10 @@ class AttribType < ApplicationRecord
   end
 
   def self.find_by_namespace_and_name(namespace, name, or_fail = false)
-    unless namespace && name
-      raise ArgumentError, 'Need namespace and name as parameters'
-    end
+    raise ArgumentError, 'Need namespace and name as parameters' unless namespace && name
 
     ats = joins(:attrib_namespace).where('attrib_namespaces.name = ? and attrib_types.name = ?', namespace, name)
-    if or_fail && ats.count != 1
-      raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist"
-    end
+    raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist" if or_fail && ats.count != 1
 
     ats.first
   end
@@ -126,9 +120,7 @@ class AttribType < ApplicationRecord
   private
 
   def create_one_rule(node)
-    if node['user'].blank? && node['group'].blank? && node['role'].blank?
-      raise "attribute type '#{node.name}' modifiable_by element has no valid rules set"
-    end
+    raise "attribute type '#{node.name}' modifiable_by element has no valid rules set" if node['user'].blank? && node['group'].blank? && node['role'].blank?
 
     new_rule = {}
     new_rule[:user] = User.find_by_login!(node['user']) if node['user']

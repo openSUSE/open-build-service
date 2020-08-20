@@ -82,9 +82,7 @@ class BranchPackage
     # create branch project
     tprj = create_branch_project
 
-    unless User.session!.can_modify?(tprj)
-      raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command"
-    end
+    raise Project::WritePermissionError, "no permission to modify project '#{@target_project}' while executing branch project command" unless User.session!.can_modify?(tprj)
 
     # all that worked ? :)
     { data: create_branch_packages(tprj) }
@@ -128,9 +126,7 @@ class BranchPackage
         p[:copy_from_devel] = p[:package]
       end
     else
-      unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-        p[:link_target_project] = update_project
-      end
+      p[:link_target_project] = update_project unless p[:link_target_project].is_a?(Project) && p[:link_target_project].find_attribute('OBS', 'BranchTarget')
       update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
       if update_pkg
         # We have no package in the update project yet, but sources are reachable via project link
@@ -178,9 +174,7 @@ class BranchPackage
       # no find_package call here to check really this project only
       tpkg = tprj.packages.find_by_name(pack_name)
       if tpkg
-        unless params[:force]
-          raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}"
-        end
+        raise DoubleBranchPackageError.new(tprj.name, tpkg.name), "branch target package already exists: #{tprj.name}/#{tpkg.name}" unless params[:force]
       else
         if pac.is_a?(Package)
           tpkg = tprj.packages.new(name: pack_name, title: pac.title, description: pac.description)
@@ -188,9 +182,7 @@ class BranchPackage
         else
           tpkg = tprj.packages.new(name: pack_name)
         end
-        if tpkg.bcntsynctag && @extend_names
-          tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_')
-        end
+        tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_') if tpkg.bcntsynctag && @extend_names
         tpkg.releasename = p[:release_name]
       end
       tpkg.store
@@ -266,16 +258,12 @@ class BranchPackage
 
   def create_branch_project
     if Project.exists_by_name(@target_project)
-      if @noaccess
-        raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable"
-      end
+      raise CreateProjectNoPermission, "The destination project already exists, so the api can't make it not readable" if @noaccess
 
       tprj = Project.get_by_name(@target_project)
     else
       # permission check
-      unless User.session!.can_create_project?(@target_project)
-        raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command"
-      end
+      raise CreateProjectNoPermission, "no permission to create project '#{@target_project}' while executing branch command" unless User.session!.can_create_project?(@target_project)
 
       title = "Branch project for package #{params[:package]}"
       description = "This project was created for package #{params[:package]} via attribute #{@attribute}"
@@ -375,9 +363,7 @@ class BranchPackage
       # is the package itself a local link ?
       link = Backend::Api::Sources::Package.link_info(p[:package].project.name, p[:package].name)
       ret = Xmlhash.parse(link)
-      if !ret['project'] || ret['project'] == p[:package].project.name
-        pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package'])
-      end
+      pkg = Package.get_by_project_and_name(p[:package].project.name, ret['package']) if !ret['project'] || ret['project'] == p[:package].project.name
     end
 
     pkg.find_project_local_linking_packages.each do |llp|
@@ -429,9 +415,7 @@ class BranchPackage
       req = BsRequest.find_by_number(params[:request])
 
       req.bs_request_actions.each do |action|
-        if action.source_package
-          pkg = Package.get_by_project_and_name(action.source_project, action.source_package)
-        end
+        pkg = Package.get_by_project_and_name(action.source_project, action.source_package) if action.source_package
 
         @packages.push(link_target_project: action.source_project, package: pkg, target_package: "#{pkg.name}.#{pkg.project.name}")
       end
@@ -491,9 +475,7 @@ class BranchPackage
 
           logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" \
                       "for attribute #{at.name} and given package name #{params[:package]}"
-          if ltprj.find_attribute('OBS', 'BranchTarget').nil?
-            ltprj = pkg2.project
-          end
+          ltprj = pkg2.project if ltprj.find_attribute('OBS', 'BranchTarget').nil?
           @packages.push(base_project: pkg2.project, link_target_project: ltprj,
                          package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}")
         end
@@ -525,9 +507,7 @@ class BranchPackage
   def set_update_project_attribute
     aname = params[:update_project_attribute] || 'OBS:UpdateProject'
     update_project_at = aname.split(/:/)
-    if update_project_at.length != 2
-      raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-    end
+    raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style" if update_project_at.length != 2
 
     @up_attribute_namespace = update_project_at[0]
     @up_attribute_name = update_project_at[1]

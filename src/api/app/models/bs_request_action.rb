@@ -77,9 +77,7 @@ class BsRequestAction < ApplicationRecord
       end
       errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
       if source_package == target_package && source_project == target_project
-        if sourceupdate || updatelink
-          errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
-        end
+        errors.add(:target_package, 'No source changes are allowed, if source and target is identical') if sourceupdate || updatelink
       end
     end
     errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
@@ -289,9 +287,7 @@ class BsRequestAction < ApplicationRecord
     return reviews unless target_project
 
     tprj = Project.get_by_name(target_project)
-    if tprj.class == String
-      raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.'
-    end
+    raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.' if tprj.class == String
 
     tpkg = nil
     if target_package
@@ -316,9 +312,7 @@ class BsRequestAction < ApplicationRecord
 
     if source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request
-      if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
-        reviews.push(tpkg.develpackage)
-      end
+      reviews.push(tpkg.develpackage) if action_type == :change_devel && tpkg.develpackage && !User.session!.can_modify?(tpkg.develpackage, 1)
 
       unless is_maintenance_release?
         # Creating requests from packages where no maintainer right exists will enforce a maintainer review
@@ -495,9 +489,7 @@ class BsRequestAction < ApplicationRecord
             next unless status.attributes['versrel']
 
             vrel = status.attributes['versrel'].value
-            if versrel[repo][package] && versrel[repo][package] != vrel
-              raise VersionReleaseDiffers, "#{package} has a different version release in same repository"
-            end
+            raise VersionReleaseDiffers, "#{package} has a different version release in same repository" if versrel[repo][package] && versrel[repo][package] != vrel
 
             versrel[repo][package] ||= vrel
           end
@@ -665,16 +657,12 @@ class BsRequestAction < ApplicationRecord
       end
 
       if is_maintenance_incident?
-        if target_package
-          raise IllegalRequest, 'Maintenance requests accept only projects as target'
-        end
+        raise IllegalRequest, 'Maintenance requests accept only projects as target' if target_package
         raise 'We should have expanded a target_project' unless target_project
 
         # validate project type
         prj = Project.get_by_name(target_project)
-        unless prj.kind.in?(['maintenance', 'maintenance_incident'])
-          raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects'
-        end
+        raise IncidentHasNoMaintenanceProject, 'incident projects shall only create below maintenance projects' unless prj.kind.in?(['maintenance', 'maintenance_incident'])
       end
 
       if action_type == :submit && tprj.is_a?(Project)
@@ -682,14 +670,10 @@ class BsRequestAction < ApplicationRecord
         self.makeoriginolder = true if tprj.attribs.find_by(attrib_type: at)
       end
       # allow cleanup only, if no devel package reference
-      if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source
-        raise NotSupported, "Source project #{source_project} is not a local project. cleanup is not supported."
-      end
+      raise NotSupported, "Source project #{source_project} is not a local project. cleanup is not supported." if sourceupdate == 'cleanup' && sprj.class != Project && !skip_source
 
       if action_type == :change_devel
-        unless target_package
-          raise UnknownPackage, 'No target package specified'
-        end
+        raise UnknownPackage, 'No target package specified' unless target_package
       end
     end
 
@@ -697,9 +681,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   def expand_targets(ignore_build_state, ignore_delegate)
-    if action_type == :submit && ignore_delegate.blank? && target_project.present?
-      expand_target_project
-    end
+    expand_target_project if action_type == :submit && ignore_delegate.blank? && target_project.present?
 
     # empty submission protection
     if action_type.in?([:submit, :maintenance_incident])

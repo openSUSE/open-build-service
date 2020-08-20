@@ -380,9 +380,7 @@ class Project < ApplicationRecord
         maintenance.elements('maintains') do |maintains|
           target_project_name = maintains.value('project')
           target_project = Project.get_by_name(target_project_name)
-          unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
-            return { error: "No write access to maintained project #{target_project_name}" }
-          end
+          return { error: "No write access to maintained project #{target_project_name}" } unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
         end
       end
       {}
@@ -474,9 +472,7 @@ class Project < ApplicationRecord
           # but never remove the special repository named "deleted"
           unless repo == deleted_repository
             # permission check
-            unless User.possibly_nobody.can_modify?(project)
-              return { error: "No permission to remove a repository in project '#{project.name}'" }
-            end
+            return { error: "No permission to remove a repository in project '#{project.name}'" } unless User.possibly_nobody.can_modify?(project)
           end
         end
 
@@ -787,9 +783,7 @@ class Project < ApplicationRecord
     # expire cache
     reset_cache
 
-    unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
-      raise ArgumentError, 'no commit_user set'
-    end
+    raise ArgumentError, 'no commit_user set' unless @commit_opts[:no_backend_write] || @commit_opts[:login] || @commit_user
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || @commit_user.login
@@ -910,9 +904,7 @@ class Project < ApplicationRecord
 
     # search via all linked projects
     linking_to.each do |lp|
-      if self == lp.linked_db_project
-        raise CycleError, 'project links against itself, this is not allowed'
-      end
+      raise CycleError, 'project links against itself, this is not allowed' if self == lp.linked_db_project
 
       if lp.linked_db_project.nil?
         # We can't get a package object from a remote instance ... how shall we handle this ?
@@ -1027,9 +1019,7 @@ class Project < ApplicationRecord
 
     # add repository targets
     add_target_repos.each do |repo|
-      unless trepo.release_targets.exists?(target_repository: repo)
-        trepo.release_targets.create(target_repository: repo, trigger: trigger)
-      end
+      trepo.release_targets.create(target_repository: repo, trigger: trigger) unless trepo.release_targets.exists?(target_repository: repo)
     end
   end
 

@@ -319,14 +319,10 @@ module Event
 
       rel = obj.relationships.where(role: Role.hashed[role])
       receivers = rel.map { |r| r.user_id ? r.user : r.group }
-      if receivers.empty? && obj.respond_to?(:project)
-        receivers = obj_roles(obj.project, role)
-      end
+      receivers = obj_roles(obj.project, role) if receivers.empty? && obj.respond_to?(:project)
 
       # for now we define develpackage maintainers as being maintainers too
-      if obj.respond_to?(:develpackage)
-        receivers.concat(obj_roles(obj.develpackage, role))
-      end
+      receivers.concat(obj_roles(obj.develpackage, role)) if obj.respond_to?(:develpackage)
       receivers
     end
 

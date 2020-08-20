@@ -30,9 +30,7 @@ class Project
         fingerprint: parsed_response['pubkey']['fingerprint']
       }
 
-      if parsed_response['sslcert'].present?
-        key_info_params[:ssl_certificate] = parsed_response['sslcert']['_content']
-      end
+      key_info_params[:ssl_certificate] = parsed_response['sslcert']['_content'] if parsed_response['sslcert'].present?
 
       key_info_params.delete(:origin) if key_info_params[:origin] == project.name
 

@@ -93,7 +93,7 @@ Lint/UriEscapeUnescape:
     - 'spec/models/package_spec.rb'
     - 'test/functional/request_controller_test.rb'
 
-# Offense count: 807
+# Offense count: 811
 # Configuration parameters: IgnoredMethods.
 Metrics/AbcSize:
   Max: 235
@@ -292,7 +292,7 @@ Metrics/CyclomaticComplexity:
     - 'test/functional/zzz_post_consistency_test.rb'
     - 'test/node_matcher.rb'
 
-# Offense count: 928
+# Offense count: 926
 # Configuration parameters: CountComments, CountAsOne, ExcludedMethods.
 Metrics/MethodLength:
   Max: 227
@@ -493,7 +493,7 @@ Naming/MethodParameterName:
     - 'test/models/event_test.rb'
     - 'test/test_helper.rb'
 
-# Offense count: 49
+# Offense count: 50
 # Configuration parameters: NamePrefix, ForbiddenPrefixes, AllowedMethods, MethodDefinitionMacros.
 # NamePrefix: is_, has_, have_
 # ForbiddenPrefixes: is_, has_, have_
@@ -1295,7 +1295,7 @@ Style/ConditionalAssignment:
     - 'spec/support/database_cleaner.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 845
+# Offense count: 846
 Style/Documentation:
   Enabled: false
 
@@ -1306,7 +1306,7 @@ Style/ExplicitBlockArgument:
     - 'app/lib/backend/connection.rb'
     - 'app/models/project.rb'
 
-# Offense count: 1435
+# Offense count: 1436
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: always, always_true, never
@@ -1319,7 +1319,7 @@ Style/IdenticalConditionalBranches:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
 
-# Offense count: 274
+# Offense count: 137
 # Cop supports --auto-correct.
 Style/IfUnlessModifier:
   Exclude:
@@ -1346,39 +1346,6 @@ Style/IfUnlessModifier:
     - 'app/controllers/webui/search_controller.rb'
     - 'app/controllers/webui/users/notifications_controller.rb'
     - 'app/controllers/webui/webui_controller.rb'
-    - 'app/models/architecture.rb'
-    - 'app/models/attrib_namespace.rb'
-    - 'app/models/attrib_type.rb'
-    - 'app/models/binary_release.rb'
-    - 'app/models/branch_package.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/query_builder.rb'
-    - 'app/models/bs_request_action_delete.rb'
-    - 'app/models/bs_request_action_maintenance_incident.rb'
-    - 'app/models/bs_request_action_maintenance_release.rb'
-    - 'app/models/bs_request_permission_check.rb'
-    - 'app/models/channel.rb'
-    - 'app/models/channel_binary.rb'
-    - 'app/models/configuration.rb'
-    - 'app/models/event/base.rb'
-    - 'app/models/event_subscription/find_for_event.rb'
-    - 'app/models/issue.rb'
-    - 'app/models/kiwi/image/xml_builder.rb'
-    - 'app/models/maintenance_incident.rb'
-    - 'app/models/package.rb'
-    - 'app/models/package_build_status.rb'
-    - 'app/models/patchinfo.rb'
-    - 'app/models/project.rb'
-    - 'app/models/project/key_info.rb'
-    - 'app/models/project/remote_url.rb'
-    - 'app/models/project/update_from_xml_command.rb'
-    - 'app/models/project_status/calculator.rb'
-    - 'app/models/project_status/pack_info.rb'
-    - 'app/models/repository.rb'
-    - 'app/models/unregistered_user.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
     - 'app/policies/application_policy.rb'
     - 'app/services/package_controller_service/url_generator.rb'
     - 'app/views/models/_package.xml.builder'
@@ -1564,7 +1531,7 @@ Style/RescueStandardError:
 Style/StringConcatenation:
   Enabled: false
 
-# Offense count: 339
+# Offense count: 341
 # Cop supports --auto-correct.
 # Configuration parameters: MinSize.
 # SupportedStyles: percent, brackets
@@ -1578,7 +1545,7 @@ Style/SymbolArray:
 Style/WordArray:
   Enabled: false
 
-# Offense count: 1836
+# Offense count: 1909
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https

@@ -12,25 +12,17 @@ class Project
 
       # check for raising read access permissions, which can't get ensured atm
       unless project.new_record? || project.disabled_for?('access', nil, nil)
-        if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
-          raise ForbiddenError
-        end
+        raise ForbiddenError if FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
       end
       unless project.new_record? || project.disabled_for?('sourceaccess', nil, nil)
-        if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?
-          raise ForbiddenError
-        end
+        raise ForbiddenError if FlagHelper.xml_disabled_for?(xmlhash, 'sourceaccess') && !User.admin_session?
       end
       new_record = project.new_record?
       if ::Configuration.default_access_disabled == true && !new_record
-        if project.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
-          raise ForbiddenError
-        end
+        raise ForbiddenError if project.disabled_for?('access', nil, nil) && !FlagHelper.xml_disabled_for?(xmlhash, 'access') && !User.admin_session?
       end
 
-      if project.name != xmlhash['name']
-        raise SaveError, "project name mismatch: #{project.name} != #{xmlhash['name']}"
-      end
+      raise SaveError, "project name mismatch: #{project.name} != #{xmlhash['name']}" if project.name != xmlhash['name']
 
       project.title = xmlhash.value('title')
       project.description = xmlhash.value('description')
@@ -50,9 +42,7 @@ class Project
       project.update_all_flags(xmlhash)
       if ::Configuration.default_access_disabled == true && new_record
         # write a default access disable flag by default in this mode for projects if not defined
-        if xmlhash.elements('access').empty?
-          project.flags.new(status: 'disable', flag: 'access')
-        end
+        project.flags.new(status: 'disable', flag: 'access') if xmlhash.elements('access').empty?
       end
 
       update_repositories(xmlhash, force)
@@ -103,12 +93,8 @@ class Project
           rescue UnknownObjectError => e
             raise UnknownObjectError, "Project with name '#{e.message}' not found"
           end
-          unless develprj
-            raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
-          end
-          if develprj == project
-            raise SaveError, 'Devel project can not point to itself'
-          end
+          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)" unless develprj
+          raise SaveError, 'Devel project can not point to itself' if develprj == project
 
           project.develproject = develprj
         end
@@ -119,9 +105,7 @@ class Project
       processed = {}
 
       while prj && prj.develproject
-        if processed[prj.name]
-          raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
-        end
+        raise CycleError, "There is a cycle in devel definition at #{processed.keys.join(' -- ')}" if processed[prj.name]
 
         processed[prj.name] = 1
         prj = prj.develproject
@@ -217,12 +201,8 @@ class Project
       position = 1
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
-        if path['project'] == project.name && path['repository'] == xml_hash['name']
-          raise SaveError, 'Using same repository as path element is not allowed'
-        end
-        unless link_repo
-          raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'"
-        end
+        raise SaveError, 'Using same repository as path element is not allowed' if path['project'] == project.name && path['repository'] == xml_hash['name']
+        raise SaveError, "Cannot find repository '#{path['project']}/#{path['repository']}'" unless link_repo
 
         current_repo.path_elements.new(link: link_repo, position: position)
         position += 1
@@ -254,13 +234,9 @@ class Project
         repository = release_target['repository']
         trigger    = release_target['trigger']
 
-        unless project
-          raise SaveError, "Project '#{release_target['project']}' does not exist."
-        end
+        raise SaveError, "Project '#{release_target['project']}' does not exist." unless project
 
-        if project.defines_remote_instance?
-          raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'"
-        end
+        raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'" if project.defines_remote_instance?
 
         target_repo = Repository.find_by_project_and_name(project.name, repository)
 
@@ -277,9 +253,7 @@ class Project
         if xml_hash['hostsystem']['project'] == project.name && xml_hash['hostsystem']['repository'] == xml_hash['name']
           raise SaveError, 'Using same repository as hostsystem element is not allowed'
         end
-        unless target_repo
-          raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'"
-        end
+        raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'" unless target_repo
 
         current_repo.hostsystem = target_repo
       else
