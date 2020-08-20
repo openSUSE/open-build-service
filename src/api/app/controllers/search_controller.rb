@@ -136,7 +136,7 @@ class SearchController < ApplicationController
     end
     nitems = []
     items.each do |item|
-      if @offset > 0
+      if @offset.positive?
         @offset -= 1
       else
         nitems << item

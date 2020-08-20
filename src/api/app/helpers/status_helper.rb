@@ -20,7 +20,7 @@ module StatusHelper
         index += 1
         count += 1
       end
-      if count > 0
+      if count.positive?
         value /= count
       else
         value = lastvalue

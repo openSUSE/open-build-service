@@ -70,7 +70,7 @@ class Product < ApplicationRecord
             self.patchlevel = p['patchlevel']
             pversion = p['version']
             pversion = p['baseversion'] if p['baseversion']
-            pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] && p['patchlevel'].to_i > 0
+            pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] && p['patchlevel'].to_i.positive?
             set_CPE(sw_class, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections

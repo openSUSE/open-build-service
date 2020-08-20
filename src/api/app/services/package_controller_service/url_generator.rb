@@ -34,7 +34,7 @@ module PackageControllerService
       http.open_timeout = 15
       http.read_timeout = 15
       response = http.head uri.path
-      if response.code.to_i == 302 && response['location'] && max_redirects > 0
+      if response.code.to_i == 302 && response['location'] && max_redirects.positive?
         return file_available?(response['location'], (max_redirects - 1))
       end
 

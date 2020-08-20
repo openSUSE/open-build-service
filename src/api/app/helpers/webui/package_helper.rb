@@ -64,8 +64,8 @@ module Webui::PackageHelper
 
   def humanize_time(seconds)
     [[60, :s], [60, :m], [24, :h], [0, :d]].map do |count, name|
-      if seconds > 0
-        seconds, n = seconds.divmod(count > 0 ? count : seconds + 1)
+      if seconds.positive?
+        seconds, n = seconds.divmod(count.positive? ? count : seconds + 1)
         "#{n.to_i}#{name}"
       end
     end.compact.reverse.join(' ')

@@ -416,7 +416,7 @@ class Webui::ProjectController < Webui::WebuiController
                     Integer(params[:defaults])
                   rescue ArgumentError
                     1
-                  end) > 0
+                  end).positive?
     else
       defaults = true
     end

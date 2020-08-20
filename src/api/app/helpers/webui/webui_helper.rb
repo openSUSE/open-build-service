@@ -155,9 +155,9 @@ module Webui::WebuiHelper
   def elide_two(text1, text2, overall_length = 40, mode = :middle)
     half_length = overall_length / 2
     text1_free = half_length - text1.to_s.length
-    text1_free = 0 if text1_free < 0
+    text1_free = 0 if text1_free.negative?
     text2_free = half_length - text2.to_s.length
-    text2_free = 0 if text2_free < 0
+    text2_free = 0 if text2_free.negative?
     [elide(text1, half_length + text2_free, mode), elide(text2, half_length + text1_free, mode)]
   end
 
@@ -330,7 +330,7 @@ module Webui::WebuiHelper
     show_checks = [max_shown, remaining_checks.length].min
     show_builds = [max_shown - show_checks, remaining_build_problems.length].min
     # always prefer one build fail
-    if show_builds == 0 && remaining_build_problems.present?
+    if show_builds.zero? && remaining_build_problems.present?
       show_builds += 1
       show_checks -= 1
     end

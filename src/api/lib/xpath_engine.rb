@@ -359,7 +359,7 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = nil
-    if @conditions.count > 0
+    if @conditions.count.positive?
       cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten
     end
 

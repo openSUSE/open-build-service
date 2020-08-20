@@ -205,7 +205,7 @@ class PackageTest < ActiveSupport::TestCase
       np.save!
       np.update_from_xml(xh)
       assert_equal np.name, 'testpack'
-      assert np.id > 0
+      assert np.id.positive?
       assert np.id != @package.id
     end
   end

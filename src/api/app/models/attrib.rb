@@ -73,7 +73,7 @@ class Attrib < ApplicationRecord
 
   def values_editable?
     !attrib_type.value_count || # If unlimited values
-      (attrib_type.value_count && attrib_type.value_count > 0) || # If value_count > 0
+      (attrib_type.value_count && attrib_type.value_count.positive?) || # If value_count.positive?
       attrib_type.issue_list # If issue_list true
   end
 

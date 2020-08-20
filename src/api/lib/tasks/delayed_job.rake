@@ -7,7 +7,7 @@ task(updatepackagemeta: :environment) { UpdatePackageMetaJob.new.perform }
 desc('Import all requests from the backend now')
 task(importrequests: :environment) do
   lastrq = Backend::Api::Request.last_id
-  while lastrq > 0
+  while lastrq.positive?
     begin
       xml = Backend::Api::Request.info(lastrq)
     rescue Backend::Error => e
