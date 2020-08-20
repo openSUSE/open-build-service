@@ -971,12 +971,6 @@ RSpec/VerifiedDoubles:
     - 'spec/support/shared_contexts/setup_ldap_mock.rb'
     - 'spec/support/shared_examples/a_ldap_connection.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Rails/ActiveRecordAliases:
-  Exclude:
-    - 'spec/features/beta/webui/requests_spec.rb'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Rails/ApplicationController:
