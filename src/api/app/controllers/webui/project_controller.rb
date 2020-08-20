@@ -184,19 +184,13 @@ class Webui::ProjectController < Webui::WebuiController
     @project.kind = 'maintenance' if params[:maintenance_project]
 
     # TODO: do this with nested attributes
-    if params[:access_protection]
-      @project.flags.new(status: 'disable', flag: 'access')
-    end
+    @project.flags.new(status: 'disable', flag: 'access') if params[:access_protection]
 
     # TODO: do this with nested attributes
-    if params[:source_protection]
-      @project.flags.new(status: 'disable', flag: 'sourceaccess')
-    end
+    @project.flags.new(status: 'disable', flag: 'sourceaccess') if params[:source_protection]
 
     # TODO: do this with nested attributes
-    if params[:disable_publishing]
-      @project.flags.new(status: 'disable', flag: 'publish')
-    end
+    @project.flags.new(status: 'disable', flag: 'publish') if params[:disable_publishing]
 
     if @project.valid? && @project.store
       flash[:success] = "Project '#{@project}' was created successfully"
@@ -471,9 +465,7 @@ class Webui::ProjectController < Webui::WebuiController
 
       stathash[package] = status
       @packagenames.add(package)
-      if status['code'].in?(['unresolvable', 'failed', 'broken'])
-        @failures += 1
-      end
+      @failures += 1 if status['code'].in?(['unresolvable', 'failed', 'broken'])
     end
 
     # repository status cache

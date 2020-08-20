@@ -62,9 +62,7 @@ class SourceProjectPackageMetaController < SourceController
     # rubocop: disable Style/GuardClause
     # TODO: use pundit
     if pkg && !pkg.disabled_for?('sourceaccess', nil, nil)
-      if FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.admin_session?
-        raise ChangePackageProtectionLevelError
-      end
+      raise ChangePackageProtectionLevelError if FlagHelper.xml_disabled_for?(@request_data, 'sourceaccess') && !User.admin_session?
     end
     # rubocop: enable Style/GuardClause
   end

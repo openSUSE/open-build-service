@@ -54,9 +54,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
 
   def show_all(notifications)
     total = notifications.size
-    if total > MAX_PER_PAGE
-      flash.now[:info] = "You have too many notifications. Displaying a maximum of #{MAX_PER_PAGE} notifications per page."
-    end
+    flash.now[:info] = "You have too many notifications. Displaying a maximum of #{MAX_PER_PAGE} notifications per page." if total > MAX_PER_PAGE
     notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
   end
 

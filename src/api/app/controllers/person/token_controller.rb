@@ -14,9 +14,7 @@ module Person
     def create
       authorize @user, :update?
 
-      pkg = if params[:project] || params[:package]
-              Package.get_by_project_and_name(params[:project], params[:package])
-            end
+      pkg = (Package.get_by_project_and_name(params[:project], params[:package]) if params[:project] || params[:package])
 
       @token = Token.token_type(params[:operation]).create(user: @user, package: pkg)
     end
