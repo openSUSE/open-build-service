@@ -1592,12 +1592,6 @@ Style/RescueStandardError:
     - 'lib/tasks/dev.rake'
     - 'lib/tasks/extract.rake'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/SingleArgumentDig:
-  Exclude:
-    - 'app/helpers/webui/maintenance_incident_helper.rb'
-
 # Offense count: 307
 # Cop supports --auto-correct.
 Style/StringConcatenation:
