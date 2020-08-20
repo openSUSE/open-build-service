@@ -132,8 +132,10 @@ td sandbox25 true  "kernel" i586 large  sandbox         enforce_kvm
 td sandbox26 true  "kernel" i586 large  sandbox_secure  enforce_kvm
 
 # combined constraints for sandbox
-td perjob21 false "chromium" i586 small  kernel
-td perjob22 true "chromium" i586 large  kernel
+td perjob21 false "chromium" i586 small  tensorflow
+td perjob22 true  "chromium" i586 medium tensorflow
+td perjob23 false "chromium" i586 large  tensorflow
+
 
 echo
 

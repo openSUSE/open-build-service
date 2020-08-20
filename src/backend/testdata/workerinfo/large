@@ -16,6 +16,7 @@
     </cpu>
     <nativeonly/>
     <processors>32</processors>
+    <jobs>100</jobs>
     <memory>6400</memory>
     <swap>51200</swap>
     <disk>204800</disk>
