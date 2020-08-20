@@ -41,9 +41,7 @@ module ValidationHelper
     raise Package::UnknownObjectError, "Package not found: #{project}/#{name}" unless meta
 
     return true if User.admin_session?
-    if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
-      raise Package::ReadSourceAccessError, "#{project}/#{name}"
-    end
+    raise Package::ReadSourceAccessError, "#{project}/#{name}" if FlagHelper.xml_disabled_for?(Xmlhash.parse(meta), 'sourceaccess')
 
     true
   end

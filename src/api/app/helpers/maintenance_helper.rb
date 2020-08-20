@@ -48,9 +48,7 @@ module MaintenanceHelper
     manual                   = opts[:manual]
     comment                  = opts[:comment]
 
-    if action && comment.nil?
-      comment = "Release request #{action.bs_request.number}"
-    end
+    comment = "Release request #{action.bs_request.number}" if action && comment.nil?
 
     if target.is_a?(Repository)
       target_project = target.project
@@ -77,9 +75,7 @@ module MaintenanceHelper
     end
 
     # create or update main package linking to incident package
-    unless source_package.is_patchinfo? || manual
-      release_package_create_main_package(action.bs_request, source_package, target_package_name, target_project)
-    end
+    release_package_create_main_package(action.bs_request, source_package, target_package_name, target_project) unless source_package.is_patchinfo? || manual
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
     f = source_package.project.flags.find_by_flag_and_status('access', 'disable')
@@ -263,9 +259,7 @@ module MaintenanceHelper
     # expand a possible defined update info template in release target of channel
     project_filter = nil
     prj = source_package.project.parent
-    if prj && prj.is_maintenance?
-      project_filter = prj.maintained_projects.map(&:project)
-    end
+    project_filter = prj.maintained_projects.map(&:project) if prj && prj.is_maintenance?
     # prefer a channel in the source project to avoid double hits exceptions
     cts = ChannelTarget.find_by_repo(target_repo, [source_package.project])
     cts = ChannelTarget.find_by_repo(target_repo, project_filter) unless cts.any?
@@ -301,9 +295,7 @@ module MaintenanceHelper
   def import_channel(channel, pkg, target_repo = nil)
     channel = REXML::Document.new(channel)
 
-    if target_repo
-      channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name, 'repository' => target_repo.name
-    end
+    channel.elements['/channel'].add_element 'target', 'project' => target_repo.project.name, 'repository' => target_repo.name if target_repo
 
     # replace all project definitions with update projects, if they are defined
     ['//binaries', '//binary'].each do |bin|
@@ -335,9 +327,7 @@ module MaintenanceHelper
     end
 
     # target packages must not exist yet
-    if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
-      raise PackageAlreadyExists, "package #{opkg.name} already exists"
-    end
+    raise PackageAlreadyExists, "package #{opkg.name} already exists" if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
 
     local_linked_packages = {}
     opkg.find_project_local_linking_packages.each do |p|
@@ -348,9 +338,7 @@ module MaintenanceHelper
         # skip the base links
         next if lpkg_name == p.name
       end
-      if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
-        raise PackageAlreadyExists, "package #{p.name} already exists"
-      end
+      raise PackageAlreadyExists, "package #{p.name} already exists" if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
 
       local_linked_packages[lpkg_name] = p
     end
