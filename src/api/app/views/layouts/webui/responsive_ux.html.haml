@@ -45,7 +45,7 @@
       .bg-dark#left-navigation-area
         = render partial: 'layouts/webui/responsive_ux/left_navigation'
       .d-flex.flex-column#content-area
-        .container-xxl.flex-grow-1.pb-3.border-bottom.border-gray-300
+        .container-xxl.flex-grow-1.pb-3.border-bottom.border-gray-400
           .sticky-top.flash-and-announcement.text-break
             = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
             #flash= render partial: 'layouts/webui/flash', object: flash
@@ -57,14 +57,16 @@
             .col#content
               = yield
 
-        .container-fluid.mt-4.py-2#footer
-          .row
-            .col
-              = render partial: 'layouts/webui/responsive_ux/footer'
+        .container-fluid.mt-4.mb-2.py-2#footer
+          = render partial: 'layouts/webui/responsive_ux/footer'
         .container-fluid.py-2#sponsors
-          .row
-            .col
-              = render partial: 'layouts/webui/responsive_ux/sponsors'
+          = render partial: 'layouts/webui/responsive_ux/sponsors'
+        .container-fluid.mt-2.py-2#footer-legal
+          %p.text-center
+            = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
+            is an
+            = succeed '.' do
+              = link_to('openSUSE project', 'http://www.opensuse.org')
 
       - if !current_page?(signup_path) && !current_page?(new_session_path)
         #bottom-navigation-area
