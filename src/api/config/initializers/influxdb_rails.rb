@@ -1,7 +1,7 @@
 # If there are no hosts configured, disable this environment.
 if CONFIG['influxdb_hosts'].blank?
   InfluxDB::Rails.configure do |config|
-    config.instrumentation_enabled = false
+    config.ignored_environments << Rails.env
   end
   return
 end
