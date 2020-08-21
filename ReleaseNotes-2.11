@@ -29,8 +29,8 @@ Features
 Generic:
  * Search was improved: New and updated projects/packages are indexed directly instead
    of once every hour. As configuration files for Thinking Sphinx were changed, running
-   a 'ts:rebuild' task is needed after deployment, as user wwwrun:
-   'chroot --userspec=wwwrun:www / /bin/bash -c "cd /srv/www/obs/api/ && /usr/bin/bundle.ruby2.5 exec rails ts:rebuild RAILS_ENV=production"'
+   a 'ts:rt:rebuild' task is needed after deployment, as user wwwrun:
+   'chroot --userspec=wwwrun:www / /bin/bash -c "cd /srv/www/obs/api/ && /usr/bin/bundle.ruby2.5 exec rails ts:rt:rebuild RAILS_ENV=production"'
 
 User Interface:
  * Colors were adjusted to improve contrast thus improving readability
