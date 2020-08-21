@@ -559,9 +559,12 @@ for my $tarfile (@tarfiles) {
 
   my @layers = @{$manifest->{'Layers'} || []};
   die("container has no layers\n") unless @layers;
-  my $config_layers = $config->{'rootfs'}->{'diff_ids'};
-  die("layer number mismatch\n") if @layers != @{$config_layers || []};
-
+  my $config_layers;
+  if ($config->{'rootfs'} && $config->{'rootfs'}->{'diff_ids'}) {
+    $config_layers = $config->{'rootfs'}->{'diff_ids'};
+    die("layer number mismatch\n") if @layers != @{$config_layers || []};
+  }
+  
   my $goarch = $config->{'architecture'} || 'any';
   my $goos = $config->{'os'} || 'any';
   $govariant = $config->{'variant'} if $config->{'variant'};
