@@ -4,39 +4,31 @@ module Backend
       @http_method = http_method
       @host = host
       @http_status_code = http_status_code
-      @runtime = runtime
+      @runtime = runtime || 0
     end
 
     def instrument
-      return unless enabled?
-
-      ActiveSupport::Notifications.instrument('obs.backend.process_response', data)
+      InfluxDB::Rails.instrument('connection.obs_backend', tags: tags, values: values)
     end
 
     private
 
     attr_accessor :http_method, :host, :http_status_code, :runtime
 
-    def enabled?
-      CONFIG['influxdb_hosts'].present?
-    end
-
-    def data
+    def tags
       {
+        hook: 'obs_backend',
         http_method: http_method,
         http_status_code: http_status_code,
         host: host,
-        runtime: runtime,
-        controller_location: controller_location,
         backend_location: backend_location
       }
     end
 
-    def controller_location
-      [
-        Thread.current[:_influxdb_rails_controller],
-        Thread.current[:_influxdb_rails_action]
-      ].reject(&:blank?).join('#')
+    def values
+      {
+        value: (runtime * 1000).ceil
+      }
     end
 
     def backend_location
