@@ -18,9 +18,7 @@ class ApplicationController < ActionController::Base
   @skip_validation = false
 
   before_action :validate_xml_request, :add_api_version
-  if CONFIG['response_schema_validation'] == true
-    after_action :validate_xml_response
-  end
+  after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
   # skip the filter for the user stuff
   before_action :extract_user
@@ -88,9 +86,7 @@ class ApplicationController < ActionController::Base
     params.each do |key, value|
       next if value.nil?
       next if key == 'xmlhash' # perfectly fine
-      unless value.is_a?(String)
-        raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}"
-      end
+      raise InvalidParameterError, "Parameter #{key} has non String class #{value.class}" unless value.is_a?(String)
     end
     true
   end
@@ -247,9 +243,7 @@ class ApplicationController < ActionController::Base
       format.xml { render template: 'status', status: @status }
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
       format.html do
-        unless request.env['HTTP_REFERER']
-          flash[:error] = "#{@errorcode}(#{@summary}): #{@message}"
-        end
+        flash[:error] = "#{@errorcode}(#{@summary}): #{@message}" unless request.env['HTTP_REFERER']
         redirect_back(fallback_location: root_path)
       end
     end

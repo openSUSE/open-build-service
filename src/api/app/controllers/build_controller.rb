@@ -24,9 +24,7 @@ class BuildController < ApplicationController
 
   def project_index
     prj = nil
-    unless params[:project] == '_dispatchprios'
-      prj = Project.get_by_name(params[:project])
-    end
+    prj = Project.get_by_name(params[:project]) unless params[:project] == '_dispatchprios'
 
     if request.get?
       pass_to_backend
@@ -38,9 +36,7 @@ class BuildController < ApplicationController
       allowed = true if permissions.project_change?(prj)
 
       # check for cmd parameter
-      if params[:cmd].nil?
-        raise MissingParameterError, "Missing parameter 'cmd'"
-      end
+      raise MissingParameterError, "Missing parameter 'cmd'" if params[:cmd].nil?
 
       unless ['wipe', 'restartbuild', 'killbuild', 'abortbuild', 'rebuild', 'unpublish', 'sendsysrq'].include?(params[:cmd])
         render_error status: 400, errorcode: 'illegal_request',

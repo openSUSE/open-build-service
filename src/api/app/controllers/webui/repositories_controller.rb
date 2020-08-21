@@ -124,9 +124,7 @@ class Webui::RepositoriesController < Webui::WebuiController
                                                 url: params[:url], repotype: params[:repotype])
     authorize download_on_demand, :create?
 
-    if Repository.find_by_name(params[:name])
-      @error = "Repository with name '#{params[:name]}' already exists."
-    end
+    @error = "Repository with name '#{params[:name]}' already exists." if Repository.find_by_name(params[:name])
 
     begin
       ActiveRecord::Base.transaction do

@@ -157,16 +157,12 @@ module Webui
         current_develproject = @filter || @all_projects
         @develprojects = {}
         packages_to_filter_for = nil
-        if filter_for_user
-          packages_to_filter_for = filter_for_user.user_relevant_packages_for_status
-        end
+        packages_to_filter_for = filter_for_user.user_relevant_packages_for_status if filter_for_user
         @prj_status.each_value do |value|
           if value.develpack
             dproject = value.develpack.project
             @develprojects[dproject] = 1
-            if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
-              next
-            end
+            next if (current_develproject != dproject || current_develproject == @no_project) && current_develproject != @all_projects
           elsif @current_develproject == @no_project
             next
           end

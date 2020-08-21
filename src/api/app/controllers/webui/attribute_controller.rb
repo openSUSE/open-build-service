@@ -32,13 +32,9 @@ class Webui::AttributeController < Webui::WebuiController
 
     value_count = @attribute.attrib_type.value_count
     values_length = @attribute.values.length
-    if value_count && (value_count > values_length)
-      (value_count - values_length).times { @attribute.values.build(attrib: @attribute) }
-    end
+    (value_count - values_length).times { @attribute.values.build(attrib: @attribute) } if value_count && (value_count > values_length)
 
-    if @attribute.attrib_type.issue_list
-      @issue_trackers = IssueTracker.order(:name).all
-    end
+    @issue_trackers = IssueTracker.order(:name).all if @attribute.attrib_type.issue_list
 
     @allowed_values = @attribute.attrib_type.allowed_values.map(&:value)
   end
