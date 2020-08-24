@@ -306,7 +306,7 @@ class ApplicationController < ActionController::Base
 
     request_format = request.format != 'json'
     response_status = response.status.to_s[0..2] == '200'
-    response_headers = response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
+    response_headers = response.headers['Content-Type'] !~ %r{.*/json}i && response.headers['Content-Disposition'] != 'attachment'
 
     return unless request_format && response_status && response_headers
 

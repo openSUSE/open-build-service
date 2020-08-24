@@ -1428,13 +1428,6 @@ Style/RedundantReturn:
 # SupportedStyles: slashes, percent_r, mixed
 Style/RegexpLiteral:
   Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/public_controller.rb'
-    - 'app/controllers/webui/monitor_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/sitemaps_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
     - 'app/helpers/webui/webui_helper.rb'
     - 'app/mixins/build_log_support.rb'
     - 'app/models/cloud/ec2/configuration.rb'
