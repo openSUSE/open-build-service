@@ -1432,12 +1432,6 @@ Style/RedundantReturn:
 # SupportedStyles: slashes, percent_r, mixed
 Style/RegexpLiteral:
   Exclude:
-    - 'spec/controllers/cloud/upload_jobs_controller_spec.rb'
-    - 'spec/controllers/public_controller_spec.rb'
-    - 'spec/controllers/webui/package_controller_spec.rb'
-    - 'spec/features/beta/webui/packages_spec.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/support/vcr.rb'
     - 'test/functional/maintenance_test.rb'
     - 'test/functional/message_controller_test.rb'
     - 'test/functional/read_permission_test.rb'
