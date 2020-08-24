@@ -1105,14 +1105,10 @@ Rails/OutputSafety:
     - 'app/helpers/webui/user_helper.rb'
     - 'app/helpers/webui/webui_helper.rb'
 
-# Offense count: 8
+# Offense count: 2
 # Cop supports --auto-correct.
 Rails/PluckInWhere:
   Exclude:
-    - 'app/models/group.rb'
-    - 'app/models/package.rb'
-    - 'app/models/review.rb'
-    - 'app/queries/open_requests_finder.rb'
     - 'db/data/20181214100207_remove_duplicated_flags.rb'
     - 'db/data/20200528135241_dump_announcements_into_status_messages.rb'
 
