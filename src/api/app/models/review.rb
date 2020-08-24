@@ -190,7 +190,7 @@ class Review < ApplicationRecord
 
     relationships = obj.relationships
     roles = relationships.where(role: Role.hashed['maintainer'])
-    User.where(id: roles.users.pluck(:user_id)) + Group.where(id: roles.groups.pluck(:group_id))
+    User.where(id: roles.users.select(:user_id)) + Group.where(id: roles.groups.select(:group_id))
   end
 
   def users_and_groups_for_review

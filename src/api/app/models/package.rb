@@ -817,13 +817,13 @@ class Package < ApplicationRecord
     # rubocop:disable Layout/LineLength
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', project.name, name, project.name, name)
     # rubocop:enable Layout/LineLength
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", project.name, name)
-    BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.select('bs_requests.id'))
   end
 
   def self.extended_name(project, package)
