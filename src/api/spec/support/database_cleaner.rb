@@ -17,12 +17,12 @@ RSpec.configure do |config|
   config.before do |example|
     # For feature test we use deletion instead of transactions because the
     # test suite and the capybara driver do not use the same server thread.
-    if example.metadata[:type] == :feature || example.metadata[:type] == :migration || example.metadata[:thinking_sphinx] == true
-      # Omit truncating what we have set up in db/seeds.rb except users and roles_user
-      DatabaseCleaner.strategy = :deletion, { except: STATIC_TABLES }
-    else
-      DatabaseCleaner.strategy = :transaction
-    end
+    DatabaseCleaner.strategy = if example.metadata[:type] == :feature || example.metadata[:type] == :migration || example.metadata[:thinking_sphinx] == true
+                                 # Omit truncating what we have set up in db/seeds.rb except users and roles_user
+                                 [:deletion, { except: STATIC_TABLES }]
+                               else
+                                 :transaction
+                               end
     DatabaseCleaner.start
     # create default attributes
     create(:attrib_namespace, name: 'OBS')
