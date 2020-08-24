@@ -1,4 +1,5 @@
 - user_can_modify_package = User.possibly_nobody.can_modify?(package)
+- nobody = !User.session
 
 .card-body
   - if files.present?
@@ -8,10 +9,11 @@
           %th Filename
           %th Size
           %th Changed
-          %th Actions
+          - unless nobody
+            %th Actions
       %tbody
         - file_locals = { package: package, project: project, expand: expand, is_current_rev: is_current_rev,
-        can_modify: user_can_modify_package, nobody: !User.session }
+        can_modify: user_can_modify_package, nobody: nobody }
         = render partial: 'file', collection: files,
         cached: proc { |file| [file[:name], file[:mtime], file[:md5], file_locals].hash }, locals: file_locals
   - else
