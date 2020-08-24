@@ -1,13 +1,24 @@
 version: "2.1"
 services:
   influx:
-    image: influxdb
+    image: influxdb:1.7
     environment:
-      - INFLUXDB_DB=telegraf
-      - INFLUXDB_USER=telegraf
-      - INFLUXDB_USER_PASSWORD=telegraf
+      - INFLUXDB_ADMIN_USER=root
+      - INFLUXDB_ADMIN_PASSWORD=root
       - INFLUXDB_READ_USER=grafana
       - INFLUXDB_READ_USER_PASSWORD=grafana
+    volumes:
+      - ./contrib/influxdb-init.iql:/docker-entrypoint-initdb.d/influxdb-init.iql:ro
+      - influxdata:/var/lib/influxdb
+  grafana:
+    image: grafana/grafana:7.1.1
+    ports:
+      - "8000:3000"
+    depends_on:
+      - influx
+    volumes:
+      - grafanadata:/var/lib/grafana
+      - ./contrib/grafana-datasource.yml:/etc/grafana/provisioning/datasources/grafana-datasource.yml:ro
   rabbit:
     image: rabbitmq:3-management
     ports:
@@ -27,9 +38,7 @@ services:
         condition: service_healthy
     volumes:
       - ./contrib/telegraf.conf:/etc/telegraf/telegraf.conf:ro
-  grafana:
-    image: grafana/grafana
-    ports:
-      - "8000:3000"
-    depends_on:
-      - influx
+volumes:
+  influxdata:
+  grafanadata:
+

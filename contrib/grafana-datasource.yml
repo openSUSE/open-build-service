@@ -1,0 +1,17 @@
+apiVersion: 1
+
+datasources:
+  - name: performance
+    type: influxdb
+    access: proxy
+    database: performance
+    user: grafana
+    password: grafana
+    url: http://influx:8086
+  - name: health
+    type: influxdb
+    access: proxy
+    database: health
+    user: grafana
+    password: grafana
+    url: http://influx:8086
