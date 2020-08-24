@@ -1384,48 +1384,6 @@ Style/OptionalBooleanParameter:
     - 'app/policies/package_policy.rb'
     - 'lib/xpath_engine.rb'
 
-# Offense count: 52
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Exclude:
-    - 'app/controllers/attribute_controller.rb'
-    - 'app/controllers/build/file_controller.rb'
-    - 'app/controllers/build_controller.rb'
-    - 'app/controllers/main_controller.rb'
-    - 'app/controllers/services/webhooks_controller.rb'
-    - 'app/controllers/webui/apidocs_controller.rb'
-    - 'app/controllers/webui/package_controller.rb'
-    - 'app/controllers/webui/request_controller.rb'
-    - 'app/controllers/webui/staging/excluded_requests_controller.rb'
-    - 'app/controllers/webui/staging/projects_controller.rb'
-    - 'app/controllers/webui/staging/workflows_controller.rb'
-    - 'app/controllers/webui/users_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-    - 'app/helpers/webui/request_helper.rb'
-    - 'app/helpers/webui/webui_helper.rb'
-    - 'app/lib/authenticator.rb'
-    - 'app/lib/backend/connection.rb'
-    - 'app/lib/suse/permission.rb'
-    - 'app/mixins/has_attributes.rb'
-    - 'app/models/bs_request_action.rb'
-    - 'app/models/bs_request_action/differ/source_package_finder.rb'
-    - 'app/models/bs_request_action_delete.rb'
-    - 'app/models/directory.rb'
-    - 'app/models/event/request.rb'
-    - 'app/models/local_build_statistic/for_package.rb'
-    - 'app/models/package.rb'
-    - 'app/models/project.rb'
-    - 'app/models/project_log_entry.rb'
-    - 'app/models/repository.rb'
-    - 'app/models/service.rb'
-    - 'app/models/staging/request_excluder.rb'
-    - 'app/models/staging/staged_requests.rb'
-    - 'app/models/user.rb'
-    - 'app/models/user_ldap_strategy.rb'
-    - 'app/services/package_controller_service/url_generator.rb'
-    - 'test/node_matcher.rb'
-
 # Offense count: 87
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, AllowInnerSlashes.
