@@ -57,7 +57,7 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
       # should fail a second time
       delete "/message/#{msg_id}"
       assert_response 404
-      assert_match %r{Couldn't find Message with}, @response.body
+      assert_match(/Couldn't find Message with/, @response.body)
     end
 
     login_Iggy

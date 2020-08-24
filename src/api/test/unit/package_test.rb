@@ -220,7 +220,7 @@ class PackageTest < ActiveSupport::TestCase
     e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.save!
     end
-    assert_match %r{Name is too long}, e.message
+    assert_match(/Name is too long/, e.message)
     @package.name = '_product'
     assert @package.valid?
     @package.name = '.product'

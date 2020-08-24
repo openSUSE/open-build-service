@@ -583,7 +583,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'link', attributes: { project: 'BaseDistro:Update', package: 'pack2' }
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_history'
     assert_response :success
-    assert_xml_tag tag: 'comment', content: %r{fetch updates from devel package}
+    assert_xml_tag tag: 'comment', content: /fetch updates from devel package/
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro3/_link'
     assert_response :success
     assert_xml_tag tag: 'link', attributes: { project: 'BaseDistro3', package: 'pack2' }
@@ -1322,7 +1322,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_history'
     assert_response :success
-    assert_xml_tag tag: 'comment', content: %r{fetch updates from open incident project #{incident_project}}
+    assert_xml_tag tag: 'comment', content: /fetch updates from open incident project #{incident_project}/
     delete '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
 
@@ -2314,7 +2314,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'lock'
     get '/source/CopyOfBaseDistro/_config'
     assert_response :success
-    assert_match %r{Repotype: rpm-md-legacy}, @response.body
+    assert_match(/Repotype: rpm-md-legacy/, @response.body)
     get '/source/BaseDistro'
     assert_response :success
     opackages = Xmlhash.parse(@response.body)

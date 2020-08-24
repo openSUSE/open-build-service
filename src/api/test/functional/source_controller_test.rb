@@ -1229,7 +1229,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:projectA/_meta', params: "<project name='home:tom:projectA'> <title/> <description/> <repository name='repoA'> <arch>i586</arch> <arch>i586</arch> </repository> </project>"
     assert_response 400
     assert_xml_tag(tag: 'status', attributes: { code: 'project_save_error' })
-    assert_match %r{double use of architecture: 'i586'}, @response.body
+    assert_match(/double use of architecture: 'i586'/, @response.body)
   end
 
   def test_delete_project_with_repository_dependencies
@@ -1745,7 +1745,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_meta'
     assert_response :success
     oldmeta = @response.body
-    newmeta = oldmeta.gsub(/<title>.*<\/title>/, '<title>new title string</title>')
+    newmeta = oldmeta.gsub(%r{<title>.*</title>}, '<title>new title string</title>')
     raw_put '/source/kde4/_meta?comment=title+change', newmeta
     assert_response :success
     get '/source/kde4/_project/_history?meta=1'
@@ -1783,7 +1783,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(tag: 'package')
     oldmeta = @response.body
-    newmeta = oldmeta.gsub(/<title>.*<\/title>/, '<title>new package title string</title>')
+    newmeta = oldmeta.gsub(%r{<title>.*</title>}, '<title>new package title string</title>')
     raw_put '/source/kde4/kdelibs/_meta?comment=title+change', newmeta
     assert_response :success
     # compare to database version
@@ -2070,11 +2070,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/home:Iggy/TestPack?oproject=kde4&opackage=kdelibs&cmd=diff&meta=1'
     assert_response :success
-    assert_match(/<\/package>/, @response.body)
+    assert_match(%r{</package>}, @response.body)
 
     post '/source/home:Iggy/_project?oproject=kde4&opackage=_project&cmd=diff&meta=1'
     assert_response :success
-    assert_match(/<\/project>/, @response.body)
+    assert_match(%r{</project>}, @response.body)
   end
 
   def test_diff_package_hidden_project
@@ -4085,10 +4085,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     url = url_for(controller: :source_project_package_meta, action: :update, project: 'home:tom', package: name)
     put url, params: "<package name='#{name}' project='home:tom'> <title/> <description/></package>"
     assert_response 400
-    assert_select 'status[code] > summary', %r{invalid package name}
+    assert_select 'status[code] > summary', /invalid package name/
     get url
     assert_response 400
-    assert_select 'status[code] > summary', %r{invalid package name}
+    assert_select 'status[code] > summary', /invalid package name/
   end
 
   def test_store_invalid_project
@@ -4097,10 +4097,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     url = url_for(controller: :source_project_meta, action: :update, project: name)
     put url, params: "<project name='#{name}'> <title/> <description/></project>"
     assert_response 400
-    assert_select 'status[code] > summary', %r{invalid project name}
+    assert_select 'status[code] > summary', /invalid project name/
     get url
     assert_response 400
-    assert_select 'status[code] > summary', %r{invalid project name}
+    assert_select 'status[code] > summary', /invalid project name/
   end
 
   # _attribute is a "file", but can only be written by API->backend not directly

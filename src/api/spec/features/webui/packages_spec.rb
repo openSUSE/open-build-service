@@ -118,7 +118,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       click_link('Requests')
       expect(page).to have_css('table#all_requests_table tbody tr', count: 1)
       find('a', class: 'request_link').click
-      expect(page).to have_current_path(/\/request\/show\/\d+/)
+      expect(page).to have_current_path(%r{/request/show/\d+})
     end
   end
 
