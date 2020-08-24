@@ -108,7 +108,7 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
 
     redirect_back(fallback_location: root_path)
     flash[:error] = "Project #{@project} doesn't have a Staging Workflow associated"
-    return
+    nil
   end
 
   def project_weight(project)

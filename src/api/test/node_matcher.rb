@@ -270,7 +270,7 @@ class NodeMatcher #:nodoc:
       else raise "unknown count condition #{key}"
       end
     end
-    return true
+    true
   end
 
   # Match the given value to the given condition.

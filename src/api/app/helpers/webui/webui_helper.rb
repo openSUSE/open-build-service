@@ -124,7 +124,7 @@ module Webui::WebuiHelper
   def repository_state_class(outdated, status)
     return 'outdated' if outdated
 
-    return status =~ /broken|building|finished|publishing|published/ ? status : 'default'
+    status =~ /broken|building|finished|publishing|published/ ? status : 'default'
   end
 
   # Shortens a text if it longer than 'length'.
@@ -331,7 +331,7 @@ module Webui::WebuiHelper
 
     checks = remaining_checks.shift(show_checks)
     build_problems = remaining_build_problems.shift(show_builds)
-    return checks, build_problems, remaining_checks, remaining_build_problems
+    [checks, build_problems, remaining_checks, remaining_build_problems]
   end
 
   def feature_enabled?(feature)

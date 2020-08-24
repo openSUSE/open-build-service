@@ -167,7 +167,7 @@ class User < ApplicationRecord
     return user if user.errors.empty?
 
     logger.info("Cannot create ldap userid: '#{login}' on OBS. Full log: #{user.errors.full_messages.to_sentence}")
-    return
+    nil
   end
 
   # This static method tries to find a user with the given login and password

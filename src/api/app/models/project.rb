@@ -326,7 +326,7 @@ class Project < ApplicationRecord
           return project, remote_project
         end
       end
-      return
+      nil
     end
 
     # Returns a list of pairs (full name, short name) for each parent
@@ -919,7 +919,7 @@ class Project < ApplicationRecord
 
     # no package found
     processed.delete(self)
-    return
+    nil
   end
 
   def expand_all_repositories

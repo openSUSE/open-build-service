@@ -49,7 +49,7 @@ module LocalBuildStatistic
     def backend_statistics
       Xmlhash.parse(Backend::Api::BuildResults::Status.statistics(project, package, repository, architecture))
     rescue Backend::Error
-      return []
+      []
     end
   end
 end

@@ -24,10 +24,10 @@ class UserLdapStrategy
     result = search_ldap(group)
     if result.nil?
       Rails.logger.info("Fail to find group: #{group} in LDAP")
-      return false
+      false
     else
       Rails.logger.debug("group dn: #{result[0]}")
-      return true
+      true
     end
   end
 

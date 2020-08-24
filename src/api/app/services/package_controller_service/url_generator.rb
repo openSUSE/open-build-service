@@ -38,10 +38,10 @@ module PackageControllerService
         return file_available?(response['location'], (max_redirects - 1))
       end
 
-      return response.code.to_i == 200
+      response.code.to_i == 200
     rescue Object => e
       logger.error "Error in checking for file #{url}: #{e.message}"
-      return false
+      false
     end
 
     def get_frontend_url_for(opt = {})

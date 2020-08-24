@@ -68,6 +68,6 @@ class AttributeController < ApplicationController
 
     render_error status: 400, errorcode: 'illegal_request',
                  message: "Illegal request: PUT/POST #{request.path}: path does not match content"
-    return
+    nil
   end
 end

@@ -72,7 +72,7 @@ class Webui::RequestController < Webui::WebuiController
     review_params[:by_project] = review.by_project
     review_params[:by_user] = review.by_user
     review_params[:by_group] = review.by_group
-    return review_params, review.bs_request
+    [review_params, review.bs_request]
   end
 
   def modify_review
@@ -237,7 +237,7 @@ class Webui::RequestController < Webui::WebuiController
     return if @diff_to_superseded
 
     flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
-    return
+    nil
   end
 
   def require_request

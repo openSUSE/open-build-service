@@ -10,12 +10,12 @@ class BsRequestAction
 
         if bs_request_action.source_package
           bs_request_action.source_access_check! unless skip_access_check?
-          return [bs_request_action.source_package]
+          [bs_request_action.source_package]
         else
           project = Project.find_by_name(bs_request_action.source_project)
           return [] unless project
 
-          return project.packages.map do |package|
+          project.packages.map do |package|
             package.check_source_access! unless skip_access_check?
             package.name
           end

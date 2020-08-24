@@ -56,7 +56,7 @@ class Repository < ApplicationRecord
     local_project, remote_project = Project.find_remote_project(project)
     return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project) if local_project
 
-    return
+    nil
   end
 
   def self.find_by_project_and_path(project, path)

@@ -130,7 +130,7 @@ class Webui::UsersController < Webui::WebuiController
     else
       flash[:error] = 'The value of current password does not match your current password. Please enter the password and try again.'
       redirect_back fallback_location: root_path
-      return
+      nil
     end
   end
 

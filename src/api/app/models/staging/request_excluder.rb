@@ -82,6 +82,6 @@ class Staging::RequestExcluder
               else
                 "Request #{request_number} doesn't exist"
               end
-    return false
+    false
   end
 end

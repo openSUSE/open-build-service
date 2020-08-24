@@ -55,12 +55,12 @@ class BsRequestActionDelete < BsRequestAction
                                                 use_source: true, follow_project_links: false)
       package.commit_opts = { comment: bs_request.description, request: bs_request }
       package.destroy
-      return Package.source_path(target_project, target_package)
+      Package.source_path(target_project, target_package)
     else
       project = Project.get_by_name(target_project)
       project.commit_opts = { comment: bs_request.description, request: bs_request }
       project.destroy
-      return "/source/#{target_project}"
+      "/source/#{target_project}"
     end
   end
 

@@ -132,6 +132,6 @@ class Service
     addService('recompress', [{ name: 'compression', value: 'xz' }, { name: 'file', value: '*.tar' }], 'buildtime')
     addService('set_version', [], 'buildtime')
 
-    return true
+    true
   end
 end
