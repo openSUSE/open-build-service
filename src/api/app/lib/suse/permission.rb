@@ -67,14 +67,14 @@ module Suse
       if @user
         if @user.has_global_permission?(perm.to_s)
           logger.debug "User #{@user.login} has permission #{perm}"
-          return true
+          true
         else
           logger.debug "User #{@user.login} does NOT have permission #{perm}"
-          return false
+          false
         end
       else
         logger.debug 'Permission check failed because no user is checked in'
-        return false
+        false
       end
     end
 

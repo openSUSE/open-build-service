@@ -140,7 +140,7 @@ class Staging::StagedRequests
               else
                 "Can't change staged requests '#{request.number}': Project '#{staging_project}' is being accepted."
               end
-    return false
+    false
   end
 
   def missing_packages

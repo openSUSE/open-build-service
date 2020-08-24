@@ -118,7 +118,7 @@ module Backend
     def self.handle_response(response)
       case response
       when Net::HTTPSuccess, Net::HTTPRedirection, Net::HTTPOK
-        return response
+        response
       when Net::HTTPNotFound
         raise Backend::NotFoundError, response.read_body.force_encoding('UTF-8')
       else

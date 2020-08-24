@@ -102,7 +102,7 @@ module Webui::RequestHelper
     return filename unless file_element['state'] == 'changed'
     return filename if file_element['old']['name'] == filename
 
-    return "#{file_element['old']['name']} -> #{filename}"
+    "#{file_element['old']['name']} -> #{filename}"
   end
 
   def diff_data(action_type, sourcediff)

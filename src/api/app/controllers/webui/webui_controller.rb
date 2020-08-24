@@ -110,7 +110,7 @@ class Webui::WebuiController < ActionController::Base
         logger.info "User '#{User.session!}' has logged in via kerberos"
         session[:login] = User.session!.login
         redirect_back(fallback_location: root_path)
-        return true
+        true
       end
     end
   end

@@ -25,7 +25,7 @@ class Services::WebhooksController < ApplicationController
     return if @token && @token.valid_signature?(signature, request.body.read)
 
     render_error message: 'Token not found or not valid.', status: 403
-    return false
+    false
   end
 
   def set_user

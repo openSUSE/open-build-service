@@ -72,7 +72,7 @@ class Webui::RequestController < Webui::WebuiController
     review_params[:by_project] = review.by_project
     review_params[:by_user] = review.by_user
     review_params[:by_group] = review.by_group
-    return review_params, review.bs_request
+    [review_params, review.bs_request]
   end
 
   def modify_review
