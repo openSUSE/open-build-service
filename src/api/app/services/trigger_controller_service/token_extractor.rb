@@ -19,7 +19,7 @@ module TriggerControllerService
     end
 
     def valid?
-      @auth_token.present? && @auth_token[0..4] == 'Token' && @auth_token[6..-1].match?(/^[A-Za-z0-9+\/]+$/)
+      @auth_token.present? && @auth_token[0..4] == 'Token' && @auth_token[6..-1].match?(%r{^[A-Za-z0-9+/]+$})
     end
 
     # it will return a Token subclass or raise ActiveRecord::RecordNotFound
