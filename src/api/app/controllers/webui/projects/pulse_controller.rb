@@ -21,12 +21,12 @@ module Webui
       end
 
       def set_pulse
-        case @range
-        when 'month'
-          range = 1.month.ago..Date.tomorrow
-        else
-          range = 1.week.ago..Date.tomorrow
-        end
+        range = case @range
+                when 'month'
+                  1.month.ago..Date.tomorrow
+                else
+                  1.week.ago..Date.tomorrow
+                end
 
         pulse = @project.project_log_entries.where(datetime: range).order(datetime: :asc)
         @builds = pulse.where(event_type: [:build_fail, :build_success]).where(datetime: 24.hours.ago..Time.zone.now)

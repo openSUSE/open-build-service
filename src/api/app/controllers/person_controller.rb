@@ -13,11 +13,11 @@ class PersonController < ApplicationController
   before_action :set_user, only: [:post_userinfo, :change_my_password]
 
   def show
-    if params[:prefix]
-      @list = User.where('login LIKE ?', params[:prefix] + '%')
-    else
-      @list = User.all
-    end
+    @list = if params[:prefix]
+              User.where('login LIKE ?', params[:prefix] + '%')
+            else
+              User.all
+            end
   end
 
   def login

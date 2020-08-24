@@ -442,11 +442,12 @@ Naming/HeredocDelimiterNaming:
     - 'test/functional/source_controller_test.rb'
     - 'test/unit/project_test.rb'
 
-# Offense count: 1
+# Offense count: 2
 # Configuration parameters: EnforcedStyleForLeadingUnderscores.
 # SupportedStylesForLeadingUnderscores: disallowed, required, optional
 Naming/MemoizedInstanceVariableName:
   Exclude:
+    - 'app/controllers/application_controller.rb'
     - 'app/lib/authenticator.rb'
 
 # Offense count: 11
@@ -1236,22 +1237,12 @@ Style/CommentedKeyword:
     - 'test/unit/user_ldap_strategy_test.rb'
     - 'test/unit/user_test.rb'
 
-# Offense count: 74
+# Offense count: 42
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
 # SupportedStyles: assign_to_condition, assign_inside_condition
 Style/ConditionalAssignment:
   Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/message_controller.rb'
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/search_controller.rb'
-    - 'app/controllers/statistics_controller.rb'
-    - 'app/controllers/status/checks_controller.rb'
-    - 'app/controllers/status/reports_controller.rb'
-    - 'app/controllers/webui/attribute_controller.rb'
-    - 'app/controllers/webui/project_controller.rb'
-    - 'app/controllers/webui/projects/pulse_controller.rb'
     - 'app/models/branch_package.rb'
     - 'app/models/bs_request.rb'
     - 'app/models/bs_request/find_for/project.rb'
@@ -1412,7 +1403,7 @@ Style/SymbolArray:
 Style/WordArray:
   Enabled: false
 
-# Offense count: 1935
+# Offense count: 1936
 # Cop supports --auto-correct.
 # Configuration parameters: AutoCorrect, AllowHeredoc, AllowURI, URISchemes, IgnoreCopDirectives, IgnoredPatterns.
 # URISchemes: http, https
