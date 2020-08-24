@@ -1432,7 +1432,6 @@ Style/RedundantReturn:
 # SupportedStyles: slashes, percent_r, mixed
 Style/RegexpLiteral:
   Exclude:
-    - 'config/routes/webui_routes.rb'
     - 'lib/api_error.rb'
     - 'lib/tasks/coverage.rake'
     - 'lib/tasks/extract.rake'
