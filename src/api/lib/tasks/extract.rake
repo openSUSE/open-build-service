@@ -7,7 +7,7 @@ def local_to_yaml(hash, file)
   keys.each_with_index do |k, index| # <-- here's my addition (the 'sort')
     v = hash[k]
     k = "record_#{index}" if k.is_a?(Integer)
-    file.write({ k => v }.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(%r{^---\s*}, ''))
+    file.write({ k => v }.to_yaml(SortKeys: true, ExplicitTypes: true).gsub(/^---\s*/, ''))
   end
 end
 
