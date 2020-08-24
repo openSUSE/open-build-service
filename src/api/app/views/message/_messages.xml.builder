@@ -9,8 +9,8 @@ xml.messages(root_attrs) do
     attrs[:severity] = msg.severity || 0
     attrs[:sent_at] = msg.sent_at.xmlschema if msg.sent_at
     attrs[:user] =  msg.user.login if msg.user
-    msg.send_mail ? attrs[:send_mail] = true : attrs[:send_mail] = false
-    msg.private ? attrs[:private] = true : attrs[:private] = false
+    attrs[:send_mail] = msg.send_mail
+    attrs[:private] = msg.private
 
     xml.message(
       msg.text,

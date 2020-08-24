@@ -1244,10 +1244,6 @@ Style/CommentedKeyword:
 Style/ConditionalAssignment:
   Exclude:
     - 'app/models/bs_request_action_submit.rb'
-    - 'app/views/message/_messages.xml.builder'
-    - 'app/views/models/_project.xml.builder'
-    - 'app/views/models/_remote_project.xml.builder'
-    - 'app/views/models/staging/_staging_project.xml.builder'
     - 'config/initializers/02_apiversion.rb'
     - 'config/initializers/airbrake.rb'
     - 'lib/rabbitmq_bus.rb'
