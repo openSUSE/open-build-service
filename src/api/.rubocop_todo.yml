@@ -1426,26 +1426,6 @@ Style/RedundantReturn:
     - 'app/services/package_controller_service/url_generator.rb'
     - 'test/node_matcher.rb'
 
-# Offense count: 87
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, AllowInnerSlashes.
-# SupportedStyles: slashes, percent_r, mixed
-Style/RegexpLiteral:
-  Exclude:
-    - 'test/functional/maintenance_test.rb'
-    - 'test/functional/message_controller_test.rb'
-    - 'test/functional/read_permission_test.rb'
-    - 'test/functional/request_controller_test.rb'
-    - 'test/functional/request_events_test.rb'
-    - 'test/functional/source_controller_test.rb'
-    - 'test/functional/status_controller_test.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/models/event_test.rb'
-    - 'test/test_helper.rb'
-    - 'test/unit/attribute_test.rb'
-    - 'test/unit/package_test.rb'
-    - 'test/unit/schema_test.rb'
-
 # Offense count: 23
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

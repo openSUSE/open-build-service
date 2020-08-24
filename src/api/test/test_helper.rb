@@ -106,7 +106,7 @@ def inject_build_job(project, package, repo, arch, extrabinary = nil)
   f.close
   extrabinary = " -o -name #{extrabinary}" if extrabinary
   # rubocop:disable Layout/LineLength
-  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=succeeded&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=succeeded&job=#{jobfile.gsub(%r{.*/}, '')}&jobid=#{jobid}' > /dev/null")
   # rubocop:enable Layout/LineLength
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
 end
@@ -214,7 +214,7 @@ module Webui
 
       @current_user = user
       if opts[:do_assert] != false
-        assert_match %r{^#{user}( |$)}, find(:css, '#link-to-user-home').text
+        assert_match(/^#{user}( |$)/, find(:css, '#link-to-user-home').text)
       end
       # login into API to ease test cases
       prepare_request_with_user(user, password)

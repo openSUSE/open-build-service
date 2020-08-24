@@ -565,7 +565,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
     get '/source/home:tom:temp/ProtectedPackage/dummy_file'
     assert_response 403
-    assert_no_match(/<summary>source access denied<\/summary>/, @response.body) # api is talking
+    assert_no_match(%r{<summary>source access denied</summary>}, @response.body) # api is talking
     get '/source/home:tom:temp/ProtectedPackage/_result'
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'source_access_no_permission' } # api is talking
