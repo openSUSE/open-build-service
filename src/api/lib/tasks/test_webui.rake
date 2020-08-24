@@ -5,7 +5,7 @@ Rake::TestTask.new do |t|
   t.libs << 'test'
   test_files = FileList['test/unit/*_test.rb']
   test_files += FileList['test/models/*_test.rb']
-  test_files += FileList['test/**/*_test.rb'].exclude(%r{webui}).exclude(%r{test/models}).exclude(%r{test/unit})
+  test_files += FileList['test/**/*_test.rb'].exclude(/webui/).exclude(%r{test/models}).exclude(%r{test/unit})
   t.test_files = test_files
   t.name = 'test:api'
   t.warning = false
@@ -46,7 +46,7 @@ end
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
-  files = FileList['test/functional/**/*_test.rb'].exclude(%r{spider_test})
+  files = FileList['test/functional/**/*_test.rb'].exclude(/spider_test/)
   SAFE_TESTS.each do |file|
     files.exclude(file)
   end

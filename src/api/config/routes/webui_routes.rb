@@ -337,18 +337,18 @@ OBSApi::Application.routes.draw do
     resource :session, only: [:new, :create, :destroy], controller: 'webui/session'
 
     controller 'webui/groups/bs_requests' do
-      get 'groups/(:title)/requests' => :index, constraints: { title: /[^\/]*/ }, as: 'group_requests'
+      get 'groups/(:title)/requests' => :index, constraints: { title: %r{[^/]*} }, as: 'group_requests'
     end
 
     controller 'webui/groups' do
       get 'groups' => :index
-      get 'group/show/:title' => :show, constraints: { title: /[^\/]*/ }, as: 'group_show'
+      get 'group/show/:title' => :show, constraints: { title: %r{[^/]*} }, as: 'group_show'
       get 'group/new' => :new
       post 'group/create' => :create
       get 'group/autocomplete' => :autocomplete, as: 'autocomplete_groups'
     end
 
-    resources :groups, only: [], param: :title, constraints: { title: /[^\/]*/ } do
+    resources :groups, only: [], param: :title, constraints: { title: %r{[^/]*} } do
       resources :user, only: [:create, :destroy, :update], constraints: cons, param: :user_login, controller: 'webui/groups/users'
     end
 

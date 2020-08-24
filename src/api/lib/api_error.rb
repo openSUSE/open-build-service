@@ -26,7 +26,7 @@ class APIError < RuntimeError
 
     err = self.class.name.demodulize.underscore
     # if the class name stops with Error, strip that
-    err.gsub(%r{_error$}, '')
+    err.gsub(/_error$/, '')
   end
 
   def status

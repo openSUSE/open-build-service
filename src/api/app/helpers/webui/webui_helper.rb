@@ -167,7 +167,7 @@ module Webui::WebuiHelper
     text.force_encoding('UTF-8')
     text = 'The file you look at is not valid UTF-8 text. Please convert the file.' unless text.valid_encoding?
     # Ged rid of stuff that shouldn't be part of PCDATA:
-    text.gsub(/([^a-zA-Z0-9&;<>\/\n \t()])/) do
+    text.gsub(%r{([^a-zA-Z0-9&;<>/\n \t()])}) do
       if Regexp.last_match(1)[0].getbyte(0) < 32
         ''
       else
@@ -266,7 +266,7 @@ module Webui::WebuiHelper
 
   def replace_jquery_meta_characters(input)
     # The stated characters are c&p from https://api.jquery.com/category/selectors/
-    input.gsub(/[!"#$%&'()*+,.\/:\\;<=>?@\[\]^`{|}~]/, '_')
+    input.gsub(%r{[!"#$%&'()*+,./:\\;<=>?@\[\]^`{|}~]}, '_')
   end
 
   def word_break(string, length = 80)
