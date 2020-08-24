@@ -19,8 +19,8 @@ class Service
   def self.valid_name?(name)
     return false unless name.is_a?(String)
     return false if name.length > 200 || name.blank?
-    return false if name =~ %r{^[_.]}
-    return false if name =~ %r{::}
+    return false if name =~ /^[_.]/
+    return false if name =~ /::/
     return true if name =~ /\A\w[-+\w.:]*\z/
 
     false

@@ -15,7 +15,7 @@ class Group < ApplicationRecord
   has_many :notifications, -> { order(created_at: :desc) }, as: :subscriber, dependent: :destroy
 
   validates :title,
-            format: { with: %r{\A[\w.\-]*\z},
+            format: { with: /\A[\w.\-]*\z/,
                       message: 'must not contain invalid characters' }
   validates :title,
             length: { in: 2..100,
