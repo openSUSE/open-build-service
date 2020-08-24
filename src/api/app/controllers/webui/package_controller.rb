@@ -473,7 +473,7 @@ class Webui::PackageController < Webui::WebuiController
       @log_chunk = ''
     rescue Backend::Error => e
       case e.summary
-      when %r{Logfile is not that big}
+      when /Logfile is not that big/
         @log_chunk = ''
       when /start out of range/
         # probably build compare has cut log and offset is wrong, reset offset
