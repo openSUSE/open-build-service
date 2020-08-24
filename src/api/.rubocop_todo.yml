@@ -1237,18 +1237,13 @@ Style/CommentedKeyword:
     - 'test/unit/user_ldap_strategy_test.rb'
     - 'test/unit/user_test.rb'
 
-# Offense count: 42
+# Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SingleLineConditionsOnly, IncludeTernaryExpressions.
 # SupportedStyles: assign_to_condition, assign_inside_condition
 Style/ConditionalAssignment:
   Exclude:
     - 'app/models/bs_request_action_submit.rb'
-    - 'config/initializers/02_apiversion.rb'
-    - 'config/initializers/airbrake.rb'
-    - 'lib/rabbitmq_bus.rb'
-    - 'lib/tasks/extract.rake'
-    - 'lib/xpath_engine.rb'
 
 # Offense count: 846
 Style/Documentation:

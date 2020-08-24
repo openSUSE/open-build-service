@@ -75,11 +75,11 @@ namespace :db do
         data.each do |record|
           record = force_hash(record)
           id = i.succ!
-          if classname
-            primary = classname.primary_key
-          else
-            primary = 'id'
-          end
+          primary = if classname
+                      classname.primary_key
+                    else
+                      'id'
+                    end
           id = Integer(record[primary]) if record.key?(primary)
           if record.key?('user_id')
             user = User.find(record.delete('user_id'))
