@@ -6402,16 +6402,16 @@ sub external_notification_sourcepublish {
       push @included, { 'project' => $iproject, 'package' => $ipackage, 'srcmd5' => $imd5 };
     }
 
-    if ($BSConfig::sourcepublish_blacklist) {
+    if ($BSConfig::sourcepublish_blocklist) {
       my $xml = readxml("$projectsdir/$project.xml", $BSXML::proj, 1);
       die("400 Unable to parse $project.xml\n") unless $xml;
       if ( {$xml->{'kind'} || ''} eq 'maintenance_release' ) {
-        if (grep {$package =~ /^$_\./} @$BSConfig::sourcepublish_blacklist) {
-          BSUtil::printlog("black list hit for $package in maintenance release project");
+        if (grep {$package =~ /^$_\./} @$BSConfig::sourcepublish_blocklist) {
+          BSUtil::printlog("block list hit for $package in maintenance release project");
           return;
         }
-      } elsif (grep {$package eq $_} @$BSConfig::sourcepublish_blacklist) {
-        BSUtil::printlog("black list hit for $package");
+      } elsif (grep {$package eq $_} @$BSConfig::sourcepublish_blocklist) {
+        BSUtil::printlog("block list hit for $package");
         return;
       }
     }
