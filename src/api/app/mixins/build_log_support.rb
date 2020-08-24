@@ -7,7 +7,7 @@ module BuildLogSupport
   def get_log_chunk(project, package, repo, arch, start, theend)
     log = raw_log_chunk(project, package, repo, arch, start, theend)
     log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
-    log.gsub(/([^a-zA-Z0-9&;<>\/\n\r \t()])/) do |c|
+    log.gsub(%r{([^a-zA-Z0-9&;<>/\n\r \t()])}) do |c|
       if c.ord < 32
         ''
       else
