@@ -25,11 +25,11 @@ module Webui::UserHelper
     Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
       realname = user.realname
 
-      if opts[:short] || realname.empty?
-        printed_name = user.login
-      else
-        printed_name = "#{realname} (#{user.login})"
-      end
+      printed_name = if opts[:short] || realname.empty?
+                       user.login
+                     else
+                       "#{realname} (#{user.login})"
+                     end
 
       if opts[:no_icon]
         link_to(printed_name, user_path(user))
