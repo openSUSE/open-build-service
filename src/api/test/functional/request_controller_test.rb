@@ -448,15 +448,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post '/request?cmd=create', params: load_backend_file('request/no_such_user')
     assert_response 404
-    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find User} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: /Couldn.t find User/ })
 
     post '/request?cmd=create', params: load_backend_file('request/no_such_group')
     assert_response 404
-    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find Group} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: /Couldn.t find Group/ })
 
     post '/request?cmd=create', params: load_backend_file('request/no_such_role')
     assert_response 404
-    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: %r{Couldn.t find Role} })
+    assert_xml_tag(tag: 'status', attributes: { code: 'not_found' }, child: { content: /Couldn.t find Role/ })
 
     post '/request?cmd=create', params: load_backend_file('request/no_such_target_project')
     assert_response 404
@@ -2309,7 +2309,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_match(/review state change for project BaseDistro is not permitted for adrian/, @response.body)
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian&by_project=BaseDistro&by_package=pack2"
     assert_response 403
-    assert_match(/review state change for package BaseDistro\/pack2 is not permitted for adrian/, @response.body)
+    assert_match(%r{review state change for package BaseDistro/pack2 is not permitted for adrian}, @response.body)
 
     # approve reviews for real
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian"

@@ -402,7 +402,7 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'without permissions' do
-      let(:post_url) { /#{CONFIG['source_url']}\/source\/#{source_project}\/#{service_package}\.*/ }
+      let(:post_url) { %r{#{CONFIG['source_url']}/source/#{source_project}/#{service_package}\.*} }
       let(:other_user) { create(:confirmed_user) }
 
       before do

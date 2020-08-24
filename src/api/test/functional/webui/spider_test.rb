@@ -30,9 +30,9 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
   def getlinks(baseuri, body)
     # skip some uninteresting projects
-    return if baseuri =~ %r{project=home%3Afred}
-    return if baseuri =~ %r{project=home%3Acoolo}
-    return if baseuri =~ %r{project=deleted}
+    return if baseuri =~ /project=home%3Afred/
+    return if baseuri =~ /project=home%3Acoolo/
+    return if baseuri =~ /project=deleted/
 
     baseuri = URI.parse(baseuri)
 

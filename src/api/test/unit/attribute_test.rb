@@ -177,7 +177,7 @@ class AttributeTest < ActiveSupport::TestCase
     e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.store_attribute_xml(xml)
     end
-    assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
+    assert_match(/Values has 1 values, but only 0 are allowed/, e.message)
 
     User.session = nil
   end

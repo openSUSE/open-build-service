@@ -141,7 +141,7 @@ RSpec.describe Cloud::UploadJobsController, vcr: true do
 
       before do
         stub_request(:post, path).with(body: post_body).and_return(body: xml_response)
-        stub_request(:get, /#{CONFIG['source_url']}\/cloudupload\?name=\d+/).and_return(body: xml_response_list)
+        stub_request(:get, %r{#{CONFIG['source_url']}/cloudupload\?name=\d+}).and_return(body: xml_response_list)
         post :create, params: params, format: 'xml'
       end
 

@@ -6,13 +6,13 @@ class SchemaTest < ActiveSupport::TestCase
     Find.find(CONFIG['schema_location']).each do |f|
       io = nil
       case f
-      when %r{\.rng$}
-        testfile = f.gsub(%r{\.rng$}, '.xml')
+      when /\.rng$/
+        testfile = f.gsub(/\.rng$/, '.xml')
         if File.exist?(testfile)
           io = IO.popen("xmllint --noout --relaxng #{f} #{testfile} 2>&1 > /dev/null", 'r')
         end
-      when %r{xsd}
-        testfile = f.gsub(%r{\.xsd$}, '.xml')
+      when /xsd/
+        testfile = f.gsub(/\.xsd$/, '.xml')
         if File.exist?(testfile)
           io = IO.popen("xmllint --noout --schema #{f} #{testfile} 2>&1 > /dev/null", 'r')
         end
