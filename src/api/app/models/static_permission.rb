@@ -13,7 +13,7 @@ class StaticPermission < ApplicationRecord
             uniqueness: { case_sensitive: false, message: 'is the name of an already existing static permission' }
   validates :title, presence: { message: 'must be given.' }
 
-  validates :title, format: { with: %r{\A[\w\-]*\z},
+  validates :title, format: { with: /\A[\w\-]*\z/,
                               message: 'must not contain invalid characters' }
 
   alias_attribute :fixtures_name, :title

@@ -52,7 +52,7 @@ module Kiwi
 
     def source_path_format
       return if source_path == 'obsrepositories:/'
-      return if source_path =~ /^(dir|iso|smb|this):\/\/.+/
+      return if source_path =~ %r{^(dir|iso|smb|this)://.+}
       return if source_path =~ /\A#{URI::DEFAULT_PARSER.make_regexp(['ftp', 'http', 'https', 'plain'])}\z/
 
       if source_path_for_obs_repository?
@@ -86,32 +86,32 @@ module Kiwi
     end
 
     def obs_source_path?
-      source_path && source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).present?
+      source_path && source_path.match(%r{^obs://([^/]+)/([^/]+)$}).present?
     end
 
     def project_for_type_obs
       return '' unless source_path
 
-      source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 1)
+      source_path.match(%r{^obs://([^/]+)/([^/]+)$}).try(:[], 1)
     end
 
     def repository_for_type_obs
       return '' unless source_path
 
-      source_path.match(/^obs:\/\/([^\/]+)\/([^\/]+)$/).try(:[], 2)
+      source_path.match(%r{^obs://([^/]+)/([^/]+)$}).try(:[], 2)
     end
 
     private
 
     def source_path_for_obs_repository?
-      source_path =~ /^obs:\/\/([^\/]+)\/([^\/]+)$/ && Project.valid_name?(Regexp.last_match(1)) && Project.valid_name?(Regexp.last_match(2))
+      source_path =~ %r{^obs://([^/]+)/([^/]+)$} && Project.valid_name?(Regexp.last_match(1)) && Project.valid_name?(Regexp.last_match(2))
     end
 
     def source_path_for_opensuse_repository?
       # $1 must be a project name. $2 must be a repository name
-      source_path =~ /^opensuse:\/\/([^\/]+)\/([^\/]+)$/ &&
+      source_path =~ %r{^opensuse://([^/]+)/([^/]+)$} &&
         Project.valid_name?(Regexp.last_match(1)) &&
-        Regexp.last_match(2) =~ /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/
+        Regexp.last_match(2) =~ %r{\A[^_:/\000-\037][^:/\000-\037]*\Z}
     end
 
     def map_to_allowed_repository_types
