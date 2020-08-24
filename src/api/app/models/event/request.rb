@@ -101,7 +101,7 @@ module Event
       begin
         action.sourcediff(view: nil, withissues: 0)
       rescue BsRequestAction::Errors::DiffError
-        return # can't help
+        nil # can't help
       end
     end
 

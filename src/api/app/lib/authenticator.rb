@@ -86,7 +86,7 @@ class Authenticator
     ['X-HTTP_AUTHORIZATION', 'Authorization', 'HTTP_AUTHORIZATION'].each do |header|
       return request.env[header].to_s.split if request.env.key?(header)
     end
-    return
+    nil
   end
 
   private

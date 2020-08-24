@@ -28,7 +28,7 @@ class BuildController < ApplicationController
 
     if request.get?
       pass_to_backend
-      return
+      nil
     elsif request.post?
       # check if user has project modify rights
       allowed = false
@@ -78,7 +78,7 @@ class BuildController < ApplicationController
       end
 
       pass_to_backend
-      return
+      nil
     elsif request.put?
       if User.admin_session?
         pass_to_backend
@@ -86,11 +86,11 @@ class BuildController < ApplicationController
         render_error status: 403, errorcode: 'execute_cmd_no_permission',
                      message: "No permission to execute command on project #{params[:project]}"
       end
-      return
+      nil
     else
       render_error status: 400, errorcode: 'illegal_request',
                    message: "Illegal request: #{request.method.to_s.upcase} #{request.path}"
-      return
+      nil
     end
   end
 

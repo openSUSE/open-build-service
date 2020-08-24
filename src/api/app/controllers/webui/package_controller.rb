@@ -847,7 +847,7 @@ class Webui::PackageController < Webui::WebuiController
         comment: last_req.comment
       }
     end
-    return
+    nil
   end
 
   def get_diff(project, package, options = {})

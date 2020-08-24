@@ -719,7 +719,7 @@ class BsRequestAction < ApplicationRecord
              per_package_locking
     end
 
-    return
+    nil
   end
 
   # Follow project links for a target project that delegates requests

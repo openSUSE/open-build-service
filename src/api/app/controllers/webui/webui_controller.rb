@@ -96,7 +96,7 @@ class Webui::WebuiController < ActionController::Base
       # Demand kerberos negotiation
       response.headers['WWW-Authenticate'] = 'Negotiate'
       render :new, status: 401
-      return
+      nil
     else
       begin
         authenticator.extract_user

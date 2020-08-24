@@ -43,7 +43,7 @@ module Build
                      message: 'Delete operation of build results is not allowed'
       end
 
-      return
+      nil
     end
 
     private
@@ -76,7 +76,7 @@ module Build
 
       render_error status: 403, errorcode: 'download_binary_no_permission',
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"
-      return
+      nil
     end
 
     def path

@@ -137,7 +137,7 @@ class Package < ApplicationRecord
 
       Rails.cache.delete(@key) # outdated anyway
     end
-    return
+    nil
   end
 
   def self.internal_get_project(project)

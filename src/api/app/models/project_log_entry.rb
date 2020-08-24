@@ -70,7 +70,7 @@ class ProjectLogEntry < ApplicationRecord
       username = User.find_by(id: payload[key]).try(:login) if key == 'commenter'
       return username unless username.blank? || username == 'unknown'
     end
-    return
+    nil
   end
 end
 

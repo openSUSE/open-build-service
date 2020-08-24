@@ -237,7 +237,7 @@ class Webui::RequestController < Webui::WebuiController
     return if @diff_to_superseded
 
     flash[:error] = "Request #{params[:diff_to_superseded]} does not exist or is not superseded by request #{@bs_request.number}."
-    return
+    nil
   end
 
   def require_request

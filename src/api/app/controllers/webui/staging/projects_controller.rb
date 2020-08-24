@@ -110,7 +110,7 @@ module Webui
 
         redirect_back(fallback_location: root_path)
         flash[:error] = 'Staging project not found'
-        return
+        nil
       end
     end
   end
