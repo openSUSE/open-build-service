@@ -113,7 +113,7 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.14)
-    codecov (0.2.6)
+    codecov (0.2.7)
       colorize
       json
       simplecov
