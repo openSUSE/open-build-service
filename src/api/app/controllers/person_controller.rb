@@ -193,7 +193,7 @@ class PersonController < ApplicationController
     render_ok
   rescue Exception => e
     # Strip passwords from request environment and re-raise exception
-    request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(/<password>(.*)<\/password>/, '<password>STRIPPED<password>')
+    request.env['RAW_POST_DATA'] = request.env['RAW_POST_DATA'].sub(%r{<password>(.*)</password>}, '<password>STRIPPED<password>')
     raise e
   end
 

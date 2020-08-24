@@ -16,7 +16,7 @@ class Webui::SitemapsController < Webui::WebuiController
 
     predication =
       case project_name
-      when %r{home}
+      when /home/
         projects_table[:name].matches("#{project_name}%")
       when 'opensuse'
         projects_table[:name].matches('openSUSE:%')
