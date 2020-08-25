@@ -113,12 +113,10 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.14)
-    codecov (0.2.7)
-      colorize
+    codecov (0.2.8)
       json
       simplecov
     coderay (1.1.3)
-    colorize (0.8.1)
     concurrent-ruby (1.1.7)
     coveralls (0.8.23)
       json (>= 1.8, < 3)
