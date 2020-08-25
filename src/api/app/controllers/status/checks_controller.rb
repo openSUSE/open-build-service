@@ -37,11 +37,11 @@ class Status::ChecksController < ApplicationController
   end
 
   def set_status_report
-    if params[:report_uuid]
-      @status_report = @checkable.status_reports.find_or_initialize_by(uuid: params[:report_uuid])
-    else
-      @status_report = @checkable.status_reports.first_or_initialize
-    end
+    @status_report = if params[:report_uuid]
+                       @checkable.status_reports.find_or_initialize_by(uuid: params[:report_uuid])
+                     else
+                       @checkable.status_reports.first_or_initialize
+                     end
   end
 
   def set_check

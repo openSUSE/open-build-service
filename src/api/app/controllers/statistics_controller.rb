@@ -23,11 +23,11 @@ class StatisticsController < ApplicationController
     ratings = Rating.select('db_object_id, db_object_type, count(score) as count,' \
                                 'sum(score)/count(score) as score_calculated').group('db_object_id, db_object_type').order('score_calculated DESC')
     ratings = ratings.to_a.delete_if { |r| r.count.to_i < min_votes_for_rating }
-    if @limit
-      @ratings = ratings[0..@limit - 1]
-    else
-      @ratings = ratings
-    end
+    @ratings = if @limit
+                 ratings[0..@limit - 1]
+               else
+                 ratings
+               end
   end
 
   def rating
@@ -126,11 +126,11 @@ class StatisticsController < ApplicationController
     list.concat(packages)
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
-    if @limit
-      @list = list[0..@limit - 1]
-    else
-      @list = list
-    end
+    @list = if @limit
+              list[0..@limit - 1]
+            else
+              list
+            end
   end
 
   def added_timestamp

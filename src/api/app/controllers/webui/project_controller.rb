@@ -405,15 +405,16 @@ class Webui::ProjectController < Webui::WebuiController
 
     @name_filter = params[:pkgname]
     @lastbuild_switch = params[:lastbuild]
-    if params[:defaults]
-      defaults = (begin
+    # FIXME: this code needs some love
+    defaults = if params[:defaults]
+                 (begin
                     Integer(params[:defaults])
                   rescue ArgumentError
                     1
                   end).positive?
-    else
-      defaults = true
-    end
+               else
+                 true
+               end
     params['expansionerror'] = 1 if params['unresolvable']
     monitor_set_filter(defaults)
 
@@ -474,11 +475,11 @@ class Webui::ProjectController < Webui::WebuiController
 
     return unless result.key?('state')
 
-    if result.key?('dirty')
-      @repostatushash[repo][arch] = 'outdated_' + result['state']
-    else
-      @repostatushash[repo][arch] = result['state']
-    end
+    @repostatushash[repo][arch] = if result.key?('dirty')
+                                    'outdated_' + result['state']
+                                  else
+                                    result['state']
+                                  end
 
     @repostatusdetailshash[repo][arch] = result['details'] if result.key?('details')
   end
@@ -597,11 +598,11 @@ class Webui::ProjectController < Webui::WebuiController
     filter_string.gsub!(/\s*/, '')
     filter_string.split(',').each do |filter|
       no_invert = filter.match(/(^!?)(.+)/)
-      if no_invert[1] == '!'
-        result = input.include?(no_invert[2]) ? result : true
-      else
-        result = input.include?(no_invert[2]) ? true : result
-      end
+      result = if no_invert[1] == '!'
+                 input.include?(no_invert[2]) ? result : true
+               else
+                 input.include?(no_invert[2]) ? true : result
+               end
     end
     result
   end
