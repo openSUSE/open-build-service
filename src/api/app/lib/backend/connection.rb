@@ -82,11 +82,11 @@ module Backend
       start_time = Time.now
       Rails.logger.debug "[backend] #{method}: #{path}"
       timeout = in_headers.delete('Timeout')
-      if method == 'PUT'
-        backend_request = Net::HTTP::Put.new(path, in_headers)
-      else
-        backend_request = Net::HTTP::Post.new(path, in_headers)
-      end
+      backend_request = if method == 'PUT'
+                          Net::HTTP::Put.new(path, in_headers)
+                        else
+                          Net::HTTP::Post.new(path, in_headers)
+                        end
       if data.respond_to?('read')
         backend_request.content_length = data.size
         backend_request.body_stream = data
@@ -95,12 +95,12 @@ module Backend
       end
 
       response = Net::HTTP.start(host, port) do |http|
-        if method == 'POST'
-          # POST requests can be quite complicate and take some time ..
-          http.read_timeout = timeout || 100_000
-        else
-          http.read_timeout = timeout || 1000
-        end
+        http.read_timeout = if method == 'POST'
+                              # POST requests can be quite complicate and take some time ..
+                              timeout || 100_000
+                            else
+                              timeout || 1000
+                            end
         begin
           http.request(backend_request)
         # rubocop:disable Lint/ShadowedException
