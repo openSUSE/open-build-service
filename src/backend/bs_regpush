@@ -53,6 +53,7 @@ my $delete_except_mode;
 my $list_mode;
 my @tags;
 my $blobdir;
+my $oci;
 
 my $registryserver;
 my $repository;
@@ -459,6 +460,9 @@ while (@ARGV) {
   } elsif ($ARGV[0] eq '-B') {
     $blobdir = $ARGV[1];
     splice(@ARGV, 0, 2);
+  } elsif ($ARGV[0] eq '--oci') {
+    $oci = 1;
+    shift @ARGV;
   } else {
     last;
   }
@@ -538,6 +542,9 @@ if ($use_image_tags && @tarfiles > 1) {
   }
   $use_image_tags = 0;
 }
+
+# use oci types if we have a helm chart
+$oci = 1 if grep {/\.helminfo$/} @tarfiles;
 
 my @multimanifests;
 my %multiplatforms;
@@ -629,18 +636,19 @@ for my $tarfile (@tarfiles) {
   }
   close $tarfd if $tarfd;
 
+  my $mediaType = $oci ? 'application/vnd.oci.image.manifest.v1+json' : 'application/vnd.docker.distribution.manifest.v2+json';
   my $mani = {
     'schemaVersion' => 2,
-    'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+    'mediaType' => $mediaType,
     'config' => $config_data,
     'layers' => \@layer_data,
   };
   my $mani_json = BSContar::create_dist_manifest($mani);
 
   if ($multiarch) {
-    manifest_upload($mani_json, undef);		# upload anonymous image
+    manifest_upload($mani_json, undef, $mediaType);	# upload anonymous image
     my $multimani = {
-      'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+      'mediaType' => $mediaType,
       'size' => length($mani_json),
       'digest' => 'sha256:'.Digest::SHA::sha256_hex($mani_json),
       'platform' => {'architecture' => $goarch, 'os' => $goos},
@@ -648,18 +656,18 @@ for my $tarfile (@tarfiles) {
     $multimani->{'platform'}->{'variant'} = $govariant if $govariant;
     push @multimanifests, $multimani;
   } else {
-    manifest_upload_tags($mani_json, \@tags);
+    manifest_upload_tags($mani_json, \@tags, $mediaType);
   }
 }
 
 if ($multiarch) {
-  my $ct = 'application/vnd.docker.distribution.manifest.list.v2+json';
+  my $mediaType = $oci ? 'application/vnd.oci.image.index.v1+json' : 'application/vnd.docker.distribution.manifest.list.v2+json';
   my $mani = {
     'schemaVersion' => 2,
-    'mediaType' => $ct,
+    'mediaType' => $mediaType,
     'manifests' => \@multimanifests,
   };
   my $mani_json = BSContar::create_dist_manifest_list($mani);
-  manifest_upload_tags($mani_json, \@tags, $ct);
+  manifest_upload_tags($mani_json, \@tags, $mediaType);
 }
 

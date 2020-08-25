@@ -455,6 +455,9 @@ sub push_containers {
     my %multiplatforms;
     my @multimanifests;
     my @imginfos;
+    my $oci;
+    # use oci types if we have a helm chart
+    $oci = 1 if grep {$_->{'type'} eq 'helm'} @{$tags->{$tag}};
     for my $containerinfo (@{$tags->{$tag}}) {
       # check if we already processed this container with a different tag
       if ($done{$containerinfo}) {
@@ -542,12 +545,10 @@ sub push_containers {
       close $tarfd if $tarfd;
 
       # put manifest into repo
-      # helm has a static set of mediatypes supported
-      # https://github.com/helm/helm/blob/d6f6184351f7aecd9d0efdfb8aba7da5664031eb/internal/experimental/registry/constants.go
-      my $mediaType = "application/vnd.oci.image.manifest.v1+json" if (($containerinfo->{'type'} || '') eq 'helm');
+      my $mediaType = $oci ? 'application/vnd.oci.image.manifest.v1+json' : 'application/vnd.docker.distribution.manifest.v2+json';
       my $mani = { 
 	'schemaVersion' => 2,
-	'mediaType' => $mediaType || 'application/vnd.docker.distribution.manifest.v2+json',
+	'mediaType' => $mediaType,
 	'config' => $config_data,
 	'layers' => \@layer_data,
       };
@@ -556,7 +557,7 @@ sub push_containers {
       $knownmanifests{$mani_id} = 1;
 
       my $multimani = {
-	'mediaType' => 'application/vnd.docker.distribution.manifest.v2+json',
+	'mediaType' => $mediaType,
 	'size' => length($mani_json),
 	'digest' => $mani_id,
 	'platform' => {'architecture' => $goarch, 'os' => $goos},
@@ -595,10 +596,11 @@ sub push_containers {
     };
     my ($mani_id, $mani_size);
     if ($multiarchtag) {
+      my $mediaType = $oci ? 'application/vnd.oci.image.index.v1+json' : 'application/vnd.docker.distribution.manifest.list.v2+json';
       # create fat manifest
       my $mani = {
         'schemaVersion' => 2,
-        'mediaType' => 'application/vnd.docker.distribution.manifest.list.v2+json',
+        'mediaType' => $mediaType,
         'manifests' => \@multimanifests,
       };
       my $mani_json = BSContar::create_dist_manifest_list($mani);
