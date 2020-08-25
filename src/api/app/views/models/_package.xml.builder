@@ -3,9 +3,7 @@ xml.package(name: my_model.name, project: my_model.project.name) do
   xml.description(my_model.description)
   xml.releasename(my_model.releasename) if my_model.releasename
 
-  if my_model.develpackage
-    xml.devel(project: my_model.develpackage.project.name, package: my_model.develpackage.name)
-  end
+  xml.devel(project: my_model.develpackage.project.name, package: my_model.develpackage.name) if my_model.develpackage
 
   my_model.render_relationships(xml)
 

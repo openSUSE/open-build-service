@@ -43,13 +43,9 @@ FactoryBot.define do
                                group_name: evaluator.group_name,
                                person_name: evaluator.person_name)
 
-      if attribs[:source_project].is_a?(Project)
-        attribs[:source_project] = attribs[:source_project].name
-      end
+      attribs[:source_project] = attribs[:source_project].name if attribs[:source_project].is_a?(Project)
 
-      if attribs[:target_project].is_a?(Project)
-        attribs[:target_project] = attribs[:target_project].name
-      end
+      attribs[:target_project] = attribs[:target_project].name if attribs[:target_project].is_a?(Project)
 
       if attribs[:source_package].is_a?(Package)
         attribs[:source_project] ||= attribs[:source_package].project.name

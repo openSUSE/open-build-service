@@ -1294,32 +1294,6 @@ Style/IdenticalConditionalBranches:
     - 'app/controllers/build_controller.rb'
     - 'app/controllers/webui/search_controller.rb'
 
-# Offense count: 47
-# Cop supports --auto-correct.
-Style/IfUnlessModifier:
-  Exclude:
-    - 'app/policies/application_policy.rb'
-    - 'app/services/package_controller_service/url_generator.rb'
-    - 'app/views/models/_package.xml.builder'
-    - 'app/views/models/_project.xml.builder'
-    - 'app/views/models/_remote_project.xml.builder'
-    - 'app/views/models/staging/_staging_project.xml.builder'
-    - 'db/migrate/20170704212201_increase_timestamp_precision.rb'
-    - 'lib/tasks/extract.rake'
-    - 'lib/xpath_engine.rb'
-    - 'script/import_database.rb'
-    - 'spec/factories/bs_requests.rb'
-    - 'spec/factories/packages.rb'
-    - 'spec/factories/project.rb'
-    - 'spec/features/webui/packages_spec.rb'
-    - 'spec/rails_helper.rb'
-    - 'test/functional/maintenance_test.rb'
-    - 'test/functional/published_controller_test.rb'
-    - 'test/functional/request_controller_test.rb'
-    - 'test/functional/webui/spider_test.rb'
-    - 'test/test_helper.rb'
-    - 'test/unit/schema_test.rb'
-
 # Offense count: 2
 Style/MissingRespondToMissing:
   Exclude:

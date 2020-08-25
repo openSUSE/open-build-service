@@ -27,13 +27,9 @@ FactoryBot.define do
     end
 
     after(:create) do |project, evaluator|
-      if evaluator.link_to
-        LinkedProject.create(project: project, linked_db_project: evaluator.link_to)
-      end
+      LinkedProject.create(project: project, linked_db_project: evaluator.link_to) if evaluator.link_to
 
-      if evaluator.project_config
-        project.config.save({ user: 'factory bot' }, evaluator.project_config)
-      end
+      project.config.save({ user: 'factory bot' }, evaluator.project_config) if evaluator.project_config
 
       project.write_to_backend
     end
@@ -61,9 +57,7 @@ FactoryBot.define do
       after(:create) do |project, evaluator|
         new_package = create(:package, { project: project, name: evaluator.package_name }.compact)
         project.packages << new_package
-        if evaluator.create_patchinfo
-          Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
-        end
+        Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
       end
     end
 
@@ -79,19 +73,13 @@ FactoryBot.define do
       after(:create) do |project, evaluator|
         evaluator.package_count.times do |index|
           package_title = nil
-          if evaluator.package_title
-            package_title = "#{evaluator.package_title}_#{index}"
-          end
+          package_title = "#{evaluator.package_title}_#{index}" if evaluator.package_title
 
           package_description = nil
-          if evaluator.package_description
-            package_description = "#{evaluator.package_description}_#{index}"
-          end
+          package_description = "#{evaluator.package_description}_#{index}" if evaluator.package_description
 
           package_name = nil
-          if evaluator.package_name
-            package_name = "#{evaluator.package_name}_#{index}"
-          end
+          package_name = "#{evaluator.package_name}_#{index}" if evaluator.package_name
 
           new_package = create(:package, {
             project: project,
@@ -100,9 +88,7 @@ FactoryBot.define do
             description: package_description
           }.compact)
           project.packages << new_package
-          if evaluator.create_patchinfo
-            Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
-          end
+          Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true) if evaluator.create_patchinfo
         end
       end
     end

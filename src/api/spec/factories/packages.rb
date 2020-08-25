@@ -33,9 +33,7 @@ FactoryBot.define do
 
       after(:create) do |package, evaluator|
         evaluator.revision_count.times do |i|
-          if CONFIG['global_write_through']
-            Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s)
-          end
+          Backend::Connection.put("/source/#{package.project}/#{package}/somefile.txt", i.to_s) if CONFIG['global_write_through']
         end
       end
     end
@@ -90,9 +88,7 @@ FactoryBot.define do
       after(:create) do |package|
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>')
-        end
+        Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<services/>') if CONFIG['global_write_through']
       end
     end
 
@@ -100,9 +96,7 @@ FactoryBot.define do
       after(:create) do |package|
         # NOTE: Enable global write through when writing new VCR cassetes.
         # ensure the backend knows the project
-        if CONFIG['global_write_through']
-          Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>')
-        end
+        Backend::Connection.put("/source/#{URI.escape(package.project.name)}/#{URI.escape(package.name)}/_service", '<service>broken</service>') if CONFIG['global_write_through']
       end
     end
 
