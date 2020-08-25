@@ -304,9 +304,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal(node.elements('state').first.value('when'), node.elements('history').last.value('when'), 'Current state is has NOT same time as last history item')
     oldhistory = nil
     node.elements('history') do |h|
-      unless h
-        assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history')
-      end
+      assert((h.value('when') > oldhistory.value('when')), 'Current history is not newer than the former history') unless h
       oldhistory = h
     end
 

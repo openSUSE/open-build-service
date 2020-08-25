@@ -133,9 +133,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
         next unless File.exist?('/var/adm/fillup-templates') || File.exist?('/usr/share/fillup-templates/')
 
         # seems to be a SUSE system
-        if p['format']['rpm:suggests'].nil?
-          print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems'
-        end
+        print 'createrepo seems not to create week dependencies, we need this at least on SUSE systems' if p['format']['rpm:suggests'].nil?
         assert_equal 'pure_optional', p['format']['rpm:suggests']['rpm:entry']['name']
         assert_equal 'would_be_nice', p['format']['rpm:recommends']['rpm:entry']['name']
         assert_equal 'other_package_likes_it', p['format']['rpm:supplements']['rpm:entry']['name']

@@ -257,13 +257,9 @@ class XpathEngine
     end
     # logger.debug "starting stack: #{@stack.inspect}"
 
-    if @stack.shift != :document
-      raise IllegalXpathError, 'xpath expression has to begin with root node'
-    end
+    raise IllegalXpathError, 'xpath expression has to begin with root node' if @stack.shift != :document
 
-    if @stack.shift != :child
-      raise IllegalXpathError, 'xpath expression has to begin with root node'
-    end
+    raise IllegalXpathError, 'xpath expression has to begin with root node' if @stack.shift != :child
 
     @stack.shift
     @stack.shift
@@ -282,9 +278,7 @@ class XpathEngine
       when :self
         raise IllegalXpathError, "axis '#{token}' not supported"
       when :child
-        if @stack.shift != :qname
-          raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}"
-        end
+        raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}" if @stack.shift != :qname
 
         @stack.shift # namespace
         @stack.shift # node
@@ -359,9 +353,7 @@ class XpathEngine
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = nil
-    if @conditions.count.positive?
-      cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten
-    end
+    cond_ary = [@conditions.flatten.uniq.join(' AND '), @condition_values].flatten if @conditions.count.positive?
 
     logger.debug("#{relation.to_sql}.find #{{ joins: @joins.flatten.uniq.join(' '),
                                               conditions: cond_ary }.inspect}")
@@ -382,9 +374,7 @@ class XpathEngine
       when :function
         fname = stack.shift
         fname_int = 'xpath_func_' + fname.tr('-', '_')
-        unless respond_to?(fname_int)
-          raise IllegalXpathError, "unknown xpath function '#{fname}'"
-        end
+        raise IllegalXpathError, "unknown xpath function '#{fname}'" unless respond_to?(fname_int)
 
         __send__(fname_int, root, *stack.shift)
       when :child
@@ -413,9 +403,7 @@ class XpathEngine
       when *@operators
         opname = token.to_s
         opname_int = 'xpath_op_' + opname
-        unless respond_to?(opname_int)
-          raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
-        end
+        raise IllegalXpathError, "unhandled xpath operator '#{opname}'" unless respond_to?(opname_int)
 
         __send__(opname_int, root, *stack)
         stack = []
@@ -449,9 +437,7 @@ class XpathEngine
 
         if @last_key && @attribs[table][@last_key][:split]
           tvalues = value.split(@attribs[table][@last_key][:split])
-          if tvalues.size != 2
-            raise XpathEngine::IllegalXpathError, 'attributes must be $NAMESPACE:$NAME'
-          end
+          raise XpathEngine::IllegalXpathError, 'attributes must be $NAMESPACE:$NAME' if tvalues.size != 2
 
           @condition_values_needed.times { @condition_values << tvalues }
         elsif @last_key && @attribs[table][@last_key][:double]
