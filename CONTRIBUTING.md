@@ -9,7 +9,7 @@ In particular, this community seeks the following types of contributions:
 Read this guide on how to do that.
 
 1. [How to contribute code](#how-to-contribute-code)
-2. [The perfect pull request review](#the-perfect-pull-request-review)
+2. [How to review code submissions](#how-to-review-code-submissions)
 3. [How to contribute bug reports](#how-to-contribute-bug-reports)
 4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
@@ -97,7 +97,7 @@ with us in the pull-request, over the
 developer [mailing list](https://lists.opensuse.org/obs-devel) or our
 IRC channel (irc://irc.freenode.net/openSUSE-buildservice).
 
-# How to review code submissions
+# How to Review Code Submissions
 
 Prerequisites: familiarity with [GitHub pull request reviews](https://help.github.com/articles/about-pull-request-reviews).
 
