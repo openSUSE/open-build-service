@@ -1,11 +1,11 @@
 module OwnerSearch
   class Container < Base
     def for(container)
-      if container.is_a?(Project)
-        project = container
-      else
-        project = container.project
-      end
+      project = if container.is_a?(Project)
+                  container
+                else
+                  container.project
+                end
       @filter = filter(project)
       find_maintainers(container)
     end

@@ -26,6 +26,9 @@ class BsRequestActionSubmit < BsRequestAction
   def execute_accept(opts)
     # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
+
+    # FIXME: when this code is moved to conditional assigment, it causes ambiguity between target_package and self.target_package.
+    # Problems detected in webui/session_controller_spec.rb jobs/staging_project_accept_job_spec.rb webui/request_controller_spec.rb
     if target_package
       target_package = target_project.packages.find_by_name(self.target_package)
     else

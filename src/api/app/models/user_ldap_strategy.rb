@@ -260,17 +260,17 @@ class UserLdapStrategy
     # completed the authentication!
     ldap_info = []
 
-    if user[CONFIG['ldap_mail_attr']]
-      ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
-    else
-      ldap_info[0] = dn2user_principal_name(user['dn'])
-    end
+    ldap_info[0] = if user[CONFIG['ldap_mail_attr']]
+                     String.new(user[CONFIG['ldap_mail_attr']][0])
+                   else
+                     dn2user_principal_name(user['dn'])
+                   end
 
-    if user[CONFIG['ldap_name_attr']]
-      ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
-    else
-      ldap_info[1] = login
-    end
+    ldap_info[1] = if user[CONFIG['ldap_name_attr']]
+                     String.new(user[CONFIG['ldap_name_attr']][0])
+                   else
+                     login
+                   end
 
     Rails.logger.debug('login success for checking with ldap server')
     ldap_info
@@ -335,11 +335,11 @@ class UserLdapStrategy
     port = ldap_port
 
     begin
-      if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
-        conn = LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
-      else
-        conn = LDAP::Conn.new(server, port)
-      end
+      conn = if CONFIG['ldap_ssl'] == :on || CONFIG['ldap_start_tls'] == :on
+               LDAP::SSLConn.new(server, port, CONFIG['ldap_start_tls'] == :on)
+             else
+               LDAP::Conn.new(server, port)
+             end
       conn.set_option(LDAP::LDAP_OPT_PROTOCOL_VERSION, 3)
       conn.set_option(LDAP::LDAP_OPT_REFERRALS, LDAP::LDAP_OPT_OFF) if CONFIG['ldap_referrals'] == :off
       conn.bind(user_name, password)
