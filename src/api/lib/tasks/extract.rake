@@ -41,7 +41,7 @@ namespace :db do
         oldhash ||= {}
       rescue Errno::ENOENT, TypeError
         oldhash = {}
-      rescue => e
+      rescue StandardError => e
         puts e.class
         raise e
       end

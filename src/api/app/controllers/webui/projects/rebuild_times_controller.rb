@@ -80,7 +80,7 @@ module Webui
           f = File.open(outdir + '/rebuild.png')
           png = f.read
           f.close
-        rescue
+        rescue StandardError
           return
         end
         Rails.cache.write("rebuild-#{@pngkey}.png", png)

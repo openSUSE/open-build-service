@@ -12,7 +12,7 @@ class RabbitmqBus
       self.failed = true
       publish(channel, data)
     end
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error "Publishing to RabbitMQ failed: #{e.message}"
     Airbrake.notify(e)
   end

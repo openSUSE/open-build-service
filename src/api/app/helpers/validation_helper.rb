@@ -29,7 +29,7 @@ module ValidationHelper
 
     begin
       revisions_list = Backend::Api::Sources::Package.revisions(project, name)
-    rescue
+    rescue StandardError
       raise Package::UnknownObjectError, "Package not found: #{project}/#{name}"
     end
     data = Xmlhash.parse(revisions_list)
@@ -49,7 +49,7 @@ module ValidationHelper
   def validate_visibility_of_deleted_project(project)
     begin
       revisions_list = Backend::Api::Sources::Project.revisions(project)
-    rescue
+    rescue StandardError
       raise Project::UnknownObjectError, "Project not found: #{project}"
     end
     data = Xmlhash.parse(revisions_list)

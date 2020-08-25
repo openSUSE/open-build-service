@@ -192,7 +192,7 @@ class User < ApplicationRecord
         ldap_info = UserLdapStrategy.find_with_ldap(login, password)
       rescue LoadError
         logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      rescue
+      rescue StandardError
         logger.debug "#{login} not found in LDAP."
       end
     end

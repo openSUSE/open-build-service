@@ -4,7 +4,7 @@ class DelayedJobIndexes < ActiveRecord::Migration[4.2]
 
     add_index :delayed_jobs, :locked_at
     add_index :delayed_jobs, :queue
-  rescue
+  rescue StandardError
     # we had a wrong migration id first
   end
 

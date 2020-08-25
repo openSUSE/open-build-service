@@ -60,7 +60,7 @@ class StatisticsController < ApplicationController
           rating.object_id = object.id
           rating.user_id = User.session!.id
           rating.save
-        rescue
+        rescue StandardError
           render_error status: 400, errorcode: 'error setting rating',
                        message: 'rating not saved'
           return
