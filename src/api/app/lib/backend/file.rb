@@ -49,7 +49,7 @@ module Backend
         @last_read_query = query
       end
       @file
-    rescue => e
+    rescue StandardError => e
       @backend_file_errors = e.message
       valid?
       nil
@@ -88,7 +88,7 @@ module Backend
     # Tries to save the file to the backend. Returns nil if some StandardError is raised
     def save(query = {}, content = nil)
       save!(query, content)
-    rescue => e
+    rescue StandardError => e
       @backend_file_errors = e.message
       valid?
       nil
@@ -105,7 +105,7 @@ module Backend
     # Tries to destroy the file from the backend. Returns nil if some StandardError is raised
     def destroy(query = {})
       destroy!(query)
-    rescue => e
+    rescue StandardError => e
       @backend_file_errors = e.message
       valid?
       nil

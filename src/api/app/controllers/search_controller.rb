@@ -126,12 +126,12 @@ class SearchController < ApplicationController
   def filter_items(items)
     begin
       @offset = Integer(params[:offset])
-    rescue
+    rescue StandardError
       @offset = 0
     end
     begin
       @limit = Integer(params[:limit])
-    rescue
+    rescue StandardError
       @limit = items.size
     end
     nitems = []

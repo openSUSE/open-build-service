@@ -33,7 +33,7 @@ namespace :dev do
     puts 'Creating the database...'
     begin
       Rake::Task['db:version'].invoke
-    rescue
+    rescue StandardError
       Rake::Task['db:setup'].invoke
       if args.old_test_suite
         puts 'Old test suite. Loading fixtures...'

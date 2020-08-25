@@ -45,7 +45,7 @@ class Service
 
     begin
       uri = URI.parse(url)
-    rescue
+    rescue StandardError
       return false
     end
 

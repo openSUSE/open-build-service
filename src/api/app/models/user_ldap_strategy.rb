@@ -167,7 +167,7 @@ class UserLdapStrategy
       dn_uid = dn_components.select { |x, _| x == 'uid' }.map! { |_, y| y }
       dn_path = dn_components.select { |x, _| x == 'dc' }.map! { |_, y| y }
       upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
-    rescue
+    rescue StandardError
       # if we run into unexpected input just return an empty string
     end
 

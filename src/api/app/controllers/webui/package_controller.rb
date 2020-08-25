@@ -889,7 +889,7 @@ class Webui::PackageController < Webui::WebuiController
         ld = js.get('lastduration')
         @percent = (@buildtime * 100) / ld.to_i if ld.present?
       end
-    rescue
+    rescue StandardError
       @workerid = nil
       @buildtime = nil
     end

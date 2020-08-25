@@ -40,13 +40,13 @@ class Webui::FeedsController < Webui::WebuiController
 
   def starting_at(date)
     Time.zone.parse(date)
-  rescue
+  rescue StandardError
     7.days.ago
   end
 
   def ending_at(date)
     Time.zone.parse(date)
-  rescue
+  rescue StandardError
     nil
   end
 end
