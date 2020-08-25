@@ -156,7 +156,10 @@ class Webui::RequestController < Webui::WebuiController
           target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
         end
       end
-      accept_request if changestate == 'accepted'
+      if changestate == 'accepted'
+        flash[:success] = "Request #{params[:number]} accepted"
+        handle_forwarding
+      end
     end
     redirect_to(request_show_path(params[:number]))
   end
@@ -276,9 +279,7 @@ class Webui::RequestController < Webui::WebuiController
     false
   end
 
-  def accept_request
-    flash[:success] = "Request #{params[:number]} accepted"
-
+  def handle_forwarding
     # Check if we have to forward this request to other projects / packages
     return if params.keys.grep(/^forward.*/).blank?
 
@@ -303,10 +304,12 @@ class Webui::RequestController < Webui::WebuiController
       return
     end
 
-    # TODO: adapt flash message handling
-    target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
-    request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
-    flash[:success] += " and forwarded to #{target_link} (#{request_link})"
+    fwd_targets.each do |target|
+      # TODO: adapt flash message handling
+      target_link = ActionController::Base.helpers.link_to("#{target['tgt_prj']} / #{target['tgt_pkg']}", package_show_url(project: target['tgt_prj'], package: target['tgt_pkg']))
+      request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
+      flash[:success] += " and forwarded to #{target_link} (#{request_link})"
+    end
   end
 
   def set_package
