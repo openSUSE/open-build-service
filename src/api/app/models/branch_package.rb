@@ -90,6 +90,12 @@ class BranchPackage
 
   private
 
+  def add_request_cloned_attribute(project)
+    type = AttribType.find_by_namespace_and_name!('OBS', 'RequestCloned')
+    value = AttribValue.new(value: params[:request], position: 1)
+    Attrib.create(project: project, attrib_type: type, values: [value])
+  end
+
   def add_autocleanup_attribute(tprj)
     at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
     a = Attrib.new(project: tprj, attrib_type: at)
@@ -272,23 +278,13 @@ class BranchPackage
         description = "This project was created as a clone of request #{params[:request]}"
       end
       @add_repositories = true # new projects shall get repositories
-      Project.transaction do
-        tprj = Project.create(name: @target_project, title: title, description: description)
-        tprj.relationships.build(user: User.session!, role: Role.find_by_title!('maintainer'))
-        tprj.flags.create(flag: 'build', status: 'disable') if @extend_names
-        tprj.flags.create(flag: 'access', status: 'disable') if @noaccess
-        tprj.store
-        add_autocleanup_attribute(tprj) if @auto_cleanup
-      end
-      if params[:request]
-        ans = AttribNamespace.find_by_name('OBS')
-        at = ans.attrib_types.find_by(name: 'RequestCloned')
-
-        tprj = Project.get_by_name(@target_project)
-        a = Attrib.new(project: tprj, attrib_type: at)
-        a.values << AttribValue.new(value: params[:request], position: 1)
-        a.save
-      end
+      tprj = Project.new(name: @target_project, title: title, description: description)
+      tprj.relationships.new(user: User.session!, role: Role.find_by_title!('maintainer'))
+      tprj.flags.new(flag: 'build', status: 'disable') if @extend_names
+      tprj.flags.new(flag: 'access', status: 'disable') if @noaccess
+      tprj.store
+      add_autocleanup_attribute(tprj) if @auto_cleanup
+      add_request_cloned_attribute(tprj) if params[:request]
     end
     tprj
   end
