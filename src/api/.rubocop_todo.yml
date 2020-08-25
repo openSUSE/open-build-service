@@ -1288,8 +1288,6 @@ Style/ConditionalAssignment:
     - 'lib/rabbitmq_bus.rb'
     - 'lib/tasks/extract.rake'
     - 'lib/xpath_engine.rb'
-    - 'spec/support/database_cleaner.rb'
-    - 'test/functional/source_controller_test.rb'
 
 # Offense count: 846
 Style/Documentation:
