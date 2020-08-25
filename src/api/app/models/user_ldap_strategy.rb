@@ -61,6 +61,15 @@ class UserLdapStrategy
   end
   private_class_method :ldap_group_filter
 
+  def self.ldap_user_filter(login)
+    if CONFIG.key?('ldap_user_filter')
+      "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
+    else
+      "(#{CONFIG['ldap_search_attr']}=#{login})"
+    end
+  end
+  private_class_method :ldap_user_filter
+
   # This static method performs the search with the given grouplist, user to return the groups that the user in
   def self.render_grouplist_ldap(grouplist, user = nil)
     result = []
@@ -73,11 +82,8 @@ class UserLdapStrategy
 
     if user
       # search user
-      if CONFIG['ldap_user_filter']
-        filter = "(&(#{CONFIG['ldap_search_attr']}=#{user})#{CONFIG['ldap_user_filter']})"
-      else
-        filter = "(#{CONFIG['ldap_search_attr']}=#{user})"
-      end
+      filter = ldap_user_filter(user)
+
       user_dn = ''
       user_memberof_attr = ''
       ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, filter) do |entry|
@@ -196,11 +202,7 @@ class UserLdapStrategy
         return
       end
 
-      if CONFIG.key?('ldap_user_filter')
-        user_filter = "(&(#{CONFIG['ldap_search_attr']}=#{login})#{CONFIG['ldap_user_filter']})"
-      else
-        user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
-      end
+      user_filter = ldap_user_filter(login)
       Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
       begin
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
