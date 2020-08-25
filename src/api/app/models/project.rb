@@ -1,5 +1,6 @@
 # rubocop:disable Metrics/ClassLength
 class Project < ApplicationRecord
+  include AppendSphinxCallbacks
   include FlagHelper
   include Flag::Validations
   include CanRenderModel
@@ -7,7 +8,6 @@ class Project < ApplicationRecord
   include HasRatings
   include HasAttributes
   include MaintenanceHelper
-  include PopulateSphinx
   include ProjectSphinx
   include Project::Errors
   include StagingProject
@@ -20,7 +20,6 @@ class Project < ApplicationRecord
   after_destroy_commit :delete_on_backend
 
   after_save :discard_cache
-  after_save :populate_sphinx, if: -> { name_previously_changed? || title_previously_changed? || description_previously_changed? }
   after_rollback :reset_cache
   after_rollback :discard_cache
 

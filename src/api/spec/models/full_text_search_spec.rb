@@ -11,14 +11,37 @@ RSpec.describe FullTextSearch do
     context 'for a non-existent project' do
       let(:search_params) { { text: 'non-existent-project' } }
 
-      it { expect(subject).to be_empty }
+      it { is_expected.to be_empty }
     end
 
     context 'for an existing package' do
       let(:package) { create(:package, name: 'test_package', project: project, title: '', description: '') }
       let(:search_params) { { text: package.name } }
 
-      it { expect(subject).to eql([package]) }
+      it { is_expected.to eql([package]) }
+
+      context 'which is deleted' do
+        before do
+          package.destroy
+        end
+
+        it { is_expected.to be_empty }
+      end
+    end
+
+    context 'for an existing project' do
+      let!(:some_project) { create(:project) }
+      let(:search_params) { { text: some_project.name } }
+
+      it { is_expected.to eql([some_project]) }
+
+      context 'which is deleted' do
+        before do
+          some_project.destroy
+        end
+
+        it { is_expected.to be_empty }
+      end
     end
 
     context 'specifying classes' do
