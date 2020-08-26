@@ -105,12 +105,21 @@ sub appendstr {
 }
 
 sub readstr {
-  my ($fn, $nonfatal) = @_;
+  my ($fn, $nonfatal, $memoize_fn) = @_;
   my $f;
+  my $mf = $BSStdServer::memoized_files->{$fn};
   if (!open($f, '<', $fn)) {
     die("$fn: $!\n") unless $nonfatal;
     return undef;
   }
+  
+  my @s = stat($fn);
+  if ($mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]") {
+    close $f; # opening and closing files helps check permissions and file existance
+    return $mf->[1];
+  }
+  appendstr($memoize_fn, $fn) if $memoize_fn;
+
   my $d = '';
   1 while sysread($f, $d, 8192, length($d));
   close $f;
@@ -118,8 +127,8 @@ sub readstr {
 }
 
 sub readxml {
-  my ($fn, $dtd, $nonfatal) = @_;
-  my $d = readstr($fn, $nonfatal);
+  my ($fn, $dtd, $nonfatal, $memoize_fn) = @_;
+  my $d = readstr($fn, $nonfatal, $memoize_fn);
   return $d unless defined $d;
   if ($d !~ /<.*?>/s) {
     die("$fn: not xml\n") unless $nonfatal;
@@ -579,14 +588,45 @@ sub store {
 }
 
 sub retrieve {
-  my ($fn, $nonfatal) = @_;
-  my $dd;
+  my ($fn, $nonfatal, $memoize_fn) = @_;
+  my ($dd, $f);
+  my $mf = $BSStdServer::memoized_files->{$fn};
   if (!$nonfatal) {
-    $dd = ref($fn) ? Storable::fd_retrieve($fn) : Storable::retrieve($fn);
+    if (ref($fn)) {
+      $dd = Storable::fd_retrieve($fn);
+    } else {
+      if (!open($f, '<', $fn)) {
+        die("$fn: $!\n") unless $nonfatal;
+        return undef;
+      }
+      close $f; # opening and closing files helps check permissions and file existance
+      my @s = stat($fn);
+      if ($mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]") {
+        $dd = fromstorable($mf->[1], $nonfatal);
+      } else {
+        appendstr($memoize_fn, "$fn\n") if $memoize_fn;
+        $dd = Storable::retrieve($fn);
+      }
+    }
     die("retrieve $fn: $!\n") unless $dd;
   } else {
     eval {
-      $dd = ref($fn) ? Storable::fd_retrieve($fn) : Storable::retrieve($fn);
+      if (ref($fn)) {
+        $dd = Storable::fd_retrieve($fn);
+      } else {
+        if (!open($f, '<', $fn)) {
+          die("$fn: $!\n") unless $nonfatal;
+          return undef;
+        }
+        close $f; # opening and closing files helps check permissions and file existance
+        my @s = stat($fn);
+        if ($mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]") {
+          $dd = fromstorable($mf->[1], $nonfatal);
+        } else {
+          appendstr($memoize_fn, "$fn\n") if $memoize_fn;
+          $dd = Storable::retrieve($fn);
+        }
+      }
     };
     if (!$dd && $nonfatal == 2) {
       if ($@) {

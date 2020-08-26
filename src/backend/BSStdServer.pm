@@ -156,8 +156,8 @@ sub periodic_ajax {
   }
 }
 
-my %memoized_files;
-my $memoized_size = 0;
+our $memoized_files = {};
+our $memoized_size = 0;
 sub checkandmemoize {
   my ($conf) = @_;
   my $fn = $conf->{'memoize'};
@@ -179,22 +179,22 @@ sub do_memoize {
     while (<$file>) {
       next unless chop($_) eq "\n";
       $toread = $_;
-      #BSUtil::printlog("file to memoize $toread");
-      if (exists $memoized_files{$toread} && !-e $toread) {
-        $_ = $memoized_files{$toread}->[0] =~ /.*\/(.*)\/.*/;
+      BSUtil::printlog("file to memoize $toread");
+      if (exists $memoized_files->{$toread} && !-e $toread) {
+        $_ = $memoized_files->{$toread}->[0] =~ /.*\/(.*)\/.*/;
         $sizechange -= $1;
-        delete $memoized_files{$toread};
+        delete $memoized_files->{$toread};
         next
       }
       @s = stat($toread);
       next unless @s;
       next if $s[7] > $msize;
-      if (! $memoized_files{$toread} || $memoized_files{$toread}->[0] ne "$s[9]/$s[7]/$s[1]") {
+      if (! $memoized_files->{$toread} || $memoized_files->{$toread}->[0] ne "$s[9]/$s[7]/$s[1]") {
         $d = readstr($toread, 1);
         next unless $d;
-        ($memoized_files{$toread}->[0] || "0/0/0") =~ /.*\/(.*)\/.*/;
+        ($memoized_files->{$toread}->[0] || "0/0/0") =~ /.*\/(.*)\/.*/;
         $sizechange += -$1 + $s[7];
-        $memoized_files{$toread} = ["$s[9]/$s[7]/$s[1]", $d];
+        $memoized_files->{$toread} = ["$s[9]/$s[7]/$s[1]", $d];
       }
     }
     $memoized_size += $sizechange;
