@@ -591,7 +591,7 @@ class BsRequest < ApplicationRecord
       self.superseded_by = opts[:superseded_by]
 
       # check for not accepted reviews on re-open
-      if state == :new || state == :review
+      if [:new, :review].include?(state)
         reviews.each do |review|
           next unless review.state != :accepted
 

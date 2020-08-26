@@ -49,7 +49,7 @@ file = File.new(filename, 'w')
 ids.each do |_, d|
   type = d.line['type'] || ''
   if d.line['data']
-    if type == 'varmap' || type == 'hash'
+    if ['varmap', type == 'hash'].include?(type)
       d.line['data'].each do |key, value|
         d.add(ids[key])
         d.add(ids[value])
