@@ -1,14 +1,13 @@
 class Webui::StatusMessagesController < Webui::WebuiController
-  # permissions.status_message_create
-  before_action :require_admin, only: [:destroy, :create]
-  before_action :require_login, only: :acknowledge
+  before_action :require_login
+  after_action :verify_authorized
+
+  def new
+    authorize StatusMessage
+  end
 
   def create
-    # TODO: make use of permissions.status_message_create
-    status_message = StatusMessage.new(user: User.session!,
-                                       message: params[:status_message][:message],
-                                       severity: params[:status_message][:severity],
-                                       communication_scope: params[:status_message][:communication_scope])
+    status_message = authorize StatusMessage.new(status_message_params)
 
     if status_message.save
       flash[:success] = 'Status message was successfully created.'
@@ -20,7 +19,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def destroy
-    status_message = StatusMessage.find(params[:id])
+    status_message = authorize StatusMessage.find(params[:id])
 
     if status_message.destroy
       flash[:success] = 'Status message was successfully deleted.'
@@ -32,7 +31,8 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def acknowledge
-    status_message = StatusMessage.find(params[:id])
+    status_message = authorize StatusMessage.find(params[:id]), :show?
+
     collect_metrics(status_message) if status_message.acknowledge!
 
     respond_to do |format|
@@ -44,5 +44,9 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   def collect_metrics(status_message)
     RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{status_message.id}")
+  end
+
+  def status_message_params
+    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(user: User.session!)
   end
 end

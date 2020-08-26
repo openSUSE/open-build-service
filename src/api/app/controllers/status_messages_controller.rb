@@ -1,4 +1,5 @@
 class StatusMessagesController < ApplicationController
+  # TODO: Use Pundit StatusMessagePolicy instead of a mix of Pundit and custom policy code
   before_action :require_admin, only: [:create, :update, :destroy]
   before_action :set_status_message, except: [:index, :create]
 

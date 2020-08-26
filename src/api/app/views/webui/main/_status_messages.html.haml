@@ -7,7 +7,7 @@
         %i.fa.fa-rss
   .list-group
     = render partial: 'status_message', collection: status_messages
-    - if User.admin_session?
+    - if policy(StatusMessage.new).create?
       - unless feature_enabled?(:responsive_ux)
         .card-footer
           = link_to(new_status_message_path, class: 'nav-link') do
