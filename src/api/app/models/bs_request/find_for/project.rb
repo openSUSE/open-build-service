@@ -11,12 +11,11 @@ class BsRequest
           @relation = @relation.references(:reviews)
           review_states.each do |review_state|
             @relation = @relation.includes(:reviews)
-            if package_name.blank?
-              inner_or << "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})"
-            else
-              inner_or <<
-                "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})"
-            end
+            inner_or << if package_name.blank?
+                          "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)})"
+                        else
+                          "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project_name)} and reviews.by_package=#{quote(package_name)})"
+                        end
           end
         end
         if inner_or.empty?
@@ -30,16 +29,16 @@ class BsRequest
 
       def extend_relation(source_or_target, requests, roles, package, subprojects, project, inner_or)
         if roles.empty? || roles.include?(source_or_target)
-          if package.blank?
-            if subprojects.blank?
-              inner_or << "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
-            else
-              inner_or << "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
-            end
-          else
-            inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " \
-                        "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
-          end
+          inner_or << if package.blank?
+                        if subprojects.blank?
+                          "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
+                        else
+                          "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
+                        end
+                      else
+                        "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " \
+                          "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
+                      end
         end
         [requests, inner_or]
       end

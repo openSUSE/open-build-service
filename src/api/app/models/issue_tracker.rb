@@ -152,16 +152,16 @@ class IssueTracker < ApplicationRecord
     issue = Issue.find_by_name_and_tracker(bugzilla_response['id'].to_s, name)
     return unless issue
 
-    if bugzilla_response['is_open']
-      # bugzilla sees it as open
-      issue.state = 'OPEN'
-    elsif bugzilla_response['is_open'] == false
-      # bugzilla sees it as closed
-      issue.state = 'CLOSED'
-    else
-      # bugzilla does not tell a state
-      issue.state = Issue.bugzilla_state(bugzilla_response['status'])
-    end
+    issue.state = if bugzilla_response['is_open']
+                    # bugzilla sees it as open
+                    'OPEN'
+                  elsif bugzilla_response['is_open'] == false
+                    # bugzilla sees it as closed
+                    'CLOSED'
+                  else
+                    # bugzilla does not tell a state
+                    Issue.bugzilla_state(bugzilla_response['status'])
+                  end
 
     user = User.find_by_email(bugzilla_response['assigned_to'].to_s)
     if user
@@ -170,22 +170,22 @@ class IssueTracker < ApplicationRecord
       logger.info "Bugzilla user #{bugzilla_response['assigned_to']} is not found in OBS user database"
     end
 
-    if bugzilla_response['creation_time'].present?
-      # rubocop:disable Rails/Date
-      # rubocop bug, this is XMLRPC/DateTime not Rails/Date
-      issue.created_at = bugzilla_response['creation_time'].to_time
-    # rubocop:enable Rails/Date
-    else
-      issue.created_at = Time.now
-    end
+    issue.created_at = if bugzilla_response['creation_time'].present?
+                         # rubocop:disable Rails/Date
+                         # rubocop bug, this is XMLRPC/DateTime not Rails/Date
+                         bugzilla_response['creation_time'].to_time
+                         # rubocop:enable Rails/Date
+                       else
+                         Time.now
+                       end
 
     # this is our update_at, not the one bugzilla logged in last_change_time
     issue.updated_at = @update_time_stamp
-    if bugzilla_response['is_private']
-      issue.summary = nil
-    else
-      issue.summary = bugzilla_response['summary']
-    end
+    issue.summary = if bugzilla_response['is_private']
+                      nil
+                    else
+                      bugzilla_response['summary']
+                    end
     issue.save
   end
 
@@ -208,11 +208,11 @@ class IssueTracker < ApplicationRecord
       logger.debug "[IssueTracker#parse_github_issue] cannot parse json response:\n#{js}"
       raise
     end
-    if js['state'] == 'open'
-      issue.state = 'OPEN'
-    else
-      issue.state = 'CLOSED'
-    end
+    issue.state = if js['state'] == 'open'
+                    'OPEN'
+                  else
+                    'CLOSED'
+                  end
 
     issue.updated_at = @update_time_stamp
     issue.summary = js['title']

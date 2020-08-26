@@ -54,11 +54,11 @@ module OwnerSearch
 
     def extract_owner(pkg)
       # optional check for devel package instance first
-      if @devel_disabled
-        owner = nil
-      else
-        owner = extract_maintainer(pkg.resolve_devel_package)
-      end
+      owner = if @devel_disabled
+                nil
+              else
+                extract_maintainer(pkg.resolve_devel_package)
+              end
       owner || extract_maintainer(pkg)
     end
 
