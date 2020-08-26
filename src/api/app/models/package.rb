@@ -4,6 +4,7 @@ require 'rexml/document'
 
 # rubocop: disable Metrics/ClassLength
 class Package < ApplicationRecord
+  include AppendSphinxCallbacks
   include FlagHelper
   include Flag::Validations
   include CanRenderModel
@@ -11,7 +12,6 @@ class Package < ApplicationRecord
   include Package::Errors
   include HasRatings
   include HasAttributes
-  include PopulateSphinx
   include PackageSphinx
 
   BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
@@ -69,7 +69,6 @@ class Package < ApplicationRecord
   before_destroy :remove_devel_packages
 
   after_save :write_to_backend
-  after_save :populate_sphinx, if: -> { name_previously_changed? || title_previously_changed? || description_previously_changed? }
   after_rollback :reset_cache
 
   # The default scope is necessary to exclude the forbidden projects.
