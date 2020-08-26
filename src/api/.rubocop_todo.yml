@@ -1283,14 +1283,6 @@ Style/MixinUsage:
     - 'app/models/bs_request.rb'
     - 'script/start_test_backend'
 
-# Offense count: 5
-Style/MultipleComparison:
-  Exclude:
-    - 'app/helpers/flag_helper.rb'
-    - 'app/models/bs_request.rb'
-    - 'lib/memory_debugger.rb'
-    - 'lib/tasks/extract.rake'
-    - 'script/reformat_memprof'
 
 # Offense count: 23
 Style/OptionalBooleanParameter:

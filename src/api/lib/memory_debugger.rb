@@ -62,7 +62,7 @@ class MemoryDebugger
     ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line['data']
-        if type == 'varmap' || type == 'hash'
+        if ['varmap', 'hash'].include?(type)
           d.line['data'].each do |key, value|
             d.add(ids[key])
             d.add(ids[value])

@@ -141,7 +141,7 @@ namespace :db do
 
           defaultkey = "#{record['user']}_#{record['role']}" if table_name == 'roles_users'
           defaultkey = "#{record['role']}_#{record['static_permission']}" if table_name == 'roles_static_permissions'
-          if table_name == 'projects' || table_name == 'architectures'
+          if ['projects', 'architectures'].include?(table_name)
             key = record['name'].tr(':', '_')
             record.delete(primary)
           end
