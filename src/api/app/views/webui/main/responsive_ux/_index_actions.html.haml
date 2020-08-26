@@ -1,5 +1,5 @@
 - content_for :actions do
-  - if User.admin_session?
+  - if policy(StatusMessage.new).create?
     %li.nav-item
       = link_to(new_status_message_path, class: 'nav-link') do
         %i.fas.fa-plus-square.fa-lg.mr-2
