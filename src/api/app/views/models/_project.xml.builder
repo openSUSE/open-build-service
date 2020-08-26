@@ -50,11 +50,11 @@ xml.project(project_attributes) do
       end
       xml_repository.hostsystem(project: repo.hostsystem.project.name, repository: repo.hostsystem.name) if repo.hostsystem
       repo.path_elements.includes(:link).each do |pe|
-        if pe.link.remote_project_name.present?
-          project_name = pe.link.project.name + ':' + pe.link.remote_project_name
-        else
-          project_name = pe.link.project.name
-        end
+        project_name = if pe.link.remote_project_name.present?
+                         pe.link.project.name + ':' + pe.link.remote_project_name
+                       else
+                         pe.link.project.name
+                       end
         xml_repository.path(project: project_name, repository: pe.link.name)
       end
       repo.repository_architectures.joins(:architecture).pluck('architectures.name').each do |arch|
