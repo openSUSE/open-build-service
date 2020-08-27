@@ -15,7 +15,6 @@ VCR.configure do |config|
 
   # ignore selenium requests
   config.ignore_localhost = true
-  config.ignore_hosts 'selenium'
 end
 
 RSpec.configure do |config|
