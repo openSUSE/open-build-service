@@ -8,6 +8,7 @@ ARG CONTAINER_USERID
 
 # for lint task
 RUN npm install -g jshint
+RUN gem install --no-format-executable brakeman
 
 # Configure our user
 RUN usermod -u $CONTAINER_USERID frontend
