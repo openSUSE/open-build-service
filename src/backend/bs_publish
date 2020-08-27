@@ -2053,6 +2053,11 @@ sub publish {
 	    $containerinfo->{'publishfile'} = "$extrep/$p";
 	    $containers{$p} = $containerinfo;
 	  }
+	} elsif ($bin =~ /(.*)\.tgz.prov$/ && -e "$r/$1.helminfo") {
+          eval {
+	    BSPublisher::Helm::readhelminfo($r, "$1.helminfo");
+	    $p = $bin;
+          };
 	} elsif ($bin =~ /\.containerinfo$/) {
 	  # handle the case where there is a containerinfo with no tar file
 	  my @s = stat("$r/$bin");
@@ -2265,6 +2270,7 @@ sub publish {
 	link($bins{$p}, $tmpfile) || die("link $bins{$p} $tmpfile: $!\n");
 	$containerinfo->{'publishfile'} = $tmpfile;
       }
+      next if ($containerinfo->{'type'} || '') eq 'helm';	# keep helm charts
       delete $bins{$p};
       delete $bins{"$p.sha256"};
       delete $binaryorigins->{$p};
