@@ -124,7 +124,7 @@ namespace :dev do
     end
   end
 
-  namespace :ahm do
+  namespace :sre do
     desc 'Configure the rails app to publish application health monitoring stats'
     task :configure do
       unless Rails.env.development?
