@@ -103,9 +103,9 @@ EOF"
       end
     end
   end
-  namespace :ahm do
+  namespace :sre do
     desc 'Prepare the application health monitoring containers'
-    task :prepare do
+    task :build do
       begin
         sh 'docker-compose -f docker-compose.ahm.yml -f docker-compose.yml up -d rabbit'
         sh 'wget http://localhost:15672/cli/rabbitmqadmin -O contrib/rabbitmqadmin'
