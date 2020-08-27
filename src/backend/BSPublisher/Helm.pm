@@ -24,6 +24,10 @@ package BSPublisher::Helm;
 
 use BSTar;
 use BSUtil;
+use JSON::XS ();
+
+eval { require YAML::XS; $YAML::XS::LoadBlessed = 0; };
+*YAML::XS::Dump = sub {die("YAML::XS is not available\n")} unless defined &YAML::XS::Dump;
 
 use strict;
 
@@ -52,6 +56,51 @@ sub readhelminfo {
   $d->{'chart'} =~ s/\.helminfo$/.tgz/;
   $d->{'type'} = 'helm';
   return $d;
+}
+
+# generate iso utc time 
+sub isodatetimez {
+  my ($t) = @_;
+  my @gt = gmtime($t || time());
+  return sprintf "%04d-%02d-%02dT%02d:%02d:%02dZ", $gt[5] + 1900, $gt[4] + 1, @gt[3,2,1,0];
+}
+
+# generate an index entry from the helminfo
+sub mkindexentry {
+  my ($helminfo, $url) = @_;
+  return undef unless $helminfo->{'config_json'} && $helminfo->{'chart_sha256'};
+  my $chart;
+  eval { $chart = JSON::XS::decode_json($helminfo->{'config_json'}) };
+  return undef unless $chart && ref($chart) eq 'HASH';
+  return undef unless $chart->{'name'} eq $helminfo->{'name'};	# sanity
+  $chart->{'digest'} = $helminfo->{'chart_sha256'};
+  $chart->{'urls'} = [ $url ] if $url;
+  $chart->{'created'} = isodatetimez($helminfo->{'buildtime'});
+  return $chart;
+}
+
+# generate the index of all charts
+sub mkindex {
+  my ($entries) = @_;
+  for my $ents (values %$entries) {
+    $ents = [ sort {$a->{'version'} cmp $b->{'version'}} @$ents ];
+  }
+  my $index = {
+    'apiVersion' => 'v1',
+    'entries' => $entries,
+    'generated' => isodatetimez(),
+  };
+  return $index;
+}
+
+sub toyaml {
+  my $yaml = YAML::XS::Dump($_[0]);
+  $yaml =~ s/^---\n//s;
+  return $yaml;
+}
+
+sub mkindex_yaml {
+  return toyaml(mkindex(@_));
 }
 
 1;
