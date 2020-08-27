@@ -5,7 +5,7 @@ if CONFIG['influxdb_hosts'].blank? # defaults to localhost otherwise
   return
 end
 InfluxDB::Rails.configure do |config|
-  config.client.database       = CONFIG['influxdb_database'] || 'rails'
+  config.client.database       = CONFIG['influxdb_database'] || 'performance'
   config.client.username       = CONFIG['influxdb_username'] || 'root'
   config.client.password       = CONFIG['influxdb_password'] || 'root'
   config.client.hosts          = CONFIG['influxdb_hosts']
