@@ -794,6 +794,27 @@ sub createrepo_virtbuilder {
   }
 }
 
+sub createrepo_helm {
+  my ($extrep, $projid, $repoid, $data, $options, $containers) = @_;
+  print "    generating helm chart index\n";
+  my $downloadurl = BSUrlmapper::get_downloadurl("$projid/$repoid");
+  unlink("$extrep/index.yaml");
+  my %entries;
+  for my $p (sort keys %$containers) {
+    next unless ($containers->{$p}->{'type'} || '') eq 'helm';
+    my $helminfo = $containers->{$p};
+    my $entry = BSPublisher::Helm::mkindexentry($helminfo, $downloadurl ? "${downloadurl}$p" : undef);
+    push @{$entries{$helminfo->{'name'}}}, $entry if $entry;
+  }
+  my $index_yaml = BSPublisher::Helm::mkindex_yaml(\%entries);
+  writestr("$extrep/index.yaml", undef, $index_yaml);
+}
+
+sub deleterepo_helm {
+  my ($extrep, $projid) = @_;
+  unlink("$extrep/index.yaml");
+}
+
 sub createrepo_hdlist2 {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
@@ -2885,6 +2906,9 @@ sub publish {
     createrepo_zyppservice($extrep, $projid, $xrepoid, $data, $repotype{'zyppservice'});
   } else {
     deleterepo_zyppservice($extrep, $projid, $xrepoid, $data);
+  }
+  if ($repotype{'helm'}) {
+    createrepo_helm($extrep, $projid, $xrepoid, $data, $repotype{'helm'}, \%containers);
   }
 
   if ($patterntype{'ymp'}) {
