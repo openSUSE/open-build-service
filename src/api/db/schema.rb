@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_14_105103) do
+ActiveRecord::Schema.define(version: 2020_12_09_105103) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -833,7 +833,7 @@ ActiveRecord::Schema.define(version: 2020_10_14_105103) do
   create_table "release_targets", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "repository_id", null: false
     t.integer "target_repository_id", null: false
-    t.column "trigger", "enum('manual','allsucceeded','maintenance')", collation: "utf8_general_ci"
+    t.column "trigger", "enum('manual','allsucceeded','maintenance','obsgendiff')"
     t.index ["repository_id"], name: "repository_id_index"
     t.index ["target_repository_id"], name: "index_release_targets_on_target_repository_id"
   end

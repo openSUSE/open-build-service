@@ -110,6 +110,7 @@
       <value>manual</value>        <!-- only on manual commands the release gets started -->
  <!-- no yet supported <value>allsucceeded</value> -->  <!-- Release when the repository has finished building and all jobs were successfull -->
       <value>maintenance</value>   <!-- Release just once on maintenance release event. This attribute get removed at the same time -->
+      <value>obsgendiff</value>    <!-- Define the release target to generate the diff against -->
     </choice>
   </define>
 
