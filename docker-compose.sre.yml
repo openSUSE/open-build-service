@@ -31,6 +31,8 @@ services:
       interval: 10s
       timeout: 15s
       retries: 5
+    volumes:
+      - rabbitdata:/var/lib/rabbitmq
   telegraf:
     image: telegraf
     depends_on:
@@ -41,4 +43,4 @@ services:
 volumes:
   influxdata:
   grafanadata:
-
+  rabbitdata:
