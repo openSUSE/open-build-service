@@ -516,7 +516,7 @@ sub push_containers {
       my $config_blobid = push_blob($repodir, $containerinfo, $config_ent);
       $knownblobs{$config_blobid} = 1;
       my $config_data = {
-	'mediaType' => $config_ent->{'mimetype'} || 'application/vnd.docker.container.image.v1+json',
+	'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
 	'size' => $config_ent->{'size'},
 	'digest' => $config_blobid,
       };
@@ -535,7 +535,7 @@ sub push_containers {
 	my $blobid = push_blob($repodir, $containerinfo, $layer_ent);
         $knownblobs{$blobid} = 1;
 	my $layer_data = {
-	  'mediaType' => $layer_ent->{'mimetype'} || 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+	  'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
 	  'size' => $layer_ent->{'size'},
 	  'digest' => $blobid,
 	};
@@ -545,7 +545,7 @@ sub push_containers {
       close $tarfd if $tarfd;
 
       # put manifest into repo
-      my $mediaType = $oci ? 'application/vnd.oci.image.manifest.v1+json' : 'application/vnd.docker.distribution.manifest.v2+json';
+      my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
       my $mani = { 
 	'schemaVersion' => 2,
 	'mediaType' => $mediaType,
@@ -596,8 +596,8 @@ sub push_containers {
     };
     my ($mani_id, $mani_size);
     if ($multiarchtag) {
-      my $mediaType = $oci ? 'application/vnd.oci.image.index.v1+json' : 'application/vnd.docker.distribution.manifest.list.v2+json';
       # create fat manifest
+      my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
       my $mani = {
         'schemaVersion' => 2,
         'mediaType' => $mediaType,
