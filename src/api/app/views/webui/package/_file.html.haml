@@ -13,9 +13,8 @@
   / limit download for anonymous user to avoid getting killed by crawlers
   - unless nobody
     %td.text-center
-      - if file[:size].to_i < 4.megabytes
-        = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
-          %i.fas.fa-download.text-secondary
+      = link_to(file_url(project.name, package.name, file[:name], file[:srcmd5]), title: 'Download file') do
+        %i.fas.fa-download.text-secondary
       - if can_be_removed
         = link_to('#', data: { toggle: 'modal', target: '#delete-file-modal', title: 'Delete file',
           filename: file[:name], action: url_for(action: :remove_file, project: project, package: package, filename: file[:name]) }) do
