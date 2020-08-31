@@ -175,8 +175,8 @@ our $relsync_pool = {
 #our $sourcepublish_sync = 'rsync://127.0.0.1/sources';
 # optional filter to publish only some areas
 #our $sourcepublish_filter = [ "openSUSE:.*", "SUSE:.*" ];
-# optional filter to blacklist specific package names independend of the project
-#our $sourcepublish_blacklist = [ "flash-player", "binary-only-app" ];
+# optional filter to blocklist specific package names independend of the project
+#our $sourcepublish_blocklist = [ "flash-player", "binary-only-app" ];
 
 # Define your own global Macros
 #my $macro_packager = '<rpm@example.com>';
