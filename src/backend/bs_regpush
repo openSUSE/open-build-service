@@ -163,7 +163,7 @@ sub blob_fetch {
 sub manifest_exists {
   my ($manifest, $tag, $content_type) = @_;
 
-  $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
+  $content_type ||= $BSContar::mt_docker_manifest;
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
   $tag = $maniid unless defined $tag;
   my $replyheaders;
@@ -189,9 +189,9 @@ sub manifest_upload {
 
   my $maniid = 'sha256:'.Digest::SHA::sha256_hex($manifest);
   return $maniid if manifest_exists($manifest, $tag, $content_type);
-  $content_type ||= 'application/vnd.docker.distribution.manifest.v2+json';
+  $content_type ||= $BSContar::mt_docker_manifest;
   my $fat = '';
-  $fat = 'fat ' if $content_type eq 'application/vnd.docker.distribution.manifest.list.v2+json' || $content_type eq 'application/vnd.oci.image.index.v1+json';
+  $fat = 'fat ' if $content_type eq $BSContar::mt_docker_manifestlist || $content_type eq $BSContar::mt_oci_index;
   if (!$quiet) {
     if (defined($tag)) {
       print "uploading ${fat}manifest $maniid for tag '$tag'... ";
@@ -284,7 +284,7 @@ sub get_manifest_for_tag {
   my $replyheaders;
   my $param = {
     'uri' => "$registryserver/v2/$repository/manifests/$tag",
-    'headers' => [ "Accept: application/vnd.docker.distribution.manifest.list.v2+json, application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json, application/vnd.oci.image.index.v1+json" ],
+    'headers' => [ "Accept: $BSContar::mt_docker_manifest, $BSContar::mt_docker_manifestlist, $BSContar::mt_oci_manifest, $BSContar::mt_oci_index" ],
     'authenticator' => $registry_authenticator,
     'replyheaders' => \$replyheaders,
     'timeout' => $registry_timeout,
@@ -331,19 +331,19 @@ sub delete_tag {
 
 sub list_tag {
   my ($tag) = @_;
-  
+
   my ($mani, $maniid) = get_manifest_for_tag($tag);
   if (!$mani) {
     printf "%-20s -\n", $tag;
   } elsif (!$mani->{'mediaType'}) {
     printf "%-20s %s %s\n", $tag, $maniid, 'v1image';
-  } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.list.v2+json') {
+  } elsif ($mani->{'mediaType'} eq $BSContar::mt_docker_manifestlist) {
     printf "%-20s %s %s\n", $tag, $maniid, 'list';
-  } elsif ($mani->{'mediaType'} eq 'application/vnd.docker.distribution.manifest.v2+json') {
+  } elsif ($mani->{'mediaType'} eq $BSContar::mt_docker_manifest) {
     printf "%-20s %s %s\n", $tag, $maniid, 'image';
-  } elsif ($mani->{'mediaType'} eq 'application/vnd.oci.image.manifest.v1+json') {
+  } elsif ($mani->{'mediaType'} eq $BSContar::mt_oci_manifest) {
     printf "%-20s %s %s\n", $tag, $maniid, 'ociimage';
-  } elsif ($mani->{'mediaType'} eq 'application/vnd.oci.image.index.v1+json') {
+  } elsif ($mani->{'mediaType'} eq $BSContar::mt_oci_index) {
     printf "%-20s %s %s\n", $tag, $maniid, 'ocilist';
   } else {
     printf "%-20s %s %s\n", $tag, $maniid, 'unknown';
@@ -366,7 +366,7 @@ sub tags_from_digestfile {
 }
 
 sub construct_container_tar {
-  my ($containerinfo) = @_; 
+  my ($containerinfo) = @_;
 
   die("Must specify a blobdir for containerinfos\n") unless $blobdir;
   my $manifest = $containerinfo->{'tar_manifest'};
@@ -571,7 +571,7 @@ for my $tarfile (@tarfiles) {
     $config_layers = $config->{'rootfs'}->{'diff_ids'};
     die("layer number mismatch\n") if @layers != @{$config_layers || []};
   }
-  
+
   my $goarch = $config->{'architecture'} || 'any';
   my $goos = $config->{'os'} || 'any';
   $govariant = $config->{'variant'} if $config->{'variant'};
@@ -591,14 +591,14 @@ for my $tarfile (@tarfiles) {
   # process config
   my $config_blobid = BSContar::blobid_entry($config_ent);
   # create layer data
-  my $config_data = { 
-    'mediaType' => $config_ent->{'mimetype'} || 'application/vnd.docker.container.image.v1+json',
+  my $config_data = {
+    'mediaType' => $config_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_config : $BSContar::mt_docker_config),
     'size' => $config_ent->{'size'},
     'digest' => $config_blobid,
-  }; 
+  };
   # upload to server
   blob_upload($config_blobid, $config_ent);
-  
+
   # process layers (compress if necessary)
   my %layer_datas;
   my @layer_data;
@@ -624,7 +624,7 @@ for my $tarfile (@tarfiles) {
 
     # create layer data
     my $layer_data = {
-      'mediaType' => $layer_ent->{'mimetype'} || 'application/vnd.docker.image.rootfs.diff.tar.gzip',
+      'mediaType' => $layer_ent->{'mimetype'} || ($oci ? $BSContar::mt_oci_layer_gzip : $BSContar::mt_docker_layer_gzip),
       'size' => $layer_ent->{'size'},
       'digest' => $blobid,
     };
@@ -636,7 +636,7 @@ for my $tarfile (@tarfiles) {
   }
   close $tarfd if $tarfd;
 
-  my $mediaType = $oci ? 'application/vnd.oci.image.manifest.v1+json' : 'application/vnd.docker.distribution.manifest.v2+json';
+  my $mediaType = $oci ? $BSContar::mt_oci_manifest : $BSContar::mt_docker_manifest;
   my $mani = {
     'schemaVersion' => 2,
     'mediaType' => $mediaType,
@@ -661,7 +661,7 @@ for my $tarfile (@tarfiles) {
 }
 
 if ($multiarch) {
-  my $mediaType = $oci ? 'application/vnd.oci.image.index.v1+json' : 'application/vnd.docker.distribution.manifest.list.v2+json';
+  my $mediaType = $oci ? $BSContar::mt_oci_index : $BSContar::mt_docker_manifestlist;
   my $mani = {
     'schemaVersion' => 2,
     'mediaType' => $mediaType,

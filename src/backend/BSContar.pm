@@ -33,6 +33,17 @@ use BSTar;
 
 use strict;
 
+our $mt_docker_manifest     = 'application/vnd.docker.distribution.manifest.v2+json';
+our $mt_docker_manifestlist = 'application/vnd.docker.distribution.manifest.list.v2+json';
+our $mt_oci_manifest        = 'application/vnd.oci.image.manifest.v1+json';
+our $mt_oci_index           = 'application/vnd.oci.image.index.v1+json';
+
+our $mt_docker_config       = 'application/vnd.docker.container.image.v1+json';
+our $mt_docker_layer_gzip   = 'application/vnd.docker.image.rootfs.diff.tar.gzip';
+our $mt_oci_config          = 'application/vnd.oci.image.config.v1+json';
+our $mt_oci_layer_gzip      = 'application/vnd.oci.image.layer.v1.tar+gzip';
+our $mt_helm_config         = 'application/vnd.cncf.helm.config.v1+json';
+
 sub checksum_entry {
   my ($ent, $ctx) = @_;
   my $offset = 0;
@@ -315,7 +326,7 @@ sub container_from_helm {
   }
   # create ent for the config
   my $config_ent = { 'name' => 'config.json', 'size' => length($config_json), 'data' => $config_json, 'mtime' => $mtime };
-  $config_ent->{'mimetype'} = 'application/vnd.cncf.helm.config.v1+json';
+  $config_ent->{'mimetype'} = $mt_helm_config;
   # create ent for the manifest
   my $manifest = { 
     'Layers' => [ $chartbasename ],
