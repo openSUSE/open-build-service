@@ -54,7 +54,7 @@ sub registries_for_prp {
   my @s = @{$BSConfig::publish_containers};
   while (@s) {
     my ($k, $v) = splice(@s, 0, 2);
-    if ($projid =~ /^$k/) {
+    if ("$projid/$repoid" =~ /^$k/ || $projid =~ /^$k/) {
       $v = [ $v ] unless ref $v;
       @registries = @$v;
       last;

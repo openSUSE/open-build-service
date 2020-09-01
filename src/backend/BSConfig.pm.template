@@ -285,11 +285,12 @@ our $container_registries = {
 };
 
 our $publish_containers = [
-#   # key:   regex to match projid
+#   # key:   regex to match projid or projid/repoid
 #   # value: ArrayRef with identifiers for registries configured in $container_registries
-#   'SUSE:.*'        => [ 'registry.example.com', 'hub.docker.com' ],
-#   '.*:branches:.*' => [ 'staging-registry.example.com' ],
-   '.*'             => ['local'],
+#   'SUSE:.*/containers' => [ 'myregistry.example.com', 'local' ],
+#   'SUSE:'              => [ 'registry.example.com', 'hub.docker.com' ],
+#   '.*:branches:'       => [ 'staging-registry.example.com' ],
+   '.*'                 => ['local'],
 ];
 
 # enable this to announce the X-Registry-Supports-Signatures extension
