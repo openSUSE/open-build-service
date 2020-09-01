@@ -1030,17 +1030,20 @@ sub getprojpack {
       push @$projids, $projid;
     }
   }
+
+  my $limit_projids;
   if ($BSConfig::limit_projects && $BSConfig::limit_projects->{$arch}) {
     my $limit = $BSConfig::limit_projects->{$arch};
     if ($BSConfig::limit_projects_use_regex || $BSConfig::limit_projects_use_regex) {
+      $limit_projids = {};
       for my $projid (splice @$projids) {
-        push @$projids, $projid if grep {$projid =~ /^$_$/} @$limit;
+	$limit_projids->{$projid} = 1 if grep {$projid =~ /^$_$/} @$limit;
       }
     } else {
-      my %limit_projids = map {$_ => 1} @$limit;
-      $projids = [ grep {$limit_projids{$_}} @$projids ];
+      $limit_projids = { map {$_ => 1} @$limit };
     }
   }
+
   $repoids = { map {$_ => 1} @$repoids } if $repoids;
   $packids = { map {$_ => 1} @$packids } if $packids;
   my $bconf = Build::read_config($arch);
@@ -1090,6 +1093,9 @@ sub getprojpack {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
 
+    my $is_limited;
+    $is_limited = 1 if $limit_projids && !$limit_projids->{$projid};
+
     my %expandedrepos;
 
     if ($cgi->{'withrepos'}) {
@@ -1110,7 +1116,7 @@ sub getprojpack {
 	  $repo->{'path'} = \@prps;
 	  $repo->{'base'} = $base;
 	}
-      } elsif ($remotemap) {
+      } elsif ($remotemap && !$is_limited) {
 	# we always need the expanded search path with the configs so that
 	# we know about the publishfilter
 	for my $repo (@{$jinfo->{'repository'}}) {
@@ -1152,7 +1158,7 @@ sub getprojpack {
       }
     }
 
-    if ($remotemap) {
+    if ($remotemap && !$is_limited) {
       for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
         my $lproj = BSSrcServer::Remote::remoteprojid($lprojid);
 	eval {
@@ -1184,7 +1190,7 @@ sub getprojpack {
       };
     }
     my @packages;
-    if ($cgi->{'nopackages'}) {
+    if ($cgi->{'nopackages'} || $is_limited) {
       @packages = ();
     } elsif ($proj->{'remoteurl'}) {
       @packages = @{$cgi->{'package'}} if $cgi->{'package'} && $cgi->{'parseremote'};
@@ -1255,6 +1261,10 @@ sub getprojpack {
       @packages = ();
     }
     @packages = () if $cgi->{'nopackages'};
+    if ($is_limited) {
+      @packages = ();
+      $jinfo->{'error'} = 'forbidden for this architecture';
+    }
     my @pinfo;
     my %bconfs;
 
