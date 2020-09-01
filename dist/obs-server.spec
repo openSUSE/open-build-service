@@ -890,7 +890,6 @@ usermod -a -G docker obsservicerun
 %config(noreplace) %{__obs_api_prefix}/config/crawler-user-agents.json
 %{__obs_api_prefix}/config/initializers
 %dir %{__obs_api_prefix}/config/environments
-%dir %{__obs_api_prefix}/files
 %dir %{__obs_api_prefix}/db
 %{__obs_api_prefix}/Gemfile
 %verify(not mtime) %{__obs_api_prefix}/last_deploy
@@ -931,7 +930,6 @@ usermod -a -G docker obsservicerun
 %{__obs_api_prefix}/db/data
 %{__obs_api_prefix}/db/migrate
 %{__obs_api_prefix}/db/seeds.rb
-%{__obs_api_prefix}/files/wizardtemplate.spec
 %{__obs_api_prefix}/lib
 %{__obs_api_prefix}/public
 %{__obs_api_prefix}/Rakefile
