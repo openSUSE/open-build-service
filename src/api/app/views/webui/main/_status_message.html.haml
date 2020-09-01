@@ -9,7 +9,8 @@
         #{time_ago_in_words(status_message.created_at)} ago
       - if policy(status_message).destroy?
         .float-right
-          = link_to(status_message_path(status_message), method: :delete, title: 'Remove status message') do
+          = render(partial: 'webui/main/status_message_delete_dialog', locals: { status_message: status_message })
+          = link_to('#', data: { toggle: 'modal', target: "#delete-status-message-modal-#{status_message.id}" }, title: 'Delete status message') do
             %i.fas.fa-times-circle.text-danger
       .mt-2.mb-0
         = render_as_markdown(status_message.message)
