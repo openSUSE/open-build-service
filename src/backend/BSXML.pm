@@ -301,6 +301,7 @@ our $projpack = [
 	    'name',
 	    'kind',
 	     [],
+	    'error',
 	    'title',
 	    'description',
 	    'config',

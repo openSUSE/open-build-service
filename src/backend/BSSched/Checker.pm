@@ -233,7 +233,10 @@ sub setup {
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  my $proj = $projpacks->{$projid};
+  return (0, 'project does not exist') unless $proj;
+  return (0, $proj->{'error'}) if $proj->{'error'};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   return (0, 'repo does not exist') unless $repo;
 
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
@@ -274,7 +277,7 @@ sub setup {
   my $prptype = $bconf->{'type'};
   if (!$prptype || $prptype eq 'UNDEFINED') {
     # HACK force to channel if we have a channel package
-    $prptype = 'channel' if grep {$_->{'channel'}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    $prptype = 'channel' if grep {$_->{'channel'}} values(%{$proj->{'package'} || {}});
   }
   if (!$prptype || $prptype eq 'UNDEFINED') {
     # could still do channels/aggregates/patchinfos, but hey...
@@ -282,7 +285,7 @@ sub setup {
     return ('broken', "no build type ($lastprojid)");
   }
   $ctx->{'prptype'} = $prptype;
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $pdatas = $proj->{'package'} || {};
   $ctx->{'packs'} = [ sort keys %$pdatas ];
 
   # set lastcheck
@@ -344,13 +347,14 @@ sub wipeobsolete {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid};
   my $myarch = $gctx->{'arch'};
   my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $pdatas = $proj->{'package'} || {};
   my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
   my $hadobsolete;
   my $prjlocked = 0;
-  $prjlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $prjlocked, $myarch) if $projpacks->{$projid}->{'lock'};
+  $prjlocked = BSUtil::enabled($repoid, $proj->{'lock'}, $prjlocked, $myarch) if $proj->{'lock'};
   
   for my $packid (grep {!/^[:\.]/} ls($gdst)) {
     next if $packid eq '_volatile';
@@ -358,7 +362,7 @@ sub wipeobsolete {
     my $pdata = $pdatas->{$packid};
     if (!$pdata) {
       next if $packid eq '_deltas';
-      next if $projpacks->{$projid}->{'missingpackages'};
+      next if $proj->{'missingpackages'};
       $reason = 'obsolete';
     } else {
       if (($pdata->{'error'} || '') eq 'excluded') {
