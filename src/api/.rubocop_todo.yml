@@ -1306,14 +1306,6 @@ Style/MixinUsage:
     - 'app/models/bs_request.rb'
     - 'script/start_test_backend'
 
-# Offense count: 8
-# Cop supports --auto-correct.
-Style/MultilineWhenThen:
-  Exclude:
-    - 'db/migrate/20140908125426_convert_request_history.rb'
-    - 'app/models/bs_request.rb'
-    - 'app/models/user_ldap_strategy.rb'
-
 # Offense count: 23
 Style/OptionalBooleanParameter:
   Exclude:

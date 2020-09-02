@@ -233,7 +233,7 @@ class UserLdapStrategy
         Rails.logger.info("Unable to local authenticate #{user['dn']}")
         return
       end
-    when :ldap then
+    when :ldap
       # ruby-ldap returns true if password is empty
       # https://github.com/ruby-ldap/ruby-net-ldap/issues/5
       return if password.blank?
