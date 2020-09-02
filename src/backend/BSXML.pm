@@ -1969,6 +1969,7 @@ our $pubkeyinfo = [
 	'keyid',
 	'userid',
 	'algo',
+	'curve',
 	'keysize',
 	'expires',
 	'fingerprint',
@@ -1981,9 +1982,11 @@ our $certinfo = [
 	'issuer',
 	'subject',
 	'algo',
+	'curve',
 	'keysize',
 	'begins',
 	'expires',
+	'fingerprint',
 	'_content',
 ];
 

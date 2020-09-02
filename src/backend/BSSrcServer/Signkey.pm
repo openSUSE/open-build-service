@@ -123,15 +123,16 @@ sub getdefaultpubkey {
 sub pubkeyinfo {
   my ($pk) = @_;
 
-  my $algo;
-  my $keysize;
+  my ($algo, $curve, $keysize);
   my $fingerprint;
   my $expire;
   my $userid;
   eval {
     my $pku = BSPGP::unarmor($pk);
-    eval { $algo = BSPGP::pk2algo($pku) };
-    eval { $keysize = BSPGP::pk2keysize($pku) };
+    my $d = BSPGP::pk2keydata($pku);
+    $algo = $d->{'algo'} if $d->{'algo'};
+    $curve = $d->{'curve'} if $d->{'curve'};
+    $keysize = $d->{'keysize'} if $d->{'keysize'};
     eval { $fingerprint = BSPGP::pk2fingerprint($pku) };
     eval { $expire = BSPGP::pk2expire($pku) };
     eval { $userid = BSPGP::pk2userid($pku) };
@@ -153,18 +154,20 @@ sub pubkeyinfo {
 
 sub subjectpublickeyinfo {
   my ($pk, $isder) = @_;
-  my $algo;
-  my $keysize;
+  my ($algo, $curve, $keysize);
   my $fingerprint;
   eval {
     my $pku = $isder ? $pk : BSASN1::pem2der($pk, 'PUBLIC KEY');
     my $d = BSX509::pubkey2keydata($pku);
     $algo = $d->{'algo'} if $d->{'algo'};
+    $curve = $d->{'curve'} if $d->{'curve'};
     $keysize = $d->{'keysize'} if $d->{'keysize'};
     $fingerprint = unpack('H*', BSX509::generate_key_id($pku));
   };
+  warn($@) if $@;
   my $pubkey = {};
   $pubkey->{'algo'} = $algo if $algo;
+  $pubkey->{'curve'} = $curve if $curve;
   $pubkey->{'keysize'} = $keysize if $keysize;
   if ($fingerprint) {
     $fingerprint =~ s/(....)/$1 /g;
@@ -185,7 +188,7 @@ sub certinfo {
     $info->{'serial'} = length($serial) ? '0x' . unpack('H*', $serial) : '0x0';
     ($info->{'begins'}, $info->{'expires'}) = BSX509::unpack_validity($validity);
     my $pkinfo = subjectpublickeyinfo($subjectkeyinfo, 1);
-    defined($pkinfo->{$_}) && ($info->{$_} = $pkinfo->{$_}) for qw{algo keysize};
+    defined($pkinfo->{$_}) && ($info->{$_} = $pkinfo->{$_}) for qw{algo keysize fingerprint};
     $info->{'subject'} = BSX509::dn2str($subject);
     $info->{'issuer'} = BSX509::dn2str($issuer) if $issuer ne $subject;
   };

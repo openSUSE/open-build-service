@@ -1833,6 +1833,7 @@ sub updatesslcert {
   my $files = BSRevision::lsrev($rev);
   return undef unless $files->{'_sslcert'};
   my $cert = BSSrcServer::Signkey::pubkey2sslcert($projid, $pubkeyfile, $signkeyfile);
+  die("empty cert\n") unless $cert;
   mkdir_p($uploaddir);
   writestr("$uploaddir/sslcert.$$", undef, $cert);
   return "$uploaddir/sslcert.$$";
@@ -1869,6 +1870,18 @@ sub extendkey {
   my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$projectsdir/$projid.pkg/_signkey");
   BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
+	[ $certfile, undef, '_sslcert' ]);
+  return $BSStdServer::return_ok;
+}
+
+sub recreatesslcert {
+  my ($cgi, $projid) = @_;
+  $cgi->{'comment'} ||= 'recreate cert';
+  die("project does not have a key\n") unless -s "$projectsdir/$projid.pkg/_pubkey";
+  die("project does not have a signkey\n") unless -s "$projectsdir/$projid.pkg/_signkey";
+  my $certfile = updatesslcert($projid, "$projectsdir/$projid.pkg/_pubkey", "$projectsdir/$projid.pkg/_signkey");
+  die("could not update cert\n") unless $certfile;
+  BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ $certfile, undef, '_sslcert' ]);
   return $BSStdServer::return_ok;
 }
@@ -6923,6 +6936,7 @@ my $dispatches = [
 
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
+  'POST:/source/$project cmd=recreatesslcert user:? comment:?' => \&recreatesslcert,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? makeoriginolder:bool? resign:bool? noservice:bool?' => \&copyproject,
   'POST:/source/$project cmd=move oproject:project' => \&moveproject,
