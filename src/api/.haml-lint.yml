@@ -37,8 +37,6 @@ linters:
 
 exclude:
 - 'vendor/bundle/**/*'
-# The old staging workflow is still using Bento, so we don't lint it
-- 'app/views/webui/theme/bento/**/*'
 # Kaminari views were created by its generator, they don't pass lint tests
 - 'app/views/webui/kaminari/**/*'
 # Everything below is the API, we don't lint it (it's mostly XML anyway)
