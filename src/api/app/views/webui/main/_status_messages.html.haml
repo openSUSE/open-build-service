@@ -7,9 +7,8 @@
         %i.fa.fa-rss
   .list-group
     = render partial: 'status_message', collection: status_messages
-    - if policy(StatusMessage.new).create?
-      - unless feature_enabled?(:responsive_ux)
-        .card-footer
-          = link_to(new_status_message_path, class: 'nav-link') do
-            %i.fas.fa-plus-circle.text-primary
-            Create Status Message
+    - if policy(StatusMessage.new).create? && !feature_enabled?(:responsive_ux)
+      .card-footer
+        = link_to(new_status_message_path, class: 'nav-link') do
+          %i.fas.fa-plus-circle.text-primary
+          Create Status Message

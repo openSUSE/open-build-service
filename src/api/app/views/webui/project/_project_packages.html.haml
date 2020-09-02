@@ -10,18 +10,17 @@
   - else
     %p This project does not contain any packages
 
-  - if !feature_enabled?(:responsive_ux) && User.possibly_nobody.can_modify?(project)
-    - if show_package_actions?
-      .pt-4
-        %ul.list-inline
-          %li.list-inline-item
-            = link_to(new_package_path(project), class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Create Package
-          %li.list-inline-item
-            = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
-              %i.fas.fa-code-branch.text-primary
-              Branch Package
+  - if !feature_enabled?(:responsive_ux) && User.possibly_nobody.can_modify?(project) && show_package_actions?
+    .pt-4
+      %ul.list-inline
+        %li.list-inline-item
+          = link_to(new_package_path(project), class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Create Package
+        %li.list-inline-item
+          = link_to(project_new_packages_branch_path(project), class: 'nav-link') do
+            %i.fas.fa-code-branch.text-primary
+            Branch Package
 
 - content_for :ready_function do
   :plain
