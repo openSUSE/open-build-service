@@ -118,6 +118,7 @@ class Webui::RequestController < Webui::WebuiController
     @comment = Comment.new
 
     @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
+    @forwarding_options = BsRequestService::ActionForwarder.new(@bs_request).forwarding_options
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
 
@@ -155,7 +156,10 @@ class Webui::RequestController < Webui::WebuiController
           target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
         end
       end
-      accept_request if changestate == 'accepted'
+      if changestate == 'accepted'
+        flash[:success] = "Request #{params[:number]} accepted"
+        handle_forwarding
+      end
     end
     redirect_to(request_show_path(params[:number]))
   end
@@ -257,44 +261,41 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def change_state(newstate, params)
-    request = BsRequest.find_by_number(params[:number])
-    if request.nil?
-      flash[:error] = 'Unable to load request'
-    else
-      # FIXME: make force optional, it hides warnings!
-      opts = {
-        newstate: newstate,
-        force: true,
-        user: User.session!.login,
-        comment: params[:reason]
-      }
-      begin
-        request.change_state(opts)
-        flash[:success] = "Request #{newstate}!"
-        return true
-      rescue APIError => e
-        flash[:error] = "Failed to change state: #{e.message}!"
-        return false
-      end
+    # FIXME: make force optional, it hides warnings!
+    opts = {
+      newstate: newstate,
+      force: true,
+      user: User.session!.login,
+      comment: params[:reason]
+    }
+    begin
+      @bs_request.change_state(opts)
+      flash[:success] = "Request #{newstate}!"
+      return true
+    rescue APIError => e
+      flash[:error] = "Failed to change state: #{e.message}!"
+      return false
     end
-
     false
   end
 
-  def accept_request
-    flash[:success] = "Request #{params[:number]} accepted"
-
+  def handle_forwarding
     # Check if we have to forward this request to other projects / packages
+    return if params.keys.grep(/^forward.*/).blank?
+
+    fwd_targets = []
     params.keys.grep(/^forward.*/).each do |fwd|
-      forward_request_to(fwd)
+      target = {}
+      target['req_action_id'], target['tgt_prj'], target['tgt_pkg'] = params[fwd].split('_#_')
+      fwd_targets.append(target)
     end
+    forward_request_to(fwd_targets)
   end
 
-  def forward_request_to(fwd)
-    # split off 'forward_' and split into project and package
-    tgt_prj, tgt_pkg = params[fwd].split('_#_')
+  def forward_request_to(fwd_targets)
     begin
-      forwarded_request = @bs_request.forward_to(project: tgt_prj, package: tgt_pkg, options: params.slice(:description))
+      forwarded_request = BsRequestService::ActionForwarder.new(@bs_request)
+      forwarded_request = forwarded_request.forward_actions_in_single_request(fwd_targets)
     rescue APIError, ActiveRecord::RecordInvalid => e
       error_string = "Failed to forward BsRequest: #{@bs_request.number}, error: #{e}, params: #{params.inspect}"
       error_string << ", request: #{e.record.inspect}" if e.respond_to?(:record)
@@ -303,9 +304,12 @@ class Webui::RequestController < Webui::WebuiController
       return
     end
 
-    target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
-    request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
-    flash[:success] += " and forwarded to #{target_link} (#{request_link})"
+    fwd_targets.each do |target|
+      # TODO: adapt flash message handling
+      target_link = ActionController::Base.helpers.link_to("#{target['tgt_prj']} / #{target['tgt_pkg']}", package_show_url(project: target['tgt_prj'], package: target['tgt_pkg']))
+      request_link = ActionController::Base.helpers.link_to("request #{forwarded_request.number}", request_show_path(forwarded_request.number))
+      flash[:success] += " and forwarded to #{target_link} (#{request_link})"
+    end
   end
 
   def set_package

@@ -71,7 +71,8 @@
               .tab-pane.fade.show.active{ id: 'decision' }
                 = render('decision_tab', request_number: @bs_request.number, request_creator: @bs_request.creator,
                          is_target_maintainer: @is_target_maintainer, state: @bs_request.state.to_s,
-                         is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first)
+                         is_author: @is_author, single_action_request: @actions.count == 1, action: @actions.first,
+                         forwarding_options: @forwarding_options)
             - if @can_add_reviews
               - @my_open_reviews.each_with_index do |review, index|
                 .tab-pane.fade.show{ id: "review-#{index}", class: ('active' if index.zero? && !@can_handle_request) }
