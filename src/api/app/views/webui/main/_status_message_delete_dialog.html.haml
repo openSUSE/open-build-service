@@ -1,0 +1,16 @@
+.modal.fade{ id: "delete-status-message-modal-#{status_message.id}", tabindex: -1, role: 'dialog',
+             aria: { labelledby: 'delete-status-message-modal-label', hidden: true } }
+  .modal-dialog.modal-dialog-centered{ role: 'document' }
+    .modal-content
+      .modal-header
+        %h5.modal-title
+          Delete status message?
+      .modal-body
+        %p Please confirm deletion of status message
+
+        = form_tag(status_message_path(status_message), method: :delete, class: 'delete-status-message-form',
+                   data: { status_message_id: status_message.id }) do
+          .modal-footer
+            %a.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
+              Cancel
+            = submit_tag('Delete', class: 'btn btn-sm btn-danger px-4')
