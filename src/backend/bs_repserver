@@ -2412,7 +2412,6 @@ sub putjob {
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
   if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar.xz|AppImage|deb|appx|helminfo)$/} @$uploaded)) {
-    # write jobstatus and free lock
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
       $c .= BSHTTP::urlencode($_)."\n" for @$kiwitree_tosign;
@@ -2421,26 +2420,19 @@ sub putjob {
       unlink("$dir/.kiwitree_tosign");
     }
     $jobstatus->{'code'} = 'signing';
-    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
-    updateredisjobstatus($arch, $job, $info, 'signing');
-    close F;
-
-    mkdir_p("$eventdir/signer");
-    writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
-    BSUtil::ping("$eventdir/signer/.ping");
   } else {
-    # write jobstatus and free lock
     $jobstatus->{'code'} = 'finished';
-    writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
-    updateredisjobstatus($arch, $job, $info, 'finished');
-    close F;
-
-    dirty($projid, $repoid, $arch);
-    mkdir_p("$eventdir/$arch");
-    writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-    BSUtil::ping("$eventdir/$arch/.ping");
   }
-
+  # write jobstatus and free lock
+  writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
+  updateredisjobstatus($arch, $job, $info, $jobstatus->{'code'});
+  close F;
+  dirty($projid, $repoid, $arch) unless $jobstatus->{'code'} eq 'signing';
+  # send event to signer or scheduler
+  $arch = 'signer' if $jobstatus->{'code'} eq 'signing';
+  mkdir_p("$eventdir/$arch");
+  writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }
 
