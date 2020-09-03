@@ -11,6 +11,7 @@
           = image_tag("distributions/#{vendor.downcase}.svg")
         #{vendor} distributions
       .form-group.pl-3
+        -# rubocop:disable Style/CombinableLoops
         - list.each do |distribution|
           - selected = @project.has_distribution(distribution['project'], distribution['repository'])
           .custom-control.custom-checkbox.custom-control-inline
@@ -32,6 +33,7 @@
                                            id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}_destroy") do
             = hidden_field_tag 'project', @project.name
             = hidden_field_tag 'target', distribution['reponame']
+        -# rubocop:enable Style/CombinableLoops
     %h6
       = image_tag('distributions/kiwi.svg')
       Kiwi image builds

@@ -611,7 +611,7 @@ class BsRequest < ApplicationRecord
         history = HistoryElement::RequestDeclined
       when 'revoked'
         history = HistoryElement::RequestRevoked
-      when 'superseded' then
+      when 'superseded'
         history = HistoryElement::RequestSuperseded
         params[:description_extension] = superseded_by.to_s
       when 'review'
@@ -962,7 +962,7 @@ class BsRequest < ApplicationRecord
       action[:releaseproject] = xml.target_releaseproject if xml.target_releaseproject
 
       case xml.action_type # All further stuff depends on action type...
-      when :submit then
+      when :submit
         action[:name] = "Submit #{action[:spkg]}"
         superseded_bs_request_action = xml.find_action_with_same_target(opts[:diff_to_superseded])
         action[:sourcediff] = xml.webui_infos(opts.merge(superseded_bs_request_action: superseded_bs_request_action)) if with_diff
@@ -995,7 +995,7 @@ class BsRequest < ApplicationRecord
           end
         end
 
-      when :delete then
+      when :delete
         action[:name] = if action[:tpkg]
                           "Delete #{action[:tpkg]}"
                         elsif action[:trepo]
@@ -1007,21 +1007,21 @@ class BsRequest < ApplicationRecord
         if action[:tpkg] # API / Backend don't support whole project diff currently
           action[:sourcediff] = xml.webui_infos if with_diff
         end
-      when :add_role then
+      when :add_role
         action[:name] = 'Add Role'
         action[:role] = xml.role
         action[:user] = xml.person_name
         action[:group] = xml.group_name
       when :change_devel
         action[:name] = 'Change Devel'
-      when :set_bugowner then
+      when :set_bugowner
         action[:name] = 'Set Bugowner'
         action[:user] = xml.person_name
         action[:group] = xml.group_name
-      when :maintenance_incident then
+      when :maintenance_incident
         action[:name] = "Incident #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
-      when :maintenance_release then
+      when :maintenance_release
         action[:name] = "Release #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
       end
