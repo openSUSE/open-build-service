@@ -41,6 +41,10 @@ our $isajax;	# is this the ajax process?
 
 our $return_ok = "<status code=\"ok\" />\n";
 
+our $memoized_files = {};
+our $memoized_size = 0;
+our $memoize_fn;
+
 sub stdreply {
   my @rep = @_;
   return unless @rep && defined($rep[0]);
@@ -109,6 +113,7 @@ sub periodic {
     unlink("$rundir/$conf->{'name'}.exit");
     exit(0);
   }
+  checkandmemoize($conf);
   if (-e "$rundir/$conf->{'name'}.restart") {
     BSServer::msg("$conf->{'name'} restarting...");
     if (system($0, "--test")) {
@@ -154,6 +159,122 @@ sub periodic_ajax {
     exit(0);
   }
 }
+
+sub checkandmemoize {
+  my ($conf) = @_;
+  return unless $memoize_fn;
+  my $msize = $conf->{'memoize_max_size'};
+  return unless $msize;
+  do_memoize("$memoize_fn.read", $msize);
+  do_memoize($memoize_fn, $msize);
+}
+
+sub do_memoize {
+  my ($fn, $msize) = @_;
+  if (-e "$fn") {
+    my $file;
+    BSUtil::lockopen($file, '<', "$fn");
+    rename($fn, "$fn.read") || die("rename $fn $fn.read $!\n");
+    my $sizechange = 0;
+    my ($toread, $d, @s);
+    while (<$file>) {
+      next unless chop($_) eq "\n";
+      $toread = $_;
+      BSUtil::printlog("file to memoize $toread");
+      if (exists $memoized_files->{$toread} && !-e $toread) {
+        $_ = $memoized_files->{$toread}->[0] =~ /.*\/(.*)\/.*/;
+        $sizechange -= $1;
+        delete $memoized_files->{$toread};
+        next
+      }
+      @s = stat($toread);
+      next unless @s;
+      next if $s[7] > $msize;
+      if (! $memoized_files->{$toread} || $memoized_files->{$toread}->[0] ne "$s[9]/$s[7]/$s[1]") {
+        $d = readstr($toread, 1);
+        next unless $d;
+        ($memoized_files->{$toread}->[0] || "0/0/0") =~ /.*\/(.*)\/.*/;
+        $sizechange += -$1 + $s[7];
+        $memoized_files->{$toread} = ["$s[9]/$s[7]/$s[1]", $d];
+      }
+    }
+    $memoized_size += $sizechange;
+    my $inmb = $memoized_size/(1024*1024);
+    BSUtil::printlog("memoized_size is $inmb MB");# if abs($sizechange)/($memoized_size || 1) > 0.1;
+    close $file;
+    unlink("$fn.read");
+  }
+}
+
+sub check_memoized {
+  my ($fn, $nonfatal) = @_;
+  my $mf = $memoized_files->{$fn};
+  my $f;
+  if (!open($f, '<', $fn)) {
+    die("$fn: $!\n") unless $nonfatal;
+    return undef;
+  }
+  close $f; # opening and closing files helps check permissions and file existance
+  my @s = stat($fn);
+  if ($mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]") {
+    return $mf->[1];
+  }
+  BSUtil::appendstr($memoize_fn, "$fn\n") if $memoize_fn;
+  return undef;
+}
+
+sub readstr_memoized {
+  my ($fn, $nonfatal) = @_;
+  my $d = check_memoized(@_);
+  return defined $d ? $d :readstr($fn, $nonfatal);
+}
+
+sub readxml_memoized {
+  my ($fn, $dtd, $nonfatal) = @_;
+  my $d = readstr_memoized($fn, $nonfatal);
+  return $d unless defined $d;
+  if ($d !~ /<.*?>/s) {
+    die("$fn: not xml\n") unless $nonfatal;
+    return undef;
+  }
+  return XMLin($dtd, $d) unless $nonfatal;
+  eval { $d = XMLin($dtd, $d); };
+  return $@ ? undef : $d;
+}
+
+sub retrieve_memoized {
+  my ($fn, $nonfatal) = @_;
+  my $dd;
+  unless ($nonfatal) {
+    if (ref($fn)) {
+      $dd = Storable::fd_retrieve($fn);
+    } else {
+      $dd = check_memoized(@_);
+      $dd = BSUtil::fromstorable($dd, $nonfatal) if $dd;
+      $dd = Storable::retrieve($fn) unless $dd;
+    }
+    die("retrieve $fn: $!\n") unless $dd;
+  } else {
+    eval {
+      if (ref($fn)) {
+        $dd = Storable::fd_retrieve($fn);
+      } else {
+        $dd = check_memoized(@_);
+        $dd = BSUtil::fromstorable($dd, $nonfatal) if $dd;
+        $dd = Storable::retrieve($fn) unless $dd;
+      }
+    };
+    if (!$dd && $nonfatal == 2) {
+      if ($@) {
+        warn($@);
+      } else {
+        warn("retrieve $fn: $!\n");
+      }
+    }
+  }
+  return $dd;
+}
+
 
 sub serverstatus {
   my ($cgi) = @_;
@@ -257,6 +378,7 @@ sub server {
     $conf->{'logfile'} = $logfile if $logfile;
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
+    $memoize_fn = $conf->{'memoize'} if $conf->{'memoize'};
     BSDispatch::compile($conf);
   }
   if ($request) {

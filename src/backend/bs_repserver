@@ -188,8 +188,8 @@ sub fetchdodbinary {
 
 sub readpackstatus {
   my ($prpa) = @_;
-  my $psf = readstr("$reporoot/$prpa/:packstatus.finished", 1);
-  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
+  my $psf = BSStdServer::readstr_memoized("$reporoot/$prpa/:packstatus.finished", 1);
+  my $ps = BSStdServer::retrieve_memoized("$reporoot/$prpa/:packstatus", 1);
   if (!$ps) {
     # backward compat: try old xml format
     return undef unless -e "$reporoot/$prpa/:packstatus";
@@ -4462,6 +4462,8 @@ my $conf = {
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,
+  'memoize' => "$eventdir/memoize",
+  'memoize_max_size' => 1024*1024, # 1MB in bytes
   'maxchild' => 20,
   'maxchild2' => 20,
   'slowrequestthr' => 10,
