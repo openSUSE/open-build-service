@@ -20,6 +20,7 @@
             %th Created
             %th
         %tbody
+          - job_states_finished = ['succeeded', 'failed']
           - @upload_jobs.each do |job|
             %tr
               %td= job.id
@@ -30,7 +31,7 @@
               %td= time_tag(job.created_at)
               %td
                 = link_to 'Log', cloud_upload_log_path(job.id)
-                - unless ['succeeded', 'failed'].include?(job.state)
+                - unless job_states_finished.include?(job.state)
                   |
                   = link_to 'Abort', cloud_upload_path(job.id), method: :delete, data: { confirm: "Do you really want to abort job #{job.id}?" }
 
