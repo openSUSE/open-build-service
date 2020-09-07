@@ -117,7 +117,6 @@ my $ajaxsocket = "$rundir/bs_repserver.ajax";
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz pkg.tar.zst};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-my $conf = {};
 # XXX read jobs instead?
 
 ### TODO: (fs) move to BSUtil
@@ -189,8 +188,8 @@ sub fetchdodbinary {
 
 sub readpackstatus {
   my ($prpa) = @_;
-  my $psf = readstr("$reporoot/$prpa/:packstatus.finished", 1, $conf->{'memoize'});
-  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1, $conf->{'memoize'});
+  my $psf = BSStdServer::readstr_memoized("$reporoot/$prpa/:packstatus.finished", 1);
+  my $ps = BSStdServer::retrieve_memoized("$reporoot/$prpa/:packstatus", 1);
   if (!$ps) {
     # backward compat: try old xml format
     return undef unless -e "$reporoot/$prpa/:packstatus";
@@ -4467,7 +4466,7 @@ my $dispatches_ajax = [
   '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&getbinaryversions,
 ];
 
-$conf = ($conf, {
+my $conf = {
   'port' => $port,
   'proto' => $proto,
   'dispatches' => $dispatches,
@@ -4477,7 +4476,7 @@ $conf = ($conf, {
   'maxchild2' => 20,
   'slowrequestthr' => 10,
   'errorreply' => \&BSRegistryServer::errreply,
-});
+};
 
 my $aconf = {
   'socketpath' => $ajaxsocket,
