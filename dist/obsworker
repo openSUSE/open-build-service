@@ -316,8 +316,12 @@ EOF
     fi
 }
 
+DETACH="-d"
+
 case "$1" in
-    start)
+    start|run)
+	test $1 == "run" && DETACH=""
+
         # reset screenrc
         mkdir -p "$obsrundir"
         chown obsrun:obsrun "$obsrundir"
@@ -462,7 +466,7 @@ case "$1" in
             mkdir -p $workerdir/$I
         done
         pushd "$workerbootdir" > /dev/null
-        screen -S obsworker -m -d -c $screenrc
+        screen -S obsworker -m $DETACH -c $screenrc
         popd > /dev/null
     ;;
     stop)
