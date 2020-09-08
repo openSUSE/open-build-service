@@ -1220,15 +1220,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'app/models/role.rb'
     - 'app/models/status_message_acknowledgement.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Rails/WhereNot:
-  Exclude:
-    - 'app/models/backend_package.rb'
-    - 'app/models/group.rb'
-    - 'app/models/project.rb'
-    - 'lib/xpath_engine.rb'
-
 # Offense count: 114
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
