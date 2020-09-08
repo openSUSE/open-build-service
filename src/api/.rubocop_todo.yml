@@ -1152,17 +1152,6 @@ Rails/SkipsModelValidations:
     - 'db/migrate/20170621100321_add_channel_to_event_subscriptions.rb'
     - 'db/migrate/20170630144825_convert_tokens_to_service_tokens.rb'
 
-# Offense count: 35
-# Cop supports --auto-correct.
-Rails/SquishedSQLHeredocs:
-  Exclude:
-    - 'app/models/channel_binary.rb'
-    - 'db/data/20170306084550_remove_duplicate_repositories.rb'
-    - 'db/migrate/001_initial_database.rb'
-    - 'db/migrate/20170426153510_add_references_to_review.rb'
-    - 'db/migrate/20170509123922_add_references_to_bs_request_action.rb'
-    - 'db/migrate/20170627111730_split_review_references.rb'
-
 # Offense count: 84
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.
