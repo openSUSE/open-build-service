@@ -1218,6 +1218,8 @@ Rails/UniqueValidationWithoutIndex:
     - 'app/models/kiwi/repository.rb'
     - 'app/models/relationship.rb'
     - 'app/models/role.rb'
+    - 'app/models/staging/request_exclusion.rb'
+    - 'app/models/status/check.rb'
     - 'app/models/status_message_acknowledgement.rb'
 
 # Offense count: 114
