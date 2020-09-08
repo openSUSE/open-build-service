@@ -93,7 +93,7 @@ class Project < ApplicationRecord
   has_many :notified_projects, dependent: :destroy
   has_many :notifications, through: :notified_projects
 
-  default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids) }
+  default_scope { where.not('projects.id' => Relationship.forbidden_project_ids) }
 
   scope :maintenance, -> { where("kind = 'maintenance'") }
   scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }

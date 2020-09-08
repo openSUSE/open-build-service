@@ -6,7 +6,7 @@ class RemoveDuplicateRepositories < ActiveRecord::Migration[5.1]
     # need a commit user for the project commits (even wthout write through)
     User.session = User.get_default_admin
     Repository.transaction do
-      sql = <<-SQL
+      sql = <<-SQL.squish
         SELECT a.*
         FROM repositories AS a
         LEFT JOIN repositories AS b
@@ -20,7 +20,7 @@ class RemoveDuplicateRepositories < ActiveRecord::Migration[5.1]
       repos_with_duplicates = Repository.find_by_sql(sql)
 
       if repos_with_duplicates.any?
-        sql = <<-SQL
+        sql = <<-SQL.squish
           SELECT b.*
           FROM repositories a
           LEFT JOIN repositories AS b

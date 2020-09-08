@@ -310,7 +310,7 @@ class XpathEngine
       @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
                 'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'] << @joins
     when 'repositories'
-      relation = Repository.where('repositories.db_project_id not in (?)', Relationship.forbidden_project_ids)
+      relation = Repository.where.not('repositories.db_project_id' => Relationship.forbidden_project_ids)
       @joins = ['LEFT join path_elements path_element on path_element.parent_id=repositories.id',
                 'LEFT join repositories path_repo on path_element.repository_id=path_repo.id',
                 'LEFT join release_targets release_target on release_target.repository_id=repositories.id',

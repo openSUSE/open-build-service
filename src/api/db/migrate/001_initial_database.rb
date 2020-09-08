@@ -856,67 +856,67 @@ class InitialDatabase < ActiveRecord::Migration[4.2]
     add_foreign_key 'watched_projects', 'users', name: 'watched_projects_ibfk_1'
     # rubocop:enable Layout/ExtraSpacing
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `architectures` VALUES (1,'aarch64',0),(2,'armv4l',0),(3,'armv5l',0),(4,'armv6l',0),(5,'armv7l',1),(6,'armv5el',0),(7,'armv6el',0),(8,'armv7el',0),(9,'armv8el',0),(10,'hppa',0),(11,'i586',1),(12,'i686',0),(13,'ia64',0),(14,'local',0),(15,'m68k',0),(16,'mips',0),(17,'mips32',0),(18,'mips64',0),(19,'ppc',0),(20,'ppc64',0),(21,'ppc64p7',0),(22,'ppc64le',0),(23,'s390',0),(24,'s390x',0),(25,'sparc',0),(26,'sparc64',0),(27,'sparc64v',0),(28,'sparcv8',0),(29,'sparcv9',0),(30,'sparcv9v',0),(31,'x86_64',1);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `users` VALUES (1,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'Admin','root@localhost','OBS Instance Superuser','8dc6e1b924b5375fc825e1541ffe6c8d','md5','ED7B9A1ON7','osQq6OKjF0f8I',2,NULL),(2,'2014-04-10 07:43:53','2014-04-10 07:43:53',NULL,0,'_nobody_','nobody@localhost','Anonymous User','65a8f83fa5cd130e57dc6ce026e047d6','md5','EYyHjNODSr','osEJSjdDGtlBY',3,NULL);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `roles` VALUES (1,'Admin',NULL,1),(2,'maintainer',NULL,0),(3,'bugowner',NULL,0),(4,'reviewer',NULL,0),(5,'downloader',NULL,0),(6,'reader',NULL,0);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `attrib_namespaces` VALUES (1,'OBS');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `attrib_namespace_modifiable_bies` VALUES (1,1,1,NULL);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `attrib_types` VALUES (1,'VeryImportantProject',NULL,NULL,0,1,0),(2,'UpdateProject',NULL,NULL,1,1,0),(3,'RejectRequests',NULL,NULL,NULL,1,0),(4,'ApprovedRequestSource',NULL,NULL,0,1,0),(5,'Maintained',NULL,NULL,0,1,0),(6,'MaintenanceProject',NULL,NULL,0,1,0),(7,'MaintenanceIdTemplate',NULL,NULL,1,1,0),(8,'ScreenShots',NULL,NULL,NULL,1,0),(9,'OwnerRootProject',NULL,NULL,NULL,1,0),(10,'RequestCloned',NULL,NULL,1,1,0),(11,'ProjectStatusPackageFailComment',NULL,NULL,1,1,0),(12,'InitializeDevelPackage',NULL,NULL,0,1,0),(13,'BranchTarget',NULL,NULL,0,1,0),(14,'BranchRepositoriesFromProject',NULL,NULL,1,1,0),(15,'AutoCleanup',NULL,NULL,1,1,0),(16,'Issues',NULL,NULL,0,1,0),(17,'QualityCategory',NULL,NULL,1,1,0);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `attrib_allowed_values` VALUES (1,9,'DisableDevel'),(2,9,'BugownerOnly'),(3,17,'Stable'),(4,17,'Testing'),(5,17,'Development'),(6,17,'Private');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `attrib_type_modifiable_bies` VALUES (1,1,1,NULL,NULL),(2,2,1,NULL,NULL),(3,3,1,NULL,NULL),(4,4,1,NULL,NULL),(5,5,1,NULL,NULL),(6,6,1,NULL,NULL),(7,7,1,NULL,NULL),(8,8,1,NULL,NULL),(9,9,1,NULL,NULL),(10,10,NULL,NULL,2),(11,11,NULL,NULL,2),(12,12,NULL,NULL,2),(13,13,NULL,NULL,2),(14,14,NULL,NULL,2),(15,15,NULL,NULL,2),(16,16,NULL,NULL,2),(17,16,NULL,NULL,3),(18,16,NULL,NULL,4),(19,17,NULL,NULL,2);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `configurations` VALUES (1,'Open Build Service','  <p class=\"description\">\n    The <a href=\"http://openbuildservice.org\">Open Build Service (OBS)</a>\n    is an open and complete distribution development platform that provides a transparent infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.\n    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.\n  </p>\n  <p class=\"description\">\n    The OBS is developed under the umbrella of the <a href=\"http://www.opensuse.org\">openSUSE project</a>. Please find further informations on the <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service\">openSUSE Project wiki pages</a>.\n  </p>\n\n  <p class=\"description\">\n    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href=\"http://wiki.opensuse.org/openSUSE:Build_Service_installations\">this wiki page</a>. Have fun and fast build times!\n  </p>\n','2014-04-10 07:43:54','2014-04-10 07:43:54','private','allow',1,0,1,0,1,0,1,1,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'unconfigured@openbuildservice.org');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `db_project_types` VALUES (1,'standard'),(2,'maintenance'),(3,'maintenance_incident'),(4,'maintenance_release');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `issue_trackers` VALUES (1,'boost','trac','Boost Trac','https://svn.boost.org/trac/boost/','https://svn.boost.org/trac/boost/ticket/@@@','boost#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:54',0),(2,'bco','bugzilla','Clutter Project Bugzilla','http://bugzilla.clutter-project.org/','http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@','bco#(\\d+)',NULL,NULL,'bco#@@@','2014-04-10 07:43:54',0),(3,'RT','other','CPAN Bugs','https://rt.cpan.org/','http://rt.cpan.org/Public/Bug/Display.html?id=@@@','RT#(\\d+)',NULL,NULL,'RT#@@@','2014-04-10 07:43:55',0),(4,'cve','cve','CVE Numbers','http://cve.mitre.org/','http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@','(CVE-\\d\\d\\d\\d-\\d+)',NULL,NULL,'@@@','2014-04-10 07:43:55',0),(5,'deb','bugzilla','Debian Bugzilla','http://bugs.debian.org/','http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=@@@','deb#(\\d+)',NULL,NULL,'deb#@@@','2014-04-10 07:43:55',0),(6,'fdo','bugzilla','Freedesktop.org Bugzilla','https://bugs.freedesktop.org/','https://bugs.freedesktop.org/show_bug.cgi?id=@@@','fdo#(\\d+)',NULL,NULL,'fdo#@@@','2014-04-10 07:43:55',0),(7,'GCC','bugzilla','GCC Bugzilla','http://gcc.gnu.org/bugzilla/','http://gcc.gnu.org/bugzilla/show_bug.cgi?id=@@@','GCC#(\\d+)',NULL,NULL,'GCC#@@@','2014-04-10 07:43:55',0),(8,'bgo','bugzilla','Gnome Bugzilla','https://bugzilla.gnome.org/','https://bugzilla.gnome.org/show_bug.cgi?id=@@@','bgo#(\\d+)',NULL,NULL,'bgo#@@@','2014-04-10 07:43:55',0),(9,'bio','bugzilla','Icculus.org Bugzilla','https://bugzilla.icculus.org/','https://bugzilla.icculus.org/show_bug.cgi?id=@@@','bio#(\\d+)',NULL,NULL,'bio#@@@','2014-04-10 07:43:55',0),(10,'bko','bugzilla','Kernel.org Bugzilla','https://bugzilla.kernel.org/','https://bugzilla.kernel.org/show_bug.cgi?id=@@@','(?:Kernel|K|bko)#(\\d+)',NULL,NULL,'bko#@@@','2014-04-10 07:43:55',0),(11,'kde','bugzilla','KDE Bugzilla','https://bugs.kde.org/','https://bugs.kde.org/show_bug.cgi?id=@@@','kde#(\\d+)',NULL,NULL,'kde#@@@','2014-04-10 07:43:55',0),(12,'lp','launchpad','Launchpad.net Bugtracker','https://bugs.launchpad.net/bugs/','https://bugs.launchpad.net/bugs/@@@','b?lp#(\\d+)',NULL,NULL,'lp#@@@','2014-04-10 07:43:55',0),(13,'Meego','bugzilla','Meego Bugs','https://bugs.meego.com/','https://bugs.meego.com/show_bug.cgi?id=@@@','Meego#(\\d+)',NULL,NULL,'Meego#@@@','2014-04-10 07:43:55',0),(14,'bmo','bugzilla','Mozilla Bugzilla','https://bugzilla.mozilla.org/','https://bugzilla.mozilla.org/show_bug.cgi?id=@@@','bmo#(\\d+)',NULL,NULL,'bmo#@@@','2014-04-10 07:43:55',0),(15,'bnc','bugzilla','Novell Bugzilla','https://bugzilla.novell.com/','https://bugzilla.novell.com/show_bug.cgi?id=@@@','(?:bnc|BNC)\\s*[#:]\\s*(\\d+)',NULL,NULL,'bnc#@@@','2014-04-10 07:43:55',1),(16,'ITS','other','OpenLDAP Issue Tracker','http://www.openldap.org/its/','http://www.openldap.org/its/index.cgi/Contrib?id=@@@','ITS#(\\d+)',NULL,NULL,'ITS#@@@','2014-04-10 07:43:55',0),(17,'i','bugzilla','OpenOffice.org Bugzilla','http://openoffice.org/bugzilla/','http://openoffice.org/bugzilla/show_bug.cgi?id=@@@','i#(\\d+)',NULL,NULL,'boost#@@@','2014-04-10 07:43:55',0),(18,'fate','fate','openSUSE Feature Database','https://features.opensuse.org/','https://features.opensuse.org/@@@','(?:fate|Fate|FATE)\\s*#\\s*(\\d+)',NULL,NULL,'fate#@@@','2014-04-10 07:43:55',0),(19,'rh','bugzilla','RedHat Bugzilla','https://bugzilla.redhat.com/','https://bugzilla.redhat.com/show_bug.cgi?id=@@@','rh#(\\d+)',NULL,NULL,'rh#@@@','2014-04-10 07:43:55',0),(20,'bso','bugzilla','Samba Bugzilla','https://bugzilla.samba.org/','https://bugzilla.samba.org/show_bug.cgi?id=@@@','bso#(\\d+)',NULL,NULL,'bso#@@@','2014-04-10 07:43:55',0),(21,'sf','sourceforge','SourceForge.net Tracker','http://sf.net/support/','http://sf.net/support/tracker.php?aid=@@@','sf#(\\d+)',NULL,NULL,'sf#@@@','2014-04-10 07:43:55',0),(22,'Xamarin','bugzilla','Xamarin Bugzilla','http://bugzilla.xamarin.com/index.cgi','http://bugzilla.xamarin.com/show_bug.cgi?id=@@@','Xamarin#(\\d+)',NULL,NULL,'Xamarin#@@@','2014-04-10 07:43:55',0),(23,'bxo','bugzilla','XFCE Bugzilla','https://bugzilla.xfce.org/','https://bugzilla.xfce.org/show_bug.cgi?id=@@@','bxo#(\\d+)',NULL,NULL,'bxo#@@@','2014-04-10 07:43:55',0);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `projects` VALUES (1,'deleted',NULL,NULL,'2014-04-10 07:43:54','2014-04-10 07:43:54',NULL,NULL,1,NULL,NULL,1);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `repositories` VALUES (1,1,'deleted',NULL,NULL,NULL,NULL,NULL);
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `roles_users` VALUES (1,1,'2014-04-10 07:43:53');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `static_permissions` VALUES (5,'access'),(12,'change_package'),(10,'change_project'),(13,'create_package'),(11,'create_project'),(3,'download_binaries'),(8,'global_change_package'),(6,'global_change_project'),(9,'global_create_package'),(7,'global_create_project'),(2,'set_download_counters'),(4,'source_access'),(1,'status_message_create');
     SQL
 
-    execute <<-SQL
+    execute <<-SQL.squish
       INSERT INTO `roles_static_permissions` VALUES (1,1),(1,2),(1,3),(5,3),(1,4),(6,4),(1,5),(6,5),(1,6),(1,7),(1,8),(1,9),(1,10),(2,10),(1,11),(2,11),(1,12),(2,12),(1,13),(2,13);
     SQL
   end
