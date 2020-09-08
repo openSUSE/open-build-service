@@ -14,6 +14,7 @@
   %small.form-text.text-danger#ajax-error-message
 
   .list-group.mt-3#issues
+    - issue_types = ['issueid', 'issuetracker', 'issueurl', 'issuesumi']
     - issues.to_a.each do |issue|
       - issue_name = "#{issue[1]}_#{issue[0]}"
       .list-group-item.flex-column.align-items-start.issue-element{ id: "issue_#{issue_name}" }
@@ -23,7 +24,7 @@
           = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ml-1') do
             %i.fas.fa-times-circle.text-danger
 
-          - ['issueid', 'issuetracker', 'issueurl', 'issuesum'].each_with_index do |type, index|
+          - issue_types.each_with_index do |type, index|
             = form.hidden_field(type.to_sym, value: issue[index], id: "#{type}_#{issue_name}", multiple: true)
         %small.text-muted= issue[3]
 .form-group.col-md-6

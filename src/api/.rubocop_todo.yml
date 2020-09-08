@@ -534,6 +534,79 @@ Naming/PredicateName:
     - 'app/models/user_basic_strategy.rb'
     - 'app/models/user_ldap_strategy.rb'
 
+# Offense count: 11
+# Configuration parameters: MinSize.
+Performance/CollectionLiteralInLoop:
+  Exclude:
+    - 'app/controllers/webui/project_controller.rb'
+    - 'app/mixins/has_relationships.rb'
+    - 'lib/memory_debugger.rb'
+    - 'lib/tasks/extract.rake'
+    - 'script/reformat_memprof'
+    - 'test/functional/backend_test.rb'
+
+# Offense count: 4
+# Cop supports --auto-correct.
+Performance/Count:
+  Exclude:
+    - 'spec/models/user_spec.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Performance/Detect:
+  Exclude:
+    - 'app/controllers/public_controller.rb'
+    - 'app/controllers/webui/kiwi/images_controller.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+Performance/InefficientHashSearch:
+  Exclude:
+    - 'app/models/user.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+# Configuration parameters: MaxKeyValuePairs.
+Performance/RedundantMerge:
+  Exclude:
+    - 'app/helpers/webui/notification_helper.rb'
+    - 'app/views/staging/staging_projects/_staging_project_item.xml.builder'
+
+# Offense count: 41
+# Cop supports --auto-correct.
+Performance/RegexpMatch:
+  Exclude:
+    - 'app/controllers/webui/webui_controller.rb'
+    - 'app/helpers/webui/package_helper.rb'
+    - 'app/helpers/webui/webui_helper.rb'
+    - 'app/lib/backend/test.rb'
+    - 'app/models/kiwi/repository.rb'
+    - 'app/models/package.rb'
+    - 'app/models/project.rb'
+    - 'app/models/service.rb'
+    - 'app/models/updateinfo_counter.rb'
+    - 'test/functional/backend_test.rb'
+    - 'test/functional/webui/spider_test.rb'
+    - 'test/functional/zzz_post_consistency_test.rb'
+
+# Offense count: 26
+# Cop supports --auto-correct.
+# Configuration parameters: AutoCorrect.
+Performance/StringInclude:
+  Exclude:
+    - 'app/lib/backend/test.rb'
+    - 'app/models/service.rb'
+    - 'app/models/updateinfo_counter.rb'
+    - 'lib/tasks/coverage.rake'
+    - 'test/functional/webui/spider_test.rb'
+    - 'test/functional/zzz_post_consistency_test.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+Performance/StringReplacement:
+  Exclude:
+    - 'app/controllers/webui/monitor_controller.rb'
+
 # Offense count: 61
 RSpec/AnyInstance:
   Exclude:
