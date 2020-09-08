@@ -244,7 +244,7 @@ GEM
       ruby-progressbar
     mocha (1.11.2)
     mysql2 (0.5.3)
-    nio4r (2.5.2)
+    nio4r (2.5.3)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
     parallel (1.19.2)
