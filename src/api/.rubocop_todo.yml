@@ -593,12 +593,6 @@ Performance/StringInclude:
     - 'test/functional/webui/spider_test.rb'
     - 'test/functional/zzz_post_consistency_test.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/StringReplacement:
-  Exclude:
-    - 'app/controllers/webui/monitor_controller.rb'
-
 # Offense count: 61
 RSpec/AnyInstance:
   Exclude:
