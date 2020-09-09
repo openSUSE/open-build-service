@@ -564,14 +564,6 @@ Performance/InefficientHashSearch:
   Exclude:
     - 'app/models/user.rb'
 
-# Offense count: 2
-# Cop supports --auto-correct.
-# Configuration parameters: MaxKeyValuePairs.
-Performance/RedundantMerge:
-  Exclude:
-    - 'app/helpers/webui/notification_helper.rb'
-    - 'app/views/staging/staging_projects/_staging_project_item.xml.builder'
-
 # Offense count: 41
 # Cop supports --auto-correct.
 Performance/RegexpMatch:
