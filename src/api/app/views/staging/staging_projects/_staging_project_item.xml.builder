@@ -1,5 +1,5 @@
 attributes = { name: staging_project.name }
-attributes.merge!(state: staging_project.overall_state) if options[:status]
+attributes[:state] = staging_project.overall_state if options[:status]
 
 builder.staging_project(attributes) do
   if options[:requests]

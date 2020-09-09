@@ -24,7 +24,7 @@ class Webui::MonitorController < Webui::WebuiController
         end
       end
       workers_list.each do |bid, barch|
-        hostname, subid = bid.gsub(/:/, '/').split('/')
+        hostname, subid = bid.tr(':', '/').split('/')
         id = bid.gsub(%r{[:./]}, '_')
         workers[hostname] ||= {}
         workers[hostname]['_arch'] = barch
