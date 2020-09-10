@@ -44,6 +44,7 @@ our $return_ok = "<status code=\"ok\" />\n";
 our $memoized_files = {};
 our $memoized_size = 0;
 our $memoize_fn;
+our $memoize_max_size;
 
 sub stdreply {
   my @rep = @_;
@@ -113,7 +114,6 @@ sub periodic {
     unlink("$rundir/$conf->{'name'}.exit");
     exit(0);
   }
-  checkandmemoize($conf);
   if (-e "$rundir/$conf->{'name'}.restart") {
     BSServer::msg("$conf->{'name'} restarting...");
     if (system($0, "--test")) {
@@ -136,6 +136,7 @@ sub periodic {
     exec($0, '--restart', $arg, @args);
     die("$0: $!\n");
   }
+  memoize_files($memoize_fn, $memoize_max_size) if $memoize_fn;
   if ($configurationcheck++ > 10) {
     BSConfiguration::check_configuration();
     $configurationcheck = 0;
@@ -160,121 +161,108 @@ sub periodic_ajax {
   }
 }
 
-sub checkandmemoize {
-  my ($conf) = @_;
-  return unless $memoize_fn;
-  my $msize = $conf->{'memoize_max_size'};
-  return unless $msize;
-  do_memoize("$memoize_fn.read", $msize);
-  do_memoize($memoize_fn, $msize);
+sub memoize_one_file {
+  my ($fn, $msize) = @_;
+  
+  BSUtil::printlog("memoizing $fn");
+  my $sizechange = 0;
+  my $fd;
+  if (!open($fd, '<', $fn)) {
+    my $mf = delete $memoized_files->{$fn};
+    $sizechange -= length($mf->[1]) if $mf;
+  } else {
+    my @s = stat($fd);
+    return 0 unless @s;
+    my $mf = $memoized_files->{$fn};
+    if ($mf) {
+      return 0 if "$s[9]/$s[7]/$s[1]" eq $mf->[0];
+      delete $memoized_files->{$fn};
+      $sizechange -= length($mf->[1]);
+    }
+    return $sizechange if $msize && $s[7] > $msize;
+    my $d = '';
+    1 while sysread($fd, $d, 8192, length($d));
+    next unless $s[7] == length($d);
+    $memoized_files->{$fn} = [ "$s[9]/$s[7]/$s[1]", $d ];
+    $sizechange += length($d);
+  }
+  return $sizechange;
 }
 
-sub do_memoize {
-  my ($fn, $msize) = @_;
-  if (-e "$fn") {
-    my $file;
-    BSUtil::lockopen($file, '<', "$fn");
-    rename($fn, "$fn.read") || die("rename $fn $fn.read $!\n");
-    my $sizechange = 0;
-    my ($toread, $d, @s);
-    while (<$file>) {
-      next unless chop($_) eq "\n";
-      $toread = $_;
-      BSUtil::printlog("file to memoize $toread");
-      if (exists $memoized_files->{$toread} && !-e $toread) {
-        $_ = $memoized_files->{$toread}->[0] =~ /.*\/(.*)\/.*/;
-        $sizechange -= $1;
-        delete $memoized_files->{$toread};
-        next
-      }
-      @s = stat($toread);
-      next unless @s;
-      next if $s[7] > $msize;
-      if (! $memoized_files->{$toread} || $memoized_files->{$toread}->[0] ne "$s[9]/$s[7]/$s[1]") {
-        $d = readstr($toread, 1);
-        next unless $d;
-        ($memoized_files->{$toread}->[0] || "0/0/0") =~ /.*\/(.*)\/.*/;
-        $sizechange += -$1 + $s[7];
-        $memoized_files->{$toread} = ["$s[9]/$s[7]/$s[1]", $d];
-      }
-    }
-    $memoized_size += $sizechange;
-    my $inmb = $memoized_size/(1024*1024);
-    BSUtil::printlog("memoized_size is $inmb MB");# if abs($sizechange)/($memoized_size || 1) > 0.1;
-    close $file;
-    unlink("$fn.read");
+sub memoize_files {
+  my ($fnlist, $msize) = @_;
+  return unless -s $fnlist;
+  my $file;
+  return unless open($file, '<', $fnlist);
+  unlink($fnlist);
+  my $sizechange = 0;
+  my ($fn, $d, @s);
+  while ($fn = <$file>) {
+    next unless chop($fn) eq "\n";
+    next if $fn eq '' || $fn =~ /\0/s || $fn !~ /^\//;
+    $sizechange += memoize_one_file($fn, $msize);
+  }
+  $memoized_size += $sizechange;
+  my $inmb = $memoized_size / (1024*1024);
+  BSUtil::printlog(sprintf("memoized_size is %.2f MB", $inmb));# if abs($sizechange)/($memoized_size || 1) > 0.1;
+  close $file;
+}
+
+sub add_to_memoization_list {
+  my ($fn) = @_;
+  my $fd;
+  if ($memoize_fn && BSUtil::lockopen($fd, '>>', $memoize_fn)) {
+    (syswrite($fd, "$fn\n") || 0) == length("$fn\n") || warn("$memoize_fn write: $!\n");
+    close($fd) || warn("$memoize_fn close: $!\n");
   }
 }
 
 sub check_memoized {
   my ($fn, $nonfatal) = @_;
+  return undef unless $memoize_fn;
+  return undef if !defined($fn) || $fn eq '' || $fn =~ /\0/s || $fn !~ /^\//;
+  # opening and closing files helps check permissions
   my $mf = $memoized_files->{$fn};
   my $f;
   if (!open($f, '<', $fn)) {
-    die("$fn: $!\n") unless $nonfatal;
+    add_to_memoization_list($fn) if $mf;
     return undef;
   }
-  close $f; # opening and closing files helps check permissions and file existance
-  my @s = stat($fn);
-  if ($mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]") {
-    return $mf->[1];
-  }
-  BSUtil::appendstr($memoize_fn, "$fn\n") if $memoize_fn;
+  my @s = stat($f);
+  return undef unless @s;
+  close($f);
+  return $mf->[1] if $mf && $mf->[0] eq "$s[9]/$s[7]/$s[1]";
+  add_to_memoization_list($fn);
   return undef;
 }
 
 sub readstr_memoized {
   my ($fn, $nonfatal) = @_;
-  my $d = check_memoized(@_);
-  return defined $d ? $d :readstr($fn, $nonfatal);
+  my $d = check_memoized($fn, $nonfatal);
+  return $d if defined $d;
+  return readstr($fn, $nonfatal);
 }
 
 sub readxml_memoized {
   my ($fn, $dtd, $nonfatal) = @_;
-  my $d = readstr_memoized($fn, $nonfatal);
-  return $d unless defined $d;
-  if ($d !~ /<.*?>/s) {
-    die("$fn: not xml\n") unless $nonfatal;
-    return undef;
+  my $d = check_memoized($fn, $nonfatal);
+  if (defined($d)) {
+    $d = BSUtil::fromxml($d, $dtd, 1);
+    return $d if defined($d) || ($nonfatal || 0) == 1;
   }
-  return XMLin($dtd, $d) unless $nonfatal;
-  eval { $d = XMLin($dtd, $d); };
-  return $@ ? undef : $d;
+  return readxml($fn, $nonfatal);
 }
 
 sub retrieve_memoized {
   my ($fn, $nonfatal) = @_;
-  my $dd;
-  unless ($nonfatal) {
-    if (ref($fn)) {
-      $dd = Storable::fd_retrieve($fn);
-    } else {
-      $dd = check_memoized(@_);
-      $dd = BSUtil::fromstorable($dd, $nonfatal) if $dd;
-      $dd = Storable::retrieve($fn) unless $dd;
-    }
-    die("retrieve $fn: $!\n") unless $dd;
-  } else {
-    eval {
-      if (ref($fn)) {
-        $dd = Storable::fd_retrieve($fn);
-      } else {
-        $dd = check_memoized(@_);
-        $dd = BSUtil::fromstorable($dd, $nonfatal) if $dd;
-        $dd = Storable::retrieve($fn) unless $dd;
-      }
-    };
-    if (!$dd && $nonfatal == 2) {
-      if ($@) {
-        warn($@);
-      } else {
-        warn("retrieve $fn: $!\n");
-      }
-    }
+  my $d;
+  $d = check_memoized($fn, $nonfatal) unless ref($fn);
+  if (defined($d)) {
+    $d = BSUtil::fromstorable($d, 1);
+    return $d if defined($d) || ($nonfatal || 0) == 1;
   }
-  return $dd;
+  return Storable::retrieve($fn, $nonfatal);
 }
-
 
 sub serverstatus {
   my ($cgi) = @_;
@@ -378,7 +366,6 @@ sub server {
     $conf->{'logfile'} = $logfile if $logfile;
     $conf->{'ssl_keyfile'} ||= $BSConfig::ssl_keyfile if $BSConfig::ssl_keyfile;
     $conf->{'ssl_certfile'} ||= $BSConfig::ssl_certfile if $BSConfig::ssl_certfile;
-    $memoize_fn = $conf->{'memoize'} if $conf->{'memoize'};
     BSDispatch::compile($conf);
   }
   if ($request) {
@@ -462,6 +449,10 @@ sub server {
     BSServer::msg("$name started on ports $conf->{port} and $conf->{port2}");
   } else {
     BSServer::msg("$name started on port $conf->{port}");
+  }
+  if ($conf->{'memoize'}) {
+    $memoize_fn = $conf->{'memoize'};
+    $memoize_max_size = $conf->{'memoize_max_size'} if $conf->{'memoize_max_size'};
   }
   $conf->{'run'}->($conf);
   die("server returned\n");
