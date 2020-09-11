@@ -261,7 +261,7 @@ sub retrieve_memoized {
     $d = BSUtil::fromstorable($d, 1);
     return $d if defined($d) || ($nonfatal || 0) == 1;
   }
-  return Storable::retrieve($fn, $nonfatal);
+  return BSUtil::retrieve($fn, $nonfatal);
 }
 
 sub serverstatus {
