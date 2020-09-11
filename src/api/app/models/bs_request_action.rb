@@ -825,9 +825,12 @@ class BsRequestAction < ApplicationRecord
       # skip excluded patchinfos
       status = pkg.project.project_state.search("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
 
-      next if status && (s = status.search("status[@package='#{pkg.name}']").first) && s.attributes['code'].value == 'excluded'
+      if status
+        s = status.search("status[@package='#{pkg.name}']").first
+        next if s && s.attributes['code'].value == 'excluded'
 
-      raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s.attributes['code'].value == 'broken'
+        raise BuildNotFinished, "patchinfo #{pkg.name} is broken" if s && s.attributes['code'].value == 'broken'
+      end
 
       check_maintenance_release(pkg, repo, firstarch)
       true
