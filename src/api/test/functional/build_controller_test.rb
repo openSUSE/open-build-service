@@ -89,6 +89,11 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get '/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm'
     assert_response :success
+    get '/source/home:Iggy/TestPack/_meta'
+    assert_response :success
+    assert_xml_tag parent: { tag: 'build' }, tag: 'enable', attributes: { arch: 'i586', repository: '10.2' }
+    # ensure that current state got written
+    run_scheduler('i586')
     get '/build/home:Iggy/10.2/i586/TestPack/_status'
     assert_response :success
     assert_xml_tag tag: 'status', attributes: { package: 'TestPack', code: 'succeeded' }
