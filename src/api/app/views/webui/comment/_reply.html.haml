@@ -1,8 +1,14 @@
 %ul.list-inline
   - if User.session
     %li.list-inline-item
-      %button.btn.btn-outline-secondary{ data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
+      %button.btn.btn-outline-success.collapsed{ id: "reply_button_of_#{comment.id}",
+      data: { toggle: 'collapse', target: "#reply_form_of_#{comment.id}" } }
         Reply
+    - if policy(comment).update?
+      %li.list-inline-item
+        %button.btn.btn-outline-secondary.collapsed{ id: "edit_button_of_#{comment.id}",
+         data: { toggle: 'collapse', target: "#edit_form_of_#{comment.id}" } }
+          Edit
   - if policy(comment).destroy?
     %li.list-inline-item
       = render(partial: 'webui/comment/delete_dialog', locals: { comment: comment })
@@ -11,4 +17,9 @@
         Delete
 - if User.session
   .collapse{ id: "reply_form_of_#{comment.id}" }
-    = render(partial: 'webui/comment/comment_field', locals: { comment: comment.children.new, commentable: commentable })
+    = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
+     comment: comment.children.new, commentable: commentable })
+  - if policy(comment).update?
+    .collapse{ id: "edit_form_of_#{comment.id}" }
+      = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
+       comment: comment, commentable: commentable })

@@ -20,7 +20,7 @@ RSpec.describe 'Comments', type: :feature, js: true do
 
     click_button('Reply')
     within('.media') do
-      fill_in(placeholder: 'Add a new comment (markdown markup supported)', with: 'Reply Body')
+      fill_in(placeholder: 'Write your comment here... (Markdown markup is supported)', with: 'Reply Body')
       click_button('Add comment')
     end
 

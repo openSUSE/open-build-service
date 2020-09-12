@@ -20,4 +20,10 @@ class CommentPolicy < ApplicationPolicy
       record.commentable.is_target_maintainer?(user)
     end
   end
+
+  def update?
+    return false if user.blank? || user.is_nobody?
+
+    user == record.user
+  end
 end

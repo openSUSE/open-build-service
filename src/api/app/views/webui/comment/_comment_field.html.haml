@@ -1,7 +1,11 @@
-= form_for(comment, action: 'create', method: :post, remote: true, html: { class: 'new-comment-form' }) do |f|
+= form_for(comment, method: form_method, remote: true, html: { class: "#{form_method}-comment-form" }) do |f|
   = hidden_field_tag :commentable_type, commentable.class.name
   = hidden_field_tag :commentable_id, commentable.id
   = f.hidden_field :parent_id, value: comment.parent_id
-  ~ f.text_area :body, rows: '4', placeholder: 'Add a new comment (markdown markup supported)', required: true,
+  ~ f.text_area :body, rows: '4', placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
     class: 'w-100 mb-3 form-control comment-field'
-  = f.submit 'Add comment', class: 'btn btn-primary', data: { disable_with: 'Creating comment...' }
+  - case form_method
+  - when :post
+    = f.submit 'Add comment', class: 'btn btn-primary', data: { disable_with: 'Creating comment...' }
+  - when :put
+    = f.submit 'Update comment', class: 'btn btn-primary', data: { disable_with: 'Updating comment...' }

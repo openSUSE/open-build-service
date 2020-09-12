@@ -32,6 +32,28 @@ class Webui::CommentsController < Webui::WebuiController
     render(partial: 'webui/comment/comment_list', locals: { commentable: @commentable }, status: status)
   end
 
+  def update
+    comment = Comment.find(params[:id])
+    authorize comment, :update?
+    comment.assign_attributes(permitted_params)
+
+    status = if comment.save
+               flash.now[:success] = 'Comment updated successfully.'
+               :ok
+             else
+               flash.now[:error] = "Failed to update comment: #{comment.errors.full_messages.to_sentence}."
+               :unprocessable_entity
+             end
+
+    respond_to do |format|
+      format.html do
+        render(partial: 'webui/comment/comment_list',
+               locals: { commentable: comment.commentable },
+               status: status)
+      end
+    end
+  end
+
   private
 
   def permitted_params
