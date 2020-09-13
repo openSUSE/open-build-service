@@ -36,11 +36,11 @@ please review. Also you, <a href='https://unconfigured.openbuildservice.org/user
     end
 
     it 'does not crash due to a missing language in a code block' do
-      expect(rouge_markdown("```\ntext\n```")).to eq("<div class=\"CodeRay\">\n  <div class=\"code\"><pre>text\n</pre></div>\n</div>\n")
+      expect(rouge_markdown("```\ntext\n```").gsub("\n",'')).to eq("<div class=\"highlight\"><pre class=\"highlight plaintext\"><code>text</code></pre></div>")
     end
 
     it 'does apply a class to a code block with a language' do
-      expect(rouge_markdown("```ruby\ndef\n```")).to eq("<div class=\"CodeRay\">\n  <div class=\"code\"><pre><span class=\"keyword\">def</span>\n</pre></div>\n</div>\n")
+      expect(rouge_markdown("```ruby\ndef\n```").gsub("\n", '')).to eq('<div class="highlight"><pre class="highlight ruby"><code><span class="k">def</span></code></pre></div>')
     end
 
     it 'does remove dangerous html from the view' do
@@ -48,13 +48,13 @@ please review. Also you, <a href='https://unconfigured.openbuildservice.org/user
     end
 
     it 'does remove dangerous html from inside the code blocks with a language' do
-      expect(rouge_markdown("```html\n<script></script>\n```")).to eq(
-                                                                           "<div class=\"CodeRay\">\n  <div class=\"code\"><pre><span class=\"tag\">&lt;script&gt;</span><span class=\"tag\">&lt;/script&gt;</span>\n</pre></div>\n</div>\n"
-                                                                       )
+      expect(rouge_markdown("```html\n<script></script>\n```").gsub("\n", '')).to eq(
+                                                                       '<div class="highlight"><pre class="highlight html"><code><span class="nt">&lt;script&gt;&lt;/script&gt;</span></code></pre></div>'
+                                                                   )
     end
 
     it 'does remove dangerous html from inside the code blocks without a language' do
-      expect(rouge_markdown("```\n<script></script>\n```")).to eq("<div class=\"CodeRay\">\n  <div class=\"code\"><pre>&lt;script&gt;&lt;/script&gt;\n</pre></div>\n</div>\n")
+      expect(rouge_markdown("```\n<script></script>\n```").gsub("\n", '')).to eq('<div class="highlight"><pre class="highlight plaintext"><code>&lt;script&gt;&lt;/script&gt;</code></pre></div>')
     end
 
     it 'does remove dangerous html from inside the links' do
