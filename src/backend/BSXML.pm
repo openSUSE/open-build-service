@@ -1935,6 +1935,7 @@ our $report = [
 	    'buildtime',
 	    'buildhost',
 	    'disturl',
+	    'license',
 	    'binaryid',
 	    'supportstatus',
 	    'cpeid',

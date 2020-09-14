@@ -2905,6 +2905,7 @@ sub createreport {
         'binaryarch' => $s[4],
       };
       $bin->{'disturl'} = $s[5] if $s[5] ne '(none)' && $s[5] ne 'None';
+      $bin->{'license'} = $s[6] if $s[6];
       $bin->{'package'} = $1 if $s[5] =~ /.*\/[^-]*-(.*)$/; # container case
       $bin->{'epoch'} = $s[1] if $s[1] ne '' && $s[1] ne '(none)' && $s[1] ne 'None';
       if ($s[1] eq 'None' && $s[3] eq 'None') {
