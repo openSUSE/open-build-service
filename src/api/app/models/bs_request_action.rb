@@ -738,7 +738,7 @@ class BsRequestAction < ApplicationRecord
                                            { follow_project_links: true,
                                              follow_multibuild: true,
                                              check_update_project: true })
-    self.target_project = tpkg.project.name
+    self.target_project = tpkg.project.update_instance.name
   end
 
   def source_access_check!
