@@ -405,6 +405,11 @@ XmlBody: none
 XmlResult: status
 
 
+GET /source/<project>/_keyinfo
+
+XmlResult: keyinfo
+
+
 GET /source/<project>/_pubkey
 
   Get project GPG key. If the project has no own key (default), it uses
