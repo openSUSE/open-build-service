@@ -2507,7 +2507,8 @@ sub copybuild {
       # directories are stripped of the build/release number by default
       if (!defined($setrelease)) {
         $setrelease = '' if -d "$odir/$bin";
-        $setrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";	# need to keep report in sync with dir
+        $setrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";    # need to keep report in sync with dir
+        $setrelease = '' if $bin =~ /^(.*)\.milestone$/ && -d "$odir/$1"; # need to keep milestone as well
       }
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
