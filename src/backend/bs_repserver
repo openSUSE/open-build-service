@@ -2516,10 +2516,22 @@ sub copybuild {
         # we must ensure to run only one of the following, because people
         # overwrite -BuildX.Y part with -BuildV.W (using not matching numbers)
         # but this must not lead to double matches
-        # kiwi product || appliance
-        $nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
-           $nbin =~ s/-Build[\d.]+\./$setrelease./;
+
+        my $oldsetrelease;
+        $oldsetrelease = readstr("$odir/.setrelease") if -e "$odir/.setrelease";
+	if (defined($oldsetrelease)) {
+	  if ($oldsetrelease ne $oldsetrelease) {
+            # kiwi product || appliance
+            $nbin =~ s/(-\Q$oldsetrelease\E)(-Media\d?(?:\..*?)?)$/-$setrelease$2/ ||
+               $nbin =~ s/$oldsetrelease\./$setrelease./;
+          }
+        } else {
+          # kiwi product || appliance
+          $nbin =~ s/-([^-]+)(-Media\d?(?:\..*?)?)$/$setrelease$2/ ||
+             $nbin =~ s/-Build[\d.]+\./$setrelease./;
+        }
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
+        writestr("$dir/.setrelease", undef, $setrelease);
       }
       $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
