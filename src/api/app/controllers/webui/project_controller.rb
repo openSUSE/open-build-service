@@ -408,10 +408,10 @@ class Webui::ProjectController < Webui::WebuiController
     # FIXME: this code needs some love
     defaults = if params[:defaults]
                  (begin
-                    Integer(params[:defaults])
-                  rescue ArgumentError
-                    1
-                  end).positive?
+                   Integer(params[:defaults])
+                 rescue ArgumentError
+                   1
+                 end).positive?
                else
                  true
                end
