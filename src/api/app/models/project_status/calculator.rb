@@ -22,11 +22,8 @@ module ProjectStatus
         projects[project_id] = project_name
       end
 
-      unless opts[:pure_project]
-        projects.each_key do |id|
-          update_jobhistory(Project.find(id), mypackages) if id == @dbproj.id
-        end
-      end
+      selected_projects = projects.keys.select { |project_id| !opts[:pure_project] || project_id == @dbproj.id }
+      selected_projects.each { |project_id| update_jobhistory(Project.find(project_id), mypackages) }
 
       # cleanup
       mypackages.each_key do |key|
