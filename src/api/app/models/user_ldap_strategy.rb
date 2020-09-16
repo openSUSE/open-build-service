@@ -194,6 +194,8 @@ class UserLdapStrategy
     user = nil
     user_filter = ''
 
+    # TODO: This should be refactored
+    # rubocop:disable Lint/UselessTimes
     1.times do
       @@ldap_search_con = initialize_ldap_con(CONFIG['ldap_search_user'], CONFIG['ldap_search_auth']) if @@ldap_search_con.nil?
       ldap_con = @@ldap_search_con
@@ -221,6 +223,7 @@ class UserLdapStrategy
         return
       end
     end
+    # rubocop:enable Lint/UselessTimes
 
     if user.nil?
       Rails.logger.info('User not found in ldap')
