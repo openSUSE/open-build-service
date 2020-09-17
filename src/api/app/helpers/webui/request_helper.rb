@@ -115,54 +115,72 @@ module Webui::RequestHelper
     "#{diff['project']} / #{diff['package']} (rev #{diff['rev']})"
   end
 
-  # rubocop:disable Style/FormatString
+  # rubocop:disable Style/FormatString, Metrics/PerceivedComplexity
   def request_action_header(action, creator)
-    source_project_hash = { project: action[:sprj], package: action[:spkg], trim_to: nil }
+    # FIXME: Remove assignments once we don't call anymore this helper with keys on the right side of the assignment
+    #        (those keys come from bs_request.webui_actions method)
+    action[:source_project] ||= action[:sprj]
+    action[:source_package] ||= action[:spkg]
+    action[:target_project] ||= action[:tprj]
+    action[:target_package] ||= action[:tpkg]
+    action[:target_repository] ||= action[:trepo]
+    action[:person_name] ||= action[:user]
+    action[:group_name] ||= action[:group]
 
-    case action[:type]
+    source_project_hash = { project: action[:source_project], package: action[:source_package], trim_to: nil }
+    target_project_hash = { project: action[:target_project], package: action[:target_package] }
+
+    case action[:type].to_sym
     when :submit
       'Submit %{source_container} to %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :delete
-      target_repository = "repository #{link_to(action[:trepo], repositories_path(project: action[:tprj], repository: action[:trepo]))} for " if action[:trepo]
+      target_repository = if action[:target_repository]
+                            link_to_repository = link_to(action[:target_repository],
+                                                         repositories_path(project: action[:target_project],
+                                                                           repository: action[:target_repository]))
+                            "repository #{link_to_repository} for "
+                          else
+                            ''
+                          end
 
       'Delete %{target_repository}%{target_container}' % {
         target_repository: target_repository,
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :add_role, :set_bugowner
       '%{creator} wants %{requester} to %{task} for %{target_container}' % {
         creator: user_with_realname_and_icon(creator),
-        requester: requester_str(creator, action[:user], action[:group]),
+        requester: requester_str(creator, action[:person_name], action[:group_name]),
         task: creator_intentions(action[:role]),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :change_devel
       'Set the devel project to %{source_container} for %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :maintenance_incident
       source_project_hash.update(homeproject: creator)
       'Submit update from %{source_container} to %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :maintenance_release
       'Maintenance release %{source_container} to %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     when :release
       'Release %{source_container} to %{target_container}' % {
         source_container: project_or_package_link(source_project_hash),
-        target_container: project_or_package_link(project: action[:tprj], package: action[:tpkg])
+        target_container: project_or_package_link(target_project_hash)
       }
     end.html_safe
   end
-  # rubocop:enable Style/FormatString
+  # rubocop:enable Style/FormatString, Metrics/PerceivedComplexity
 
   def list_maintainers(maintainers)
     maintainers.pluck(:login).map do |maintainer|

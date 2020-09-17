@@ -19,7 +19,7 @@
           - notification = NotificationPresenter.new(n)
           .list-group-item.px-2.notifications-grid-container
             .notifiable
-              - if notification.notifiable_type == 'BsRequest'
+              - if notification.for_request?
                 = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
                 = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
                 %span.badge{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
@@ -38,8 +38,8 @@
                         method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
                 %i.fas{ class: "#{icon}" }
             .content
-              - if notification.kind_of_request
-                %p.text-word-break-all.m-0.mb-2= notification.kind_of_request
+              - if notification.for_request?
+                %p.text-word-break-all.m-0.mb-2= notification.request_actions
               %p.d-none.d-md-block.font-weight-light
                 %em= notification.excerpt
             %small.who-when.d-flex.align-self-center.align-self-md-start.justify-content-start.justify-content-md-end.font-weight-light

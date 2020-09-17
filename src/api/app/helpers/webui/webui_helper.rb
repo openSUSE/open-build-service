@@ -216,14 +216,12 @@ module Webui::WebuiHelper
     opts[:short] = true # for project
     out += link_to_project(prj, opts) + ' / ' +
            link_to_if(pkg, opts[:package_text],
-                      { controller: '/webui/package', action: 'show',
-                        project: opts[:project],
-                        package: opts[:package] }, class: 'package', title: opts[:package])
+                      Rails.application.routes.url_helpers.package_show_path(opts[:project], opts[:package]),
+                      class: 'package', title: opts[:package])
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
-                     { controller: '/webui/package', action: 'show',
-                       project: opts[:project], package: opts[:package], rev: opts[:rev] },
+                     Rails.application.routes.url_helpers.package_show_path(opts[:project], opts[:package], opts[:rev]),
                      class: 'package', title: opts[:rev]) + ')'.html_safe
     end
     out
@@ -238,7 +236,7 @@ module Webui::WebuiHelper
           end
     project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
     out + link_to_if(prj, project_text,
-                     { controller: '/webui/project', action: 'show', project: opts[:project] },
+                     Rails.application.routes.url_helpers.project_show_path(opts[:project]),
                      class: 'project', title: opts[:project])
   end
 

@@ -40,13 +40,18 @@ class NotificationPresenter < SimpleDelegator
     text.to_s.truncate(100)
   end
 
-  def kind_of_request
-    return unless @model.notifiable_type == 'BsRequest'
+  def for_request?
+    @model.notifiable_type == 'BsRequest'
+  end
 
+  def request_actions
     request = @model.notifiable
-    return "Multiple actions for project #{request.bs_request_actions.first.target_project}" if request.bs_request_actions.size > 1
+    request_action = request.bs_request_actions.first
+    return "Multiple actions for project #{request_action.target_project}" if request.bs_request_actions.size > 1
 
-    BsRequest.actions_summary(@model.event_payload)
+    # This is to avoid relying on bs_request.webui_actions, which is a method we need to remove
+    request_action_hash = request_action.serializable_hash.merge(type: request_action.type).with_indifferent_access
+    Webui::WebuiController.helpers.request_action_header(request_action_hash, request.creator)
   end
 
   def commenters
