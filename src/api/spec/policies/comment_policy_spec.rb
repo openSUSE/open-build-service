@@ -16,6 +16,8 @@ RSpec.describe CommentPolicy do
 
   subject { CommentPolicy }
 
+  # rubocop:disable RSpec/RepeatedExample
+  # This cop is currently not recognizing the permissions block as separate test
   permissions :destroy? do
     it 'Not logged users cannot destroy comments' do
       expect(subject).not_to permit(nil, comment)
@@ -36,6 +38,7 @@ RSpec.describe CommentPolicy do
     it 'User cannot destroy comments of other user' do
       expect(subject).not_to permit(user, comment)
     end
+    # rubocop:enable RSpec/RepeatedExample
 
     context 'with a comment of a Package' do
       before do
@@ -67,4 +70,39 @@ RSpec.describe CommentPolicy do
       it { expect(subject).not_to permit(other_user, comment_on_request) }
     end
   end
+
+  # rubocop:disable RSpec/RepeatedExample
+  # This cop is currently not recognizing the permissions block as separate test
+  permissions :update? do
+    it 'an anonymous user cannot update comments' do
+      expect(subject).not_to permit(nil, comment)
+    end
+
+    it 'an admin user cannot update other comments' do
+      expect(subject).not_to permit(admin_user, comment)
+    end
+
+    it 'a user can update his own comments' do
+      expect(subject).to permit(comment_author, comment)
+    end
+
+    it 'a user cannot update comments of other users' do
+      expect(subject).not_to permit(other_user, comment)
+    end
+
+    context 'with an anonymous user comment' do
+      it 'a normal user is unable to update an anonymous user comment' do
+        expect(subject).not_to permit(other_user, comment_deleted_user)
+      end
+
+      it 'an admin user is unable to update an anonymous user comment' do
+        expect(subject).not_to permit(admin_user, comment_deleted_user)
+      end
+
+      it 'an anonymous user is unable to update an anonymous user comment' do
+        expect(subject).not_to permit(anonymous_user, comment_deleted_user)
+      end
+    end
+  end
+  # rubocop:enable RSpec/RepeatedExample
 end

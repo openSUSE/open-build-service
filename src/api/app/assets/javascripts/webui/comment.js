@@ -19,11 +19,17 @@ $(document).ready(function(){
     resizeTextarea(this);
   });
 
-  $('.comments-list').on('ajax:complete', '.new-comment-form', function(_, data) {
+  $('.comments-list').on('ajax:complete', '.post-comment-form', function(_, data) {
     var $commentsList = $(this).closest('.comments-list');
 
     $commentsList.html(data.responseText);
     updateCommentCounter($commentsList.data('comment-counter'), 1);
+  });
+
+  $('.comments-list').on('ajax:complete', '.put-comment-form', function(_, data) {
+    var $commentsList = $(this).closest('.comments-list');
+
+    $commentsList.html(data.responseText);
   });
 
   $('.comments-list').on('ajax:complete', '.delete-comment-form', function(_, data) {
@@ -37,5 +43,17 @@ $(document).ready(function(){
       updateCommentCounter($commentsList.data('comment-counter'), -1);
       $commentsList.html(data.responseText);
     });
+  });
+
+  $('body').on('click', 'button[id*="edit_button_of_"]', function (e) {
+    var closest = $(e.target).parent().parent().find('button[id*="reply_button_of_"]');
+    if (!closest.hasClass('collapsed'))
+      closest.trigger('click');
+  });
+
+  $('body').on('click', 'button[id*="reply_button_of_"]', function (e) {
+    var closest = $(e.target).parent().parent().find('button[id*="edit_button_of_"]');
+    if (!closest.hasClass('collapsed'))
+      closest.trigger('click');
   });
 });
