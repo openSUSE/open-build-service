@@ -4,7 +4,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user, :with_home) }
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
-  let(:broken_package_with_error) { create(:package_with_failed_comment_attribute, project: project, name: 'broken_package') }
+  let(:broken_package_with_error) { create(:package, project: project, name: 'broken_package') }
 
   it 'project show' do
     login user
@@ -13,15 +13,6 @@ RSpec.describe 'Projects', type: :feature, js: true do
     expect(page).to have_text('This project does not contain any package')
     expect(page).to have_text(project.description)
     expect(page).to have_css('h3', text: project.title)
-  end
-
-  it 'project status' do
-    login user
-    broken_package_with_error
-    visit project_status_path(project_name: project)
-    uncheck('limit_to_fails')
-    click_button('Filter results')
-    expect(page).to have_text('Status of')
   end
 
   it 'changing project title and description' do

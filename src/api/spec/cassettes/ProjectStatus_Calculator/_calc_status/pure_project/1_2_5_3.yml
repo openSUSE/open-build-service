@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_used_for_restoration/_meta?user=user_25
+    uri: http://backend:5352/source/project_used_for_restoration/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
@@ -37,10 +37,10 @@ http_interactions:
           <title>restoration_project_title</title>
           <description></description>
         </project>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=user_26
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
@@ -75,10 +75,10 @@ http_interactions:
           <title>restoration_title_0</title>
           <description>restoration_desc_0</description>
         </package>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=user_26
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0/_meta?user=user_11
     body:
       encoding: UTF-8
       string: |
@@ -113,10 +113,10 @@ http_interactions:
           <title>restoration_title_0</title>
           <description>restoration_desc_0</description>
         </package>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=user_27
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
@@ -151,10 +151,10 @@ http_interactions:
           <title>restoration_title_1</title>
           <description>restoration_desc_1</description>
         </package>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=user_27
+    uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
@@ -189,7 +189,7 @@ http_interactions:
           <title>restoration_title_1</title>
           <description>restoration_desc_1</description>
         </package>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0?view=info
@@ -222,7 +222,7 @@ http_interactions:
         <sourceinfo package="restoration_package_0" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0
@@ -254,7 +254,7 @@ http_interactions:
       string: |
         <directory name="restoration_package_0" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:05 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_0?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -291,7 +291,7 @@ http_interactions:
           <new project="project_used_for_restoration" package="restoration_package_0" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1?view=info
@@ -324,7 +324,7 @@ http_interactions:
         <sourceinfo package="restoration_package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:06 GMT
 - request:
     method: get
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1
@@ -356,7 +356,7 @@ http_interactions:
       string: |
         <directory name="restoration_package_1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:06 GMT
 - request:
     method: post
     uri: http://backend:5352/source/project_used_for_restoration/restoration_package_1?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -393,5 +393,41 @@ http_interactions:
           <new project="project_used_for_restoration" package="restoration_package_1" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Thu, 04 Jun 2020 21:22:19 GMT
+  recorded_at: Thu, 17 Sep 2020 07:57:06 GMT
+- request:
+    method: get
+    uri: http://backend:5352/getprojpack?expandedrepos=1&nopackages=1&project=project_used_for_restoration&withrepos=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '180'
+    body:
+      encoding: UTF-8
+      string: |
+        <projpack repoid="728844991">
+          <project name="project_used_for_restoration">
+            <title>restoration_project_title</title>
+            <description></description>
+          </project>
+        </projpack>
+  recorded_at: Thu, 17 Sep 2020 07:57:06 GMT
 recorded_with: VCR 6.0.0
