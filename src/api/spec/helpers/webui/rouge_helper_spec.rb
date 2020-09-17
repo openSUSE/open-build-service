@@ -63,5 +63,4 @@ please review. Also you, <a href='https://unconfigured.openbuildservice.org/user
       # rubocop:enable Layout/LineLength
     end
   end
-
 end
