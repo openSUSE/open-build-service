@@ -1,4 +1,4 @@
-require Rails.root.join('lib','obsapi','markdown_renderer.rb')
+require Rails.root.join('lib/obsapi/markdown_renderer.rb')
 
 module OBSApi
   class RougeRenderer < OBSApi::MarkdownRenderer
