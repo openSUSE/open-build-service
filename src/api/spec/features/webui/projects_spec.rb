@@ -15,15 +15,6 @@ RSpec.describe 'Projects', type: :feature, js: true do
     expect(page).to have_css('h3', text: project.title)
   end
 
-  it 'project status' do
-    login user
-    broken_package_with_error
-    visit project_status_path(project_name: project)
-    uncheck('limit_to_fails')
-    click_button('Filter results')
-    expect(page).to have_text('Status of')
-  end
-
   it 'changing project title and description' do
     login user
     visit project_show_path(project: project)
