@@ -12,7 +12,7 @@
     - else
       .text-center
         %span.ml-3= page_entries_info notifications, entry_name: 'notification'
-        = link_to_all unless notifications.total_pages == 1 && params['show_all'].nil?
+        = link_to_all unless notifications.total_pages == 1 && params[:show_all].nil?
 
       .list-group.list-group-flush.mt-3
         - notifications.each do |n|
@@ -29,7 +29,8 @@
                 = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
             .actions.ml-auto.align-self-end.align-self-md-start
               - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
-              - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project])
+              - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project],
+                page: params[:page], show_all: params[:show_all])
               = link_to(update_path, id: format('update-notification-%d', notification.id),
                         method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
                 %i.fas{ class: "#{icon}" }

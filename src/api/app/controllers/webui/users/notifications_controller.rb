@@ -79,7 +79,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
                     else
                       NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
                     end
-    params['show_all'] ? show_all(notifications) : notifications.page(params[:page])
+    params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
   end
 
   def notifications_filter
