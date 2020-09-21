@@ -27,6 +27,9 @@
               - else
                 %i.fas.fa-comments{ title: 'Comment notification' }
                 = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
+                - if notification.event_type == 'Event::CommentForRequest'
+                  %span.badge{ class: "badge badge-#{request_badge_color(notification.notifiable.commentable.state)}" }
+                    = notification.notifiable.commentable.state
             .actions.ml-auto.align-self-end.align-self-md-start
               - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
               - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project],
