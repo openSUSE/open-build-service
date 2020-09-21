@@ -1,6 +1,6 @@
 module Webui::NotificationHelper
   def link_to_all
-    parameters = params.slice(:show_all, :type, :project, :page).permit!
+    parameters = params.slice(:show_all, :type, :project).permit!
     all_or_less = parameters[:show_all] ? 'less' : 'all'
     parameters[:show_all] = parameters[:show_all] ? nil : '1'
     link_to("Show #{all_or_less}", my_notifications_path(parameters), class: 'btn btn-sm btn-secondary ml-2')
