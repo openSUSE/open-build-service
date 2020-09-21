@@ -41,4 +41,4 @@
               = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
               %span.d-inline-block.text-nowrap.ml-2 #{time_ago_in_words(notification.created_at)} ago
 
-      = paginate notifications, views_prefix: 'webui', window: 2
+      = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
