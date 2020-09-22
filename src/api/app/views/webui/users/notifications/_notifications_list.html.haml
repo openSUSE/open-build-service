@@ -37,7 +37,8 @@
             .content
               - if notification.kind_of_request
                 %p.text-word-break-all.m-0.mb-2= notification.kind_of_request
-              %p.d-none.d-md-block.font-weight-light= notification.excerpt
+              %p.d-none.d-md-block.font-weight-light
+                %em= notification.excerpt
             %small.who-when.d-flex.align-self-center.align-self-md-start.justify-content-start.justify-content-md-end.font-weight-light
               = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
               %span.d-inline-block.text-nowrap.ml-2 #{time_ago_in_words(notification.created_at)} ago
