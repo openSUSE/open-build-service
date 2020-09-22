@@ -878,7 +878,8 @@ class BsRequestAction < ApplicationRecord
 
     tprj = Project.get_by_name(target_project)
     if tprj.is_a?(Project)
-      if tprj.is_maintenance_release? && action_type == :submit
+      if tprj.is_maintenance_release? && action_type == :submit &&
+         !tprj.find_attribute('OBS', 'AllowSubmitToMaintenanceRelease')
         raise SubmitRequestRejected, "The target project #{target_project} is a maintenance release project, " \
                                      'a submit self is not possible, please use the maintenance workflow instead.'
       end
