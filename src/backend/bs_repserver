@@ -2692,9 +2692,11 @@ sub forwardevent {
     # those events stack - we must not overwrite them. randomize somewhat.
     $evname = "type:::$$-".Digest::MD5::md5_hex("$$/$evname".time());
   }
-  mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
-    dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
+    mkdir_p("$eventdir/$arch");
+    if ($arch ne 'dispatch' && $arch ne 'publish') {
+      dirty($projid, $repoid, $arch) if defined($repoid) || $type eq 'project' || $type eq 'package';
+    }
     writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   } else {
@@ -2711,7 +2713,7 @@ sub forwardevent {
     for my $a (@archs) {
       eval {
         mkdir_p("$eventdir/$a");
-        dirty($projid, $repoid, $a) if defined $repoid;
+        dirty($projid, $repoid, $a) if defined($repoid) || $type eq 'project' || $type eq 'package';
         writexml("$eventdir/$a/.$evname.$$", "$eventdir/$a/$evname", $ev, $BSXML::event);
         BSUtil::ping("$eventdir/$a/.ping");
       };

@@ -471,6 +471,8 @@ class BsRequestAction < ApplicationRecord
         results = pkg.project.build_results
         raise BuildNotFinished, "The project'#{pkg.project.name}' has no building repositories" unless results
 
+        found_patchinfo = check_patchinfo(pkg)
+
         versrel = {}
         results.each do |result|
           repo = result.attributes['repository']
@@ -494,7 +496,6 @@ class BsRequestAction < ApplicationRecord
             versrel[repo][package] ||= vrel
           end
         end
-        found_patchinfo = check_patchinfo(pkg)
       end
 
       # re-route (for the kgraft case building against GM or former incident)
