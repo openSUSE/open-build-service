@@ -17,9 +17,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     authorize notification, policy_class: NotificationPolicy
 
     if notification.toggle(:delivered).save
-      flash[:success] = "Successfully marked the notification as #{notification.unread? ? 'unread' : 'read'}"
+      flash.now[:success] = "Successfully marked the notification as #{notification.unread? ? 'unread' : 'read'}"
     else
-      flash[:error] = "Couldn't mark the notification as #{notification.unread? ? 'read' : 'unread'}"
+      flash.now[:error] = "Couldn't mark the notification as #{notification.unread? ? 'read' : 'unread'}"
     end
 
     respond_to do |format|
