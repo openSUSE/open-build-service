@@ -30,7 +30,7 @@ RSpec.describe BackfillNotifiedProjects, type: :migration, vcr: true do
 
     before do
       create(:notification, :request_state_change, notifiable: bs_request_with_submit_action)
-      create(:notification, :review_wanted, notifiable: user_review)
+      create(:notification, :review_wanted, notifiable: user_review.bs_request)
       create(:notification, :comment_for_project, notifiable: comment_project)
       create(:notification, :comment_for_package, notifiable: comment_package)
       create(:notification, :comment_for_request, notifiable: comment_request)

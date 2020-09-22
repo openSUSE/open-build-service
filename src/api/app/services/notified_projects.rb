@@ -19,8 +19,6 @@ class NotifiedProjects
       when 'BsRequest'
         @notifiable.commentable.target_project_objects.distinct
       end
-    when 'Review'
-      @notifiable.bs_request.target_project_objects.distinct
     end
   end
 end

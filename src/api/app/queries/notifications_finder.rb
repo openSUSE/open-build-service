@@ -30,8 +30,6 @@ class NotificationsFinder
     case type
     when 'read'
       notifications.read
-    when 'reviews'
-      notifications.unread.where(notifiable_type: 'Review')
     when 'comments'
       notifications.unread.where(notifiable_type: 'Comment')
     when 'requests'
