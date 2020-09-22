@@ -30,11 +30,3 @@ body {
     }
   }
 }
-
-// Sticky bottom
-.sticky-bottom {
-    position: -webkit-sticky;
-    position: sticky;
-    bottom: 0;
-    z-index: 1020;
-}
