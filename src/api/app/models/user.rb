@@ -52,7 +52,6 @@ class User < ApplicationRecord
 
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :all_without_nobody, -> { where.not(login: NOBODY_LOGIN) }
-  scope :not_deleted, -> { where.not(state: 'deleted') }
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.unscoped.where(state: :subaccount, owner: User.unscoped.confirmed)) }
@@ -70,6 +69,9 @@ class User < ApplicationRecord
   scope :with_email, -> { where.not(email: [nil, '']) }
 
   scope :recently_seen, -> { where('last_logged_in_at > ?', 3.months.ago) }
+
+  # do not access deleted users, except you must
+  default_scope { where.not(state: 'deleted') }
 
   validates :login, :state, presence: { message: 'must be given' }
 
@@ -149,7 +151,7 @@ class User < ApplicationRecord
   end
 
   def self.autocomplete_login(prefix = '')
-    with_login_prefix(prefix).not_deleted.not_locked.limit(50).order(:login).pluck(:login)
+    with_login_prefix(prefix).not_locked.limit(50).order(:login).pluck(:login)
   end
 
   # the default state of a user based on the api configuration
@@ -261,7 +263,7 @@ class User < ApplicationRecord
   end
 
   def self.find_by_login!(login)
-    user = not_deleted.find_by(login: login)
+    user = find_by(login: login)
     return user if user
 
     raise NotFoundError, "Couldn't find User with login = #{login}"
@@ -649,6 +651,10 @@ class User < ApplicationRecord
       project.commit_opts = { comment: 'User account got deleted' }
       project.destroy
     end
+
+    # wipe affected caches
+    involved_projects.each(&:reset_cache)
+    involved_packages.each(&:reset_cache)
 
     RabbitmqBus.send_to_bus('metrics', 'user.delete value=1') unless state_before_last_save == 'deleted'
     true
