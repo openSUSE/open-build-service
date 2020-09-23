@@ -2153,12 +2153,15 @@ sub publish {
           $kiwimedium = "$arch/$1" if !$2 && -e "$r/$1.packages";
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
         } elsif ($bin =~ /\.packages$/) {
+          # FIXME2.11: to be removed
+	  next unless $config->{'publishflags:withreports'};
           $p = $bin;
 	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect reports
 	  $kiwireport{"$arch/$1"} = readxml("$r/$rbin", $BSXML::report, 1) if $do_packtrack || $do_sourcepublish;
-	  next;
+	  next unless $config->{'publishflags:withreports'};
+	  $p = $bin;
 	} elsif ($bin =~ /^(.*)\.index$/) {
 	  # collect virt-builder index parts
 	  $kiwiindex .= readstr("$r/$bin", 1) . "\n";
