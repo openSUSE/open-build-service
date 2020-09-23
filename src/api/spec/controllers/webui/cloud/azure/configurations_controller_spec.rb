@@ -5,15 +5,17 @@ require 'rails_helper'
 # CONFIG['global_write_through'] = true
 
 RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller, vcr: true do
-  let!(:user) { create(:confirmed_user, login: 'tom') }
-
-  before do
-    login(user)
-  end
+  let(:user) { create(:confirmed_user, login: 'tom') }
 
   describe 'GET #show' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :show }
+    end
+
     context 'without Azure configuration' do
       before do
+        login(user)
         get :show
       end
 
@@ -26,6 +28,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
       let!(:azure_configuration) { create(:azure_configuration, user: user) }
 
       before do
+        login(user)
         get :show
       end
 
@@ -34,11 +37,19 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   end
 
   describe 'PUT #update' do
-    let(:azure_configuration) { create(:azure_configuration, user: user) }
+    let!(:azure_configuration) { create(:azure_configuration, user: user) }
+
+    it_behaves_like 'require logged in user' do
+      let(:method) { :put }
+      let(:action) { :update }
+      let(:opts) do
+        { params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } } }
+      end
+    end
 
     context 'with valid parameters' do
       before do
-        azure_configuration
+        login(user)
         put :update, params: { cloud_azure_configuration: { application_id: 'random_string', application_key: 'random_string_2' } }
         azure_configuration.reload
       end
@@ -48,7 +59,7 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
 
     context 'with invalid parameters' do
       before do
-        azure_configuration
+        login(user)
         put :update, params: { cloud_azure_configuration: { application_id: '' } }
         azure_configuration.reload
       end
@@ -60,12 +71,19 @@ RSpec.describe Webui::Cloud::Azure::ConfigurationsController, type: :controller,
   describe 'DELETE #destroy' do
     let(:azure_configuration) { create(:azure_configuration, user: user) }
 
-    before do
-      azure_configuration
-      delete :destroy
+    it_behaves_like 'require logged in user' do
+      let(:method) { :delete }
+      let(:action) { :destroy }
     end
 
-    it { expect(flash[:success]).not_to be_nil }
-    it { expect(response).to redirect_to(cloud_azure_configuration_path) }
+    context 'for logged in user' do
+      before do
+        login(user)
+        delete :destroy
+      end
+
+      it { expect(flash[:success]).not_to be_nil }
+      it { expect(response).to redirect_to(cloud_azure_configuration_path) }
+    end
   end
 end
