@@ -568,6 +568,7 @@ sub addrev {
     die("403 package '$packid' is read-only if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
   }
   die("403 package '$packid' is read-only\n") if $packid =~ /(?<!^_product)(?<!^_patchinfo):./;
+  die("_project must not be a link\n") if $packid eq '_project' && $files->{'_link'};
   my $user = $cgi->{'user'};
   my $comment = $cgi->{'comment'};
   my $requestid = $cgi->{'requestid'};
@@ -677,8 +678,11 @@ sub addrev {
       $acceptinfo->{'srcmd5'} = $rev->{'srcmd5'};
       $rev->{'acceptinfo'} = $acceptinfo;
     }
-    notify_repservers('project', $projid);
-    notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
+    # check if the commit included a project config change
+    if (($files_old->{'_config'} || '') ne ($files->{'_config'} || '')) {
+      notify_repservers('project', $projid);
+      notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "files" => $filestr, "comment" => $comment, "sender" => $user });
+    }
     return $rev;
   }
 
