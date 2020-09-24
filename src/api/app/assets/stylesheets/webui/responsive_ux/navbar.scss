@@ -24,6 +24,7 @@
       transition: visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
       transition: transform .3s ease-in-out, visibility .3s ease-in-out;
       transition: transform .3s ease-in-out, visibility .3s ease-in-out, -webkit-transform .3s ease-in-out;
+      z-index: calc(#{$zindex-fixed} + 3); // Collapsable navbars are the second element in our hierarchy
 
       & a {
         color: $gray-300;
@@ -34,7 +35,6 @@
         visibility: visible;
         -webkit-transform: translateX(-100%);
         transform: translateX(-100%);
-        z-index: calc(#{$zindex-fixed} - 1); // To not overlap fixed elements
       }
 
       button.navbar-toggler {

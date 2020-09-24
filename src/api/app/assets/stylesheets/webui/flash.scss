@@ -1,5 +1,5 @@
 .flash-and-announcement.sticky-top {
-  z-index: 1030;
+  z-index: 1031; // This is the third item in our hierarchy
 
   &.sticking {
     .alert { margin-bottom: 0; }

@@ -6,7 +6,7 @@
 // NAVIGATION
 
 #top-navigation-area {
-  .fixed-top { height: $top-navigation-height; }
+  .fixed-top { height: $top-navigation-height; } // This is our fourth item in our hierarchy, but it comes already pre-defined from Bootstrap
   .toggler {
     @extend .ml-2;
     @extend .d-none;
