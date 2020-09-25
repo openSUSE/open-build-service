@@ -287,7 +287,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/search' do
-      match 'search' => :index, via: [:get, :post]
+      get 'search' => :index
       get 'search/owner' => :owner
       get 'search/issue' => :issue
     end
