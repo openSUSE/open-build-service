@@ -13,18 +13,19 @@ class NotificationPresenter < SimpleDelegator
     case @model.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
       { text: "Request ##{@model.notifiable.number}",
-        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number) }
+        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number, notification_id: @model.id) }
     when 'Event::CommentForRequest'
       { text: "Request ##{@model.notifiable.commentable.number}",
-        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, anchor: 'comments-list') }
+        path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForProject'
       { text: @model.notifiable.commentable.name,
-        path: Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, anchor: 'comments-list') }
+        path: Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForPackage'
       commentable = @model.notifiable.commentable
       { text: "#{commentable.project.name} / #{commentable.name}",
         path: Rails.application.routes.url_helpers.package_show_path(package: @model.notifiable.commentable,
                                                                      project: @model.notifiable.commentable.project,
+                                                                     notification_id: @model.id,
                                                                      anchor: 'comments-list') }
     else
       {}

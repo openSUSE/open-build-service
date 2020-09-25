@@ -49,4 +49,14 @@ module Webui::NotificationHelper
   def badge_color(filter_item, selected_filter)
     notification_filter_matches(filter_item, selected_filter) ? 'badge-light' : 'badge-primary'
   end
+
+  def mark_as_read_or_unread_button(notification)
+    update_path = my_notification_path(id: notification.id)
+    title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
+    link_to(update_path, id: "update-notification-#{notification.id}", method: :put,
+                         class: 'btn btn-sm btn-outline-success', title: title) do
+      concat(tag.i(class: "#{icon} fas"))
+      concat " #{title}"
+    end
+  end
 end

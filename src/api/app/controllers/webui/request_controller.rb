@@ -117,6 +117,8 @@ class Webui::RequestController < Webui::WebuiController
     @comments = @bs_request.comments
     @comment = Comment.new
 
+    @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id])
+
     @actions = @bs_request.webui_actions(filelimit: diff_limit, tarlimit: diff_limit, diff_to_superseded: @diff_to_superseded, diffs: true)
     # print a hint that the diff is not fully shown (this only needs to be verified for submit actions)
     @not_full_diff = BsRequest.truncated_diffs?(@actions)
