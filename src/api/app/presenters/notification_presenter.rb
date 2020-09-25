@@ -1,3 +1,5 @@
+require 'redcarpet/render_strip'
+
 class NotificationPresenter < SimpleDelegator
   TRUNCATION_LENGTH = 100
   TRUNCATION_ELLIPSIS_LENGTH = 3 # `...` is the default ellipsis for String#truncate
@@ -42,7 +44,7 @@ class NotificationPresenter < SimpleDelegator
             when 'Review'
               @model.notifiable.reason
             when 'Comment'
-              @model.notifiable.body
+              render_without_markdown(@model.notifiable.body)
             else
               ''
             end
@@ -69,5 +71,13 @@ class NotificationPresenter < SimpleDelegator
     else
       @model.notifiable.reviews.in_state_new.map(&:reviewed_by) + User.where(login: @model.notifiable.creator)
     end
+  end
+
+  private
+
+  def render_without_markdown(content)
+    # Initializes a Markdown parser, if needed
+    @remove_markdown_parser ||= Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
+    ActionController::Base.helpers.sanitize(@remove_markdown_parser.render(content.to_s))
   end
 end
