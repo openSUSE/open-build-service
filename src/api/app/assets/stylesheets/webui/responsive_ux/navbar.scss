@@ -34,7 +34,6 @@
         visibility: visible;
         -webkit-transform: translateX(-100%);
         transform: translateX(-100%);
-        z-index: calc(#{$zindex-fixed} - 1); // To not overlap fixed elements
       }
 
       button.navbar-toggler {
