@@ -7,8 +7,6 @@ module Webui::MarkdownHelper
                                            autolink: true,
                                            no_intra_emphasis: true,
                                            fenced_code_blocks: true, disable_indented_code_blocks: true)
-    # rubocop:disable Rails/OutputSafety
-    @md_parser.render(content.to_s).html_safe
-    # rubocop:enable Rails/OutputSafety
+    ActionController::Base.helpers.sanitize(@md_parser.render(content.to_s))
   end
 end
