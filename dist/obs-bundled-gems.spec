@@ -127,7 +127,7 @@ bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
 
-bundle --local --path %{buildroot}%_libdir/obs-api/
+bundle --local --path %{buildroot}%_libdir/obs-api/ --without development test
 
 # test that the rake and rack macros is still matching our Gemfile
 test -f %{buildroot}%_libdir/obs-api/ruby/%{__obs_ruby_version}/gems/rake-%{rake_version}/rake.gemspec
