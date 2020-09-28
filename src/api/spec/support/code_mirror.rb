@@ -1,7 +1,7 @@
 # Reference: https://www.eliotsykes.com/testing-codemirror-editor
 module CodeMirrorHelpers
   def fill_in_editor_field(text)
-    within('.CodeMirror') do
+    within '.CodeMirror' do
       # Click makes CodeMirror element active:
       current_scope.click
       # Find the hidden textarea:

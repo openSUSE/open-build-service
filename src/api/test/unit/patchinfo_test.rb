@@ -29,7 +29,7 @@ blub
                  </description>
                  <summary>Security update for someone</summary>
                </patchinfo>"
-    assert_raise(NotFoundError) do
+    assert_raise NotFoundError do
       Patchinfo.new.verify_data(Project.first, content)
     end
   end
@@ -45,7 +45,7 @@ blub
                  </description>
                  <summary>Security update for someone</summary>
                </patchinfo>"
-    assert_raise(Issue::InvalidName) do
+    assert_raise Issue::InvalidName do
       Patchinfo.new.verify_data(Project.first, content)
     end
   end
@@ -61,7 +61,7 @@ blub
                  </description>
                  <summary>Security update for someone</summary>
                </patchinfo>"
-    assert_raise(Patchinfo::TrackerNotFound) do
+    assert_raise Patchinfo::TrackerNotFound do
       Patchinfo.new.verify_data(Project.first, content)
     end
   end

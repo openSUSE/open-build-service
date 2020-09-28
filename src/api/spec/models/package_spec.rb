@@ -249,7 +249,7 @@ RSpec.describe Package, vcr: true do
       it 'has an invalid character in first position' do
         property_of do
           string = sized(1) { string(/[-+_.]/) } + sized(range(0, 199)) { string(/[-+\w.]/) }
-          guard(string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/)
+          guard string !~ /^(_product|_product:\w|_patchinfo|_patchinfo:\w|_pattern|_project)/
           string
         end.check do |string|
           expect(Package.valid_name?(string)).to be(false)
@@ -272,7 +272,7 @@ RSpec.describe Package, vcr: true do
       it 'general case' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 199)) { string(/[-+\w.]/) }
-          guard(string != '0')
+          guard string != '0'
           string
         end.check do |string|
           expect(Package.valid_name?(string)).to be(true)
@@ -282,7 +282,7 @@ RSpec.describe Package, vcr: true do
       it "starts with '_product:'" do
         property_of do
           string = '_product:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 190)) { string(/[-+\w.]/) }
-          guard(string != '0')
+          guard string != '0'
           string
         end.check(3) do |string|
           expect(Package.valid_name?(string)).to be(true)
@@ -292,7 +292,7 @@ RSpec.describe Package, vcr: true do
       it "starts with '_patchinfo:'" do
         property_of do
           string = '_patchinfo:' + sized(1) { string(/[a-zA-Z0-9]/) } + sized(range(0, 188)) { string(/[-+\w.]/) }
-          guard(string != '0')
+          guard string != '0'
           string
         end.check(3) do |string|
           expect(Package.valid_name?(string)).to be(true)

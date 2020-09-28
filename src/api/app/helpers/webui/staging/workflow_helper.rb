@@ -35,7 +35,7 @@ module Webui::Staging::WorkflowHelper
   def progress(staging_project)
     case staging_project.overall_state
     when :building
-      link_to(project_monitor_url(staging_project.name)) do
+      link_to project_monitor_url(staging_project.name) do
         "#{build_progress(staging_project)} %"
       end
     when :review

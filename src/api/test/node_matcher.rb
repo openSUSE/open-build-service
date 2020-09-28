@@ -184,7 +184,7 @@ class NodeMatcher #:nodoc:
 
     # test ancestors
     if conditions[:ancestor]
-      return false unless catch(:found) do
+      return false unless catch :found do
         p = node.parent
         while p.is_a?(Nokogiri::XML::Element)
           throw :found, true if match(p, conditions[:ancestor])

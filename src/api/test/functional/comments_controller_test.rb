@@ -88,7 +88,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: 2), params: 'Hallo'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -104,7 +104,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # just check if adrian gets the mail too - he's a commenter now
     login_dmayr
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: 2), params: 'Hallo'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -114,7 +114,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['adrian@example.com', 'tschmidt@example.com'], email.to.sort
 
     # now to something fancy
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: 2), params: 'Hallo @fred'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -124,7 +124,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_equal ['adrian@example.com', 'fred@feuerstein.de', 'tschmidt@example.com'], email.to.sort
 
     # and check if @fred becomes a 'commenter' for ever
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_request_comment_path(request_number: 2), params: 'Is Fred listening now?'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -145,7 +145,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_project_comment_path(project: 'Apache'), params: 'Beautiful project'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -171,7 +171,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post create_package_comment_path(project: 'kde4', package: 'kdebase'), params: 'Hola, estoy aprendiendo español'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -188,7 +188,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
   def test_create_a_comment_that_only_mentioned_people_will_notice
     login_tom
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       # Trolling
       post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), params: "I preffer Apache1, don't you? @fred"
       assert_response :success
