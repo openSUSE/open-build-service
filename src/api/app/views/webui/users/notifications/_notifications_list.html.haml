@@ -17,7 +17,7 @@
       .list-group.list-group-flush.mt-3
         - notifications.each do |n|
           - notification = NotificationPresenter.new(n)
-          .list-group-item.px-2.notifications-grid-container
+          .list-group-item.px-0.px-md-2.notifications-grid-container
             .notifiable
               - if notification.notifiable_type == 'BsRequest'
                 = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
