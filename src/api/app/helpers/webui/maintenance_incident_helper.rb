@@ -18,8 +18,8 @@ module Webui::MaintenanceIncidentHelper
 
     tag.div do
       link_to(path) do
-        concat(tag.i(nil, class: 'fas fa-exclamation-circle text-danger pr-1'))
-        concat(pluralize(requests.count, 'open request'))
+        concat tag.i(nil, class: 'fas fa-exclamation-circle text-danger pr-1')
+        concat pluralize(requests.count, 'open request')
       end
     end
   end
@@ -30,8 +30,8 @@ module Webui::MaintenanceIncidentHelper
       safe_join(outgoing_request_links(requests), '<div/>'.html_safe)
     elsif incident.is_locked?
       tag.div do
-        concat(tag.i(nil, class: 'fas fa-lock text-info pr-1'))
-        concat('Locked')
+        concat tag.i(nil, class: 'fas fa-lock text-info pr-1')
+        concat 'Locked'
       end
     end
   end

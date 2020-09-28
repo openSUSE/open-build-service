@@ -114,7 +114,7 @@ class Issue < ApplicationRecord
 
   def render_axml
     builder = Nokogiri::XML::Builder.new do |node|
-      render_body(node)
+      render_body node
     end
     builder.to_xml(indent: 2, encoding: 'UTF-8',
                    save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |

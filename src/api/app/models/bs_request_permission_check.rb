@@ -122,7 +122,7 @@ class BsRequestPermissionCheck
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action, accept_check ? 'accepted' : opts[:newstate])
 
-      check_newstate_action!(action, opts)
+      check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
       next unless accept_check && !@write_permission_in_this_action

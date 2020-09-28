@@ -23,7 +23,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create',
            params: "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
@@ -44,7 +44,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       body = "<request>\n"
       actions = 1000
       actions.times do
@@ -71,7 +71,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create', params: "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
@@ -89,7 +89,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     login_tom
 
     # now check if Iggy (the creator) gets an email about revokes
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post "/request/#{myid}?cmd=changestate&newstate=declined", params: ''
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -113,7 +113,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create',
            params: "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action>"\
                    '</request>'
@@ -133,7 +133,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
     SendEventEmailsJob.new.perform
-    assert_difference('ActionMailer::Base.deliveries.size', +1) do
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       post '/request?cmd=create', params: "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
