@@ -14,7 +14,7 @@ module OwnerSearch
         @rootproject = project
         @lookup_limit = limit.to_i
         @devel_disabled = devel_disabled?(project)
-        find_assignees search_string
+        find_assignees(search_string)
         webui_mode = params[:webui_mode].present?
         return @instances_without_definition if webui_mode && @maintainers.empty?
       end
