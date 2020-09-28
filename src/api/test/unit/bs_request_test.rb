@@ -23,7 +23,7 @@ class BsRequestTest < ActiveSupport::TestCase
     User.session = users(:unconfirmed_user)
     req = BsRequest.new_from_xml(xml)
     assert req.number.nil?
-    exception = assert_raise ActiveRecord::RecordInvalid do
+    exception = assert_raise(ActiveRecord::RecordInvalid) do
       req.save!
     end
     assert_match(/Validation failed: Creator Login unconfirmed_user is not an active user/, exception.message)
@@ -166,7 +166,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     # check delegation to BaseDistro:Update via BaseDistro where the package lives
     req = BsRequest.new_from_xml(xml)
-    exception = assert_raise BsRequestAction::Errors::SubmitRequestRejected do
+    exception = assert_raise(BsRequestAction::Errors::SubmitRequestRejected) do
       req.save!
     end
     assert_match(/The target project BaseDistro:Update is a maintenance release project/, exception.message)

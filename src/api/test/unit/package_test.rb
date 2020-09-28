@@ -137,7 +137,7 @@ class PackageTest < ActiveSupport::TestCase
   def test_store
     orig = Xmlhash.parse(@package.to_axml)
 
-    assert_raise Package::SaveError do
+    assert_raise(Package::SaveError) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestPack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -146,7 +146,7 @@ class PackageTest < ActiveSupport::TestCase
                                  </package>"
                                ))
     end
-    assert_raise Package::SaveError do
+    assert_raise(Package::SaveError) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestPack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -156,7 +156,7 @@ class PackageTest < ActiveSupport::TestCase
                                ))
     end
 
-    assert_raise NotFoundError do
+    assert_raise(NotFoundError) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestBack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -166,7 +166,7 @@ class PackageTest < ActiveSupport::TestCase
                                ))
     end
 
-    assert_raise HasRelationships::SaveError do
+    assert_raise(HasRelationships::SaveError) do
       @package.update_from_xml(Xmlhash.parse(
                                  "<package name='TestBack' project='home:Iggy'>
                                    <title>My Test package</title>
@@ -192,7 +192,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.add_user('tom', 'maintainer')
     @package.update_from_xml(Xmlhash.parse(orig))
 
-    assert_raise Relationship::AddRole::SaveError do
+    assert_raise(Relationship::AddRole::SaveError) do
       @package.add_user('tom', 'Admin')
     end
     assert_equal orig, @package.render_xml

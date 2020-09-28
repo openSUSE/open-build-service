@@ -25,7 +25,7 @@ class UserTest < ActiveSupport::TestCase
 
     assert user.can_modify_project?(project)
 
-    assert_raise ArgumentError, 'illegal parameter type to User#can_modify_project?: Package' do
+    assert_raise(ArgumentError, 'illegal parameter type to User#can_modify_project?: Package') do
       user.can_modify_project?(Package.last)
     end
   end
@@ -102,7 +102,7 @@ class UserTest < ActiveSupport::TestCase
 
   def test_deleted_user
     assert_not_nil User.find_by_login('deleted')
-    assert_raise NotFoundError do
+    assert_raise(NotFoundError) do
       User.find_by_login!('deleted')
     end
   end

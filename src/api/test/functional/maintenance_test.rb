@@ -1403,7 +1403,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     ActionMailer::Base.deliveries.clear
 
     # leave a comment
-    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+    assert_difference('ActionMailer::Base.deliveries.size', +1) do
       post create_request_comment_path(request_number: reqid), params: 'Release it now!'
       assert_response :success
       SendEventEmailsJob.new.perform
@@ -1416,7 +1416,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                              user: users(:maintenance_assi), channel: :instant_email, enabled: true)
 
     # now leave another comment and hope the assi gets it too
-    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+    assert_difference('ActionMailer::Base.deliveries.size', +1) do
       post create_request_comment_path(request_number: reqid), params: 'Slave, can you release it? The master is gone'
       assert_response :success
       User.session = User.find_by_login('king')
