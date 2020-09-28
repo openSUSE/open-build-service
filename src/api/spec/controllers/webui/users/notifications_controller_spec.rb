@@ -88,17 +88,13 @@ RSpec.describe Webui::Users::NotificationsController do
   describe 'PUT #update' do
     context 'when a user marks one of his unread notifications as read' do
       subject! do
-        put :update, params: { id: state_change_notification.id, user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
       end
 
       let(:user_to_log_in) { user }
 
       it 'succeeds' do
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'flashes a success message' do
-        expect(flash[:success]).to eql('Successfully marked the notification as read')
       end
 
       it 'sets the notification as delivered' do
@@ -108,18 +104,14 @@ RSpec.describe Webui::Users::NotificationsController do
 
     context 'when a user marks one of his read notifications as unread' do
       subject! do
-        put :update, params: { id: read_notification.id, user_login: user_to_log_in.login }, xhr: true
+        put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
       end
 
-      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user, delivered: true) }
       let(:user_to_log_in) { user }
+      let(:read_notification) { create(:web_notification, :request_state_change, subscriber: user_to_log_in, delivered: true) }
 
       it 'succeeds' do
         expect(response).to have_http_status(:ok)
-      end
-
-      it 'flashes a success message' do
-        expect(flash[:success]).to eql('Successfully marked the notification as unread')
       end
 
       it 'sets the notification as not delivered' do
