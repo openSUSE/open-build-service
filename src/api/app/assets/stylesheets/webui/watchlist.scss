@@ -1,9 +1,5 @@
 #global-navigation {
-  ul {
-    .dropdown-menu.dropdown-menu-right {
-      z-index: 1050;
-    }
-  }
+  z-index: calc(#{$zindex-modal} - 5);
 
   #watchlist {
     color: $gray-400;

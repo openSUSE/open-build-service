@@ -38,6 +38,23 @@
   }
 }
 
+#top-navigation-area {
+  .fixed-top {
+    z-index: calc(#{$zindex-modal} - 5);
+  }
+}
+
+#bottom-navigation-area {
+  z-index: calc(#{$zindex-modal} - 5);
+  .fixed-bottom {
+    z-index: calc(#{$zindex-modal} - 5);
+  }
+}
+
+.watchlist-collapse {
+  z-index: $zindex-fixed;
+}
+
 // BREADCRUMBS
 
 .breadcrumb {

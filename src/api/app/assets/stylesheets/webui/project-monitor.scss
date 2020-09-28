@@ -1,5 +1,5 @@
 #project-monitor-repositories-dropdown, #project-monitor-architectures-dropdown, #project-monitor-status-dropdown {
     .dropdown-menu {
-        z-index: 1031;
+        z-index: $zindex-modal;
     }
 }

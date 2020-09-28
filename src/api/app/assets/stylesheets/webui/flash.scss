@@ -1,5 +1,5 @@
 .flash-and-announcement.sticky-top {
-  z-index: 1030;
+  z-index: $zindex-fixed;
 
   &.sticking {
     .alert { margin-bottom: 0; }
