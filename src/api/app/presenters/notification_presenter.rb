@@ -12,17 +12,16 @@ class NotificationPresenter < SimpleDelegator
   def notifiable_link
     case @model.event_type
     when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted'
-      { text: "Request ##{@model.notifiable.number}",
+      { text: "#{type_of_action(@model.notifiable)} Request ##{@model.notifiable.number}",
         path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.number, notification_id: @model.id) }
     when 'Event::CommentForRequest'
-      { text: "Request ##{@model.notifiable.commentable.number}",
+      { text: "Comment on #{type_of_action(@model.notifiable.commentable)} Request",
         path: Rails.application.routes.url_helpers.request_show_path(@model.notifiable.commentable.number, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForProject'
-      { text: @model.notifiable.commentable.name,
+      { text: 'Comment on Project',
         path: Rails.application.routes.url_helpers.project_show_path(@model.notifiable.commentable, notification_id: @model.id, anchor: 'comments-list') }
     when 'Event::CommentForPackage'
-      commentable = @model.notifiable.commentable
-      { text: "#{commentable.project.name} / #{commentable.name}",
+      { text: 'Comment on Package',
         path: Rails.application.routes.url_helpers.package_show_path(package: @model.notifiable.commentable,
                                                                      project: @model.notifiable.commentable.project,
                                                                      notification_id: @model.id,
@@ -50,15 +49,6 @@ class NotificationPresenter < SimpleDelegator
     truncate_to_first_new_line(text.to_s)
   end
 
-  def kind_of_request
-    return unless @model.notifiable_type == 'BsRequest'
-
-    request = @model.notifiable
-    return "Multiple actions for project #{request.bs_request_actions.first.target_project}" if request.bs_request_actions.size > 1
-
-    BsRequest.actions_summary(@model.event_payload)
-  end
-
   def commenters
     commentable = @model.notifiable.commentable
     commentable.comments.where('updated_at >= ?', @model.unread_date).map(&:user).uniq
@@ -72,11 +62,34 @@ class NotificationPresenter < SimpleDelegator
     end
   end
 
+  def source
+    bs_request = @model.notifiable_type == 'BsRequest' ? @model.notifiable : @model.notifiable.commentable
+    bs_request_action = bs_request.bs_request_actions.first
+    return nil if bs_request.bs_request_actions.size > 1
+
+    [bs_request_action.source_project, bs_request_action.source_package].compact.join(' / ')
+  end
+
+  def target
+    bs_request = @model.notifiable_type == 'BsRequest' ? @model.notifiable : @model.notifiable.commentable
+    bs_request_action = bs_request.bs_request_actions.first
+    return "#{bs_request_action.target_project}" if bs_request.bs_request_actions.size > 1
+
+    [bs_request_action.target_project, bs_request_action.target_package].compact.join(' / ')
+  end
+
   private
 
   def render_without_markdown(content)
     # Initializes a Markdown parser, if needed
     @remove_markdown_parser ||= Redcarpet::Markdown.new(Redcarpet::Render::StripDown)
     ActionController::Base.helpers.sanitize(@remove_markdown_parser.render(content.to_s))
+  end
+
+  # Returns strings like "Add Role", "Submit", etc.
+  def type_of_action(bs_request)
+    return 'Multiple Actions\'' if bs_request.bs_request_actions.size > 1
+
+    bs_request.bs_request_actions.first.type.titleize
   end
 end
