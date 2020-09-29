@@ -11,7 +11,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
     locator = css_locator_for(flag_attributes[:repository], flag_attributes[:architecture])
 
     subject.find(locator).find('.current_flag_state').click
-    within '.popover' do
+    within('.popover') do
       click_link(state)
     end
     subject.find(locator).find(icon)
@@ -21,7 +21,7 @@ RSpec.shared_examples 'bootstrap a flag table' do
     locator = css_locator_for(flag_attributes[:repository], flag_attributes[:architecture])
 
     subject.find(locator).find('.current_flag_state').click
-    within '.popover' do
+    within('.popover') do
       click_link('Take default (enable)')
     end
     subject.find(locator).find('.fa-check')
