@@ -398,7 +398,7 @@ EOF
 
 pushd src/api
 # configure to the bundled gems
-bundle --local --path %_libdir/obs-api/ --without development test
+bundle --local --path %_libdir/obs-api/
 popd
 
 #

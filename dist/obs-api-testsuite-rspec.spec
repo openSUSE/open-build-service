@@ -52,7 +52,7 @@ popd
 
 pushd src/api
 # configure to the bundled gems
-bundle --local --path %_libdir/obs-api/ --without development
+bundle --local --path %_libdir/obs-api/
 
 ./script/prepare_spec_tests.sh
 
