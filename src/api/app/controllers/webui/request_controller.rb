@@ -125,6 +125,11 @@ class Webui::RequestController < Webui::WebuiController
     user = User.session # might be nil
     @my_open_reviews = reviews.select { |review| review.matches_user?(user) }
     @can_add_reviews = @bs_request.state.in?([:new, :review]) && (@is_author || @is_target_maintainer || @my_open_reviews.present?)
+
+    respond_to do |format|
+      format.html
+      format.js { render_request_update }
+    end
   end
 
   def sourcediff
@@ -336,5 +341,20 @@ class Webui::RequestController < Webui::WebuiController
     opt['role'] = params[:role]
     opt['type'] = type.to_s
     opt
+  end
+
+  def render_request_update
+    render partial: 'update', locals: {
+      is_target_maintainer: @is_target_maintainer,
+      is_author: @is_author,
+      bs_request: @bs_request,
+      history: @history,
+      can_add_reviews: @can_add_reviews,
+      package_maintainers: @package_maintainers,
+      can_handle_request: @can_handle_request,
+      my_open_reviews: @my_open_reviews,
+      show_project_maintainer_hint: @show_project_maintainer_hint,
+      actions: @actions
+    }
   end
 end
