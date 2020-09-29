@@ -168,7 +168,7 @@ class AttributeTest < ActiveSupport::TestCase
     # store in a project
     @project = Project.find_by_name('GNOME18')
     assert_not_nil @project
-    assert_raise ActiveRecord::RecordInvalid do
+    assert_raise(ActiveRecord::RecordInvalid) do
       @project.store_attribute_xml(xml)
     end
     # store in a package

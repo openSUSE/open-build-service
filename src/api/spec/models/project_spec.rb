@@ -270,7 +270,7 @@ RSpec.describe Project, vcr: true do
       it 'end with :' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(0, 198)) { string(/[-+\w.:]/) } + ':'
-          guard string !~ /:[:._]/
+          guard(string !~ /:[:._]/)
           string
         end.check do |string|
           expect(Project.valid_name?(string)).to be(false)
@@ -280,7 +280,7 @@ RSpec.describe Project, vcr: true do
       it 'has an invalid character in first position' do
         property_of do
           string = sized(1) { string(/[.:_]/) } + sized(range(0, 199)) { string(/[-+\w.:]/) }
-          guard !(string[-1] == ':' && string.length > 1) && string !~ /:[:._]/
+          guard(!(string[-1] == ':' && string.length > 1) && string !~ /:[:._]/)
           string
         end.check do |string|
           expect(Project.valid_name?(string)).to be(false)
@@ -290,7 +290,7 @@ RSpec.describe Project, vcr: true do
       it 'has more than 200 characters' do
         property_of do
           string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(200) { string(/[-+\w.:]/) }
-          guard string[-1] != ':' && string !~ /:[:._]/
+          guard(string[-1] != ':' && string !~ /:[:._]/)
           string
         end.check(3) do |string|
           expect(Project.valid_name?(string)).to be(false)
@@ -304,7 +304,7 @@ RSpec.describe Project, vcr: true do
     it 'valid' do
       property_of do
         string = sized(1) { string(/[a-zA-Z0-9\-+]/) } + sized(range(0, 199)) { string(/[-+\w.:]/) }
-        guard string != '0' && string[-1] != ':' && !(/:[:._]/ =~ string)
+        guard(string != '0' && string[-1] != ':' && !(/:[:._]/ =~ string))
         string
       end.check do |string|
         expect(Project.valid_name?(string)).to be(true)
