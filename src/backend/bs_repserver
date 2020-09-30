@@ -2429,8 +2429,8 @@ sub putjob {
   close F;
   dirty($projid, $repoid, $arch) unless $jobstatus->{'code'} eq 'signing';
   # send event to signer or scheduler
-  $arch = 'signer' if $jobstatus->{'code'} eq 'signing';
   my $evname = $jobstatus->{'code'} eq 'signing' ? "finished:$arch:$job" : "finished:$job";
+  $arch = 'signer' if $jobstatus->{'code'} eq 'signing';
   mkdir_p("$eventdir/$arch");
   writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
   BSUtil::ping("$eventdir/$arch/.ping");
