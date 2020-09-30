@@ -3,5 +3,11 @@ FactoryBot.define do
     user { create(:user) }
     application_id { nil }
     application_key { nil }
+
+    trait :skip_encrypt_credentials do
+      after(:build) do |config|
+        config.define_singleton_method(:encrypt_credentials) {}
+      end
+    end
   end
 end
