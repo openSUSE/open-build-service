@@ -56,7 +56,7 @@ module Webui::NotificationHelper
     link_to(update_path, id: "update-notification-#{notification.id}", method: :put,
                          class: 'btn btn-sm btn-outline-success', title: title) do
       concat(tag.i(class: "#{icon} fas"))
-      concat " #{title}"
+      concat(" #{title}")
     end
   end
 end
