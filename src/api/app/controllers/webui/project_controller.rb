@@ -132,6 +132,9 @@ class Webui::ProjectController < Webui::WebuiController
     @has_patchinfo = @project.patchinfos.exists?
     @comments = @project.comments
     @comment = Comment.new
+
+    @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id])
+
     respond_to do |format|
       format.html
       format.js

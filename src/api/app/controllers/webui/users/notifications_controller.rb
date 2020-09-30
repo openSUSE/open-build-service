@@ -23,6 +23,7 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     end
 
     respond_to do |format|
+      format.html { redirect_to my_notifications_path }
       format.js do
         render partial: 'update', locals: {
           notifications: fetch_notifications,

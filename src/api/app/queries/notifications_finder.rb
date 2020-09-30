@@ -42,4 +42,10 @@ class NotificationsFinder
   def for_project_name(project_name)
     unread.joins(:projects).where(projects: { name: project_name })
   end
+
+  def for_subscribed_user_by_id(notification_id)
+    return unless User.session && notification_id
+
+    self.class.new.for_subscribed_user.find_by(id: notification_id)
+  end
 end

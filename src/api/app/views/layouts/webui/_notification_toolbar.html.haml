@@ -1,0 +1,5 @@
+.notification-toolbar.sticky-top.navbar.navbar-light.bg-light.border-bottom.border-gray-400
+  = link_to(my_notifications_path, class: 'btn btn-sm btn-outline-secondary', title: 'Back to notifications') do
+    %i.fas.fa-arrow-left
+    Back to notifications
+  = mark_as_read_or_unread_button(notification)
