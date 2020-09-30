@@ -1,4 +1,4 @@
-= form_tag({ action: 'changerequest' }, id: 'request_handle_form') do
+= form_tag({ action: 'changerequest' }, remote: true, id: 'request_handle_form') do
   = hidden_field_tag(:number, request_number)
   %p
     = text_area_tag(:reason, nil, placeholder: 'Please add a comment', rows: 4, class: 'w-100 form-control')
