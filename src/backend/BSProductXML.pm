@@ -199,6 +199,7 @@ our $product = [
               [],
              'producttheme',
              'betaversion',
+             'milestone',   # alternative to betaversion, not causing a beta warning
              'mainproduct',
              'create_flavors',
              [ 'linguas' =>
