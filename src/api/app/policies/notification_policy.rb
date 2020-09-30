@@ -1,6 +1,7 @@
 class NotificationPolicy < ApplicationPolicy
-  def update?
-    return true if record.subscriber_type == 'User' && record.subscriber_id == user.id
-    return true if record.subscriber_type == 'Group' && record.subscriber_id.include?(user.groups.ids)
+  class Scope < Scope
+    def resolve
+      NotificationsFinder.new(scope).for_subscribed_user(user)
+    end
   end
 end
