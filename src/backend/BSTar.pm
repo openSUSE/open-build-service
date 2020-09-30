@@ -141,24 +141,29 @@ sub maketarhead {
   my $pad = '';
   return ("$h$h") unless $file;
   my $name = $file->{'name'};
+  my $linkname = $file->{'linkname'};
   my $tartype = $file->{'tartype'};
   if (!defined($tartype)) {
     $tartype = '0';
     $tartype = '5' if (($file->{'mode'} || 0) | 0xfff) == 0x4fff;
   }
   $name =~ s/\/?$/\// if $tartype eq '5';
+  # XXX: add a pax header instead of dying
+  die("maketarhead: name too big\n") if length($name) > 100;
+  die("maketarhead: linkname too big\n") if defined($linkname) && length($linkname) > 100;
   my $mode = sprintf("%07o", $file->{'mode'} || 0x81a4);
   my $size = sprintf("%011o", $s->[7]);
   my $mtime = sprintf("%011o", defined($file->{'mtime'}) ? $file->{'mtime'} : $s->[9]);
   substr($h, 0, length($name), $name);
   substr($h, 100, length($mode), $mode);
-  substr($h, 108, 15, "0000000\0000000000");
+  substr($h, 108, 15, "0000000\0000000000");	# uid/gid
   substr($h, 124, length($size), $size);
   substr($h, 136, length($mtime), $mtime);
   substr($h, 148, 8, '        ');
   substr($h, 156, 1, $tartype);
-  substr($h, 257, 8, "ustar\00000");
-  substr($h, 329, 15, "0000000\0000000000");
+  substr($h, 157, length($linkname), $linkname) if defined($linkname);
+  substr($h, 257, 8, "ustar\00000");		# magic/version
+  substr($h, 329, 15, "0000000\0000000000");	# major/minor
   substr($h, 148, 7, sprintf("%06o\0", unpack("%16C*", $h)));
   $pad = "\0" x (512 - $s->[7] % 512) if $s->[7] % 512;
   return ($h, $pad);
