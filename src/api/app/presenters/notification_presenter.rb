@@ -41,8 +41,6 @@ class NotificationPresenter < SimpleDelegator
     text =  case @model.notifiable_type
             when 'BsRequest'
               @model.notifiable.description
-            when 'Review'
-              @model.notifiable.reason
             when 'Comment'
               render_without_markdown(@model.notifiable.body)
             else

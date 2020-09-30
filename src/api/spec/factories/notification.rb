@@ -19,7 +19,7 @@ FactoryBot.define do
 
     trait :review_wanted do
       event_type { 'Event::ReviewWanted' }
-      association :notifiable, factory: :user_review
+      association :notifiable, factory: :bs_request_with_submit_action
     end
 
     trait :comment_for_project do

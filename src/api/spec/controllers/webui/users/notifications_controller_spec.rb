@@ -61,16 +61,6 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context "when param type is 'reviews'" do
-      let(:params) { default_params.merge(type: 'reviews') }
-
-      it_behaves_like 'returning success'
-
-      it "sets @notifications to all undelivered notifications of 'review' type" do
-        expect(assigns[:notifications]).to include(review_notification)
-      end
-    end
-
     context "when param type is 'comments'" do
       let(:params) { default_params.merge(type: 'comments') }
 
