@@ -73,7 +73,7 @@ module Webui::NotificationHelper
   end
 
   def mark_as_read_or_unread_button(notification)
-    update_path = my_notification_path(id: notification.id)
+    update_path = my_notifications_path(notification_ids: [notification.id])
     title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
     link_to(update_path, id: "update-notification-#{notification.id}", method: :put,
                          class: 'btn btn-sm btn-outline-success', title: title) do
