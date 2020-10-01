@@ -833,14 +833,20 @@ sub setup_projects {
   my $projpacks = $gctx->{'projpacks'};
 
   my $t1 = Time::HiRes::time();
-  undef $projids_todo if $projids_todo && @$projids_todo > 200;	# removing old stuff takes too long
+  my $projids_todo_cnt = scalar(@{$projids_todo || []});
+  undef $projids_todo if $projids_todo_cnt > 1000;	# removing old stuff takes too long
 
   my @projids_todo;
   if ($projids_todo) {
-    print "updating project dependencies for ".scalar(@$projids_todo)." projects...\n";
+    BSUtil::printlog("updating project dependencies for $projids_todo_cnt projects...");
     @projids_todo = BSUtil::unify(@$projids_todo);
   } else {
-    print "calculating project dependencies...\n";
+    if ($projids_todo_cnt) {
+      my $projids_all_cnt = scalar(keys %$projpacks);
+      BSUtil::printlog("calculating project dependencies ($projids_todo_cnt/$projids_all_cnt)...");
+    } else {
+      BSUtil::printlog("calculating project dependencies...");
+    }
     @projids_todo = sort keys %$projpacks;
   }
 

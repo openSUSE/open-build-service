@@ -457,7 +457,7 @@ sub push_containers {
     my @imginfos;
     my $oci;
     # use oci types if we have a helm chart
-    $oci = 1 if grep {$_->{'type'} eq 'helm'} @{$tags->{$tag}};
+    $oci = 1 if grep {($_->{'type'} || '') eq 'helm'} @{$tags->{$tag}};
     for my $containerinfo (@{$tags->{$tag}}) {
       # check if we already processed this container with a different tag
       if ($done{$containerinfo}) {
