@@ -17,29 +17,32 @@
       .list-group.list-group-flush.mt-3
         - notifications.each do |n|
           - notification = NotificationPresenter.new(n)
-          .list-group-item.px-0.px-md-2.notifications-grid-container
-            .notifiable
-              - if notification.notifiable_type == 'BsRequest'
-                = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
-                = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
-                %span.badge{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
-                  = notification.notifiable.state
-              - else
-                %i.fas.fa-comments{ title: 'Comment notification' }
-                = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1 text-word-break-all')
-            .actions.ml-auto.align-self-end.align-self-md-start
-              - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
-              - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project],
-                page: params[:page], show_all: params[:show_all])
-              = link_to(update_path, id: format('update-notification-%d', notification.id),
-                        method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
-                %i.fas{ class: "#{icon}" }
-            .content
-              - if notification.kind_of_request
-                %p.text-word-break-all.m-0.mb-2= notification.kind_of_request
-              %p.d-none.d-md-block.font-weight-light= notification.excerpt
-            %small.who-when.d-flex.align-self-center.align-self-md-start.justify-content-start.justify-content-md-end.font-weight-light
-              = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
-              %span.d-inline-block.text-nowrap.ml-2 #{time_ago_in_words(notification.created_at)} ago
-
+          .list-group-item.px-0.px-md-1.py-3.container
+            .row
+              .col
+                - if notification.notifiable_type == 'BsRequest'
+                  = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
+                  = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
+                  %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
+                  %span.badge.ml-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
+                    = notification.notifiable.state
+                - else
+                  %i.fas.fa-comments{ title: 'Comment notification' }
+                  = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
+                  %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
+              .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+                - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
+                - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project],
+                  page: params[:page], show_all: params[:show_all])
+                = link_to(update_path, id: format('update-notification-%d', notification.id),
+                          method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
+                  %i.fas{ class: "#{icon}" }
+            .row.mt-1.pl-sm-4
+              .col-auto.pr-0
+                = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
+              .col-auto.pl-xs-2
+                %span.text-word-break-all= action_description(notification)
+            .row.d-none.d-md-block.pl-4
+              .col
+                %p.mt-3.mb-0= notification.excerpt
       = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }

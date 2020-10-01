@@ -28,6 +28,28 @@ module Webui::NotificationHelper
     end
   end
 
+  def action_description(notification)
+    case notification.event_type
+    when 'Event::RequestStatechange', 'Event::RequestCreate', 'Event::ReviewWanted', 'Event::CommentForRequest'
+      source_and_target(notification)
+    when 'Event::CommentForProject'
+      "#{notification.notifiable.commentable.name}"
+    when 'Event::CommentForPackage'
+      commentable = notification.notifiable.commentable
+      "#{commentable.project.name} / #{commentable.name}"
+    end
+  end
+
+  def source_and_target(notification)
+    capture do
+      if notification.source.present?
+        concat(tag.span(notification.source))
+        concat(tag.i(nil, class: 'fas fa-long-arrow-alt-right text-info mx-2'))
+      end
+      concat(tag.span(notification.target))
+    end
+  end
+
   private
 
   def css_for_filter_link(filter_item, selected_filter)

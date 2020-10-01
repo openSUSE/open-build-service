@@ -2,24 +2,6 @@
 // all the 'body.notifications-redesign' wrappers can be removed.
 
 body.notifications-redesign  {
-  .notifications-grid-container {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-rows: auto;
-    grid-template-areas:
-      "notifiable notifiable"
-      "content content"
-      "who-when action";
-    column-gap: 0.5rem;
-    row-gap: 0.25rem;
-    align-items: start;
-
-    .notifiable { grid-area: notifiable; }
-    .who-when { grid-area: who-when; }
-    .action { grid-area: action; }
-    .content { grid-area: content; }
-  }
-
   .avatars-counter, .simulated-avatar {
     display: inline-block;
     text-align: center;
@@ -50,14 +32,6 @@ body.notifications-redesign  {
   body.notifications-redesign {
     #notifications-filter-desktop {
       .collapse { display: block !important; }
-    }
-
-    .notifications-grid-container {
-      min-height: 6.25rem;
-      grid-template-columns: 1fr auto 3rem;
-      grid-template-areas:
-        "notifiable who-when action"
-        "content content content";
     }
   }
 }
