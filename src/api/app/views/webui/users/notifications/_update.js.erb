@@ -2,3 +2,4 @@ $('#filters').html("<%= j(render partial: 'notifications_filter', locals: { filt
 $('#notifications-list').html("<%= j(render partial: 'notifications_list', locals: { notifications: notifications, selected_filter: notifications_filter.selected_filter }) %>");
 $('#flash').html("<%= escape_javascript(render(layout: false, partial: 'layouts/webui/flash', object: flash)) %>");
 $('#notifications-counter').html("<%= escape_javascript(render partial: 'layouts/webui/responsive_ux/unread_notifications_counter') %>");
+$(document).ready(function() { handleNotificationCheckboxSelection(); });

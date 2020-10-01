@@ -7,26 +7,25 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   before_action :check_feature_toggle
 
   def index
-    @notifications = fetch_notifications
+    @notifications = paginated_notifications
     @filtered_project = Project.find_by(name: params[:project])
     @notifications_filter = notifications_filter
   end
 
   def update
-    notification = User.session.notifications.find(params[:id])
-    authorize notification, policy_class: NotificationPolicy
+    notifications = fetch_notifications.where(id: params[:notification_ids])
 
-    if notification.toggle(:delivered).save
-      flash.now[:success] = "Successfully marked the notification as #{notification.unread? ? 'unread' : 'read'}"
-    else
-      flash.now[:error] = "Couldn't mark the notification as #{notification.unread? ? 'read' : 'unread'}"
+    # rubocop:disable Rails/SkipsModelValidations
+    unless notifications.update_all('delivered = !delivered')
+      flash.now[:error] = "Couldn't mark the notifications as #{notifications.first.unread? ? 'read' : 'unread'}"
     end
+    # rubocop:enable Rails/SkipsModelValidations
 
     respond_to do |format|
       format.html { redirect_to my_notifications_path }
       format.js do
         render partial: 'update', locals: {
-          notifications: fetch_notifications,
+          notifications: paginated_notifications,
           notifications_filter: notifications_filter
         }
       end
@@ -74,12 +73,16 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def fetch_notifications
-    notifications_for_subscribed_user = User.session.notifications.for_web
-    notifications = if params[:project]
-                      NotificationsFinder.new(notifications_for_subscribed_user).for_project_name(params[:project])
-                    else
-                      NotificationsFinder.new(notifications_for_subscribed_user).for_notifiable_type(params[:type])
-                    end
+    notifications_for_subscribed_user = NotificationsFinder.new(policy_scope(Notification))
+    if params[:project]
+      notifications_for_subscribed_user.for_project_name(params[:project])
+    else
+      notifications_for_subscribed_user.for_notifiable_type(params[:type])
+    end
+  end
+
+  def paginated_notifications
+    notifications = fetch_notifications
     params[:page] = notifications.page(params[:page]).total_pages if notifications.page(params[:page]).out_of_range?
     params[:show_all] ? show_all(notifications) : notifications.page(params[:page])
   end

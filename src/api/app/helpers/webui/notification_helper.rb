@@ -3,7 +3,7 @@ module Webui::NotificationHelper
     parameters = params.slice(:show_all, :type, :project).permit!
     all_or_less = parameters[:show_all] ? 'less' : 'all'
     parameters[:show_all] = parameters[:show_all] ? nil : '1'
-    link_to("Show #{all_or_less}", my_notifications_path(parameters), class: 'btn btn-sm btn-secondary ml-2')
+    link_to("Show #{all_or_less}", my_notifications_path(parameters))
   end
 
   def filter_notification_link(link_text, amount, filter_item, selected_filter)
@@ -73,7 +73,7 @@ module Webui::NotificationHelper
   end
 
   def mark_as_read_or_unread_button(notification)
-    update_path = my_notification_path(id: notification.id)
+    update_path = my_notifications_path(notification_ids: [notification.id])
     title, icon = notification.unread? ? ['Mark as read', 'fa-check'] : ['Mark as unread', 'fa-undo']
     link_to(update_path, id: "update-notification-#{notification.id}", method: :put,
                          class: 'btn btn-sm btn-outline-success', title: title) do

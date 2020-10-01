@@ -1,6 +1,6 @@
-.card
-  .card-body
-    - if notifications.empty?
+- if notifications.empty?
+  .card
+    .card-body
       %p
         - case selected_filter[:type]
         - when 'reviews', 'comments', 'requests'
@@ -9,40 +9,56 @@
           Mark notifications as "Read" and they'll appear here
         - else
           There are no notifications, but there's a world of opportunities!
-    - else
-      .text-center
-        %span.ml-3= page_entries_info notifications, entry_name: 'notification'
-        = link_to_all unless notifications.total_pages == 1 && params[:show_all].nil?
+- else
+  - update_path = my_notifications_path(type: selected_filter[:type], project: selected_filter[:project],
+                                       page: params[:page], show_all: params[:show_all])
+  = form_tag(update_path, method: :put, remote: true) do
+    = render partial: 'notification_action_bar', locals: { type: selected_filter[:type] }
+    .card
+      .card-body
+        .text-center
+          %span.ml-3= page_entries_info notifications, entry_name: 'notification'
+          = link_to_all unless notifications.total_pages == 1 && params['show_all'].nil?
+        .list-group.list-group-flush.mt-3
+          - notifications.each do |n|
+            - notification = NotificationPresenter.new(n)
+            .list-group-item.px-0.px-md-1.py-3
+              .row
+                .col-auto.pr-0
+                  .custom-control.custom-checkbox
+                    = check_box_tag('notification_ids[]', notification.id, false,
+                                    id: "notification_ids_#{notification.id}", class: 'custom-control-input')
+                    = label_tag("notification_ids_#{notification.id}", '', class: 'custom-control-label')
+                .col
+                  .row
+                    .col
+                      - if notification.notifiable_type == 'BsRequest'
+                        = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
+                        = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
+                        %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
+                        %span.badge.ml-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
+                          = notification.notifiable.state
+                      - else
+                        %i.fas.fa-comments{ title: 'Comment notification' }
+                        = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
+                        %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
+                    .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+                      - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
+                      - update_path = my_notifications_path(notification_ids: [notification.id], type: selected_filter[:type],
+                                                            project: selected_filter[:project], page: params[:page],
+                                                            show_all: params[:show_all])
+                      = link_to(update_path, id: format('update-notification-%d', notification.id),
+                                method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
+                        %i.fas{ class: "#{icon}" }
+                  .row.mt-1.pl-sm-4
+                    .col-auto.pr-0
+                      = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
+                    .col-auto.pl-xs-2
+                      %span.text-word-break-all= action_description(notification)
+                  .row.d-none.d-md-block.pl-4
+                    .col
+                      %p.mt-3.mb-0= notification.excerpt
+  = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
 
-      .list-group.list-group-flush.mt-3
-        - notifications.each do |n|
-          - notification = NotificationPresenter.new(n)
-          .list-group-item.px-0.px-md-1.py-3.container
-            .row
-              .col
-                - if notification.notifiable_type == 'BsRequest'
-                  = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
-                  = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
-                  %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
-                  %span.badge.ml-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
-                    = notification.notifiable.state
-                - else
-                  %i.fas.fa-comments{ title: 'Comment notification' }
-                  = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
-                  %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
-              .col-auto.actions.ml-auto.align-self-end.align-self-md-start
-                - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
-                - update_path = my_notification_path(id: notification, type: selected_filter[:type], project: selected_filter[:project],
-                  page: params[:page], show_all: params[:show_all])
-                = link_to(update_path, id: format('update-notification-%d', notification.id),
-                          method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
-                  %i.fas{ class: "#{icon}" }
-            .row.mt-1.pl-sm-4
-              .col-auto.pr-0
-                = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
-              .col-auto.pl-xs-2
-                %span.text-word-break-all= action_description(notification)
-            .row.d-none.d-md-block.pl-4
-              .col
-                %p.mt-3.mb-0= notification.excerpt
-      = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }
+- content_for :ready_function do
+  handleNotificationCheckboxSelection();
