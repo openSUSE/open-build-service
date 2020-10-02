@@ -16,11 +16,6 @@ Lint/ConstantDefinitionInBlock:
     - 'spec/support/database_cleaner.rb'
 
 # Offense count: 1
-Lint/DuplicateMethods:
-  Exclude:
-    - 'app/models/history_element/base.rb'
-
-# Offense count: 1
 # Configuration parameters: AllowComments.
 Lint/EmptyFile:
   Exclude:
