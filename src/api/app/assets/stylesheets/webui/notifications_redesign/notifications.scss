@@ -69,3 +69,16 @@ body.notifications-redesign  {
     }
   }
 }
+
+.notifications-counter {
+  position: relative;
+  margin: 0 auto;
+  width: 6rem;
+  .badge {
+    position: absolute;
+    top: -0.4rem;
+    left: 3.1rem;
+    border: 0.1rem solid $dark;
+    padding: 0.1rem 0.3rem;
+  }
+}
