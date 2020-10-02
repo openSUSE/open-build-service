@@ -15,12 +15,6 @@ Lint/ConstantDefinitionInBlock:
     - 'lib/tasks/statistics/github/pull_requests.rake'
     - 'spec/support/database_cleaner.rb'
 
-# Offense count: 1
-# Configuration parameters: AllowComments.
-Lint/EmptyFile:
-  Exclude:
-    - 'spec/models/bs_request/differ/query_builder.rb'
-
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
 Lint/MissingCopEnableDirective:
