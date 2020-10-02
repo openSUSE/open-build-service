@@ -2624,7 +2624,7 @@ sub readbuildenv {
   $buildinfo->{'hasbuildenv'} = 1;
   # work around buildenv generation bug
   $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
-  for (qw{error versrel bcnt release bdep}) {
+  for (qw{error versrel bcnt release bdep config}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
   }
   for ('versrel', 'bcnt', 'release') {
@@ -2634,7 +2634,12 @@ sub readbuildenv {
     # fixup preinstall/vminstall...
     importbuild() unless defined &Build::queryhdrmd5;
     my $server = $buildinfo->{'srcserver'} || $srcserver;
-    my $bconf = BSRPC::rpc("$server/getconfig", undef, "project=$buildinfo->{'project'}", "repository=$buildinfo->{'repository'}");
+    my $bconf;
+    if (defined $buildinfo->{'config'}) {
+      $bconf = $buildinfo->{'config'};
+    } else {
+      $bconf = BSRPC::rpc("$server/getconfig", undef, "project=$buildinfo->{'project'}", "repository=$buildinfo->{'repository'}");
+    }
     $bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $bconf) ]);
     my %pdeps = map {$_ => 1} Build::get_preinstalls($bconf);
     my %vmdeps = map {$_ => 1} Build::get_vminstalls($bconf);
@@ -3128,7 +3133,13 @@ sub dobuild {
     unshift @configpath, "path=$projid/$repoid" unless @configpath && $configpath[0] eq "path=$projid/$repoid";
   }
   my $server = $buildinfo->{'srcserver'} || $srcserver;
-  my $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  my $config;
+  if (defined $buildinfo->{'config'}) {
+    $config = $buildinfo->{'config'};
+  } else {
+    $config = BSRPC::rpc("$server/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
+  }
+  $buildinfo->{'outbuildinfo'}->{'config'} = $config;
   writestr("$buildroot/.build.config", undef, $config);
 
 
