@@ -1,5 +1,7 @@
 %h3
-  Request #{bs_request.number} (#{bs_request.state})
+  Request #{bs_request.number}
+  %span.badge.ml-1{ class: "badge-#{request_badge_color(bs_request.state)}" }
+    = bs_request.state
 
 #description-text
   - if bs_request.description.present?

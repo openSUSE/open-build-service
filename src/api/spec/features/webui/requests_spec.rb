@@ -86,7 +86,8 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number}")
+        expect(find('span.badge.badge-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -121,7 +122,8 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number}")
+        expect(find('span.badge.badge-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -152,7 +154,8 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number}")
+        expect(find('span.badge.badge-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -185,7 +188,8 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.number} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number}")
+        expect(find('span.badge.badge-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -204,7 +208,9 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         fill_in 'Comment for reviewer:', with: 'Please review'
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
-        expect(page).to have_text('Request 1 (review)')
+        expect(page).to have_text('Request 1')
+        expect(find('span.badge.badge-secondary')).to have_text('review')
+        expect(page).to have_text('In state review')
         expect(Review.all.count).to eq(1)
         logout
 
