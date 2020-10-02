@@ -434,11 +434,6 @@ Naming/AccessorMethodName:
     - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
 
-# Offense count: 1
-Naming/ConstantName:
-  Exclude:
-    - 'test/unit/issue_test.rb'
-
 # Offense count: 22
 # Configuration parameters: ForbiddenDelimiters.
 # ForbiddenDelimiters: (?-mix:(^|\s)(EO[A-Z]{1}|END)(\s|$))

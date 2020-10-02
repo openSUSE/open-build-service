@@ -4,7 +4,7 @@ class IssueTest < ActiveSupport::TestCase
   fixtures :all
 
   # rubocop:disable Layout/LineLength
-  BugGet0815 = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param><value><struct><member><name>ids</name><value><array><data><value><string>1234</string></value><value><string>0815</string></value></data></array></value></member><member><name>permissive</name><value><i4>1</i4></value></member></struct></value></param></params></methodCall>\n".freeze
+  BUG_GET_0815 = "<?xml version=\"1.0\" ?><methodCall><methodName>Bug.get</methodName><params><param><value><struct><member><name>ids</name><value><array><data><value><string>1234</string></value><value><string>0815</string></value></data></array></value></member><member><name>permissive</name><value><i4>1</i4></value></member></struct></value></param></params></methodCall>\n".freeze
   # rubocop:enable Layout/LineLength
 
   def test_parse
@@ -15,7 +15,7 @@ class IssueTest < ActiveSupport::TestCase
 
   def test_create_and_destroy
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi')
-      .with(body: BugGet0815)
+      .with(body: BUG_GET_0815)
       .to_return(status: 200,
                  body: load_backend_file('bugzilla_get_0815.xml'),
                  headers: {})
