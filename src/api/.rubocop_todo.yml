@@ -6,12 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 2
-Lint/BinaryOperatorWithIdenticalOperands:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'spec/models/bs_request_action/differ/for_source_spec.rb'
-
 # Offense count: 7
 Lint/ConstantDefinitionInBlock:
   Exclude:
