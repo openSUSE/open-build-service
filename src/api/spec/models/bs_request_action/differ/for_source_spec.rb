@@ -151,7 +151,7 @@ RSpec.describe BsRequestAction::Differ::ForSource, vcr: true do
           )
         end
 
-        it { expect(subject.perform).to eq(xml_response + xml_response) }
+        it { expect(subject.perform).to eq(xml_response * 2) }
       end
     end
   end

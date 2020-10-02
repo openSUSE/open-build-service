@@ -6,12 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 2
-Lint/BinaryOperatorWithIdenticalOperands:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'spec/models/bs_request_action/differ/for_source_spec.rb'
-
 # Offense count: 7
 Lint/ConstantDefinitionInBlock:
   Exclude:
@@ -20,17 +14,6 @@ Lint/ConstantDefinitionInBlock:
     - 'lib/tasks/statistics/github/issues.rake'
     - 'lib/tasks/statistics/github/pull_requests.rake'
     - 'spec/support/database_cleaner.rb'
-
-# Offense count: 1
-Lint/DuplicateMethods:
-  Exclude:
-    - 'app/models/history_element/base.rb'
-
-# Offense count: 1
-# Configuration parameters: AllowComments.
-Lint/EmptyFile:
-  Exclude:
-    - 'spec/models/bs_request/differ/query_builder.rb'
 
 # Offense count: 8
 # Configuration parameters: MaximumRangeSize.
@@ -450,11 +433,6 @@ Naming/AccessorMethodName:
     - 'app/models/package.rb'
     - 'app/models/user.rb'
     - 'test/functional/search_controller_test.rb'
-
-# Offense count: 1
-Naming/ConstantName:
-  Exclude:
-    - 'test/unit/issue_test.rb'
 
 # Offense count: 22
 # Configuration parameters: ForbiddenDelimiters.

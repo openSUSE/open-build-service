@@ -628,7 +628,7 @@ class BsRequest < ApplicationRecord
   end
 
   def assignreview(opts = {})
-    raise InvalidStateError, 'request is not in review state' unless state == :review || (state == :new && state == :new)
+    raise InvalidStateError, 'request is not in review state' unless state == :review || state == :new
 
     reviewer = User.find_by_login!(opts[:reviewer])
 
