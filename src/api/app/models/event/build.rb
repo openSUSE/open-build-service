@@ -13,7 +13,40 @@ module Event
       h
     end
 
+    def metric_measurement
+      'build'
+    end
+
+    def metric_tags
+      {
+        namespace: payload['project'].split(':').first,
+        worker: payload['workerid'],
+        arch: payload['arch'],
+        reason: reason,
+        state: state
+      }
+    end
+
+    def metric_fields
+      {
+        duration: duration_in_seconds,
+        latency: latency_in_seconds
+      }
+    end
+
     private
+
+    def duration_in_seconds
+      payload['endtime'].to_i - payload['starttime'].to_i
+    end
+
+    def latency_in_seconds
+      payload['starttime'].to_i - payload['readytime'].to_i
+    end
+
+    def reason
+      payload['reason'].parameterize.underscore
+    end
 
     def my_message_id
       # we put the verifymd5 sum in the message id, so new checkins get new thread, but it doesn't have to be very correct
