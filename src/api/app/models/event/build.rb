@@ -25,7 +25,7 @@ module Event
     end
 
     def metric_fields
-      { 
+      {
         buildtime: duration_in_seconds,
         latency: latency_in_seconds
       }
