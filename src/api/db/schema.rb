@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_110429) do
+ActiveRecord::Schema.define(version: 2020_10_04_141110) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -286,6 +286,15 @@ ActiveRecord::Schema.define(version: 2020_07_03_110429) do
     t.datetime "updated_at", null: false
     t.index ["job_id"], name: "index_cloud_user_upload_jobs_on_job_id", unique: true
     t.index ["user_id"], name: "index_cloud_user_upload_jobs_on_user_id"
+  end
+
+  create_table "comment_snippets", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci", force: :cascade do |t|
+    t.string "title", null: false, collation: "utf8_general_ci"
+    t.text "body", size: :medium, null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_comment_snippets_on_user_id"
   end
 
   create_table "comments", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -1087,6 +1096,7 @@ ActiveRecord::Schema.define(version: 2020_07_03_110429) do
   add_foreign_key "channel_targets", "channels", name: "channel_targets_ibfk_1"
   add_foreign_key "channel_targets", "repositories", name: "channel_targets_ibfk_2"
   add_foreign_key "channels", "packages", name: "channels_ibfk_1"
+  add_foreign_key "comment_snippets", "users"
   add_foreign_key "comments", "comments", column: "parent_id", name: "comments_ibfk_4"
   add_foreign_key "comments", "users", name: "comments_ibfk_1"
   add_foreign_key "download_repositories", "repositories", name: "download_repositories_ibfk_1"

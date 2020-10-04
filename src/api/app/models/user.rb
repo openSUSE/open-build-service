@@ -18,6 +18,7 @@ class User < ApplicationRecord
   has_many :relationships, inverse_of: :user, dependent: :destroy
 
   has_many :comments, dependent: :destroy, inverse_of: :user
+  has_many :comment_snippets, dependent: :destroy, inverse_of: :user
   has_many :status_messages
   has_many :messages
   has_many :tokens, class_name: 'Token', dependent: :destroy, inverse_of: :user
