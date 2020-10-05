@@ -128,7 +128,7 @@ GEM
     crass (1.0.6)
     daemons (1.3.1)
     dalli (2.7.11)
-    data_migrate (6.3.0)
+    data_migrate (6.5.0)
       rails (>= 5.0)
     database_cleaner (1.8.5)
     deep_cloneable (3.0.0)
