@@ -5,7 +5,7 @@ module HistoryElement
     self.table_name = 'history_elements'
 
     class << self
-      attr_accessor :description, :comment, :created_at
+      attr_accessor :description, :comment, :created_at, :raw_type
     end
 
     def color
