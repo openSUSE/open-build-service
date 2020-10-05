@@ -1,4 +1,4 @@
-= link_to(my_notifications_path, class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
+.notifications-counter
   %i.fas.fa-bell
   - unless User.session.unread_notifications.zero?
     %span.badge.badge-primary.align-text-top= User.session.unread_notifications
