@@ -323,6 +323,8 @@ OBSApi::Application.routes.draw do
 
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
+
+      resources :comment_snippets, controller: 'webui/comment_snippets', as: :my_comment_snippets
     end
 
     get 'home', to: 'webui/webui#home', as: :home
