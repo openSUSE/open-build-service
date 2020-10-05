@@ -1,0 +1,17 @@
+- if !User.session
+  .alert.alert-warning{ role: 'alert' }
+    Login required, please
+    = link_to('login', new_session_url)
+    - if can_register?
+      or
+      = link_to('signup', new_user_url)
+    in order to comment
+- else
+  - @comment_snippets.each do |comment_snippet|
+    %p
+      = comment_snippet.title
+    = render_as_markdown(comment_snippet.body)
+
+  .comment_new.mt-3
+    = render partial: 'webui/comment_snippets/new'
+

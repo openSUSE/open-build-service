@@ -1,0 +1,9 @@
+= form_with( model: @comment_snippet, method: form_method, remote: true, html: { class: "#{form_method}-comment-snippet-form" }) do |f|
+  ~ f.text_field('comment_snippet[title]', placeholder: 'Saved reply title', autocomplete: 'off', class: 'form-control', required: true)
+  ~ f.text_area 'comment_snippet[body]', rows: '4', placeholder: 'Write your saved reply here... (Markdown markup is supported)', required: true,
+    class: 'w-100 mb-3 form-control comment-field'
+  - case form_method
+  - when :post
+    = f.submit 'Add saved reply', class: 'btn btn-primary', data: { disable_with: 'Creating saved reply...' }
+  - when :put
+    = f.submit 'Update saved reply', class: 'btn btn-primary', data: { disable_with: 'Updating saved_reply...' }
