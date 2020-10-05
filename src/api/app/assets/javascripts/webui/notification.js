@@ -14,10 +14,10 @@ function setCheckboxCounterAndSubmitButton() {
   });
 
   if(amountBoxesChecked <= 0) {
-    $('#done-button').addClass('disabled');
+    $('#done-button').prop('disabled', true);
     $('#select-all-label').text('Select all');
   } else {
-    $('#done-button').removeClass('disabled');
+    $('#done-button').prop('disabled', false);
     $('#select-all-label').text(amountBoxesChecked + ' selected');
   }
 }

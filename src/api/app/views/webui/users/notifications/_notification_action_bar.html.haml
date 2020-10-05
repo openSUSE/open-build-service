@@ -6,5 +6,5 @@
           = check_box_tag('select-all-notifications', 1, false, class: 'custom-control-input')
           %label.custom-control-label.align-middle.mr-4#select-all-label{ for: 'select-all-notifications' } Select All
           - button_text = type == 'read' ? "Mark as 'Unread'" : "Mark as 'Read'"
-          = button_tag(type: 'submit', class: 'btn btn-sm btn-outline-success px-3 disabled', id: 'done-button') do
+          = button_tag(type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'done-button', disabled: 'disabled') do
             = button_text
