@@ -290,7 +290,7 @@ ActiveRecord::Schema.define(version: 2020_10_04_141110) do
 
   create_table "comment_snippets", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci", force: :cascade do |t|
     t.string "title", null: false, collation: "utf8_general_ci"
-    t.text "body", size: :medium, null: false
+    t.text "body", null: false
     t.integer "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
