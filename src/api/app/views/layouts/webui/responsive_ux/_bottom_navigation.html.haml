@@ -7,11 +7,8 @@
           %span.d-block Watchlist
       - if feature_enabled?(:notifications_redesign)
         %li.nav-item.border-left.border-gray-500
-          = link_to(my_notifications_path, class: 'nav-link px-1 py-2 text-light', alt: 'Notifications') do
-            %i.fas.fa-bell
-            - unless User.session.unread_notifications.zero?
-              %span.badge.badge-primary.align-text-top= User.session.unread_notifications
-            %span.d-block Notifications
+          = link_to(my_notifications_path, id: 'bottom-notifications-counter', class: 'nav-link text-light px-1 py-2', alt: 'Notifications') do
+            = render partial: 'layouts/webui/responsive_ux/unread_notifications_counter'
       - if content_for?(:actions)
         %li.nav-item.border-left.border-gray-500
           = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Actions', data: { toggle: 'actions' }) do
