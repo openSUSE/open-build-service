@@ -1179,7 +1179,7 @@ sub publish {
 	my $packstatus = $ctx->{'packstatus'};
 	for my $packid (grep {$pubenabled{$_}} @$packs) {
 	  my $code = $packstatus->{$packid} || 'broken';
-	  push @bad, $code if $code eq 'broken' || $code eq 'failed' || $code eq 'unresolvable';
+	  push @bad, $packid if $code eq 'broken' || $code eq 'failed' || $code eq 'unresolvable';
 	}
 	return ('broken', "not publishing failed packages: @bad") if @bad;
       }
