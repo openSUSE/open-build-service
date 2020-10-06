@@ -3,7 +3,7 @@ class Webui::CommentSnippetsController < Webui::WebuiController
   before_action :check_displayed_user
 
   def index
-    @comment_snippets = CommentSnippet.limit(10).all
+    @comment_snippets = User.session.comment_snippets.limit(10).all
     render :index
   end
 
