@@ -105,6 +105,8 @@ class Webui::PackageController < Webui::WebuiController
     @comments = @package.comments.includes(:user)
     @comment = Comment.new
 
+    @comment_snippets = User.session.comment_snippets
+
     @current_notification = NotificationsFinder.new.for_subscribed_user_by_id(params[:notification_id])
 
     @services = @files.any? { |file| file[:name] == '_service' }
