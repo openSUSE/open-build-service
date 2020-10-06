@@ -14,7 +14,7 @@
   %small.form-text.text-danger#ajax-error-message
 
   .list-group.mt-3#issues
-    - issue_types = ['issueid', 'issuetracker', 'issueurl', 'issuesumi']
+    - issue_types = ['issueid', 'issuetracker', 'issueurl', 'issuesum']
     - issues.to_a.each do |issue|
       - issue_name = "#{issue[1]}_#{issue[0]}"
       .list-group-item.flex-column.align-items-start.issue-element{ id: "issue_#{issue_name}" }
