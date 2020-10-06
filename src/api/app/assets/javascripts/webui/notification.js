@@ -29,4 +29,3 @@ function handleNotificationCheckboxSelection() { // jshint ignore:line
     setCheckboxCounterAndSubmitButton();
   });
 }
-
