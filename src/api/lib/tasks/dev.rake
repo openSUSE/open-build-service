@@ -3,7 +3,7 @@
 require 'fileutils'
 require 'yaml'
 
-ENABLED_FEATURE_FLAGS = [:responsive_ux, :notifications_redesign].freeze
+ENABLED_FEATURE_FLAGS = [:responsive_ux, :notifications_redesign, :user_profile_redesign].freeze
 
 namespace :dev do
   task :prepare do
