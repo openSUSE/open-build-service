@@ -6,7 +6,7 @@
       or
       = link_to('signup', new_user_url)
     in order to comment
-- else 
+- else
   = render(partial: 'webui/comment_snippets/comment_snippets_dropdown')
   = render(partial: 'webui/comment/comment_field',
    locals: { form_method: :post, comment: Comment.new, commentable: commentable })

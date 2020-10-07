@@ -1,18 +1,18 @@
 - if @comment_snippets.present?
-  %button.btn.btn-link.dropdown-toggle#comment_snippets{ aria: { expanded: false, haspopup: false }, data: { toggle: 'dropdown', offset: 150 } }
+  %button.btn.btn-link.dropdown-toggle#comment-snippets{ aria: { expanded: false, haspopup: false }, data: { toggle: 'dropdown', offset: 150 } }
     Saved replies
-  .dropdown-menu#snippets_list{ aria: { labelledby: 'comment_snippets' } }
+  .dropdown-menu#snippets-list{ aria: { labelledby: 'comment_snippets' } }
     - @comment_snippets.each do |comment_snippet|
       %a.dropdown-item
         %p
           = comment_snippet.title
-        %p#snippet_body
+        %p#snippet-body
           = comment_snippet.body
 
 :javascript
-  $('#snippets_list a').on('click', function(){
+  $('#snippets-list a').on('click', function(){
     {
-      $('#comment_body').val($('#snippet_body', this).text())
+      $('#comment_body').val($('#snippet-body', this).text())
     }
   });
 

@@ -22,7 +22,7 @@
                 = image_tag_for(User.session, size: 20, custom_class: 'rounded-circle bg-light mr-2')
                 Your profile
             .dropdown-item
-              = link_to(my_comment_snippets_path, class: 'nav-link text-light p-0 w-100') do
+              = link_to(comment_snippets_path, id: 'saved-replies-link', class: 'nav-link text-light p-0 w-100') do
                 %i.fas.fa-comment.fa-lg.mr-2
                 Saved replies
             .dropdown-item

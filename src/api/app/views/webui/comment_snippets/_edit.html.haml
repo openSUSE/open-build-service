@@ -1,0 +1,16 @@
+%ul.list-inline
+  - if policy(comment_snippet).update?
+    %li.list-inline-item
+      %button.btn.btn-outline-secondary.collapsed{ id: "edit_button_of_#{comment_snippet.id}",
+       data: { toggle: 'collapse', target: "#edit_form_of_#{comment_snippet.id}" } }
+        Edit
+  - if policy(comment_snippet).destroy?
+    %li.list-inline-item
+      = render(partial: 'webui/comment_snippets/delete_dialog', locals: { comment_snippet: comment_snippet })
+      = link_to('#', data: { toggle: 'modal', target: "#delete-comment-modal-#{comment_snippet.id}" },
+                class: 'delete_link btn btn-outline-danger', title: 'Delete reply') do
+        Delete
+
+- if policy(comment_snippet).update?
+  .collapse{ id: "edit_form_of_#{comment_snippet.id}" }
+    = render(partial: 'webui/comment_snippets/comment_snippet_update_form', locals: { form_method: :patch, comment_snippet: comment_snippet })

@@ -7,11 +7,14 @@
       = link_to('signup', new_user_url)
     in order to comment
 - else
-  - @comment_snippets.each do |comment_snippet|
-    %p
-      = comment_snippet.title
-    = render_as_markdown(comment_snippet.body)
-
+  - comment_snippets.each do |comment_snippet|
+    %hr
+    .media
+      .media-body
+        %p
+          = comment_snippet.title
+        = render_as_markdown(comment_snippet.body)
+        = render partial: 'webui/comment_snippets/edit', locals: { comment_snippet: comment_snippet }
   .comment_new.mt-3
     = render partial: 'webui/comment_snippets/new'
 

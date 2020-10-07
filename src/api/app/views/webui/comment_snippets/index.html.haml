@@ -1,6 +1,8 @@
 :ruby
   - @pagetitle = "Saved replies #{User.session!}"
 
-.card
-  .card_body
-    = render partial: 'webui/comment_snippets/comment_snippets_list'
+.overview
+  .comments
+    .card#comments-list
+      .card-body#comments
+      = render(partial: 'webui/comment_snippets/comment_snippets_list', locals: { comment_snippets: comment_snippets })

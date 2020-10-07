@@ -3,10 +3,6 @@ class CommentSnippetPolicy < ApplicationPolicy
     super(user, record, user_optional: true)
   end
 
-  def create
-    update?
-  end
-
   def destroy?
     update?
   end
