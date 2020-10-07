@@ -1,0 +1,38 @@
+.card{ class: CONFIG['contribution_graph'] == :off ? 'd-block' : 'd-block d-md-none' }
+  -# Header that replaces the tabs when the contribution graph is not displayed (in small viewports or when not enabled).
+  .card-header
+    %h5 Involved Projects and Packages
+  .card-body
+    = render partial: 'webui/user/involvement', locals: { user: user,
+                                                          owned: owned,
+                                                          involved_projects: involved_projects,
+                                                          involved_packages: involved_packages }
+
+-# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
+- unless CONFIG['contribution_graph'] == :off
+  .card.d-none.d-md-block
+    -# Tabs
+    .bg-light
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+        %li.nav-item
+          = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link active text-nowrap',
+                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: true }) do
+            Involved Projects/Packages
+        %li.nav-item
+          = link_to('#contributions', id: 'contributions-tab', class: 'nav-link text-nowrap',
+                    data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'contributions', selected: false }) do
+            Contributions
+
+    -# Tabs content
+    .card-body
+      .tab-content
+        .tab-pane.fade.show.active#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
+          = render partial: 'webui/user/involvement', locals: { user: user,
+                                                                owned: owned,
+                                                                involved_projects: involved_projects,
+                                                                involved_packages: involved_packages }
+
+        .tab-pane.fade#contributions{ role: 'tabpanel', aria: { labelledby: 'contributions-tab' } }
+          = render partial: 'webui/user/activity', locals: { activity_hash: activity_hash,
+                                                             first_day: first_day,
+                                                             last_day: last_day }
