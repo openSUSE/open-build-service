@@ -1,0 +1,5 @@
+- content_for :actions do
+  %li.nav-item
+    = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'nav-link') do
+      %i.fas.fa-lg.mr-2.fa-plus-square
+      Change your password

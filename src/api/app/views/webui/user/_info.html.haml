@@ -38,21 +38,19 @@
                                                                  'features we develop and give us feedback on them before they go live.' } } |
       .mt-4
         - if configuration.accounts_editable?(user)
-          - if account_edit_link.present?
-            = link_to(account_edit_link, class: 'd-block') do
-              %i.fas.fa-user-edit
-              Edit your account
-          - else
-            = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'd-block') do
-              %i.fas.fa-user-edit
-              Edit your account
+          = render partial: 'webui/user/edit_account', locals: { account_edit_link: account_edit_link }
         - if configuration.passwords_changable?(user)
-          = link_to('#', data: { toggle: 'modal', target: '#password-modal' }, class: 'd-block') do
-            %i.fas.fa-key
-            Change your password
-        = link_to(my_subscriptions_path, class: 'd-block') do
-          %i.fas.fa-bell
-          Change your notifications
+          = render partial: 'webui/user/change_password'
+        - if feature_enabled?(:responsive_ux)
+          - content_for :actions do
+            %li.nav-item
+              = link_to(my_subscriptions_path, class: 'nav-link') do
+                %i.fas.fa-lg.mr-2.fa-bell
+                Change your notifications
+        - else
+          = link_to(my_subscriptions_path, class: 'd-block') do
+            %i.fas.fa-bell
+            Change your notifications
         - if user.rss_token
           = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
                                                 title: 'RSS Feed for Notifications', class: 'd-block') do
