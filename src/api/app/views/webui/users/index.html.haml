@@ -17,10 +17,17 @@
             Actions
       %tbody
 
-    .pt-4
-      = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create')) do
-        %i.fas.fa-plus-circle.text-primary
-        Create User
+    - if feature_enabled?(:responsive_ux)
+      - content_for :actions do
+        %li.nav-item
+          = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create'), class: 'nav-link') do
+            %i.fas.fa-lg.mr-2.fa-plus-circle
+            Create User
+    - else
+      .pt-4
+        = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create')) do
+          %i.fas.fa-plus-circle.text-primary
+          Create User
 
 - content_for :ready_function do
   initializeUserConfigurationDatatable("#{::Configuration.ldap_enabled?}");
