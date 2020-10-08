@@ -38,9 +38,12 @@
       display: block;
 
       #left-navigation {
-        position: fixed;
+        position: sticky;
         top: $top-navigation-height;
         left: 0;
+        max-height: calc(100vh - #{$top-navigation-height});
+        overflow-y: auto;
+        overflow-x: hidden;
 
         & a {
           color: $gray-300;
