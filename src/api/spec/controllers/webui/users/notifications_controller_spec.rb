@@ -21,19 +21,28 @@ RSpec.describe Webui::Users::NotificationsController do
 
   before do
     Flipper[:notifications_redesign].enable
-    login user_to_log_in
   end
 
   describe 'GET #index' do
     let(:user_to_log_in) { user }
     let(:default_params) { { user_login: username } }
 
-    subject! do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :index }
+    end
+
+    subject do
+      login user_to_log_in
       get :index, params: params
     end
 
     context 'when no param type is provided' do
       let(:params) { default_params }
+
+      before do
+        subject
+      end
 
       it_behaves_like 'returning success'
 
@@ -54,6 +63,10 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when param type is 'read'" do
       let(:params) { default_params.merge(type: 'read') }
 
+      before do
+        subject
+      end
+
       it_behaves_like 'returning success'
 
       it 'sets @notifications to all delivered notifications regardless of type' do
@@ -63,6 +76,10 @@ RSpec.describe Webui::Users::NotificationsController do
 
     context "when param type is 'comments'" do
       let(:params) { default_params.merge(type: 'comments') }
+
+      before do
+        subject
+      end
 
       it_behaves_like 'returning success'
 
@@ -76,6 +93,10 @@ RSpec.describe Webui::Users::NotificationsController do
     context "when param type is 'requests'" do
       let(:params) { default_params.merge(type: 'requests') }
 
+      before do
+        subject
+      end
+
       it_behaves_like 'returning success'
 
       it "sets @notifications to all undelivered notifications of 'requests' type" do
@@ -86,8 +107,14 @@ RSpec.describe Webui::Users::NotificationsController do
   end
 
   describe 'PUT #update' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :index }
+    end
+
     context 'when a user marks one of his unread notifications as read' do
       subject! do
+        login user_to_log_in
         put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
       end
 
@@ -102,8 +129,22 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
+    context 'when a user tries to mark other user notifications as read' do
+      subject! do
+        login user_to_log_in
+        put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
+      end
+
+      let(:user_to_log_in) { other_user }
+
+      it "doesn't set the notification as read" do
+        expect(state_change_notification.reload.delivered).to be false
+      end
+    end
+
     context 'when a user marks one of his read notifications as unread' do
       subject! do
+        login user_to_log_in
         put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true
       end
 

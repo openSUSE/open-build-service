@@ -2,9 +2,12 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   MAX_PER_PAGE = 300
   VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread'].freeze
 
-  before_action :require_login
+  # TODO: Remove this when we'll refactor kerberos_auth
+  before_action :kerberos_auth
   before_action :check_param_type, :check_param_project, only: :index
   before_action :check_feature_toggle
+
+  after_action :verify_policy_scoped
 
   def index
     @notifications = paginated_notifications
