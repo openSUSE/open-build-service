@@ -1,0 +1,66 @@
+.card.mb-3
+  .card-body
+    .row.mb-3.mb-md-0
+      .col-4.col-sm-2.col-md-12.text-center
+        = image_tag_for(user, size: 200)
+      .col-8.col-sm-10.col-md-12.pl-0.p-md-3
+        %h4#home-realname
+          = user.realname
+        %h5.text-muted#home-login
+          = user.login
+
+    - role_titles.each do |title|
+      %span.badge.badge-secondary
+        = title.upcase
+
+    .mt-4
+      - if User.session
+        = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+          %i.fas.fa-envelope.mr-1
+          = user.email
+
+      - if policy(user).see_rss?
+        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
+                                              title: 'RSS Feed for Notifications', class: 'd-block') do
+          %i.fas.fa-rss.mr-1
+          RSS for Notifications
+
+    - if groups.any?
+      .h5.mt-4.mb-0 Member of the #{'group'.pluralize(groups.size)}
+      %ul.list-group.list-group-flush
+        - groups.each do |group|
+          %li.list-group-item.d-flex.justify-content-between.align-items-center.p-2
+            = link_to(group.title, group_show_path(group))
+            %span.badge.badge-primary
+              #{group.tasks} #{'task'.pluralize(group.tasks)}
+
+    - if is_user
+      .mt-4
+        = form_tag(user_path, id: 'beta-form', method: :patch) do
+          .custom-control.custom-switch
+            = hidden_field_tag 'user[in_beta]', false
+            = check_box_tag('user[in_beta]', !user.in_beta, user.in_beta, class: 'custom-control-input', id: 'beta-switch')
+            = label_tag 'Public Beta Program', nil, class: 'custom-control-label', for: 'beta-switch'
+            = hidden_field_tag('user[login]', user.login)
+            %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
+                                                        content: 'Join the <strong>beta program</strong> to try the latest ' + |
+                                                                 'features we develop and give us feedback on them before they go live.' } } |
+
+      .mt-4
+        - if configuration.accounts_editable?(user)
+          = render partial: 'webui/user/edit_account', locals: { account_edit_link: account_edit_link }
+        - if configuration.passwords_changable?(user)
+          = render partial: 'webui/user/change_password'
+        - if feature_enabled?(:responsive_ux)
+          - content_for :actions do
+            %li.nav-item
+              = link_to(my_subscriptions_path, class: 'nav-link', title: 'Change Your Notifications') do
+                %i.fas.fa-lg.mr-2.fa-bell
+                %span.nav-item-name Change Your Notifications
+        - else
+          = link_to(my_subscriptions_path, class: 'd-block') do
+            %i.fas.fa-bell
+            Change Your Notifications
+
+:javascript
+  switchBeta();
