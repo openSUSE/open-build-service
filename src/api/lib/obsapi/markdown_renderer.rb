@@ -30,6 +30,10 @@ module OBSApi
 
     # unfortunately we can't call super (into C) - see vmg/redcarpet#51
     def link(link, title, content)
+      # A return value of nil will not output any data
+      # the contents of the span will be copied verbatim
+      return nil if link.blank?
+
       title = " title='#{title}'" if title.present?
       begin
         link = URI.join(::Configuration.obs_url, link)

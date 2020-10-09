@@ -62,5 +62,11 @@ please review. Also you, <a href=\"https://unconfigured.openbuildservice.org/use
         "<p><a href=\"https://build.opensuse.org\">&amp;lt;script&amp;gt;&amp;lt;/script&amp;gt;</a></p>\n"
       )
     end
+
+    it 'just returns the original content on empty URIs' do
+      expect(render_as_markdown('installed_ver = self.core.version_func[deps_info[6]]()')).to eq(
+        "<p>installed_ver = self.core.version_func[deps_info[6]]()</p>\n"
+      )
+    end
   end
 end
