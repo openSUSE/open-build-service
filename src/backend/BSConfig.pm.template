@@ -301,6 +301,17 @@ our $local_registry_signatures_extension = 1;
 # special options to use for starting containers in run-service-containerized
 # our $docker_custom_opt = [];
 
+### Options used by call-service-in-container
+#
+# container image to use
+#our $container_image="localhost/obs-source-service:latest";
+#
+# special options to use for starting containers in run-service-containerized
+#our $container_custom_opt = [];
+#
+# option where to store container images
+#our $containers_root="$bsdir/service/containers";
+
 ## Server where mirrored gems could be found - used in services like obs-service-bundle_gems
 # our $gems_mirror = '';
 #
