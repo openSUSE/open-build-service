@@ -406,7 +406,7 @@ GEM
     thread_safe (0.3.6)
     tilt (2.0.10)
     timecop (0.9.1)
-    tins (1.25.0)
+    tins (1.26.0)
       sync
     tzinfo (1.2.7)
       thread_safe (~> 0.1)
