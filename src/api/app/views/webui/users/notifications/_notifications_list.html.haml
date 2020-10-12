@@ -43,12 +43,14 @@
                         = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
                         %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
                     .col-auto.actions.ml-auto.align-self-end.align-self-md-start
-                      - title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
-                      - update_path = my_notifications_path(notification_ids: [notification.id], type: selected_filter[:type],
+                      :ruby
+                        title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
+                        update_path = my_notifications_path(notification_ids: [notification.id], type: selected_filter[:type],
                                                             project: selected_filter[:project], page: params[:page],
                                                             show_all: params[:show_all])
                       = link_to(update_path, id: format('update-notification-%d', notification.id),
-                                method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title, remote: true) do
+                                method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title,
+                                data: { remote: true, 'disable-with': tag.i(class: 'fas fa-spinner fa-spin') }) do
                         %i.fas{ class: "#{icon}" }
                   .row.mt-1.pl-sm-4
                     .col-auto.pr-0

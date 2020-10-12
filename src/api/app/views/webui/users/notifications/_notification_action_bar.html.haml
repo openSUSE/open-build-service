@@ -5,6 +5,9 @@
         .custom-control.custom-checkbox
           = check_box_tag('select-all-notifications', 1, false, class: 'custom-control-input')
           %label.custom-control-label.align-middle.mr-4#select-all-label{ for: 'select-all-notifications' } Select All
-          - button_text = type == 'read' ? "Mark as 'Unread'" : "Mark as 'Read'"
-          = button_tag(type: 'submit', class: 'btn btn-sm btn-outline-success px-3 disabled', id: 'done-button') do
+          :ruby
+            button_text = type == 'read' ? "Mark as 'Unread'" : "Mark as 'Read'"
+            disable_with_content = button_text + tag.i(class: 'fas fa-spinner fa-spin ml-2')
+          = button_tag(type: 'submit', class: 'btn btn-sm btn-outline-success px-3', id: 'done-button', disabled: 'disabled',
+                       'data-disable-with': disable_with_content) do
             = button_text
