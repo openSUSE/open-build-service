@@ -28,10 +28,17 @@
           %span#toggle-text
             Include #{::Configuration.unlisted_projects_filter_description}
       - if User.session
-        %li.list-inline-item
-          = link_to(new_project_path) do
-            %i.fas.fa-plus-circle.text-primary
-            Create Project
+        - if feature_enabled?(:responsive_ux)
+          - content_for :actions do
+            %li.nav-item
+              = link_to(new_project_path, class: 'nav-link') do
+                %i.fas.fa-lg.mr-2.fa-plus-circle
+                Create Project
+        - else
+          %li.list-inline-item
+            = link_to(new_project_path) do
+              %i.fas.fa-plus-circle.text-primary
+              Create Project
 
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
                                                                                                   all: 'false' } }
