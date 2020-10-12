@@ -113,7 +113,7 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.15)
-    codecov (0.2.11)
+    codecov (0.2.12)
       json
       simplecov
     coderay (1.1.3)
