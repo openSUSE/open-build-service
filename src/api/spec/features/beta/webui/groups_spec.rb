@@ -42,7 +42,12 @@ RSpec.describe 'Groups', type: :feature, js: true do
   it 'create a group' do
     visit groups_path
 
-    click_link('Create Group', href: group_new_path)
+    if mobile?
+      within('#bottom-navigation-area') { click_link('Actions') }
+      within('#bottom-navigation-area') { click_link('Create Group') }
+    else
+      click_link('Create Group', href: group_new_path)
+    end
 
     new_group_title = 'group_123'
     fill_in('group_title', with: new_group_title)
