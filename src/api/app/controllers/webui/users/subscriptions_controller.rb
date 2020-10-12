@@ -1,11 +1,14 @@
 class Webui::Users::SubscriptionsController < Webui::WebuiController
-  before_action :require_login
+  # TODO: Remove this when we'll refactor kerberos_auth
+  before_action :kerberos_auth
+
+  after_action :verify_authorized
 
   def index
+    @subscriptions_form = authorize(subscriptions_form(default_form: params[:default_form]))
+
     @user = User.session!
     @groups_users = @user.groups_users
-
-    @subscriptions_form = subscriptions_form(default_form: params[:default_form])
 
     respond_to do |format|
       format.html
@@ -14,16 +17,20 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
   end
 
   def update
+    @subscriptions_form = authorize(subscriptions_form)
+
     User.session!.groups_users.each do |gu|
       gu.email = params[gu.group.title] == '1'
       gu.save
     end
 
-    subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]
-    flash.now[:success] = 'Notifications settings updated'
-  rescue ActiveRecord::RecordInvalid => e
-    flash.now[:error] = "Notifications settings could not be updated due to an error: #{e.message}"
-  ensure
+    begin
+      @subscriptions_form.update!(params[:subscriptions]) if params[:subscriptions]
+      flash.now[:success] = 'Notifications settings updated'
+    rescue ActiveRecord::RecordInvalid => e
+      flash.now[:error] = "Notifications settings could not be updated due to an error: #{e.message}"
+    end
+
     respond_to do |format|
       format.html { redirect_to action: :index }
       format.js { render 'webui/users/subscriptions/update' }
@@ -36,7 +43,7 @@ class Webui::Users::SubscriptionsController < Webui::WebuiController
     if options[:default_form]
       EventSubscription::Form.new
     else
-      EventSubscription::Form.new(User.session!)
+      EventSubscription::Form.new(User.session)
     end
   end
 end

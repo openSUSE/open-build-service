@@ -2,16 +2,22 @@ require 'rails_helper'
 
 RSpec.describe Webui::Users::SubscriptionsController do
   describe 'GET #index' do
-    let!(:user) { create(:confirmed_user) }
-
-    before do
-      login user
-      get :index
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :index }
     end
 
-    it { expect(response).to have_http_status(:success) }
-    it { expect(response).to render_template(:index) }
-    it { is_expected.to use_before_action(:require_login) }
+    context 'for logged in user' do
+      let!(:user) { create(:confirmed_user) }
+
+      before do
+        login user
+        get :index
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(response).to render_template(:index) }
+    end
   end
 
   describe 'PUT #update' do
@@ -19,14 +25,21 @@ RSpec.describe Webui::Users::SubscriptionsController do
 
     let(:params) { { subscriptions: subscription_params } }
 
-    before do
-      login user
-      put :update, params: params
+    it_behaves_like 'require logged in user' do
+      let(:method) { :put }
+      let(:action) { :update }
+      let(:opts) { { params: params } }
     end
 
-    it { expect(response).to redirect_to(action: :index) }
-    it { is_expected.to use_before_action(:require_login) }
+    context 'for logged in user' do
+      before do
+        login user
+        put :update, params: params
+      end
 
-    it_behaves_like 'a subscriptions form for subscriber'
+      it { expect(response).to redirect_to(action: :index) }
+
+      it_behaves_like 'a subscriptions form for subscriber'
+    end
   end
 end
