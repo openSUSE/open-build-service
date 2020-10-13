@@ -45,7 +45,7 @@ create_dir "$LOGDIR"
 
 shift
 case "$COMMAND" in
-  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage)
+  */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom|*/snapcraft|*/kiwi_import|*/appimage|*/node_modules)
     WITH_NET="1"
     ;;
   */bundle_gems)
