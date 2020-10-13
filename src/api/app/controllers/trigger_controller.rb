@@ -89,7 +89,7 @@ class TriggerController < ApplicationController
     else
       @prj = Project.get_by_name(params[:project])
       @pkg_name = params[:package] # for multibuild container
-      opts = if @token.class == Token::Rebuild
+      opts = if @token.instance_of?(Token::Rebuild)
                { use_source: false,
                  follow_project_links: true,
                  follow_multibuild: true }

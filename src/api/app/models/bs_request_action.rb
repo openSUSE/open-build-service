@@ -287,7 +287,7 @@ class BsRequestAction < ApplicationRecord
     return reviews unless target_project
 
     tprj = Project.get_by_name(target_project)
-    raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.' if tprj.class == String
+    raise RemoteTarget, 'No support to target to remote projects. Create a request in remote instance instead.' if tprj.instance_of?(String)
 
     tpkg = nil
     if target_package
@@ -765,7 +765,7 @@ class BsRequestAction < ApplicationRecord
       # produce the same exception for webui
       Package.get_by_project_and_name(source_project, source_package)
     end
-    if sp.class == String
+    if sp.instance_of?(String)
       # a remote package
       return
     end
@@ -859,7 +859,7 @@ class BsRequestAction < ApplicationRecord
 
     sprj = Project.get_by_name(source_project)
     raise UnknownProject, "Unknown source project #{source_project}" unless sprj
-    unless sprj.class == Project || action_type.in?([:submit, :maintenance_incident])
+    unless sprj.instance_of?(Project) || action_type.in?([:submit, :maintenance_incident])
       raise NotSupported, "Source project #{source_project} is not a local project. This is not supported yet."
     end
 
@@ -933,7 +933,7 @@ class BsRequestAction < ApplicationRecord
     obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
       reviewers << Group.find(r)
     end
-    reviewers += find_reviewers(obj.project) if obj.class == Package
+    reviewers += find_reviewers(obj.project) if obj.instance_of?(Package)
 
     reviewers
   end

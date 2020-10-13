@@ -67,7 +67,7 @@ module Build
     def check_user_has_permission
       user_has_permission =
         !(
-          project.class == Project &&
+          project.instance_of?(Project) &&
           project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
           !User.possibly_nobody.can_download_binaries?(project)
         )

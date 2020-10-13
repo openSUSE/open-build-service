@@ -4,7 +4,7 @@
   .media-body
     %p
       = link_to(element.user, user_path(element.user))
-      - if element.class == HistoryElement::RequestSuperseded
+      - if element.instance_of?(HistoryElement::RequestSuperseded)
         = link_to(element.user_action, request_show_path(element.description_extension))
       - else
         = element.user_action

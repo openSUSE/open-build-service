@@ -1,7 +1,7 @@
 # filter and render them
 issues.each do |i|
   change = nil
-  change = i.change if i.class == PackageIssue
+  change = i.change if i.instance_of?(PackageIssue)
   next if @filter_changes && (!change || @filter_changes.exclude?(change))
   next if @states && (!i.issue.state || @states.exclude?(i.issue.state))
 

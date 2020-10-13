@@ -1080,19 +1080,19 @@ class BsRequest < ApplicationRecord
     reviewers = collect_default_reviewers!
     # apply reviewers
     reviewers.each do |r|
-      if r.class == User
+      if r.instance_of?(User)
         next if reviews.any? { |a| a.by_user == r.login }
 
         reviews.new(by_user: r.login, state: :new)
-      elsif r.class == Group
+      elsif r.instance_of?(Group)
         next if reviews.any? { |a| a.by_group == r.title }
 
         reviews.new(by_group: r.title, state: :new)
-      elsif r.class == Project
+      elsif r.instance_of?(Project)
         next if reviews.any? { |a| a.by_project == r.name && a.by_package.nil? }
 
         reviews.new(by_project: r.name, state: :new)
-      elsif r.class == Package
+      elsif r.instance_of?(Package)
         next if reviews.any? { |a| a.by_project == r.project.name && a.by_package == r.name }
 
         reviews.new(by_project: r.project.name, by_package: r.name, state: :new)

@@ -130,7 +130,7 @@ class SourceController < ApplicationController
   def verify_can_modify_target_package!
     return if User.session!.can_modify?(@package)
 
-    unless @package.class == Package
+    unless @package.instance_of?(Package)
       raise CmdExecutionNoPermission, "no permission to execute command '#{params[:cmd]}' " \
                                       'for unspecified package'
     end

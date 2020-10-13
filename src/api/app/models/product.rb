@@ -6,7 +6,7 @@ class Product < ApplicationRecord
   include CanRenderModel
 
   def self.find_or_create_by_name_and_package(name, package)
-    raise Product::NotFoundError, 'Error: Package not valid.' unless package.class == Package
+    raise Product::NotFoundError, 'Error: Package not valid.' unless package.instance_of?(Package)
 
     product = find_by_name_and_package(name, package)
 
