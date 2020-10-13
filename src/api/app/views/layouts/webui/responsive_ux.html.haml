@@ -42,8 +42,9 @@
     #grid
       #top-navigation-area
         = render partial: 'layouts/webui/responsive_ux/top_navigation'
-      .bg-dark#left-navigation-area
+      .bg-dark#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
         = render partial: 'layouts/webui/responsive_ux/left_navigation'
+        = render partial: 'layouts/webui/responsive_ux/left_navigation_collapse_button'
       .d-flex.flex-column#content-area
         - if @current_notification
           = render partial: 'layouts/webui/notification_toolbar', locals: { notification: @current_notification }
@@ -56,7 +57,7 @@
           .row.flex-column
             .col#breadcrumbs
               = render partial: 'layouts/webui/breadcrumbs'
-            .col#content
+            .col#content{ class: "#{'expanded' if sidebar_collapsed?}" }
               = yield
 
         .container-fluid.mt-4.mb-2.py-2#footer

@@ -1,0 +1,6 @@
+.bg-dark.border-top.border-gray-500#toggle-sidebar-button
+  %ul.nav.flex-column.ml-auto.pt-0.text-nowrap.menu-options
+    %li.nav-item
+      %a.nav-link{ type: 'button' }
+        %i.fas.fa-lg.mr-2{ class: "#{sidebar_collapsed? ? 'fa-angle-double-right' : 'fa-angle-double-left '}" }
+        %span.collapse-button-name Collapse sidebar

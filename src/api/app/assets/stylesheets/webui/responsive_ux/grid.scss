@@ -27,37 +27,33 @@
 
 @include media-breakpoint-up(xl) {
   #grid {
-    grid-template-columns: $left-navigation-width auto;
-    grid-template-rows: $top-navigation-height auto;
+    grid-template-columns: min-content auto;
+    grid-template-rows: $top-navigation-height 1fr auto;
     grid-template-areas:
       'top-navigation top-navigation'
-      'left-navigation content';
+      'left-navigation content'
+      'toggle-sidebar-button content';
 
     #left-navigation-area {
       grid-area: left-navigation;
       display: block;
+    }
 
-      #left-navigation {
-        position: sticky;
-        top: $top-navigation-height;
-        left: 0;
-        max-height: calc(100vh - #{$top-navigation-height});
-        overflow-y: auto;
-        overflow-x: hidden;
-
-        & a {
-          color: $gray-300;
-          width: $left-navigation-width;
-          white-space: normal !important;
-          &:hover { color: white; }
-        }
-      }
+    #toggle-sidebar-button {
+      grid-area: toggle-sidebar-button;
+      display: block;
     }
 
     // This prevents content from breaking the layout by overflowing outside the viewport
     #content {
       // 2rem is the sum of the left and right padding for the content
       max-width: calc(100vw - (#{$left-navigation-width} + 2rem));
+    }
+
+    // Adjust content width when sidebar is collapsed
+    #content.expanded {
+      // 2rem is the sum of the left and right padding for the content
+      max-width: calc(100vw - (#{$left-navigation-collapsed-width} + 2rem));
     }
 
     #bottom-navigation-area {
