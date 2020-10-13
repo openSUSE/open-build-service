@@ -19,7 +19,7 @@
           %i.fas.fa-envelope.mr-1
           = user.email
 
-      - if policy(user).see_rss?
+      - if user.rss_token && is_user
         = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
                                               title: 'RSS Feed for Notifications', class: 'd-block') do
           %i.fas.fa-rss.mr-1
