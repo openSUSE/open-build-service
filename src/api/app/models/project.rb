@@ -379,7 +379,7 @@ class Project < ApplicationRecord
         maintenance.elements('maintains') do |maintains|
           target_project_name = maintains.value('project')
           target_project = Project.get_by_name(target_project_name)
-          return { error: "No write access to maintained project #{target_project_name}" } unless target_project.class == Project && User.possibly_nobody.can_modify?(target_project)
+          return { error: "No write access to maintained project #{target_project_name}" } unless target_project.instance_of?(Project) && User.possibly_nobody.can_modify?(target_project)
         end
       end
       {}
@@ -393,7 +393,7 @@ class Project < ApplicationRecord
 
         # The read access protection for own and linked project must be the same.
         # ignore this for remote targets
-        if target_project.class == Project &&
+        if target_project.instance_of?(Project) &&
            target_project.disabled_for?('access', nil, nil) &&
            !FlagHelper.xml_disabled_for?(request_data, 'access')
           return {
@@ -415,7 +415,7 @@ class Project < ApplicationRecord
             begin
               target_project = Project.get_by_name(target_project_name)
               # user can access tprj, but backend would refuse to take binaries from there
-              if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
+              if target_project.instance_of?(Project) && target_project.disabled_for?('access', nil, nil)
                 return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}" }
               end
             rescue Project::Errors::UnknownObjectError

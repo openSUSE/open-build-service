@@ -44,7 +44,7 @@ class BuildController < ApplicationController
         return
       end
 
-      unless prj.class == Project
+      unless prj.instance_of?(Project)
         render_error status: 403, errorcode: 'readonly_error',
                      message: "The project #{params[:project]} is a remote project and therefore readonly."
         return
@@ -127,7 +127,7 @@ class BuildController < ApplicationController
     # for permission check
     pkg = Package.get_by_project_and_name(params[:project], params[:package], use_source: true, follow_project_links: true, follow_multibuild: true)
 
-    if pkg.class == Package && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
+    if pkg.instance_of?(Package) && pkg.project.disabled_for?('binarydownload', params[:repository], params[:arch]) &&
        !User.possibly_nobody.can_download_binaries?(pkg.project)
       render_error status: 403, errorcode: 'download_binary_no_permission',
                    message: "No permission to download binaries from package #{params[:package]}, project #{params[:project]}"

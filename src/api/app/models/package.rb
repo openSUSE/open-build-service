@@ -113,7 +113,7 @@ class Package < ApplicationRecord
 
   def self.check_access?(package)
     return false if package.nil?
-    return false unless package.class == Package
+    return false unless package.instance_of?(Package)
 
     Project.check_access?(package.project)
   end
@@ -604,7 +604,7 @@ class Package < ApplicationRecord
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
             product = Product.find_or_create_by_name_and_package(p['name'], self)
-            product = product.first unless product.class == Product
+            product = product.first unless product.instance_of?(Product)
             product.update_from_xml(xml)
             product.save!
             old.delete(product.name)
