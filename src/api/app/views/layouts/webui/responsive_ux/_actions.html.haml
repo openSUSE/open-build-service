@@ -1,4 +1,5 @@
-%h5.text-light{ class: navigation == :left ? 'pl-2 pt-4' : 'pt-2' }
-  Actions on this page
-%ul.ml-auto.pt-0.text-nowrap.menu-options{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
+.section-delimiter
+%h5.text-light{ class: navigation == :left ? 'pl-2' : 'pt-2' }
+  %span.section-name Actions on this page
+%ul.ml-auto.pt-0.text-nowrap.menu-options.mb-5{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
   = yield :actions

@@ -1,4 +1,5 @@
 %li.nav-item
-  = link_to(new_project_package_submission_path(project, package, revision: revision), class: 'nav-link') do
+  = link_to(new_project_package_submission_path(project, package, revision: revision), class: 'nav-link',
+            title: 'Submit Package') do
     %i.fas.fa-share-square.fa-lg.mr-2
-    Submit Package
+    %span.nav-item-name Submit Package

@@ -1,9 +1,9 @@
 - content_for :actions do
   %li.nav-item
-    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user', class: 'nav-link') do
+    = link_to('#', data: { toggle: 'modal', target: '#add-user-role-modal' }, id: 'add-user', class: 'nav-link', title: 'Add User') do
       %i.fas.fa-plus-circle.fa-lg.mr-2
-      Add User
+      %span.nav-item-name Add User
   %li.nav-item
-    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-group', class: 'nav-link') do
+    = link_to('#', data: { toggle: 'modal', target: '#add-group-role-modal' }, id: 'add-group', class: 'nav-link', title: 'Add Group') do
       %i.fas.fa-plus-circle.fa-lg.mr-2
-      Add Group
+      %span.nav-item-name Add Group

@@ -1,5 +1,5 @@
 - unless has_patchinfo
   %li.nav-item
-    = link_to(patchinfo_path(project: project), method: :post, class: 'nav-link') do
+    = link_to(patchinfo_path(project: project), method: :post, class: 'nav-link', title: 'Create Patchinfo') do
       %i.fas.fa-plus-circle.fa-lg.mr-2
-      Create Patchinfo
+      %span.nav-item-name Create Patchinfo

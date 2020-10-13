@@ -20,14 +20,14 @@
     - if feature_enabled?(:responsive_ux)
       - content_for :actions do
         %li.nav-item
-          = link_to(group_new_path, class: 'nav-link') do
+          = link_to(group_new_path, class: 'nav-link', title: 'Create Group') do
             %i.fas.fa-lg.mr-2.fa-plus-circle
-            Create Group
+            %span.nav-item-name Create Group
     - else
       .pt-4
-        = link_to(group_new_path) do
+        = link_to(group_new_path, title: 'Create Group') do
           %i.fas.fa-plus-circle.text-primary
-          Create Group
+          %span.nav-item-name Create Group
 
 - content_for :ready_function do
   initializeDataTable('#manage-groups-table', { columnDefs: [{ orderable: false, searchable: false, targets: -1 }] });
