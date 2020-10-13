@@ -32,7 +32,11 @@
   .card-body
     .tab-content
       .tab-pane.show.active#group-members{ aria: { controls: 'group-members' }, role: 'tabpanel' }
-        %h3 Group Members
+        %h3
+          Group Members
+          - if feature_enabled?(:responsive_ux)
+            = link_to('#', data: { toggle: 'modal', target: '#add-group-user-modal' }, title: 'Add Member') do
+              %i.fas.fa-xs.fa-plus-circle.text-primary
         = render(partial: 'group_members', locals: { group: @group })
 
       .tab-pane#reviews-in{ aria: { controls: 'reviews-in' }, role: 'tabpanel' }
