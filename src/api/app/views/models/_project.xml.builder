@@ -4,7 +4,7 @@ project_attributes[:kind] = my_model.kind unless my_model.is_standard?
 
 xml.project(project_attributes) do
   xml.title(my_model.title)
-  xml.description(my_model.description)
+  xml.description(my_model.description.gsub(/\r\n/, "\n"))
 
   my_model.linking_to.each do |l|
     params = { project: l.linked_db_project ? l.linked_db_project.name : l.linked_remote_project_name }

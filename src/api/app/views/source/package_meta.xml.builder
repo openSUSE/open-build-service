@@ -1,6 +1,6 @@
 xml.package('name' => @package.name) do
   xml.title @package.title
-  xml.description @package.description
+  xml.description @package.description.gsub(/\r\n/, "\n")
   @package.each_person do |p|
     xml.person('userid' => p.userid, 'role' => p.role)
   end

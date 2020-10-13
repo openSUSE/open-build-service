@@ -5,7 +5,7 @@ xml.image_template_projects do
         xml.image_template_package do
           xml.name package.name
           xml.title package.title
-          xml.description package.description
+          xml.description package.description.gsub(/\r\n/, "\n")
         end
       end
     end
