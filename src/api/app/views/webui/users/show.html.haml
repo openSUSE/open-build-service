@@ -20,11 +20,11 @@
   - else
     .col-12.col-md-4.col-lg-3
       = render partial: 'webui/user/info', locals: { user: @displayed_user,
-                                                            is_user: @is_displayed_user,
-                                                            groups: @groups,
-                                                            role_titles: @role_titles,
-                                                            configuration: @configuration,
-                                                            account_edit_link: @account_edit_link }
+                                                     is_user: @is_displayed_user,
+                                                     groups: @groups,
+                                                     role_titles: @role_titles,
+                                                     configuration: @configuration,
+                                                     account_edit_link: @account_edit_link }
     .col-12.col-md-8.col-lg-9
       - unless CONFIG['contribution_graph'] == :off
         = render partial: 'webui/user/activity', locals: { activity_hash: @activity_hash,
