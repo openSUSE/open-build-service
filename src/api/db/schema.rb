@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_110429) do
+ActiveRecord::Schema.define(version: 2020_07_30_153057) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -878,6 +878,7 @@ ActiveRecord::Schema.define(version: 2020_07_03_110429) do
     t.integer "group_id"
     t.integer "project_id"
     t.integer "package_id"
+    t.datetime "changed_state_at"
     t.index ["bs_request_id"], name: "bs_request_id"
     t.index ["by_group"], name: "index_reviews_on_by_group"
     t.index ["by_package", "by_project"], name: "index_reviews_on_by_package_and_by_project"
