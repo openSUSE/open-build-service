@@ -1262,7 +1262,7 @@ class Package < ApplicationRecord
     if /\.kiwi\.txz$/.match?(opt[:filename])
       logger.debug 'Found a kiwi archive, creating kiwi_import source service'
       services = self.services
-      services.addKiwiImport
+      services.add_kiwi_import
     end
 
     # update package timestamp and reindex sources

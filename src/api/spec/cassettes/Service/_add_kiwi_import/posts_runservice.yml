@@ -30,17 +30,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '129'
+      - '128'
     body:
       encoding: UTF-8
       string: |
         <project name="home:tom">
           <title></title>
           <description></description>
-          <person userid="tom" role="maintainer" />
+          <person userid="tom" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:04 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
+          <title>O Pioneers!</title>
+          <description>Ut labore inventore ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,55 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
+          <title>O Pioneers!</title>
+          <description>Ut labore inventore ut.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:04 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '155'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
-        </package>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:04 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package/_service
@@ -140,7 +99,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '170'
+      - '54'
       Cache-Control:
       - no-cache
       Connection:
@@ -150,9 +109,8 @@ http_interactions:
       string: |-
         <services>
           <service name="kiwi_import"/>
-        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:04 GMT
+        </services>
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_service?comment=Modified%20via%20webui&user=tom
@@ -161,7 +119,7 @@ http_interactions:
       string: |-
         <services>
           <service name="kiwi_import"/>
-        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+        <service name="kiwi_import"/></services>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -181,20 +139,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '223'
+      - '221'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="11" vrev="11">
-          <srcmd5>0f343e9f0bbeefaefdd52420b9009313</srcmd5>
+        <revision rev="3" vrev="3">
+          <srcmd5>fddbb84d539776f2849a1effafe3f9bc</srcmd5>
           <version>unknown</version>
-          <time>1533842224</time>
+          <time>1602679078</time>
           <user>tom</user>
           <comment>Modified via webui</comment>
           <requestid/>
         </revision>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:04 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=runservice&user=tom
@@ -228,8 +185,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -237,8 +193,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
+          <title>O Pioneers!</title>
+          <description>Ut labore inventore ut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,16 +215,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '142'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Fame Is the Spur</title>
-          <description>Architecto officiis earum quia.</description>
+          <title>O Pioneers!</title>
+          <description>Ut labore inventore ut.</description>
         </package>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -294,16 +249,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '236'
+      - '231'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="12" vrev="12" srcmd5="46bbc6cc7ebdef44d521889b3c0443c5">
-          <serviceinfo code="running" />
-          <entry name="_service" md5="f781a9bad33dc786ec296064b97d7c88" size="199" mtime="1533842224" />
+        <directory name="test_package" rev="4" vrev="4" srcmd5="1b193dc9baa8665e9b5f1fe1546768f2">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="b3e38e1862429ebeb1946756a563d62a" size="83" mtime="1602679078"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package?view=info
@@ -329,15 +283,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '146'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="12" vrev="12" srcmd5="46bbc6cc7ebdef44d521889b3c0443c5">
+        <sourceinfo package="test_package" rev="4" vrev="4" srcmd5="1b193dc9baa8665e9b5f1fe1546768f2">
           <error>service in progress</error>
         </sourceinfo>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -363,16 +316,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '236'
+      - '231'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="12" vrev="12" srcmd5="46bbc6cc7ebdef44d521889b3c0443c5">
-          <serviceinfo code="running" />
-          <entry name="_service" md5="f781a9bad33dc786ec296064b97d7c88" size="199" mtime="1533842224" />
+        <directory name="test_package" rev="4" vrev="4" srcmd5="1b193dc9baa8665e9b5f1fe1546768f2">
+          <serviceinfo code="running"/>
+          <entry name="_service" md5="b3e38e1862429ebeb1946756a563d62a" size="83" mtime="1602679078"/>
         </directory>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -400,19 +352,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '306'
+      - '302'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="065e50dda1efed380808d9b815e857df">
-          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
-          <new project="home:tom" package="test_package" rev="12" srcmd5="46bbc6cc7ebdef44d521889b3c0443c5" />
-          <files />
+        <sourcediff key="a3e02968677a83c4cfa5d31f018fc628">
+          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="home:tom" package="test_package" rev="4" srcmd5="1b193dc9baa8665e9b5f1fe1546768f2"/>
+          <files/>
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:05 GMT
+  recorded_at: Wed, 14 Oct 2020 12:37:58 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=waitservice
@@ -448,6 +399,5 @@ http_interactions:
         <status code="400">
           <summary>/usr/lib/obs/service//kiwi_import:34:in `&lt;main&gt;': No API url defined. This might be caused by using an older osc version. (RuntimeError)</summary>
         </status>
-    http_version: 
-  recorded_at: Thu, 09 Aug 2018 19:17:06 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Wed, 14 Oct 2020 12:37:59 GMT
+recorded_with: VCR 6.0.0

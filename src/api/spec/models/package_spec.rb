@@ -23,13 +23,13 @@ RSpec.describe Package, vcr: true do
   end
 
   describe '#save_file' do
-    it 'calls #addKiwiImport if filename ends with kiwi.txz' do
-      expect_any_instance_of(Service).to receive(:addKiwiImport).once
+    it 'calls #add_kiwi_import if filename ends with kiwi.txz' do
+      expect_any_instance_of(Service).to receive(:add_kiwi_import).once
       package.save_file(filename: 'foo.kiwi.txz')
     end
 
-    it 'does not call #addKiwiImport if filename ends not with kiwi.txz' do
-      expect_any_instance_of(Service).not_to receive(:addKiwiImport)
+    it 'does not call #add_kiwi_import if filename ends not with kiwi.txz' do
+      expect_any_instance_of(Service).not_to receive(:add_kiwi_import)
       package.save_file(filename: 'foo.spec')
     end
   end
