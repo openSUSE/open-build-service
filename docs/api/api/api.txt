@@ -889,6 +889,9 @@ POST /source/<project>/<package>?cmd=commitfilelist
 Parameters:
   withvalidate: activate sha validation code (optional, but recommended)
   comment: comment for history, optional
+  keeplink: bool, optional. If the package is a link and keeplink is true, then the link is preserved. By default keeplink is false and the link is replaced with the expanded sources when creating a new revision.
+  linkrev: optional, specifies the revision to link against when used together with keeplink parameter.
+  repairlink: boolean, optional, for solving conflicts. The additional linkrev parameter is recommended.
 
 XmlBody: directory
 
