@@ -54,3 +54,4 @@
 //= require webui/responsive_ux
 //= require webui/notification.js
 //= require webui/sidebar-menu.js
+//= require webui/user_profile.js

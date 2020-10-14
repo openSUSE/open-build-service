@@ -1,4 +1,4 @@
-.card.mb-3
+.card.mb-3#involvement
   - if feature_enabled?(:responsive_ux)
     = render partial: 'webui/user/responsive_ux/tabs_profile', locals: { involved_packages: involved_packages,
                                                                          involved_projects: involved_projects, owned: owned }
