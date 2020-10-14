@@ -87,14 +87,6 @@ class Service
     end
   end
 
-  def fill_params(element, parameters)
-    parameters.each do |parameter|
-      param = document.create_element('param', parameter[:value], name: parameter[:name])
-      element.add_child(param)
-    end
-    true
-  end
-
   # parameters need to be given as an array with hash pairs :name and :value
   def add_service(name, parameters = [], mode = nil)
     attribs = { name: name }
@@ -125,6 +117,14 @@ class Service
   end
 
   private
+
+  def fill_params(element, parameters)
+    parameters.each do |parameter|
+      param = document.create_element('param', parameter[:value], name: parameter[:name])
+      element.add_child(param)
+    end
+    true
+  end
 
   def add_scm_service(url)
     add_service('obs_scm', [{ name: 'scm', value: 'git' }, { name: 'url', value: url }])
