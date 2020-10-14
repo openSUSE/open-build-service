@@ -31,6 +31,18 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
 
       it { expect(response).not_to have_http_status(:success) }
     end
+
+    context 'package description does not include escaped carriage return characters' do
+      before do
+        login user
+        project_with_package.packages.first.update(description: "%description\r\nctris is a colorized, small and flexible Tetris(TM)-clone for the console.")
+        project_with_package
+        get :show, params: { project: project_with_package.name,
+                             package: 'foo', format: :xml }
+      end
+
+      it { expect(response.body).not_to include('&#13;') }
+    end
   end
 
   describe 'PUT #update' do
