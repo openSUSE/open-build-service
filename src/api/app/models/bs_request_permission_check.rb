@@ -94,7 +94,7 @@ class BsRequestPermissionCheck
       raise PostRequestNoPermission, "set state to #{opts[:newstate]} from a final state is not allowed." if opts[:newstate].in?(['accepted', 'declined', 'superseded', 'revoked'])
     end
 
-    raise PostRequestMissingParamater, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
+    raise PostRequestMissingParameter, "Supersed a request requires a 'superseded_by' parameter with the request id." if opts[:newstate] == 'superseded' && !opts[:superseded_by]
 
     target_project = req.bs_request_actions.first.target_project_object
     user_is_staging_manager = User.session!.groups_users.exists?(group: target_project.staging.managers_group) if target_project && target_project.staging

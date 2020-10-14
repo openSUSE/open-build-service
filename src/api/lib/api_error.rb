@@ -54,6 +54,9 @@ end
 class OpenReleaseRequest < APIError
   setup 403
 end
+class PostRequestMissingParameter < APIError
+  setup 403
+end
 
 # 404 errors
 class NotFoundError < APIError

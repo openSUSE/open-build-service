@@ -201,10 +201,6 @@ class RequestController < ApplicationController
     end
   end
 
-  class PostRequestMissingParamater < APIError
-    setup 403
-  end
-
   def request_command_setincident
     @req.setincident(params[:incident])
     render_ok
