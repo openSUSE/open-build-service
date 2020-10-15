@@ -9,9 +9,9 @@
 
 %li.list-inline-item
   = link_to(index_package_job_history_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
-  title: 'Job history', class: 'nav-link') do
-    %i.fas.fa-list
-    Job history
+  title: 'Job History', class: 'nav-link') do
+    %i.fas.fa-history
+    Job History
 
 %li.list-inline-item
   = link_to(index_package_build_reason_path(project: project, package_name: package, repository: repository, arch: result[:arch]),
