@@ -72,18 +72,13 @@ class Service
 
   def add_kiwi_import
     add_service('kiwi_import')
-    if save
-      Rails.logger.debug 'Service successfully saved'
-      begin
-        Rails.logger.debug 'Executing waitservice command'
-        Backend::Api::Sources::Package.wait_service(project.name, package.name)
-        Rails.logger.debug 'Executing mergeservice command'
-        Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
-      rescue Backend::Error, Timeout::Error => e
-        Rails.logger.debug "Error while executing backend command: #{e.message}"
-      end
-    else
-      Rails.logger.debug 'Failed to save service'
+    return unless save
+
+    begin
+      Backend::Api::Sources::Package.wait_service(project.name, package.name)
+      Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
+    rescue Backend::Error, Timeout::Error => e
+      Rails.logger.debug "Error while executing backend command: #{e.message}"
     end
   end
 
