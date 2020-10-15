@@ -3,7 +3,11 @@
 .card.mb-3
   = render partial: "webui/configuration/#{@namespace}tabs"
   .card-body
-    %h3= @pagetitle
+    %h3
+      = @pagetitle
+      - if feature_enabled?(:responsive_ux)
+        = link_to(group_new_path, title: 'Create Group') do
+          %i.fas.fa-xs.fa-plus-circle.text-primary
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#manage-groups-table
       %thead
         %tr
@@ -17,13 +21,7 @@
             %td
               = safe_join(group.users.map { |user| link_to(truncate(user.login, length: 20), user_path(user), title: user.login) }, ', ')
 
-    - if feature_enabled?(:responsive_ux)
-      - content_for :actions do
-        %li.nav-item
-          = link_to(group_new_path, class: 'nav-link', title: 'Create Group') do
-            %i.fas.fa-lg.mr-2.fa-plus-circle
-            %span.nav-item-name Create Group
-    - else
+    - unless feature_enabled?(:responsive_ux)
       .pt-4
         = link_to(group_new_path, title: 'Create Group') do
           %i.fas.fa-plus-circle.text-primary
