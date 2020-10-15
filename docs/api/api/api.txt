@@ -883,12 +883,15 @@ POST /source/<project>/<package>?cmd=commitfilelist
   This can be done via PUT using rev=repository which avoids a commit.
 
   This requires a directory xml providing file name and md5 as body.
-  It is recommended to use the withvalidate parameter and including the 
+  It is recommended to use the withvalidate parameter and including the
   sha256 sum including "sha256:" prefix in "hash" attribute for security reason.
 
 Parameters:
   withvalidate: activate sha validation code (optional, but recommended)
   comment: comment for history, optional
+  keeplink: bool, optional. If the package is a link and keeplink is true, then the link is preserved. By default keeplink is false and the link is replaced with the expanded sources when creating a new revision.
+  linkrev: optional, specifies the revision to link against when used together with keeplink parameter.
+  repairlink: boolean, optional, for solving conflicts. The additional linkrev parameter is recommended.
 
 XmlBody: directory
 
@@ -2072,4 +2075,3 @@ XmlResult: configuration configuration.rng
 == Internal only routes
 
    /public shall not be used in any tools, it is for OBS remote support only and may change or disappear at any time. The route is only working when anonymous mode is enabled.
-
