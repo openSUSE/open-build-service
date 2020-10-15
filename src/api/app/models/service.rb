@@ -37,7 +37,7 @@ class Service
   end
 
   #### Instance methods (public and then protected/private)
-  def addDownloadURL(url, filename = nil)
+  def add_download_url(url, filename = nil)
     if url.starts_with?('git@') || url.ends_with?('.git')
       add_scm_service(url)
       return true
@@ -62,41 +62,28 @@ class Service
     end
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
-      addService('download_src_package', service_content)
+      add_service('download_src_package', service_content)
     else # just download
       service_content << { name: 'filename', value: filename } if filename.present?
-      addService('download_url', service_content)
+      add_service('download_url', service_content)
     end
     true
   end
 
-  def addKiwiImport
-    addService('kiwi_import')
-    if save
-      Rails.logger.debug 'Service successfully saved'
-      begin
-        Rails.logger.debug 'Executing waitservice command'
-        Backend::Api::Sources::Package.wait_service(project.name, package.name)
-        Rails.logger.debug 'Executing mergeservice command'
-        Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
-      rescue Backend::Error, Timeout::Error => e
-        Rails.logger.debug "Error while executing backend command: #{e.message}"
-      end
-    else
-      Rails.logger.debug 'Failed to save service'
-    end
-  end
+  def add_kiwi_import
+    add_service('kiwi_import')
+    return unless save
 
-  def fill_params(element, parameters)
-    parameters.each do |parameter|
-      param = document.create_element('param', parameter[:value], name: parameter[:name])
-      element.add_child(param)
+    begin
+      Backend::Api::Sources::Package.wait_service(project.name, package.name)
+      Backend::Api::Sources::Package.merge_service(project.name, package.name, User.session!.login)
+    rescue Backend::Error, Timeout::Error => e
+      Rails.logger.debug "Error while executing backend command: #{e.message}"
     end
-    true
   end
 
   # parameters need to be given as an array with hash pairs :name and :value
-  def addService(name, parameters = [], mode = nil)
+  def add_service(name, parameters = [], mode = nil)
     attribs = { name: name }
     attribs[:mode] =  mode if mode
     element = document.create_element('service', attribs)
@@ -126,11 +113,19 @@ class Service
 
   private
 
+  def fill_params(element, parameters)
+    parameters.each do |parameter|
+      param = document.create_element('param', parameter[:value], name: parameter[:name])
+      element.add_child(param)
+    end
+    true
+  end
+
   def add_scm_service(url)
-    addService('obs_scm', [{ name: 'scm', value: 'git' }, { name: 'url', value: url }])
-    addService('tar', [], 'buildtime')
-    addService('recompress', [{ name: 'compression', value: 'xz' }, { name: 'file', value: '*.tar' }], 'buildtime')
-    addService('set_version', [], 'buildtime')
+    add_service('obs_scm', [{ name: 'scm', value: 'git' }, { name: 'url', value: url }])
+    add_service('tar', [], 'buildtime')
+    add_service('recompress', [{ name: 'compression', value: 'xz' }, { name: 'file', value: '*.tar' }], 'buildtime')
+    add_service('set_version', [], 'buildtime')
 
     true
   end

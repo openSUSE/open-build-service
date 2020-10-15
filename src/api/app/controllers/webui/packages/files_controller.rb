@@ -28,7 +28,7 @@ module Webui
             services = @package.services
 
             # detects automatically git://, src.rpm formats
-            services.addDownloadURL(file_url, filename)
+            services.add_download_url(file_url, filename)
 
             errors << "Failed to add file from URL '#{file_url}'" unless services.save
           elsif filename.present? # No file is provided so we just create an empty new file (touch)
