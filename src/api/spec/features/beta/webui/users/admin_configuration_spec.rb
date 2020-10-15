@@ -38,7 +38,6 @@ RSpec.describe 'Admin user configuration page', type: :feature, js: true do
 
   it 'create user' do
     expect(page).to have_text('5 records')
-    click_link('Actions') if mobile?
     click_link('Create User')
 
     fill_in 'Username:', with: 'tux'
