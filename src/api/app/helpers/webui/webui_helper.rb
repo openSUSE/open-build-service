@@ -386,6 +386,10 @@ module Webui::WebuiHelper
       text
     end
   end
+
+  def sidebar_collapsed?
+    cookies[:sidebar_collapsed].eql?('true')
+  end
 end
 
 # rubocop:enable Metrics/ModuleLength

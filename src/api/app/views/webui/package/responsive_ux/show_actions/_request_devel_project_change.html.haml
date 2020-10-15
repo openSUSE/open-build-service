@@ -1,4 +1,5 @@
 %li.nav-item
-  = link_to(new_project_package_devel_project_change_path(package.project, package), class: 'nav-link') do
+  = link_to(new_project_package_devel_project_change_path(package.project, package), class: 'nav-link',
+            title: 'Request Devel Project Change') do
     %i.fas.fa-exchange-alt.fa-lg.mr-2
-    Request Devel Project Change
+    %span.nav-item-name Request Devel Project Change

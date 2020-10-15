@@ -13,6 +13,8 @@
 //= require jquery3
 //= require jquery_ujs
 //= require popper
+// FIXME remove jquery-ui file when we upgrade jquery-ui gem
+//= require webui/jquery-ui.min.js
 //= require bootstrap
 //= require cocoon
 //= require jquery.flot
@@ -40,8 +42,6 @@
 //= require webui/request.js
 //= require webui/buildresult.js
 //= require webui/job_history.js
-// FIXME remove jquery-ui file when we upgrade jquery-ui gem
-//= require webui/jquery-ui.min.js
 //= require webui/package-view_file.js
 //= require webui/staging_workflow.js
 //= require webui/project.js
@@ -53,3 +53,4 @@
 //= require webui/monitor.js
 //= require webui/responsive_ux
 //= require webui/notification.js
+//= require webui/sidebar-menu.js

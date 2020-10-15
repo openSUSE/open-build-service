@@ -1,4 +1,4 @@
 %li.nav-item
-  = link_to(new_project_package_deletion_path(project, package), class: 'nav-link') do
+  = link_to(new_project_package_deletion_path(project, package), class: 'nav-link', title: 'Request Deletion') do
     %i.fas.fa-times-circle.fa-lg.mr-2
-    Request Deletion
+    %span.nav-item-name Request Deletion

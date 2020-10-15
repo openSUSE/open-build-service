@@ -31,14 +31,14 @@
         - if feature_enabled?(:responsive_ux)
           - content_for :actions do
             %li.nav-item
-              = link_to(new_project_path, class: 'nav-link') do
+              = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
                 %i.fas.fa-lg.mr-2.fa-plus-circle
-                Create Project
+                %span.nav-item-name Create Project
         - else
           %li.list-inline-item
-            = link_to(new_project_path) do
+            = link_to(new_project_path, title: 'Create Project') do
               %i.fas.fa-plus-circle.text-primary
-              Create Project
+              %span.nav-item-name Create Project
 
     %table.responsive.table.table-sm.table-bordered.table-hover.w-100#projects-datatable{ data: { source: projects_path(format: :json),
                                                                                                   all: 'false' } }

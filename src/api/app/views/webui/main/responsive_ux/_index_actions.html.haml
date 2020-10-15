@@ -1,10 +1,10 @@
 - content_for :actions do
   - if policy(StatusMessage.new).create?
     %li.nav-item
-      = link_to(new_status_message_path, class: 'nav-link') do
+      = link_to(new_status_message_path, class: 'nav-link', title: 'Create Status Message') do
         %i.fas.fa-plus-square.fa-lg.mr-2
-        Create Status Message
+        %span.nav-item-name Create Status Message
   %li.nav-item
-    = link_to(new_project_path, class: 'nav-link') do
+    = link_to(new_project_path, class: 'nav-link', title: 'Create Project') do
       %i.fas.fa-plus-square.fa-lg.mr-2
-      Create Project
+      %span.nav-item-name Create Project
