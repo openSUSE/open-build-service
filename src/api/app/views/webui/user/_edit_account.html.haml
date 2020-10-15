@@ -1,0 +1,20 @@
+- if feature_enabled?(:responsive_ux)
+  - content_for :actions do
+    - if account_edit_link.present?
+      %li.nav-item
+        = link_to(account_edit_link, class: 'nav-link') do
+          %i.fas.fa-lg.mr-2.fa-user-edit
+          Edit your account
+    - else
+      %li.nav-item
+        = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'nav-link') do
+          %i.fas.fa-lg.mr-2.fa-user-edit
+          Edit your account
+- elsif account_edit_link.present?
+  = link_to(account_edit_link, class: 'd-block') do
+    %i.fas.fa-user-edit
+    Edit your account
+- else
+  = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'd-block') do
+    %i.fas.fa-user-edit
+    Edit your account

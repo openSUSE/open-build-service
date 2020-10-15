@@ -36,6 +36,7 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
+      within('#bottom-navigation-area') { click_link('Actions') } if mobile?
       expect(page).to have_text('Edit your account')
       expect(page).to have_text('Change your password')
 
@@ -49,7 +50,7 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
 
       expect(page).to have_link('Incoming Requests')
       # TODO: Remove this line if the dropdown is changed to a scrollable tab, and responsive_ux is out of beta.
-      find('.nav-link.dropdown-toggle').click if mobile?
+      within('#requests') { find('.nav-link.dropdown-toggle').click } if mobile?
       expect(page).to have_link('Outgoing Requests')
       expect(page).to have_link('Declined Requests')
       expect(page).to have_link('All Requests')
@@ -58,7 +59,12 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
     end
 
     it 'edit account information' do
-      click_link('Edit your account')
+      if mobile?
+        within('#bottom-navigation-area') { click_link('Actions') }
+        within('#bottom-navigation-area') { click_link('Edit your account') }
+      else
+        click_link('Edit your account')
+      end
 
       fill_in('user_realname', with: 'John Doe')
       fill_in('user_email', with: 'john.doe@opensuse.org')
