@@ -25,9 +25,9 @@
             %span.nav-item-name Create User
     - else
       .pt-4
-        = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create'), title: 'Create User') do
+        = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create')) do
           %i.fas.fa-plus-circle.text-primary
-          %span.nav-item-name Create User
+          Create User
 
 - content_for :ready_function do
   initializeUserConfigurationDatatable("#{::Configuration.ldap_enabled?}");
