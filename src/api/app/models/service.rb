@@ -16,22 +16,12 @@ class Service
     @document = Nokogiri::XML(xml, &:strict)
   end
 
-  def self.valid_name?(name)
-    return false unless name.is_a?(String)
-    return false if name.length > 200 || name.blank?
-    return false if name =~ /^[_.]/
-    return false if name =~ /::/
-    return true if name =~ /\A\w[-+\w.:]*\z/
-
-    false
-  end
-
   def self.verify_xml!(raw_post)
     Xmlhash.parse(raw_post).elements('service').each do |s|
-      raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless valid_name?(s['name'])
+      raise InvalidParameter, "service name #{s['name']} contains invalid chars" unless Service::NameValidator.new(s['name']).valid?
 
       s.elements('param').each do |p|
-        raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless valid_name?(p['name'])
+        raise InvalidParameter, "service parameter #{p['name']} contains invalid chars" unless Service::NameValidator.new(p['name']).valid?
       end
     end
   end
