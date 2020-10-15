@@ -80,7 +80,7 @@ class Webui::UsersController < Webui::WebuiController
     end
 
     if @configuration.accounts_editable?(@displayed_user)
-      @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!)
+      @displayed_user.assign_attributes(params[:user].slice(:realname, :email, :biography).permit!)
       @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
     end
 

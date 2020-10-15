@@ -7,6 +7,7 @@ class User < ApplicationRecord
   # Keep in sync with states defined in db/schema.rb
   STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
   NOBODY_LOGIN = '_nobody_'.freeze
+  MAX_BIOGRAPHY_LENGTH_ALLOWED = 250
 
   # disable validations because there can be users which don't have a bcrypt
   # password yet. this is for backwards compatibility
@@ -102,6 +103,7 @@ class User < ApplicationRecord
   validate :password_validation
   validates :password, length: { minimum: 6, maximum: ActiveModel::SecurePassword::MAX_PASSWORD_LENGTH_ALLOWED }, allow_nil: true
   validates :password, confirmation: true, allow_blank: true
+  validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
 
   before_save :send_metric_for_beta_change, if: :in_beta_changed?
   after_create :create_home_project, :track_create
