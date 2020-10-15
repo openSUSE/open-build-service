@@ -44,18 +44,18 @@
         - if feature_enabled?(:responsive_ux)
           - content_for :actions do
             %li.nav-item
-              = link_to(my_subscriptions_path, class: 'nav-link') do
+              = link_to(my_subscriptions_path, class: 'nav-link', title: 'Change Your Notifications') do
                 %i.fas.fa-lg.mr-2.fa-bell
-                Change your notifications
+                %span.nav-item-name Change Your Notifications
         - else
           = link_to(my_subscriptions_path, class: 'd-block') do
             %i.fas.fa-bell
-            Change your notifications
+            Change Your Notifications
         - if user.rss_token
           = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
                                                 title: 'RSS Feed for Notifications', class: 'd-block') do
             %i.fas.fa-rss-square
-            RSS for notifications
+            RSS for Notifications
 
 :javascript
   switchBeta();

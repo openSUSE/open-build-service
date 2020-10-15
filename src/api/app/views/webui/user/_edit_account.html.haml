@@ -7,9 +7,9 @@
           Edit your account
     - else
       %li.nav-item
-        = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'nav-link') do
+        = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'nav-link', title: 'Edit Your Account') do
           %i.fas.fa-lg.mr-2.fa-user-edit
-          Edit your account
+          %span.nav-item-name Edit Your Account
 - elsif account_edit_link.present?
   = link_to(account_edit_link, class: 'd-block') do
     %i.fas.fa-user-edit
