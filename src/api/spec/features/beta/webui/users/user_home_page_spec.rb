@@ -17,8 +17,8 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
       expect(page).to have_css('#home-realname', text: 'Jim Knopf')
       expect(page).not_to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
-      expect(page).not_to have_text('Edit your account')
-      expect(page).not_to have_text('Change your password')
+      expect(page).not_to have_text('Edit Your account')
+      expect(page).not_to have_text('Change Your password')
 
       expect(page).to have_link('Involved Packages')
       expect(page).to have_link('Involved Projects')
@@ -37,8 +37,8 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
       expect(page).to have_css("a[href='mailto:jim.knopf@puppenkiste.com']", text: 'jim.knopf@puppenkiste.com')
 
       within('#bottom-navigation-area') { click_link('Actions') } if mobile?
-      expect(page).to have_text('Edit your account')
-      expect(page).to have_text('Change your password')
+      expect(page).to have_text('Edit Your Account')
+      expect(page).to have_text('Change Your Password')
 
       expect(page).to have_link('Involved Packages')
       expect(page).to have_link('Involved Projects')
@@ -61,9 +61,9 @@ RSpec.describe "User's home project creation", type: :feature, js: true do
     it 'edit account information' do
       if mobile?
         within('#bottom-navigation-area') { click_link('Actions') }
-        within('#bottom-navigation-area') { click_link('Edit your account') }
+        within('#bottom-navigation-area') { click_link('Edit Your Account') }
       else
-        click_link('Edit your account')
+        click_link('Edit Your Account')
       end
 
       fill_in('user_realname', with: 'John Doe')
