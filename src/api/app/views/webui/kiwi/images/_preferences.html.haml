@@ -21,6 +21,6 @@
               %span.fill{ data: { tag: 'type_containerconfig_tag' } }= preference.type_containerconfig_tag
       %p
         = link_to('#', data: { 'target': '#preferences-edit', 'toggle': 'modal' }) do
-          %i.fas.fa-cog.text-secondary
+          %i.fas.fa-edit.text-secondary
           Edit Preferences
         = render partial: 'preferences_form', locals: { f: f }

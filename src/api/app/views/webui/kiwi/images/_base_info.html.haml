@@ -19,7 +19,7 @@
           View package
       %li.list-inline-item{ class: "#{'d-none' unless is_edit_details_action}" }
         = link_to('#', data: { 'target': '#description-edit', 'toggle': 'modal' }) do
-          %i.text-info.fa.fa-cog
+          %i.fa.fa-edit.text-secondary
           Edit details
       - if User.session
         %li.list-inline-item
