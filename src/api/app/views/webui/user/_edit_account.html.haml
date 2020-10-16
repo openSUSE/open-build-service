@@ -2,9 +2,9 @@
   - content_for :actions do
     - if account_edit_link.present?
       %li.nav-item
-        = link_to(account_edit_link, class: 'nav-link') do
+        = link_to(account_edit_link, class: 'nav-link', title: 'Edit Your Account') do
           %i.fas.fa-lg.mr-2.fa-user-edit
-          Edit your account
+          %span.nav-item-name Edit your account
     - else
       %li.nav-item
         = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'nav-link', title: 'Edit Your Account') do
