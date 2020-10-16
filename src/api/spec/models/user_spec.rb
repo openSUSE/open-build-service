@@ -177,8 +177,8 @@ RSpec.describe User do
       create(:relationship_package_user, package: project_with_package.packages.first, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
       owned_packages = user.owned_packages
-      expect(owned_packages[0]).to eq([nil, project_with_package.name])
-      expect(owned_packages[1]).to eq([project_with_package.packages.first.name, project_with_package.name])
+      expect(owned_packages[0]).to eq([nil, project_with_package])
+      expect(owned_packages[1]).to eq([project_with_package.packages.first, project_with_package])
     end
   end
 

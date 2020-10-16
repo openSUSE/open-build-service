@@ -28,15 +28,15 @@ module OwnerSearch
       found_packages = Relationship.where(role_id: @roles, package: Package.where(project_id: @projects))
       found_packages = filter_owner(found_packages, owner)
       Package.where(id: found_packages.select(:package_id)).find_each do |pkg|
-        @maintainers << Owner.new(rootproject: rootproject.name, project: pkg.project.name, package: pkg.name)
+        @maintainers << Owner.new(rootproject: rootproject, project: pkg.project, package: pkg)
       end
     end
 
     def find_projects(rootproject, owner)
       found_projects = Relationship.where(role_id: @roles, project: @projects)
       found_projects = filter_owner(found_projects, owner)
-      Project.where(id: found_projects.select(:project_id)).pluck(:name).each do |prj|
-        @maintainers << Owner.new(rootproject: rootproject.name, project: prj)
+      Project.where(id: found_projects.select(:project_id)).each do |prj|
+        @maintainers << Owner.new(rootproject: rootproject, project: prj)
       end
     end
   end
