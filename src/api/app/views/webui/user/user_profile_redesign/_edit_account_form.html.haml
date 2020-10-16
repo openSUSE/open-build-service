@@ -1,0 +1,28 @@
+- behind_proxy = account_edit_link.present?
+
+= form_for(displayed_user, url: user_path(displayed_user), method: :patch, remote: true) do |f|
+  = f.hidden_field(:login, id: 'user')
+
+  .mb-3.text-center= image_tag_for(displayed_user, size: 200)
+  .form-group
+    = f.text_field(:realname, readonly: behind_proxy, placeholder: 'Name', class: 'form-control')
+  .form-group
+    = f.text_field(:login, readonly: true, class: 'form-control')
+  .form-group
+    - role_titles.each do |title|
+      %span.badge.badge-secondary
+        = title.upcase
+  .form-group
+    = f.text_area(:biography, rows: 6, placeholder: 'Biography', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED, class: 'form-control')
+    = f.label(:biography, class: 'd-block text-right') do
+      %small.form-text Max. #{User::MAX_BIOGRAPHY_LENGTH_ALLOWED} characters.
+  .form-group
+    = f.text_field(:email, required: true, email: true, placeholder: 'Email', readonly: behind_proxy, class: 'form-control')
+  .form-group
+  - if behind_proxy
+    %p
+      You are behind a proxy. You can modify other data related to your profile by
+      = link_to(' this link.', account_edit_link)
+  .form-group.text-right
+    = link_to 'Cancel', user_path(displayed_user), class: 'cancel btn btn-outline-danger px-4', remote: true
+    = submit_tag('Update', class: 'btn btn-primary px-4')

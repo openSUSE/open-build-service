@@ -1,0 +1,20 @@
+.basic-info{ class: feature_enabled?(:user_profile_redesign) ? 'in-place-editing' : '' }
+  .row.mb-3.mb-md-0
+    .col-4.col-sm-2.col-md-12.text-center
+      = image_tag_for(user, size: 200)
+    .col-8.col-sm-10.col-md-12.pl-0.p-md-3
+      %h4#home-realname
+        = user.realname
+      %h5.text-muted#home-login
+        = user.login
+
+  - role_titles.each do |title|
+    %span.badge.badge-secondary
+      = title.upcase
+  %p= render_as_markdown(user.biography)
+
+  .mt-4
+    - if User.session
+      = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
+        %i.fas.fa-envelope.mr-1
+        = user.email

@@ -1,7 +1,9 @@
 class Webui::UsersController < Webui::WebuiController
-  before_action :require_login, only: [:index, :edit, :destroy, :update, :change_password]
+  before_action :require_login, only: [:index, :edit, :destroy, :update, :change_password, :edit_account]
   before_action :require_admin, only: [:index, :edit, :destroy]
-  before_action :check_displayed_user, only: [:show, :edit, :update]
+  before_action :check_displayed_user, only: [:show, :edit, :update, :edit_account]
+  before_action :role_titles, only: [:show, :edit_account, :update]
+  before_action :account_edit_link, only: [:show, :edit_account, :update]
 
   def index
     respond_to do |format|
@@ -15,8 +17,6 @@ class Webui::UsersController < Webui::WebuiController
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
     @owned = @displayed_user.owned_packages
     @groups = @displayed_user.groups
-    @role_titles = @displayed_user.roles.global.pluck(:title)
-    @account_edit_link = CONFIG['proxy_auth_account_page']
 
     return if CONFIG['contribution_graph'] == :off
 
@@ -70,6 +70,12 @@ class Webui::UsersController < Webui::WebuiController
 
   def edit; end
 
+  def edit_account
+    respond_to do |format|
+      format.js
+    end
+  end
+
   def update
     unless User.admin_session?
       if User.session! != @displayed_user || !@configuration.accounts_editable?(@displayed_user)
@@ -79,24 +85,21 @@ class Webui::UsersController < Webui::WebuiController
       end
     end
 
-    if @configuration.accounts_editable?(@displayed_user)
-      @displayed_user.assign_attributes(params[:user].slice(:realname, :email, :biography).permit!)
-      @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
-    end
+    assign_common_user_attributes if @configuration.accounts_editable?(@displayed_user)
+    assign_admin_attributes if User.admin_session?
 
-    if User.admin_session?
-      @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
-      @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
+    respond_to do |format|
+      if @displayed_user.save
+        message = "User data for user '#{@displayed_user.login}' successfully updated."
+        format.html { flash[:success] = message }
+        format.js { flash.now[:success] = message }
+      else
+        message = "Couldn't update user: #{@displayed_user.errors.full_messages.to_sentence}."
+        format.html { flash[:error] = message }
+        format.js { flash.now[:error] = message }
+      end
+      redirect_back(fallback_location: user_path(@displayed_user)) if request.format.symbol == :html
     end
-
-    begin
-      @displayed_user.save!
-      flash[:success] = "User data for user '#{@displayed_user.login}' successfully updated."
-    rescue ActiveRecord::RecordInvalid => e
-      flash[:error] = "Couldn't update user: #{e.message}."
-    end
-
-    redirect_back(fallback_location: user_path(@displayed_user))
   end
 
   def autocomplete
@@ -142,5 +145,24 @@ class Webui::UsersController < Webui::WebuiController
       password: params[:password], password_confirmation: params[:password_confirmation],
       email: params[:email]
     }
+  end
+
+  def role_titles
+    @role_titles = @displayed_user.roles.global.pluck(:title)
+  end
+
+  def account_edit_link
+    @account_edit_link = CONFIG['proxy_auth_account_page']
+  end
+
+  def assign_common_user_attributes
+    @displayed_user.assign_attributes(params[:user].slice(:biography).permit!)
+    @displayed_user.assign_attributes(params[:user].slice(:realname, :email).permit!) unless @account_edit_link
+    @displayed_user.toggle(:in_beta) if params[:user][:in_beta]
+  end
+
+  def assign_admin_attributes
+    @displayed_user.assign_attributes(params[:user].slice(:state, :ignore_auth_services).permit!)
+    @displayed_user.update_globalroles(Role.global.where(id: params[:user][:role_ids])) unless params[:user][:role_ids].nil?
   end
 end
