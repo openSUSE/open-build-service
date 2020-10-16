@@ -1,11 +1,12 @@
 - write_access = policy(group).update?
 
 - if write_access
-  %ul.list-inline
-    %li.list-inline-item
-      = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
-        %i.fas.fa-plus-circle.text-primary
-        Add Member
+  - unless feature_enabled?(:responsive_ux)
+    %ul.list-inline
+      %li.list-inline-item
+        = link_to('#', class: 'nav-link', data: { toggle: 'modal', target: '#add-group-user-modal' }) do
+          %i.fas.fa-plus-circle.text-primary
+          Add Member
   = render partial: 'add_group_user_modal', locals: { group: group }
 
 - if group.users.blank?
