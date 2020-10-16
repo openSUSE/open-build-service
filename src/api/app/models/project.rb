@@ -119,7 +119,9 @@ class Project < ApplicationRecord
   }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
+  scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+  scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
   scope :very_important_projects_with_attributes, lambda {
     ProjectsWithVeryImportantAttributeFinder.new.call
   }

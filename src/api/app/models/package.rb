@@ -89,7 +89,9 @@ class Package < ApplicationRecord
   scope :dirty_backend_package, -> { PackagesFinder.new.dirty_backend_packages }
 
   scope :for_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id, role_id: Role.hashed['maintainer'] }) }
+  scope :related_to_user, ->(user_id) { joins(:relationships).where(relationships: { user_id: user_id }) }
   scope :for_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id, role_id: Role.hashed['maintainer'] }) }
+  scope :related_to_group, ->(group_id) { joins(:relationships).where(relationships: { group_id: group_id }) }
 
   scope :with_product_name, -> { where(name: '_product') }
   scope :with_kind, ->(kind) { joins(:package_kinds).where(package_kinds: { kind: kind }) }

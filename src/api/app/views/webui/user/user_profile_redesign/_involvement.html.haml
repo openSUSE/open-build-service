@@ -1,0 +1,71 @@
+- roles = Role.local_roles
+#involvement
+  .card.sticky-top.border-0#involved-filters
+    .card-body
+      = form_with(model: displayed_user, method: :get, local: true, class: 'form-inline justify-content-between') do
+        .form-group
+          %input.form-control{ 'aria-label': 'Search', name: 'search_text', placeholder: 'Search', type: 'text', value: filters[:search_text] }
+        %span.dropdown.form-group#involved-project-package
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+            %span.caret
+            Projects / Packages
+          .dropdown-menu.keep-open
+            - ['projects', 'packages'].each do |projects_packages|
+              - involved_html_id = "involved_#{projects_packages}"
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag involved_html_id, 1, filters[involved_html_id].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: involved_html_id }
+                    = projects_packages.capitalize
+        %span.dropdown.form-group#involved-role
+          %button.btn.btn-outline-secondary.dropdown-toggle.form-control{ data: { toggle: :dropdown }, type: :button }
+            %span.caret
+            Role
+          .dropdown-menu.keep-open
+            - if owner_root_project_exists
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag 'role_owner', 1, filters['role_owner'].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: 'role_owner' }
+                    Owner
+            - roles.each do |role|
+              - role_html_id = "role_#{role}"
+              .dropdown-item
+                .custom-control.custom-checkbox
+                  = check_box_tag role_html_id, 1, filters[role_html_id].present?, class: 'custom-control-input'
+                  %label.custom-control-label{ for: role_html_id }
+                    = role.to_s.capitalize
+        .form-group
+          %button.btn.btn-primary.form-control#filter-button{ type: :submit }
+            Apply Filter
+
+  .card-body.pt-0
+    - if involved_items.blank?
+      This user is not involved in any project or package.
+    - else
+      .list-group.list-group-flush
+        - involved_items.each do |involved_item|
+          .list-group-item
+            .row
+              .col
+                - if involved_item.is_a?(Package)
+                  = link_to(involved_item.project, project_show_path(involved_item.project))
+                  \/
+                  = link_to(involved_item, package_show_path(project: involved_item.project, package: involved_item), class: 'pr-2')
+                - else
+                  = link_to(involved_item, project_show_path(involved_item), class: 'pr-2')
+                - if owner_root_project_exists && involved_items_as_owner.include?(involved_item)
+                  %span.badge.badge-info Owner
+                - roles.each do |role|
+                  - if involved_item.user_has_role?(displayed_user, role)
+                    %span.badge.badge-info= role.title.capitalize
+            .row.mt-1
+              .col
+                -# TODO: Deal with multiline, or long descriptions
+                %p.mb-0= involved_item.description
+
+- content_for :ready_function do
+  :plain
+    $('.dropdown-menu.keep-open').on('click', function(e) {
+      e.stopPropagation();
+    });
