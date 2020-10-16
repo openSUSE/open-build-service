@@ -39,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/test_package/_meta?user=user_1
+    uri: http://backend:5352/source/home:tom/test_package/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Quaerat labore quia earum.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Debitis ut qui provident.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Quo Vadis</title>
-          <description>Quaerat labore quia earum.</description>
+          <title>The Wind's Twelve Quarters</title>
+          <description>Debitis ut qui provident.</description>
         </package>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package/_service
@@ -110,5 +110,5 @@ http_interactions:
         <services>
           <service name="kiwi_import"/>
         <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 recorded_with: VCR 6.0.0
