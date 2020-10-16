@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Nine Coaches Waiting</title>
-          <description>Qui quis consequatur consectetur.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Quod ducimus amet ipsa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Nine Coaches Waiting</title>
-          <description>Qui quis consequatur consectetur.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Quod ducimus amet ipsa.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package/_service
@@ -99,7 +99,7 @@ http_interactions:
       Content-Type:
       - application/octet-stream
       Content-Length:
-      - '112'
+      - '141'
       Cache-Control:
       - no-cache
       Connection:
@@ -109,8 +109,8 @@ http_interactions:
       string: |-
         <services>
           <service name="kiwi_import"/>
-        <service name="kiwi_import"/><service name="kiwi_import"/></services>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_service?comment=Modified%20via%20webui&user=tom
@@ -119,7 +119,7 @@ http_interactions:
       string: |-
         <services>
           <service name="kiwi_import"/>
-        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
+        <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -139,19 +139,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '221'
+      - '223'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>ec4668856b6ad44337d6327bc0525cba</srcmd5>
+        <revision rev="12" vrev="12">
+          <srcmd5>2c7ae83846843369007dd656bbb7123d</srcmd5>
           <version>unknown</version>
-          <time>1602679081</time>
+          <time>1602831782</time>
           <user>tom</user>
           <comment>Modified via webui</comment>
           <requestid/>
         </revision>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=runservice&user=tom
@@ -185,7 +185,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=tom
@@ -193,8 +193,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Nine Coaches Waiting</title>
-          <description>Qui quis consequatur consectetur.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Quod ducimus amet ipsa.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -215,15 +215,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '161'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>Nine Coaches Waiting</title>
-          <description>Qui quis consequatur consectetur.</description>
+          <title>Jacob Have I Loved</title>
+          <description>Quod ducimus amet ipsa.</description>
         </package>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -249,15 +249,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '426'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="8264f1d106bc6f6a9b1b17ee0f3f835c">
+        <directory name="test_package" rev="13" vrev="13" srcmd5="3480785c4522b27d5eb85489da5582d5">
           <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
+          <entry name="_service" md5="0f97301accf557906c452ded2e8784d8" size="170" mtime="1602831782"/>
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package?view=info
@@ -283,14 +285,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '148'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="test_package" rev="8" vrev="8" srcmd5="8264f1d106bc6f6a9b1b17ee0f3f835c">
+        <sourceinfo package="test_package" rev="13" vrev="13" srcmd5="3480785c4522b27d5eb85489da5582d5">
           <error>service in progress</error>
         </sourceinfo>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package
@@ -316,15 +318,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '232'
+      - '426'
     body:
       encoding: UTF-8
       string: |
-        <directory name="test_package" rev="8" vrev="8" srcmd5="8264f1d106bc6f6a9b1b17ee0f3f835c">
+        <directory name="test_package" rev="13" vrev="13" srcmd5="3480785c4522b27d5eb85489da5582d5">
           <serviceinfo code="running"/>
-          <entry name="_service" md5="603a221291ebe7f39ec8d928de707f5c" size="141" mtime="1602679081"/>
+          <entry name="_service" md5="0f97301accf557906c452ded2e8784d8" size="170" mtime="1602831782"/>
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602686251"/>
+          <entry name="foo.spec" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1602699960"/>
         </directory>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -352,18 +356,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '302'
+      - '303'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="2b416bdd505b19c3bd40812bc8740239">
+        <sourcediff key="7f664ea3569b7876d37426979cb5cb6c">
           <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="home:tom" package="test_package" rev="8" srcmd5="8264f1d106bc6f6a9b1b17ee0f3f835c"/>
+          <new project="home:tom" package="test_package" rev="13" srcmd5="3480785c4522b27d5eb85489da5582d5"/>
           <files/>
           <issues>
           </issues>
         </sourcediff>
-  recorded_at: Wed, 14 Oct 2020 12:38:01 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:02 GMT
 - request:
     method: post
     uri: http://backend:5352/source/home:tom/test_package?cmd=waitservice
@@ -399,5 +403,5 @@ http_interactions:
         <status code="400">
           <summary>/usr/lib/obs/service//kiwi_import:34:in `&lt;main&gt;': No API url defined. This might be caused by using an older osc version. (RuntimeError)</summary>
         </status>
-  recorded_at: Wed, 14 Oct 2020 12:38:02 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:04 GMT
 recorded_with: VCR 6.0.0

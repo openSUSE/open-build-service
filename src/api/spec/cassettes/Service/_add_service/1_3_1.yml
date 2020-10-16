@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:01 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/test_package/_meta?user=user_2
@@ -47,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>The Wives of Bath</title>
-          <description>Cumque non ab ut.</description>
+          <title>Recalled to Life</title>
+          <description>Quo voluptates cupiditate eum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '142'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="test_package" project="home:tom">
-          <title>The Wives of Bath</title>
-          <description>Cumque non ab ut.</description>
+          <title>Recalled to Life</title>
+          <description>Quo voluptates cupiditate eum.</description>
         </package>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:01 GMT
 - request:
     method: get
     uri: http://backend:5352/source/home:tom/test_package/_service
@@ -110,5 +110,5 @@ http_interactions:
         <services>
           <service name="kiwi_import"/>
         <service name="kiwi_import"/><service name="kiwi_import"/><service name="kiwi_import"/></services>
-  recorded_at: Thu, 15 Oct 2020 06:22:38 GMT
+  recorded_at: Fri, 16 Oct 2020 07:03:01 GMT
 recorded_with: VCR 6.0.0
