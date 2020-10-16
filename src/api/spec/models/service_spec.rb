@@ -8,6 +8,31 @@ RSpec.describe Service, vcr: true do
   let(:service) { package.services }
   let(:url) { "#{CONFIG['source_url']}/source/#{home_project.name}/#{package.name}" }
 
+  describe '.verify_xml!' do
+    let(:valid_xml) do
+      <<~XML
+        <services>
+          <service name="verify_file">
+            <param name="file">krabber-1.0.tar.gz</param>
+            <param name="verifier">sha256</param>
+            <param name="checksum">7f535a96a834b31ba2201</param>
+          </service>
+        </services>
+      XML
+    end
+    let(:long_name) { 'X' * 300 }
+    let(:invalid_xml) do
+      <<~XML
+        <services>
+          <service name="#{long_name}" mode="disabled" />
+        </services>
+      XML
+    end
+
+    it { expect { Service.verify_xml!(valid_xml) }.not_to raise_error }
+    it { expect { Service.verify_xml!(invalid_xml) }.to raise_error(Service::InvalidParameter) }
+  end
+
   describe '#add_download_url' do
     it { expect(service.add_download_url('http://example.org/foo.git')).to be_truthy }
     it { expect(service.add_download_url('<>')).to be_falsey }
