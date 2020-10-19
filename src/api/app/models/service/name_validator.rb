@@ -13,13 +13,17 @@ class Service
     private
 
     def valid_name?
-      return false unless name.is_a?(String)
-      return false if name.length > 200 || name.blank?
-      return false if /^[_.]/.match?(name)
-      return false if /::/.match?(name)
-      return true if /\A\w[-+\w.:]*\z/.match?(name)
+      return false unless name.present? || name.is_a?(String)
+      return false if name.length > 200
 
-      false
+      case name
+      when /^[_.]/, /::/
+        false
+      when /\A\w[-+\w.:]*\z/
+        true
+      else
+        false
+      end
     end
   end
 end
