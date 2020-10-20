@@ -300,6 +300,7 @@ OBSApi::Application.routes.draw do
       end
       member do
         post 'change_password'
+        get 'edit_account'
       end
     end
 

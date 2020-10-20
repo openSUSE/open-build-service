@@ -1,31 +1,12 @@
 .card.mb-3
   .card-body
-    .row.mb-3.mb-md-0
-      .col-4.col-sm-2.col-md-12.text-center
-        = image_tag_for(user, size: 200)
-      .col-8.col-sm-10.col-md-12.pl-0.p-md-3
-        %h4#home-realname
-          = user.realname
-        %h5.text-muted#home-login
-          = user.login
+    = render partial: 'webui/user/user_profile_redesign/basic_info', locals: { user: user, role_titles: role_titles }
 
-    - role_titles.each do |title|
-      %span.badge.badge-secondary
-        = title.upcase
-
-    %p= render_as_markdown(user.biography)
-
-    .mt-4
-      - if User.session
-        = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-          %i.fas.fa-envelope.mr-1
-          = user.email
-
-      - if user.rss_token && is_user
-        = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
-                                              title: 'RSS Feed for Notifications', class: 'd-block') do
-          %i.fas.fa-rss.mr-1
-          RSS for Notifications
+    - if user.rss_token && is_user
+      = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
+                                            title: 'RSS Feed for Notifications', class: 'd-block') do
+        %i.fas.fa-rss.mr-1
+        RSS for Notifications
 
     - if groups.any?
       .h5.mt-4.mb-0 Member of the #{'group'.pluralize(groups.size)}
@@ -50,7 +31,7 @@
 
       .mt-4
         - if configuration.accounts_editable?(user)
-          = render partial: 'webui/user/edit_account', locals: { account_edit_link: account_edit_link }
+          = render partial: 'webui/user/edit_account', locals: { account_edit_link: account_edit_link, user: user }
         - if configuration.passwords_changable?(user)
           = render partial: 'webui/user/change_password'
         - if feature_enabled?(:responsive_ux)

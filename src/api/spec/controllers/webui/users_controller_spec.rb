@@ -176,7 +176,7 @@ RSpec.describe Webui::UsersController do
           user.reload
         end
 
-        it { expect(flash[:error]).to eq("Couldn't update user: Validation failed: Email must be a valid email address.") }
+        it { expect(flash[:error]).to eq("Couldn't update user: Email must be a valid email address.") }
         it { expect(user.realname).to eq(user.realname) }
         it { expect(user.email).to eq(user.email) }
         it { expect(user.state).to eq('confirmed') }
