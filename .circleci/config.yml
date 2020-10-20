@@ -281,6 +281,7 @@ jobs:
             fi
 
             echo $message
+            bundle exec rake assets:clobber assets:precompile
             bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml $(cat $pickfile)
 
             mkdir coverage_results
