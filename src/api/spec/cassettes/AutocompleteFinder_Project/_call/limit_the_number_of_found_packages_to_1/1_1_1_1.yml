@@ -1,0 +1,117 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/foo/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo">
+          <title>Wildfire at Midnight</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foo">
+          <title>Wildfire at Midnight</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 20 Oct 2020 14:44:51 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/foobar/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foobar">
+          <title>A Darkling Plain</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="foobar">
+          <title>A Darkling Plain</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 20 Oct 2020 14:44:51 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/barbar/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="barbar">
+          <title>Tiger! Tiger!</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '96'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="barbar">
+          <title>Tiger! Tiger!</title>
+          <description></description>
+        </project>
+  recorded_at: Tue, 20 Oct 2020 14:44:51 GMT
+recorded_with: VCR 6.0.0

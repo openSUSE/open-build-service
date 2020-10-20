@@ -35,7 +35,7 @@ class Project < ApplicationRecord
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, inverse_of: :project do
     def autocomplete(search)
-      AutocompletePackagesFinder.new(self, search).call
+      AutocompleteFinder::Package.new(self, search).call
     end
   end
   has_many :patchinfos, -> { with_kind('patchinfo') }, class_name: 'Package'
@@ -106,7 +106,7 @@ class Project < ApplicationRecord
   scope :remote, -> { where('NOT ISNULL(projects.remoteurl)') }
   scope :local, -> { where.not('NOT ISNULL(projects.remoteurl)') }
 
-  scope :autocomplete, ->(search) { AutocompleteProjectsFinder.new(Project.default_scoped, search).call }
+  scope :autocomplete, ->(search) { AutocompleteFinder::Project.new(Project.default_scoped, search).call }
 
   # will return all projects with attribute 'OBS:ImageTemplates'
   # FIXME: still generates deprecation warning
