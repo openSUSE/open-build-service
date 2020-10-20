@@ -149,7 +149,7 @@ class User < ApplicationRecord
   end
 
   def self.autocomplete_login(prefix = '')
-    with_login_prefix(prefix).not_deleted.not_locked.limit(50).order(:login).pluck(:login)
+    AutocompleteFinder::User.new(User.not_deleted.not_locked, prefix).call.pluck(:login)
   end
 
   # the default state of a user based on the api configuration
