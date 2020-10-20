@@ -379,8 +379,7 @@ class ApplicationController < ActionController::Base
     InfluxDB::Rails.current.tags = {
       beta: User.possibly_nobody.in_beta?,
       anonymous: !User.session,
-      interface: :api,
-      controller_location: "#{self.class.name}#{action_name}"
+      interface: :api
     }
   end
 end
