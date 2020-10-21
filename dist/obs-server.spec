@@ -218,6 +218,8 @@ Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 Requires:       perl-XML-Structured
 Requires:       perl-YAML-LibYAML
+Requires:       user(obsrun)
+Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
 Requires:       zstd
 # needed for optional bs_sourcepublish
@@ -232,6 +234,7 @@ Recommends:     obs-service-download_url
 Recommends:     obs-service-verify_file
 
 BuildRequires:  systemd-rpm-macros
+
 
 %{?systemd_requires}
 
@@ -271,6 +274,9 @@ run a local playground test installation.
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
 Group:          Productivity/Networking/Web/Utilities
+Requires:       user(obsrun)
+Requires:       group(obsrun)
+Requires:       user(obsservicerun)
 %if 0%{?suse_version}
 Requires(pre):  shadow
 Requires(pre):  %fillup_prereq
@@ -356,6 +362,36 @@ Summary:        XML dtd for OBS
 
 %description -n perl-OBS-XML
 This package contains the XML::Structured DTD describing the OBS API.
+
+%package -n system-user-obsrun
+Summary: System user and group obsrun
+Group:    System/Fhs
+Provides: user(obsrun)
+Provides: group(obsrun)
+
+%description -n system-user-obsrun
+This package provides the system account and group 'obsrun'.
+
+%pre -n system-user-obsrun
+getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+
+
+%package -n system-user-obsservicerun
+Summary:  System user obsservicerun
+Group:    System/Fhs
+Requires: group(obsrun)
+Provides: user(obsservicerun)
+
+%description -n system-user-obsservicerun
+This package provides the system account 'obsservicerun'
+
+%pre -n system-user-obsservicerun
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
+    -c "" obsservicerun
 
 #--------------------------------------------------------------------------------
 %prep
@@ -520,10 +556,6 @@ make -C dist test
 %endif
 
 %pre
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
-    -c "User for the build service source service" obsservicerun
-
 %service_add_pre obsscheduler.service
 %service_add_pre obssrcserver.service
 %service_add_pre obsrepserver.service
@@ -557,10 +589,6 @@ exit 0
 
 # create user and group in advance of obs-server
 %pre -n obs-common
-getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
-getent passwd obsrun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for build service backend" obsrun
 %service_add_pre obsstoragesetup.service
 exit 0
 
@@ -850,6 +878,7 @@ fi
 %endif
 /usr/lib/obs/server/bs_service
 /usr/lib/obs/server/call-service-in-docker.sh
+/usr/lib/obs/server/call-service-in-container
 /usr/lib/obs/server/run-service-containerized
 /usr/lib/obs/server/cleanup_scm_cache
 
