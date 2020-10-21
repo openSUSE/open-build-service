@@ -13,10 +13,21 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def show
-    @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
-    @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
-    @owned = @displayed_user.owned_packages
     @groups = @displayed_user.groups
+
+    if Flipper.enabled?(:user_profile_redesign, User.possibly_nobody)
+      attribute_type = AttribType.find_by_name!('OBS:OwnerRootProject')
+      @owner_root_project_exists = Project.find_by_attribute_type(attribute_type).exists?
+
+      filters = adjust_filters
+
+      @involved_items = @displayed_user.involved_items(filters)
+      @involved_items_as_owner = @displayed_user.involved_items_as_owner(filters) if @owner_root_project_exists
+    else
+      @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
+      @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
+      @owned = @displayed_user.owned_packages
+    end
 
     return if CONFIG['contribution_graph'] == :off
 
@@ -138,6 +149,32 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   private
+
+  def adjust_filters
+    filters = params.slice(:search_text, :involved_projects, :involved_packages,
+                           :role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader)
+    filters[:role_owner] = params[:role_owner] if @owner_root_project_exists && params.key?(:role_owner)
+
+    filters[:search_text] = filters[:search_text]&.strip
+    @filters = filters.dup
+
+    filter_keys = [:involved_projects, :involved_packages]
+    set_all_filters_if_none_is_set(filters, filter_keys)
+
+    filter_keys = [:role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader]
+    filter_keys << :role_owner if @owner_root_project_exists
+    set_all_filters_if_none_is_set(filters, filter_keys)
+
+    filters
+  end
+
+  def set_all_filters_if_none_is_set(filters, filter_keys)
+    return unless (filters.keys.map(&:to_sym) & filter_keys).empty?
+
+    filter_keys.each do |filter|
+      filters[filter] = 1
+    end
+  end
 
   def create_params
     {

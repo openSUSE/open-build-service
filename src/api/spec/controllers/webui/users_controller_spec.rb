@@ -84,6 +84,82 @@ RSpec.describe Webui::UsersController do
         end
       end
     end
+
+    context 'when we have the user_profile_redesign flipper bit enabled' do
+      let(:user) { create(:confirmed_user, :with_home) }
+      let(:home_project) { user.home_project }
+      let(:some_project) { create(:project_with_package) }
+      let(:some_package) { some_project.packages.first }
+      let(:some_other_project) { create(:project_with_package) }
+      let(:some_other_package) { some_other_project.packages.first }
+      let!(:project_relationship) { create(:relationship_project_user, user: user, project: some_project) }
+      let!(:package_relationship) do
+        create(:relationship_package_user,
+               user: user,
+               package: some_package,
+               role: Role.find_by_title!('bugowner'))
+      end
+
+      before do
+        Flipper.enable(:user_profile_redesign)
+        login user
+      end
+
+      context 'when OwnerRootProject attribute is set' do
+        before do
+          Attrib.create!(attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: some_project)
+        end
+
+        context 'but no project, package or role selected' do
+          it 'shows all projects and packages' do
+            get :show, params: { login: user.login }
+            expect(assigns(:involved_items)).to contain_exactly(home_project, some_project, some_package)
+            expect(assigns(:involved_items_as_owner)).to contain_exactly(some_project, some_package)
+          end
+        end
+
+        context 'and we have selected a filter for projects' do
+          it 'shows only the projects' do
+            get :show, params: { login: user.login, involved_projects: 1 }
+            expect(assigns(:involved_items)).to contain_exactly(home_project, some_project)
+            expect(assigns(:involved_items_as_owner)).to contain_exactly(some_project)
+          end
+        end
+
+        context 'and we have selected a filter for packages' do
+          it 'shows only the packages' do
+            get :show, params: { login: user.login, involved_packages: 1 }
+            expect(assigns(:involved_items)).to contain_exactly(some_package)
+            expect(assigns(:involved_items_as_owner)).to contain_exactly(some_package)
+          end
+        end
+
+        context 'and we have selected a filter for a role' do
+          it 'shows only those items with the role' do
+            get :show, params: { login: user.login, role_owner: 1 }
+            expect(assigns(:involved_items)).to contain_exactly(some_project, some_package)
+            expect(assigns(:involved_items_as_owner)).to contain_exactly(some_project, some_package)
+          end
+        end
+
+        context 'and we have selected a filter for a bugowner' do
+          it 'shows only those items with the role' do
+            get :show, params: { login: user.login, role_bugowner: 1 }
+            expect(assigns(:involved_items)).to contain_exactly(some_package)
+            expect(assigns(:involved_items_as_owner)).to contain_exactly(some_project, some_package)
+          end
+        end
+      end
+
+      context 'when the OwnerRootProject is not set' do
+        context 'but no project, package or role selected' do
+          it 'returns successfully' do
+            get :show, params: { login: user.login }
+            expect(response).to have_http_status(:ok)
+          end
+        end
+      end
+    end
   end
 
   describe 'POST #create' do

@@ -677,6 +677,27 @@ class User < ApplicationRecord
     owned
   end
 
+  def involved_items_as_owner(filters = {})
+    OwnerSearch::Owned.new.for(self)
+                      .map { |owner| owned_item(owner, filters) }
+                      .reject(&:nil?)
+  end
+
+  def involved_items(filters = {})
+    involved_items = if filters[:role_owner]
+                       involved_items_as_owner(filters)
+                     else
+                       []
+                     end
+
+    roles_to_filter = filters.keys.select { |key| key != 'role_owner' && key =~ /^role_/ }.map { |key| Role.hashed[key.delete_prefix('role_')] }
+
+    involved_items.concat(related_items(Project, roles_to_filter, filters)) if filters.key?(:involved_projects)
+    involved_items.concat(related_items(Package, roles_to_filter, filters)) if filters.key?(:involved_packages)
+
+    involved_items.uniq
+  end
+
   # lists reviews involving this user
   def involved_reviews(search = nil)
     result = BsRequest.by_user_reviews(id).or(
@@ -945,6 +966,31 @@ class User < ApplicationRecord
                   else
                     UserBasicStrategy.new
                   end
+  end
+
+  def owned_item(owner, filters = {})
+    item = owned_project_or_package(owner, filters)
+
+    return if item.nil?
+    return if filters[:search_text].present? && !item.to_s.match?(Regexp.escape(filters[:search_text]))
+
+    item
+  end
+
+  def owned_project_or_package(owner, filters = {})
+    if owner.package.present?
+      owner.package if filters.key?(:involved_packages)
+    elsif filters.key?(:involved_projects)
+      owner.project
+    end
+  end
+
+  def related_items(project_or_package_class, roles_to_filter, filters = {})
+    related_items = project_or_package_class.related_to_user(id).where(relationships: { role_id: roles_to_filter }).or(
+      project_or_package_class.related_to_group(group_ids).where(relationships: { role_id: roles_to_filter })
+    )
+    related_items = related_items.where('name LIKE ?', "%#{filters[:search_text]}%") if filters[:search_text].present?
+    related_items
   end
 end
 

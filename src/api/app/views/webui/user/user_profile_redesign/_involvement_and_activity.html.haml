@@ -16,11 +16,12 @@
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'activity', selected: false }) do
             Contributions
 
-  .card-body#involvement-and-activity
-    = render partial: 'webui/user/involvement', locals: { user: user,
-                                                          owned: owned,
-                                                          involved_projects: involved_projects,
-                                                          involved_packages: involved_packages }
+  .card-body.p-0#involvement-and-activity
+    = render partial: 'webui/user/user_profile_redesign/involvement', locals: { displayed_user: displayed_user,
+                                                                                owner_root_project_exists: owner_root_project_exists,
+                                                                                filters: filters,
+                                                                                involved_items: involved_items,
+                                                                                involved_items_as_owner: involved_items_as_owner }
 
     -# Displaying tabs in medium-large viewports when the Contribution Graph is enabled
     - unless CONFIG['contribution_graph'] == :off
