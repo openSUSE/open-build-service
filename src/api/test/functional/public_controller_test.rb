@@ -11,7 +11,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
   def test_index
     get '/public'
-    assert_response 302
+    assert_response 301
   end
 
   def test_about

@@ -10,8 +10,6 @@ RSpec.describe 'RoutesHelper::APIMatcher' do
   end
 
   RSpec.shared_examples '/public routes to PublicController independent of format' do |format|
-    it { expect(get("/public?format=#{format}")).to route_to(controller: 'public', action: 'index', format: format) }
-    it { expect(get("/about?format=#{format}")).to route_to(controller: 'about', action: 'index', format: format) }
     it { expect(get("/public/distributions?format=#{format}")).to route_to(controller: 'public', action: 'distributions', format: format) }
     it { expect(get("/public/request/1?format=#{format}")).to route_to(controller: 'public', action: 'show_request', number: '1', format: format) }
     it { expect(get("/public/configuration?format=#{format}")).to route_to(controller: 'public', action: 'configuration_show', format: format) }
