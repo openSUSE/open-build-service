@@ -88,6 +88,9 @@ OBSApi::Application.configure do
   config.active_record.dump_schema_after_migration = false
 end
 
+# ActiveJob already logs everything we need
+Delayed::Worker.default_log_level = 'error'
+
 # disabled on production for performance reasons
 # CONFIG['response_schema_validation'] = true
 
