@@ -80,7 +80,7 @@ OBSApi::Application.configure do
       host: event.payload[:headers].env['REMOTE_ADDR'],
       time: event.time,
       backend: event.payload[:backend_runtime],
-      user: User.session.try(:login)
+      user: User.possibly_nobody
     }
   end
 
