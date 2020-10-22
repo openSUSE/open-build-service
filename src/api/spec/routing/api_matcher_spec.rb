@@ -3,12 +3,6 @@ require 'rails_helper'
 RSpec.describe 'RoutesHelper::APIMatcher' do
   it { expect(get('/distributions?format=xml')).to route_to(controller: 'distributions', action: 'index', format: 'xml') }
 
-  context '/public and /about path use API routes with html format' do
-    it { expect(get('/distributions?format=html')).not_to route_to(controller: 'distributions', action: 'index', format: 'html') }
-    it { expect(get('/distributions/about?format=html')).not_to route_to(controller: 'distributions', action: 'show', id: 'about', format: 'html') }
-    it { expect(get('/distributions/public?format=html')).not_to route_to(controller: 'distributions', action: 'show', id: 'public', format: 'html') }
-  end
-
   RSpec.shared_examples '/public routes to PublicController independent of format' do |format|
     it { expect(get("/public/distributions?format=#{format}")).to route_to(controller: 'public', action: 'distributions', format: format) }
     it { expect(get("/public/request/1?format=#{format}")).to route_to(controller: 'public', action: 'show_request', number: '1', format: format) }
