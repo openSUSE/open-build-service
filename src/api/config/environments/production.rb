@@ -77,7 +77,7 @@ OBSApi::Application.configure do
     exceptions = ['controller', 'action', 'format', 'id']
     {
       params: event.payload[:params].except(*exceptions),
-      host: event.payload[:headers].env['REMOTE_ADDR'],
+      host: event.payload[:headers].env['HTTP_X_FORWARDED_FOR']&.split(',')&.first || event.payload[:headers].env['REMOTE_ADDR'],
       time: event.time,
       backend: event.payload[:backend_runtime],
       user: User.possibly_nobody
