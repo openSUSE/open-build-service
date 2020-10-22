@@ -13,6 +13,7 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def show
+    max_items_per_page = 25
     @groups = @displayed_user.groups
 
     if Flipper.enabled?(:user_profile_redesign, User.possibly_nobody)
@@ -21,7 +22,7 @@ class Webui::UsersController < Webui::WebuiController
 
       filters = adjust_filters
 
-      @involved_items = @displayed_user.involved_items(filters)
+      @involved_items = Kaminari.paginate_array(@displayed_user.involved_items(filters)).page(params[:page]).per(max_items_per_page)
       @involved_items_as_owner = @displayed_user.involved_items_as_owner(filters) if @owner_root_project_exists
     else
       @iprojects = @displayed_user.involved_projects.pluck(:name, :title)

@@ -75,6 +75,7 @@
                 -# TODO: Deal with multiline, or long descriptions
                 %p.mb-0= involved_item.description
 
+      = paginate involved_items, window: 2, views_prefix: 'webui'
 - content_for :ready_function do
   :plain
     $('.dropdown-menu.keep-open').on('click', function(e) {
