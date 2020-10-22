@@ -1056,4 +1056,7 @@ usermod -a -G docker obsservicerun
 %dir %perl_vendorlib/OBS
 %attr(0644,root,root) %perl_vendorlib/OBS/XML.pm
 
+%files -n system-user-obsrun
+%files -n system-user-obsservicerun
+
 %changelog
