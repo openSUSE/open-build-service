@@ -89,7 +89,7 @@ OBSApi::Application.configure do
 end
 
 # ActiveJob already logs everything we need
-Delayed::Worker.default_log_level = 'error'
+Delayed::Worker.default_log_level = 'debug'
 
 # disabled on production for performance reasons
 # CONFIG['response_schema_validation'] = true
