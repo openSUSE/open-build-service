@@ -159,7 +159,6 @@ class Authenticator
     # we're using a login proxy, there is no need to authenticate the user from the credentials
     # However we have to care for the status of the user that must not be unconfirmed or proxy requested
     if proxy_user
-      Rails.logger.info "iChain user extracted from header: #{proxy_user}"
       @http_user = User.find_by_login(proxy_user)
 
       # If we do not find a User here, we need to create a user and wait for

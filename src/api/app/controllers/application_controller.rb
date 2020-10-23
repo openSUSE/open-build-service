@@ -17,6 +17,9 @@ class ApplicationController < ActionController::Base
 
   @skip_validation = false
 
+  # Each request starts out with the nobody user set.
+  before_action :set_nobody
+
   before_action :validate_xml_request, :add_api_version
   after_action :validate_xml_response if CONFIG['response_schema_validation'] == true
 
@@ -26,7 +29,6 @@ class ApplicationController < ActionController::Base
   before_action :shutup_rails
   before_action :validate_params
   before_action :require_login
-  after_action :set_nobody
 
   delegate :extract_user,
            :extract_user_public,
