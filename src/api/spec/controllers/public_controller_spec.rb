@@ -14,14 +14,6 @@ RSpec.describe PublicController, vcr: true do
     it { expect(response.body).to eq(package.source_file('somefile.txt')) }
   end
 
-  describe 'GET #index' do
-    before do
-      get :index
-    end
-
-    it { is_expected.to redirect_to(about_index_path) }
-  end
-
   describe 'GET #build' do
     before do
       get :build, params: { project: project.name }

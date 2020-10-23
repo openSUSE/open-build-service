@@ -1,0 +1,37 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://backend:5352/source/public_controller_project/public_controller_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '314'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="public_controller_package" rev="108" vrev="108" srcmd5="ab8d34688dc73760067e8371dc7f7f82">
+          <entry name="_config" md5="a02b16b9794fafd093ea729bb95bc9f4" size="69" mtime="1603405346"/>
+          <entry name="somefile.txt" md5="73c94fa9ad268a4448660a6c2947429b" size="56" mtime="1603405346"/>
+        </directory>
+  recorded_at: Fri, 23 Oct 2020 09:01:22 GMT
+recorded_with: VCR 6.0.0

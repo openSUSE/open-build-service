@@ -6,10 +6,6 @@ class PublicController < ApplicationController
   skip_before_action :extract_user
   skip_before_action :require_login
 
-  def index
-    redirect_to controller: 'about', action: 'index'
-  end
-
   # GET /public/build/:project/:repository/:arch/:package
   def build
     required_parameters :project

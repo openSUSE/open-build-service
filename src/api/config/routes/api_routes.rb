@@ -2,7 +2,9 @@ OBSApi::Application.routes.draw do
   cons = RoutesHelper::RoutesConstraints::CONS
 
   constraints(RoutesHelper::APIMatcher) do
-    get '/' => 'main#index'
+    get '/', to: redirect('/about')
+
+    resources :about, only: :index
 
     resource :configuration, only: [:show, :update, :schedulers]
 
@@ -41,8 +43,6 @@ OBSApi::Application.routes.draw do
 
     ### /source
     get 'source/:project/_keyinfo' => 'source/key_info#show', constraints: cons
-
-    resources :about, only: :index
 
     controller :attribute_namespace do
       get 'attribute' => :index
@@ -196,7 +196,7 @@ OBSApi::Application.routes.draw do
 
     ### /public
     controller :public do
-      get 'public' => :index
+      get 'public', to: redirect('/public/about')
       get 'public/about' => 'about#index'
       get 'public/configuration' => :configuration_show
       get 'public/configuration.xml' => :configuration_show
@@ -212,8 +212,6 @@ OBSApi::Application.routes.draw do
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
       get 'public/build/:project(/:repository(/:arch(/:package(/:filename))))' => 'public#build', constraints: cons, as: :public_build
     end
-
-    get '/404' => 'main#notfound'
 
     scope 'public' do
       resources :image_templates, constraints: cons, only: [:index], controller: 'webui/image_templates'
