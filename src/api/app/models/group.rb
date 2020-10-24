@@ -1,5 +1,3 @@
-require 'api_error'
-
 # The Group class represents a group record in the database and thus a group
 # in the ActiveRbac model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of roles and users assigned to them.
@@ -34,7 +32,9 @@ class Group < ApplicationRecord
   alias_attribute :name, :title
 
   def self.find_by_title!(title)
-    find_by_title(title) || (raise NotFoundError, "Couldn't find Group '#{title}'")
+    find_by!(title: title)
+  rescue ActiveRecord::RecordNotFound => e
+    raise e, "Couldn't find Group '#{title}'", e.backtrace
   end
 
   def update_from_xml(xmlhash)
@@ -57,8 +57,9 @@ class Group < ApplicationRecord
         GroupMaintainer.create(user: user, group: self)
       end
     end
+
     cache.each do |login_id, _|
-      GroupMaintainer.where('user_id = ? AND group_id = ?', login_id, id).delete_all
+      delete_user(GroupMaintainer, login_id, id)
     end
 
     # update user list
@@ -80,16 +81,13 @@ class Group < ApplicationRecord
     end
 
     # delete all users which were not listed
-    cache.each do |login_id, _gu|
-      GroupsUser.where('user_id = ? AND group_id = ?', login_id, id).delete_all
+    cache.each do |login_id, _|
+      delete_user(GroupsUser, login_id, id)
     end
   end
 
   def add_user(user)
-    return if users.find_by_id(user.id) # avoid double creation
-
-    gu = GroupsUser.create(user: user, group: self)
-    gu.save!
+    GroupsUser.find_or_create_by!(user: user, group: self)
   end
 
   def replace_members(members)
@@ -105,7 +103,7 @@ class Group < ApplicationRecord
   end
 
   def remove_user(user)
-    GroupsUser.where('user_id = ? AND group_id = ?', user.id, id).delete_all
+    delete_user(GroupsUser, user.id, id)
   end
 
   def set_email(email)
@@ -129,7 +127,7 @@ class Group < ApplicationRecord
   # lists packages maintained by this user and are not in maintained projects
   def involved_packages
     # just for maintainer for now.
-    role = Role.hashed['maintainer']
+    role = maintainer_roler
 
     projects = involved_projects_ids
     projects << -1 if projects.empty?
@@ -175,13 +173,12 @@ class Group < ApplicationRecord
 
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key_with_version}") do
-      incoming_requests.count +
-        involved_reviews.count
+      incoming_requests.count + involved_reviews.count
     end
   end
 
   def any_confirmed_users?
-    !users.where(state: 'confirmed').empty?
+    users.where(state: 'confirmed').any?
   end
 
   def away?
@@ -194,9 +191,17 @@ class Group < ApplicationRecord
 
   private
 
+  def maintainer_roler
+    @maintainer_roler ||= Role.hashed['maintainer']
+  end
+
+  def delete_user(klass, login_id, group_id)
+    klass.where('user_id = ? AND group_id = ?', login_id, group_id).delete_all if [GroupMaintainer, GroupsUser].include?(klass)
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
-    role = Role.hashed['maintainer']
+    role = maintainer_roler
 
     ### all projects where user is maintainer
     Relationship.projects.where(group_id: id, role_id: role.id).distinct.pluck(:project_id)
