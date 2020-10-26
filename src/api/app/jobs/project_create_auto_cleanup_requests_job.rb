@@ -50,10 +50,6 @@ Such requests get not created for projects with open requests or if you remove t
   private
 
   def autoclean_project(prj)
-    # open requests do block the cleanup
-    return if open_requests_count(prj.name).positive?
-
-    # check the time in project attribute
     return unless project_ready_to_autoclean?(prj)
 
     begin
@@ -84,7 +80,9 @@ Such requests get not created for projects with open requests or if you remove t
 
   def project_ready_to_autoclean?(project)
     # project may be locked?
-    return false if project.nil? || project.is_locked?
+    return false if project.is_locked?
+    # open requests do block the cleanup
+    return false if open_requests_count(project.name).positive?
     return false unless project.check_weak_dependencies?
 
     true
