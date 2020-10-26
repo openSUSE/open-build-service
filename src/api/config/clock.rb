@@ -65,7 +65,7 @@ module Clockwork
 
   every(1.day, 'create cleanup requests', at: '06:00') do
     User.session = User.get_default_admin
-    ProjectCreateAutoCleanupRequests.perform_later
+    ProjectCreateAutoCleanupRequestsJob.perform_later
   end
 
   # check for new breakages between api and backend due to dull code

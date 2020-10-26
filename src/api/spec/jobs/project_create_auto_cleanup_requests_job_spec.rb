@@ -1,15 +1,33 @@
 require 'rails_helper'
 require 'webmock/rspec'
 
-RSpec.describe ProjectCreateAutoCleanupRequests, type: :job, vcr: true do
+RSpec.describe ProjectCreateAutoCleanupRequestsJob, type: :job, vcr: true do
   include ActiveJob::TestHelper
+
+  describe 'CleanupRequestTemplate' do
+    describe '#render' do
+      let(:clean_up_template) { described_class::CleanupRequestTemplate.new(project: 'foo', description: 'bar', cleanup_time: 3) }
+      let(:bs_delete_request) do
+        <<~XML
+          <request>
+            <action type=\"delete\"><target project=\"foo\"/></action>
+            <description>bar</description>
+            <state />
+            <accept_at>3</accept_at>
+          </request>
+        XML
+      end
+
+      it { expect(clean_up_template.render).to eq(bs_delete_request) }
+    end
+  end
 
   describe '#perform' do
     let(:admin) { create(:admin_user, login: 'Admin') }
     let(:project) { create(:project, name: 'ProjectA') }
     let(:attribute) { create(:auto_cleanup_attrib, project: project) }
 
-    subject { ProjectCreateAutoCleanupRequests.new.perform }
+    subject { described_class.perform_now }
 
     before do
       allow(::Configuration).to receive(:cleanup_after_days).and_return(3)
