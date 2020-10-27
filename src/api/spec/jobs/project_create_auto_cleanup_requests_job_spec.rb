@@ -52,5 +52,23 @@ RSpec.describe ProjectCreateAutoCleanupRequestsJob, type: :job, vcr: true do
         expect(project.target_of_bs_request_actions.where(type: 'delete').count).to eq(0)
       end
     end
+
+    context 'with empty cleanup time' do
+      before do
+        attribute.values.first.value = ''
+        attribute.save
+      end
+
+      it { expect { subject }.not_to raise_error }
+    end
+
+    context 'with invalid cleanup time' do
+      before do
+        attribute.values.first.value = '200000'
+        attribute.save
+      end
+
+      it { expect { subject }.not_to raise_error }
+    end
   end
 end
