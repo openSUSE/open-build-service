@@ -56,7 +56,7 @@ Such requests get not created for projects with open requests or if you remove t
       attribute = prj.attribs.find_by_attrib_type_id(@cleanup_attribute.id)
       return unless attribute
 
-      time = Time.zone.parse(attribute.values.first.value)
+      time = Date.parse(attribute.values.first.value)
     rescue TypeError, ArgumentError
       # nil time raises TypeError
       return
