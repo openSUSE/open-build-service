@@ -105,7 +105,6 @@ class User < ApplicationRecord
   validates :password, confirmation: true, allow_blank: true
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
 
-  before_save :send_metric_for_beta_change, if: :in_beta_changed?
   after_create :create_home_project, :track_create
 
   alias flipper_id id
@@ -898,11 +897,6 @@ class User < ApplicationRecord
     end
 
     save
-  end
-
-  def send_metric_for_beta_change
-    channel = (in_beta? ? 'joined_beta' : 'left_beta')
-    RabbitmqBus.send_to_bus('metrics', "user.#{channel} value=1")
   end
 
   def run_as
