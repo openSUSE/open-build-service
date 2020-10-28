@@ -27,6 +27,10 @@ module Clockwork
     SendEventEmailsJob.perform_later
   end
 
+  every(5.minutes, 'measurements') do
+    MeasurementsJob.perform_later
+  end
+
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
