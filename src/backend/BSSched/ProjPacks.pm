@@ -991,6 +991,29 @@ sub setup_projects {
       my $repoid = $repo->{'name'};
       my $prp = "$projid/$repoid";
       $myprps{$prp} = 1;
+
+      # check if all packages are locked
+      my $alllocked;
+      if ($proj->{'lock'} && BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
+	$alllocked = 1;
+	for my $pack (grep {$_->{'lock'}} values(%{$proj->{'package'} || {}})) {
+	  $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
+	}
+      }
+      if ($alllocked) {
+	$gctx->{'alllocked'}->{$prp} = 1;
+      } else {
+	delete $gctx->{'alllocked'}->{$prp};
+      }
+
+      # if all packages are locked we do not have dependencies
+      if ($alllocked) {
+	my @sp;
+	$prpsearchpath->{$prp} = \@sp;
+	$prpdeps->{$prp} = \@sp;
+	next;
+      }
+
       my @searchpath = expandsearchpath($gctx, $projid, $repo);
       # map searchpath to internal prp representation
       my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
@@ -1035,20 +1058,6 @@ sub setup_projects {
       # get list of related prp
       my @related_prps = grep { $prp ne $_ && is_related($projid, $_) } @{$prpdeps->{$prp} || []};
       $relatedprpdeps->{$prp} = \@related_prps if @related_prps;
-
-      # check if all packages are locked
-      my $alllocked;
-      if ($proj->{'lock'} && BSUtil::enabled($repoid, $proj->{'lock'}, 0, $myarch)) {
-	$alllocked = 1;
-	for my $pack (grep {$_->{'lock'}} values(%{$proj->{'package'} || {}})) {
-	  $alllocked = 0 unless BSUtil::enabled($repoid, $pack->{'lock'}, 1, $myarch);
-	}
-      }
-      if ($alllocked) {
-	$gctx->{'alllocked'}->{$prp} = 1;
-      } else {
-	delete $gctx->{'alllocked'}->{$prp};
-      }
     }
     $gctx->{'project_prps'}->{$projid} = [ sort keys %myprps ] if %myprps;
   }
