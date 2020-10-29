@@ -887,6 +887,17 @@ sub checkpkgs {
       }
     }
 
+    # check if this package is project link excluded
+    if (exists($pdata->{'originproject'}) && (!$pdata->{'error'} || $pdata->{'error'} eq 'disabled')) {
+      # this is a package from a project link
+      my $repo = $ctx->{'repo'};
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+	$packstatus{$packid} = 'excluded';
+	$packerror{$packid} = 'project link';
+	next;
+      }
+    }
+
     # check if this package is broken
     if ($pdata->{'error'}) {
       if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'locked' || $pdata->{'error'} eq 'excluded') {
@@ -914,17 +925,6 @@ sub checkpkgs {
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $pdata->{'error'};
       next;
-    }
-
-    # check if this package is project link excluded
-    if (exists($pdata->{'originproject'})) {
-      # this is a package from a project link
-      my $repo = $ctx->{'repo'};
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
-	$packstatus{$packid} = 'excluded';
-	$packerror{$packid} = 'project link';
-	next;
-      }
     }
 
     # check if this package is build disabled
