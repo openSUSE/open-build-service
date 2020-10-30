@@ -2,6 +2,8 @@ class MeasurementsJob < ApplicationJob
   queue_as :quick
 
   def perform
+    return unless CONFIG['amqp_options']
+
     RabbitmqBus.send_to_bus('metrics', "group count=#{Group.count}")
     RabbitmqBus.send_to_bus('metrics', "user in_beta=#{User.in_beta.count},in_rollout=#{User.in_rollout.count},count=#{User.count},#{role_fields},#{state_fields}")
   end
