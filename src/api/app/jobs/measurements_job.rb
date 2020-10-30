@@ -39,7 +39,7 @@ class MeasurementsJob < ApplicationJob
     end
   end
 
-  def active_users_since(from_date)
-    User.seen_in_interval(from_date, Time.zone.now).count
+  def active_users_since(a_datetime)
+    User.seen_since(a_datetime).count
   end
 end
