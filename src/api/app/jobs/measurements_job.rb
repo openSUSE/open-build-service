@@ -19,6 +19,7 @@ class MeasurementsJob < ApplicationJob
       in_beta: User.in_beta.count,
       in_rollout: User.in_rollout.count,
       count: User.count,
+      seen: active_users_since(5.minutes.ago)
     }
       .merge(role_fields)
       .merge(state_fields)
@@ -36,5 +37,9 @@ class MeasurementsJob < ApplicationJob
       fields[state.to_sym] = User.where(state: state).count
       fields
     end
+  end
+
+  def active_users_since(from_date)
+    User.seen_in_interval(from_date, Time.zone.now).count
   end
 end
