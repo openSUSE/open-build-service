@@ -90,6 +90,7 @@ sub new {
     'gdst' => "$gctx->{'reporoot'}/$prp/$myarch",
     @conf
   };
+  $ctx->{'alllocked'} = 1 if $gctx->{'alllocked'}->{$prp};
   return bless $ctx, $class;
 }
 
@@ -240,7 +241,6 @@ sub setup {
   return (0, 'repo does not exist') unless $repo;
 
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  return (0, 'no prpsearchpath?') unless $prpsearchpath;
   $ctx->{'prpsearchpath'} = $prpsearchpath if $prpsearchpath;
 
   if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
@@ -250,7 +250,16 @@ sub setup {
   return ('blocked', join(', ', @$suspend)) if $suspend;
   $ctx->{'repo'} = $repo;
 
+  if ($ctx->{'alllocked'}) {
+    # shortcut, do simplified setup
+    $ctx->{'conf'} = {};
+    my $pdatas = $proj->{'package'} || {};
+    $ctx->{'packs'} = [ sort keys %$pdatas ];
+    return ('scheduling', undef);
+  }
+
   # set config
+  return (0, 'no prpsearchpath?') unless $prpsearchpath;
   my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, $prpsearchpath);
   if (!$bconf) {
     # see if it is caused by a remote error
@@ -349,6 +358,7 @@ sub wipeobsolete {
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
   my $myarch = $gctx->{'arch'};
+  return if $ctx->{'alllocked'};		# must not wipe anything
   my $linkedbuild = $ctx->{'repo'}->{'linkedbuild'};
   my $pdatas = $proj->{'package'} || {};
   my $dstcache = { 'fullcache' => {}, 'bininfocache' => {} };
@@ -412,6 +422,7 @@ sub preparepool {
   my $bconf = $ctx->{'conf'};
   my $prp = $ctx->{'prp'};
 
+  return ('scheduling', undef) if $ctx->{'alllocked'};		# we do not need a pool
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
   $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
@@ -515,6 +526,10 @@ sub expandandsort {
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
   my $repo = $ctx->{'repo'};
+  my $prp = $ctx->{'prp'};
+
+  return ('scheduling', undef) if $ctx->{'alllocked'}; # all deps are empty
+
   if ($bconf->{'expandflags:preinstallexpand'}) {
     if ($gctx->{'arch'} ne 'local' || !defined($BSConfig::localarch)) {
       return ('broken', 'Build::expandpreinstalls does not exist') unless defined &Build::expandpreinstalls;
@@ -887,6 +902,17 @@ sub checkpkgs {
       }
     }
 
+    # check if this package is project link excluded
+    if (exists($pdata->{'originproject'}) && (!$pdata->{'error'} || $pdata->{'error'} eq 'disabled')) {
+      # this is a package from a project link
+      my $repo = $ctx->{'repo'};
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+	$packstatus{$packid} = 'excluded';
+	$packerror{$packid} = 'project link';
+	next;
+      }
+    }
+
     # check if this package is broken
     if ($pdata->{'error'}) {
       if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'locked' || $pdata->{'error'} eq 'excluded') {
@@ -914,17 +940,6 @@ sub checkpkgs {
       $packstatus{$packid} = 'broken';
       $packerror{$packid} = $pdata->{'error'};
       next;
-    }
-
-    # check if this package is project link excluded
-    if (exists($pdata->{'originproject'})) {
-      # this is a package from a project link
-      my $repo = $ctx->{'repo'};
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
-	$packstatus{$packid} = 'excluded';
-	$packerror{$packid} = 'project link';
-	next;
-      }
     }
 
     # check if this package is build disabled
@@ -1124,6 +1139,11 @@ sub publish {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $unfinished = $ctx->{'unfinished'};
+
+  if ($ctx->{'alllocked'}) {
+    print "    publishing is locked\n";
+    return ('done', undef);
+  }
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};

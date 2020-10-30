@@ -1044,10 +1044,18 @@ eval {
     $ctx->set_repo_state('scheduling');
 
     # setup our special expander
-    my $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
-    $ctx->{'expander'} = $xp;
+    my $xp;
+    if ($ctx->{'pool'}) {
+      $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
+      $ctx->{'expander'} = $xp;
+    }
     no warnings 'redefine';
-    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    local *Build::expand;
+    if ($xp) {
+      *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    } else {
+      *Build::expand = sub { return (0, "no expander") };
+    }
     use warnings 'redefine';
 
     # Step 2c: expand all dependencies, put them in %pdeps hash and sort the packages
@@ -1095,12 +1103,14 @@ eval {
       $gctx->{'prpfinished'}->{$prp} = 1;
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
-      if ($lastcheck && %$lastcheck) {
-        BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
-      } else {
-        unlink("$gdst/:lastcheck");
+      if ($lastcheck) {
+        if (%$lastcheck) {
+          BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
+        } else {
+          unlink("$gdst/:lastcheck") unless $gctx->{'alllocked'}->{$prp};
+        }
+        delete $gctx->{'lastcheck'}->{$prp};
       }
-      delete $gctx->{'lastcheck'}->{$prp};
       # delete pkg meta cache
       $gctx->{'repodatas'}->dropmeta($prp, $myarch);
 
@@ -1110,7 +1120,7 @@ eval {
         my @unfinishedprps;
         my $remoteprojs = $gctx->{'remoteprojs'};
         my $prpfinished = $gctx->{'prpfinished'};
-        for (@{$gctx->{'prpdeps'}->{$prp}}) {
+        for (@{$gctx->{'prpdeps'}->{$prp} || []}) {
           next if $prpfinished->{$_};
           # if this is a remote repo, check prpnotready
           if (!%{$gctx->{'prpnotready'}->{$_} || {}}) {
