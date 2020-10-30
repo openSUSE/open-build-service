@@ -31,11 +31,11 @@ RSpec.describe User do
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user') }
   end
 
-  context 'recently_seen' do
+  context 'seen_since' do
     let!(:dead_user) { create(:dead_user, login: 'caspar') }
     let!(:active_user) { create(:confirmed_user, login: 'active_user') }
 
-    subject { User.recently_seen }
+    subject { User.seen_since(3.months.ago) }
 
     it { expect(subject).not_to include(dead_user) }
     it { expect(subject).to include(active_user) }
