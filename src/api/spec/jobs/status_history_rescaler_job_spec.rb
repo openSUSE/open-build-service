@@ -3,32 +3,54 @@ require 'rails_helper'
 RSpec.describe StatusHistoryRescalerJob, type: :job do
   include ActiveJob::TestHelper
 
-  describe '#rescale' do
-    before do
-      Timecop.freeze(2010, 7, 12)
+  let(:status_histories) { StatusHistory.where(key: 'busy_x86_64').order(:time) }
 
-      now = Time.now.to_i - 2.days
-      StatusHistory.transaction do
-        1000.times do |i|
-          StatusHistory.create(time: now + i, key: 'idle_x86_64', value: i)
-        end
+  describe '#rescale' do
+    context 'newer than 2 hours records' do
+      before do
+        5.times { |i| StatusHistory.create(time: (Time.now.utc - i.seconds).to_i, key: 'busy_x86_64', value: 10 * i) }
       end
 
-      StatusHistory.create(time: Time.now.to_i, key: 'busy_x86_64', value: 100)
+      subject! { StatusHistoryRescalerJob.perform_now }
+
+      it 'keeps the StatusHistory with key = busy_x86_64' do
+        expect(status_histories.count).to eq(5)
+        expect(status_histories.first.value).to eq(40)
+        expect(status_histories.last.value).to eq(0.0)
+      end
     end
 
-    after do
-      Timecop.return
+    context 'newer than 9 days' do
+      before do
+        2.times { |i| StatusHistory.create(time: 9.days.ago + i.minutes, key: 'busy_x86_64', value: 10 * i) }
+        2.times { |i| StatusHistory.create(time: 3.hours.ago + i.minutes, key: 'busy_x86_64', value: 10 * i) }
+      end
+
+      subject! { StatusHistoryRescalerJob.perform_now }
+
+      it 'reduces the records older than 7 days to 1' do
+        expect(StatusHistory.count).to eq(3)
+      end
+
+      it { expect(status_histories.first.value).to eq(5.0) }
     end
 
-    subject! { StatusHistoryRescalerJob.new.perform }
+    context 'older than one month' do
+      before do
+        2.times { |i| StatusHistory.create(time: 9.months.ago + i.minutes, key: 'busy_x86_64', value: 10 * i) }
+        2.times { |i| StatusHistory.create(time: 3.months.ago + i.minutes, key: 'busy_x86_64', value: 10 * i) }
+        2.times { |i| StatusHistory.create(time: 3.hours.ago + i.minutes, key: 'busy_x86_64', value: 10 * i) }
+      end
 
-    it { expect(StatusHistory.count).to eq(2) }
+      subject! { StatusHistoryRescalerJob.perform_now }
 
-    it 'keeps the StatusHistory with key = idle_x86_64' do
-      status_histories = StatusHistory.where(key: 'idle_x86_64')
-      expect(status_histories.count).to eq(1)
-      expect(status_histories.first.value).to eq(499.5)
+      it 'reduces the records older than 1 month to 1' do
+        expect(StatusHistory.count).to eq(4)
+      end
+
+      it { expect(Time.at(status_histories.first.time).utc).to be_between(10.months.ago, 8.months.ago) }
+      it { expect(status_histories.first.value).to eq(5.0) }
+      it { expect(status_histories.last.value).to eq(10.0) }
     end
   end
 end
