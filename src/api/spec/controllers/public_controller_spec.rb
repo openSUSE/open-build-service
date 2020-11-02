@@ -72,7 +72,7 @@ RSpec.describe PublicController, vcr: true do
           get :project_index, params: { project: project.name, view: 'info', nofilename: 'filename' }
         end
 
-        it { expect(response).to have_http_status(400) }
+        it { expect(response).to have_http_status(:bad_request) }
         it { expect(a_request(:get, %r{.*/source/public_controller_project\?nofilename=1&view=info})).not_to have_been_made }
       end
 

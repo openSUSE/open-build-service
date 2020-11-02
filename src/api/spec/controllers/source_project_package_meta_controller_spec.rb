@@ -78,7 +78,7 @@ RSpec.describe SourceProjectPackageMetaController, vcr: true do
                      body: meta, format: :xml
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
       it { expect(Xmlhash.parse(response.body)['code']).to eq('validation_failed') }
     end
   end

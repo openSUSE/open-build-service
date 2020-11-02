@@ -352,7 +352,7 @@ RSpec.describe Staging::StagingProjectsController do
           end
 
           it "can't accept" do
-            expect(subject).to have_http_status(403)
+            expect(subject).to have_http_status(:forbidden)
             expect(build_flag_disabled).to be_falsey
           end
         end

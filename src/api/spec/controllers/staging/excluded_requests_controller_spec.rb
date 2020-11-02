@@ -86,7 +86,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                       body: "<excluded_requests><request id='#{bs_request.number}' description='hey'/></excluded_requests>"
       end
 
-      it { expect(response).to have_http_status(404) }
+      it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'fails: no description, invalid request exclusion' do
@@ -95,7 +95,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                       body: "<excluded_requests><request id='#{bs_request.number}'/></excluded_requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'fails: non-existant bs_request number, invalid request exclusion' do
@@ -104,7 +104,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                       body: "<excluded_requests><request id='43_543'/></excluded_requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'fails: request belongs to a staging project, invalid request exclusion' do
@@ -115,7 +115,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                       body: "<excluded_requests><request id='43_543'/></excluded_requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
   end
 
@@ -147,7 +147,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                          body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
 
     context 'fails: unable to destroy' do
@@ -158,7 +158,7 @@ RSpec.describe Staging::ExcludedRequestsController do
                          body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
-      it { expect(response).to have_http_status(400) }
+      it { expect(response).to have_http_status(:bad_request) }
     end
   end
 end
