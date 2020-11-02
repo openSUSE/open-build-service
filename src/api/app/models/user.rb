@@ -70,7 +70,7 @@ class User < ApplicationRecord
 
   scope :with_email, -> { where.not(email: [nil, '']) }
 
-  scope :recently_seen, -> { where('last_logged_in_at > ?', 3.months.ago) }
+  scope :seen_since, ->(since) { where('last_logged_in_at > ?', since) }
 
   validates :login, :state, presence: { message: 'must be given' }
 

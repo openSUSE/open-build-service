@@ -5,16 +5,41 @@ class MeasurementsJob < ApplicationJob
     return unless CONFIG['amqp_options']
 
     RabbitmqBus.send_to_bus('metrics', "group count=#{Group.count}")
-    RabbitmqBus.send_to_bus('metrics', "user in_beta=#{User.in_beta.count},in_rollout=#{User.in_rollout.count},count=#{User.count},#{role_fields},#{state_fields}")
+    RabbitmqBus.send_to_bus('metrics', "user #{user_fields}")
   end
 
   private
 
+  def user_fields
+    user_measures.map { |k, v| "#{k}=#{v}" }.join(',')
+  end
+
+  def user_measures
+    {
+      in_beta: User.in_beta.count,
+      in_rollout: User.in_rollout.count,
+      count: User.count,
+      seen: active_users_since(5.minutes.ago)
+    }
+      .merge(role_fields)
+      .merge(state_fields)
+  end
+
   def role_fields
-    Role.global.pluck(:title).map { |role_title| "#{role_title.downcase}=#{Role.find_by(title: role_title).users.count}" }.join(',')
+    Role.global.pluck(:title).each_with_object({}) do |role_title, fields|
+      fields[role_title.downcase.to_sym] = Role.find_by(title: role_title).users.count
+      fields
+    end
   end
 
   def state_fields
-    User::STATES.map { |state| "#{state}=#{User.where(state: state).count}" }.join(',')
+    User::STATES.each_with_object({}) do |state, fields|
+      fields[state.to_sym] = User.where(state: state).count
+      fields
+    end
+  end
+
+  def active_users_since(a_datetime)
+    User.seen_since(a_datetime).count
   end
 end

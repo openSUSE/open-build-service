@@ -22,7 +22,7 @@ class Notification < ApplicationRecord
   end
 
   def any_user_in_group_active?
-    !subscriber.users.recently_seen.empty?
+    subscriber.users.seen_since(3.months.ago).any?
   end
 
   def template_name

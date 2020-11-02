@@ -185,7 +185,7 @@ class Group < ApplicationRecord
   end
 
   def away?
-    users.recently_seen.empty?
+    users.seen_since(3.months.ago).empty?
   end
 
   def maintainer?(user)
