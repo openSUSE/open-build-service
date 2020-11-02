@@ -7,6 +7,10 @@ class WorkerStatus
       hidden_projects(ws)
     end
 
+    def statistics
+      WorkerStatusService::WorkerStatisticsFetcher.call
+    end
+
     private
 
     def hidden_projects(worker_status_root)
