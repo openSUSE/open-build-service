@@ -72,7 +72,7 @@ RSpec.describe ::PackageService::FileVerifier do
       let(:file_name) { '_service' }
       let(:content) do
         <<-XML
-        <services> 
+        <services>
         <service name="download_files" mode="disabled" />
         </services>
         XML
@@ -87,7 +87,7 @@ RSpec.describe ::PackageService::FileVerifier do
       let(:file_name) { '_service' }
       let(:content) do
         <<-XML
-          <services> 
+          <services>
           <service name="download_files" mode="disabled" />
           </services>
         XML
