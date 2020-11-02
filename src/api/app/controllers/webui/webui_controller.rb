@@ -17,7 +17,6 @@ class Webui::WebuiController < ActionController::Base
   before_action :setup_view_path
   before_action :check_user
   before_action :check_anonymous
-  before_action :set_influxdb_additional_tags
   before_action :require_configuration
   before_action :current_announcement
   after_action :clean_cache
@@ -268,16 +267,9 @@ class Webui::WebuiController < ActionController::Base
 
   def set_influxdb_data
     InfluxDB::Rails.current.tags = {
+      beta: User.possibly_nobody.in_beta?,
+      anonymous: !User.session,
       interface: :webui
     }
-  end
-
-  def set_influxdb_additional_tags
-    tags = {
-      beta: User.possibly_nobody.in_beta?,
-      anonymous: !User.session
-    }
-
-    InfluxDB::Rails.current.tags = InfluxDB::Rails.current.tags.merge(tags)
   end
 end
