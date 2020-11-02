@@ -1,4 +1,3 @@
 FactoryBot.define do
-  factory :package_issue do
-  end
+  factory :package_issue
 end
