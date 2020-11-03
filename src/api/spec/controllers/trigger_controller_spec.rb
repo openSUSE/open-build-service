@@ -100,7 +100,7 @@ RSpec.describe TriggerController, vcr: true do
         post :release, params: { package: package, format: :xml }
       end
 
-      it { expect(response).to have_http_status(403) }
+      it { expect(response).to have_http_status(:forbidden) }
       it { expect(response.body).to include("No permission to modify project 'target_project' for user 'mrfluffy'") }
     end
 

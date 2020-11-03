@@ -461,7 +461,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without target project' do
       before do
-        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetProject)
+        allow(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetProject)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 
@@ -471,7 +471,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without target package' do
       before do
-        expect(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetPackage)
+        allow(BsRequestActionDelete).to receive(:new).and_raise(BsRequestAction::Errors::UnknownTargetPackage)
         post :remove_target_request, params: { project: apache_project, description: 'Fake description' }
       end
 

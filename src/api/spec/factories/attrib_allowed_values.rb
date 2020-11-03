@@ -1,4 +1,3 @@
 FactoryBot.define do
-  factory :attrib_allowed_value do
-  end
+  factory :attrib_allowed_value
 end

@@ -84,7 +84,7 @@ RSpec.describe Staging::StagedRequestsController do
                       body: "<requests><request id='#{bs_request.number}'/></requests>"
       end
 
-      it { expect(response).to have_http_status(424) }
+      it { expect(response).to have_http_status(:failed_dependency) }
 
       it 'responds with an error' do
         assert_select 'status', code: 'staging_project_not_in_acceptable_state'
