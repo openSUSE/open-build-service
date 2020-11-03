@@ -5,7 +5,7 @@ module HistoryElement
     end
 
     def description
-      'Request got a new priority: ' + description_extension
+      "Request got a new priority: #{description_extension}"
     end
 
     def user_action

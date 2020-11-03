@@ -34,6 +34,8 @@ linters:
       - Style/IfUnlessModifier
       - Style/Next
       - Style/WhileUntilModifier
+      # FIXME: Style/StringConcatenation should be enabled
+      - Style/StringConcatenation
 
 exclude:
 - 'vendor/bundle/**/*'

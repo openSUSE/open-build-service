@@ -9,7 +9,7 @@ module Webui::WebuiHelper
 
     assignee = email_list.first if email_list
     if email_list.length > 1
-      cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
+      cc = "&cc=#{email_list[1..-1].join('&cc=')}" if email_list
     end
 
     URI.escape(
@@ -23,7 +23,7 @@ module Webui::WebuiHelper
       return 'now' # rails' 'less than a minute' is a bit long
     end
 
-    human_time_ago = time_ago_in_words(time) + ' ago'
+    human_time_ago = "#{time_ago_in_words(time)} ago"
 
     if with_fulltime
       raw("<span title='#{l(time.utc)}' class='fuzzy-time'>#{human_time_ago}</span>")
@@ -138,15 +138,15 @@ module Webui::WebuiHelper
     if text.length > length
       case mode
       when :left # shorten at the beginning
-        shortened_text = '...' + text[text.length - length + 3..text.length]
+        shortened_text = "...#{text[text.length - length + 3..text.length]}"
       when :middle # shorten in the middle
         pre = text[0..length / 2 - 2]
         offset = 2 # depends if (shortened) length is even or odd
         offset = 1 if length.odd?
         post = text[text.length - length / 2 + offset..text.length]
-        shortened_text = pre + '...' + post
+        shortened_text = "#{pre}...#{post}"
       when :right # shorten at the end
-        shortened_text = text[0..length - 4] + '...'
+        shortened_text = "#{text[0..length - 4]}..."
       end
     end
     shortened_text
@@ -189,7 +189,7 @@ module Webui::WebuiHelper
     style += "border-width: 0 0 0 0;\n" if opts[:no_border] || opts[:read_only]
     style += "height: #{opts[:height]};\n" unless opts[:height] == 'auto'
     style += "width: #{opts[:width]}; \n" unless opts[:width] == 'auto'
-    style + "}\n"
+    "#{style}}\n"
   end
 
   def package_link(pack, opts = {})
@@ -214,11 +214,13 @@ module Webui::WebuiHelper
           end
 
     opts[:short] = true # for project
-    out += link_to_project(prj, opts) + ' / ' +
-           link_to_if(pkg, opts[:package_text],
-                      { controller: '/webui/package', action: 'show',
-                        project: opts[:project],
-                        package: opts[:package] }, class: 'package', title: opts[:package])
+    out += format('%s / %s',
+                  link_to_project(prj, opts),
+                  link_to_if(pkg,
+                             opts[:package_text],
+                             { controller: '/webui/package', action: 'show', project: opts[:project], package: opts[:package] },
+                             class: 'package',
+                             title: opts[:package]))
     if opts[:rev] && pkg
       out += ' ('.html_safe +
              link_to("revision #{elide(opts[:rev], 10)}",
@@ -281,11 +283,11 @@ module Webui::WebuiHelper
 
     javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
     short = tag.span('data-toggle-id' => id) do
-      tag.span(text.slice(0, slice_length) + ' ') +
+      tag.span("#{text.slice(0, slice_length)} ") +
         link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     long = tag.span('data-toggle-id' => id, :style => 'display: none;') do
-      tag.span(text + ' ') +
+      tag.span("#{text} ") +
         link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
     end
     short + long

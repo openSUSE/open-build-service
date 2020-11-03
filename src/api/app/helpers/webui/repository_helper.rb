@@ -7,9 +7,9 @@ module Webui::RepositoryHelper
   def title(flag, is_flag_set_by_user)
     title = flag.status.capitalize
     if is_flag_set_by_user
-      title + ' (set by user)'
+      "#{title} (set by user)"
     else
-      title + ' (calculated)'
+      "#{title} (calculated)"
     end
   end
 

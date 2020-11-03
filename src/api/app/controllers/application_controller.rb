@@ -152,7 +152,7 @@ class ApplicationController < ActionController::Base
       query_string += '&' if query_string.present?
       query_string += request.raw_post
     end
-    query_string = '?' + query_string if query_string.present?
+    query_string = "?#{query_string}" if query_string.present?
     path + query_string
   end
 

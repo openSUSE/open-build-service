@@ -32,7 +32,7 @@ class BsRequestPermissionCheck
       raise TargetNotMaintenance, 'The target project is already an incident, changing is not possible via set_incident' if @target_project.is_maintenance_incident?
       raise TargetNotMaintenance, "The target project is not of type maintenance but #{@target_project.kind}" unless @target_project.kind == 'maintenance'
 
-      tip = Project.get_by_name(action.target_project + ':' + opts[:incident])
+      tip = Project.get_by_name("#{action.target_project}:#{opts[:incident]}")
       raise ProjectLocked if tip && tip.is_locked?
     end
 

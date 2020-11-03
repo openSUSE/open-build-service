@@ -12,7 +12,7 @@ class Token::Service < Token
   private
 
   def signature_of(body)
-    'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, body)
+    "sha1=#{OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, body)}"
   end
 end
 

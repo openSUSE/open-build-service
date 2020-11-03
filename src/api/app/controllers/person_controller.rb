@@ -14,7 +14,7 @@ class PersonController < ApplicationController
 
   def show
     @list = if params[:prefix]
-              User.where('login LIKE ?', params[:prefix] + '%')
+              User.where('login LIKE ?', "#{params[:prefix]}%")
             else
               User.all
             end
@@ -184,7 +184,7 @@ class PersonController < ApplicationController
 
       login = request.env['HTTP_X_USERNAME']
       email = request.env['HTTP_X_EMAIL'] if request.env['HTTP_X_EMAIL'].present?
-      realname = request.env['HTTP_X_FIRSTNAME'] + ' ' + request.env['HTTP_X_LASTNAME'] if request.env['HTTP_X_LASTNAME'].present?
+      realname = "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}" if request.env['HTTP_X_LASTNAME'].present?
     end
 
     UnregisteredUser.register(login: login, realname: realname, email:

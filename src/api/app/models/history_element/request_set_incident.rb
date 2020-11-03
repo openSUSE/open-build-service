@@ -5,7 +5,7 @@ module HistoryElement
     end
 
     def description
-      'Maintenance target got moved to project ' + description_extension
+      "Maintenance target got moved to project #{description_extension}"
     end
 
     def user_action

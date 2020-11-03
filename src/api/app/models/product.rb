@@ -136,7 +136,7 @@ class Product < ApplicationRecord
         next unless pu.repository # it may be remote or not yet exist
 
         key = pu.repository.id.to_s
-        key += '/' + pu.arch_filter.name if pu.arch_filter_id
+        key += "/#{pu.arch_filter.name}" if pu.arch_filter_id
         update[key] = pu
       end
       u.elements('repository') do |repo|

@@ -178,7 +178,7 @@ class Repository < ApplicationRecord
     long_name = project.name.tr(':', '_')
     if project.repositories.count > 1
       # keep short names if project has just one repo
-      long_name += '_' + name unless name == 'standard'
+      long_name += "_#{name}" unless name == 'standard'
     end
     long_name
   end
@@ -241,7 +241,7 @@ class Repository < ApplicationRecord
   def download_url(file)
     xml = Xmlhash.parse(Backend::Api::Published.download_url_for_repository(project.name, name))
     url = xml.elements('url').last.to_s
-    url + '/' + file if file.present?
+    "#{url}/#{file}" if file.present?
   end
 
   def download_url_for_file(package_name, architecture, filename)
