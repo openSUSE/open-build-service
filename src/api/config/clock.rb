@@ -27,6 +27,10 @@ module Clockwork
     SendEventEmailsJob.perform_later
   end
 
+  every(1.minute, 'backend_measurements') do
+    BackendMeasurementsJob.perform_later
+  end
+
   every(5.minutes, 'measurements') do
     MeasurementsJob.perform_later
   end
