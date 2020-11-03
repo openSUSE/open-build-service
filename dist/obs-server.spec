@@ -368,30 +368,24 @@ Summary: System user and group obsrun
 Group:    System/Fhs
 Provides: user(obsrun)
 Provides: group(obsrun)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
 
 %description -n system-user-obsrun
 This package provides the system account and group 'obsrun'.
-
-%pre -n system-user-obsrun
-getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
-getent passwd obsrun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
-    -c "User for build service backend" obsrun
-
 
 %package -n system-user-obsservicerun
 Summary:  System user obsservicerun
 Group:    System/Fhs
 Requires: group(obsrun)
 Provides: user(obsservicerun)
+%if 0%{?suse_version:1}
+Requires(pre):  shadow
+%endif
 
 %description -n system-user-obsservicerun
 This package provides the system account 'obsservicerun'
-
-%pre -n system-user-obsservicerun
-getent passwd obsservicerun >/dev/null || \
-    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
-    -c "" obsservicerun
 
 #--------------------------------------------------------------------------------
 %prep
@@ -598,6 +592,17 @@ exit 0
 %pre -n obs-cloud-uploader
 %service_add_pre obsclouduploadworker.service
 %service_add_pre obsclouduploadserver.service
+
+%pre -n system-user-obsrun
+getent group obsrun >/dev/null || /usr/sbin/groupadd -r obsrun
+getent passwd obsrun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d /usr/lib/obs -s %{sbin}/nologin \
+    -c "User for build service backend" obsrun
+
+%pre -n system-user-obsservicerun
+getent passwd obsservicerun >/dev/null || \
+    /usr/sbin/useradd -r -g obsrun -d %{obs_backend_data_dir}/service -s %{sbin}/nologin \
+    -c "" obsservicerun
 
 %preun
 %service_del_preun obsscheduler.service
