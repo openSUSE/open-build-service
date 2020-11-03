@@ -31,10 +31,6 @@ module Clockwork
     MeasurementsJob.perform_later
   end
 
-  every(1.day, 'daily user activity measurements') do
-    DailyUserActivityMeasurementJob.perform_later
-  end
-
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
@@ -70,6 +66,10 @@ module Clockwork
   every(1.day, 'create cleanup requests', at: '06:00') do
     User.session = User.get_default_admin
     ProjectCreateAutoCleanupRequestsJob.perform_later
+  end
+
+  every(1.day, 'daily user activity measurements') do
+    DailyUserActivityMeasurementJob.perform_later
   end
 
   # check for new breakages between api and backend due to dull code
