@@ -31,7 +31,7 @@ module Clockwork
     MeasurementsJob.perform_later
   end
 
-  every(1.day, 'measurements') do
+  every(1.day, 'daily user activity measurements') do
     DailyUserActivityMeasurementJob.perform_later
   end
 
