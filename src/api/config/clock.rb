@@ -68,6 +68,10 @@ module Clockwork
     ProjectCreateAutoCleanupRequestsJob.perform_later
   end
 
+  every(1.day, 'daily user activity measurements') do
+    DailyUserActivityMeasurementJob.perform_later
+  end
+
   # check for new breakages between api and backend due to dull code
   every(1.week, 'consistency check', at: 'Sunday 03:00') do
     Old::ConsistencyCheckJob.perform_later
