@@ -334,18 +334,17 @@ sub getsigndata {
   push @args, "autoextend=1" if $BSConfig::sign;
   my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
   my $pubkey;
+  my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
     undef $signkey unless $signkey && length($signkey) > 10;	# not a valid signkey
     undef $pubkey unless $pubkey && length($pubkey) > 10;	# not a valid pubkey
-    if ($signkey) {
-      my $algo;
-      $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
-      mkdir_p("$uploaddir");
-      writestr("$uploaddir/publisher.$$", undef, $signkey);
-      $signargs = [ '-P', "$uploaddir/publisher.$$" ];
-      push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
-    }
+  }
+  if ($signkey) {
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+    mkdir_p("$uploaddir");
+    writestr("$uploaddir/publisher.$$", undef, $signkey);
+    $signargs = [ '-P', "$uploaddir/publisher.$$" ];
   }
   if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
@@ -365,6 +364,11 @@ sub getsigndata {
       }
     }
   }
+  if ($pubkey && !$algo) {
+    # try to get algo from public key
+    eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
+  }
+  push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
   return ($pubkey, $signargs);
 }
 
@@ -2559,7 +2563,7 @@ sub publish {
     };
     if ($@) {
       clean_blobdir($blobdir);
-      unlink("$uploaddir/publisher.$$") if @$signargs;
+      unlink("$uploaddir/publisher.$$") if @$signargs && $signargs->[0] eq '-P';
       die($@);
     }
   }
@@ -2936,7 +2940,7 @@ sub publish {
   db_store($patterninfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, %{$data->{'patterninfo'}} ? $data->{'patterninfo'} : undef) if $patterninfodb;
 
 publishprog_done:
-  unlink("$uploaddir/publisher.$$") if @$signargs;
+  unlink("$uploaddir/publisher.$$") if @$signargs && $signargs->[0] eq '-P';
 
   # post process step: create directory listing for poor YaST
   if ($repotype{'suse'}) {
