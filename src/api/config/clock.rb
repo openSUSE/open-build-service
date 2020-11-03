@@ -31,6 +31,10 @@ module Clockwork
     MeasurementsJob.perform_later
   end
 
+  every(1.day, 'measurements') do
+    DailyUserActivityMeasurementJob.perform_later
+  end
+
   every(49.minutes, 'rescale history') do
     StatusHistoryRescalerJob.perform_later
   end
