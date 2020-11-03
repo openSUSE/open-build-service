@@ -81,7 +81,7 @@ sub get_notary_pubkey {
   push @signargs, @{$signargs || []};
 
   # ask the sign tool for the correct pubkey if we do not have a sign key
-  if (!@$signargs && $BSConfig::sign_project && $BSConfig::sign) {
+  if (!(@$signargs && $signargs->[0] eq '-P') && $BSConfig::sign_project && $BSConfig::sign) {
     local *S;
     open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
     $pubkey = '';
