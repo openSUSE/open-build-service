@@ -76,8 +76,8 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it 'removes the user from the group' do
-        expect(response).to have_http_status(:success)
-        expect(flash[:success]).to eq("Removed user from group '#{group}'")
+        expect(response).to redirect_to(group_show_path(title: group.title))
+        expect(flash[:success]).to eq("Removed user '#{user}' from group '#{group}'")
         expect(group.users.where(groups_users: { user_id: user })).not_to exist
       end
     end

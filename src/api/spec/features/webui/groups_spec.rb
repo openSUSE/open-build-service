@@ -59,7 +59,8 @@ RSpec.describe 'Groups', type: :feature, js: true do
       click_link('Remove member from group')
     end
 
-    expect(page).to have_content("Removed user from group '#{group_1}'")
+    expect { click_button('Delete') }.to change { group_1.users.count }.by(-1)
+    expect(page).to have_content("Removed user '#{admin}' from group '#{group_1}'")
     expect(group_1.reload.users.map(&:login)).to eq([user_1.login])
   end
 
