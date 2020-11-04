@@ -41,7 +41,8 @@
 .row
   .col-md-8
     .card.mb-3#comments-list
-      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request }
+      = render partial: 'request_comments', locals: { comments: @comments, bs_request: @bs_request,
+                                                      superseded_requests: @bs_request.superseding.includes(:comments) }
     = render partial: 'handle_request', locals: { is_target_maintainer: @is_target_maintainer,
                                                         is_author: @is_author,
                                                         bs_request: @bs_request,
