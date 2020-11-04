@@ -62,6 +62,8 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $servicetempdir = "/srv/obs/service";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
+# Maximum number of concurrent jobs for source server
+#our $srcserver_maxchild = 20;
 # Maximum number of concurrent jobs for source service
 #our $service_maxchild = 20;
 

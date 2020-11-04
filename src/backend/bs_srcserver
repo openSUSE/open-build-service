@@ -7169,6 +7169,10 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
 };
 
+if ($BSConfig::srcserver_maxchild) {
+  $conf->{'maxchild'} = $BSConfig::srcserver_maxchild;
+}
+
 if ($BSConfig::workersrcserver) {
   my $wport = $port;
   $wport = $1 if $BSConfig::workersrcserver =~ /:(\d+)$/;
