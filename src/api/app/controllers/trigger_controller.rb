@@ -3,8 +3,6 @@ class TriggerController < ApplicationController
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
 
-  before_action :disallow_project_param, only: [:release]
-
   before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token
   #
   # Authentication happens with tokens, so no login is required
@@ -33,12 +31,17 @@ class TriggerController < ApplicationController
     raise NoPermissionForPackage.setup('not_found', 404, "#{@pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
+      raise NoPermissionForProject.setup('not_permission', 403, "#{release_target.target_repository.project.name} project is not writable for user") \
+        unless policy(release_target.target_repository.project).update?
+
+      opts = { filter_source_repository: release_target.repository,
+               manual: true,
+               comment: 'Releasing via trigger event' }
+      opts[:multibuild_container] = @pkg_name.gsub(/.*:/, '') if @pkg_name.include?(':')
       release_package(@pkg,
                       release_target.target_repository,
                       @pkg.release_target_name,
-                      { filter_source_repository: release_target.repository,
-                        manual: true,
-                        comment: 'Releasing via trigger event' })
+                      opts)
     end
 
     render_ok
@@ -92,6 +95,10 @@ class TriggerController < ApplicationController
       opts = if @token.instance_of?(Token::Rebuild)
                { use_source: false,
                  follow_project_links: true,
+                 follow_multibuild: true }
+             elsif @token.instance_of?(Token::Release)
+               { use_source: true,
+                 follow_project_links: false,
                  follow_multibuild: true }
              else
                { use_source: true,
