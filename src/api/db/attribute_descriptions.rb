@@ -29,7 +29,8 @@ def update_all_attrib_type_descriptions
     'DelegateRequestTarget' => 'Delegate the target project of requests even when target_project is specified',
     'AllowSubmitToMaintenanceRelease' => 'Allow submit requests to maintenance release projects',
     'EnforceRevisionsInRequests' => 'Enforce revisions in request actions',
-    'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person'
+    'CreatorCannotAcceptOwnRequests' => 'The creator and the accepter of a request cannot be the same person',
+    'SkipChannelBranch' => 'Opt-Out creating channels in maintenance incidents'
   }
   # rubocop:enable Layout/LineLength
 

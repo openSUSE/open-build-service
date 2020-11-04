@@ -131,9 +131,16 @@ OBS_DelegateRequestTarget:
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
+OBS_SkipChannelBranch:
+  id: 83
+  name: SkipChannelBranch
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
 OBS_EnforceRevisionsInRequests:
   id: 84
   name: EnforceRevisionsInRequests
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
+

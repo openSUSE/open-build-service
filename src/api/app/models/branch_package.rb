@@ -214,7 +214,7 @@ class BranchPackage
         tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
       end
 
-      tpkg.add_channels if tprj.is_maintenance_incident?
+      tpkg.add_channels if tprj.is_maintenance_incident? && !tprj.parent.find_attribute('OBS', 'SkipChannelBranch')
     end
     tprj.sync_repository_pathes if @update_path_elements
 
