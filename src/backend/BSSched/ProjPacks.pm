@@ -834,7 +834,7 @@ sub setup_projects {
 
   my $t1 = Time::HiRes::time();
   my $projids_todo_cnt = scalar(@{$projids_todo || []});
-  undef $projids_todo if $projids_todo_cnt > 1000;	# removing old stuff takes too long
+  undef $projids_todo if $projids_todo_cnt > 200;	# removing old stuff takes too long
 
   my @projids_todo;
   if ($projids_todo) {
