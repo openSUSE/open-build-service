@@ -103,6 +103,35 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(ignore_build_state, ignore_delegate)
   end
 
+  def modify_sources(force_branching)
+    # is branch enforcement a policy?
+    maintenance_project = Project.find_by_name(target_project)
+    return if force_branching.nil? && Attrib.find_by_container_and_fullname(maintenance_project, 'OBS:EnforceIncidentRequestStaging').nil?
+
+    title = 'Enforce branch project for maintenance incident request'
+    description = ''
+    stage_project = nil
+    Project.transaction do
+      # enforce a request number and use this as branch area
+      bs_request.assign_number
+      stage_project = Project.create(name: User.session!.branch_project_name("MAINTENANCE_REQUEST:#{bs_request.number}"),
+                                     title: title, description: description)
+      stage_project.relationships.build(user: User.session!, role: Role.find_by_title!('maintainer'))
+      stage_project.store
+      # autocleanup attribute in case request gets not accepted?
+    end
+
+    # create package
+    pkg = _merge_pkg_into_maintenance_incident(stage_project)
+    # create channels
+    pkg.add_channels
+    # adapt request action
+    self.source_package = pkg.name
+    self.source_project = stage_project.name
+    # create patchinfo
+    Patchinfo.new.create_patchinfo_from_request(stage_project, bs_request)
+  end
+
   private
 
   def _merge_pkg_into_maintenance_incident(incident_project)
@@ -140,11 +169,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
       branch_params = { target_project: incident_project.name,
                         olinkrev: 'base',
-                        requestid: bs_request.number,
                         maintenance: 1,
                         force: 1,
                         comment: 'Initial new branch from specified release project',
                         project: target_releaseproject, package: package_name }
+      branch_params[:requestid] = bs_request.number if bs_request.number
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
       if defined?(linkprj) && linkprj
@@ -166,11 +195,11 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
       branch_params = { target_project: incident_project.name,
                         olinkrev: 'base',
-                        requestid: bs_request.number,
                         maintenance: 1,
                         force: 1,
                         comment: 'Initial new branch',
                         project: linked_project, package: linked_package }
+      branch_params[:requestid] = bs_request.number if bs_request.number
       ret = BranchPackage.new(branch_params).branch
       new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
     elsif linkinfo && linkinfo['package'] # a new package for all targets
@@ -188,16 +217,18 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # backend copy of submitted sources, but keep link
     cp_params = {
-      requestid: bs_request.number,
       keeplink: 1,
       expand: 1,
-      withacceptinfo: 1,
       comment: "Maintenance incident copy from project #{source_project}"
     }
+    if bs_request.number
+      cp_params[:requestid] = bs_request.number
+      cp_params[:withacceptinfo] = 1
+    end
     cp_params[:orev] = source_rev if source_rev
     response = Backend::Api::Sources::Package.copy(incident_project.name, new_pkg.name, source_project, source_package, User.session!.login, cp_params)
     result = Xmlhash.parse(response)
-    set_acceptinfo(result['acceptinfo'])
+    set_acceptinfo(result['acceptinfo']) if bs_request.number
 
     new_pkg.sources_changed
     new_pkg

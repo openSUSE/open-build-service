@@ -146,6 +146,7 @@ class RequestController < ApplicationController
       @req.set_add_revision       if params[:addrevision].present?
       @req.set_ignore_delegate    if params[:ignore_delegate].present?
       @req.set_ignore_build_state if params[:ignore_build_state].present?
+      @req.enforce_branching      if params[:enforce_branching].present?
       @req.save!
       Suse::Validator.validate(:request, @req.render_xml)
     end

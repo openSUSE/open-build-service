@@ -131,3 +131,9 @@ OBS_DelegateRequestTarget:
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
+OBS_EnforceIncidentRequestStaging:
+  id: 83
+  name: EnforceIncidentRequestStaging
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0
