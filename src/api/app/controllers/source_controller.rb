@@ -980,7 +980,7 @@ class SourceController < ApplicationController
     if params[:target_project]
       # we do not create it ourself
       Project.get_by_name(params[:target_project])
-      _package_command_release_manual_target(pkg, multibuild_container)
+      _package_command_release_manual_target(pkg, multibuild_container, time_now)
     else
       verify_release_targets!(pkg.project)
 
@@ -1007,7 +1007,7 @@ class SourceController < ApplicationController
     render_ok
   end
 
-  def _package_command_release_manual_target(pkg, multibuild_container)
+  def _package_command_release_manual_target(pkg, multibuild_container, time_now)
     verify_can_modify_target!
 
     if params[:target_repository].blank? || params[:repository].blank?
@@ -1024,7 +1024,7 @@ class SourceController < ApplicationController
 
     release_package(pkg,
                     targetrepo,
-                    pkg.name,
+                    pkg.release_target_name(targetrepo, time_now),
                     { filter_source_repository: repo,
                       multibuild_container: multibuild_container,
                       setrelease: params[:setrelease],
