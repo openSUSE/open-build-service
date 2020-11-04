@@ -64,6 +64,8 @@ Webui:
     - /home/home_project
     - /home/list_my
 
+maintenance_release request actions takes default reviewers only from package
+and update project. Not from GA project anymore.
 
 Breaking API changes:
 =====================
