@@ -85,9 +85,9 @@ RSpec.describe Person::TokenController, vcr: false do
   describe '#delete' do
     let!(:token) { create(:service_token, user: user) }
 
-    subject { delete :delete, params: { login: user.login, id: token.id }, format: :xml }
+    context 'requesting deletion of an existent token as an authorized user' do
+      subject { delete :delete, params: { login: user.login, id: token.id }, format: :xml }
 
-    context 'called by authorized user' do
       before do
         login user
       end
@@ -98,16 +98,9 @@ RSpec.describe Person::TokenController, vcr: false do
       end
     end
 
-    context 'requesting deletion of a non-existant token' do
-      before do
-        login user
-        delete :delete, params: { login: user.login, id: 42 }, format: :xml
-      end
+    context 'requesting deletion of an existent token as an unauthorized user' do
+      subject { delete :delete, params: { login: user.login, id: token.id }, format: :xml }
 
-      it { expect(response).to have_http_status(:not_found) }
-    end
-
-    context 'called by unauthorized user' do
       before do
         login other_user
       end
@@ -115,6 +108,20 @@ RSpec.describe Person::TokenController, vcr: false do
       it 'does not delete the token' do
         expect { subject }.not_to(change { user.tokens.count })
         expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'requesting deletion of a non-existent token' do
+      # Prevent potential flickering by adding 1 to the id of the last token
+      subject { delete :delete, params: { login: user.login, id: Token.last.id + 1 }, format: :xml }
+
+      before do
+        login user
+      end
+
+      it 'does nothing' do
+        expect { subject }.not_to(change { user.tokens.count })
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
