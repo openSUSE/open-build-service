@@ -70,6 +70,7 @@ our %event_handlers = (
   'resumeproject'   => \&BSSched::EventHandler::event_resumeproject,
   'memstats'        => \&BSSched::EventHandler::event_memstats,
   'dumppmat'        => \&BSSched::EventHandler::event_dumppmat,
+  'projectstats'    => \&BSSched::EventHandler::event_projectstats,
   'dispatchdetails' => \&BSSched::EventHandler::event_dispatchdetails,
   'force_publish'   => \&BSSched::EventHandler::event_force_publish,
 );
@@ -682,6 +683,12 @@ sub event_dumppmat {
     Devel::MAT::Dumper::dump("$rundir/bs_sched.$myarch.pmat");
   };
   warn($@) if $@;
+}
+
+sub event_projectstats {
+  my ($ectx, $ev) = @_;
+  my $gctx = $ectx->{'gctx'};
+  BSSched::ProjPacks::print_project_stats($gctx);
 }
 
 sub event_dispatchdetails {
