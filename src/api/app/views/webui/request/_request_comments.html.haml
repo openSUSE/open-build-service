@@ -5,7 +5,7 @@
         Comments for request #{bs_request.number}
         %span.badge.badge-primary{ id: "comment-counter-request-#{bs_request.number}" }
           = comments.size
-    - bs_request.superseding.includes(:comments).each do |superseded|
+    - superseded_requests.each do |superseded|
       - if superseded.comments.any?
         %li.nav-item
           = link_to("#superseded-#{superseded.number}", title: "This request was superseded by request #{superseded.superseded_by}",
@@ -18,7 +18,7 @@
     .tab-pane.fade.show.active#comments
       = render partial: 'webui/comment/show', locals: { commentable: bs_request,
         comment_counter_id: "#comment-counter-request-#{bs_request.number}" }
-    - bs_request.superseding.includes(:comments).each do |superseded|
+    - superseded_requests.each do |superseded|
       - if superseded.comments.any?
         .tab-pane.fade.show{ id: "superseded-#{superseded.number}" }
           = render partial: 'webui/comment/show', locals: { commentable: superseded,
