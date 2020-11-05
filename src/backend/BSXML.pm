@@ -537,6 +537,7 @@ our $buildinfo = [
 	'versrel',
 	'bcnt',
 	'release',
+        'config',
 	'debuginfo',
 	'constraintsmd5',
       [ 'prjconfconstraint' ],
