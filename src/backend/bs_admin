@@ -230,6 +230,7 @@ Debug Options
 
  --dump-memstats <architecture> [what]
  --dump-pmat <architecture>
+ --dump-projectstats <architecture>
 
 Backend Configuration
 =====================
@@ -568,6 +569,11 @@ sub dump_memstats {
   write_event( undef, undef, $arch, 'memstats', undef, $job );
 }
 
+sub dump_projectstats {
+  my ($arch) = @_;
+  write_event( undef, undef, $arch, 'projectstats' );
+}
+
 sub dump_pmat {
   my ($arch) = @_;
   write_event( undef, undef, $arch, 'dumppmat' );
@@ -753,6 +759,10 @@ while (@ARGV) {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     dump_pmat($arch);
+  } elsif ($arg eq "--dump-projectstats") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    dump_projectstats($arch);
   } elsif ($arg eq "--dump-project-from-state") {
     die("ERROR: need project as argument!\n") if @ARGV < 1;
     my $project = shift @ARGV;
