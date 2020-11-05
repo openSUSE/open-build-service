@@ -663,6 +663,8 @@ if ($exitrestart) {
   if ($state->{'state'} eq 'building' || $state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'badhost') {
     $state->{'state'} = 'discarded';
     $state->{'nextstate'} = $exitrestart eq 'exit' ? 'exit' : 'rebooting';
+  } elsif ($state->{'state'} eq 'dead') {
+    die("worker is dead\n");
   } else {
     $state->{'state'} = $exitrestart eq 'exit' ? 'exit' : 'rebooting';
   }
@@ -1167,7 +1169,8 @@ sub manage_cache {
   my $content;
   if (-s F) {
     seek(F, 0, 0);
-    $content = Storable::fd_retrieve(\*F);
+    eval { $content = Storable::fd_retrieve(\*F) };
+    die("FATAL: cannot read cache content: $@") if $@;
   }
   $content ||= [];
   my %content = map {$_->[0] => $_->[1]} @$content;
@@ -3338,6 +3341,8 @@ sub dobuild {
     }
   } elsif ($ret == 3 * 256) {
     return 3;
+  } elsif ($ret == 4 * 256) {
+    return 4;
   } elsif ($ret == 9 * 256) {
     if ($vm =~ /(xen|kvm|zvm|emulator|pvm|openstack)/) {
       rm_rf("$buildroot/.build.packages");
@@ -3721,8 +3726,13 @@ sub periodic {
     $idlecnt = 0;
   }
 
-  if ($state->{'state'} eq 'exit') {
+  if ($state->{'state'} eq 'exit' || $state->{'state'} eq 'dead') {
     $state = lockstate();
+    if ($state->{'state'} eq 'dead') {
+      close RUNLOCK;
+      send_state('exit', $port, $hostarch);
+      exit(0);
+    }
     if ($state->{'state'} eq 'exit') {
       close RUNLOCK;
       $state = {'state' => 'idle'};
@@ -3934,6 +3944,7 @@ if ($@) {
   $ex = 3 if $@ =~ /^500 /;
   # catch disk full errors before the build script could be even started
   $ex = 3 if $@ =~ /No space left on device/;
+  $ex = 4 if $@ =~ /^FATAL:/;
   append_nonfatal("$buildroot/.build.log", $workerid ? "$@(worker was $workerid)\n" : $@);
   print $@;
 }
@@ -4138,6 +4149,10 @@ if (!$ex) {
       $code = 'failed';
     }
   }
+} elsif ($ex == 4) {
+  print "detected broken build host, exiting...\n";
+  $code = 'badhost';
+  $state->{'nextstate'} = 'dead';
 } elsif ($ex == 11) {
   print "build has different generated build requires\n";
   $code = 'genbuildreqs';
