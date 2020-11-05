@@ -29,11 +29,12 @@ module Webui
         authorize @group, :update?
 
         if @group.remove_user(@user)
-          flash.now[:success] = "Removed user from group '#{@group}'"
-          render 'flash', status: :ok
+          flash[:success] = "Removed user '#{@user}' from group '#{@group}'"
         else
-          render 'flash', status: :bad_request
+          flash[:error] = "Couldn't remove user '#{@user}' from group '#{@group}'"
         end
+
+        redirect_to group_show_path(@group)
       end
 
       def update
