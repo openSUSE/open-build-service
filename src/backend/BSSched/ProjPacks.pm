@@ -686,6 +686,10 @@ sub get_projpacks_postprocess_projects {
     $todo{$aprojid} = 1 if grep {$changed{$_}} @{$expandedprojlink->{$aprojid}};
   }
 
+  my $nprojids = @projids;
+  my $nextra = keys(%todo) - $nprojids;
+  print "get_projpacks_postprocess_projects for $nprojids + $nextra projects\n";
+
   # now update all projects on the todo list
   my $t1 = Time::HiRes::time();
   setup_projects($gctx, [ sort keys %todo ]) if %todo;
@@ -834,7 +838,7 @@ sub setup_projects {
 
   my $t1 = Time::HiRes::time();
   my $projids_todo_cnt = scalar(@{$projids_todo || []});
-  undef $projids_todo if $projids_todo_cnt > 200;	# removing old stuff takes too long
+  undef $projids_todo if $projids_todo_cnt > 500;	# removing old stuff takes too long
 
   my @projids_todo;
   if ($projids_todo) {
@@ -869,23 +873,21 @@ sub setup_projects {
     $gctx->{'project_prps'} = {};
     $gctx->{'alllocked'} = {};
   } else {
-    for my $projid (@$projids_todo) {
-      # just updating some projects, delete all the entries we currently have
+    # just updating some projects, delete all the entries we currently have
 
+    # remove project(s) from projpacks_linked
+    my $projpacks_linked = $gctx->{'projpacks_linked'};
+    my %projids_todo = map {$_ => 1} @$projids_todo;
+    my %lprojids = map {$_ => 1} map { (@{$gctx->{'expandedprojlink'}->{$_} || []}, @{$gctx->{'linked_projids'}->{$_} || []}) } @$projids_todo;
+    for my $lprojid (sort keys %lprojids) {
+      my $pl = $projpacks_linked->{$lprojid};
+      next unless $pl;
+      @$pl = grep {!$projids_todo{$_->{'myproject'}}} @$pl;
+      delete $projpacks_linked->{$lprojid} unless @$pl;
+    }
+    for my $projid (@$projids_todo) {
       # save old_channelids for post-processing
       $old_channelids{$projid} = $gctx->{'channelids'}->{$projid} if $gctx->{'channelids'}->{$projid};
-      # remove project from projpacks_linked
-      my %lprojids = map {$_ => 1} (@{$gctx->{'expandedprojlink'}->{$projid} || []}, @{$gctx->{'linked_projids'}->{$projid} || []});
-      my $projpacks_linked = $gctx->{'projpacks_linked'};
-      for my $lprojid (sort keys %lprojids) {
-	next unless $projpacks_linked->{$lprojid};
-	my @l = grep {$_->{'myproject'} ne $projid} @{$projpacks_linked->{$lprojid}};
-	if (@l) {
-	  $projpacks_linked->{$lprojid} = \@l;
-	} else {
-	  delete $projpacks_linked->{$lprojid};
-	}
-      }
       # remove project from various prp indexed hashes
       for my $prp (@{$gctx->{'project_prps'}->{$projid} || []}) {
 	delete $gctx->{'prpsearchpath'}->{$prp};
