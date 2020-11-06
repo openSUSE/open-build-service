@@ -1436,7 +1436,7 @@ POST /trigger/runservice
   This call needs a token to identify user and package which shall be updated
   via a source service. See the cmd=create in the /person/<userid>/token route.
 
-  The token itself must be delivered as HTTP header:
+  The token itself must be delivered as a HTTP header:
     Authorization: Token <TOKEN_STRING>
 
 Parameters
