@@ -36,12 +36,12 @@ class PersonController < ApplicationController
   def get_userinfo
     user = User.find_by_login!(params[:login])
 
-    if user != User.session
-      logger.debug "Generating for user from parameter #{user.login}"
-      render xml: user.render_axml(User.admin_session?)
-    else
+    if user == User.session
       logger.debug "Generating user info for logged in user #{User.session.login}"
       render xml: User.session.render_axml(true)
+    else
+      logger.debug "Generating for user from parameter #{user.login}"
+      render xml: user.render_axml(User.admin_session?)
     end
   end
 

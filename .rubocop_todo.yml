@@ -93,12 +93,6 @@ Style/MixinUsage:
   Exclude:
     - 'dist/obs_mirror_project'
 
-# Offense count: 6
-# Cop supports --auto-correct.
-Style/NegatedIfElseCondition:
-  Exclude:
-    - 'dist/obs_mirror_project'
-
 # Offense count: 1
 # Cop supports --auto-correct.
 Style/PerlBackrefs:

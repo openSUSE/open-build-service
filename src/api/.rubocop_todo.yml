@@ -1366,15 +1366,6 @@ Style/MixinUsage:
     - 'app/models/bs_request.rb'
     - 'script/start_test_backend'
 
-# Offense count: 5
-# Cop supports --auto-correct.
-Style/NegatedIfElseCondition:
-  Exclude:
-    - 'app/controllers/person_controller.rb'
-    - 'app/controllers/source_controller.rb'
-    - 'app/controllers/webui/request_controller.rb'
-    - 'app/controllers/webui/webui_controller.rb'
-
 # Offense count: 23
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: respond_to_missing?

@@ -91,12 +91,8 @@ class Webui::WebuiController < ActionController::Base
     return true unless CONFIG['kerberos_mode'] && !User.session
 
     authorization = authenticator.authorization_infos || []
-    if authorization[0].to_s != 'Negotiate'
+    if authorization[0].to_s == 'Negotiate'
       # Demand kerberos negotiation
-      response.headers['WWW-Authenticate'] = 'Negotiate'
-      render :new, status: 401
-      nil
-    else
       begin
         authenticator.extract_user
       rescue Authenticator::AuthenticationRequiredError => e
@@ -111,6 +107,10 @@ class Webui::WebuiController < ActionController::Base
         redirect_back(fallback_location: root_path)
         true
       end
+    else
+      response.headers['WWW-Authenticate'] = 'Negotiate'
+      render :new, status: 401
+      nil
     end
   end
 
@@ -215,13 +215,13 @@ class Webui::WebuiController < ActionController::Base
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
-    if !User.session
+    if User.session
+      false
+    else
       unless ::Configuration.anonymous
         flash[:error] = 'No anonymous access. Please log in!'
         redirect_back(fallback_location: root_path)
       end
-    else
-      false
     end
   end
 
