@@ -32,10 +32,10 @@
                    data: { repository: repository_name, main: package_name } }
           .d-flex.flex-row.flex-wrap.py-1
             .repository-state
-              - if !result.is_repository_in_db
-                %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-              - else
+              - if result.is_repository_in_db
                 = repository_status_icon(status: result.state, details: result.details)
+              - else
+                %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               %span.ml-1
                 = result.architecture
             .build-state

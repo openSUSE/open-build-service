@@ -32,10 +32,10 @@
                    data: { repository: repository_name, main: package_name } }
           .d-flex.flex-row.flex-wrap.pt-1
             .repository-state
-              - if !result.is_repository_in_db
-                %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-              - else
+              - if result.is_repository_in_db
                 = repository_status_icon(status: result.state)
+              - else
+                %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               %span.ml-1
                 = result.architecture
             .build-state.toggle-build-info-parent
@@ -46,12 +46,12 @@
               .build-info-content
                 %p.py-1= Buildresult.status_description(result.code)
                 %div
-                  - if !result.is_repository_in_db
-                    %i.fas.fa-clock.text-warning
-                    This result is outdated
-                  - else
+                  - if result.is_repository_in_db
                     = repository_status_icon(status: result.state)
                     %span.pl-1= repository_info(result.state)
+                  - else
+                    %i.fas.fa-clock.text-warning
+                    This result is outdated
                 - if result.details
                   %div
                     %strong #{result.code}:

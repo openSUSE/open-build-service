@@ -1,4 +1,7 @@
-- if !User.session
+- if User.session
+  = render(partial: 'webui/comment/comment_field',
+    locals: { form_method: :post, comment: Comment.new, commentable: commentable })
+- else
   .alert.alert-warning{ role: 'alert' }
     Login required, please
     = link_to('login', new_session_url)
@@ -6,6 +9,3 @@
       or
       = link_to('signup', new_user_url)
     in order to comment
-- else
-  = render(partial: 'webui/comment/comment_field',
-   locals: { form_method: :post, comment: Comment.new, commentable: commentable })
