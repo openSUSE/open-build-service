@@ -148,6 +148,7 @@ class Webui::RequestController < Webui::WebuiController
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0]
         if changestate == 'accepted'
+          # split into project and package
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_')
           target = if tpkg
                      Package.find_by_project_and_name(tprj, tpkg)
@@ -158,7 +159,6 @@ class Webui::RequestController < Webui::WebuiController
           # are allowed to modify the object
           target.add_maintainer(@bs_request.creator) if target.can_be_modified_by?(User.possibly_nobody)
         else
-          # split into project and package
           flash[:error] = 'Will not add maintainer for not accepted requests'
         end
       end

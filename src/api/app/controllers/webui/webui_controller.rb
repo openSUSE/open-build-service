@@ -92,7 +92,6 @@ class Webui::WebuiController < ActionController::Base
 
     authorization = authenticator.authorization_infos || []
     if authorization[0].to_s == 'Negotiate'
-      # Demand kerberos negotiation
       begin
         authenticator.extract_user
       rescue Authenticator::AuthenticationRequiredError => e
@@ -108,6 +107,7 @@ class Webui::WebuiController < ActionController::Base
         true
       end
     else
+      # Demand kerberos negotiation
       response.headers['WWW-Authenticate'] = 'Negotiate'
       render :new, status: 401
       nil
