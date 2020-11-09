@@ -1,0 +1,5 @@
+<directory count="3">
+  <entry id="18" string="thisIsASuperSecretValue" kind="rss"/>
+  <entry id="265" string="thisIsAnotherSuperSecretValue" kind="runservice"/>
+  <entry id="267" string="aSuperSecretValue" kind="release" project="devel:libraries:c_c++" package="notmuch"/>
+</directory>
