@@ -446,6 +446,7 @@ my $gctx = {
 
   # postprocessed project data
   'projpacks_linked' => {},		# data of all linked sources
+  'projpacks_linked_blks' => {},	# block offsets in projpacks_linked
   'linked_projids' => {},		# projid => [projid, projid] projects our packages link to
   'prps' => [],				# sorted list of all local prps (project repos)
   'project_prps' => {},			# projid => [ prp, prp ...]

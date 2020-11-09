@@ -838,7 +838,7 @@ sub setup_projects {
 
   my $t1 = Time::HiRes::time();
   my $projids_todo_cnt = scalar(@{$projids_todo || []});
-  undef $projids_todo if $projids_todo_cnt > 500;	# removing old stuff takes too long
+  undef $projids_todo if $projids_todo_cnt > 1000;	# removing old stuff takes too long
 
   my @projids_todo;
   if ($projids_todo) {
@@ -863,6 +863,7 @@ sub setup_projects {
   if (!$projids_todo) {
     # going to redo all project dependencies, so start from scratch
     $gctx->{'projpacks_linked'} = {};
+    $gctx->{'projpacks_linked_blks'} = {};
     $gctx->{'prpsearchpath'} = {};
     $gctx->{'prpdeps'} = {};
     $gctx->{'relatedprpdeps'} = {};
@@ -877,13 +878,28 @@ sub setup_projects {
 
     # remove project(s) from projpacks_linked
     my $projpacks_linked = $gctx->{'projpacks_linked'};
+    my $projpacks_linked_blks = $gctx->{'projpacks_linked_blks'};
     my %projids_todo = map {$_ => 1} @$projids_todo;
     my %lprojids = map {$_ => 1} map { (@{$gctx->{'expandedprojlink'}->{$_} || []}, @{$gctx->{'linked_projids'}->{$_} || []}) } @$projids_todo;
     for my $lprojid (sort keys %lprojids) {
       my $pl = $projpacks_linked->{$lprojid};
       next unless $pl;
-      @$pl = grep {!$projids_todo{$_->{'myproject'}}} @$pl;
-      delete $projpacks_linked->{$lprojid} unless @$pl;
+      my $off = 0;
+      my $blks = $projpacks_linked_blks->{$lprojid};
+      for my $blk (@$blks) {
+	if (!$projids_todo{$pl->[$off]->{'myproject'}}) {
+	  $off += $blk;
+	} else {
+	  splice(@$pl, $off, $blk);
+	  $blk = undef;
+	}
+      }
+      if (@$pl) {
+	@$blks = grep {defined($_)} @$blks;
+      } else {
+	delete $projpacks_linked->{$lprojid};
+	delete $projpacks_linked_blks->{$lprojid};
+      }
     }
     for my $projid (@$projids_todo) {
       # save old_channelids for post-processing
@@ -910,15 +926,16 @@ sub setup_projects {
 
     # generate package link information
     my %lprojids;
+    my $projpacks_linked = $gctx->{'projpacks_linked'};
+    my $projpacks_linked_blks = $gctx->{'projpacks_linked_blks'};
     if ($proj->{'package'}) {
-      my $projpacks_linked = $gctx->{'projpacks_linked'};
       my ($mypackid, $pack);
       while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
 	next unless $pack->{'linked'};
 	for my $lil (@{$pack->{'linked'}}) {
 	  my $li = { %$lil, 'myproject' => $projid, 'mypackage' => $mypackid };
 	  my $lprojid = delete $li->{'project'};
-	  $lprojids{$lprojid} = 1;
+	  $lprojids{$lprojid}++;
 	  push @{$projpacks_linked->{$lprojid}}, $li;
 	}
       }
@@ -929,11 +946,14 @@ sub setup_projects {
     if ($proj->{'link'}) {
       my $expandedprojlink = $gctx->{'expandedprojlink'};
       $expandedprojlink->{$projid} = [ expandprojlink($gctx, $projid) ];
-      my $projpacks_linked = $gctx->{'projpacks_linked'};
       for my $lprojid (@{$expandedprojlink->{$projid}}) {
+	$lprojids{$lprojid}++;
 	push @{$projpacks_linked->{$lprojid}}, { 'package' => ':*', 'myproject' => $projid };
       }
     }
+
+    # save block sizes
+    push @{$projpacks_linked_blks->{$_}}, $lprojids{$_} for keys %lprojids;
 
     my $repos = $proj->{'repository'} || [];
     my @myrepos;        # repos which include my arch
@@ -1127,6 +1147,34 @@ sub setup_projects {
 
 =cut
 
+sub verify_projpacks_linked_blks {
+  my ($gctx) = @_;
+  print "verifying projpacks_linked_blks data\n";
+  my $projpacks_linked = $gctx->{'projpacks_linked'};
+  my $projpacks_linked_blks = $gctx->{'projpacks_linked_blks'};
+  for my $lprojid (sort keys %$projpacks_linked) {
+    my $lp = $projpacks_linked->{$lprojid};
+    my $blks = $projpacks_linked_blks->{$lprojid};
+    my $n = 0;
+    $n += $_ for @$blks;
+    die("projpacks_linked size mismatch\n") if $n != @$lp;
+    $n = 0;
+    my $projid;
+    my @b = @$blks;
+    for (@$lp) {
+      if ($n == 0) {
+	$projid = $_->{'myproject'};
+        $n = shift(@b);
+        die("bad blocks entry\n") if $n <= 0;
+      } else {
+	die("block mismatch\n") if $_->{'myproject'} ne $projid;
+      }
+      $n--;
+    }
+    die("excess blocks entry\n") if @b;
+  }
+}
+
 sub print_project_stats {
   my ($gctx) = @_;
   print "project data statistics:\n";
@@ -1136,13 +1184,14 @@ sub print_project_stats {
   $pkg += keys(%{$projpacks->{$_}->{'package'} || {}}) for keys %$projpacks;
   printf "  packages: %d\n", $pkg;
   printf "  prps: %d\n", scalar(@{$gctx->{'prps'} || []});
-  for my $what (qw{projpacks_linked prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps relatedprpdeps rrelatedprpdeps}) {
+  for my $what (qw{projpacks_linked projpacks_linked_blks prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps relatedprpdeps rrelatedprpdeps}) {
     my $w = $gctx->{$what};
     next unless $w;
     my $e = 0;
     $e += @{$w->{$_}} for keys %$w;
     printf "  %s: %d %d\n", $what, scalar(keys %$w), $e;
   }
+  verify_projpacks_linked_blks($gctx);
 }
 
 =head2 do_delayedprojpackfetches - do delayed projpack fetches caused by source changes
