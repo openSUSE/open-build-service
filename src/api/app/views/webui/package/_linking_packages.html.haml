@@ -8,10 +8,10 @@
           - package.linking_packages.each do |linking_package|
             :ruby
               # FIXME: get rid of these helpers
-              name = if linking_package.name != package.name
-                       elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
-                     else
+              name = if linking_package.name == package.name
                        elide(linking_package.project.name, 46)
+                     else
+                       elide_two(linking_package.project.name, linking_package.name, 46).join(' / ')
                      end
             %li= link_to(name, package_show_path(project: linking_package.project.name, package: linking_package.name))
       .modal-footer

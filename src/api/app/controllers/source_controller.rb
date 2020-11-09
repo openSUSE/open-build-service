@@ -343,17 +343,17 @@ class SourceController < ApplicationController
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
     if @package_name == '_pattern'
-      if !Package.exists_by_project_and_name(@project_name, @package_name,
-                                             follow_project_links: false)
-        @pack = Package.new(name: '_pattern', title: 'Patterns',
-                            description: 'Package Patterns')
-        @prj.packages << @pack
-        @pack.save
-      else
+      if Package.exists_by_project_and_name(@project_name, @package_name,
+                                            follow_project_links: false)
         @pack = Package.get_by_project_and_name(@project_name, @package_name,
                                                 follow_project_links: false)
         # very unlikely... (actually this should be a 400 instead of 404)
         raise RemoteProjectError, 'Cannot modify a remote package' if @pack.nil?
+      else
+        @pack = Package.new(name: '_pattern', title: 'Patterns',
+                            description: 'Package Patterns')
+        @prj.packages << @pack
+        @pack.save
       end
     end
 

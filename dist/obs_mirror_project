@@ -82,8 +82,8 @@ optparse.parse!
 proj = options[:proj]
 repo = options[:repo]
 arch = options[:arch]
-dest = !options[:dest].empty? ? options[:dest] : Dir.pwd
-apiurl = !options[:apiurl].empty? ? options[:apiurl] : 'https://api.opensuse.org'
+dest = options[:dest].empty? ? Dir.pwd : options[:dest]
+apiurl = options[:apiurl].empty? ? 'https://api.opensuse.org' : options[:apiurl]
 trialrun = options[:trialrun]
 verbose = options[:verbose]
 
@@ -116,11 +116,11 @@ if verbose
   puts "\nVerify API URL '#{apiurl}':
   osc -A #{apiurl} api -m GET /about > /dev/null"
 end
-if !system("osc -A #{apiurl} api -m GET /about > /dev/null")
+if system("osc -A #{apiurl} api -m GET /about > /dev/null")
+  puts "Verify API URL '#{apiurl}': ok"
+else
   puts "Verify API URL '#{apiurl}': failed"
   exit(1)
-else
-  puts "Verify API URL '#{apiurl}': ok"
 end
 
 # verify proj
@@ -128,11 +128,11 @@ if verbose
   puts "\nVerify proj '#{proj}':
   osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null"
 end
-if !system("osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null")
+if system("osc -A #{apiurl} api -m GET /build/#{proj} > /dev/null")
+  puts "Verify proj '#{proj}': ok"
+else
   puts "Verify proj '#{proj}': failed"
   exit(1)
-else
-  puts "Verify proj '#{proj}': ok"
 end
 
 # verify repo
@@ -140,11 +140,11 @@ if verbose
   puts "\nVerify repo '#{repo}':
   osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null"
 end
-if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null")
+if system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo} > /dev/null")
+  puts "Verify repo '#{repo}': ok"
+else
   puts "Verify repo '#{repo}': failed"
   exit(1)
-else
-  puts "Verify repo '#{repo}': ok"
 end
 
 # verify arch
@@ -152,11 +152,11 @@ if verbose
   puts "\nVerify arch '#{arch}':
   osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null"
 end
-if !system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null")
+if system("osc -A #{apiurl} api -m GET /build/#{proj}/#{repo}/#{arch} > /dev/null")
+  puts "Verify arch '#{arch}': ok"
+else
   puts "Verify arch '#{arch}': failed"
   exit(1)
-else
-  puts "Verify arch '#{arch}': ok"
 end
 
 # method for verify directory
