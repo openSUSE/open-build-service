@@ -23,8 +23,7 @@ class UserYearlyContribution
 
   def reviews_done
     # User.reviews are by_user, we want also by_package and by_group reviews accepted/declined
-    Review
-      .where(reviewer: user.login, state: [:accepted, :declined])
+    ReviewsFinder.new.completed_by_reviewer(user)
       .where('created_at > ?', first_day)
       .group('date(created_at)')
       .count

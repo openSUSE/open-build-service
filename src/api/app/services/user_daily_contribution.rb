@@ -25,7 +25,7 @@ class UserDailyContribution
   end
 
   def number_of_reviews_done_per_day
-    Review.where(reviewer: user.login, state: [:accepted, :declined])
+    ReviewsFinder.new.completed_by_reviewer(user)
           .where('date(reviews.created_at) = ?', date)
           .joins(:bs_request)
           .group('bs_requests.number')
