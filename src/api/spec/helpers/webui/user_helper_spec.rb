@@ -25,8 +25,7 @@ RSpec.describe Webui::UserHelper do
   end
 
   describe '#activity_date_commits' do
-    let(:contributions) { User::Contributions.new(creator) }
-    let(:activities) { contributions.activities_per_date(date) }
+    let(:activities) { UserDailyContribution.new(creator, date).call }
     let(:project) { create(:project, name: 'bob_project', maintainer: [creator]) }
     let(:package) { create(:package, name: 'bob_package', project: project) }
     let(:commit_activity) do

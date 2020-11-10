@@ -1,8 +1,7 @@
 require 'rails_helper'
 
-RSpec.describe User::Contributions, type: :model do
+RSpec.describe UserDailyContribution, type: :service do
   let(:user) { create(:user_with_groups) }
-  let(:contributions) { User::Contributions.new(user) }
   let(:date) { Time.zone.now.to_date }
   let(:project) { create(:project, name: 'bob_project', maintainer: [user]) }
   let(:package) { create(:package, name: 'bob_package', project: project) }
@@ -22,30 +21,8 @@ RSpec.describe User::Contributions, type: :model do
            updated_at: date)
   end
 
-  describe '#activity_hash' do
-    context 'when there is no activity' do
-      before do
-        comment_for_request
-      end
-
-      subject { contributions.activity_hash(1.day.from_now) }
-
-      it { expect(subject).to eql({})}
-    end
-
-    context 'when there is some activity' do
-      before do
-        comment_for_request
-      end
-
-      subject { contributions.activity_hash(1.day.ago) }
-
-      it { expect(subject).to eql(date => 2)}
-    end
-  end
-
-  describe '#activities_per_date' do
-    subject { contributions.activities_per_date(date) }
+  describe '#call' do
+    subject { described_class.new(user, date).call }
 
     context 'when no contributions exist' do
       it 'returns an empty hash' do
@@ -62,6 +39,21 @@ RSpec.describe User::Contributions, type: :model do
       end
 
       it 'returns a hash with comments' do
+        expect(subject).to include(comments: 1,
+                                   commits: [],
+                                   requests_created: [1],
+                                   requests_reviewed: {})
+      end
+    end
+
+    context 'when using date times instead of dates' do
+      let(:date) { Time.zone.now }
+
+      before do
+        comment_for_request
+      end
+
+      it 'returns a hash with a request' do
         expect(subject).to include(comments: 1,
                                    commits: [],
                                    requests_created: [1],
