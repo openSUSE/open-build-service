@@ -348,7 +348,7 @@ sub assignjob {
   writexml("$workersdir/building/.$idlename", "$workersdir/building/$idlename", $worker, $BSXML::worker);
 
   if ($info->{'masterdispatched'}) {
-    # we did out job. delete job
+    # we did our job. delete job
     push @{$masterdispatched{"$info->{'project'}/$info->{'repository'}/$info->{'arch'}"}}, $jobstatus->{'starttime'};
     unlink("$jobsdir/$arch/$job");
     unlink("$jobsdir/$arch/$job:status");
@@ -1369,7 +1369,7 @@ while (1) {
       push @front, shift(@jobprpas) while @jobprpas && $scales{$jobprpas[0]} * $load->{$jobprpas[0]} < $newload;
       unshift @jobprpas, @front, $prpa;
     }
-    last if $assigned >= 50;
+    last if $assigned >= 50 && time() - $now > 60;
   }
 
   forwardevents();
