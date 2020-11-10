@@ -198,7 +198,7 @@ sub signisofiles {
       if ($e->[0] =~ /\.key$/i && $e->[2] == 8192) {
 	my $signfile = readblk($fd, $e->[1]);
 	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
-	$pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p') unless $pubkey;
+	$pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
 	die("pubkey is not available\n") unless $pubkey;
 	die("pubkey is too big\n") if length($pubkey) > 8192;
 	# replace old content
@@ -441,27 +441,35 @@ sub getsignkey {
   push @args, "autoextend=1" if $needpubkey;
   push @args, "withalgo=1";
   my $signkey = BSRPC::rpc($param, undef, @args);
-  my $algo;
-  $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
   my $pubkey;
+  my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
-    undef $pubkey unless $pubkey && length($pubkey) > 2;       # not a valid pubkey
-    if ($needpubkey && !$pubkey) {
-      if ($BSConfig::sign_project && $BSConfig::sign) {
-	my @signargs;
-	push @signargs, '--project', $projid;
-	local *S;
-	open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
-	$pubkey = ''; 
-	1 while sysread(S, $pubkey, 4096, length($pubkey));
-	if (!close(S)) {
-	  print "sign -p failed: $?\n";
-	  $pubkey = undef;
-	}
+    undef $signkey unless $signkey && length($signkey) > 10;
+    undef $pubkey unless $pubkey && length($pubkey) > 10;
+  }
+  $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+  if (($needpubkey || !$algo) && !$pubkey) {
+    if ($BSConfig::sign_project && $BSConfig::sign) {
+      my @signargs;
+      push @signargs, '--project', $projid;
+      local *S;
+      open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
+      $pubkey = ''; 
+      1 while sysread(S, $pubkey, 4096, length($pubkey));
+      if (!close(S)) {
+	print "sign -p failed: $?\n";
+	$pubkey = undef;
       }
+    } elsif ($BSConfig::keyfile) {
+      $pubkey = readstr($BSConfig::keyfile, 1);
     }
-    die("returned pubkey is empty\n") if $needpubkey && length($pubkey || '') <= 2 && length($signkey) > 2;
+    undef $pubkey unless $pubkey && length($pubkey) > 10;
+    die("pubkey is empty\n") if $needpubkey && !$pubkey;
+  }
+  if ($pubkey && !$algo) {
+    # try to get algo from public key
+    eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
   }
   my $cert;
   if ($needcert) {
