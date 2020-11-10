@@ -573,12 +573,6 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/Count:
-  Exclude:
-    - 'spec/models/user_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Performance/Detect:

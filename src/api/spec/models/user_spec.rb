@@ -394,8 +394,8 @@ RSpec.describe User do
       subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
-      it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to eq(1) }
-      it { expect(subject.select { |x| x.subscriber == group }.length).to eq(max_items_per_user - 1) }
+      it { expect(subject.count { |x| x.subscriber == confirmed_user }).to eq(1) }
+      it { expect(subject.count { |x| x.subscriber == group }).to eq(max_items_per_user - 1) }
       it { is_expected.not_to(be_any { |x| x.subscriber == user }) }
     end
 
@@ -413,8 +413,8 @@ RSpec.describe User do
       subject { confirmed_user.combined_rss_feed_items }
 
       it { expect(subject.count).to be(max_items_per_user) }
-      it { expect(subject.select { |x| x.subscriber == confirmed_user }.length).to be >= batch * 2 }
-      it { expect(subject.select { |x| x.subscriber == group }.length).to eq(batch * 2) }
+      it { expect(subject.count { |x| x.subscriber == confirmed_user }).to be >= batch * 2 }
+      it { expect(subject.count { |x| x.subscriber == group }).to eq(batch * 2) }
       it { is_expected.not_to(be_any { |x| x.subscriber == user }) }
     end
   end
