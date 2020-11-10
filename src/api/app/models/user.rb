@@ -890,7 +890,7 @@ class User < ApplicationRecord
     self.login_failure_count = 0
 
     if changes.any?
-      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}" if changes.keys.include?('email')
+      logger.info "updating email for user #{login} from proxy header: old:#{email}|new:#{env['HTTP_X_EMAIL']}" if changes.key?('email')
 
       # At this point some login value changed, so a successful log in is tracked
       RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui value=1')
