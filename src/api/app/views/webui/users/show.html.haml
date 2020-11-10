@@ -19,7 +19,11 @@
                    filters: @filters,
                    involved_items: @involved_items,
                    involved_items_as_owner: @involved_items_as_owner }
-      - locals.merge!({ activity_hash: @activity_hash, first_day: @first_day, last_day: @last_day, date: @date, activities_per_date: @activities_per_date }) unless CONFIG['contribution_graph'] == :off
+      - locals.merge!({ activity_hash: @activity_hash,
+                        first_day: @first_day,
+                        last_day: @last_day,
+                        date: @date,
+                        activities_per_date: @activities_per_date }) unless CONFIG['contribution_graph'] == :off
       = render partial: 'webui/user/user_profile_redesign/involvement_and_activity', locals: locals
   - else
     .col-12.col-md-4.col-lg-3

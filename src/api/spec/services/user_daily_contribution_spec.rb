@@ -104,7 +104,7 @@ RSpec.describe UserDailyContribution, type: :service do
         expect(subject).to include(comments: 0,
                                    commits: [],
                                    requests_created: [1],
-                                   requests_reviewed: {1=>1})
+                                   requests_reviewed: { 1 => 1 })
       end
     end
   end

@@ -31,13 +31,13 @@ RSpec.describe UserYearlyContribution, type: :service do
     context 'when there is no activity' do
       let(:starting_date) { 1.day.from_now }
 
-      it { expect(subject).to eql({})}
+      it { expect(subject).to eql({}) }
     end
 
     context 'when there is some activity' do
       let(:starting_date) { 1.day.ago }
 
-      it { expect(subject).to eql(date_for_comment => 2)}
+      it { expect(subject).to eql(date_for_comment => 2) }
     end
 
     context 'when we use times instead of dates' do

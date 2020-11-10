@@ -56,16 +56,16 @@ module Webui::UserHelper
   end
 
   def activity_date_commits(projects)
-    return content_tag(:div, activity_date_commits_project(projects.first), class: 'h6 mt-3') if projects.size == 1
+    return tag.div(activity_date_commits_project(projects.first), class: 'h6 mt-3') if projects.size == 1
 
     max_projects = max_activity_items(3, projects)
-    concat(content_tag(:div, pluralize(projects.map(&:last).sum, 'commit'), class: 'h6 mt-3'))
-    content_tag(:ul) do
+    concat(tag.div(pluralize(projects.map(&:last).sum, 'commit'), class: 'h6 mt-3'))
+    tag.ul do
       projects[0..(max_projects - 1)].each do |commit_row|
-        concat content_tag(:li, activity_date_commits_project(commit_row), class: 'mt-1')
+        concat(tag.li(activity_date_commits_project(commit_row), class: 'mt-1'))
       end
       diff = projects.size - max_projects
-      concat(content_tag(:li, "and in #{pluralize(diff, 'project')} more", class: 'mt-1')) if diff > 0
+      concat(tag.li("and in #{pluralize(diff, 'project')} more", class: 'mt-1')) if diff.positive?
     end
   end
 
@@ -82,30 +82,30 @@ module Webui::UserHelper
   def multiple_packages_commits_line(project, packages, count)
     max_packages = max_activity_items(3, packages)
     capture do
-      concat pluralize(count, 'commit')
-      concat ' in '
-      concat link_to(project, project_show_path(project))
-      content_tag(:ul, class: 'mt-1') do
+      concat(pluralize(count, 'commit'))
+      concat(' in ')
+      concat(link_to(project, project_show_path(project)))
+      tag.ul(class: 'mt-1') do
         packages = packages.sort_by { |_, c| -c }
         packages[0..(max_packages - 1)].each do |package, commit_count|
-          content_tag(:li) do
-            concat pluralize(commit_count, 'commit')
-            concat ' in '
-            concat link_to(package, package_show_path(project, package))
+          tag.li do
+            concat(pluralize(commit_count, 'commit'))
+            concat(' in ')
+            concat(link_to(package, package_show_path(project, package)))
           end
           count -= commit_count
         end
       end
       diff = packages.size - max_packages
-      content_tag(:li, "and #{pluralize(count, 'commit')} in #{pluralize(diff, 'package')} more") if diff > 0
+      tag.li("and #{pluralize(count, 'commit')} in #{pluralize(diff, 'package')} more") if diff.positive?
     end
   end
 
   def single_package_commits_line(project, single_package, count)
-    return capture do
-      concat pluralize(count, 'commit')
-      concat ' in '
-      concat link_to("#{project} / #{single_package}", package_show_path(project, single_package))
+    capture do
+      concat(pluralize(count, 'commit'))
+      concat(' in ')
+      concat(link_to("#{project} / #{single_package}", package_show_path(project, single_package)))
     end
   end
 

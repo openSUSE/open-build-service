@@ -26,11 +26,11 @@ class UserDailyContribution
 
   def number_of_reviews_done_per_day
     ReviewsFinder.new.completed_by_reviewer(user)
-          .where('date(reviews.created_at) = ?', date)
-          .joins(:bs_request)
-          .group('bs_requests.number')
-          .order('count_id DESC, bs_requests_number')
-          .count(:id)
+                 .where('date(reviews.created_at) = ?', date)
+                 .joins(:bs_request)
+                 .group('bs_requests.number')
+                 .order('count_id DESC, bs_requests_number')
+                 .count(:id)
   end
 
   def number_of_commits_done_per_day

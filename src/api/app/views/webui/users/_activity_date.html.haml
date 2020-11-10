@@ -12,7 +12,7 @@
     - count = activities_per_date[:requests_created].size - max_count
     - activities_per_date[:requests_created][0..(max_count - 1)].each do |number|
       = link_to(number, request_show_path(number))
-    = "and #{count} more" if count > 0
+    = "and #{count} more" if count.positive?
 - if activities_per_date[:requests_reviewed].present?
   .h6.mt-3
     = pluralize(activities_per_date[:requests_reviewed].values.sum, 'review')
@@ -22,9 +22,9 @@
     - count = activities_per_date[:requests_reviewed].size - max_count
     - activities_per_date[:requests_reviewed].keys[0..(max_count - 1)].each do |number|
       = link_to(number, request_show_path(number))
-    = "and #{count} more" if count > 0
+    = "and #{count} more" if count.positive?
 
-- if activities_per_date[:comments] > 0
+- if activities_per_date[:comments].positive?
   .h6.mt-3
     = pluralize(activities_per_date[:comments], 'comment')
     written
