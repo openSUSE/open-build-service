@@ -573,24 +573,12 @@ Performance/CollectionLiteralInLoop:
     - 'script/reformat_memprof'
     - 'test/functional/backend_test.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Performance/Count:
-  Exclude:
-    - 'spec/models/user_spec.rb'
-
 # Offense count: 2
 # Cop supports --auto-correct.
 Performance/Detect:
   Exclude:
     - 'app/controllers/public_controller.rb'
     - 'app/controllers/webui/kiwi/images_controller.rb'
-
-# Offense count: 1
-# Cop supports --auto-correct.
-Performance/InefficientHashSearch:
-  Exclude:
-    - 'app/models/user.rb'
 
 # Offense count: 38
 # Cop supports --auto-correct.
