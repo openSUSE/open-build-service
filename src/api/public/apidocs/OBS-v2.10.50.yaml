@@ -1,0 +1,18 @@
+openapi: 3.0.0
+
+servers:
+  - url: '/'
+
+info:
+  description: Open Build Service API
+  version: '2.10.50'
+  title: Open Build Service API
+  contact:
+    url: 'https://openbuildservice.org/'
+    name: Open Build Service
+  license:
+    url: 'https://github.com/openSUSE/open-build-service/blob/master/COPYING'
+    name: GNU General Public License v2.0
+externalDocs:
+  url: 'https://openbuildservice.org/help/'
+  description: Open Build Service - Documentation
