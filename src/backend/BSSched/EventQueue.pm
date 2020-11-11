@@ -112,6 +112,7 @@ sub process_events {
 
   $ectx->order() if @{$ectx->{_events}};
 
+  my $numbuilt = 0;
   my @delayed;
   while (@{$ectx->{_events}}) {
     my $ev = shift @{$ectx->{_events}};
@@ -127,7 +128,9 @@ sub process_events {
     }
 
     # log event info
-    if ($ev->{'type'} ne 'built') {
+    if ($ev->{'type'} eq 'built') {
+      BSUtil::printlog("event built\n") if !$numbuilt++;	# only log the first
+    } else {
       my $estr = $ev->{'evfilename'} ? 'event' : 'remote event';
       for (qw{type project repository arch package}) {
 	$estr .= " $ev->{$_}" if $ev->{$_};
