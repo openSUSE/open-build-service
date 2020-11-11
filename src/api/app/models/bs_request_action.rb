@@ -384,7 +384,7 @@ class BsRequestAction < ApplicationRecord
 
   # this is called per action once it's verified that all actions in a request are
   # permitted.
-  def create_post_permissions_hook(_opts)
+  def create_post_permissions_hook
     # does nothing by default
   end
 
@@ -717,17 +717,13 @@ class BsRequestAction < ApplicationRecord
 
     if action_type.in?([:submit, :release, :maintenance_release, :maintenance_incident])
       packages = []
-      per_package_locking = false
       if source_package
         packages << Package.get_by_project_and_name(source_project, source_package)
-        per_package_locking = true
       else
         packages = Project.get_by_name(source_project).packages
-        per_package_locking = true if action_type == :maintenance_release
       end
 
-      return create_expand_package(packages, ignore_build_state: ignore_build_state),
-             per_package_locking
+      return create_expand_package(packages, ignore_build_state: ignore_build_state)
     end
 
     nil

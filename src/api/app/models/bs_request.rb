@@ -961,12 +961,11 @@ class BsRequest < ApplicationRecord
     oldactions = []
 
     bs_request_actions.each do |action|
-      na, ppl = action.expand_targets(@ignore_build_state.present?, @ignore_delegate.present?)
-      @per_package_locking ||= ppl
-      next if na.nil?
+      new_action = action.expand_targets(@ignore_build_state.present?, @ignore_delegate.present?)
+      next if new_action.nil?
 
       oldactions << action
-      newactions.concat(na)
+      newactions.concat(new_action)
     end
     # will become an empty request
     raise MissingAction if newactions.empty? && oldactions.size == bs_request_actions.size
@@ -1136,7 +1135,7 @@ class BsRequest < ApplicationRecord
   # trigger the create_post_permissions_hook
   def collect_default_reviewers!
     bs_request_actions.map do |action|
-      action.create_post_permissions_hook(per_package_locking: @per_package_locking)
+      action.create_post_permissions_hook
       action.default_reviewers
     end.uniq.flatten
   end
