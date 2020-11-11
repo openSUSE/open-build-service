@@ -183,7 +183,7 @@ Windows.
 
 **Please note** that the OBS backend uses advanced filesystem features
 that require an case sensitive filesystem (default in Linux, configurable in **MacOS/Windows**),
-make sure you run all this from a filesystem that supports this.
+make sure you run all this from a filesystem that supports this. Here you have [some instructions](https://github.com/openSUSE/open-build-service/wiki/Setup-an-OBS-Development-Environment-on-macOS) in case you are a MacOS user.
 
 1. Install [docker](https://www.docker.com) and [docker-compose (version >= 1.20.0)¹](https://docs.docker.com/compose/).
    There is documentation about this for [openSUSE](https://en.opensuse.org/SDB:Docker) and various
