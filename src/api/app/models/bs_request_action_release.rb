@@ -67,27 +67,6 @@ class BsRequestActionRelease < BsRequestAction
   end
   # rubocop:enable Naming/AccessorMethodName
 
-  def create_post_permissions_hook(opts)
-    object = nil
-    spkg = Package.find_by_project_and_name(source_project, source_package)
-    if opts[:per_package_locking]
-      # we avoid patchinfo's to be able to complete meta data about the update
-      return if spkg.is_patchinfo?
-
-      object = spkg
-    else
-      # Workaround: In rails 5 'spkg.project' started to return a readonly object
-      object = Project.find(spkg.project_id)
-    end
-    return if object.enabled_for?('lock', nil, nil)
-
-    object.check_write_access!(true)
-    f = object.flags.find_by_flag_and_status('lock', 'disable')
-    object.flags.delete(f) if f # remove possible existing disable lock flag
-    object.flags.create(status: 'enable', flag: 'lock')
-    object.store(comment: 'maintenance_release request')
-  end
-
   def minimum_priority
     spkg = Package.find_by_project_and_name(source_project, source_package)
     return unless spkg && spkg.is_patchinfo?
