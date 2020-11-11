@@ -55,44 +55,6 @@ module Webui::UserHelper
     configuration.ldap_enabled? && !user.ignore_auth_services?
   end
 
-  def max_activity_items(max_items, items_array)
-    max_items += 1 if items_array.size == (max_items + 1)
-    max_items
-  end
-
-  def activity_date_commits_project(commit_line)
-    project, packages, count = commit_line
-
-    if packages.size == 1
-      single_package = packages.first.first
-      return capture do
-        concat pluralize(count, 'commit')
-        concat ' in '
-        concat link_to("#{project} / #{single_package}", package_show_path(project, single_package))
-      end
-    end
-
-    max_packages = max_activity_items(3, packages)
-    capture do
-      concat pluralize(count, 'commit')
-      concat ' in '
-      concat link_to(project, project_show_path(project))
-      content_tag(:ul, class: 'mt-1') do
-        packages = packages.sort_by { |_, c| -c }
-        packages[0..(max_packages - 1)].each do |package, pcount|
-          content_tag(:li) do
-            concat pluralize(pcount, 'commit')
-            concat ' in '
-            concat link_to(package, package_show_path(project, package))
-          end
-          count -= pcount
-        end
-      end
-      diff = packages.size - max_packages
-      content_tag(:li, "and #{pluralize(count, 'commit')} in #{pluralize(diff, 'package')} more") if diff > 0
-    end
-  end
-
   def activity_date_commits(projects)
     return content_tag(:div, activity_date_commits_project(projects.first), class: 'h6 mt-3') if projects.size == 1
 
@@ -105,5 +67,50 @@ module Webui::UserHelper
       diff = projects.size - max_projects
       concat(content_tag(:li, "and in #{pluralize(diff, 'project')} more", class: 'mt-1')) if diff > 0
     end
+  end
+
+  private
+
+  def activity_date_commits_project(commit_line)
+    project, packages, count = commit_line
+
+    return single_package_commits_line(project, packages.first.first, count) if packages.size == 1
+
+    multiple_packages_commits_line(project, packages, count)
+  end
+
+  def multiple_packages_commits_line(project, packages, count)
+    max_packages = max_activity_items(3, packages)
+    capture do
+      concat pluralize(count, 'commit')
+      concat ' in '
+      concat link_to(project, project_show_path(project))
+      content_tag(:ul, class: 'mt-1') do
+        packages = packages.sort_by { |_, c| -c }
+        packages[0..(max_packages - 1)].each do |package, commit_count|
+          content_tag(:li) do
+            concat pluralize(commit_count, 'commit')
+            concat ' in '
+            concat link_to(package, package_show_path(project, package))
+          end
+          count -= commit_count
+        end
+      end
+      diff = packages.size - max_packages
+      content_tag(:li, "and #{pluralize(count, 'commit')} in #{pluralize(diff, 'package')} more") if diff > 0
+    end
+  end
+
+  def single_package_commits_line(project, single_package, count)
+    return capture do
+      concat pluralize(count, 'commit')
+      concat ' in '
+      concat link_to("#{project} / #{single_package}", package_show_path(project, single_package))
+    end
+  end
+
+  def max_activity_items(max_items, items_array)
+    max_items += 1 if items_array.size == (max_items + 1)
+    max_items
   end
 end
