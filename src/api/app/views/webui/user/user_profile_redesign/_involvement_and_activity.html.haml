@@ -29,12 +29,12 @@
         .tab-pane.fade.show.active#involved-projects-and-packages{ role: 'tabpanel', aria: { labelledby: 'involved-projects-and-packages-tab' } }
         -# Content to be injected by JavaScript
         .tab-pane.fade#activity{ role: 'tabpanel', aria: { labelledby: 'activity-tab' } }
-          = render partial: 'webui/user/activity', locals: { activity_hash: activity_hash,
+          = render partial: 'webui/user/activity', locals: { activities_per_year: activities_per_year,
                                                              first_day: first_day,
                                                              last_day: last_day,
                                                              user: displayed_user,
                                                              date: date,
-                                                             activities_per_date: activities_per_date }
+                                                             activities_per_day: activities_per_day }
 
 - content_for :ready_function do
   :plain
