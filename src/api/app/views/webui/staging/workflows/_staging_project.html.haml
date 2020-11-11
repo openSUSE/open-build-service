@@ -16,7 +16,8 @@
               = link_to('#', data: { toggle: 'modal', target: "#confirm-modal-#{staging_project.id}" }, title: "Delete #{staging_project}") do
                 %i.fas.fa-times-circle.text-danger
             - else
-              %i.fas.fa-times-circle.text-muted{ title: 'This project can not be deleted because it has staged requests' }
+              %i.fas.fa-times-circle.text-muted{ data: { toggle: 'popover', placement: 'bottom',
+                                                content: 'This project can not be deleted because it has staged requests' } }
     .card-body.p-2.text-muted
       %small.d-block
         state:
