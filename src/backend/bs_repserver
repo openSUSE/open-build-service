@@ -2141,7 +2141,7 @@ sub receivekiwitree {
 }
 
 sub notify_jobresult {
-  my ($info, $jobstatus, $prpa) = @_;
+  my ($job, $info, $jobstatus, $prpa) = @_;
 
   # create notification info
   my %ninfo;
@@ -2152,6 +2152,7 @@ sub notify_jobresult {
   $ninfo{'endtime'} = $jobstatus->{'endtime'};
   $ninfo{'workerid'} = $jobstatus->{'workerid'};
   $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{'package'}";
+  print "job statistics: $job $prpa $jobstatus->{'result'} $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'}\n";
   if ($jobstatus->{'result'} eq 'unchanged') {
     BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
   } elsif ($jobstatus->{'result'} eq 'succeeded') {
@@ -2340,7 +2341,7 @@ sub putjob {
   $code = 'failed' if $code ne 'succeeded' && $code ne 'failed' && $code ne 'unchanged' && $code ne 'genbuildreqs';
   $jobstatus->{'result'} = $code;
 
-  notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
+  notify_jobresult($job, $info, $jobstatus, "$projid/$repoid/$arch");
 
   my $bininfo = {};
 
@@ -4063,7 +4064,7 @@ sub failjob {
   my $now = time();
   my $jobstatus = { code => 'finished', result => 'failed', starttime => $now, endtime => $now,
                     workerid => 'dispatcher', 'hostarch' => '' };
-  notify_jobresult($info, $jobstatus, "$projid/$repoid/$arch");
+  notify_jobresult($job, $info, $jobstatus, "$projid/$repoid/$arch");
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
   writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
   updateredisjobstatus($arch, $job, $info, 'finished');
