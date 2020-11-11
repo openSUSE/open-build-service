@@ -365,6 +365,8 @@ OBSApi::Application.routes.draw do
     ### /apidocs
     get 'apidocs', to: redirect('/apidocs/index')
     get 'apidocs/(index)' => 'webui/apidocs#index', as: 'apidocs_index'
+
+    get 'apidocs/swagger_ui' => 'webui/apidocs#swagger_ui'
   end
 
   resources :staging_workflows, except: :index, controller: 'webui/staging/workflows', param: :workflow_project, constraints: cons do

@@ -20,4 +20,8 @@ class Webui::ApidocsController < Webui::WebuiController
     end
     nil
   end
+
+  def swagger_ui
+    render layout: false, locals: { url: "#{request.base_url}/apidocs/OBS-v2.10.50.yaml" }
+  end
 end
