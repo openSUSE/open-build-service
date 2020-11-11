@@ -831,26 +831,26 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def find_last_req
-    if @oproject && @opackage
-      last_req = BsRequestAction.where(target_project: @oproject,
-                                       target_package: @opackage,
-                                       source_project: @package.project,
-                                       source_package: @package.name).order(:bs_request_id).last
-      return unless last_req
+    return if @oproject.blank? || @opackage.blank?
 
-      last_req = last_req.bs_request
-      if last_req.state != :declined
-        return # ignore all !declined
-      end
+    last_req = find_last_declined_bs_request
 
-      return {
-        id: last_req.number,
-        decliner: last_req.commenter,
-        when: last_req.updated_at,
-        comment: last_req.comment
-      }
-    end
-    nil
+    return if last_req.blank?
+
+    { id: last_req.number, decliner: last_req.commenter,
+      when: last_req.updated_at, comment: last_req.comment }
+  end
+
+  def find_last_declined_bs_request
+    last_req = BsRequestAction.joins(:bs_request).where(target_project: @oproject,
+                                                        target_package: @opackage,
+                                                        source_project: @package.project,
+                                                        source_package: @package.name)
+                              .order(:bs_request_id).last
+
+    return if last_req.blank?
+
+    last_req.bs_request if bs_request.state == :declined
   end
 
   def get_diff(project, package, options = {})
