@@ -865,11 +865,12 @@ sub findfile {
 
   return $files{'_preinstallimage'} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
   return $files{'simpleimage'} if $files{'simpleimage'};
-  return $files{'snapcraft.yaml'} if $files{'snapcraft.yaml'} && $ext eq 'snapcraft';
-  return $files{'appimage.yml'} if $files{'appimage.yml'} && $ext eq 'appimage';
-  return $files{'Dockerfile'} if $files{'Dockerfile'} && $ext eq 'docker';
-  return $files{'fissile.yml'} if $files{'fissile.yml'} && $ext eq 'fissile';
-  return $files{'Chart.yaml'} if $files{'Chart.yaml'} && $ext eq 'helm';
+  return $files{'snapcraft.yaml'} if $ext eq 'snapcraft' && $files{'snapcraft.yaml'};
+  return $files{'appimage.yml'} if $ext eq 'appimage' && $files{'appimage.yml'};
+  return $files{'Dockerfile'} if $ext eq 'docker' && $files{'Dockerfile'};
+  return $files{'fissile.yml'} if $ext eq 'fissile' && $files{'fissile.yml'};
+  return $files{'Chart.yaml'} if $ext eq 'helm' && $files{'Chart.yaml'};
+  return (grep {/flatpak\.(?:ya?ml|json)$/} sort keys %$files)[0] if $ext eq 'flatpak';
 
   if ($ext eq 'arch') {
     return $files{'PKGBUILD'} if $files{'PKGBUILD'};
