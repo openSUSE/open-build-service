@@ -12,7 +12,7 @@ module Trigger::Errors
   class InvalidToken < APIError
     setup 'permission_denied',
           403,
-          'No valid token found "Authorization" header'
+          'No valid token found in the "Authorization" header'
   end
 
   class NoPermissionForPackage < APIError
