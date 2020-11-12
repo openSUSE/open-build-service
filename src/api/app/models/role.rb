@@ -65,7 +65,7 @@ class Role < ApplicationRecord
   end
 
   def self.global_roles
-    ['Admin', 'User']
+    ['Admin']
   end
 
   def self.ids_with_permission(perm_string)
