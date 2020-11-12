@@ -29,7 +29,7 @@ RSpec.describe Role do
   end
 
   describe '::global_roles' do
-    let(:expected_global_roles) { ['Admin', 'User'] }
+    let(:expected_global_roles) { ['Admin'] }
 
     it 'returns an array with all global role titles' do
       expect(Role.global_roles).to match_array(expected_global_roles)
