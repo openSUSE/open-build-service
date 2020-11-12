@@ -360,7 +360,11 @@ OBSApi::Application.routes.draw do
       resources :user, only: [:create, :destroy, :update], constraints: cons, param: :user_login, controller: 'webui/groups/users'
     end
 
-    resources :comments, constraints: cons, only: [:create, :destroy, :update], controller: 'webui/comments'
+    resources :comments, constraints: cons, only: [:create, :destroy, :update], controller: 'webui/comments' do
+      collection do
+        post 'preview'
+      end
+    end
 
     ### /apidocs
     get 'apidocs', to: redirect('/apidocs/index')

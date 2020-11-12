@@ -1,11 +1,25 @@
-= form_for(comment, method: form_method, remote: true, html: { class: "#{form_method}-comment-form" }) do |f|
-  = hidden_field_tag :commentable_type, commentable.class.name
-  = hidden_field_tag :commentable_id, commentable.id
-  = f.hidden_field :parent_id, value: comment.parent_id
-  ~ f.text_area :body, rows: '4', placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
-    class: 'w-100 mb-3 form-control comment-field'
-  - case form_method
-  - when :post
-    = f.submit 'Add comment', class: 'btn btn-primary', data: { disable_with: 'Creating comment...' }
-  - when :put
-    = f.submit 'Update comment', class: 'btn btn-primary', data: { disable_with: 'Updating comment...' }
+= form_for(comment, method: form_method, remote: true, html: { id: "#{element_suffix}_form",
+class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_comments_path }) do |f|
+  = hidden_field_tag :commentable_type, commentable.class.name, { id: "#{element_suffix}_commentable_type" }
+  = hidden_field_tag :commentable_id, commentable.id, { id: "#{element_suffix}_commentable_id" }
+  = f.hidden_field :parent_id, value: comment.parent_id, id: "#{element_suffix}_parent_id"
+  .card
+    %ul.nav.nav-tabs.bg-light.px-3.pt-2{ role: 'tablist' }
+      %li.nav-item
+        = link_to('Write', "#write_#{element_suffix}", class: 'nav-link active', data: { toggle: 'tab' }, role: 'tab',
+        aria: { controls: 'write-comment-tab', selected: 'true' })
+      %li.nav-item
+        = link_to('Preview', "#preview_#{element_suffix}", class: 'nav-link preview-comment-tab', data: { toggle: 'tab' },
+        role: 'tab', aria: { controls: 'preview-comment-tab', selected: 'false' })
+    .tab-content.px-3
+      .tab-pane.fade.show.active.my-3{ id: "write_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'write-comment-tab' }
+        ~ f.text_area :body, id: "#{element_suffix}_body", rows: '4',
+        placeholder: 'Write your comment here... (Markdown markup is supported)', required: true,
+        class: 'w-100 form-control comment-field'
+      .tab-pane.fade{ id: "preview_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'preview-comment-tab' }
+        .comment-preview.border-bottom.border-gray-300.my-3
+      - case form_method
+      - when :post
+        = f.submit 'Add comment', class: 'btn btn-primary mb-3', data: { disable_with: 'Creating comment...' }, disabled: true
+      - when :put
+        = f.submit 'Update comment', class: 'btn btn-primary mb-3', data: { disable_with: 'Updating comment...' }

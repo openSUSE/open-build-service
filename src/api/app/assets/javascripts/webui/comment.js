@@ -56,4 +56,26 @@ $(document).ready(function(){
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
   });
+
+  $('.comments-list').on('click', '.preview-comment-tab:not(.active)', function (e) {
+      var commentContainer = $(e.target).closest('[class*="-comment-form"]');
+      var commentBody = commentContainer.find('.comment-field').val();
+      var commentPreview = commentContainer.find('.comment-preview');
+      if (commentBody) {
+        $.ajax({
+          method: 'POST',
+          url: commentContainer.data('previewCommentUrl'),
+          dataType: 'json',
+          data: { 'comment[body]': commentBody },
+          success: function(data) {
+            commentPreview.html(data.markdown);
+          },
+          error: function() {
+            commentPreview.html('Error loading markdown preview');
+          }
+        });
+      } else {
+        commentPreview.html('Nothing to preview');
+      }
+  });
 });

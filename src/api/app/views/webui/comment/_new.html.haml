@@ -1,6 +1,6 @@
 - if User.session
   = render(partial: 'webui/comment/comment_field',
-    locals: { form_method: :post, comment: Comment.new, commentable: commentable })
+    locals: { form_method: :post, comment: Comment.new, commentable: commentable, element_suffix: 'new_comment' })
 - else
   .alert.alert-warning{ role: 'alert' }
     Login required, please
