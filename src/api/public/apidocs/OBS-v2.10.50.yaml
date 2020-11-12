@@ -5,6 +5,7 @@ servers:
 
 tags:
   - name: General Information
+  - name: Groups
 
 info:
   description: Open Build Service API
@@ -32,8 +33,205 @@ paths:
       tags:
         - General Information
 
+  /group:
+    get:
+      summary: List available groups.
+      description: List available groups.
+      security:
+        - basic_authentication: []
+      responses:
+        '200':
+          description: OK. The request has succeeded.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/directory'
+              example:
+                count: '2'
+                entry:
+                  - name: 'group-admin'
+                  - name: 'group-test'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      tags:
+        - Groups
+
+  /group/{group_title}:
+    get:
+      summary: Read group data.
+      description: Read group data.
+      security:
+        - basic_authentication: []
+      parameters:
+        - $ref: '#/components/parameters/group_title'
+      responses:
+        '200':
+          description: OK. The request has succeeded.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/group'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          description: Not Found.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              example:
+                code: not_found
+                summary: Couldn't find Group 'group-testd'
+      tags:
+        - Groups
+
+    post:
+      summary: Modify group data.
+      description: Modify group data.
+      security:
+        - basic_authentication: []
+      parameters:
+        - $ref: '#/components/parameters/group_title'
+        - in: query
+          name: cmd
+          schema:
+            type: string
+            enum: [add_user, remove_user, set_email]
+          description: |
+            Command to be executed. It takes one of these available values:
+            * `add_user`: add a user to a group. `userid` query parameter must be also used.
+            * `remove_user`: remove a user from a group. `userid` query parameter must be also used.
+            * `set_email`: set email adress of group. `email` query parameter must be also used.
+        - in: query
+          name: userid
+          schema:
+            type: string
+          description: User login. Used with `cmd=add_user` or `cmd=remove_user`.
+        - in: query
+          name: email
+          schema:
+            type: string
+          description: Group email. Used with `cmd=set_email`.
+      responses:
+        '200':
+          $ref: '#/components/responses/succeeded'
+        '400':
+          description: Bad Request.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              example:
+                code: bad_request
+                summary: cmd must be set to add_user or remove_user
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          description: Not Found.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              examples:
+                user_not_found:
+                  value:
+                    code: not_found
+                    summary: Couldn't find User with login = user_test
+                  summary: User Not Found
+                group_not_found:
+                  value:
+                    code: not_found
+                    summary: Couldn't find Group 'group-testd'
+                  summary: Group Not Found
+      tags:
+        - Groups
+
+    put:
+      summary: Write group data.
+      description: Write group data.
+      security:
+        - basic_authentication: []
+      parameters:
+        - $ref: '#/components/parameters/group_title'
+      requestBody:
+        description: Group definition.
+        required: true
+        content:
+          application/xml; charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/group'
+      responses:
+        '200':
+          $ref: '#/components/responses/succeeded'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          description: Not Found.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              example:
+                code: not_found
+                summary: Couldn't find Group 'group-testd'
+      tags:
+        - Groups
+
+    delete:
+      summary: Delete a group.
+      description: Delete a group.
+      security:
+        - basic_authentication: []
+      parameters:
+        - $ref: '#/components/parameters/group_title'
+      responses:
+        '200':
+          $ref: '#/components/responses/succeeded'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          description: Not Found.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              example:
+                code: not_found
+                summary: Couldn't find Group 'group-testd'
+      tags:
+        - Groups
+
 components:
+  parameters:
+    group:
+      in: query
+      name: group
+      schema:
+        $ref: '#/components/schemas/group'
+      required: true
+      description: Group definition
+    group_title:
+      in: path
+      name: group_title
+      schema:
+        type: string
+      required: true
+      description: Group title
+      example: group-test
+
   schemas:
+    api_response:
+      type: object
+      properties:
+        code:
+          type: string
+          xml:
+            attribute: true
+        summary:
+          type: string
+      xml:
+        name: status
+
     about:
       type: object
       properties:
@@ -52,6 +250,99 @@ components:
         commit:
           type: string
           example: '7b5d82e6143442a8eb8459f35cc94d2fbe263ebe'
+
+    directory:
+      type: object
+      properties:
+        count:
+          type: integer
+          xml:
+            attribute: true
+        entry:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                xml:
+                  attribute: true
+      xml:
+        name: directory
+
+    group:
+      type: object
+      properties:
+        title:
+          type: string
+          example: group-test
+        maintainer:
+          type: array
+          items:
+            type: object
+            properties:
+              userid:
+                type: string
+                example: user-test
+                xml:
+                  attribute: true
+        person:
+          type: array
+          items:
+            type: object
+            properties:
+              userid:
+                type: string
+                example: user-test
+                xml:
+                  attribute: true
+          xml:
+            wrapped: true
+
+  responses:
+    not_found:
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/api_response'
+          example:
+            code: not_found
+            summary: Not Found
+
+    succeeded:
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/api_response'
+          example:
+            code: ok
+            summary: Ok
+
+    unauthorized:
+      description: Unauthorized.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/api_response'
+          examples:
+            anonymous_user:
+              value:
+                code: anonymous_user
+                summary: Anonymous user is not allowed here - please login
+              summary: Anonymous User
+            authentication_required:
+              value:
+                code: authentication_required
+                summary: Unknown user 'Admin' or invalid password
+              summary: Authentication Required
+
+  securitySchemes:
+    basic_authentication:
+      type: http
+      scheme: basic
+
 externalDocs:
   url: 'https://openbuildservice.org/help/'
   description: Open Build Service - Documentation
