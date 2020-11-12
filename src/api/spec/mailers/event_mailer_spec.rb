@@ -111,7 +111,7 @@ RSpec.describe EventMailer, vcr: true do
         let(:vip) { create(:confirmed_user) }
         let!(:comment) { create(:comment_project, body: "I ❤️ @#{vip.login}!") }
 
-        it { expect(mail.text_part.body.encoded).to include("I ❤️ [@#{vip.login}](https://build.example.com/users/") }
+        it { expect(mail.text_part.body.encoded).to include("I ❤️ @#{vip.login}") }
         it { expect(mail.html_part.to_s).to include('I =E2=9D=A4=EF=B8=8F <a href=3D"https://build.example.com/users/') }
       end
     end
