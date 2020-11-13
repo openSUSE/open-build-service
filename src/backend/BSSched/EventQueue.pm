@@ -129,7 +129,7 @@ sub process_events {
 
     # log event info
     if ($ev->{'type'} eq 'built') {
-      BSUtil::printlog("event built\n") if !$numbuilt++;	# only log the first
+      BSUtil::printlog('event built') if !$numbuilt++;	# only log the first
     } else {
       my $estr = $ev->{'evfilename'} ? 'event' : 'remote event';
       for (qw{type project repository arch package}) {
