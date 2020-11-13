@@ -33,6 +33,72 @@ paths:
       tags:
         - General Information
 
+  /architectures:
+    get:
+      summary: List all known architectures.
+      description: >
+        Get a list of all known architectures known to OBS in general.
+        This is not the list of architectures provided by this instance. Check the
+        schedulers element from the `/configuration` route for this.
+      security:
+        - basic_authentication: []
+      responses:
+        '200':
+          description: OK. The request has succeeded.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/directory'
+              example:
+                count: '4'
+                entry:
+                  - name: 'aarch64'
+                  - name: 'armv7l'
+                  - name: 's390x'
+                  - name: 'x86_64'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+      tags:
+        - General Information
+
+  /architectures/{architecture_name}:
+    get:
+      summary: Show one architecture.
+      description: Show information about one architecture.
+      security:
+        - basic_authentication: []
+      parameters:
+        - $ref: '#/components/parameters/architecture_name'
+      responses:
+        '200':
+          description: OK. The request has succeeded.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    xml:
+                      attribute: true
+                xml:
+                  name: architecture
+                example:
+                  name: 'x86_64'
+        '401':
+          $ref: '#/components/responses/unauthorized'
+        '404':
+          description: Not Found.
+          content:
+            application/xml; charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/api_response'
+              example:
+                code: unknown_architecture
+                summary: 'Architecture does not exist: x999'
+      tags:
+        - General Information
+
   /group:
     get:
       summary: List available groups.
@@ -203,6 +269,14 @@ paths:
 
 components:
   parameters:
+    architecture_name:
+      in: path
+      name: architecture_name
+      schema:
+        type: string
+      required: true
+      description: Architecture name
+      example: x86_64
     group:
       in: query
       name: group
