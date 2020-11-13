@@ -14,7 +14,17 @@ function updateCommentCounter(selector, count) {
   $(selector).text(parseInt(oldValue) + count);
 }
 
+function validateForm(e) {
+  var submitButton = $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]');
+  submitButton.prop('disabled', !$(e.target).val());
+}
+
 $(document).ready(function(){
+  // Disable submit button if textarea is empty and enable otherwise
+  $('.comments-list').on('keyup', '.comment-field', function(e) {
+    validateForm(e);
+  });
+
   $('.comments-list').on('keyup click', '.comment-field', function() {
     resizeTextarea(this);
   });
