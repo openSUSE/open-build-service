@@ -5085,8 +5085,8 @@ sub binary_key_to_data {
   $res->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
   my $location = join('/', @p, $arch, $binary);
   my $package;
-  if ($BSConfig::published_db_sqlite && exists($BSSrcServer::SQLite::binarykey2package{$key})) {
-    $package = $BSSrcServer::SQLite::binarykey2package{$key};
+  if ($db->{'key2package'} && exists($db->{'key2package'}->{$key})) {
+    $package = $db->{'key2package'}->{$key};
   } else {
     my $repoorigins = $prp_to_repoorigins{$prp} || prp_to_repoorigins($prp, $db);
     $package = $repoorigins->{$location};

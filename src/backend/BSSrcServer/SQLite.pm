@@ -352,8 +352,6 @@ sub store_linkinfo {
 # Search helpers
 #
 
-our %binarykey2package;		# cache for key->package translation
-
 sub getrepoinfo {
   my ($db, $prp_ext) = @_;
   my $h = $db->{'sqlite'} || connectdb($db);
@@ -390,10 +388,11 @@ sub getprojectkeys {
   my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE repoinfo.project = ?", [ $projid ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
+  my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
   my @res;
   while ($sh->fetch()) {
     my $key = "$prp_ext_path/$bin_path";
-    $binarykey2package{$key} = $package if $table eq 'binary';
+    $key2package->{$key} = $package if $key2package;
     push @res, $key;
   }
   die($sh->errstr) if $sh->err();
@@ -459,6 +458,7 @@ sub opendb {
   die("unsupported table: $table\n") unless $tables{$table};
   my $dbname = $table eq 'linkinfo' ? 'source' : 'published';
   my $db = { 'dir' => $dbpath, 'table' => $table, 'sqlite_cols' => $tables{$table}, 'sqlite_dbname' => $dbname };
+  $db->{'key2package'} = {} if $table eq 'binary';
   return bless $db;
 }
 
@@ -601,10 +601,11 @@ sub rawkeys {
   my $sh = dbdo_bind($h, "SELECT repoinfo.path,$table.path,package FROM $table LEFT JOIN repoinfo ON repoinfo.id = $table.repoinfo WHERE $path = ?", [ $value ]);
   my ($prp_ext_path, $bin_path, $package);
   $sh->bind_columns(\$prp_ext_path, \$bin_path, \$package);
+  my $key2package = $table eq 'binary' ? $db->{'key2package'} : undef;
   my @res;
   while ($sh->fetch()) {
     my $key = "$prp_ext_path/$bin_path";
-    $binarykey2package{$key} = $package if $table eq 'binary';
+    $key2package->{$key} = $package if $key2package;
     push @res, $key;
   }
   die($sh->errstr) if $sh->err();
