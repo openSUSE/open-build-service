@@ -1,11 +1,11 @@
-- @pagetitle = "Upload files to #{truncate(@package.name, length: 50)}/#{truncate(@package.name, length: 50)}"
+- @pagetitle = "Upload files to #{truncate(@project.name, length: 50)}/#{truncate(@package.name, length: 50)}"
 
 .card
   = render partial: 'webui/package/tabs', locals: { project: @project, package: @package }
   .card-body
     %h3
       Upload files to #{@project.name}/#{@package.name}
-    = form_tag({ action: :save_files, project: @project, package: @package }, multipart: true) do
+    = form_tag({ action: :create, project: @project, package: @package }, multipart: true) do
       .form-group.package-add-file
         .custom-file
           = file_field_tag 'files[]', class: 'custom-file-input', multiple: true, id: 'files'
