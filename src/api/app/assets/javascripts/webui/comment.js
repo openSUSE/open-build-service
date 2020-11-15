@@ -14,7 +14,17 @@ function updateCommentCounter(selector, count) {
   $(selector).text(parseInt(oldValue) + count);
 }
 
+function validateForm(e) {
+  var submitButton = $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]');
+  submitButton.prop('disabled', !$(e.target).val());
+}
+
 $(document).ready(function(){
+  // Disable submit button if textarea is empty and enable otherwise
+  $('.comments-list').on('keyup', '.comment-field', function(e) {
+    validateForm(e);
+  });
+
   $('.comments-list').on('keyup click', '.comment-field', function() {
     resizeTextarea(this);
   });
@@ -55,5 +65,27 @@ $(document).ready(function(){
     var closest = $(e.target).parent().parent().find('button[id*="edit_button_of_"]');
     if (!closest.hasClass('collapsed'))
       closest.trigger('click');
+  });
+
+  $('.comments-list').on('click', '.preview-comment-tab:not(.active)', function (e) {
+      var commentContainer = $(e.target).closest('[class*="-comment-form"]');
+      var commentBody = commentContainer.find('.comment-field').val();
+      var commentPreview = commentContainer.find('.comment-preview');
+      if (commentBody) {
+        $.ajax({
+          method: 'POST',
+          url: commentContainer.data('previewCommentUrl'),
+          dataType: 'json',
+          data: { 'comment[body]': commentBody },
+          success: function(data) {
+            commentPreview.html(data.markdown);
+          },
+          error: function() {
+            commentPreview.html('Error loading markdown preview');
+          }
+        });
+      } else {
+        commentPreview.html('Nothing to preview');
+      }
   });
 });

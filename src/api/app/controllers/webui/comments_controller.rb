@@ -54,6 +54,13 @@ class Webui::CommentsController < Webui::WebuiController
     end
   end
 
+  def preview
+    markdown = helpers.render_as_markdown(permitted_params[:body])
+    respond_to do |format|
+      format.json { render json: { markdown: markdown } }
+    end
+  end
+
   private
 
   def permitted_params

@@ -107,6 +107,23 @@ RSpec.describe Webui::CommentsController, type: :controller do
     end
   end
 
+  describe 'POST #preview' do
+    let(:comment_params) { { comment: { body: '#test comment header' } } }
+
+    before do
+      post :preview, params: comment_params, format: :json
+    end
+
+    it 'sends success HTTP status when markdown rendered successfully' do
+      expect(response).to have_http_status(:success)
+    end
+
+    it 'renders comment with Markdown properly' do
+      json = JSON.parse(response.body)
+      expect(json['markdown']).to eq("<h1>test comment header</h1>\n")
+    end
+  end
+
   describe 'EDIT update' do
     let(:project) { create(:project) }
     let(:package) { create(:package, project: project) }

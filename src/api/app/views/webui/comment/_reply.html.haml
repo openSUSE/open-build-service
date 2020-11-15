@@ -18,8 +18,8 @@
 - if User.session
   .collapse{ id: "reply_form_of_#{comment.id}" }
     = render(partial: 'webui/comment/comment_field', locals: { form_method: :post,
-     comment: comment.children.new, commentable: commentable })
+     comment: comment.children.new, commentable: commentable, element_suffix: "reply_for_#{comment.id}" })
   - if policy(comment).update?
     .collapse{ id: "edit_form_of_#{comment.id}" }
       = render(partial: 'webui/comment/comment_field', locals: { form_method: :put,
-       comment: comment, commentable: commentable })
+       comment: comment, commentable: commentable, element_suffix: "edit_#{comment.id}" })
