@@ -31,7 +31,7 @@ $.fn.hasOverflow = function() {
   return (element.offsetHeight < element.scrollHeight - 1) || (element.offsetWidth < element.scrollWidth - 1);
 };
 
-$.fn.collapse = function(){
+$.fn.collapseCollapsible = function(){
   var collapsibleElements = this;
   
   return collapsibleElements.each(function() {
@@ -43,5 +43,5 @@ $.fn.collapse = function(){
 };
 
 $(document).ready(function() {
-  $('ul.collapsible').collapse();
+  $('ul.collapsible').collapseCollapsible();
 });
