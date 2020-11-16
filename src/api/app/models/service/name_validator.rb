@@ -1,29 +1,27 @@
-class Service
-  class NameValidator
-    attr_accessor :name
+class Service::NameValidator
+  attr_accessor :name
 
-    def initialize(name)
-      @name = name
-    end
+  def initialize(name)
+    @name = name
+  end
 
-    def valid?
-      valid_name?
-    end
+  def valid?
+    valid_name?
+  end
 
-    private
+  private
 
-    def valid_name?
-      return false unless name.present? || name.is_a?(String)
-      return false if name.length > 200
+  def valid_name?
+    return false unless name.present? || name.is_a?(String)
+    return false if name.length > 200
 
-      case name
-      when /^[_.]/, /::/
-        false
-      when /\A\w[-+\w.:]*\z/
-        true
-      else
-        false
-      end
+    case name
+    when /^[_.]/, /::/
+      false
+    when /\A\w[-+\w.:]*\z/
+      true
+    else
+      false
     end
   end
 end
