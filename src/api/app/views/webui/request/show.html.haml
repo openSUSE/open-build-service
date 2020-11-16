@@ -2,6 +2,8 @@
   content_for(:meta_title, "Request #{@bs_request.number} (#{@bs_request.state})")
   content_for(:meta_description, @bs_request.description)
   content_for(:meta_image, gravatar_url(User.find_by_login(@bs_request.creator).email))
+  @pagetitle = "Request #{@bs_request.number}"
+  @pagetitle += ": #{@actions.first[:name]}" if @actions.count == 1
 
 - if @not_full_diff && User.session
   = render partial: 'webui/shared/truncated_diff_hint', locals: { path: request_show_path(number: @bs_request.number, full_diff: true) }
@@ -10,7 +12,6 @@
                                                      number: @bs_request.number,
                                                      diff_to_superseded: @diff_to_superseded,
                                                      superseding: @bs_request.superseding }
-- @pagetitle = "Request #{@bs_request.number}"
 .card.mb-3
   .card-header.d-flex.justify-content-between
     %h5
