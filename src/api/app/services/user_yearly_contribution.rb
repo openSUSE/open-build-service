@@ -1,12 +1,13 @@
-class User::Contributions
-  attr_accessor :user, :first_day
+class UserYearlyContribution
+  attr_reader :first_day, :user
 
   def initialize(user, first_day)
-    @first_day = first_day
     @user = user
+    @first_day = first_day
+    @first_day = first_day.to_date if first_day.respond_to?(:to_date)
   end
 
-  def activity_hash
+  def call
     merge_hashes([requests_created, comments, reviews_done, commits_done])
   end
 
@@ -22,7 +23,10 @@ class User::Contributions
 
   def reviews_done
     # User.reviews are by_user, we want also by_package and by_group reviews accepted/declined
-    Review.where(reviewer: user.login, state: [:accepted, :declined]).where('created_at > ?', first_day).group('date(created_at)').count
+    ReviewsFinder.new.completed_by_reviewer(user)
+                 .where('created_at > ?', first_day)
+                 .group('date(created_at)')
+                 .count
   end
 
   def commits_done

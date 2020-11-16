@@ -1,0 +1,30 @@
+- max_count = 12
+
+.h5
+  Contributions on #{date}
+- if activities_per_day[:commits].present?
+  = activity_date_commits(activities_per_day[:commits])
+- if activities_per_day[:requests_created].present?
+  .h6.mt-3
+    = pluralize(activities_per_day[:requests_created].size, 'request')
+    created
+  .m-2.ml-3
+    - count = activities_per_day[:requests_created].size - max_count
+    - activities_per_day[:requests_created][0..(max_count - 1)].each do |number|
+      = link_to(number, request_show_path(number))
+    = "and #{count} more" if count.positive?
+- if activities_per_day[:requests_reviewed].present?
+  .h6.mt-3
+    = pluralize(activities_per_day[:requests_reviewed].values.sum, 'review')
+    done
+  .m-2.ml-3
+    in requests:
+    - count = activities_per_day[:requests_reviewed].size - max_count
+    - activities_per_day[:requests_reviewed].keys[0..(max_count - 1)].each do |number|
+      = link_to(number, request_show_path(number))
+    = "and #{count} more" if count.positive?
+
+- if activities_per_day[:comments].positive?
+  .h6.mt-3
+    = pluralize(activities_per_day[:comments], 'comment')
+    written

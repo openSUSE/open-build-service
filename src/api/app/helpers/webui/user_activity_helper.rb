@@ -29,4 +29,8 @@ module Webui::UserActivityHelper
       'activity-percentil4'
     end
   end
+
+  def contribution_graph?
+    CONFIG['contribution_graph'] != :off
+  end
 end

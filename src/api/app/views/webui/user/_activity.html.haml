@@ -1,9 +1,9 @@
-- percentiles = contributions_percentiles(activity_hash.values)
+- percentiles = contributions_percentiles(activities_per_year.values)
 
 .card.mb-3
   .card-body
     .h5
-      - number_of_contributions = activity_hash.values.sum
+      - number_of_contributions = activities_per_year.values.sum
       = pluralize(number_of_contributions, 'contribution')
       in the last year
     %table.table#contributors-table
@@ -17,8 +17,16 @@
               %td
             - else
               :ruby
-                activity = activity_hash.fetch(current_day, 0)
+                activity = activities_per_year.fetch(current_day, 0)
                 classname = activity_classname(activity, percentiles)
 
               %td{ title: "#{current_day} - #{activity} contributions", class: classname }
-                &nbsp;
+                - if activity.positive?
+                  = link_to(user_path(login: user, params: { date: current_day }), class: 'activity-link') do
+                    &nbsp;
+                - else
+                  &nbsp;
+
+    - if date
+      = render partial: 'activity_date', locals: { date: date,
+                                                   activities_per_day: activities_per_day }
