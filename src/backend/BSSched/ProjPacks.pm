@@ -304,6 +304,7 @@ sub get_projpacks_resume {
 
   # fetch linked packages with lower prio
   if ($handle->{'_dolink'}) {
+    my $alllocked = $gctx->{'alllocked'};
     my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
     my $xpackids = $packids || $handle->{'_lpackids'};  # just packages linking to those
     my $linked = find_linked_sources($gctx, $projid, $xpackids);
@@ -313,11 +314,17 @@ sub get_projpacks_resume {
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
         push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
         # we don't use setchanged because it unshifts the prps onto lookat
-        my $changed = $gctx->{$xpackids ? 'changed_med' : 'changed_low'};
+        my $changed_med = $gctx->{'changed_med'};
+        my $changed_low = $gctx->{'changed_low'};
+        my $changed = $xpackids ? $changed_med : $changed_low;
         my $changed_dirty = $gctx->{'changed_dirty'};
         for my $prp (@{$gctx->{'prps'}}) {
           next unless (split('/', $prp, 2))[0] eq $lprojid;
-          $changed->{$prp} ||= 1;
+	  if ($alllocked->{$prp}) {
+            $changed_low->{$prp} ||= 1;
+	  } else {
+            $changed->{$prp} ||= 1;
+	  }
           $changed_dirty->{$prp} = 1;
         }
         next;
@@ -1268,9 +1275,14 @@ sub do_fetchprojpacks {
       for my $lprojid (keys %$linked) {
 	push @{$delayedfetchprojpacks->{$lprojid}}, @{$linked->{$lprojid}};
       }
+      my $alllocked = $gctx->{'alllocked'};
       for my $lprp (@{$gctx->{'prps'}}) {
 	if ($linked->{(split('/', $lprp, 2))[0]}) {
-	  $changed_med->{$lprp} ||= 1;
+	  if ($alllocked->{$lprp}) {
+	    $changed_low->{$lprp} ||= 1;
+	  } else {
+	    $changed_med->{$lprp} ||= 1;
+	  }
 	  $changed_dirty->{$lprp} = 1;
 	}
       }
@@ -1380,6 +1392,7 @@ sub do_fetchprojpacks {
 
   # pass3: update link information
   if (%fetchlinkedprojpacks) {
+    my $alllocked = $gctx->{'alllocked'};
     my $projpackchanged;
     for my $projid (sort keys %fetchlinkedprojpacks) {
       my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
@@ -1396,7 +1409,11 @@ sub do_fetchprojpacks {
       if ($fetchlinkedprojpacks_srcchange{$projid}) {
 	for my $prp (@{$gctx->{'prps'}}) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
-	    $changed_med->{$prp} ||= 1;
+	    if ($alllocked->{$prp}) {
+	      $changed_low->{$prp} ||= 1;
+	    } else {
+	      $changed_med->{$prp} ||= 1;
+	    }
 	    $changed_dirty->{$prp} = 1;
 	  }
 	}
