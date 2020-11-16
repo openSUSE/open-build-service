@@ -145,6 +145,7 @@ namespace :dev do
   end
 
   namespace :staging do
+    desc 'Creates a staging workflow with a project and a confirmed user'
     task data: :environment do
       unless Rails.env.development?
         puts "You are running this rake task in #{Rails.env} environment."
@@ -173,6 +174,7 @@ namespace :dev do
   # Run this task with: rails "dev:notifications:data[3]"
   # replacing 3 with any number to indicate how many times you want this code to be executed.
   namespace :notifications do
+    desc 'Creates a notification and all its dependencies'
     task :data, [:repetitions] => :environment do |_t, args|
       unless Rails.env.development?
         puts "You are running this rake task in #{Rails.env} environment."
@@ -242,6 +244,7 @@ namespace :dev do
 
   # This is automatically run in Review App or manually in development env.
   namespace :development_testdata do
+    desc 'Creates test data to play with in dev and CI environments'
     task create: :environment do
       unless Rails.env.development?
         puts "You are running this rake task in #{Rails.env} environment."
