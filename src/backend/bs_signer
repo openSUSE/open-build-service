@@ -445,10 +445,10 @@ sub getsignkey {
   my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
-    undef $signkey unless $signkey && length($signkey) > 10;
     undef $pubkey unless $pubkey && length($pubkey) > 10;
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
+    undef $algo if $algo && $algo eq '?';
   }
-  $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
   if (($needpubkey || !$algo) && !$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       my @signargs;

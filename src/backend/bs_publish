@@ -329,7 +329,6 @@ sub getpatterns {
 sub getsigndata {
   my ($projid) = @_;
 
-  my $signargs = [];
   my @args = ("withpubkey=1", "withalgo=1");
   push @args, "autoextend=1" if $BSConfig::sign;
   my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", @args);
@@ -337,14 +336,9 @@ sub getsigndata {
   my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
-    undef $signkey unless $signkey && length($signkey) > 10;	# not a valid signkey
     undef $pubkey unless $pubkey && length($pubkey) > 10;	# not a valid pubkey
-  }
-  if ($signkey) {
     $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
-    mkdir_p("$uploaddir");
-    writestr("$uploaddir/publisher.$$", undef, $signkey);
-    $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+    undef $algo if $algo && $algo eq '?';
   }
   if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
@@ -367,6 +361,13 @@ sub getsigndata {
   if ($pubkey && !$algo) {
     # try to get algo from public key
     eval { $algo = BSPGP::pk2algo(BSPGP::unarmor($pubkey)) };
+  }
+  # setup sign arguments
+  my $signargs = [];
+  if ($signkey) {
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/publisher.$$", undef, $signkey);
+    push @$signargs, '-P', "$uploaddir/publisher.$$";
   }
   push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
   return ($pubkey, $signargs);

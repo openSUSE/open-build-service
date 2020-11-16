@@ -72,6 +72,13 @@ sub registries_for_prp {
   return @registries;
 }
 
+sub have_good_project_signkey {
+  my ($signargs) = @_;
+  return 0 unless @{$signargs || []} >= 2;
+  return 0 if $signargs->[0] ne '-P';
+  return (-s $signargs->[1]) >= 10;
+}
+
 sub get_notary_pubkey {
   my ($projid, $pubkey, $signargs) = @_;
 
@@ -80,8 +87,8 @@ sub get_notary_pubkey {
   push @signargs, '--signtype', 'notary' if $BSConfig::sign_type || $BSConfig::sign_type;
   push @signargs, @{$signargs || []};
 
-  # ask the sign tool for the correct pubkey if we do not have a sign key
-  if (!(@$signargs && $signargs->[0] eq '-P') && $BSConfig::sign_project && $BSConfig::sign) {
+  # ask the sign tool for the correct pubkey if we do not have a good sign key
+  if ($BSConfig::sign_project && $BSConfig::sign && !have_good_project_signkey($signargs)) {
     local *S;
     open(S, '-|', $BSConfig::sign, @signargs, '-p') || die("$BSConfig::sign: $!\n");;
     $pubkey = '';
