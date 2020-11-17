@@ -16,7 +16,10 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.end_with?('/project/show/HiddenRemoteInstance')
     return true if link.end_with?('/project/show/RemoteInstance')
     return true if link.end_with?('/package/show/BaseDistro3/pack2')
+    return true if link.end_with?('/project/show/BaseDistro3')
     return true if link.end_with?('/package/show/home:Iggy/TestPack')
+    return true if link.end_with?('/package/show/home:Iggy/ToBeDeletedTestPack')
+    return true if link.end_with?('/project/show/home:Iggy')
     return true if link.end_with?('/project/show/home:user6')
     return true if link =~ %r{/live_build_log/BinaryprotectedProject}
     return true if link =~ %r{/live_build_log/SourceprotectedProject}
