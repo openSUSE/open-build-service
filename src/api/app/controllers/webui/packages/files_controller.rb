@@ -36,11 +36,9 @@ module Webui
           else
             errors << 'No file or URI given'
           end
-        rescue APIError => e
-          errors << e.message
         rescue Backend::Error => e
           errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
-        rescue StandardError => e
+        rescue APIError, StandardError => e
           errors << e.message
         end
 

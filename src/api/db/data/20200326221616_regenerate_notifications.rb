@@ -59,8 +59,6 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
     case previous_history_element.try(:type)
     when nil, 'HistoryElement::RequestAllReviewsApproved'
       'new'
-    when 'HistoryElement::RequestReviewAdded', 'HistoryElement::ReviewDeclined'
-      'review'
     when 'HistoryElement::RequestDeclined'
       'declined'
     when 'HistoryElement::RequestReopened'
@@ -71,7 +69,9 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
       return 'declined' if last_history_element.description == 'Declined via staging workflow.'
 
       'review'
-    else # less accurate result for any other case that was overlooked
+    else
+      # when 'HistoryElement::RequestReviewAdded', 'HistoryElement::ReviewDeclined'
+      # also for any other case that was overlooked (less accurate result)
       'review'
     end
   end

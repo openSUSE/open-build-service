@@ -112,9 +112,7 @@ class SearchController < ApplicationController
 
   def predicate_from_match_parameter(p)
     pred = case p
-           when /^\(\[(.*)\]\)$/
-             Regexp.last_match(1)
-           when /^\[(.*)\]$/
+           when /^\(\[(.*)\]\)$/, /^\[(.*)\]$/
              Regexp.last_match(1)
            else
              p
@@ -235,9 +233,7 @@ class SearchController < ApplicationController
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items).order(:login)
-    when :channel
-      relation = ChannelBinary.where(id: search_items)
-    when :channel_binary
+    when :channel, :channel_binary
       relation = ChannelBinary.where(id: search_items)
     when :released_binary
       relation = BinaryRelease.where(id: search_items)

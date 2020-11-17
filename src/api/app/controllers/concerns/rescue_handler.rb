@@ -50,8 +50,7 @@ module RescueHandler
         case exception.try(:query).to_s
         when 'index?' then 'list'
         when 'show?' then 'view'
-        when 'create?' then 'create'
-        when 'new?' then 'create'
+        when 'create?', 'new?' then 'create'
         when 'update?' then 'update'
         when 'edit?' then 'edit'
         when 'destroy?' then 'delete'
