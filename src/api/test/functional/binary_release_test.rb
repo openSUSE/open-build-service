@@ -74,9 +74,18 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'obsolete'
 
     # without obsolete rpms
+    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']]" }
+    assert_response :success
+    assert_xml_tag tag: 'obsolete'
     get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and obsolete[not(@time)]" }
     assert_response :success
     assert_no_xml_tag tag: 'obsolete'
+    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time)" }
+    assert_response :success
+    assert_no_xml_tag tag: ''
+    get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and not(obsolete/@time=123)" }
+    assert_response :success
+    assert_xml_tag tag: 'obsolete'
 
     # without modified rpms
     get '/search/released/binary', params: { match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and modify[not(@time)]" }
