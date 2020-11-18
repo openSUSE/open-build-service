@@ -614,9 +614,7 @@ class BsRequest < ApplicationRecord
       when 'superseded'
         history = HistoryElement::RequestSuperseded
         params[:description_extension] = superseded_by.to_s
-      when 'review'
-        history = HistoryElement::RequestReopened
-      when 'new'
+      when 'review', 'new'
         history = HistoryElement::RequestReopened
       when 'deleted'
         history = HistoryElement::RequestDeleted

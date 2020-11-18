@@ -77,10 +77,8 @@ module Webui::RequestHelper
       'addrole'
     when :maintenance_incident
       'incident'
-    when :maintenance_release
-      'release'
-    when :release
-      'release' # same as maintenance_release but the difference should matter in simplified view
+    when :maintenance_release, :release
+      'release' # the difference between maintenance_release and release should matter in simplified view
     else
       type.to_s
     end
