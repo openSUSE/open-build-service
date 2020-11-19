@@ -1,0 +1,5 @@
+- content_for :actions do
+  %li.nav-item
+    = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link', title: 'Add a Review') do
+      %i.fas.fa-plus-circle.fa-lg.mr-2
+      %span.nav-item-name Add a Review
