@@ -67,6 +67,10 @@ $(document).ready(function(){
       closest.trigger('click');
   });
 
+  $('body').on('click', '.cancel-comment', function (e) {
+    $(e.target).closest('.collapse').collapse('hide');
+  });
+
   $('.comments-list').on('click', '.preview-comment-tab:not(.active)', function (e) {
       var commentContainer = $(e.target).closest('[class*="-comment-form"]');
       var commentBody = commentContainer.find('.comment-field').val();

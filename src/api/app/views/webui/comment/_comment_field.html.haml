@@ -18,8 +18,12 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
         class: 'w-100 form-control comment-field'
       .tab-pane.fade{ id: "preview_#{element_suffix}", role: 'tabpanel', 'aria-labelledby': 'preview-comment-tab' }
         .comment-preview.border-bottom.border-gray-300.my-3
-      - case form_method
-      - when :post
-        = f.submit 'Add comment', class: 'btn btn-primary mb-3', data: { disable_with: 'Creating comment...' }, disabled: true
-      - when :put
-        = f.submit 'Update comment', class: 'btn btn-primary mb-3', data: { disable_with: 'Updating comment...' }
+      .comment-controls.mb-3
+        - case form_method
+        - when :post
+          = f.submit 'Add comment', class: 'btn btn-primary mr-2', data: { disable_with: 'Creating comment...' }, disabled: true
+        - when :put
+          = f.submit 'Update comment', class: 'btn btn-primary mr-2', data: { disable_with: 'Updating comment...' }
+        - if has_cancel
+          %a.cancel-comment.btn.btn-outline-secondary
+            Cancel
