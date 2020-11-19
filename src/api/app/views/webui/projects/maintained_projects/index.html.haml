@@ -6,7 +6,12 @@
 .card
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
-    %h3 Maintained Projects
+    %h3
+      Maintained Projects
+      - if update_policy && feature_enabled?(:responsive_ux)
+        = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }, title: 'Add Project to Maintain') do
+          %i.fas.fa-xs.fa-plus-circle.text-primary
+
     .table-responsive
       %table.table.table-sm.table-striped.table-bordered.w-100#maintained-projects-datatable{ 'data-source': data_source }
         %thead
@@ -15,7 +20,7 @@
             %th Actions
         %tbody
 
-    - if update_policy
+    - if update_policy && !feature_enabled?(:responsive_ux)
       = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }) do
         %i.fas.fa-plus-circle.text-primary
         Add Project to Maintain
