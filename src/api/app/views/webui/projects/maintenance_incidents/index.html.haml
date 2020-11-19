@@ -7,6 +7,9 @@
       Maintenance incidents
       %span.badge.badge-primary
         = @incidents.count
+      - if policy(@project).create? && feature_enabled?(:responsive_ux)
+        = link_to(project_maintenance_incidents_path(@project.name), method: :post, title: 'Create Maintenance Incident') do
+          %i.fas.fa-xs.fa-plus-circle.text-primary
 
     -# haml-lint:disable MultilinePipe
     %table.w-100.responsive.table.table-sm.table-bordered.table-hover#incident-table{ data: { |
@@ -25,7 +28,7 @@
           %th
             Release Targets
       %tbody
-    - if policy(@project).create?
+    - if policy(@project).create? && !feature_enabled?(:responsive_ux)
       .pt-4
         %ul.list-inline
           %li.list-inline-item
