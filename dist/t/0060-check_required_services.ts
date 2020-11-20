@@ -8,13 +8,13 @@ my $tests    = 14;
 my $max_wait = 300;
 
 my @daemons = qw/obsdispatcher.service  obspublisher.service    obsrepserver.service
-                 obsscheduler.service   obssrcserver.service    /;
+                 obsscheduler.service   obssrcserver.service    mariadb.service/;
 
 my $os = get_distribution();
 if ($os eq "suse") {
-  push @daemons, "apache2.service", "mysql.service";
+  push @daemons, "apache2.service";
 } elsif ($os eq 'rh') {
-  push @daemons, "httpd.service", "mariadb.service";
+  push @daemons, "httpd.service";
 } else {
   die "Could not determine distribution!\n";
 }
