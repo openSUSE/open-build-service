@@ -23,11 +23,14 @@
       .col-md-4#side-links
         = render partial: 'show_side_links', locals: { bs_request: @bs_request, package_maintainers: @package_maintainers }
       - if @can_add_reviews
-        %ul.list-inline.mb-0
-          %li.list-inline-item
-            = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Add a Review
+        - if feature_enabled?(:responsive_ux)
+          = render partial: 'webui/request/responsive_ux/actions'
+        - else
+          %ul.list-inline.mb-0
+            %li.list-inline-item
+              = link_to('#', data: { toggle: 'modal', target: '#add-reviewer-modal' }, class: 'nav-link') do
+                %i.fas.fa-plus-circle.text-primary
+                Add a Review
 
 .card.mb-3
   .bg-light

@@ -202,7 +202,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'opens a review and accepts it' do
         login submitter
         visit request_show_path(bs_request)
-        click_link 'Add a Review'
+        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('User')
         fill_in 'review_user', with: reviewer.login
         fill_in 'Comment for reviewer:', with: 'Please review'
@@ -233,7 +233,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        click_link 'Add a Review'
+        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('Group')
         fill_in 'review_group', with: review_group.title
         click_button('Accept')
@@ -245,7 +245,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        click_link 'Add a Review'
+        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: submitter.home_project
         click_button('Accept')
@@ -259,7 +259,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request)
-        click_link 'Add a Review'
+        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
         fill_in 'review_package', with: package.name
@@ -272,7 +272,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
       it 'opens no review' do
         login submitter
         visit request_show_path(bs_request)
-        click_link 'Add a Review'
+        desktop? ? click_link('Add a Review') : click_menu_link('Actions', 'Add a Review')
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
         click_button('Accept')
