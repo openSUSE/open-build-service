@@ -1,4 +1,20 @@
 module Webui::UserHelper
+  def display_applied_filters(filters)
+    tag.span(class: 'd-block ml-4 mb-3') do
+      link_to(User.session!) do
+        tag.i(class: 'fas fa-trash-alt') do
+          tag.b(class: 'pl-2') do
+            "Clear current search #{display_filters(filters.keys).to_sentence}"
+          end
+        end
+      end
+    end
+  end
+
+  def display_filters?(filters)
+    filters != ['search_text']
+  end
+
   def user_actions(user)
     safe_join(
       [
@@ -70,6 +86,19 @@ module Webui::UserHelper
   end
 
   private
+
+  def display_filters(filters)
+    filters.collect do |filter|
+      case filter.to_sym
+      when :search_text
+        'query'
+      when /role_.*/
+        'roles'
+      when /involved_.*/
+        filter.to_s.split('_').last
+      end
+    end.uniq
+  end
 
   def activity_date_commits_project(commit_line)
     project, packages, count = commit_line

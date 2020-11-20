@@ -50,6 +50,8 @@
           %button.btn.btn-primary.form-control#filter-button{ type: :submit }
             Apply Filter
 
+    - if display_filters?(filters.keys)
+      = display_applied_filters(filters)
   .card-body.pt-0
     - if involved_items.blank?
       This user is not involved in any project or package.
