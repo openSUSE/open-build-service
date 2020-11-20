@@ -36,7 +36,12 @@ RSpec.describe 'MaintainedProjects', type: :feature, js: true do
         visit project_maintained_projects_path(project_name: maintenance_project.name)
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: :hidden)
-        click_link('Add Project to Maintain')
+        if mobile?
+          within('#bottom-navigation-area') { click_link('Actions') }
+          within('#bottom-navigation-area') { click_link('Add Project to Maintain') }
+        else
+          click_link('Add Project to Maintain')
+        end
 
         expect(page).to have_selector('#new-maintenance-project-modal', visible: :visible)
         expect(page).to have_selector('#delete-maintained-project-modal', visible: :hidden)
