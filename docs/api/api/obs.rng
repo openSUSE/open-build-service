@@ -415,4 +415,36 @@
     </choice>
   </define>
 
+  <!-- Possible states of a repository -->
+  <define ns="" name="repository-code">
+    <choice>
+      <value>unknown</value>
+      <value>broken</value>
+      <value>scheduling</value>
+      <value>blocked</value>
+      <value>building</value>
+      <value>finished</value>
+      <value>publishing</value>
+      <value>published</value>
+      <value>unpublished</value>
+    </choice>
+  </define>
+
+  <!-- Possible states of a package -->
+  <define ns="" name="package-code">
+    <choice>
+      <value>unresolvable</value>
+      <value>succeeded</value>
+      <value>failed</value>
+      <value>broken</value>
+      <value>disabled</value>
+      <value>excluded</value>
+      <value>blocked</value>
+      <value>locked</value>
+      <value>unknown</value>
+      <value>scheduled</value>
+      <value>building</value>
+      <value>finished</value>
+    </choice>
+  </define>
 </grammar>
