@@ -7,7 +7,7 @@
           %small (#{f.object.arch})
     %span.btn.btn-link.kiwi_actions
       = link_to_remove_association f do
-        %i.fas.fa-times.text-danger
+        %i.fas.fa-times-circle.text-danger
 
   .modal.fade{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}",
                class: "#{'new_element' if f.object.new_record?}" }

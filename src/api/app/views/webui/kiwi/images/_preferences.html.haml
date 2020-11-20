@@ -2,6 +2,9 @@
   .nested-fields
     %h5.card-header#image-name
       Preferences
+      - if feature_enabled?(:responsive_ux)
+        = link_to('#', data: { 'target': '#preferences-edit', 'toggle': 'modal' }, title: 'Edit Preferences') do
+          %i.fas.fa-edit.text-secondary.fa-xs
     .card-body
       - @image.preferences.each do |preference|
         %h6= preference.profile
@@ -20,7 +23,8 @@
               %strong Container config tag:
               %span.fill{ data: { tag: 'type_containerconfig_tag' } }= preference.type_containerconfig_tag
       %p
-        = link_to('#', data: { 'target': '#preferences-edit', 'toggle': 'modal' }) do
-          %i.fas.fa-edit.text-secondary
-          Edit Preferences
+        - unless feature_enabled?(:responsive_ux)
+          = link_to('#', data: { 'target': '#preferences-edit', 'toggle': 'modal' }) do
+            %i.fas.fa-edit.text-secondary
+            Edit Preferences
         = render partial: 'preferences_form', locals: { f: f }
