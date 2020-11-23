@@ -84,8 +84,9 @@ class BsRequestActionRelease < BsRequestAction
   def sanity_check!
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(source_project)
-    prj.repositories.includes(:release_targets).find_each do |repo|
-      raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name} / #{repo.name}" if repo.release_targets.empty?
+    manual_targets = prj.repositories.includes(:release_targets).where(release_targets: {trigger: "manual"})
+    raise RepositoryWithoutReleaseTarget, "Release target definition is missing in #{prj.name}" unless manual_targets.any?
+    manual_targets.each do |repo|
       raise RepositoryWithoutArchitecture, "Repository has no architecture #{prj.name} / #{repo.name}" if repo.architectures.empty?
 
       repo.release_targets.each do |rt|
