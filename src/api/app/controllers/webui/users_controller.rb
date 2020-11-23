@@ -1,9 +1,13 @@
 class Webui::UsersController < Webui::WebuiController
-  before_action :require_login, only: [:index, :edit, :destroy, :update, :change_password, :edit_account]
+  # TODO: Remove this when we'll refactor kerberos_auth
+  before_action :kerberos_auth, only: [:index, :edit, :destroy, :update, :change_password, :edit_account]
+  before_action :authorize_user, only: [:index, :edit, :destroy, :update, :change_password, :edit_account]
   before_action :require_admin, only: [:index, :edit, :destroy]
   before_action :check_displayed_user, only: [:show, :edit, :update, :edit_account]
   before_action :role_titles, only: [:show, :edit_account, :update]
   before_action :account_edit_link, only: [:show, :edit_account, :update]
+
+  after_action :verify_authorized, only: [:index, :edit, :destroy, :update, :change_password, :edit_account]
 
   def index
     respond_to do |format|
@@ -177,6 +181,10 @@ class Webui::UsersController < Webui::WebuiController
     filter_keys.each do |filter|
       filters[filter] = 1
     end
+  end
+
+  def authorize_user
+    authorize([:webui, User])
   end
 
   def create_params

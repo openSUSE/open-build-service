@@ -8,6 +8,11 @@ RSpec.describe Webui::UsersController do
   let!(:non_admin_user_request) { create(:set_bugowner_request, priority: 'critical', creator: non_admin_user) }
 
   describe 'GET #index' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :index }
+    end
+
     context 'as admin' do
       before do
         login admin_user
@@ -28,12 +33,32 @@ RSpec.describe Webui::UsersController do
   end
 
   describe 'GET #edit' do
-    before do
-      login admin_user
-      get :edit, params: { login: user.login }
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :edit }
+      let(:opts) do
+        { params: { login: user.login } }
+      end
     end
 
-    it { expect(response).to have_http_status(:ok) }
+    context 'for logged in user' do
+      before do
+        login admin_user
+        get :edit, params: { login: user.login }
+      end
+
+      it { expect(response).to have_http_status(:ok) }
+    end
+  end
+
+  describe 'GET #edit_account' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :edit_account }
+      let(:opts) do
+        { params: { login: user.login } }
+      end
+    end
   end
 
   describe 'GET #show' do
@@ -200,6 +225,14 @@ RSpec.describe Webui::UsersController do
   end
 
   describe 'DELETE #destroy' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :delete }
+      let(:action) { :destroy }
+      let(:opts) do
+        { params: { login: user.login } }
+      end
+    end
+
     context 'called by an admin user' do
       before do
         login(admin_user)
@@ -228,6 +261,14 @@ RSpec.describe Webui::UsersController do
   end
 
   describe 'POST #update' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :update }
+      let(:opts) do
+        { params: { login: user.login } }
+      end
+    end
+
     context 'when user is updating its own profile' do
       context 'with valid data' do
         before do
@@ -450,6 +491,14 @@ RSpec.describe Webui::UsersController do
   end
 
   describe 'POST #change_password' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :change_password }
+      let(:opts) do
+        { params: { login: user.login } }
+      end
+    end
+
     context 'LDAP mode on' do
       before do
         login non_admin_user
