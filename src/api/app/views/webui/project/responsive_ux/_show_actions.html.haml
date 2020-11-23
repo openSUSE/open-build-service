@@ -21,12 +21,3 @@
     = link_to(image_templates_path, class: 'nav-link', title: 'New Image') do
       %i.fas.fa-compact-disc.fa-lg.mr-2
       %span.nav-item-name New Image
-  - if User.possibly_nobody.can_modify?(project) && show_package_actions?
-    %li.nav-item
-      = link_to(new_package_path(project), class: 'nav-link', title: 'Create Package') do
-        %i.fas.fa-plus-circle.fa-lg.mr-2
-        %span.nav-item-name Create Package
-    %li.nav-item
-      = link_to(project_new_packages_branch_path(project), class: 'nav-link', title: 'Branch Package') do
-        %i.fas.fa-code-branch.fa-lg.mr-2
-        %span.nav-item-name Branch Package
