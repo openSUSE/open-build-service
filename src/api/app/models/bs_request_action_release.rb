@@ -40,7 +40,7 @@ class BsRequestActionRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.zone.now
 
-    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self })
+    release_package(pkg, Project.get_by_name(target_project), target_package, { action: self, manual: true })
   end
 
   def check_permissions!
