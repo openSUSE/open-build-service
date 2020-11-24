@@ -10,7 +10,7 @@
   - else
     %p This project does not contain any packages
 
-  - if !feature_enabled?(:responsive_ux) && User.possibly_nobody.can_modify?(project) && show_package_actions?
+  - if User.possibly_nobody.can_modify?(project) && show_package_actions?
     .pt-4
       %ul.list-inline
         %li.list-inline-item

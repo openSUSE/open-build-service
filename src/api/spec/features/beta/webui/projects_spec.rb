@@ -87,7 +87,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     before do
       login user
       visit project_show_path(project)
-      desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
+      click_link('Branch Package')
     end
 
     it 'an existing package' do
