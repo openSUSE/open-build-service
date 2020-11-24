@@ -2,16 +2,22 @@
   - if user_can_modify
     %li.nav-item
       = link_to(repositories_distributions_path(project: project), class: 'nav-link', title: 'Add from a Distribution') do
-        %i.fas.fa-plus-circle.fa-lg.mr-2
+        %span.fa-stack
+          %i.fas.fa-plus-circle.fa-lg.fa-stack-1x
+          %i.fas.fa-boxes.fa-stack-1x.top-icon
         %span.nav-item-name Add from a Distribution
 
     %li.nav-item
       = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link', title: 'Add from a Project') do
-        %i.fas.fa-plus-circle.fa-lg.mr-2
+        %span.fa-stack
+          %i.fas.fa-plus-circle.fa-lg.fa-stack-1x
+          %i.fas.fa-cubes.fa-stack-1x.top-icon
         %span.nav-item-name Add from a Project
 
   - if User.admin_session?
     %li.nav-item
       = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link', title: 'Add DoD Repository') do
-        %i.fas.fa-plus-circle.fa-lg.mr-2
+        %span.fa-stack
+          %i.fas.fa-plus-circle.fa-lg.fa-stack-1x
+          %i.fas.fa-warehouse.fa-stack-1x.top-icon
         %span.nav-item-name Add DoD Repository
