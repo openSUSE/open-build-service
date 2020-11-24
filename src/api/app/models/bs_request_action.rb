@@ -336,7 +336,11 @@ class BsRequestAction < ApplicationRecord
     end
 
     # find reviewers in target package
-    reviews += find_reviewers(tpkg) if tpkg
+    # package may exist in linked projects, we take the reviewers from there as default
+    # avoid the project level maintainers for maintenance_release request, the need to be
+    # defined in update project
+    reviews += find_reviewers(tpkg, disable_project: is_maintenance_release?) if tpkg
+
     # project reviewers get added additionaly - might be dups
     reviews += find_reviewers(tprj) if tprj
 
@@ -921,7 +925,7 @@ class BsRequestAction < ApplicationRecord
   end
 
   # find default reviewers of a project/package via role
-  def find_reviewers(obj)
+  def find_reviewers(obj, disable_project: false)
     # obj can be a project or package object
     reviewers = []
     reviewer_id = Role.hashed['reviewer'].id
@@ -933,7 +937,7 @@ class BsRequestAction < ApplicationRecord
     obj.relationships.groups.where(role_id: reviewer_id).pluck(:group_id).each do |r|
       reviewers << Group.find(r)
     end
-    reviewers += find_reviewers(obj.project) if obj.instance_of?(Package)
+    reviewers += find_reviewers(obj.project) if obj.instance_of?(Package) && !disable_project
 
     reviewers
   end
