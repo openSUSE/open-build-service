@@ -40,5 +40,20 @@
     .nav-item-name, .collapse-button-name { display: none; }
   }
 
-  & i { width: 1.2rem; }
+  i { width: 1.5rem; }
+
+  .fa-stack {
+    width: 1.9rem;
+
+    .top-icon {
+      font-size: 0.9rem;
+      padding-left: 1rem;
+      padding-top: 0.5rem;
+      text-shadow: -1.5px 0 $dark, 0 1.5px $dark, 1.5px 0 $dark, 0 -1.5px $dark;
+    }
+
+    .fa-warehouse {
+      font-size: 0.7rem;
+    }
+  }
 }
