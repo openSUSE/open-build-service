@@ -15,7 +15,7 @@
   .form-group
     = f.text_area(:biography, rows: 6, placeholder: 'Biography', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED, class: 'form-control')
     = f.label(:biography, class: 'd-block text-right') do
-      %small.form-text Max. #{User::MAX_BIOGRAPHY_LENGTH_ALLOWED} characters.
+      %small.form-text#bio-chars-counter
   .form-group
     = f.text_field(:email, required: true, email: true, placeholder: 'Email', readonly: behind_proxy, class: 'form-control')
   .form-group
