@@ -332,7 +332,7 @@ class UserLdapStrategy
 
   def self.try_ldap_con(server, user_name, password)
     # implicitly turn array into string
-    user_name = [user_name].flatten.join('')
+    user_name = [user_name].flatten.join
 
     Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
     port = ldap_port
