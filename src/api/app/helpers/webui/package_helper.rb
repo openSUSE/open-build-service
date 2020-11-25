@@ -47,7 +47,7 @@ module Webui::PackageHelper
 
   def nbsp(text)
     result = ''.html_safe
-    text.split(' ').each do |text_chunk|
+    text.split.each do |text_chunk|
       result << text_chunk
       result << '&nbsp;'.html_safe
     end

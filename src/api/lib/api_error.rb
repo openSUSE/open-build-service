@@ -42,18 +42,23 @@ end
 class NoPermission < APIError
   setup 403
 end
+
 class CreateProjectNoPermission < APIError
   setup 403
 end
+
 class DeleteFileNoPermission < APIError
   setup 403
 end
+
 class PostRequestNoPermission < APIError
   setup 403
 end
+
 class OpenReleaseRequest < APIError
   setup 403
 end
+
 class PostRequestMissingParameter < APIError
   setup 403
 end
@@ -62,27 +67,38 @@ end
 class NotFoundError < APIError
   setup 404
 end
+
 class UnknownPackage < APIError
   setup 404
 end
+
 class UnknownRepository < APIError
   setup 404
 end
+
 class RepositoryMissing < APIError
   setup 404
 end
 
 # 400 errors
 class MissingParameterError < APIError; end
+
 class RemoteProjectError < APIError; end
+
 class InvalidParameterError < APIError; end
+
 class InvalidProjectNameError < APIError; end
+
 class UnknownCommandError < APIError; end
+
 class NotMissingError < APIError; end
+
 class PackageAlreadyExists < APIError; end
+
 class ExpandError < APIError
   setup 'expand_error'
 end
+
 class ProjectNotLocked < APIError
   setup 'not_locked'
 end
