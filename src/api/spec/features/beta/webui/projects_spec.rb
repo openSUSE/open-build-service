@@ -130,7 +130,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       visit project_show_path(project)
 
       click_link('Attributes')
-      desktop? ? click_link('Add Attribute') : click_menu_link('Actions', 'Add Attribute')
+      click_link('Add Attribute')
       select('OBS:MaintenanceProject')
       click_button('Add')
 

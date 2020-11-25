@@ -1,7 +1,6 @@
 - @pagetitle = "Attributes of #{@package ? "#{@package} (Project #{@project})" : "Project #{@project}"}"
 - can_update_container = policy(@container).update?
-- if can_update_container && feature_enabled?(:responsive_ux)
-  = render partial: 'webui/attribute/responsive_ux/index_actions', locals: { project: @project, package: @package }
+
 .card
   = render(partial: "webui/#{@container.model_name.singular}/tabs", locals: { project: @project, package: @package })
 
@@ -39,9 +38,10 @@
       %p
         %em No attributes set
 
-    - if can_update_container && !feature_enabled?(:responsive_ux)
-      %p
-        = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute') do
-          %i.fas.fa-plus-circle.text-primary
-          Add Attribute
+    - if can_update_container
+      %ul.list-inline
+        %li.list-inline-item
+          = link_to(new_attribs_path(project: @project.name, package: @package), title: 'Add Attribute', class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add Attribute
     = render(partial: 'delete_dialog')
