@@ -75,7 +75,7 @@ module Webui::UserHelper
     return tag.div(activity_date_commits_project(projects.first), class: 'h6 mt-3') if projects.size == 1
 
     max_projects = max_activity_items(3, projects)
-    concat(tag.div(pluralize(projects.map(&:last).sum, 'commit'), class: 'h6 mt-3'))
+    concat(tag.div(pluralize(projects.sum(&:last), 'commit'), class: 'h6 mt-3'))
     tag.ul do
       projects[0..(max_projects - 1)].each do |commit_row|
         concat(tag.li(activity_date_commits_project(commit_row), class: 'mt-1'))
