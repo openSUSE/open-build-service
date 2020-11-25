@@ -268,7 +268,7 @@ sub setup {
       my ($aprojid) = split('/', $aprp, 2);
       my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
       if ($error) {
-        if ($error =~ /interconnect error:/) {
+        if ($error =~ /interconnect error:/ || $error =~ /5\d\d remote error:/) {
           $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $aprojid});
         }
 	return (0, "$aprojid: $error");
@@ -930,7 +930,7 @@ sub checkpkgs {
 	$packerror{$packid} = $pdata->{'error'};
 	next;
       }
-      if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/) {
+      if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/ || $pdata->{'error'} =~ /5\d\d remote error:/) {
 	$gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$ctx->{'havedelayed'} = 1;
 	$packstatus{$packid} = 'blocked';
@@ -961,6 +961,13 @@ sub checkpkgs {
     if ($info->{'error'}) {
       if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'locked' || $info->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $info->{'error'};
+	next;
+      }
+      if ($info->{'error'} =~ /interconnect error:/ || $info->{'error'} =~ /5\d\d remote error:/) {
+	$gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
+	$ctx->{'havedelayed'} = 1;
+	$packstatus{$packid} = 'blocked';
+	$packerror{$packid} = $info->{'error'};
 	next;
       }
       print "      - $packid ($info->{'error'})\n";
