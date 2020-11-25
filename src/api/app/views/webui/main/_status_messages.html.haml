@@ -2,15 +2,12 @@
   .card-header.d-flex.justify-content-between
     %h5
       News
-      - if feature_enabled?(:responsive_ux) && policy(StatusMessage.new).create?
-        = link_to(new_status_message_path, title: 'Create Status Message') do
-          %i.fas.fa-xs.fa-plus-circle.text-primary
     .float-right
       = link_to(news_feed_path(format: 'rss'), title: 'RSS Feed') do
         %i.fa.fa-rss
   .list-group
     = render partial: 'status_message', collection: status_messages
-    - if policy(StatusMessage.new).create? && !feature_enabled?(:responsive_ux)
+    - if policy(StatusMessage.new).create?
       .card-footer
         = link_to(new_status_message_path, class: 'nav-link') do
           %i.fas.fa-plus-circle.text-primary
