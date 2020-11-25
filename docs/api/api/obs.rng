@@ -447,4 +447,13 @@
       <value>finished</value>
     </choice>
   </define>
+
+  <!-- Possible states  of a package -->
+  <define ns="" name="jobstatus-result">
+    <choice>
+      <value>succeeded</value>
+      <value>failed</value>
+      <value>unchanged</value>
+    </choice>
+  </define>
 </grammar>
