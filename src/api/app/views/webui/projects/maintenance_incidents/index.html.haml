@@ -1,12 +1,5 @@
 - @pagetitle = 'Maintenance Incidents'
 
-- if policy(@project).create? && feature_enabled?(:responsive_ux)
-  - content_for :actions do
-    %li.nav-item
-      = link_to(project_maintenance_incidents_path(@project.name), method: :post, title: 'Create Maintenance Incident', class: 'nav-link') do
-        %i.fas.fa-lg.mr-2.fa-plus-circle
-        %span.nav-item-name Create Incident
-
 .card.mb-3
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
@@ -31,13 +24,11 @@
           %th
             Release Targets
       %tbody
-    - if policy(@project).create? && !feature_enabled?(:responsive_ux)
+    - if policy(@project).create?
       .pt-4
-        %ul.list-inline
-          %li.list-inline-item
-            = link_to(project_maintenance_incidents_path(@project.name), method: :post, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Create Maintenance Incident
+        = link_to(project_maintenance_incidents_path(@project.name), method: :post) do
+          %i.fas.fa-plus-circle.text-primary
+          Create Maintenance Incident
 
 - content_for :ready_function do
   :plain
