@@ -325,6 +325,7 @@ function initializeTabs() { // jshint ignore:line
   $("#kiwi-details-trigger").click(function() {
     $("#kiwi-preferences").removeClass('d-none');
     $(".detailed-info").removeClass('d-none');
+    $("#link-edit-details").removeClass('d-none');
     $("#kiwi-image-profiles-section").addClass('d-none');
     $("#kiwi-image-repositories-section").addClass('d-none');
     $("#kiwi-image-packages-section").addClass('d-none');
@@ -338,6 +339,7 @@ function initializeTabs() { // jshint ignore:line
     $("#kiwi-image-packages-section").removeClass('d-none');
     $("#kiwi-preferences").addClass('d-none');
     $(".detailed-info").addClass('d-none');
+    $("#link-edit-details").addClass('d-none');
     $("#kiwi-software-trigger").addClass("active");
     $("#kiwi-details-trigger").removeClass("active");
   });
