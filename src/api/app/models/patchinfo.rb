@@ -7,6 +7,7 @@ class Patchinfo
   include ActiveModel::Model
 
   class PatchinfoFileExists < APIError; end
+
   class IncompletePatchinfo < APIError; end
 
   class ReleasetargetNotFound < APIError
