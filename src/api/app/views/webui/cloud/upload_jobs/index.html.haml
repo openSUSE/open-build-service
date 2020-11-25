@@ -1,12 +1,19 @@
+- if feature_enabled?(:responsive_ux)
+  - content_for :actions do
+    %li.nav-item
+      = link_to(cloud_configuration_index_path, title: 'Cloud upload configuration', class: 'nav-link') do
+        %i.fas.fa-lg.mr-2.fa-cogs
+        %span.nav-item-name Cloud configuration
+
 .card
   .card-body
     %h3 Cloud Upload
-
-    %p.float-right
-      = link_to cloud_configuration_index_path do
-        %i.fas.fa-cogs
-        Cloud upload configuration
-    %br
+    - unless feature_enabled?(:responsive_ux)
+      %p.float-right
+        = link_to cloud_configuration_index_path do
+          %i.fas.fa-cogs
+          Cloud configuration
+      %br
 
     %p
       %table.responsive.table.table-sm.table-bordered.table-hover#upload-jobs
