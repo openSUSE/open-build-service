@@ -3,11 +3,7 @@
 .card.mb-3
   = render partial: 'webui/configuration/tabs'
   .card-body
-    %h3
-      = @pagetitle
-      - if feature_enabled?(:responsive_ux)
-        = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create'), title: 'Create User') do
-          %i.fas.fa-xs.fa-plus-circle.text-primary
+    %h3= @pagetitle
     %table.responsive.table.table-sm.table-bordered.table-hover#user-table{ data: { source: users_path } }
       %thead
         %tr
@@ -21,11 +17,10 @@
             Actions
       %tbody
 
-    - unless feature_enabled?(:responsive_ux)
-      .pt-4
-        = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create')) do
-          %i.fas.fa-plus-circle.text-primary
-          Create User
+    .pt-4
+      = link_to(new_user_path(pagetitle: 'create user', submit_btn_text: 'create', title: 'Create User')) do
+        %i.fas.fa-plus-circle.text-primary
+        Create User
 
 - content_for :ready_function do
   initializeUserConfigurationDatatable("#{::Configuration.ldap_enabled?}");
