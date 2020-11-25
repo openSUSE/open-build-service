@@ -4,11 +4,6 @@
 = render partial: 'request_delete_repository_modal'
 = render partial: 'delete_repository_path_modal'
 
-- if feature_enabled?(:responsive_ux)
-  = render partial: 'webui/repositories/responsive_ux/index_actions', locals: { project: @project,
-                                                                                available_architectures: @available_architectures,
-                                                                                user_can_modify: @user_can_modify }
-
 - if @package
   - @pagetitle = "Repositories for #{@package}"
   = render partial: 'package_repositories', locals: { project: @project,
