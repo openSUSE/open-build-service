@@ -3,13 +3,6 @@
   update_policy = policy(@project).update?
   data_source = project_maintained_projects_path(@project, :json)
 
-- if update_policy && feature_enabled?(:responsive_ux)
-  - content_for :actions do
-    %li.nav-item
-      = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }, title: 'Add Project to Maintain', class: 'nav-link') do
-        %i.fas.fa-lg.mr-2.fa-plus-circle
-        Add Project to Maintain
-
 .card
   = render partial: 'webui/project/tabs', locals: { project: @project }
   .card-body
@@ -23,10 +16,11 @@
             %th Actions
         %tbody
 
-    - if update_policy && !feature_enabled?(:responsive_ux)
-      = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }) do
-        %i.fas.fa-plus-circle.text-primary
-        Add Project to Maintain
+    - if update_policy
+      .pt-4
+        = link_to('#', data: { toggle: 'modal', target: '#new-maintenance-project-modal' }, title: 'Add Project to Maintain') do
+          %i.fas.fa-plus-circle.text-primary
+          Add Project to Maintain
 
 - if update_policy
   = render partial: 'delete_dialog'
