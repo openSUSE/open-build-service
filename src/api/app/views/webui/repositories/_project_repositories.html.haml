@@ -1,33 +1,29 @@
-- if feature_enabled?(:responsive_ux)
-  .card.mb-3
-    = render partial: 'webui/project/tabs', locals: { project: project }
-    .card-body
-      %h3.pb-2= pagetitle
+.card.mb-3
+  = render partial: 'webui/project/tabs', locals: { project: project }
+  .card-body
+    %h3.pb-2= pagetitle
+    - if feature_enabled?(:responsive_ux)
       .row.pt-2
         - repositories.each do |repository|
           = render partial: 'repository_entry', locals: { repository: repository, project: project, download_url: configuration['download_url'],
                       user_can_modify: user_can_modify, available_architectures: available_architectures }
-- else
-  .card.mb-3
-    = render partial: 'webui/project/tabs', locals: { project: project }
-    .card-body
-      %h3.pb-2= pagetitle
-      %ul.list-inline.mb-0
-        - if user_can_modify
-          %li.list-inline-item
-            = link_to(repositories_distributions_path(project: project), class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Add from a Distribution
-          %li.list-inline-item
-            = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Add from a Project
-        - if User.admin_session?
-          %li.list-inline-item
-            = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
-              %i.fas.fa-plus-circle.text-primary
-              Add DoD Repository
+    %ul.list-inline.mb-0
+      - if user_can_modify
+        %li.list-inline-item
+          = link_to(repositories_distributions_path(project: project), class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add from a Distribution
+        %li.list-inline-item
+          = link_to('#', data: { toggle: 'modal', target: '#add-repository-from-project' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add from a Project
+      - if User.admin_session?
+        %li.list-inline-item
+          = link_to('#', data: { toggle: 'modal', target: '#add-dod-repository-modal' }, class: 'nav-link') do
+            %i.fas.fa-plus-circle.text-primary
+            Add DoD Repository
 
+- unless feature_enabled?(:responsive_ux)
   .card.mb-3
     .card-header.d-flex.justify-content-between
       %h5 Repositories for #{project}
