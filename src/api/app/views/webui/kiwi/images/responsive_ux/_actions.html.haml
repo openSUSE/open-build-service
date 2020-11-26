@@ -3,7 +3,7 @@
     = link_to(package_show_path(package.project, package), class: 'nav-link', title: 'View Package') do
       %i.fa.fa-archive.fa-lg.mr-2
       %span.nav-item-name View Package
-  %li.nav-item{ class: "#{'d-none' unless is_edit_details_action}" }
+  %li.nav-item#link-edit-details{ class: "#{'d-none' unless is_edit_details_action}" }
     = link_to('#', class: 'nav-link', data: { 'target': '#description-edit', 'toggle': 'modal' }, title: 'Edit Details') do
       %i.fa.fa-edit.fa-lg.mr-2
       %span.nav-item-name Edit Details

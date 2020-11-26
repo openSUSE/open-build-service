@@ -1,17 +1,15 @@
 #kiwi-description
   .nested-fields
-    %h2#image-name
-      = image.name
-    %p.detailed-info{ class: "#{'d-none' if is_edit_software_action}" }
-      %span.fill{ data: { tag: 'specification' } }
-        = description
-    %ul.list-inline{ class: "#{'d-none' unless is_edit_details_action}" }
-      %li.list-inline-item
-        %strong Author:
-        %span.fill{ data: { tag: 'author' } }= author
-      %li.list-inline-item
-        %strong Contact:
-        %span.fill{ data: { tag: 'contact' } }= contact
+    %h2#image-name= image.name
+    %p.fill{ data: { tag: 'specification' } }= description
+    .detailed-info{ class: "#{'d-none' unless is_edit_details_action}" }
+      %ul.list-inline
+        %li.list-inline-item
+          %strong Author:
+          %span.fill{ data: { tag: 'author' } }= author
+        %li.list-inline-item
+          %strong Contact:
+          %span.fill{ data: { tag: 'contact' } }= contact
     - if feature_enabled?(:responsive_ux)
       = render partial: 'webui/kiwi/images/responsive_ux/actions',
                locals: { package: package, is_edit_details_action: is_edit_details_action }
