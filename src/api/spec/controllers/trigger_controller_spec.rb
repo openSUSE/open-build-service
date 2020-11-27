@@ -45,6 +45,8 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#release' do
     context 'for inexistent project' do
+      let(:token) { Token::Rebuild.create(user: admin, package: package) }
+
       before do
         post :release, params: { project: 'foo', format: :xml }
       end

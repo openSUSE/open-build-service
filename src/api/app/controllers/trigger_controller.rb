@@ -31,7 +31,7 @@ class TriggerController < ApplicationController
     raise NoPermissionForPackage.setup('not_found', 404, "#{@pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
-      raise NoPermissionForProject.setup('not_permission', 403, "#{release_target.target_repository.project.name} project is not writable for user") \
+      raise NoPermissionForPackage.setup('not_permission', 403, "#{release_target.target_repository.project.name} project is not writable for user") \
         unless policy(release_target.target_repository.project).update?
 
       opts = { filter_source_repository: release_target.repository,
