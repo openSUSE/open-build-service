@@ -2,6 +2,14 @@ class Token::Release < Token
   def self.token_name
     'release'
   end
+
+  def options_for_package_search
+    {
+      use_source: true,
+      follow_project_links: false,
+      follow_multibuild: true
+    }
+  end
 end
 
 # == Schema Information

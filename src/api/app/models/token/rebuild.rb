@@ -2,6 +2,14 @@ class Token::Rebuild < Token
   def self.token_name
     'rebuild'
   end
+
+  def options_for_package_search
+    {
+      use_source: false,
+      follow_project_links: true,
+      follow_multibuild: true
+    }
+  end
 end
 
 # == Schema Information

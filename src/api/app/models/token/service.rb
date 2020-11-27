@@ -9,6 +9,14 @@ class Token::Service < Token
     ActiveSupport::SecurityUtils.secure_compare(signature_of(body), signature)
   end
 
+  def options_for_package_search
+    {
+      use_source: true,
+      follow_project_links: false,
+      follow_multibuild: false
+    }
+  end
+
   private
 
   def signature_of(body)
