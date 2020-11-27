@@ -148,12 +148,8 @@ RSpec.describe 'Projects', type: :feature, js: true do
 
       visit project_show_path(maintenance_project)
       click_link('Incidents')
-      if mobile?
-        within('#bottom-navigation-area') { click_link('Actions') }
-        within('#bottom-navigation-area') { click_link('Create Incident') }
-      else
-        click_link('Create Incident')
-      end
+      page.execute_script('window.scrollBy(0,50)')
+      click_link('Create Maintenance Incident')
       expect(page).to have_css('#flash', text: "Created maintenance incident project #{project.name}:maintenance_project:0")
 
       # We can not create this via the Bootstrap UI, except by adding plain XML to the meta editor
