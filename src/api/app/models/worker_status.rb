@@ -91,7 +91,7 @@ class WorkerStatus
   end
 
   def parse_worker_infos(wdata)
-    allworkers = Hash.new(0)
+    allworkers = {}
     workers = {}
 
     ['building', 'idle', 'dead', 'down', 'away'].each do |state|
@@ -101,7 +101,13 @@ class WorkerStatus
         next if workers.key?(worker_id)
 
         workers[worker_id] = 1
-        key = generic_key_generation([state, e.attributes['hostarch'].value])
+        hostarch = e.attributes['hostarch'].value
+        allworkers["building_#{hostarch}"] ||= 0
+        allworkers["idle_#{hostarch}"] ||= 0
+        allworkers["away_#{hostarch}"] ||= 0
+        allworkers["dead_#{hostarch}"] ||= 0
+        allworkers["down_#{hostarch}"] ||= 0
+        key = generic_key_generation([state, hostarch])
         allworkers[key] += 1
       end
     end
