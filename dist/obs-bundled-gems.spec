@@ -118,10 +118,15 @@ EOF
 
 cp %{S:0} %{S:1} .
 
-%build
 # copy gem files into cache
 mkdir -p vendor/cache
 cp %{_sourcedir}/vendor/cache/*.gem vendor/cache
+
+%build
+# emtpy since bundle does not decouple compile and install
+
+%install
+# all operations here since bundle does not decouple compile and install
 export GEM_HOME=~/.gems
 bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
@@ -166,8 +171,9 @@ find %{buildroot} -type f -print0 | xargs -0 grep -l /usr/bin/env | while read f
   chmod a-x $file
 done
 
-%install
-# this section is needed for creating debug packages
+# remove the rpath entry from the shared lib in the mysql2 rubygem
+chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/extensions/*/*/mysql2-*/mysql2/mysql2.so || true
+chrpath -d %{buildroot}%_libdir/obs-api/ruby/*/gems/mysql2-*/lib/mysql2/mysql2.so || true
 
 %files
 %_libdir/obs-api
