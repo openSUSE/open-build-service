@@ -96,7 +96,7 @@ sub getrev {
 sub runservice {
   my ($projid, $packid, $servicemark, $srcmd5, $revid, $lxservicemd5, $projectservicesmd5, $oldsrcmd5) = @_;
 
-  BSUtil::printlog("dispatching service $projid/$packid $servicemark $srcmd5");
+  BSUtil::printlog("dispatching service (timeout: $BSConfig::service_timeout) $projid/$packid $servicemark $srcmd5");
   # get revision and file list
   my $rev;
   if ($revid) {
@@ -153,7 +153,7 @@ sub runservice {
       'timeout'   => $BSConfig::service_timeout,
       'withmd5'   => 1,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef);
+    }, undef, "timeout=$BSConfig::service_timeout");
   };
   my $error = $@;
 
