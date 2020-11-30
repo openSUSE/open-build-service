@@ -1,4 +1,6 @@
 class WorkerStatus
+  WORKER_STATUS = ['building', 'idle', 'dead', 'down', 'away'].freeze
+
   class << self
     def hidden
       mydata = Rails.cache.read('workerstatus')
@@ -94,7 +96,7 @@ class WorkerStatus
     allworkers = {}
     workers = {}
 
-    ['building', 'idle', 'dead', 'down', 'away'].each do |state|
+    WORKER_STATUS.each do |state|
       wdata.search("//#{state}").each do |e|
         worker_id = e.attributes['workerid'].value
         # building+idle worker
@@ -102,11 +104,7 @@ class WorkerStatus
 
         workers[worker_id] = 1
         hostarch = e.attributes['hostarch'].value
-        allworkers["building_#{hostarch}"] ||= 0
-        allworkers["idle_#{hostarch}"] ||= 0
-        allworkers["away_#{hostarch}"] ||= 0
-        allworkers["dead_#{hostarch}"] ||= 0
-        allworkers["down_#{hostarch}"] ||= 0
+        WORKER_STATUS.each { |local_state| allworkers["#{local_state}_#{hostarch}"] ||= 0 }
         key = generic_key_generation([state, hostarch])
         allworkers[key] += 1
       end
