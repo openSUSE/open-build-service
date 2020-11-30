@@ -1019,7 +1019,7 @@ class BsRequest < ApplicationRecord
       when :maintenance_incident
         action[:name] = "Incident #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
-      when :maintenance_release
+      when :maintenance_release, :release
         action[:name] = "Release #{action[:spkg]}"
         action[:sourcediff] = xml.webui_infos(superseded_bs_request_action: xml.find_action_with_same_target(opts[:diff_to_superseded])) if with_diff
       end
