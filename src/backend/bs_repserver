@@ -81,7 +81,6 @@ use BSRepServer::Registry;
 use BSRepServer::YMP;
 use BSDispatcher::Constraints;
 use BSCando;
-use Build;
 
 # configure Build module for buildinfo queries
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
@@ -2152,7 +2151,12 @@ sub notify_jobresult {
   $ninfo{'endtime'} = $jobstatus->{'endtime'};
   $ninfo{'workerid'} = $jobstatus->{'workerid'};
   $ninfo{'previouslyfailed'} = 1 if -e "$reporoot/$prpa/:logfiles.fail/$info->{'package'}";
-  print "job statistics: $job $prpa $jobstatus->{'result'} $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'}\n";
+  # calculate buildtype for the job statistics
+  my $buildtype;
+  $buildtype = $1 if $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
+  $buildtype ||= Build::recipe2buildtype($info->{'file'}) || 'unknown';
+  $buildtype = $info->{'imagetype'} && ($info->{'imagetype'}->[0] || '') eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
+  print "job statistics: $job $prpa $jobstatus->{'result'} $ninfo{'readytime'}-$ninfo{'starttime'}-$ninfo{'endtime'} $jobstatus->{'workerid'} $buildtype\n";
   if ($jobstatus->{'result'} eq 'unchanged') {
     BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
   } elsif ($jobstatus->{'result'} eq 'succeeded') {
