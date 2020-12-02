@@ -122,6 +122,22 @@ sub oracle {
   return 1;
 }
 
+=head2 mergeconstraints_sandbox - merge two sandbox constraints
+
+=cut
+
+sub mergeconstraints_sandbox {
+  my ($sb, $sb2) = @_;
+  return $sb unless $sb2 && $sb2->{'_content'};
+  return $sb2 unless $sb && $sb->{'_content'};
+  my $ex = $sb->{'exclude'} && $sb->{'exclude'} eq 'true' ? 1 : 0;
+  my $ex2 = $sb2->{'exclude'} && $sb2->{'exclude'} eq 'true' ? 1 : 0;
+  return $sb2 if $ex == $ex2;		# overwrite if both are of same type
+  ($sb, $sb2) = ($sb2, $sb) if $ex;	# include+exclude. bring include to front
+  return { '_content' => 'cannot_merge_sandbox' } if ($sb->{'_content'} eq 'secure' && $secure_sandboxes{$sb2->{'_content'}}) || $sb->{'_content'} eq $sb2->{'_content'};
+  return $sb;
+}
+
 =head2 mergeconstraints - merge two constraint files
 
   and return the merged constraints
@@ -137,7 +153,7 @@ sub mergeconstraints {
       $con->{'hostlabel'} = [ @{$con->{'hostlabel'} || []},  @{$con2->{'hostlabel'}} ];
     }
     if ($con2->{'sandbox'}) {
-      $con->{'sandbox'} = $con2->{'sandbox'};
+      $con->{'sandbox'} = mergeconstraints_sandbox($con->{'sandbox'}, $con2->{'sandbox'});
     }
     if ($con2->{'linux'}) {
       $con->{'linux'}->{'flavor'} = $con2->{'linux'}->{'flavor'} if $con2->{'linux'}->{'flavor'};

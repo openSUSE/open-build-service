@@ -125,8 +125,7 @@ td sandbox16 true  "kernel" i586 large  ""  enforce_kvm
 # combined constraints for sandbox
 td sandbox21 false "kernel" i586 small  sandbox         enforce_kvm
 td sandbox22 false "kernel" i586 small  sandbox_secure  enforce_kvm
-# package constraints are more important here
-td sandbox23 true  "kernel" i586 medium sandbox         enforce_kvm
+td sandbox23 false "kernel" i586 medium sandbox         enforce_kvm
 td sandbox24 true  "kernel" i586 medium sandbox_secure  enforce_kvm
 td sandbox25 true  "kernel" i586 large  sandbox         enforce_kvm
 td sandbox26 true  "kernel" i586 large  sandbox_secure  enforce_kvm
