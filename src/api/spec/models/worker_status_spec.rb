@@ -112,7 +112,7 @@ RSpec.describe WorkerStatus do
 
     subject { WorkerStatus.new.update_workerstatus_cache }
 
-    it { expect { subject }.to change(StatusHistory, :count).from(0).to(20) }
+    it { expect { subject }.to change(StatusHistory, :count).from(0).to(23) }
 
     context 'it change the Architecture to active' do
       before do
