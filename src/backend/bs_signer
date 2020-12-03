@@ -522,10 +522,12 @@ sub rpmdelsign {
   }
 }
 
+my $prpa_stats;		# saved for statistic printing
+
 sub signjob {
   my ($job, $arch) = @_;
 
-  print "signing $arch/$job\n";
+  BSUtil::printlog("signing $arch/$job");
   local *F;
   if (! -e "$jobsdir/$arch/$job") {
     print "no such job\n";
@@ -546,6 +548,7 @@ sub signjob {
   die("jobdir does not exist\n") unless -d $jobdir;
   my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo);
   my $projid = $info->{'project'};
+  $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
   my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign|AppImage|appx|helminfo)$/} @files;
   my $needpubkey;
@@ -734,7 +737,7 @@ sub signjob {
       updateredisjobstatus($arch, $job, $info);
       unlink("$jobsdir/$arch/$job:status");
       close F;
-      return undef;
+      return 0;
     }
 
     # we have changed the file ids, thus we need to re-create
@@ -779,14 +782,33 @@ sub signjob {
   return 1;
 }
 
+sub signstats {
+  my ($req, $job, $prpa, $code, $starttime, $endtime) = @_;
+  my $ev = $req->{'ev'};
+  return unless $ev && $prpa;
+  my $createtime = $ev->{'time'} || $starttime;
+  my $flavor = $req->{'flavor'} || '-'; 
+  $flavor =~ s/\s/_/g;
+  $job =~ s/\s/_/g;
+  print "sign statistics: $job $prpa $code $createtime-$starttime-$endtime $flavor\n";
+}
+
 sub signevent {
   my ($req, $job, $arch) = @_;
 
+  my $starttime = time();
   my $res;
+  undef $prpa_stats;
   eval {
     $res = signjob($job, $arch);
   };
-  die("sign failed: $@") if $@;
+  if ($@) {
+    signstats($req, $job, $prpa_stats, 'failed', $starttime, time());
+    die("sign failed: $@");
+  }
+  if (defined($res)) {
+    signstats($req, $job, $prpa_stats, 'succeeded', $starttime, time());
+  }
   if ($res) {
     my $ev = $req->{'ev'};
     my $type = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};

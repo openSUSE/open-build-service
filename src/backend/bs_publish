@@ -2542,7 +2542,7 @@ sub publish {
   if (!$changed && !$dbgsplit) {
     print "    nothing changed\n";
     clean_blobdir($blobdir);
-    return;
+    return 'unchanged';
   }
 
   mkdir_p($extrep) unless -d $extrep;
@@ -3041,6 +3041,7 @@ publishprog_done:
     $repoinfo->{'publishid'} = $publishid;
     BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
   }
+  return 'succeeded';
 }
 
 sub clear_repoinfo_state {
@@ -3123,6 +3124,16 @@ sub syncdb {
   db_sync();
 }
 
+sub publishstats {
+  my ($req, $prp, $code, $starttime, $endtime) = @_;
+  my $ev = $req->{'ev'};
+  return unless $ev;
+  my $createtime = $ev->{'time'} || $starttime;
+  my $flavor = $req->{'flavor'} || '-';
+  $flavor =~ s/\s/_/g;
+  print "publish statistics: $prp/- $code $createtime-$starttime-$endtime $flavor\n";
+}
+
 sub publishevent {
   my ($req, $projid, $repoid) = @_;
 
@@ -3150,16 +3161,20 @@ sub publishevent {
   }
 
   notify_state($projid, $repoid, 'publishing');
+  my $code;
   eval {
-    publish($projid, $repoid);
+    $code = publish($projid, $repoid);
   };
   if ($@) {
+    my $now = time();
+    $code = 'failed';
     warn("publish failed for $projid/$repoid : $@");
     # delete state from repoinfo so that we will always re-publish
     my $err = $@;
     $err =~ s/\n.*//s;
     clear_repoinfo_state($prp, $err);
-    set_publish_retry($req, time() + 60);
+    set_publish_retry($req, $now + 60);
+    publishstats($req, $prp, $code, $starttime, $now);
     db_sync();
     BSUtil::printlog("publish failed for $prp") if $req->{'forked'};
     return 0;
@@ -3169,6 +3184,7 @@ sub publishevent {
   $publish_lasttime{$prp} = $now;
   $publish_duration{$prp} = $now - $starttime;
   writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
+  publishstats($req, $prp, $code, $starttime, $now);
   notify_state($projid, $repoid, 'published');
   db_sync();
   BSUtil::printlog("publish done for $prp") if $req->{'forked'};
