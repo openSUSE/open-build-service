@@ -32,11 +32,15 @@ class Webui::MainController < Webui::WebuiController
   def gather_busy
     busy = []
     starttime = (Time.now.utc - 7.days).to_i
-    Architecture.available.select(:name).distinct.each do |arch|
-      rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch.worker)
+    Architecture.available.map(&:worker).uniq.each do |arch|
+      rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
       values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
       values = StatusHelper.resample(values, 400)
-      busy = busy.empty? ? values : add_arrays(busy, values)
+      busy = if busy.empty?
+               values
+             elsif values.present?
+               add_arrays(busy, values)
+             end
     end
     busy
   end
