@@ -116,7 +116,10 @@ sub rm_rf {
 }
 
 sub run_source_update {
-  my ($cgi, $projid, $packid) = @_;
+  my ($cgi, $projid, $packid, $timeout) = @_;
+
+  # just as fallback for older servicedispatchers
+  $timeout ||= $BSConfig::service_timeout;
 
   # chdir into a clean temp directory
   my $myworkdir = "$tempdir/$$";
@@ -199,10 +202,9 @@ sub run_source_update {
 	die "500 timeout while execution of $name\n";
       };
 
-      # Wait $BSConfig::service_timeout or per default 7200 sec (2 hours) for
-      # service to finish
-      BSUtil::printlog("Waiting $BSConfig::service_timeout for service($child_pid) to finish\n") if $verbose;
-      alarm($BSConfig::service_timeout);
+      # Wait given timeout or $BSConfig::service_timeout for service to finish
+      BSUtil::printlog("Waiting $timeout for service($child_pid) to finish\n") if $verbose;
+      alarm($timeout);
 
       # collect output
       my $output = '';
@@ -305,7 +307,7 @@ my $dispatches = [
 
   '/service' => \&list_service,
   '/serverstatus' => \&BSStdServer::serverstatus,
-  '!- POST:/sourceupdate/$project/$package' => \&run_source_update,
+  '!- POST:/sourceupdate/$project/$package $timeout:num?' => \&run_source_update,
   # configuration
   'PUT:/configuration' => \&putconfiguration,
 ];
