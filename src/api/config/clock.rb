@@ -4,6 +4,10 @@ require File.dirname(__FILE__) + '/environment'
 require 'clockwork'
 
 module Clockwork
+  error_handler do |error|
+    Airbrake.notify(error)
+  end
+
   on(:before_run) do |event|
     InfluxDB::Rails.current.tags = {
       interface: :clock,
