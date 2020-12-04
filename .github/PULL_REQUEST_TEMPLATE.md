@@ -1,3 +1,19 @@
+_Replace this line with a description of your changes. Please follow the suggestions in the comment below._
+
+-----------------
+
+If this PR requires any particular action or consideration before deployment,
+please check the reasons or add your own to the list:
+
+* [ ] Requires a database migration that can cause downtime. Postpone deployment until maintenance window[1].
+* [ ] Contains a data migration that can cause temporary inconsistency, so should be run at a specific point of time.
+* [ ] Changes some configuration files (e.g. options.yml), so the changes have to be applied manually in the reference server.
+* [ ] A new Feature Toggle[2] should be enabled in the reference server.
+* [ ] Proper documentation or announcement has to be published upfront since the introduced changes can confuse the users.
+
+[1] https://github.com/openSUSE/open-build-service/wiki/Deployment-of-build.opensuse.org#when-there-are-migrations
+[2] https://github.com/openSUSE/open-build-service/wiki/Feature-Toggles-%28Flipper%29#you-want-real-people-to-test-your-feature
+
 <!---
 If you haven't done so already, please read the CONTRIBUTING.md file to learn
 how we work and what we expect from all contributors.
@@ -42,4 +58,6 @@ Here is a screenshot of how it looks:
 ** After **
 ![Screenshot of the project monitor](https://example.com/screenshot2.png)
 
+If this PR requires any particular action or consideration before deployment,
+set out the reasons by checking the items in the list or adding your own items.
 -->
