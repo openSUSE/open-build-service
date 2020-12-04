@@ -196,15 +196,17 @@ sub upload_all_containers {
     for my $p (sort keys %$containers) {
       my $containerinfo = $containers->{$p};
       my $arch = $containerinfo->{'arch'};
+      my $goarch = $containerinfo->{'goarch'};
+      $goarch .= ":$containerinfo->{'govariant'}" if $containerinfo->{'govariant'};
       my @tags = $mapper->($registry, $containerinfo, $projid, $repoid, $arch);
       for my $tag (@tags) {
 	my ($reponame, $repotag) = ($tag, 'latest');
 	($reponame, $repotag) = ($1, $2) if $tag =~ /^(.*):([^:\/]+)$/;
-	if ($uploads{$reponame}->{$repotag}->{$arch}) {
-	  my $otherinfo = $containers->{$uploads{$reponame}->{$repotag}->{$arch}};
+	if ($uploads{$reponame}->{$repotag}->{$goarch}) {
+	  my $otherinfo = $containers->{$uploads{$reponame}->{$repotag}->{$goarch}};
 	  next if cmp_containerinfo($otherinfo, $containerinfo) > 0;
 	}
-	$uploads{$reponame}->{$repotag}->{$arch} = $p;
+	$uploads{$reponame}->{$repotag}->{$goarch} = $p;
       }
     }
 
