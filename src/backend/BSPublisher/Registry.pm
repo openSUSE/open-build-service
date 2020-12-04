@@ -450,6 +450,7 @@ sub push_containers {
       next;
     }
     my $multiarchtag = $multiarch;
+    $multiarchtag = 1 if @{$tags->{$tag}} > 1;
     $multiarchtag = 0 if @{$tags->{$tag}} == 1 && ($tags->{$tag}->[0]->{'type'} || '') eq 'helm';
     die("must use multiarch if multiple containers are to be pushed\n") if @{$tags->{$tag}} > 1 && !$multiarchtag;
     my %multiplatforms;
