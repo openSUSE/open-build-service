@@ -34,11 +34,13 @@ class Webui::MainController < Webui::WebuiController
     starttime = (Time.now.utc - 7.days).to_i
     Architecture.available.map(&:worker).uniq.each do |arch|
       rel = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, 'building_' + arch)
+      next if rel.blank?
+
       values = rel.pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
       values = StatusHelper.resample(values, 400)
-      busy = if busy.empty?
+      busy = if busy.blank?
                values
-             elsif values.present?
+             else
                add_arrays(busy, values)
              end
     end
