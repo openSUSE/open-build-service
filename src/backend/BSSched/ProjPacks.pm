@@ -1182,15 +1182,58 @@ sub verify_projpacks_linked_blks {
   }
 }
 
+sub print_project_stats_perproject {
+  my ($str, $data, $str2) = @_;
+  my @d = sort {$a <=> $b} @$data;
+  my $cnt = @d;
+  my $sum = 0;
+  my $sum2 = 0;
+  $sum += $_ for @d;
+  $sum2 += $_ * $_ for @d;
+  $str .= " cnt:$cnt sum:$sum sum2:$sum2";
+  if ($cnt) {
+    for my $p (qw{0 0.5 1 5 10 20 30 40 50 60 70 80 90 95 99 99.5 100}) {
+      my $i = int($cnt * $p / 100);
+      $i = $cnt - 1 if $i >= $cnt; 
+      $str .= " $p:$d[$i]";
+    }
+  }
+  $str .= $str2 if $str2;
+  print "$str\n";
+}
+
+sub print_project_stats_new {
+  my ($gctx) = @_;
+  my $projpacks = $gctx->{'projpacks'} || {};
+  my @pkgperproject;
+  my @prpperproject;
+  my @ulprpperproject;
+  my $alllocked = $gctx->{'alllocked'};
+  my $nmissing;
+  for my $projid (keys %$projpacks) {
+    push @pkgperproject, scalar(keys(%{$projpacks->{$projid}->{'package'} || {}}));
+    $nmissing++ if $projpacks->{$projid}->{'missingpackages'};
+    my $numprps = scalar(@{$gctx->{'project_prps'}->{$projid} || []});
+    push @prpperproject, $numprps if $numprps;
+    my $nunlocked = scalar(grep {!$alllocked->{$_}} @{$gctx->{'project_prps'}->{$projid} || []});
+    push @ulprpperproject, $nunlocked if $nunlocked;
+  }
+  $nmissing = $nmissing ? " missing:$nmissing" : undef;
+  print_project_stats_perproject("pkg statistics:", \@pkgperproject, $nmissing);
+  print_project_stats_perproject("prp statistics:", \@prpperproject);
+  print_project_stats_perproject("ulprp statistics:", \@ulprpperproject);
+}
+
 sub print_project_stats {
   my ($gctx) = @_;
   print "project data statistics:\n";
   my $projpacks = $gctx->{'projpacks'} || {};
-  printf "  projects: %d\n", scalar(keys %$projpacks);
   my $pkg = 0;
   $pkg += keys(%{$projpacks->{$_}->{'package'} || {}}) for keys %$projpacks;
+  printf "  projects: %d\n", scalar(keys %$projpacks);
   printf "  packages: %d\n", $pkg;
   printf "  prps: %d\n", scalar(@{$gctx->{'prps'} || []});
+  printf "  alllocked: %d\n", scalar(keys %{$gctx->{'alllocked'} || {}});
   for my $what (qw{projpacks_linked projpacks_linked_blks prpsearchpath prpdeps rprpdeps expandedprojlink linked_projids channelids project_prps relatedprpdeps rrelatedprpdeps}) {
     my $w = $gctx->{$what};
     next unless $w;
@@ -1198,6 +1241,9 @@ sub print_project_stats {
     $e += @{$w->{$_}} for keys %$w;
     printf "  %s: %d %d\n", $what, scalar(keys %$w), $e;
   }
+  # print new statistics data
+  print_project_stats_new($gctx);
+  # verify data
   verify_projpacks_linked_blks($gctx);
 }
 

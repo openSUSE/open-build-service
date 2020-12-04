@@ -697,6 +697,7 @@ our $event = [
 	'package',
 	'job',
 	'worker',
+	'time',
 	'due',
 	'srcmd5',		# for type=servicedispatch
 	'rev',			# for type=servicedispatch

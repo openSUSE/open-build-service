@@ -371,7 +371,6 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
   }
   exit(0);
 }
-BSUtil::printlog("starting build service scheduler");
 
 # get lock
 mkdir_p($_rundir);
@@ -380,6 +379,9 @@ if (!$testprojid) {
   flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $_myarch!\n");
   utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
 }
+
+# print welcome message
+BSUtil::printlog("starting build service scheduler");
 
 # create directories
 for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $_infodir) {
@@ -771,8 +773,13 @@ my $gotevent = 1;
 $gotevent = 0 if $testprojid;
 
 my $lastschedinfo = 0;
+my $lastprojectstats = 0;
 my $initialstartup = 1;
 my %remotewatchers;	# XXX: put in gctx?
+
+# print project statistics
+BSSched::ProjPacks::print_project_stats($gctx);
+$lastprojectstats = time();
 
 
 ##
@@ -914,6 +921,12 @@ eval {
 
     $gctx->{'rctx'}->xrpc_printstats();
 
+    if ($lastprojectstats + 4 * 3600 < time()) {
+      BSUtil::printlog("dumping project statistics");
+      BSSched::ProjPacks::print_project_stats($gctx);
+      $lastprojectstats = time();
+    }
+
     if (!defined($prp)) {
       # nothing to do. good night, sleep tight...
       if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
@@ -926,7 +939,7 @@ eval {
       exit 0 if $testprojid;
       my $sleepstart = time();
       my @watchers = (values(%remotewatchers), $gctx->{'retryevents'}->events(), $gctx->{'rctx'}->xrpc_handles());
-      select_read(undef, $pingwatcher, @watchers);
+      select_read(3600, $pingwatcher, @watchers);
       $gctx->{'slept'} += time() - $sleepstart;
       next;
     }
