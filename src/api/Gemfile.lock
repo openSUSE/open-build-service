@@ -151,7 +151,7 @@ GEM
     faker (2.15.1)
       i18n (>= 1.6, < 2)
     ffi (1.13.1)
-    flipper (0.19.0)
+    flipper (0.19.1)
     flipper-active_record (0.19.0)
       activerecord (>= 5.0, < 7)
       flipper (~> 0.19.0)
