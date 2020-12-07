@@ -113,7 +113,7 @@ sub runservice {
 
   # check if in progress
   my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
-  return if $serviceerror ne 'service in progress';
+  return undef if $serviceerror ne 'service in progress';
  
   # get files to send to service daemon
   my $sendfiles = $files;
@@ -185,6 +185,7 @@ sub runservice {
   BSUtil::cleandir($odir);
   rmdir($odir);
   addrev_service($rev, $servicemark, $files, $error, $lxservicemd5);
+  return $error ? 'failed' : 'succeeded';
 }
 
 sub getevent {
@@ -201,16 +202,29 @@ sub getevent {
   return ($req, $notdue, $nofork);
 }
 
+sub servicedispatchstats {
+  my ($req, $job, $projid, $packid, $code, $starttime, $endtime) = @_;
+  my $ev = $req->{'ev'};
+  return unless $ev;
+  my $createtime = $ev->{'time'} || $starttime;
+  $job =~ s/\s/_/g;
+  print "servicedispatch statistics: $job $projid/$packid/- $code $createtime-$starttime-$endtime\n";
+}
+
 sub servicedispatchevent {
-  my ($req, @args) = @_;
+  my ($req, $projid, $packid, $job, @args) = @_;
+  my $starttime = time();
+  my $code;
   eval {
-    runservice(@args);
+    $code = runservice($projid, $packid, $job, @args);
   };
   if ($@) {
     # retry in 10 minutes
+    servicedispatchstats($req, $job, $projid, $packid, 'retry', $starttime, time());
     BSStdRunner::setdue($req, time() + 10 * 60);
     die($@);
   }
+  servicedispatchstats($req, $job, $projid, $packid, $code, $starttime, time()) if $code;
   return 1;
 }
 

@@ -294,6 +294,7 @@ sub runservice {
       'job' => $servicemark,
       'srcmd5' => $rev->{'srcmd5'},
       'rev' => $rev->{'rev'},
+      'time' => time(),
     };
     $ev->{'linksrcmd5'} = $lxservicemd5 if $lxservicemd5;
     $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
