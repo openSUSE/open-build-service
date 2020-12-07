@@ -798,6 +798,8 @@ if ($options->{testmode}) {
   exit(0);
 }
 
+my $laststats = 0;
+
 while (1) {
 
   if (-s "$jobsdir/finished") {
@@ -911,11 +913,15 @@ while (1) {
   }
   
   my %workerload;
+  my %numidle;
+  my %numbuilding;
 
   for (grep {!/^\./} ls("$workersdir/building")) {
     my $host = $_;
+    my ($harch) = split(':', $host, 2);
     $host =~ s/:\d+$//;
     $workerload{$host}->{$_} = 1;
+    $numbuilding{$harch}++;
   }
   my @idle = grep {!/^\./} ls("$workersdir/idle");
   my %idlearch;
@@ -926,6 +932,7 @@ while (1) {
     my $host = $idle;
     $host =~ s/:\d+$//;
     $workerload{$host}->{$idle} = 0;
+    $numidle{$harch}++;
     for (@{$cando{$harch} || []}) {
       push @{$idlearch{$_}}, $idle;
     }
@@ -936,6 +943,7 @@ while (1) {
   my @archs = sort keys %idlearch;
   my %archdone;
   my %crossarchlist;
+  my %archstats;
   while (@archs) {
     my $arch = shift @archs;
     next if $archdone{$arch};
@@ -1016,6 +1024,26 @@ while (1) {
 	}
       }
     }
+    my $nidle = @{$idlearch{$arch} || []};
+    my $nlocked = scalar(keys %locked);
+    my $nready = @b;
+    $archstats{$arch} = "$nlocked:$nready:$nidle";
+  }
+
+  # print statistics every minute
+  if ($laststats + 60 < $now) {
+    $laststats = $now;
+    my $workerstats = '';
+    for my $harch (sort keys %{ { %numidle, %numbuilding } }) {
+      my $nidle = $numidle{$harch} || 0;
+      my $nbuilding = $numbuilding{$harch} || 0;
+      $workerstats .= " $harch:$nbuilding:$nidle";
+    }
+    BSUtil::printlog("printing statistics");
+    print "worker statistics:$workerstats\n" if $workerstats;
+    my $queuestats = '';
+    $queuestats .= " $_:$archstats{$_}" for sort keys %archstats;
+    print "queue statistics:$queuestats\n" if $queuestats;
   }
 
   # calculate and distribute project load
