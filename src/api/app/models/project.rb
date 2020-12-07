@@ -531,7 +531,11 @@ class Project < ApplicationRecord
   def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
     a = find_attribute(namespace, name)
-    return Project.find_by_name(a.values[0].value) if a && a.values[0]
+    if a && a.values[0]
+      update_instance = Project.find_by_name(a.values[0].value)
+      return update_instance if update_instance
+      raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{a.values[0].value}"
+    end
 
     self
   end
