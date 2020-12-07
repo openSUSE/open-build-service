@@ -647,11 +647,6 @@ RSpec/AnyInstance:
     - 'spec/models/project_spec.rb'
     - 'spec/policies/package_policy_spec.rb'
 
-# Offense count: 2
-RSpec/BeforeAfterAll:
-  Exclude:
-    - 'spec/models/relationship_spec.rb'
-
 # Offense count: 804
 # Configuration parameters: Prefixes.
 # Prefixes: when, with, without
