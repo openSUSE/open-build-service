@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_10_14_105103) do
+ActiveRecord::Schema.define(version: 2020_12_09_105103) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -257,6 +257,7 @@ ActiveRecord::Schema.define(version: 2020_10_14_105103) do
 
   create_table "channels", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.integer "package_id", null: false
+    t.boolean "disabled"
     t.index ["package_id"], name: "index_unique", unique: true
   end
 

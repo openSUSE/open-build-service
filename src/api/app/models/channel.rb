@@ -42,6 +42,7 @@ class Channel < ApplicationRecord
   def update_from_xml(xmlhash)
     xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a?(String)
 
+    self.disabled = xmlhash.key?('disabled')
     _update_from_xml_targets(xmlhash)
     _update_from_xml_binary_lists(xmlhash)
 
@@ -90,6 +91,8 @@ class Channel < ApplicationRecord
   end
 
   def is_active?
+    return false if disabled
+
     # no targets defined, the project has some
     return true if channel_targets.size.zero?
 
@@ -186,6 +189,7 @@ end
 # Table name: channels
 #
 #  id         :integer          not null, primary key
+#  disabled   :boolean
 #  package_id :integer          not null, indexed
 #
 # Indexes

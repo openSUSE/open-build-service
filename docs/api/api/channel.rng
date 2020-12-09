@@ -9,6 +9,14 @@
 
   <define ns="" name="channel-element">
     <element name="channel">
+      <optional>
+        <element ns="" name="disabled">
+          <empty/>
+          <a:documentation>
+             For disabling the entire channel. The channel source won't be branched by default
+          </a:documentation>
+        </element>
+      </optional>
       <zeroOrMore>
         <ref name="channel-product-element"/>
       </zeroOrMore>
@@ -42,6 +50,9 @@
        <optional>
          <element ns="" name="disabled">
            <empty/>
+           <a:documentation>
+              For disabling the repository. The channel source will be branched but not build enabled by default
+           </a:documentation>
          </element>
        </optional>
      </element>
