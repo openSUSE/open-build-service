@@ -500,6 +500,7 @@ Parameters:
   view: The "info" view will show data like source version, md5sums and build description files. May be used together with parse, arch or repository parameter, optional
         "issues" can be used to show all tracked issues for all packages in project, optional
         "products" show all products of a package (works only on "_product" packages)
+        "productrepositories" show all repositories used in product definitions (or given product)
   extension: filter for file extension, optional
   lastworking: bool, show sources of last mergeable sources in case of conflicting changes, optional
   withlinked: bool, show all used package containers (in case of multiple link indirections) in linkinfo information, optional
