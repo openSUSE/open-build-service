@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar
+    xmlns="http://relaxng.org/ns/structure/1.0"
+    xmlns:a="http://www.example.com/annotation"
+    ns="http://buildservice.org/api"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng"/>
+
+  <start>
+    <ref name="resultlist-element"/>
+  </start>
+
+  <define ns="" name="resultlist-element">
+    <element ns="" name="resultlist">
+      <a:documentation>
+        This element contains a result element for each repository-architecture
+        combination that was requested by the API.
+      </a:documentation>
+      <attribute name="state">
+        <a:documentation>Hash of the returned results.</a:documentation>
+        <data type="string"/>
+      </attribute>
+
+      <zeroOrMore>
+        <element ns="" name="result">
+          <a:documentation>
+            This element contains the requested build results.
+            Each requested repository+architecture combination results in one
+            result element.
+          </a:documentation>
+
+          <attribute name="project">
+            <data type="string"/>
+          </attribute>
+          <attribute name="repository">
+            <data type="string"/>
+          </attribute>
+          <attribute name="arch">
+            <ref name="build-arch"/>
+          </attribute>
+          <attribute name="state">
+            <a:documentation>
+              Deprecated alias for the code attribute.
+            </a:documentation>
+            <ref name="repository-code"/>
+          </attribute>
+          <attribute name="code">
+            <ref name="repository-code"/>
+          </attribute>
+          <optional>
+            <attribute name="dirty">
+              <data type="boolean"/>
+              <a:documentation>
+                Specifies whether the repository is currently being recalculated
+                and has not "settled" yet.
+                Defaults to false and is omitted then.
+              </a:documentation>
+            </attribute>
+          </optional>
+
+          <interleave>
+            <zeroOrMore>
+              <element ns="" name="status">
+                <a:documentation>
+                  One status element is emitted per package (matching the
+                  requested filters) if `view=status` was present in the
+                  parameters to the GET request (or no `view` was specified).
+              </a:documentation>
+                <attribute name="package">
+                  <data type="string"/>
+                </attribute>
+                <attribute name="code">
+                  <ref name="package-code"/>
+                  <a:documentation>
+                    The state of the package with the name specified in the
+                    package attribute
+                </a:documentation>
+                </attribute>
+                <zeroOrMore>
+                  <element ns="" name="details">
+                    <a:documentation>
+                      Additional details provided for the package's status,
+                      e.g. the reason why it failed to resolve.
+                    </a:documentation>
+                    <text/>
+                  </element>
+                </zeroOrMore>
+              </element>
+            </zeroOrMore>
+
+            <optional>
+              <element ns="" name="summary">
+                <a:documentation>
+                  This element is present if `view=summary` is passed as a
+                  parameter to the GET request.
+
+                  It contains one `statuscount` element for each package status
+                  code that is present in this repository+architecture
+                  combination.
+                </a:documentation>
+
+                <zeroOrMore>
+                  <element name="statuscount">
+                    <a:documentation>
+                      This element contains the number of packages (in the
+                      `number` attribute) that have the package code from the
+                      `code` attribute. Package Codes with no occurrence are
+                      omitted.
+                    </a:documentation>
+
+                    <attribute name="code">
+                      <ref name="package-code"/>
+                    </attribute>
+                    <attribute name="count">
+                      <data type="nonNegativeInteger"/>
+                    </attribute>
+                  </element>
+                </zeroOrMore>
+
+              </element>
+            </optional>
+
+            <zeroOrMore>
+              <element ns="" name="binarylist" >
+                <a:documentation>
+                  This element is present if `view=binarylist` is passed as a
+                  parameter to the GET request.
+                  Each element belongs to an individual package (specified via
+                  the `package` attribute) and contains the list of the produced
+                  binaries as the `binary` child elements.  NOTE: this listing
+                  will by default *not* include binaries produced from
+                  multibuilds. These have to be explicitly included via the
+                  `multibuild=1` parameter
+                </a:documentation>
+
+                <attribute name="package">
+                  <data type="string"/>
+                </attribute>
+
+                <zeroOrMore>
+                  <element name="binary">
+                    <a:documentation>
+                      Each element corresponds to an individual file that was
+                      produced by a package build.
+                    </a:documentation>
+
+                    <attribute name="filename">
+                      <data type="string"/>
+                    </attribute>
+                    <attribute name="size">
+                      <a:documentation>
+                        The size of this file in bytes.
+                      </a:documentation>
+                      <data type="nonNegativeInteger"/>
+                    </attribute>
+                    <attribute name="mtime">
+                      <a:documentation>
+                        Unix time at which this binary was produced.
+                      </a:documentation>
+                      <data type="nonNegativeInteger"/>
+                    </attribute>
+                  </element>
+                </zeroOrMore>
+
+              </element>
+            </zeroOrMore>
+
+          </interleave>
+
+        </element>
+      </zeroOrMore>
+    </element>
+  </define>
+</grammar>

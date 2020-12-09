@@ -623,7 +623,7 @@ our $jobstatus = [
 	'details',
 	[],
 	'starttime',
-	'endtime',
+	'endtime',      # optional
 	'lastduration', # optional
 	'workerid',
 	'hostarch',

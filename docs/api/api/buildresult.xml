@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resultlist state="461ddf5de68edf6bdeee1a28300c2e67">
-  <result project="tools" repository="openSUSE_11.3" arch="i568" state="published">
+  <result project="tools" repository="openSUSE_11.3" arch="i586" state="published" code="published">
     <status package="screwdriver" code="failed">
       <details>RPM exit code -7</details>
     </status>
@@ -12,8 +12,8 @@
         <details>nothing provides libqt4-devel</details>
     </status>
   </result>
-  <result project="tools" repository="openSUSE_11.3" arch="ppc" state="unknown"/>
-  <result project="tools" repository="openSUSE_11.3" arch="x86_64" state="building">
+  <result project="tools" repository="openSUSE_11.3" arch="ppc" state="unknown" code="unknown"/>
+  <result project="tools" repository="openSUSE_11.3" arch="x86_64" state="building" code="building">
     <status package="screwdriver" code="failed">
       <details>RPM exit code -7</details>
     </status>
