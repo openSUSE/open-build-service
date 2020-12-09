@@ -1385,6 +1385,9 @@ class Package < ApplicationRecord
   end
 
   def _add_channel(mode, channel_binary, message)
+    # set to disabled
+    return if channel_binary.channel_binary_list.channel.disabled
+
     # add source container
     return if mode == :skip_disabled && !channel_binary.channel_binary_list.channel.is_active?
 
