@@ -12,7 +12,7 @@ class UserLdapStrategy
 
   def local_permission_check(roles, object)
     groups = object.relationships.groups
-    local_permission_check_with_ldap(groups.where('role_id in (?)', roles))
+    local_permission_check_with_ldap(groups.where(role_id: roles))
   end
 
   def groups(user)

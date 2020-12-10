@@ -181,9 +181,9 @@ class StatisticsController < ApplicationController
 
     # get devel projects
     ids = Package.joins('left outer join packages d on d.develpackage_id = packages.id')
-                 .where('d.project_id = ?', @project.id).distinct.order('packages.project_id').pluck('packages.project_id')
+                 .where('d.project_id' => @project.id).distinct.order('packages.project_id').pluck('packages.project_id')
     ids << @project.id
-    projects = Project.where('id in (?)', ids).pluck(:name)
+    projects = Project.where(id: ids).pluck(:name)
 
     # get all requests to it
     actions = BsRequestAction.where(target_project: projects).select(:bs_request_id)

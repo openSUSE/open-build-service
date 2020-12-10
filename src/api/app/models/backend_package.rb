@@ -12,7 +12,7 @@ class BackendPackage < ApplicationRecord
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
   scope :links, -> { where.not(links_to_id: nil) }
-  scope :not_links, -> { where('links_to_id is null') }
+  scope :not_links, -> { where(links_to_id: nil) }
 
   #### Validations macros
   #### Class methods using self. (public and then private)

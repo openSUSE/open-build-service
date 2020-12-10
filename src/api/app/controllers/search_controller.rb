@@ -296,14 +296,14 @@ class SearchController < ApplicationController
 
     # get the values associated with the attributes and store them
     attribs = attribs.pluck(:id, :package_id)
-    values = AttribValue.where('attrib_id IN (?)', attribs.collect { |a| a[0] })
+    values = AttribValue.where(attrib_id: attribs.collect { |a| a[0] })
     attrib_values = {}
     values.each do |v|
       attrib_values[v.attrib_id] ||= []
       attrib_values[v.attrib_id] << v
     end
     # retrieve the package name and project for the attributes
-    packages = Package.where('packages.id IN (?)', attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
+    packages = Package.where('packages.id' => attribs.collect { |a| a[1] }).pluck(:id, :name, :project_id)
     pack2attrib = {}
     attribs.each do |attrib_id, pkg|
       pack2attrib[pkg] = attrib_id

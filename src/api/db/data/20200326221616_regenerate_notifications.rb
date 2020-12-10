@@ -79,7 +79,7 @@ class RegenerateNotifications < ActiveRecord::Migration[5.2]
   # ReviewWanted Notifications
 
   def create_review_wanted_notifications
-    new_reviews = Review.where(state: 'new').joins(:bs_request).where('bs_requests.state = ?', 'review')
+    new_reviews = Review.where(state: 'new').joins(:bs_request).where('bs_requests.state' => 'review')
 
     new_reviews.each do |review|
       params = review.event_parameters(review.bs_request.event_parameters)
