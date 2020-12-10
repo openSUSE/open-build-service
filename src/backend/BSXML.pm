@@ -266,6 +266,8 @@ our $patchinfo = [
 
 our $channel = [
     'channel' =>
+      [],
+      'disabled',
       [ 'product' =>
             'project',
             'name',
