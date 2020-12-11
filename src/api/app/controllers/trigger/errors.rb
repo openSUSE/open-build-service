@@ -18,6 +18,9 @@ module Trigger::Errors
   class NoPermissionForPackage < APIError
   end
 
+  class NoPermissionForProject < APIError
+  end
+
   class NoRepositoryCouldBeReleased < APIError
   end
 
