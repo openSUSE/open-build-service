@@ -87,6 +87,7 @@ my $vm_worker_instance;
 my $vmdisk_rootsize;
 my $vmdisk_swapsize;
 my $vmdisk_filesystem;
+my $vmdisk_filesystem_options;
 my $vmdisk_mount_options;
 my $vmdisk_clean;
 my $emulator_script;
@@ -528,6 +529,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vmdisk-filesystem') {
     shift @ARGV;
     $vmdisk_filesystem = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vmdisk-filesystem-options') {
+    shift @ARGV;
+    $vmdisk_filesystem_options = shift @ARGV;
     next;
   }
   if ($ARGV[0] eq '--vmdisk-mount-options') {
@@ -3242,6 +3248,7 @@ sub dobuild {
   if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
     # allow overriding the filesystem type via the build config
     my $filesystemtype = $bconf->{'buildflags:vmfstype'} || $vmdisk_filesystem;
+    my $filesystemoptions = $bconf->{'buildflags:vmfsoptions'} || $vmdisk_filesystem_options;
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     push @args, '--vm-type', $vm;
@@ -3259,6 +3266,7 @@ sub dobuild {
     push @args, '--vmdisk-rootsize', $vmdisk_rootsize if $vmdisk_rootsize;
     push @args, '--vmdisk-swapsize', $vmdisk_swapsize if $vmdisk_swapsize;
     push @args, '--vmdisk-filesystem', $filesystemtype if $filesystemtype;
+    push @args, '--vmdisk-filesystem-options', $filesystemoptions if $filesystemoptions;
     push @args, "--vmdisk-mount-options=$vmdisk_mount_options" if $vmdisk_mount_options;
     push @args, '--vmdisk-clean'if $vmdisk_clean;
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
