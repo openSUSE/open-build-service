@@ -99,7 +99,7 @@ sub unpack_raw {
   }
   my ($tag, $l) = unpack("CC", $in);
   if ($allowed) {
-    if (!grep {defined($_) && $tag == $_}  @$allowed) {
+    if (!grep {defined($_) && ($tag == $_ || !$_)} @$allowed) {
       return ($in, undef, undef, '') if $optional || grep {!defined($_)} @{$allowed || []};
       die("unexpected tag $tag, expected @$allowed\n");
     }
