@@ -47,7 +47,7 @@ class IssueTracker < ApplicationRecord
   end
 
   def get_markdown(text)
-    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for(Regexp.last_match(1), false)})" }
+    text.gsub(Regexp.new(regex)) { "[#{Regexp.last_match(0)}](#{show_url_for(Regexp.last_match(1), false)})" }
   end
 
   def update_issues_github
