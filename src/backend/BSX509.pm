@@ -41,7 +41,11 @@ our $oid_sha1			= BSASN1::pack_obj_id(1, 3, 14, 3, 2, 26);
 our $oid_sha256			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 1);
 our $oid_sha512			= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 2, 3);
 our $oid_id_dsa			= BSASN1::pack_obj_id(1, 2, 840, 10040, 4, 1);
+our $oid_id_dsa_with_sha1	= BSASN1::pack_obj_id(1, 2, 840, 10040, 4, 3);
+our $oid_id_dsa_with_sha256	= BSASN1::pack_obj_id(2, 16, 840, 1, 101, 3, 4, 3, 2);
 our $oid_id_ec_public_key	= BSASN1::pack_obj_id(1, 2, 840, 10045, 2, 1);
+our $oid_id_ecdsa_with_sha1	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 1);
+our $oid_id_ecdsa_with_sha256	= BSASN1::pack_obj_id(1, 2, 840, 10045, 4, 3, 2);
 our $oid_prime256v1		= BSASN1::pack_obj_id(1, 2, 840, 10045, 3, 1, 7);
 our $oid_rsaencryption		= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 1);
 our $oid_sha1withrsaencryption	= BSASN1::pack_obj_id(1, 2, 840, 113549, 1, 1, 5);
@@ -181,6 +185,47 @@ sub unpack_validity {
   return ($begins, $expires);
 }
 
+sub pack_sigalgo {
+  my ($algo, $hash, $params) = @_;
+  die("pack_sigalgo: need pubkey algorithm\n") unless $algo;
+  my $oid;
+  if (defined($hash)) {
+    $oid = $oid_sha1withrsaencryption if $algo eq 'rsa' && $hash eq 'sha1';
+    $oid = $oid_sha256withrsaencryption if $algo eq 'rsa' && $hash eq 'sha256';
+    $oid = $oid_id_dsa_with_sha1 if $algo eq 'dsa' && $hash eq 'sha1';
+    $oid = $oid_id_dsa_with_sha256 if $algo eq 'dsa' && $hash eq 'sha256';
+    $oid = $oid_id_ecdsa_with_sha1 if $algo eq 'ecdsa' && $hash eq 'sha1';
+    $oid = $oid_id_ecdsa_with_sha256 if $algo eq 'ecdsa' && $hash eq 'sha256';
+    die("unknown algo/hash combination: $algo/$hash\n") unless $oid;
+  } else {
+    $oid = $oid_rsaencryption if $algo eq 'rsa';
+    $oid = $oid_id_dsa if $algo eq 'dsa';
+    $oid = $oid_id_ec_public_key if $algo eq 'ecdsa';
+    $oid = $oid_ed25519 if $algo eq 'ed25519';
+    $oid = $oid_ed448 if $algo eq 'ed448';
+    $oid = BSASN1::pack_obj_id(split(/\./, $algo)) if !$oid && $algo =~ /^\d+\.\d+(?:\.\d+)+$/;
+    die("unknown algo: $algo\n") unless $oid;
+  }
+  $params = BSASN1::pack_null() if !defined($params) && $algo eq 'rsa';
+  return BSASN1::pack_sequence($oid, $params);
+}
+
+sub unpack_sigalgo {
+  my ($oid, $params) = BSASN1::unpack_sequence($_[0], $_[1], [ $BSASN1::OBJ_ID, [0, undef] ]);
+  return 'rsa', undef, $params if $oid eq $oid_rsaencryption;
+  return 'dsa', undef, $params if $oid eq $oid_id_dsa;
+  return 'ecdsa', undef, $params if $oid eq $oid_id_ec_public_key;
+  return 'ed25519', undef, $params if $oid eq $oid_ed25519;
+  return 'ed448', undef, $params if $oid eq $oid_ed448;
+  return 'rsa', 'sha1', $params if $oid eq $oid_sha1withrsaencryption;
+  return 'rsa', 'sha256', $params if $oid eq $oid_sha256withrsaencryption;
+  return 'dsa', 'sha1', $params if $oid eq $oid_id_dsa_with_sha1;
+  return 'dsa', 'sha256', $params if $oid eq $oid_id_dsa_with_sha256;
+  return 'ecdsa', 'sha1', $params if $oid eq $oid_id_ecdsa_with_sha1;
+  return 'ecdsa', 'sha256', $params if $oid eq $oid_id_ecdsa_with_sha256;
+  return oid2str($oid), undef, $params;
+}
+
 sub generate_key_id {
   my ($subjectpublickeyinfo) = @_;
   my ($algoident, $bits) = BSASN1::unpack_sequence($subjectpublickeyinfo);
@@ -226,21 +271,7 @@ sub keydata_getmpi {
 sub pubkey2keydata {
   my ($subjectpublickeyinfo) = @_;
   my ($algoident, $bits) = BSASN1::unpack_sequence($subjectpublickeyinfo);
-  my ($algooid, $algoparams) = BSASN1::unpack_sequence($algoident);
-  my $algo;
-  if ($algooid eq $oid_rsaencryption) {
-    $algo = 'rsa';
-  } elsif ($algooid eq $oid_id_dsa) {
-    $algo = 'dsa';
-  } elsif ($algooid eq $oid_id_ec_public_key) {
-    $algo = 'ecdsa';
-  } elsif ($algooid eq $oid_ed25519) {
-    $algo = 'ed25519';
-  } elsif ($algooid eq $oid_ed448) {
-    $algo = 'ed448';
-  } else {
-    die("unknown pubkey algorithm\n");
-  }
+  my ($algo, $hash, $algoparams) = unpack_sigalgo($algoident);
   $bits = BSASN1::unpack_bytes($bits);
   my @mpis;
   my $res = { 'algo' => $algo };
