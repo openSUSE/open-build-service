@@ -1,5 +1,6 @@
 class Webui::StatusMessagesController < Webui::WebuiController
-  before_action :require_login
+  # TODO: Remove this when we'll refactor kerberos_auth
+  before_action :kerberos_auth
   after_action :verify_authorized
 
   def new
@@ -31,7 +32,7 @@ class Webui::StatusMessagesController < Webui::WebuiController
   end
 
   def acknowledge
-    status_message = authorize StatusMessage.find(params[:id]), :show?
+    status_message = authorize StatusMessage.find(params[:id])
 
     collect_metrics(status_message) if status_message.acknowledge!
 
@@ -42,11 +43,15 @@ class Webui::StatusMessagesController < Webui::WebuiController
 
   private
 
+  def authorize(*args, **kwargs)
+    super(*args, policy_class: Webui::StatusMessagePolicy, **kwargs)
+  end
+
   def collect_metrics(status_message)
     RabbitmqBus.send_to_bus('metrics', "user.acknowledged_status_message status_message_id=#{status_message.id}")
   end
 
   def status_message_params
-    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(user: User.session!)
+    params.require(:status_message).permit(:message, :severity, :communication_scope).merge(user: User.session)
   end
 end
