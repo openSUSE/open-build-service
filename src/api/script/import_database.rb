@@ -83,7 +83,7 @@ def import_dump
   password = config[environment]['password']
   filename = @params[:path] || options[environment]['backup_filename']
 
-  cmds = ["bzcat #{File.join(@data_path, filename)}"]
+  cmds = ["xz -d #{File.join(@data_path, filename)}"]
   unless TABLES_TO_REMOVE.empty?
     cmds << TABLES_TO_REMOVE.map do |table|
       "sed '/-- Dumping data for table `#{table}`/,/-- Table structure for table/{//!d}'"

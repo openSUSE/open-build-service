@@ -158,7 +158,7 @@ default: &default
   backup_server: foo.bar
   backup_user: tux
   backup_location: /home/tux
-  backup_filename: obs_production.sql.bz2
+  backup_filename: obs_production.sql.xz
   backup_port: 22
 
   # Rabbitmq based message bus
