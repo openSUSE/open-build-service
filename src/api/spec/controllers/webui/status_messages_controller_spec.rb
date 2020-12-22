@@ -4,7 +4,22 @@ RSpec.describe Webui::StatusMessagesController do
   let(:user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
+  describe 'GET new' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :new }
+    end
+  end
+
   describe 'POST create' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :create }
+      let(:opts) do
+        { params: { status_message: { message: 'Some message' } } }
+      end
+    end
+
     it 'create a status message' do
       login(admin_user)
 
@@ -76,6 +91,14 @@ RSpec.describe Webui::StatusMessagesController do
   describe 'DELETE destroy' do
     let!(:message) { create(:status_message, user: admin_user) }
 
+    it_behaves_like 'require logged in user' do
+      let(:method) { :delete }
+      let(:action) { :destroy }
+      let(:opts) do
+        { params: { id: message.id } }
+      end
+    end
+
     context 'as an admin' do
       before do
         login(admin_user)
@@ -101,6 +124,14 @@ RSpec.describe Webui::StatusMessagesController do
 
   describe 'POST acknowledge' do
     let(:message) { create(:status_message, user: admin_user) }
+
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :acknowledge }
+      let(:opts) do
+        { params: { id: message.id } }
+      end
+    end
 
     context 'when the status message is not yet acknowledged' do
       before do
