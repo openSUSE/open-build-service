@@ -550,7 +550,7 @@ sub signjob {
   my $projid = $info->{'project'};
   $prpa_stats = "$projid/$info->{'repository'}/$arch";
   my @files = sort(ls($jobdir));
-  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|rsasign|AppImage|appx|helminfo)$/} @files;
+  my @signfiles = grep {/\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|rsasign|AppImage|appx|helminfo)$/} @files;
   my $needpubkey;
   if (grep {$_ eq '.kiwitree_tosign'} @files) {
     for my $f (split("\n", readstr("$jobdir/.kiwitree_tosign"))) {
@@ -634,7 +634,7 @@ sub signjob {
 	my @signmode;
 	@signmode = ('-r', '-T', $signtime) if $signtime;
 	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
-	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
+	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz|zst)$/;
 	@signmode = ('-a') if $signfile =~ /\.AppImage$/;
 	@signmode = ('-d') if $signfile =~ /\.sha256$/;
 	if ($signfile =~ /\.key$/s) {

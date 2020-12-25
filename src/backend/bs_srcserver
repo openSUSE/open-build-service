@@ -5027,7 +5027,7 @@ sub binary_key_to_name {
   $key =~ s/.*\///;
   return $1 if $key =~ /^(.*)-[^-]+-[^-]+\.[^\.]+\.rpm$/;
   return $1 if $key =~ /^(.*)_[^_]+_[^_]+\.deb$/;
-  return $1 if $key =~ /^(.*)-[^-]+-[^-]+-[^-]+\.pkg\.tar\.(?:xz|gz|zstd)$/;
+  return $1 if $key =~ /^(.*)-[^-]+-[^-]+-[^-]+\.pkg\.tar\.(?:xz|gz|zst)$/;
   return ();
 }
 
@@ -5035,7 +5035,7 @@ sub binary_key_to_type {
   my ($db, $key) = @_;
   return 'rpm' if $key =~ /\.rpm$/;
   return 'deb' if $key =~ /\.deb$/;
-  return 'arch' if $key =~ /\.pkg\.tar\.(?:xz|gz|zstd)$/;
+  return 'arch' if $key =~ /\.pkg\.tar\.(?:xz|gz|zst)$/;
   return ();
 }
 
@@ -5049,7 +5049,7 @@ sub binary_key_to_data {
     $versrel = $1;
   } elsif ($name =~ s/_([^_]+)_[^_]+\.deb$//) {
     $versrel = $1;
-  } elsif ($name =~ s/-([^-]+-[^-]+)-[^-]+\.pkg\.tar\.(?:xz|gz|zstd)$//) {
+  } elsif ($name =~ s/-([^-]+-[^-]+)-[^-]+\.pkg\.tar\.(?:xz|gz|zst)$//) {
     $versrel = $1;
   }
   my ($version, $release) = ($versrel, undef);
@@ -5069,7 +5069,7 @@ sub binary_key_to_data {
   my $type;
   $type = 'rpm' if $binary =~ /\.rpm$/;
   $type = 'deb' if $binary =~ /\.deb$/;
-  $type = 'arch' if $binary =~ /\.pkg\.tar\.(?:xz|gz|zstd)$/;
+  $type = 'arch' if $binary =~ /\.pkg\.tar\.(?:xz|gz|zst)$/;
   my $res = {
     'name' => $name,
     'versrel' => $versrel,
@@ -5150,7 +5150,7 @@ sub published_binary_projectindexfunc {
       my $repoorigins = $prp_to_repoorigins{$prp} || prp_to_repoorigins($prp, $db);
       for (keys %{$repoorigins || {}}) {
 	# keep in sync with updatebinaryindex in bs_publish
-	next unless /\.(?:rpm|deb|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zstd)$/;
+	next unless /\.(?:rpm|deb|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst)$/;
 	$bins{"$prp_ext/$_"} = 1;
       }
       last if defined $dbgsplit;
@@ -5415,7 +5415,7 @@ sub published_path {
       $p = "$1/$bin";
     } elsif ($bin =~ /\.exe$/) {
       $p = $bin;
-    } elsif ($bin =~ /\.pkg\.tar(?:\.gz|\.xz|\.zstd)$/) {
+    } elsif ($bin =~ /\.pkg\.tar(?:\.gz|\.xz|\.zst)$/) {
       $p = ($cgi->{'arch'} eq 'i586' ? 'i686' : $cgi->{'arch'})."/$bin";
     } elsif ($bin =~ /\.iso(?:\.report)$/) {
       $p = "iso/$bin";

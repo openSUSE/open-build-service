@@ -652,7 +652,7 @@ sub convertpackagebinarylist {
           $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
         } elsif ($filename =~ /^([^\/]+)_[^\/]*_([^\/]*)\.deb$/) {
           $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
-        } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
+        } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\.(?:gz|xz|zst)$/) {
           $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
         } elsif ($filename eq '.nouseforbuild') {
           $bins{$filename} = {};

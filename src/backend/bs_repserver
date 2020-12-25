@@ -2416,7 +2416,7 @@ sub putjob {
 
   my $ev = {'type' => 'built', 'arch' => $arch, 'job' => $job};
 
-  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar.xz|AppImage|deb|appx|helminfo)$/} @$uploaded)) {
+  if ($BSConfig::sign && (@{$kiwitree_tosign || []} || grep {$_->{'name'} =~ /\.(?:d?rpm|sha256|iso|pkg\.tar\.gz|pkg\.tar\.xz|pkg\.tar\.zst|AppImage|deb|appx|helminfo)$/} @$uploaded)) {
     if (@{$kiwitree_tosign || []}) {
       my $c = '';
       $c .= BSHTTP::urlencode($_)."\n" for @$kiwitree_tosign;
