@@ -59,17 +59,18 @@ end
 # Table name: status_checks
 #
 #  id                :integer          not null, primary key
-#  name              :string(255)
+#  name              :string(255)      indexed => [status_reports_id]
 #  short_description :string(255)
 #  state             :string(255)
 #  url               :string(255)
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
-#  status_reports_id :integer          indexed
+#  status_reports_id :integer          indexed => [name], indexed
 #
 # Indexes
 #
-#  index_status_checks_on_status_reports_id  (status_reports_id)
+#  index_status_checks_on_name_and_status_reports_id  (name,status_reports_id) UNIQUE
+#  index_status_checks_on_status_reports_id           (status_reports_id)
 #
 # Foreign Keys
 #
