@@ -457,4 +457,14 @@
       <value>unchanged</value>
     </choice>
   </define>
+
+  <define ns="" name="token-kind">
+    <choice>
+      <value>rss</value>
+      <value>rebuild</value>
+      <value>release</value>
+      <value>runservice</value>
+    </choice>
+  </define>
+
 </grammar>
