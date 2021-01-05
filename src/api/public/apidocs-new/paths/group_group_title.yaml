@@ -1,0 +1,143 @@
+get:
+  summary: Read group data.
+  description: Read group data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/group.yaml'
+    '401':
+      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find Group 'group-testd'
+  tags:
+    - Groups
+
+post:
+  summary: Modify group data.
+  description: Modify group data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+    - in: query
+      name: cmd
+      schema:
+        type: string
+        enum: [add_user, remove_user, set_email]
+      description: |
+        Command to be executed. It takes one of these available values:
+        * `add_user`: add a user to a group. `userid` query parameter must be also used.
+        * `remove_user`: remove a user from a group. `userid` query parameter must be also used.
+        * `set_email`: set email adress of group. `email` query parameter must be also used.
+    - in: query
+      name: userid
+      schema:
+        type: string
+      description: User login. Used with `cmd=add_user` or `cmd=remove_user`.
+    - in: query
+      name: email
+      schema:
+        type: string
+      description: Group email. Used with `cmd=set_email`.
+  responses:
+    '200':
+      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+          example:
+            code: bad_request
+            summary: cmd must be set to add_user or remove_user
+    '401':
+      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+          examples:
+            user_not_found:
+              value:
+                code: not_found
+                summary: Couldn't find User with login = user_test
+              summary: User Not Found
+            group_not_found:
+              value:
+                code: not_found
+                summary: Couldn't find Group 'group-testd'
+              summary: Group Not Found
+  tags:
+    - Groups
+
+put:
+  summary: Write group data.
+  description: Write group data.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+  requestBody:
+    description: Group definition.
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '/apidocs-new/components/schemas/group.yaml'
+  responses:
+    '200':
+      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+    '401':
+      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find Group 'group-testd'
+  tags:
+    - Groups
+
+delete:
+  summary: Delete a group.
+  description: Delete a group.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+  responses:
+    '200':
+      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+    '401':
+      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find Group 'group-testd'
+  tags:
+    - Groups
