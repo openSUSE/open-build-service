@@ -23,70 +23,10 @@ paths:
     $ref: '/apidocs-new/paths/about.yaml'
 
   /architectures:
-    get:
-      summary: List all known architectures.
-      description: >
-        Get a list of all known architectures known to OBS in general.
-        This is not the list of architectures provided by this instance. Check the
-        schedulers element from the `/configuration` route for this.
-      security:
-        - basic_authentication: []
-      responses:
-        '200':
-          description: OK. The request has succeeded.
-          content:
-            application/xml; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/directory'
-              example:
-                count: '4'
-                entry:
-                  - name: 'aarch64'
-                  - name: 'armv7l'
-                  - name: 's390x'
-                  - name: 'x86_64'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-      tags:
-        - General Information
+    $ref: '/apidocs-new/paths/architectures.yaml'
 
   /architectures/{architecture_name}:
-    get:
-      summary: Show one architecture.
-      description: Show information about one architecture.
-      security:
-        - basic_authentication: []
-      parameters:
-        - $ref: '#/components/parameters/architecture_name'
-      responses:
-        '200':
-          description: OK. The request has succeeded.
-          content:
-            application/xml; charset=utf-8:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                    xml:
-                      attribute: true
-                xml:
-                  name: architecture
-                example:
-                  name: 'x86_64'
-        '401':
-          $ref: '#/components/responses/unauthorized'
-        '404':
-          description: Not Found.
-          content:
-            application/xml; charset=utf-8:
-              schema:
-                $ref: '#/components/schemas/api_response'
-              example:
-                code: unknown_architecture
-                summary: 'Architecture does not exist: x999'
-      tags:
-        - General Information
+    $ref: '/apidocs-new/paths/architectures_architecture_name.yaml'
 
   /group:
     get:
@@ -100,14 +40,14 @@ paths:
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/directory'
+                $ref: '/apidocs-new/components/schemas/directory.yaml'
               example:
                 count: '2'
                 entry:
                   - name: 'group-admin'
                   - name: 'group-test'
         '401':
-          $ref: '#/components/responses/unauthorized'
+          $ref: '/apidocs-new/components/responses/unauthorized.yaml'
       tags:
         - Groups
 
@@ -127,13 +67,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/group'
         '401':
-          $ref: '#/components/responses/unauthorized'
+          $ref: '/apidocs-new/components/responses/unauthorized.yaml'
         '404':
           description: Not Found.
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/api_response'
+                $ref: '/apidocs-new/components/schemas/api_response.yaml'
               example:
                 code: not_found
                 summary: Couldn't find Group 'group-testd'
@@ -175,18 +115,18 @@ paths:
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/api_response'
+                $ref: '/apidocs-new/components/schemas/api_response.yaml'
               example:
                 code: bad_request
                 summary: cmd must be set to add_user or remove_user
         '401':
-          $ref: '#/components/responses/unauthorized'
+          $ref: '/apidocs-new/components/responses/unauthorized.yaml'
         '404':
           description: Not Found.
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/api_response'
+                $ref: '/apidocs-new/components/schemas/api_response.yaml'
               examples:
                 user_not_found:
                   value:
@@ -219,13 +159,13 @@ paths:
         '200':
           $ref: '#/components/responses/succeeded'
         '401':
-          $ref: '#/components/responses/unauthorized'
+          $ref: '/apidocs-new/components/responses/unauthorized.yaml'
         '404':
           description: Not Found.
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/api_response'
+                $ref: '/apidocs-new/components/schemas/api_response.yaml'
               example:
                 code: not_found
                 summary: Couldn't find Group 'group-testd'
@@ -243,13 +183,13 @@ paths:
         '200':
           $ref: '#/components/responses/succeeded'
         '401':
-          $ref: '#/components/responses/unauthorized'
+          $ref: '/apidocs-new/components/responses/unauthorized.yaml'
         '404':
           description: Not Found.
           content:
             application/xml; charset=utf-8:
               schema:
-                $ref: '#/components/schemas/api_response'
+                $ref: '/apidocs-new/components/schemas/api_response.yaml'
               example:
                 code: not_found
                 summary: Couldn't find Group 'group-testd'
@@ -258,14 +198,6 @@ paths:
 
 components:
   parameters:
-    architecture_name:
-      in: path
-      name: architecture_name
-      schema:
-        type: string
-      required: true
-      description: Architecture name
-      example: x86_64
     group:
       in: query
       name: group
@@ -283,37 +215,6 @@ components:
       example: group-test
 
   schemas:
-    api_response:
-      type: object
-      properties:
-        code:
-          type: string
-          xml:
-            attribute: true
-        summary:
-          type: string
-      xml:
-        name: status
-
-    directory:
-      type: object
-      properties:
-        count:
-          type: integer
-          xml:
-            attribute: true
-        entry:
-          type: array
-          items:
-            type: object
-            properties:
-              name:
-                type: string
-                xml:
-                  attribute: true
-      xml:
-        name: directory
-
     group:
       type: object
       properties:
@@ -349,7 +250,7 @@ components:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '#/components/schemas/api_response'
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
           example:
             code: not_found
             summary: Not Found
@@ -359,28 +260,10 @@ components:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '#/components/schemas/api_response'
+            $ref: '/apidocs-new/components/schemas/api_response.yaml'
           example:
             code: ok
             summary: Ok
-
-    unauthorized:
-      description: Unauthorized.
-      content:
-        application/xml; charset=utf-8:
-          schema:
-            $ref: '#/components/schemas/api_response'
-          examples:
-            anonymous_user:
-              value:
-                code: anonymous_user
-                summary: Anonymous user is not allowed here - please login
-              summary: Anonymous User
-            authentication_required:
-              value:
-                code: authentication_required
-                summary: Unknown user 'Admin' or invalid password
-              summary: Authentication Required
 
   securitySchemes:
     basic_authentication:
