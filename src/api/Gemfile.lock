@@ -306,7 +306,7 @@ GEM
     rantly (2.0.0)
     rbtree3 (0.6.0)
     rdoc (6.2.1)
-    redcarpet (3.5.0)
+    redcarpet (3.5.1)
     regexp_parser (1.8.2)
     request_store (1.5.0)
       rack (>= 1.4)
