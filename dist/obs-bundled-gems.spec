@@ -63,7 +63,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 This package bundles all the gems required by the Open Build Service
 to make it easier to deploy the obs-server package.
 
-%define rake_version 13.0.1
+%define rake_version 13.0.3
 %define rack_version 2.2.3
 
 %package -n obs-api-deps
