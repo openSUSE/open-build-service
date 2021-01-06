@@ -22,7 +22,7 @@ Read this guide on how to do that.
 If you want to contribute code, check the list of issues that we think are
 [easy to start with](https://github.com/openSUSE/open-build-service/contribute).
 
-Then fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
+Then fork the repository and make a pull request with your changes. A developer of the [open-build-service team](https://openbuildservice.org/team/) will review your pull request. And if the pull request gets a positive review, the reviewer will merge it.
 
 But first, please bear in mind the following guidelines to create the perfect pull request:
 
