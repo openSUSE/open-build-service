@@ -534,7 +534,7 @@ class Project < ApplicationRecord
     if a && a.values[0]
       update_instance = Project.find_by_name(a.values[0].value)
       return update_instance if update_instance
-      
+
       raise Project::Errors::UnknownObjectError, "Update project configured in #{name} but not found: #{a.values[0].value}"
     end
 
