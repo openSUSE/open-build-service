@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_10_165142) do
+ActiveRecord::Schema.define(version: 2020_12_09_105103) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -962,7 +962,6 @@ ActiveRecord::Schema.define(version: 2020_12_10_165142) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status_reports_id"
-    t.index ["name", "status_reports_id"], name: "index_status_checks_on_name_and_status_reports_id", unique: true
     t.index ["status_reports_id"], name: "index_status_checks_on_status_reports_id"
   end
 
