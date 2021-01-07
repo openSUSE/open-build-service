@@ -1,0 +1,26 @@
+get:
+  summary: List all known architectures.
+  description: >
+    Get a list of all known architectures known to OBS in general.
+    This is not the list of architectures provided by this instance. Check the
+    schedulers element from the `/configuration` route for this.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '4'
+            entry:
+              - name: 'aarch64'
+              - name: 'armv7l'
+              - name: 's390x'
+              - name: 'x86_64'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - General Information
