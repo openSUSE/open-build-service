@@ -5,7 +5,10 @@ get:
     - basic_authentication: []
   responses:
     '200':
-      description: OK. The request has succeeded.
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
       content:
         application/xml; charset=utf-8:
           schema:

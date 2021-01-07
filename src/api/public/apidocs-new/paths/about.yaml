@@ -3,7 +3,10 @@ get:
   description: Get generic information about the API.
   responses:
     '200':
-      description: OK. The request has succeeded.
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [about.xsd](../schema/about.xsd)
       content:
         application/xml; charset=utf-8:
           schema:
