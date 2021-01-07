@@ -20,19 +20,19 @@ info:
 
 paths:
   /about:
-    $ref: '/apidocs-new/paths/about.yaml'
+    $ref: 'paths/about.yaml'
 
   /architectures:
-    $ref: '/apidocs-new/paths/architectures.yaml'
+    $ref: 'paths/architectures.yaml'
 
   /architectures/{architecture_name}:
-    $ref: '/apidocs-new/paths/architectures_architecture_name.yaml'
+    $ref: 'paths/architectures_architecture_name.yaml'
 
   /group:
-    $ref: '/apidocs-new/paths/group.yaml'
+    $ref: 'paths/group.yaml'
 
   /group/{group_title}:
-    $ref: '/apidocs-new/paths/group_group_title.yaml'
+    $ref: 'paths/group_group_title.yaml'
 
 components:
   securitySchemes:

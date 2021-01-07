@@ -9,13 +9,13 @@ get:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/directory.yaml'
+            $ref: '../components/schemas/directory.yaml'
           example:
             count: '2'
             entry:
               - name: 'group-admin'
               - name: 'group-test'
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
   tags:
     - Groups

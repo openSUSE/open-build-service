@@ -4,7 +4,7 @@ get:
   security:
     - basic_authentication: []
   parameters:
-    - $ref: '/apidocs-new/components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
   responses:
     '200':
       description: OK. The request has succeeded.
@@ -22,13 +22,13 @@ get:
             example:
               name: 'x86_64'
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
     '404':
       description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: unknown_architecture
             summary: 'Architecture does not exist: x999'

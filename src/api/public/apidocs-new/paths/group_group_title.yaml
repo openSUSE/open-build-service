@@ -4,22 +4,22 @@ get:
   security:
     - basic_authentication: []
   parameters:
-    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+    - $ref: '../components/parameters/group_title.yaml'
   responses:
     '200':
       description: OK. The request has succeeded.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/group.yaml'
+            $ref: '../components/schemas/group.yaml'
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
     '404':
       description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
             summary: Couldn't find Group 'group-testd'
@@ -32,7 +32,7 @@ post:
   security:
     - basic_authentication: []
   parameters:
-    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+    - $ref: '../components/parameters/group_title.yaml'
     - in: query
       name: cmd
       schema:
@@ -55,24 +55,24 @@ post:
       description: Group email. Used with `cmd=set_email`.
   responses:
     '200':
-      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+      $ref: '../components/responses/succeeded.yaml'
     '400':
       description: Bad Request.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: bad_request
             summary: cmd must be set to add_user or remove_user
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
     '404':
       description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           examples:
             user_not_found:
               value:
@@ -93,25 +93,25 @@ put:
   security:
     - basic_authentication: []
   parameters:
-    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+    - $ref: '../components/parameters/group_title.yaml'
   requestBody:
     description: Group definition.
     required: true
     content:
       application/xml; charset=utf-8:
         schema:
-          $ref: '/apidocs-new/components/schemas/group.yaml'
+          $ref: '../components/schemas/group.yaml'
   responses:
     '200':
-      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+      $ref: '../components/responses/succeeded.yaml'
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
     '404':
       description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
             summary: Couldn't find Group 'group-testd'
@@ -124,18 +124,18 @@ delete:
   security:
     - basic_authentication: []
   parameters:
-    - $ref: '/apidocs-new/components/parameters/group_title.yaml'
+    - $ref: '../components/parameters/group_title.yaml'
   responses:
     '200':
-      $ref: '/apidocs-new/components/responses/succeeded.yaml'
+      $ref: '../components/responses/succeeded.yaml'
     '401':
-      $ref: '/apidocs-new/components/responses/unauthorized.yaml'
+      $ref: '../components/responses/unauthorized.yaml'
     '404':
       description: Not Found.
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/api_response.yaml'
+            $ref: '../components/schemas/api_response.yaml'
           example:
             code: not_found
             summary: Couldn't find Group 'group-testd'

@@ -7,6 +7,6 @@ get:
       content:
         application/xml; charset=utf-8:
           schema:
-            $ref: '/apidocs-new/components/schemas/about.yaml'
+            $ref: '../components/schemas/about.yaml'
   tags:
     - General Information

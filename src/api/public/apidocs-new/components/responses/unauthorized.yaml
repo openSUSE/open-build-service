@@ -2,7 +2,7 @@ description: Unauthorized.
 content:
   application/xml; charset=utf-8:
     schema:
-      $ref: '/apidocs-new/components/schemas/api_response.yaml'
+      $ref: '../schemas/api_response.yaml'
     examples:
       anonymous_user:
         value:
