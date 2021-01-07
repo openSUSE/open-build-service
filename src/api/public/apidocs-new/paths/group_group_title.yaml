@@ -7,7 +7,10 @@ get:
     - $ref: '../components/parameters/group_title.yaml'
   responses:
     '200':
-      description: OK. The request has succeeded.
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [group.rng](../schema/group.rng)
       content:
         application/xml; charset=utf-8:
           schema:
@@ -95,7 +98,10 @@ put:
   parameters:
     - $ref: '../components/parameters/group_title.yaml'
   requestBody:
-    description: Group definition.
+    description: |
+      Group definition.
+
+      XML Schema used for body validation: [group.rng](../schema/group.rng)
     required: true
     content:
       application/xml; charset=utf-8:
