@@ -118,8 +118,12 @@ Rails/Exit:
     - 'lib/memory_dumper.rb'
 
 RSpec/FilePath:
+  # False positives
   Exclude:
     - 'spec/controllers/webui/package_controller/binaries.spec'
+    - 'spec/models/project/image_template_spec.rb'
+    - 'spec/models/project/maintenance_incidents_spec.rb'
+    - 'spec/models/users/requests_spec.rb'
 
 # We disabled this cop because named subject isn't a better construction than
 # using let

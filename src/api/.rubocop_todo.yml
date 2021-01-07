@@ -763,15 +763,6 @@ RSpec/ExampleLength:
     - 'spec/support/shared_examples/features/bootstrap_user_tab.rb'
     - 'spec/support/shared_examples/features/flags_tables.rb'
 
-# Offense count: 3
-# Configuration parameters: Include, CustomTransform, IgnoreMethods, SpecSuffixOnly.
-# Include: **/*_spec*rb*, **/spec/**/*
-RSpec/FilePath:
-  Exclude:
-    - 'spec/models/project/image_template_spec.rb'
-    - 'spec/models/project/maintenance_incidents_spec.rb'
-    - 'spec/models/users/requests_spec.rb'
-
 # Offense count: 45
 # Configuration parameters: AssignmentOnly.
 RSpec/InstanceVariable:
