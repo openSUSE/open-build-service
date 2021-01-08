@@ -1,0 +1,24 @@
+get:
+  summary: List all attribute namespaces.
+  description: List all attribute namespaces.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '2'
+            entry:
+              - name: 'OBS'
+              - name: 'openSUSE'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Attribute Namespaces

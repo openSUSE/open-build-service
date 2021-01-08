@@ -1,0 +1,30 @@
+delete:
+  summary: Delete an attribute and all its values in projects or packages.
+  description: |
+    Delete an attribute and all its values in projects or packages.
+
+    This operation is the same as the one defined with [DELETE /attribute/{namespace}/{attribute_name}/_meta](#/Attributes/delete_attribute__namespace___attribute_name___meta)
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+    - $ref: '../components/parameters/attribute_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+  tags:
+    - Attributes

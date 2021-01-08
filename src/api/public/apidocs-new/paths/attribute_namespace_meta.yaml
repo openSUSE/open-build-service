@@ -1,0 +1,178 @@
+get:
+  summary: Show attribute namespace.
+  description: Shows attribute namespace.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [attribute_namespace_meta.xsd](../schema/attribute_namespace_meta.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/namespace.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find AttribNamespace
+  tags:
+    - Attribute Namespaces
+
+post:
+  # 'post' and 'put' operations must be in sync
+  summary: Change attribute namespace. Create an attribute namespace if it doesn't exist.
+  description: |
+    This endpoint can be used for both, creating an attribute namespace and updating it:
+      * If the attribute namespace passed as parameter doesn't exist, it will create the attribute namespace.
+      * If the attribute namespace passed as parameter already exists, it will update the namespace attribute.
+
+    This operation is the same as the one defined with [PUT](#/Attributes/put_attribute__namespace___meta).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  requestBody:
+    description: |
+      Attribute namespace definition.
+
+      XML Schema used for body validation: [attribute_namespace_meta.xsd](../schema/attribute_namespace_meta.xsd)
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/namespace.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Validation Failed.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            empty_body:
+              value:
+                code: validation_failed
+                summary: Document is empty, not allowed for attribute_namespace_meta
+              summary: Validation Failed (Empty Body)
+            wrong_xml_element:
+              value:
+                code: validation_failed
+                summary: "attribute_namespace_meta validation error: 1:0: ERROR: Element 'foo': No matching global declaration available for the validation root."
+              summary: Validation Failed (Wrong XML Element)
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+            user:
+              value:
+                code: not_found
+                summary: Couldn't find User with login = user_login_name
+              summary: Not Found (User)
+  tags:
+    - Attribute Namespaces
+
+put:
+  # 'post' and 'put' operations must be in sync
+  summary: Change attribute namespace. Create an attribute namespace if it doesn't exist.
+  description: |
+    This endpoint can be used for both, creating an attribute namespace and updating it:
+      * If the attribute namespace passed as parameter doesn't exist, it will create the attribute namespace.
+      * If the attribute namespace passed as parameter already exists, it will update the namespace attribute.
+
+    This operation is the same as the one defined with [POST](#/Attributes/post_attribute__namespace___meta).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  requestBody:
+    description: |
+      Attribute namespace definition.
+
+      XML Schema used for body validation: [attribute_namespace_meta.xsd](../schema/attribute_namespace_meta.xsd)
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/namespace.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Validation Failed.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            empty_body:
+              value:
+                code: validation_failed
+                summary: Document is empty, not allowed for attribute_namespace_meta
+              summary: Validation Failed (Empty Body)
+            wrong_xml_element:
+              value:
+                code: validation_failed
+                summary: "attribute_namespace_meta validation error: 1:0: ERROR: Element 'foo': No matching global declaration available for the validation root."
+              summary: Validation Failed (Wrong XML Element)
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            namespace:
+              value:
+                code: not_found
+                summary: Couldn't find AttribNamespace
+              summary: Not Found (Namespace)
+            user:
+              value:
+                code: not_found
+                summary: Couldn't find User with login = user_login_name
+              summary: Not Found (User)
+  tags:
+    - Attribute Namespaces
+
+delete:
+  summary: Delete an attribute namespace and all attributes below.
+  description: |
+    Delete an attribute namespace and all attributes below.
+
+    This operation is the same as the one defined with [DELETE /attribute/{namespace}](#/Attributes/delete_attribute__namespace_).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Attribute Namespaces
