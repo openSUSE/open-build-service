@@ -20,6 +20,11 @@ RSpec.describe Staging::Workflow, type: :model do
     staging_workflow
   end
 
+  describe 'validations' do
+    it { is_expected.to validate_presence_of(:managers_group) }
+    it { is_expected.to validate_presence_of(:project) }
+  end
+
   context 'when created' do
     let(:role) { Role.find_by_title('reviewer') }
 
