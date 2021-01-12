@@ -70,7 +70,8 @@ body.notifications-redesign  {
   }
 }
 
-.notifications-counter {
+// TODO Remove .tasks-counter once the notifications_redesign feature is rolled out
+.tasks-counter, .notifications-counter {
   position: relative;
   margin: 0 auto;
   width: 6rem;
