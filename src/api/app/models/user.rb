@@ -804,7 +804,6 @@ class User < ApplicationRecord
     to_s
   end
 
-  # TODO: Remove once responsive_ux is out of beta
   def tasks
     Rails.cache.fetch("requests_for_#{cache_key_with_version}") do
       declined_requests.count +
