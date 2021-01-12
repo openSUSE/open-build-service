@@ -1,0 +1,23 @@
+get:
+  summary: Get a simple directory listing of all requests
+  description: Get a simple directory listing of all requests
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: |
+        OK
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 122
+              - name: 123
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Request
