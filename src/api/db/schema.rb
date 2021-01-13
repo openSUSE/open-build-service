@@ -346,7 +346,7 @@ ActiveRecord::Schema.define(version: 2020_12_09_105103) do
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8_bin"
   end
 
-  create_table "data_migrations", primary_key: "version", id: :string, collation: "utf8_general_ci", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
+  create_table "data_migrations", primary_key: "version", id: :string, collation: "utf8mb4_general_ci", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
   end
 
   create_table "delayed_jobs", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
