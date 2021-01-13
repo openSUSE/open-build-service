@@ -11,6 +11,10 @@ AllCops:
   CacheRootDirectory: tmp/rubocop_cache_rails_dir
   MaxFilesInCache: 4000
   Exclude:
+    - 'bin/*'
+    - 'config/puma.rb'
+    - 'config/boot.rb'
+    - 'config/initializers/backtrace_silencers.rb'
     - 'tmp/**/*'
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
