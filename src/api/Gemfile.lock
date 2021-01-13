@@ -373,7 +373,7 @@ GEM
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
-    sexp_processor (4.15.1)
+    sexp_processor (4.15.2)
     shoulda-matchers (4.4.1)
       activesupport (>= 4.2.0)
     simplecov (0.16.1)
