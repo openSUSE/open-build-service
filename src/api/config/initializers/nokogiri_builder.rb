@@ -7,9 +7,9 @@ module ActionView
       class_attribute :default_format
       self.default_format = Mime[:xml]
 
-      def call(template)
+      def call(_template, source)
         'xml = ::Nokogiri::XML::Builder.new { |xml|' +
-          template.source +
+          source +
           "}.to_xml(:indent => 2, :encoding => 'UTF-8',
             :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT).gsub('&#13;', '\r')"
       end
