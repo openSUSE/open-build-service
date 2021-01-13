@@ -23,7 +23,7 @@ RSpec.describe "Project" do
     end
     click_link('Repositories')
     click_link('Add from a Distribution')
-    check('repo_openSUSE_Leap_15_1')
-    expect(page).to have_content("Successfully added repository 'openSUSE_Leap_15.1'")
+    check('repo_openSUSE_Leap_15_3')
+    expect(page).to have_content("Successfully added repository 'openSUSE_Leap_15.3'")
   end
 end
