@@ -227,6 +227,11 @@ Rails/Output:
     # FIXME: Since exclusions in `.rubocop_todo.yml` are simply ignored when we also exclude files here, the following exclusions are TODOs
     - 'app/lib/backend/test.rb'
 
+# Migrations creating unique indexes are sometimes not possible to run...
+# they raise a pretty weird error about some duplicate entries, even though those entries don't exist.
+Rails/UniqueValidationWithoutIndex:
+  Enabled: false
+
 # We decided not to modify old migrations
 Rails/BulkChangeTable:
   Exclude:

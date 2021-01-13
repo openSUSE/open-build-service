@@ -57,9 +57,9 @@ class User < ApplicationRecord
   scope :not_locked, -> { where.not(state: 'locked') }
   scope :with_login_prefix, ->(prefix) { where('login LIKE ?', "#{prefix}%") }
   scope :active, -> { confirmed.or(User.unscoped.where(state: :subaccount, owner: User.unscoped.confirmed)) }
-  scope :staff, -> { joins(:roles).where('roles.title = ?', 'Staff') }
+  scope :staff, -> { joins(:roles).where('roles.title' => 'Staff') }
   scope :not_staff, -> { where.not(id: User.unscoped.staff.pluck(:id)) }
-  scope :admins, -> { joins(:roles).where('roles.title = ?', 'Admin') }
+  scope :admins, -> { joins(:roles).where('roles.title' => 'Admin') }
 
   scope :in_beta, -> { where(in_beta: true) }
   scope :in_rollout, -> { where(in_rollout: true) }
@@ -599,10 +599,10 @@ class User < ApplicationRecord
     else
       return false
     end
-    rel = object.relationships.where(user_id: id).where('role_id in (?)', roles)
+    rel = object.relationships.where(user_id: id).where(role_id: roles)
     return true if rel.exists?
 
-    rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where('role_id in (?)', roles)
+    rel = object.relationships.joins(:groups_users).where(groups_users: { user_id: id }).where(role_id: roles)
     return true if rel.exists?
 
     return true if lookup_strategy.local_permission_check(roles, object)

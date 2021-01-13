@@ -35,7 +35,7 @@ module OwnerSearch
     def find_projects(rootproject, owner)
       found_projects = Relationship.where(role_id: @roles, project: @projects)
       found_projects = filter_owner(found_projects, owner)
-      Project.where(id: found_projects.select(:project_id)).each do |prj|
+      Project.where(id: found_projects.select(:project_id)).find_each do |prj|
         @maintainers << Owner.new(rootproject: rootproject, project: prj)
       end
     end

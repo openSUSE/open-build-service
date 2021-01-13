@@ -36,7 +36,7 @@ class PackagesFinder
 
   def dirty_backend_packages
     @relation.joins('left outer join backend_packages on backend_packages.package_id = packages.id')
-             .where('backend_packages.package_id is null')
+             .where('backend_packages.package_id' => nil)
   end
 
   private

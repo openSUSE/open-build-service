@@ -1164,7 +1164,7 @@ class Project < ApplicationRecord
 
           # is this path pointing to some repository which is used in another
           # of my repositories?
-          repositories.joins(:path_elements).where('path_elements.repository_id = ?', ipe.link).find_each do |my_repo|
+          repositories.joins(:path_elements).where('path_elements.repository_id' => ipe.link).find_each do |my_repo|
             next if my_repo == repo # do not add my self
             next if repo.path_elements.where(link: my_repo).count.positive?
 
