@@ -133,7 +133,21 @@ sub findpackages_projlink {
       my $lproj = BSRevision::readproj_local($lprojid, 1);
       my $llink;
       $llink = delete $lproj->{'link'} if $lproj;
-      @lpackids = $findpackages->($lprojid, $lproj, $nonfatal || -1, $lorigins);
+      if ($lproj && ($lproj->{'kind'} || '') eq 'maintenance_release') {
+	my $llorigins = $lorigins || {};
+	@lpackids = $findpackages->($lprojid, $lproj, $nonfatal || -1, $llorigins);
+	# strip out packages with incident suffix
+	my %lpackids = map {$_ => 1} @lpackids;
+	$lpackids{'patchinfo'} = 1;	# bah!
+	for (@lpackids) {
+	  next if $llorigins->{$_} && $llorigins->{$_} ne $lprojid;
+	  next unless /^(.*)\.\d+$/ && $lpackids{$1};
+	  $_ = undef;
+	}
+	@lpackids = grep {defined($_)} @lpackids;
+      } else {
+	@lpackids = $findpackages->($lprojid, $lproj, $nonfatal || -1, $lorigins);
+      }
       unshift @todo, map {$_->{'project'}} @$llink if $llink;
     }
     @lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids if $packids{'_product'};
