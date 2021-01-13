@@ -52,17 +52,6 @@ RSpec.describe 'rollout' do
     it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
   end
 
-  describe 'from_groups' do
-    let(:task) { 'rollout:from_groups' }
-    let(:users) { User.joins(:groups_users).distinct }
-
-    it 'will move all the users from groups to Rollout Program' do
-      expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(2)
-    end
-
-    it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
-  end
-
   describe 'recently_logged_users' do
     let(:task) { 'rollout:recently_logged_users' }
     let(:users) { User.where(last_logged_in_at: Time.zone.today.prev_month(3)..Time.zone.today) }
@@ -80,6 +69,17 @@ RSpec.describe 'rollout' do
 
     it 'will move all non-recently-logged users to Rollout Program' do
       expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(0).to(1)
+    end
+
+    it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
+  end
+
+  describe 'from_groups' do
+    let(:task) { 'rollout:from_groups' }
+    let(:users) { User.joins(:groups_users).distinct }
+
+    it 'will move all the users from groups to Rollout Program' do
+      expect { rake_task.invoke }.to change(users.where(in_rollout: true), :count).from(1).to(2)
     end
 
     it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4) }
@@ -109,6 +109,26 @@ RSpec.describe 'rollout' do
       end
 
       it { expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3) }
+    end
+  end
+
+  context 'with anonymous user' do
+    describe 'anonymous_on' do
+      let!(:anonymous_user) { create(:user_nobody, in_rollout: false) }
+      let(:task) { 'rollout:anonymous_on' }
+
+      it 'will move the anonymous user to Rollout Program' do
+        expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(3).to(4)
+      end
+    end
+
+    describe 'anonymous_off' do
+      let!(:anonymous_user) { create(:user_nobody, in_rollout: true) }
+      let(:task) { 'rollout:anonymous_off' }
+
+      it 'will move anonymous user out of Rollout Program' do
+        expect { rake_task.invoke }.to change(all_in_rollout_users, :count).from(4).to(3)
+      end
     end
   end
 end
