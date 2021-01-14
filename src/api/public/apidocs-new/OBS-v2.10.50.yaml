@@ -66,6 +66,8 @@ paths:
     $ref: 'paths/request.yaml'
   /request?view=collection:
     $ref: 'paths/request_request_collection.yaml'
+  /request/{id}:
+    $ref: 'paths/request_request_id.yaml'
 
 components:
   securitySchemes:

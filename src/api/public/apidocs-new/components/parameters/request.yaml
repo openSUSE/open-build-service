@@ -72,3 +72,11 @@ Ids:
     type: string
   description: Limit the result to specified request id's. Multiple id's can be provided as a comma separated list.
   example: 15,19,23
+RequestId:
+  in: path
+  name: id
+  schema:
+    type: integer
+  required: true
+  description: Id of the choosen request.
+  example: 743
