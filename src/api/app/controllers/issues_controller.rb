@@ -1,6 +1,4 @@
 class IssuesController < ApplicationController
-  before_action :require_admin, only: [:create, :update, :destroy]
-
   def show
     required_parameters :id, :issue_tracker_name
 
