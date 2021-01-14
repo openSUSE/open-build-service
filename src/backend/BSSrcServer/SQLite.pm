@@ -173,7 +173,7 @@ sub binarypath2name {
   $path =~ s/.*\///;
   return $1 if $path =~ /^(.*)-[^-]+-[^-]+\.[^\.]+\.rpm$/;
   return $1 if $path =~ /^(.*)_[^_]+_[^_]+\.deb$/;
-  return $1 if $path =~ /^(.*)-[^-]+-[^-]+-[^-]+\.pkg\.tar\.(?:xz|gz|zstd)$/;
+  return $1 if $path =~ /^(.*)-[^-]+-[^-]+-[^-]+\.pkg\.tar\.(?:xz|gz|zst)$/;
   return undef;
 }
 
