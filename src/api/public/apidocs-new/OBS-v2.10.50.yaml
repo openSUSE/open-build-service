@@ -6,6 +6,7 @@ servers:
 tags:
   - name: General Information
   - name: Groups
+  - name: Person
 
 info:
   description: Open Build Service API
@@ -33,6 +34,9 @@ paths:
 
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
+
+  /person:
+    $ref: 'paths/person.yaml'
 
 components:
   securitySchemes:
