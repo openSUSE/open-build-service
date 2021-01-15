@@ -1,0 +1,61 @@
+post:
+  summary: Get the diff for all packages affected by the request.
+  description: |
+    Get the diff for all packages affected by the request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+    - in: query
+      name: diff_to_superseded
+      type: integer
+      description: |
+        Diff relative to a given superseded request. State the id of the corresponding superseded request.
+      example: 10401
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - xml
+      description: Set this parameter to xml in order to receive a structured diff instead of plain text.
+    - in: query
+      name: withissues
+      schema:
+        type: string
+        enum:
+          - true
+          - 1
+      description: Include parsed issues
+  responses:
+    '200':
+      description: OK
+      content:
+        text/plain; charset=utf-8:
+          schema:
+            type: string
+          example: |
+            spec files:
+            -----------
+            --- test.spec
+            +++ test.spec
+            @@ -0,0 +1 @@
+            +# NEW COMMENT
+            \ No newline at end of file
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/request/diff.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find request with id '355'
+  tags:
+    - Request
+

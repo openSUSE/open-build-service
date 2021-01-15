@@ -68,6 +68,8 @@ paths:
     $ref: 'paths/request_request_collection.yaml'
   /request/{id}:
     $ref: 'paths/request_request_id.yaml'
+  /request/{id}?cmd=diff:
+    $ref: 'paths/request_request_diff.yaml'
 
 components:
   securitySchemes:
