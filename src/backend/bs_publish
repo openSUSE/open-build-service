@@ -2171,6 +2171,8 @@ sub publish {
 	  # collect virt-builder index parts
 	  $kiwiindex .= readstr("$r/$bin", 1) . "\n";
 	  next;
+	} elsif ($bin =~ /\.flatpak$/) {
+	  $p = $bin;
 	} elsif ($bin =~ /^ChangeLog\./) {
 	  # ChangeLog.* files, all formats
 	  # Document the changes for the downloader of the images
