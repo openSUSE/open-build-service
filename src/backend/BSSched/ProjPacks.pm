@@ -298,7 +298,7 @@ sub get_projpacks_resume {
   delete $handle->{'_lpackids'} if $handle->{'_dolink'};        # just in case...
   if (!$handle->{'_dolink'} && !$packids && $handle->{'_lpackids'}) {
     # we had both a project event and changed source events.
-    # the changes source packages are in _lpackids
+    # the changed source packages are in _lpackids
     $handle->{'_dolink'} ||= 2;
   }
 
@@ -309,9 +309,18 @@ sub get_projpacks_resume {
     my $xpackids = $packids || $handle->{'_lpackids'};  # just packages linking to those
     my $linked = find_linked_sources($gctx, $projid, $xpackids);
     for my $lprojid (sort keys %$linked) {
-      my %lpackids = map {$_ => 1} @{$linked->{$lprojid}};
+      my %lpackids;
+      if ($lprojid eq $projid) {
+	next unless $xpackids;	# we just fetched all packages
+	# grep out packages we just fetched
+	my %xpackids = map {$_ => 1} @$xpackids;
+	%lpackids = map {$_ => 1} grep {!$xpackids{$_}} @{$linked->{$lprojid}};
+      } else {
+	%lpackids = map {$_ => 1} @{$linked->{$lprojid}};
+      }
+      next unless %lpackids;
       # delay package source changes if possible
-      if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
+      if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks) {
         push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
         # we don't use setchanged because it unshifts the prps onto lookat
         my $changed_med = $gctx->{'changed_med'};
@@ -736,6 +745,25 @@ sub find_linked_sources {
   }
   return \%linked;
 }
+
+=head2 find_local_linked_sources - find local links of a project
+
+=cut
+
+sub find_local_linked_sources {
+  my ($gctx, $projid, $packids) = @_;
+  my $projlinked = $gctx->{'projpacks_linked'}->{$projid};
+  return () unless $projlinked && $packids;
+  my %packids = map {$_ => 1} @$packids;
+  $packids{':*'} = 1;
+  my @l;
+  for my $linfo (grep {$_->{'myproject'} eq $projid && $packids{$_->{'package'}}} @$projlinked) {
+    push @l, $linfo->{'mypackage'} if defined $linfo->{'mypackage'};
+  }
+  return @l;
+}
+
+=cut
 
 =head2 expandsearchpath  - recursively expand the last component of a repository's path
 
@@ -1247,6 +1275,41 @@ sub print_project_stats {
   verify_projpacks_linked_blks($gctx);
 }
 
+=head2 delay_linkedpackages - put linked packages on the delayedfetchprojpacks queue
+
+=cut
+
+sub delay_linkedpackages {
+  my ($gctx, $projid, $packids) = @_;
+  my %packids = map {$_ => 1} @{$packids || []};
+  my $linked = find_linked_sources($gctx, $projid, $packids);
+  return unless %$linked;
+  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
+  my $changed_low = $gctx->{'changed_low'};
+  my $changed_med = $gctx->{'changed_med'};
+  my $changed_dirty = $gctx->{'changed_dirty'};
+  my $alllocked = $gctx->{'alllocked'};
+  for my $lprojid (keys %$linked) {
+    if ($lprojid eq $projid) {
+      next unless $packids;
+      my @l = grep {!$packids{$_}} @{$linked->{$lprojid}};
+      next unless @l;
+      push @{$delayedfetchprojpacks->{$lprojid}}, @l;
+    } else {
+      push @{$delayedfetchprojpacks->{$lprojid}}, @{$linked->{$lprojid}};
+    }
+    for my $prp (@{$gctx->{'prps'}}) {
+      next unless (split('/', $prp, 2))[0] eq $lprojid;
+      if ($alllocked->{$prp}) {
+	$changed_low->{$prp} ||= 1;
+      } else {
+	$changed_med->{$prp} ||= 1;
+      }
+      $changed_dirty->{$prp} = 1;
+    }
+  }
+}
+
 =head2 do_delayedprojpackfetches - do delayed projpack fetches caused by source changes
 
  Do all the delayed projpack fetches caused by source changes
@@ -1262,21 +1325,25 @@ sub do_delayedprojpackfetches {
   my %packids = map {$_ => 1} @packids;
   if ($packids{'/all'}) {
     if ($doasync) {
-      get_projpacks($gctx, $doasync, $projid);
+      get_projpacks($gctx, { %$doasync, '_dolink' => 2 }, $projid);
       return 0;		# in progress
     }
     get_projpacks($gctx, undef, $projid);
     get_projpacks_postprocess_projects($gctx, $projid);
   } elsif (%packids) {
+    # extend with local linked packages
+    push @packids, find_local_linked_sources($gctx, $projid, \@packids);
+    %packids = map {$_ => 1} @packids;
     @packids = sort keys %packids;
     if ($doasync) {
-      get_projpacks($gctx, $doasync, $projid, @packids);
+      get_projpacks($gctx, { %$doasync, '_dolink' => 2 }, $projid, @packids);
       return 0;		# in progress
     }
     my $oldprojdata = clone_projpacks_part($gctx, $projid, \@packids);
     get_projpacks($gctx, undef, $projid, @packids);
     get_projpacks_postprocess_projects($gctx, $projid) if BSSched::ProjPacks::postprocess_needed_check($gctx, $projid, $oldprojdata);
   }
+  delay_linkedpackages($gctx, $projid, $packids{'/all'} ? undef : \@packids);
   return 1;		# all done
 }
 
@@ -1316,26 +1383,9 @@ sub do_fetchprojpacks {
     # don't delay if a getprojpack is in progress (which may create the project)
     next if !$foundit && $gctx->{'rctx'}->xrpc_busy($projid);
     push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
-    my $linked = find_linked_sources($gctx, $projid, $fetchprojpacks->{$projid});
-    if (%$linked) {
-      for my $lprojid (keys %$linked) {
-	push @{$delayedfetchprojpacks->{$lprojid}}, @{$linked->{$lprojid}};
-      }
-      my $alllocked = $gctx->{'alllocked'};
-      for my $lprp (@{$gctx->{'prps'}}) {
-	if ($linked->{(split('/', $lprp, 2))[0]}) {
-	  if ($alllocked->{$lprp}) {
-	    $changed_low->{$lprp} ||= 1;
-	  } else {
-	    $changed_med->{$lprp} ||= 1;
-	  }
-	  $changed_dirty->{$lprp} = 1;
-	}
-      }
-    }
+    delay_linkedpackages($gctx, $projid, $fetchprojpacks->{$projid}) unless $foundit;
+    delete $delayedfetchprojpacks->{$projid} unless $foundit; # if we never look at the project
     delete $fetchprojpacks->{$projid};
-    # if we never look at the project
-    delete $delayedfetchprojpacks->{$projid} unless $foundit;
   }
   return unless %$fetchprojpacks;
 
@@ -1376,8 +1426,11 @@ sub do_fetchprojpacks {
     }
     if (!$fetchedall) {
       # single package (source) changes
-      my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
-      next unless %packids;
+      my @packids = grep {defined($_)} @{$fetchprojpacks->{$projid}};
+      next unless @packids;
+      # extend with local links we know in async mode
+      push @packids, find_local_linked_sources($gctx, $projid, \@packids) if $asyncmode;
+      my %packids = map {$_ => 1} @packids;
       # remove em from the delay queue
       if ($delayedfetchprojpacks->{$projid}) {
 	$delayedfetchprojpacks->{$projid} = [ grep {!$packids{$_}} @{$delayedfetchprojpacks->{$projid} || []} ];
