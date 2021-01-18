@@ -1,0 +1,16 @@
+type: object
+properties:
+  login:
+    type: string
+  realname:
+    type: string
+  email:
+    type: string
+  password:
+    type: string
+  note:
+    type: string
+  state:
+    type: string
+xml:
+  name: unregisteredperson

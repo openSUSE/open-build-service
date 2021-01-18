@@ -38,3 +38,33 @@ get:
       $ref: '../components/responses/unauthorized.yaml'
   tags:
     - Person
+
+post:
+  summary: Executes a command on the person endpoint.
+  description: |
+    Allows executing command on the person endpoint.
+
+    As of now, the only command allowed is 'register'.
+  parameters:
+    - in: query
+      name: cmd
+      schema:
+        type: string
+        enum: [register]
+      required: true
+      description: The command to execute
+      example: register
+  requestBody:
+    description: The data for the person to register.
+    required: true
+    content:
+      application/xml:
+        schema:
+          $ref: '../components/schemas/unregistered_person.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      $ref: '../components/responses/unknown_command_error.yaml'
+  tags:
+    - Person
