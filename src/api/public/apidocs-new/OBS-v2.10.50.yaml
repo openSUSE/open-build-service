@@ -6,6 +6,7 @@ servers:
 tags:
   - name: General Information
   - name: Groups
+  - name: Issue Trackers
   - name: Person
 
 info:
@@ -25,15 +26,16 @@ paths:
 
   /architectures:
     $ref: 'paths/architectures.yaml'
-
   /architectures/{architecture_name}:
     $ref: 'paths/architectures_architecture_name.yaml'
 
   /group:
     $ref: 'paths/group.yaml'
-
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
+
+  /issue_trackers:
+    $ref: 'paths/issue_trackers.yaml'
 
   /person:
     $ref: 'paths/person.yaml'

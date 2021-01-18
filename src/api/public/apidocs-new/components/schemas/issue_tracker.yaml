@@ -1,0 +1,28 @@
+type: object
+properties:
+  name:
+    type: string
+    example: fate
+  kind:
+    type: string
+    example: fate
+  description:
+    type: string
+    example: openSUSE Feature Database
+  url:
+    type: string
+    example: 'https://features.opensuse.org/'
+  show-url:
+    type: string
+    example: 'https://features.opensuse.org/@@@'
+  regex:
+    type: string
+    example: '(?:fate|Fate|FATE)\s*#\s*(\d+)'
+  label:
+    type: string
+    example: 'fate#@@@'
+  enable-fetch:
+    type: string
+    example: 'false'
+xml:
+  name: issue-tracker

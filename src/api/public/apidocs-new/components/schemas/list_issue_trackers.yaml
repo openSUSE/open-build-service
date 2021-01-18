@@ -1,0 +1,7 @@
+type: array
+items:
+  $ref: 'issue_tracker.yaml'
+xml:
+  name: issue-trackers
+  wrapped: true
+
