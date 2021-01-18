@@ -47,6 +47,12 @@ XmlResult: issue_trackers
 
 <name>: Issue tracker name
 
+POST /issue_trackers
+
+  Create an issue tracker.
+
+XmlResult: status
+
 GET /issue_trackers/<name>
 
   Read issue tracker data.
@@ -56,12 +62,6 @@ XmlResult: issue_tracker
 PUT /issue_trackers/<name>
 
   Update issue tracker data.
-
-XmlResult: status
-
-POST /issue_trackers/<name>
-
-  Create new issue tracker.
 
 XmlResult: status
 

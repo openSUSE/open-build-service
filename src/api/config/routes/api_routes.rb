@@ -71,8 +71,8 @@ OBSApi::Application.routes.draw do
     post 'trigger/webhook' => 'services/webhooks#create'
 
     ### /issue_trackers
-    resources :issue_trackers, only: [:index, :show, :create, :update, :destroy] do
-      resources :issues, only: [:show] # Nested route
+    resources :issue_trackers, only: [:index, :show, :create, :update, :destroy], param: :name do
+      resources :issues, only: [:show]
     end
 
     ### /statistics
