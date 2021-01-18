@@ -36,6 +36,8 @@ paths:
 
   /issue_trackers:
     $ref: 'paths/issue_trackers.yaml'
+  /issue_trackers/{issue_tracker_name}:
+    $ref: 'paths/issue_trackers_issue_tracker_name.yaml'
 
   /person:
     $ref: 'paths/person.yaml'
