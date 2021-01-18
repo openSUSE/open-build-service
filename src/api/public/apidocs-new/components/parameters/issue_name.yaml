@@ -1,0 +1,7 @@
+in: path
+name: issue_name
+schema:
+  type: string
+required: true
+description: Issue name.
+example: 12345
