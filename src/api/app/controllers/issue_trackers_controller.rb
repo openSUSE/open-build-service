@@ -1,5 +1,9 @@
 class IssueTrackersController < ApplicationController
-  before_action :require_admin, only: [:create, :update, :destroy]
+  # skip the filters from ApplicationController
+  # because we have to call it before the XML validation
+  skip_before_action :extract_user, :require_login
+
+  prepend_before_action :require_admin, :extract_user, only: [:create, :update, :destroy]
 
   validate_action index: { method: :get, response: :issue_trackers }
   validate_action show: { method: :get, response: :issue_tracker }
