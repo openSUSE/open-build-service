@@ -204,6 +204,10 @@ default: &default
   #   icon: sponsor_abc
   #   url: https://www.example.com
 
+  # Lifetime for repositories published after accepting maintenance release requests.
+  # Default: 2 days (172800 seconds).
+  # maintenance_release_repositories_lifetime: 172800
+
 production:
   <<: *default
 

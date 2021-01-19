@@ -59,8 +59,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
       next if cleaned_projects[sprj]
 
-      # cleanup published binaries to save disk space on ftp server and mirrors
-      Backend::Api::Build::Project.wipe_published_locked(sprj)
+      maintenance_release_cleanup(sprj)
       cleaned_projects[sprj] = 1
     end
     opts[:projectCommit] = {}
@@ -167,6 +166,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         end
       end
     end
+  end
+
+  # Delaying removal of published repositories for accepted maintenance release requests,
+  # gives some margin to the automated maintenance tests to be finished.
+  def maintenance_release_cleanup(project_name)
+    delay = CONFIG['maintenance_release_repositories_lifetime']
+    set_options = delay ? { wait: delay.seconds } : {}
+    PublishedRepositoriesCleanupJob.set(set_options).perform_later(project_name)
   end
 
   #### Alias of methods

@@ -901,6 +901,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_project_and_release_packages
+    # FIXME: https://github.com/rails/rails/issues/37270
+    (ActiveJob::Base.descendants << ActiveJob::Base).each(&:disable_test_adapter)
+    ActiveJob::Base.queue_adapter = :inline
+
     # Backup
     system("for i in #{Rails.root}/tmp/backend_data/projects/BaseDistro2.0.pkg/*.rev; do cp $i $i.backup; done")
     # the birthday of J.K.
@@ -1471,7 +1475,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     run_scheduler('x86_64')
     run_publisher
-    # published binaries from incident got removed?
+    # Check that the job removed the published binaries
     get "/published/#{incident_project}/BaseDistro3/i586/package-1.0-1.i586.rpm"
     assert_response 404
     get "/published/#{incident_project}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
