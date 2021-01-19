@@ -90,7 +90,7 @@ sub sendevent {
   my $eventdir = $gctx->{'eventdir'};
   mkdir_p("$eventdir/$arch");
   $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-  if ($ev->{'type'} eq 'published') {
+  if ($ev->{'type'} eq 'publish') {
     my $oldev = readxml("$eventdir/$arch/$evname", $BSXML::event, 1) || {};
     $ev->{'time'} = $oldev->{'time'} || time();
   }
