@@ -222,3 +222,27 @@ put:
             summary: Couldn't find request with id '10'
   tags:
     - Request
+
+delete:
+  summary: Delete a given request.
+  description: Delete a given request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find request with id '10'
+  tags:
+    - Request
