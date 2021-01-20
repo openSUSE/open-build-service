@@ -11,31 +11,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
-    # the default XML renderer just s***s
-    assert_equal({ 'id' => { 'type' => 'integer', '_content' => '2' },
-                   'link' => 'http://www.openbuildservice.org/',
-                   'name' => 'OBS Base 2.0',
-                   'project' => 'BaseDistro2.0',
-                   'reponame' => 'Base_repo',
-                   'repository' => 'BaseDistro2_repo',
-                   'vendor' => 'OBS',
-                   'version' => 'Base',
-                   'architectures' =>
-                                      { 'type' => 'array',
-                                        'architecture' => ['i586', 'x86_64'] },
-                   'icons' =>
-                                      { 'type' => 'array',
-                                        'icon' =>
-                                                  [{ 'id' => { 'type' => 'integer', '_content' => '72' },
-                                                     'url' =>
-                                                                 'https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png',
-                                                     'width' => { 'type' => 'integer', '_content' => '8' },
-                                                     'height' => { 'type' => 'integer', '_content' => '8' } },
-                                                   { 'id' => { 'type' => 'integer', '_content' => '73' },
-                                                     'url' =>
-                                                                 'https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png',
-                                                     'width' => { 'type' => 'integer', '_content' => '16' },
-                                                     'height' => { 'type' => 'integer', '_content' => '16' } }] } }, Xmlhash.parse(@response.body))
+    assert_xml_tag tag: 'name', content: 'OBS Base 2.0'
   end
 
   def test_should_destroy_distribution
