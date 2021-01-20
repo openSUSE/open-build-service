@@ -2,8 +2,6 @@ get:
   summary: List all people.
   description: >
     List all people.
-  security:
-    - basic_authentication: []
   parameters:
     - in: query
       name: prefix
@@ -34,7 +32,5 @@ get:
               - name: 'user_2'
               - name: 'user_3'
               - name: 'Requestor'
-    '401':
-      $ref: '../components/responses/unauthorized.yaml'
   tags:
     - Person
