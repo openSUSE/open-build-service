@@ -38,6 +38,9 @@ paths:
   /person:
     $ref: 'paths/person.yaml'
 
+  /person/{login}/token:
+    $ref: 'paths/person_login_token.yaml'
+
 components:
   securitySchemes:
     basic_authentication:
