@@ -11,6 +11,7 @@ tags:
   - name: Attribute Namespaces
   - name: Attributes
   - name: Request
+  - name: Configuration
 
 info:
   description: Open Build Service API
@@ -43,6 +44,9 @@ paths:
     $ref: 'paths/attribute_namespace_attribute_name.yaml'
   /attribute/{namespace}/{attribute_name}/_meta:
     $ref: 'paths/attribute_namespace_attribute_name_meta.yaml'
+
+  /configuration:
+    $ref: 'paths/configuration.yaml'
 
   /group:
     $ref: 'paths/group.yaml'
