@@ -1,0 +1,18 @@
+post:
+  summary: Perform a login for some person
+  description: >
+    This is a fake login endpoint (it always responds back with an ok).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/user_login.yaml'
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Person

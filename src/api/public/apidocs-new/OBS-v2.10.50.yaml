@@ -38,6 +38,9 @@ paths:
   /person:
     $ref: 'paths/person.yaml'
 
+  /person/{user_login}/login:
+    $ref: 'paths/person_login.yaml'
+
 components:
   securitySchemes:
     basic_authentication:
