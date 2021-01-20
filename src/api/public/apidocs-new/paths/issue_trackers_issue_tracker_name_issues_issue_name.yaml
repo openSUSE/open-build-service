@@ -28,7 +28,6 @@ get:
             $ref: '../components/schemas/api_response.yaml'
           example:
             code: issue_tracker_not_found
-            summary: Error: Issue Tracker 'foo' not found.
+            summary: "Error: Issue Tracker 'foo' not found."
   tags:
     - Issue Trackers
-
