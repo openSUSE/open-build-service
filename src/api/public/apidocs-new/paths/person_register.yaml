@@ -1,0 +1,18 @@
+post:
+  summary: Registers a new person
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Data for the person to register.
+    required: true
+    content:
+      application/xml:
+        schema:
+          $ref: '../components/schemas/unregisteredperson.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Person

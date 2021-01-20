@@ -1,0 +1,40 @@
+get:
+  summary: List all people.
+  description: >
+    List all people.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: prefix
+      schema:
+        type: string
+      required: false
+      description: A prefix to filter the people to look for
+      example: 'Adm'
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '9'
+            entry:
+              - name: 'Admin'
+              - name: '_nobody_'
+              - name: 'Iggy'
+              - name: 'user_1'
+              - name: 'repo-checker'
+              - name: 'reviewhero'
+              - name: 'user_2'
+              - name: 'user_3'
+              - name: 'Requestor'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Person
