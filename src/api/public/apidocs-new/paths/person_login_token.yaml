@@ -40,6 +40,87 @@ get:
           example:
             code: view_user_not_authorized
             summary: 'You are not authorized to view this User.'
+  tags:
+    - Person
 
+post:
+  summary: Create a new authentication token for a person.
+  description: |
+    Create a new authentication token for a person.
+
+    The token may be limited to a specific package. In this case the query parameters
+    `project` and `package` should be provided.
+
+    With an empty request body, a token of the default kind 'runservice' is created.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+    - in: query
+      name: project
+      schema:
+        type: string
+      description:  |
+        Project name. Should be provided, together with the package query parameter,
+        to limit the token to a specific package.
+      example: home:hans
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: |
+        Package name. Should be provided, together with the project query parameter,
+        to limit the token to a specific package.
+      example: gchz
+    - in: query
+      name: operation
+      schema:
+        type: string
+        enum: [runservice, rebuild, release]
+      description: |
+        Operation indicates the kind of token that is going to be created.
+
+        When operation is not specified, 'runservice' is the default value.
+      example: runservice
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+
+        **NOTE:** This is an example of a valid response. It should include the attribute 'name'
+        in every 'data' tag, which is missing in the example using the schema.
+        ```
+          <status code="ok">
+            <summary>Ok</summary>
+            <data name="token">i6iF4M5cn</data>
+            <data name="id">5</data>
+          </status>
+        ```
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+            data:
+              - i6iF4M5cn
+              - 5
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: update_user_not_authorized
+            summary: 'You are not authorized to update this User.'
   tags:
     - Person
