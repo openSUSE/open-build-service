@@ -84,7 +84,7 @@ my $stdout_content;
 	    },
 	    {
 	      'project' => 'devel:languages:perl:CPAN-S',
-	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl::perl-Unknown-Type',
+	      'evfilename' => 't/data/0015/events/x86_64/package:devel:languages:perl::test-package',
 	      'type' => 'unknown',
 	      'package' => 'perl-SWISH'
 	    },
@@ -223,10 +223,11 @@ $file_name =~ s/\//::/;
 
 $ev_dir = "$eventdir_base/publish/";
 $got = readxml("$ev_dir/$file_name",$BSXML::event);
+delete $got->{time};
 $expected = {
           'repository' => 'openSUSE_Leap_42.1',
           'project' => 'devel:languages:perl',
-          'type' => 'publish'
+          'type' => 'publish',
         };
 
 is_deeply($got,$expected,"Checking sendpublishevent");
