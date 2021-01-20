@@ -6,7 +6,7 @@ OBSApi::Application.routes.draw do
 
     resources :about, only: :index
 
-    resource :configuration, only: [:show, :update, :schedulers]
+    resource :configuration, only: [:show, :update]
 
     resources :announcements, except: [:edit, :new]
 
