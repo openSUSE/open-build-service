@@ -7,6 +7,8 @@ tags:
   - name: General Information
   - name: Groups
   - name: Person
+  - name: Attribute Namespaces
+  - name: Attributes
 
 info:
   description: Open Build Service API
@@ -25,13 +27,23 @@ paths:
 
   /architectures:
     $ref: 'paths/architectures.yaml'
-
   /architectures/{architecture_name}:
     $ref: 'paths/architectures_architecture_name.yaml'
 
+  /attribute:
+    $ref: 'paths/attribute.yaml'
+  /attribute/{namespace}:
+    $ref: 'paths/attribute_namespace.yaml'
+  /attribute/{namespace}/_meta:
+    $ref: 'paths/attribute_namespace_meta.yaml'
+
+  /attribute/{namespace}/{attribute_name}:
+    $ref: 'paths/attribute_namespace_attribute_name.yaml'
+  /attribute/{namespace}/{attribute_name}/_meta:
+    $ref: 'paths/attribute_namespace_attribute_name_meta.yaml'
+
   /group:
     $ref: 'paths/group.yaml'
-
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
 

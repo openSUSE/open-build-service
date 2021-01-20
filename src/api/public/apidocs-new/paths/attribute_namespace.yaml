@@ -1,0 +1,53 @@
+get:
+  summary: List all attributes below a namespace.
+  description: List all attributes under a given attribute namespace.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '2'
+            entry:
+              - name: 'AutoCleanup'
+              - name: 'OwnerRootProject'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find AttribNamespace
+  tags:
+    - Attribute Namespaces
+
+delete:
+  summary: Delete an attribute namespace and all attributes below.
+  description: |
+    Delete an attribute namespace and all attributes below.
+
+    This operation is the same as the one defined with [DELETE /attribute/{namespace}/_meta](#/Attributes/delete_attribute__namespace___meta).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/namespace.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Attribute Namespaces
