@@ -1,0 +1,53 @@
+delete:
+  summary: Delete a token of a person.
+  description: Delete a token of the specified person.
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+    - in: path
+      name: id
+      schema:
+        type: string
+        required: true
+      description: Id of the token to be removed.
+      example: 3
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: ok
+            summary: Ok
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: update_user_not_authorized
+            summary: 'You are not authorized to update this User.'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: "Couldn't find Token with 'id'=33 [WHERE `tokens`.`user_id` = ?]"
+  tags:
+    - Person
