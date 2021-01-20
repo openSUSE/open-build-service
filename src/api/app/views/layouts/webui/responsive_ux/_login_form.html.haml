@@ -4,7 +4,6 @@
     = hidden_field_tag(:context, 'default')
     = hidden_field_tag(:proxypath, 'reserve')
     = hidden_field_tag(:message, 'Please log in')
-    = hidden_field_tag(:url, return_to_location)
   .form-group
     = text_field_tag(:username, nil, required: true, class: 'form-control', placeholder: 'Username')
   .form-group
