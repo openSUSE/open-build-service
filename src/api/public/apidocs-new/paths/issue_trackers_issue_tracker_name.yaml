@@ -1,0 +1,105 @@
+get:
+  summary: Show an issue tracker.
+  description: Show an issue tracker.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/issue_tracker_name.yaml'
+  responses:
+    '200':
+      description: |
+        Issue tracker definition.
+
+        XML Schema used for body validation: [issue_tracker.rng](../schema/issue_tracker.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/issue_tracker.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Unable to find issue tracker 'foo'
+  tags:
+    - Issue Trackers
+
+put:
+  summary: Update or create an issue tracker.
+  description: Update the issue tracker given as path parameter. If it is not found, create it.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/issue_tracker_name.yaml'
+  requestBody:
+    description: |
+      Issue tracker definition.
+
+      XML Schema used for body validation: [issue_tracker.rng](../schema/issue_tracker.rng)
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/issue_tracker.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: |
+        Validation failed.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            empty_body:
+              value:
+                code: validation_failed
+                summary: Document is empty, not allowed for issue_tracker
+              summary: Empty Body
+            wrong_xml_element:
+              value:
+                code: validation_failed
+                summary: 'issue_tracker validation error: 1:0: ERROR: Expecting element issue-tracker, got foo'
+              summary: Wrong XML Element
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Issue Trackers
+
+delete:
+  summary: Delete an issue tracker.
+  description: Delete an issue tracker.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/issue_tracker_name.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Unable to find issue tracker 'foo'
+  tags:
+    - Issue Trackers

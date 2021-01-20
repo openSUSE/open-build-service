@@ -6,6 +6,7 @@ servers:
 tags:
   - name: General Information
   - name: Groups
+  - name: Issue Trackers
   - name: Person
   - name: Attribute Namespaces
   - name: Attributes
@@ -46,6 +47,13 @@ paths:
     $ref: 'paths/group.yaml'
   /group/{group_title}:
     $ref: 'paths/group_group_title.yaml'
+
+  /issue_trackers:
+    $ref: 'paths/issue_trackers.yaml'
+  /issue_trackers/{issue_tracker_name}:
+    $ref: 'paths/issue_trackers_issue_tracker_name.yaml'
+  /issue_trackers/{issue_tracker_name}/issues/{issue_name}:
+    $ref: 'paths/issue_trackers_issue_tracker_name_issues_issue_name.yaml'
 
   /person:
     $ref: 'paths/person.yaml'
