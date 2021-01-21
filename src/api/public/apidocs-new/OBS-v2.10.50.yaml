@@ -65,11 +65,11 @@ paths:
   /request:
     $ref: 'paths/request.yaml'
   /request?view=collection:
-    $ref: 'paths/request_request_collection.yaml'
+    $ref: 'paths/request_view_collection.yaml'
   /request/{id}:
-    $ref: 'paths/request_request_id.yaml'
+    $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
-    $ref: 'paths/request_request_diff.yaml'
+    $ref: 'paths/request_id_cmd_diff.yaml'
 
 components:
   securitySchemes:
