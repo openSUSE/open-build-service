@@ -165,9 +165,8 @@ POST /person/<userid>/token
   Create a new authentication token for this user. It may be limited for a specific package
   via optional project&package parameters.
 
-  cmd: create
-  project: create a token for a specific project
-  package: create a token for a specific package
+  project: together with package, used to create a token for a specific package
+  package: together with project, used to create a token for a specific package
   operation: runservice(default), rebuild, release
 
 XmlResult: status
