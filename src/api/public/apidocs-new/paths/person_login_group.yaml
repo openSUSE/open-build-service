@@ -1,0 +1,38 @@
+get:
+  summary: List the groups of a person
+  description: List the groups the person belongs to.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            count: '2'
+            entry:
+              - name: 'factory-maintainers'
+              - name: 'obs-developers'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Not Found.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: "Couldn't find User with login = fake"
+  tags:
+    - Person
