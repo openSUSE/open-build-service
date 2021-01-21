@@ -20,10 +20,6 @@ class PersonController < ApplicationController
             end
   end
 
-  def login
-    render_ok # just a dummy check for the webui to call (for now)
-  end
-
   def command
     if params[:cmd] == 'register'
       internal_register

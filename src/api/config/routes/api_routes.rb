@@ -13,7 +13,6 @@ OBSApi::Application.routes.draw do
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
-    post 'person/:login/login' => 'person#login', constraints: cons # temporary hack for webui, do not use, to be removed
     get 'person/:login/token' => 'person/token#index', constraints: cons
     post 'person/:login/token' => 'person/token#create', constraints: cons
     delete 'person/:login/token/:id' => 'person/token#delete', constraints: cons

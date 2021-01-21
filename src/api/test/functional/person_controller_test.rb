@@ -71,15 +71,6 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response 401
   end
 
-  def test_webui_login
-    post '/person/tom/login', headers: { 'username' => 'tom' }
-    assert_response 401
-
-    prepare_request_valid_user
-    post '/person/tom/login', headers: { 'username' => 'tom' }
-    assert_response :success
-  end
-
   def test_watchlist_privacy
     prepare_request_valid_user
 
