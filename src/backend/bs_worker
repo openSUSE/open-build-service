@@ -1228,7 +1228,7 @@ sub manage_cache {
       $c = undef;
     }
   }
-  remove_entry_from_cache($_->[0]) for sort @pruneids;
+  remove_entry_from_cache($_) for sort @pruneids;
   @$content = grep {defined $_} @$content;
   eval {
     Storable::nstore($content, "$cachedir/content.new");
