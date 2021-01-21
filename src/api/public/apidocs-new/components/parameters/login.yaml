@@ -1,0 +1,7 @@
+in: path
+name: login
+schema:
+  type: string
+required: true
+description: Person login.
+example: Admin

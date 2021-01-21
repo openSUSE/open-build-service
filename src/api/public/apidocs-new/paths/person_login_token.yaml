@@ -1,0 +1,45 @@
+get:
+  summary: List the authentication tokens of a person.
+  description: List the authentication tokens of a person.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+  responses:
+    '200':
+      description: |
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [tokenlist.rng](../schema/tokenlist.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/person_tokens.yaml'
+          example:
+            count: 2
+            entry:
+              - id: 3
+                string: FK49K39DKK
+                kind: rss
+              - id: 25
+                string: 4T04JGI691
+                kind: release
+                project: 'devel:languages:haskell'
+                package: 'ghcz'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: view_user_not_authorized
+            summary: 'You are not authorized to view this User.'
+
+  tags:
+    - Person

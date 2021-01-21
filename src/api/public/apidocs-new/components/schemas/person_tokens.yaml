@@ -1,0 +1,33 @@
+type: object
+properties:
+  count:
+    type: integer
+    xml:
+      attribute: true
+  entry:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          xml:
+            attribute: true
+        string:
+          type: string
+          xml:
+            attribute: true
+        kind:
+          type: string
+          xml:
+            attribute: true
+        project:
+          type: string
+          xml:
+            attribute: true
+        package:
+          type: string
+          xml:
+            attribute: true
+xml:
+  name: directory
