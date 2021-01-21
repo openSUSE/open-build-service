@@ -1323,27 +1323,33 @@ sub delay_linkedpackages {
 sub do_delayedprojpackfetches {
   my ($gctx, $doasync, $projid, @packids) = @_;
   my %packids = map {$_ => 1} @packids;
+  my $dolink = delete $packids{'/dolink'};
+  return 1 unless %packids;
+  $doasync = { %$doasync, '_dolink' => 2 } if $doasync && $dolink;
   if ($packids{'/all'}) {
     if ($doasync) {
-      get_projpacks($gctx, { %$doasync, '_dolink' => 2 }, $projid);
+      get_projpacks($gctx, $doasync, $projid);
       return 0;		# in progress
     }
     get_projpacks($gctx, undef, $projid);
     get_projpacks_postprocess_projects($gctx, $projid);
-  } elsif (%packids) {
-    # extend with local linked packages
-    push @packids, find_local_linked_sources($gctx, $projid, \@packids);
-    %packids = map {$_ => 1} @packids;
+  } else {
     @packids = sort keys %packids;
+    if ($dolink) {
+      # extend with local linked packages
+      push @packids, find_local_linked_sources($gctx, $projid, \@packids);
+      %packids = map {$_ => 1} @packids;
+      @packids = sort keys %packids;
+    }
     if ($doasync) {
-      get_projpacks($gctx, { %$doasync, '_dolink' => 2 }, $projid, @packids);
+      get_projpacks($gctx, $doasync, $projid, @packids);
       return 0;		# in progress
     }
     my $oldprojdata = clone_projpacks_part($gctx, $projid, \@packids);
     get_projpacks($gctx, undef, $projid, @packids);
     get_projpacks_postprocess_projects($gctx, $projid) if BSSched::ProjPacks::postprocess_needed_check($gctx, $projid, $oldprojdata);
   }
-  delay_linkedpackages($gctx, $projid, $packids{'/all'} ? undef : \@packids);
+  delay_linkedpackages($gctx, $projid, $packids{'/all'} ? undef : \@packids) if $dolink;
   return 1;		# all done
 }
 
@@ -1382,7 +1388,7 @@ sub do_fetchprojpacks {
     }
     # don't delay if a getprojpack is in progress (which may create the project)
     next if !$foundit && $gctx->{'rctx'}->xrpc_busy($projid);
-    push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
+    push @{$delayedfetchprojpacks->{$projid}}, '/dolink', @{$fetchprojpacks->{$projid}};
     delay_linkedpackages($gctx, $projid, $fetchprojpacks->{$projid}) unless $foundit;
     delete $delayedfetchprojpacks->{$projid} unless $foundit; # if we never look at the project
     delete $fetchprojpacks->{$projid};

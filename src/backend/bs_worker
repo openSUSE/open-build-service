@@ -1167,6 +1167,35 @@ sub link_or_copy {
   return 1;
 }
 
+sub move_entry_into_cache {
+  my ($cacheid, $path) = @_;
+  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  mkdir_p("$cachedir/".substr($cacheid, 0, 2));
+  unlink("$cachefile.$$");
+  return 0 unless link($path, "$cachefile.$$");
+  rename("$cachefile.$$", $cachefile) || die("500 rename $cachefile.$$ $cachefile: $!\n");
+  my $mpath = "$path.meta";
+  $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
+  if (-s $mpath) {
+    unlink("$cachefile.meta.$$");
+    if (link($mpath, "$cachefile.meta.$$")) {
+      rename("$cachefile.meta.$$", "$cachefile.meta") || die("500 rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+    } else {
+      unlink("$cachefile.meta");
+    }
+  } else {
+    unlink("$cachefile.meta");
+  }
+  return 1;
+}
+
+sub remove_entry_from_cache {
+  my ($cacheid) = @_;
+  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+  unlink($cachefile);
+  unlink("$cachefile.meta");
+}
+
 sub manage_cache {
   my ($prunesize, $cacheold, $cachenew) = @_;
   # get the lock
@@ -1181,33 +1210,10 @@ sub manage_cache {
   $content ||= [];
   my %content = map {$_->[0] => $_->[1]} @$content;
   # put cacheold, cachenew at the top
-  if ($cacheold && @$cacheold) {
-    splice(@$content, 0, 0, @$cacheold);
-    $content{$_->[0]} = $_->[1] for @$cacheold;
-  }
+  splice(@$content, 0, 0, @$cacheold) if $cacheold && @$cacheold;
   if ($cachenew) {
     for my $c (reverse @$cachenew) {
-      my $path = pop(@$c);
-      my $cacheid = $c->[0];
-      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-      mkdir_p("$cachedir/".substr($cacheid, 0, 2));
-      unlink("$cachefile.$$");
-      next unless link_or_copy($path, "$cachefile.$$");
-      rename("$cachefile.$$", $cachefile) || die("500 rename $cachefile.$$ $cachefile: $!\n");
-      unlink("$cachefile.$$");
-      my $mpath = "$path.meta";
-      $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
-      if (-s $mpath) {
-	unlink("$cachefile.meta.$$");
-	if (link_or_copy($mpath, "$cachefile.meta.$$")) {
-	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("500 rename $cachefile.meta.$$ $cachefile.meta: $!\n");
-	  unlink("$cachefile.meta.$$");
-	} else {
-	  unlink("$cachefile.meta");
-	}
-      } else {
-	unlink("$cachefile.meta");
-      }
+      next unless move_entry_into_cache($c->[0], pop(@$c));
       unshift @$content, $c;
       $content{$c->[0]} = $c->[1];
     }
@@ -1217,19 +1223,12 @@ sub manage_cache {
   for my $c (@$content) {
     if (!defined delete $content{$c->[0]}) {
       $c = undef;	# already pruned
-      next;
-    }
-    $prunesize -= $c->[1];
-    if ($prunesize < 0) {
+    } elsif (($prunesize -= $c->[1]) < 0) {
       push @pruneids, $c->[0];
       $c = undef;
     }
   }
-  for my $cacheid (sort @pruneids) {
-    my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-    unlink($cachefile);
-    unlink("$cachefile.meta");
-  }
+  remove_entry_from_cache($_->[0]) for sort @pruneids;
   @$content = grep {defined $_} @$content;
   eval {
     Storable::nstore($content, "$cachedir/content.new");
@@ -1237,12 +1236,7 @@ sub manage_cache {
   };
   if ($@) {
     # could not update content, delete all new entries
-    for my $c (@$cachenew) {
-      my $cacheid = $c->[0];
-      my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-      unlink($cachefile);
-      unlink("$cachefile.meta");
-    }
+    remove_entry_from_cache($_->[0]) for @$cachenew;
     die($@);
   }
   close F;

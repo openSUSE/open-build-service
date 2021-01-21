@@ -987,7 +987,7 @@ eval {
       while ($delayed = delete($gctx->{'delayedfetchprojpacks'}->{$projid})) {
         my $async;
         $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
-        $inprogress ||= !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
+        $inprogress = 1 if !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
       }
       next if $inprogress;	# async projpack fetch in progress...
     }
