@@ -4,6 +4,7 @@ get:
   security:
     - basic_authentication: []
   parameters:
+    - $ref: '../components/parameters/issue_tracker_name.yaml'
     - $ref: '../components/parameters/issue_name.yaml'
   responses:
     '200':
