@@ -10,6 +10,7 @@ tags:
   - name: Person
   - name: Attribute Namespaces
   - name: Attributes
+  - name: Request
 
 info:
   description: Open Build Service API
@@ -60,6 +61,15 @@ paths:
 
   /person/{login}/token:
     $ref: 'paths/person_login_token.yaml'
+
+  /request:
+    $ref: 'paths/request.yaml'
+  /request?view=collection:
+    $ref: 'paths/request_view_collection.yaml'
+  /request/{id}:
+    $ref: 'paths/request_id.yaml'
+  /request/{id}?cmd=diff:
+    $ref: 'paths/request_id_cmd_diff.yaml'
 
 components:
   securitySchemes:

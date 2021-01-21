@@ -1,0 +1,82 @@
+User:
+  in: query
+  name: user
+  schema:
+    type: string
+  description: |
+    Filter the results of requests and open reviews for a certain user. If no other parameters are
+    applied, it will include requests where the user is maintainer of the target or the creator of
+    the request.
+  example: hans
+Project:
+  in: query
+  name: project
+  schema:
+    type: string
+  description: Limit the results of requests and open review requests to the specified target project.
+  example: home:hans
+Package:
+  in: query
+  name: package
+  schema:
+    type: string
+  description: Limit the results of requests and open review requests to the specified target package.
+  example: ruby
+States:
+  in: query
+  name: states
+  schema:
+    type: string
+  description: Limit results to a given request state. Multiple states can be provided as a comma separated list.
+  example: new,review
+Types:
+  in: query
+  name: types
+  schema:
+    type: string
+  description: Limit the results to certain action types. Multiple types can be provided as a comma separated list.
+  example: add_role,submit
+Roles:
+  in: query
+  name: roles
+  schema:
+    type: string
+  description: Limit the results to a given role. Multiple roles can be provided as a comma separated list.
+  example:
+    creator,maintainer,reviewer,source,target
+WithHistory:
+  in: query
+  name: withhistory
+  schema:
+    type: string
+  description: Include the request history in the results.
+  example: 1
+WithFullHistory:
+  in: query
+  name: withfullhistory
+  schema:
+    type: string
+  description: Includes both, request and review history in the results.
+  example: 1
+Limit:
+  in: query
+  name: limit
+  schema:
+    type: integer
+  description: Limit the results to the specified amount of requests.
+  example: 7
+Ids:
+  in: query
+  name: ids
+  schema:
+    type: string
+  description: Limit the result to specified request id's. Multiple id's can be provided as a comma separated list.
+  example: 15,19,23
+RequestId:
+  in: path
+  name: id
+  schema:
+    type: integer
+  required: true
+  description: Id of the choosen request.
+  example: 743

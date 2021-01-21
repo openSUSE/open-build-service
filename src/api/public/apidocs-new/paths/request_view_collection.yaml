@@ -1,0 +1,52 @@
+get:
+  summary: Get a collection of requests for a specified target
+  description: |
+    Get a collection of requests for a specified target. **NOTE:**
+    You need to set at least one of the following parameters in order
+    to use this endpoint:
+
+    * `user`
+    * `project`
+    * `package`
+    * `states`
+    * `types`
+    * `ids`
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/User'
+    - $ref: '../components/parameters/request.yaml#/Project'
+    - $ref: '../components/parameters/request.yaml#/Package'
+    - $ref: '../components/parameters/request.yaml#/States'
+    - $ref: '../components/parameters/request.yaml#/Types'
+    - $ref: '../components/parameters/request.yaml#/Roles'
+    - $ref: '../components/parameters/request.yaml#/WithHistory'
+    - $ref: '../components/parameters/request.yaml#/WithFullHistory'
+    - $ref: '../components/parameters/request.yaml#/Limit'
+    - $ref: '../components/parameters/request.yaml#/Ids'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/request/collection.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Require Filter:
+              value:
+                code: require_filter
+                summary: This call requires at least one filter, either by user, project or package or states or types or reviewstates
+            Not Found:
+              value:
+                code: not_found
+                summary: Couldn't find User with login = foo
+  tags:
+    - Request

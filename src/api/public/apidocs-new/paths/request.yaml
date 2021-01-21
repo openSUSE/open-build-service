@@ -1,0 +1,95 @@
+get:
+  summary: Get a simple directory listing of all requests
+  description: Get a simple directory listing of all requests
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: |
+        OK
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 122
+              - name: 123
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Request
+
+post:
+  summary: Create a request
+  description: Create a request
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: cmd
+      required: true
+      schema:
+        type: string
+        enum:
+          - create
+      description: This endpoint will refuse the creation of a new request if this parameter is not set.
+    - in: query
+      name: addrevision
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Ask the server to add revisions of the current sources to the request.
+    - in: query
+      name: ignore_delegate
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Enforce a new package instance in a project which has OBS:DelegateRequestTarget set
+    - in: query
+      name: ignore_build_state
+      schema:
+        type: string
+        enum:
+          - 1
+      description: Skip the build state check
+  requestBody:
+    description: |
+      Request XML
+
+      **NOTE:** You cannot pass the request id in the xml. You can pass the history in the xml, but it will be simply ignored.
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/request/request.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/request.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: expand_error
+            summary: The source of package test-project/test-package for revision 2 is broken
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: 'Forbidden'
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: create_bs_request_not_authorized
+            summary: You are not authorized to create this Bs request.
+  tags:
+    - Request
+

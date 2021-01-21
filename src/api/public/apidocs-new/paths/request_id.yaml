@@ -1,0 +1,248 @@
+get:
+  summary: Show details about a specified request.
+  description: Show details about a specified request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+    - $ref: '../components/parameters/request.yaml#/WithHistory'
+    - $ref: '../components/parameters/request.yaml#/WithFullHistory'
+  responses:
+    '200':
+      $ref: '../components/responses/request.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find request with id '5'
+  tags:
+    - Request
+
+post:
+  summary: Apply certain actions on a specified request.
+  description: Apply certain actions on a specified request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+    - in: query
+      name: cmd
+      description: |
+        - `addreview`:
+          Add a review to a request. **NOTE:** You need to specify who has to address
+          the review by providing an additional paramter. Possible options are:
+          * by_user
+          * by_group
+          * by_project
+
+        - `assignreview`:
+          Accept a review for a given group and assign a new review to a specific user.
+          **NOTE:** You need to pass the group name in the `by_group` parameter
+          and the new reviewer in the `reviewer` parameter.
+
+        - `changestate`: Modify the state of a given request.
+          **NOTE:** You need to pass the new state throug the `newstate` parameter. Changing
+          from one state to another is in certain cases not allowed. You can still force
+          the operation by using the `force=1` parameter.
+
+        - `changereviewstate`:
+          Change the state of a review inside a given request.
+
+        - `setpriority`:
+          Change the priority of a given request. You have to pass the choosen priority through
+          the `priority` parameter. Possible values are:
+          * low
+          * moderate
+          * important
+          * critical
+
+        - `setincident`: Change the target incident for maintenance_incident actions
+          **NOTE:** You need to provide the incident number through the `incident`
+          parameter.
+
+        - `setacceptat`: Set or modify the accept_at time. Either specified by the `time`
+          parameter or by default set to now.
+
+        - `approve`: Pre-approve a request in the review state. It will turn into state `accepted`
+          after the last review.
+
+        - `cancelapproval`: Reset the approval of a request
+      schema:
+        type: string
+      style: form
+      explode: false
+      examples:
+        addreview:
+          value: cmd=addreview&by_group=heroes
+        assignreview:
+          value: cmd=assignreview&by_group=heroes&reviewer=foo
+        changestate:
+          value: cmd=changestate&newstate=accepted
+        changereviewstate:
+          value: cmd=changereviewstate&by_group=heroes&newstate=new&comment=reopened
+        setpriority:
+          value: cmd=setpriority&priority=low&comment=notsoimportant
+        setincident:
+          value: cmd=setincident&incident=12
+        setacceptat:
+          value: cmd=setacceptat&time='2020-12-01%2000:00:00%20UTC'
+        approve:
+          value: cmd=approve
+        cancelapproval:
+          value: cmd=cancelapproval
+    - in: query
+      name: newstate
+      schema:
+        type: string
+      description: Define the new state
+    - in: query
+      name: priority
+      schema:
+        type: string
+      description: Define the new priority
+    - in: query
+      name: by_user
+      schema:
+        type: string
+      description: Specify the user of a new review
+    - in: query
+      name: by_group
+      schema:
+        type: string
+      description: Specify the group of the new review
+    - in: query
+      name: by_project
+      schema:
+        type: string
+      description: Specify the project of the new review
+    - in: query
+      name: by_package
+      schema:
+        type: string
+      description: Specify the package of the new review
+    - in: query
+      name: incident
+      schema:
+        type: string
+      description: Specify the incident number for `setincident`
+    - in: query
+      name: time
+      schema:
+        type: string
+      description: Specify the time for `setacceptat`
+    - in: query
+      name: comment
+      schema:
+        type: string
+      description: Add a comment to one of the actions
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: no_maintenance_release_target
+            summary: |
+              Maintenance incident request contains release target project test_maintenance_project with
+              invalid project kind "standard" (should be "maintenance_release") for package package01
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            Request Not Modifiable:
+              value:
+                code: request_not_modifiable
+                summary: request is not in review state
+            Not Found:
+              value:
+                code: not_found
+                summary: Couldn't find request with id '120'
+  tags:
+    - Request
+
+put:
+  summary: Modify a given request.
+  description: |
+    Modify a given request.
+
+    **NOTE:** Certain parts of a request can only be changed by admins.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  requestBody:
+    description: |
+      Request XML
+
+      **NOTE:** You cannot pass the request id in the xml. You can pass the history in the xml, but it will be simply ignored.
+
+      XML Schema used for body validation: [request.rng](../schema/request.rng)
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/request/request.yaml'
+  responses:
+    '200':
+      $ref: '../components/responses/request.yaml'
+    '400':
+      description: Bad Request
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: request_save_error
+            summary: Auto accept time is in the past
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find request with id '10'
+  tags:
+    - Request
+
+delete:
+  summary: Delete a given request.
+  description: Delete a given request.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/request.yaml#/RequestId'
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: Couldn't find request with id '10'
+  tags:
+    - Request
