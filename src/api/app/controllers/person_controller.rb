@@ -24,13 +24,12 @@ class PersonController < ApplicationController
     render_ok # just a dummy check for the webui to call (for now)
   end
 
-  # Returns a list of all users (that optionally start with a prefix)
   def command
     if params[:cmd] == 'register'
       internal_register
       return
     end
-    raise UnknownCommandError, "Allowed commands are 'change_password'"
+    raise UnknownCommandError, "Allowed command is 'register'"
   end
 
   def get_userinfo
