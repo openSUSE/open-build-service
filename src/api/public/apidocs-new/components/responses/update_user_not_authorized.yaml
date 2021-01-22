@@ -1,0 +1,13 @@
+description: |
+  Forbidden.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      update_user_not_authorized:
+        value:
+          code: update_user_not_authorized
+          summary: 'You are not authorized to update this User.'

@@ -71,6 +71,8 @@ paths:
     $ref: 'paths/person.yaml'
   /person/register:
     $ref: 'paths/person_register.yaml'
+  /person/{login}:
+    $ref: 'paths/person_login.yaml'
   /person/{login}/group:
     $ref: 'paths/person_login_group.yaml'
   /person/{login}/token:
