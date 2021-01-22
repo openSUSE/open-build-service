@@ -75,6 +75,8 @@ paths:
     $ref: 'paths/person_login_group.yaml'
   /person/{login}/token:
     $ref: 'paths/person_login_token.yaml'
+  /person/{login}/token/{id}:
+    $ref: 'paths/person_login_token_id.yaml'
 
   /request:
     $ref: 'paths/request.yaml'
