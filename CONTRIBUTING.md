@@ -171,7 +171,7 @@ The Open Build Service documentation is hosted in a separated repository called 
 # How to Conduct Yourself when Contributing
 
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
-Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
+Principles!](https://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https:/en.openSUSE.org/openSUSE:Board) know!
 
