@@ -72,6 +72,16 @@ RSpec.describe PersonController do
       login user
     end
 
+    context 'when asking for a non-existing login' do
+      before do
+        post :post_userinfo, params: { login: 'nonexistent', cmd: 'change_password', format: :xml }
+      end
+
+      it 'does not change the password' do
+        expect(old_password_digest).to eq(user.reload.password_digest)
+      end
+    end
+
     context 'when using default authentication' do
       before do
         request.env['RAW_POST_DATA'] = 'password_has_changed'
