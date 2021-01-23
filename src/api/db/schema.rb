@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_12_09_105103) do
+ActiveRecord::Schema.define(version: 2021_01_23_143630) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -918,6 +918,15 @@ ActiveRecord::Schema.define(version: 2020_12_09_105103) do
     t.datetime "created_at"
     t.index ["role_id"], name: "role_id"
     t.index ["user_id", "role_id"], name: "roles_users_all_index", unique: true
+  end
+
+  create_table "saved_replies", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "title"
+    t.string "body"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id"], name: "index_saved_replies_on_user_id"
   end
 
   create_table "sessions", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|

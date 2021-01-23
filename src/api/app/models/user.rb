@@ -32,6 +32,7 @@ class User < ApplicationRecord
   has_many :subaccounts, class_name: 'User', foreign_key: 'owner_id'
 
   has_many :requests_created, foreign_key: 'creator', primary_key: :login, class_name: 'BsRequest'
+  has_many :saved_replies, dependent: :destroy
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { distinct }
