@@ -16,7 +16,7 @@ module Webui
         @saved_reply = User.session.saved_replies.new(saved_reply_params)
         if @saved_reply.valid? && @saved_reply.save
           flash[:success] = 'Reply was created successfully'
-          redirect_to action: 'index'
+          redirect_to saved_replies_path
         else
           flash[:error] = "Failed to save reply. #{@saved_reply.errors.full_messages.to_sentence}."
           render :new
@@ -28,7 +28,7 @@ module Webui
       def update
         if @saved_reply.update(saved_reply_params)
           flash[:success] = 'Reply was updated successfully'
-          redirect_to action: 'index'
+          redirect_to saved_replies_path
         else
           flash[:error] = "Failed to update reply. #{@saved_reply.errors.full_messages.to_sentence}."
           render :edit
@@ -36,6 +36,9 @@ module Webui
       end
 
       def destroy
+        @saved_reply.destroy
+        flash[:success] = 'Reply was successfully removed.'
+        redirect_to saved_replies_path
       end
 
       private
