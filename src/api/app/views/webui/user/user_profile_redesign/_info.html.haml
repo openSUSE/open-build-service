@@ -40,10 +40,19 @@
               = link_to(my_subscriptions_path, class: 'nav-link', title: 'Change Your Notifications') do
                 %i.fas.fa-lg.mr-2.fa-bell
                 %span.nav-item-name Change Your Notifications
+            %li.nav-item
+              = link_to('#', title: 'Saved replies', class: 'nav-link') do
+                %i.fas.fa-mail-bulk
+                Saved replies
+
         - else
           = link_to(my_subscriptions_path, class: 'd-block') do
             %i.fas.fa-bell
             Change Your Notifications
+
+          = link_to('#', class: 'd-block') do
+            %i.fas.fa-mail-bulk
+            Saved replies
 
 :javascript
   switchBeta();
