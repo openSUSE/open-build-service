@@ -7,12 +7,12 @@
       - if feature_enabled?(:responsive_ux)
         - content_for :actions do
           %li.nav-item
-            = link_to('#', class: 'nav-link', title: 'Create Saved Reply') do
+            = link_to(new_saved_reply_path, class: 'nav-link', title: 'Create Saved Reply') do
               %i.fas.fa-lg.mr-2.fa-plus-circle
               %span.nav-item-name Create Saved Reply
       - else
         %li.list-inline-item
-          = link_to('#') do
+          = link_to(new_saved_reply_path) do
             %i.fas.fa-plus-circle.text-primary
             Create Saved Reply
 

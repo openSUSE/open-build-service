@@ -16,6 +16,7 @@ class SavedReply < ApplicationRecord
   #### Scopes (first the default_scope macro if is used)
 
   #### Validations macros
+  validates :title, :body, presence: true
 
   #### Class methods using self. (public and then private)
 

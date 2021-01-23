@@ -1,0 +1,8 @@
+.form-group
+  = form.label(:title, 'Title:')
+  %abbr.text-danger{ title: 'Required' } *
+  = form.text_field(:title, required: true, class: 'form-control', autofocus: true)
+.form-group
+  = form.label(:body, 'Body:')
+  %abbr.text-danger{ title: 'Required' } *
+  = form.text_area(:body, rows: 3, required: true, class: 'form-control')
