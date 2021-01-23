@@ -29,8 +29,8 @@
             %td
               = reply.body
             %td
-              = link_to('#', title: 'Edit') do
+              = link_to(edit_saved_reply_path(reply), title: 'Edit') do
                 %i.fas.fa-edit.text-secondary
-              = link_to('#', title: 'Delete') do
+              = link_to(saved_reply_path(reply), title: 'Delete', method: :delete) do
                 %i.fas.fa-times-circle.text-danger
 

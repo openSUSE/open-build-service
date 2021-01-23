@@ -1,0 +1,9 @@
+- @pagetitle = 'Edit Saved Reply'
+
+.card
+  .card-body
+    %h3= @pagetitle
+    = form_for(@saved_reply, url: saved_reply_path(@saved_reply), method: :put) do |form|
+      - locals = { form: form }
+      = render partial: 'form', locals: locals
+      = submit_tag('Update', class: 'btn btn-sm btn-primary px-4')
