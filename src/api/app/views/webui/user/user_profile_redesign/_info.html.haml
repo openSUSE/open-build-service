@@ -41,7 +41,7 @@
                 %i.fas.fa-lg.mr-2.fa-bell
                 %span.nav-item-name Change Your Notifications
             %li.nav-item
-              = link_to('#', title: 'Saved replies', class: 'nav-link') do
+              = link_to(saved_replies_path, title: 'Saved replies', class: 'nav-link') do
                 %i.fas.fa-mail-bulk
                 Saved replies
 
@@ -50,7 +50,7 @@
             %i.fas.fa-bell
             Change Your Notifications
 
-          = link_to('#', class: 'd-block') do
+          = link_to(saved_replies_path, class: 'd-block') do
             %i.fas.fa-mail-bulk
             Saved replies
 

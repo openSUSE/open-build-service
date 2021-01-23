@@ -306,7 +306,7 @@ OBSApi::Application.routes.draw do
 
     scope :my do
       resources :tasks, only: [:index], controller: 'webui/users/tasks', as: :my_tasks
-
+      resources :saved_replies, controller: 'webui/users/saved_replies'
       resources :notifications, only: [:index], controller: 'webui/users/notifications', as: :my_notifications do
         collection do
           # We allow updating multiple notifications in a single HTTP request

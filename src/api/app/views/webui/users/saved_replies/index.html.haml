@@ -1,0 +1,36 @@
+:ruby
+  @pagetitle = 'Saved replies'
+.card
+  .card-body
+    %h3= @pagetitle
+    %ul.list-inline
+      - if feature_enabled?(:responsive_ux)
+        - content_for :actions do
+          %li.nav-item
+            = link_to('#', class: 'nav-link', title: 'Create Saved Reply') do
+              %i.fas.fa-lg.mr-2.fa-plus-circle
+              %span.nav-item-name Create Saved Reply
+      - else
+        %li.list-inline-item
+          = link_to('#') do
+            %i.fas.fa-plus-circle.text-primary
+            Create Saved Reply
+
+    %table.responsive.table.table-bordered.table-hover.w-100#saved-replies
+      %thead
+        %tr
+          %th Title
+          %th Body
+          %th Actions
+      %tbody
+        - @saved_replies.each do |reply|
+          %tr
+            %td.text-word-break-all= reply.title
+            %td
+              = reply.body
+            %td
+              = link_to('#', title: 'Edit') do
+                %i.fas.fa-edit.text-secondary
+              = link_to('#', title: 'Delete') do
+                %i.fas.fa-times-circle.text-danger
+
