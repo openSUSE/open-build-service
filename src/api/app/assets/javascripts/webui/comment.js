@@ -104,5 +104,5 @@ $(document).ready(function(){
     }
     var submitButton = $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]');
     submitButton.prop('disabled', false);
-  })
+  });
 });
