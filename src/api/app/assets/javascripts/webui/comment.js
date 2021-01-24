@@ -92,4 +92,17 @@ $(document).ready(function(){
         commentPreview.html('Nothing to preview');
       }
   });
+
+  $('.dropdown-item.reply').on('click', function(e) {
+    var body = $(e.target).data('body');
+    var comment = $('#saved-reply-dropdown').closest('form').find('textarea');
+    var value = comment.val();
+    if(!!value) {
+      comment.val(value + '\n' + body);
+    } else {
+      comment.val(body);
+    }
+    var submitButton = $(e.target).closest('[class*="-comment-form"]').find('input[type="submit"]');
+    submitButton.prop('disabled', false);
+  })
 });

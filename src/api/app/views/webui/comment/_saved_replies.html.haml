@@ -1,0 +1,9 @@
+- saved_replies = User.session.present? ? User.session.saved_replies : nil
+- if saved_replies
+  .dropdown#saved-reply-dropdown.pull-right
+    %button#dropdownMenuButton.btn.btn-secondary.dropdown-toggle{"aria-expanded" => "false", "aria-haspopup" => "true", "data-toggle" => "dropdown", :type => "button"}
+      %i.fas.fa-reply
+    .dropdown-menu{"aria-labelledby" => "dropdownMenuButton"}
+      - saved_replies.each do |reply|
+        %a.dropdown-item.reply{'data-body' => reply.body }
+          = reply.title
