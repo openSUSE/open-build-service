@@ -2,19 +2,16 @@ require 'rails_helper'
 
 RSpec.describe SavedReply do
   describe 'validations' do
-    before :each do
-      @saved_reply = FactoryBot.build(:saved_reply)
-      assert @saved_reply.valid?
+    let(:saved_reply) { build(:saved_reply) }
+
+    it 'requires title' do
+      saved_reply.title = nil
+      expect(saved_reply).not_to be_valid
     end
 
-    it 'should have title' do
-      @saved_reply.title = nil
-      expect(@saved_reply.valid?).to be_falsey
-    end
-
-    it 'should have body' do
-      @saved_reply.body = nil
-      expect(@saved_reply.valid?).to be_falsey
+    it 'requires body' do
+      saved_reply.body = nil
+      expect(saved_reply).not_to be_valid
     end
   end
 

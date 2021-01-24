@@ -10,7 +10,7 @@ class SavedReply < ApplicationRecord
 
   #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :user
-  
+
   #### Callbacks macros: before_save, after_save, etc.
 
   #### Scopes (first the default_scope macro if is used)
@@ -23,11 +23,9 @@ class SavedReply < ApplicationRecord
   #### To define class methods as private use private_class_method
   #### private
 
-
   #### Instance methods (public and then protected/private)
 
   #### Alias of methods
-  
 end
 
 # == Schema Information

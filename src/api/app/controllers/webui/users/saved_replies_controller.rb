@@ -23,7 +23,7 @@ module Webui
         end
       end
 
-      def edit ; end
+      def edit; end
 
       def update
         if @saved_reply.update(saved_reply_params)
