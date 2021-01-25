@@ -93,9 +93,9 @@ $(document).ready(function(){
       }
   });
 
-  $('.dropdown-item.reply').on('click', function(e) {
+  $(document).on('click', '.dropdown-item.reply', function(e) {
     var body = $(e.target).data('body');
-    var comment = $('#saved-reply-dropdown').closest('form').find('textarea');
+    var comment = $(e.target).closest('form').find('textarea');
     var value = comment.val();
     if(!!value) {
       comment.val(value + '\n' + body);
