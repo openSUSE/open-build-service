@@ -10,6 +10,7 @@ tags:
   - name: Person
   - name: Attribute Namespaces
   - name: Attributes
+  - name: Attributes2
   - name: Request
 
 info:
@@ -54,6 +55,11 @@ paths:
     $ref: 'paths/attribute_namespace_attribute_name.yaml'
   /attribute/{namespace}/{attribute_name}/_meta:
     $ref: 'paths/attribute_namespace_attribute_name_meta.yaml'
+
+  /attribute2/{namespace}/{attribute_name}:
+    $ref: 'paths/attribute2_namespace_attribute_name.yaml'
+  /attribute2/{namespace}/{attribute_name}/_meta:
+    $ref: 'paths/attribute2_namespace_attribute_name_meta.yaml'
 
   /group:
     $ref: 'paths/group.yaml'
