@@ -12,6 +12,7 @@ tags:
   - name: Attributes
   - name: Request
   - name: Configuration
+  - name: Distributions
 
 info:
   description: |
@@ -58,6 +59,13 @@ paths:
 
   /configuration:
     $ref: 'paths/configuration.yaml'
+
+  /distributions:
+    $ref: 'paths/distributions.yaml'
+  /distributions/include_remotes:
+    $ref: 'paths/distributions_include_remotes.yaml'
+  /distributions/{distribution_id}:
+    $ref: 'paths/distributions_distribution_id.yaml'
 
   /group:
     $ref: 'paths/group.yaml'
