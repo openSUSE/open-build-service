@@ -1,0 +1,41 @@
+post:
+  summary: Perform changes on a registered person
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+    - in: query
+      name: cmd
+      schema:
+        type: string
+        enum: [change_password,lock,delete]
+      required: true
+      description: "The command to execute against the provided person."
+      example: change_password
+  requestBody:
+    description: "The password in plain text when the cmd param is 'change_password'."
+    required: false
+    content:
+      text/plain:
+        schema:
+          type: string
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [api_response.xsd](../schema/api_response.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '400':
+      $ref: '../components/responses/bad_request_error.yaml'
+    '403':
+      $ref: '../components/responses/update_user_not_authorized.yaml'
+    '404':
+      $ref: '../components/responses/not_found.yaml'
+  tags:
+    - Person
