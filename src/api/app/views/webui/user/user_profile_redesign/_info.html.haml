@@ -42,8 +42,8 @@
                 %span.nav-item-name Change Your Notifications
             %li.nav-item
               = link_to(saved_replies_path, title: 'Saved replies', class: 'nav-link') do
-                %i.fas.fa-mail-bulk
-                Saved replies
+                %i.fas.fa-mail-bulk.fa-lg.mr-2
+                %span.nav-item-name Saved replies
 
         - else
           = link_to(my_subscriptions_path, class: 'd-block') do
