@@ -212,6 +212,55 @@ sub get_projpacks {
   return 1;
 }
 
+sub trigger_auto_deep_checks {
+  my ($gctx, $projid, $oldproj, $newproj) = @_;
+  my %badprp;
+  my $oldconfig = $oldproj->{'config'} || '';
+  my $newconfig = $newproj->{'config'} || '';
+  if ($BSConfig::deep_check_dependent_projects_on_macro_change) {
+    for my $oldrepo (@{$oldproj->{'repository'} || []}) {
+      my $repoid = $oldrepo->{'name'};
+      my $newrepo = (grep {$_->{'name'} eq $repoid} @{$oldproj->{'repository'} || []})[0];
+      if (!$newrepo || !BSUtil::identical($oldrepo->{'path'}, $newrepo->{'path'})) {
+	$badprp{"$projid/$repoid"} = 1;
+      } elsif ($oldconfig ne $newconfig) {
+	my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+	my $cold = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $oldconfig) ]);
+	my $cnew = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $newconfig) ]);
+	$badprp{"$projid/$repoid"} = 1 if !BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
+      }
+    }
+  } elsif ($oldconfig ne $newconfig) {
+    my @mprefix = ("%define _project $projid");
+    my $cold = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
+    my $cnew = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $newproj->{'config'} || '') ]);
+    if (($cold->{'expandflags:macroserial'} || '') ne ($cold->{'expandflags:macroserial'} || '')) {
+      for my $oldrepo (@{$oldproj->{'repository'} || []}) {
+	$badprp{"$projid/$oldrepo->{'name'}"} = 1;
+      }
+    }
+  }
+  return unless %badprp;
+  print "had macro change for ".join(', ', sort keys %badprp)."\n";
+  my %badprojids = ($projid => 1);
+  my $projpacks = $gctx->{'projpacks'};
+  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
+  my $changed_low = $gctx->{'changed_low'};
+  my $changed_dirty = $gctx->{'changed_dirty'};
+  for my $prp (sort keys %{$gctx->{'prpsearchpath'} || {}}) {
+    next unless grep {$badprp{$_}} @{$gctx->{'prpsearchpath'}->{$prp}};
+    my $badprojid = (split('/', $prp, 2))[0];
+    next if $badprojids{$badprojid};
+    next unless $projpacks->{$badprojid};
+    # trigger a low fetch of all packages
+    print "  triggered deep check of $badprojid\n";
+    push @{$delayedfetchprojpacks->{$badprojid}}, '/all';
+    $changed_low->{$prp} ||= 1;
+    $changed_dirty->{$prp} = 1;
+  }
+}
+
+
 =head2 get_projpacks_resume - async RPC bottom part of get_projpacks
 
  TODO: add description
@@ -244,44 +293,12 @@ sub get_projpacks_resume {
     get_projpacks($gctx, $async, $projid);
   }
 
-  if ($BSConfig::deep_check_dependent_projects_on_macro_change && !$packids) {
+  if (!$packids) {
     my $oldproj = $projpacks->{$projid} || $remoteprojs->{$projid} || {};
     my $newproj = $projpacksin->{'project'}->[0];
     $newproj = undef if $newproj && $newproj->{'name'} ne $projid;
     $newproj ||= (grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []})[0] || {};
-    my %badprp;
-    for my $oldrepo (@{$oldproj->{'repository'} || []}) {
-      my $repoid = $oldrepo->{'name'};
-      my $newrepo = (grep {$_->{'name'} eq $repoid} @{$oldproj->{'repository'} || []})[0];
-      if (!$newrepo || !BSUtil::identical($oldrepo->{'path'}, $newrepo->{'path'})) {
-	$badprp{"$projid/$repoid"} = 1;
-	next;
-      }
-      if (($oldproj->{'config'} || '') ne ($newproj->{'config'} || '')) {
-        my @mprefix = ("%define _project $projid", "%define _repository $repoid");
-        my $cold = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
-        my $cnew = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $newproj->{'config'} || '') ]);
-	$badprp{"$projid/$repoid"} = 1 if !BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
-      }
-    }
-    if (%badprp) {
-      print "had macro change for ".join(', ', sort keys %badprp)."\n";
-      my %badprojids = ($projid => 1);
-      my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
-      my $changed_low = $gctx->{'changed_low'};
-      my $changed_dirty = $gctx->{'changed_dirty'};
-      for my $prp (sort keys %{$gctx->{'prpsearchpath'} || {}}) {
-	next unless grep {$badprp{$_}} @{$gctx->{'prpsearchpath'}->{$prp}};
-	my $badprojid = (split('/', $prp, 2))[0];
-	next if $badprojids{$badprojid};
-	next unless $projpacks->{$badprojid};
-	# trigger a low fetch of all packages
-        print "  triggered deep check of $badprojid\n";
-	push @{$delayedfetchprojpacks->{$badprojid}}, '/all';
-	$changed_low->{$prp} ||= 1;
-	$changed_dirty->{$prp} = 1;
-      }
-    }
+    trigger_auto_deep_checks($gctx, $projid, $oldproj, $newproj) if $oldproj && $newproj;
   }
 
   # commit the update
