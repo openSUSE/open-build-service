@@ -8,6 +8,8 @@ class Configuration < ApplicationRecord
 
   # note: do not add defaults here. It must be either the options.yml content or nil
   # rubocop:disable Style/MutableConstant
+  # FIXME: The hash keys are outputted in the error message of the PUT endpoint in the configurations_controller.
+  #        To remove the confusion, the hash keys should have the same name as the config options from which they take their value.
   OPTIONS_YML = {
     title: nil,
     description: nil,

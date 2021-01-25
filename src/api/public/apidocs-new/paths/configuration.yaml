@@ -1,0 +1,57 @@
+get:
+  summary: Display the configuration of this Open Build Service instance
+  description: |
+    Display the configuration of this Open Build Service instance.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/configuration.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Configuration
+
+put:
+  summary: Update the configuration of this Open Build Service instance
+  description: |
+    Update the configuration of this Open Build Service instance.
+
+    This is for admins only.
+  security:
+    - basic_authentication: []
+  requestBody:
+    description: Configuration definition.
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/configuration.yaml'
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/configuration.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Forbidden.
+
+        In the example below, _default_access_disabled_ is one of the possible configuration options which is set in the options.yml file.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: no_permission_to_change
+            summary: The api has a different value for default_access_disabled configured in options.yml file. Remove it there first
+  tags:
+    - Configuration
