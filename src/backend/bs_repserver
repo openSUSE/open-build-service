@@ -127,6 +127,23 @@ sub jobname {
   return $job;
 }
 
+sub is_wanted_dodbinary {
+  my ($pool, $p, $path, $doverify) = @_;
+  my $q;
+  eval { $q = Build::query($path, 'evra' => 1) };
+  return 0 unless $q;
+  my $data = $pool->pkg2data($p);
+  $data->{'release'} = '__undef__' unless defined $data->{'release'};
+  $q->{'release'} = '__undef__' unless defined $q->{'release'};
+  return 0 if $data->{'name'} ne $q->{'name'} ||
+	      ($data->{'arch'} || '') ne ($q->{'arch'} || '') ||
+	      ($data->{'epoch'} || 0) != ($q->{'epoch'} || 0) ||
+	      $data->{'version'} ne $q->{'version'} ||
+	      $data->{'release'} ne $q->{'release'};
+  BSVerify::verify_nevraquery($q) if $doverify;		# just in case
+  return 1;
+}
+
 sub fetchdodbinary {
   my ($pool, $repo, $p, $arch, $maxredirects, $handoff) = @_;
 
@@ -143,7 +160,10 @@ sub fetchdodbinary {
   BSVerify::verify_filename($pkgname);
   BSVerify::verify_simple($pkgname);
   my $localname = "$reporoot/$reponame/$arch/:full/$pkgname";
-  return $localname if -e $localname;
+  if (-e $localname) {
+    # package exists, why are we called? verify that it matches our expectations
+    return $localname if is_wanted_dodbinary($pool, $p, $localname);
+  }
   # we really need to download, handoff to ajax if not already done
   BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
@@ -166,16 +186,7 @@ sub fetchdodbinary {
     # verify the checksum if we know it
     die("checksum error for $tmp, expected $checksum\n") if $checksum && !$pool->verifypkgchecksum($p, $tmp);
     # also make sure that the evra matches what we want
-    my $q = Build::query($tmp, 'evra' => 1);
-    my $data = $pool->pkg2data($p);
-    $data->{'release'} = '__undef__' unless defined $data->{'release'};
-    $q->{'release'} = '__undef__' unless defined $q->{'release'};
-    die("downloaded package is not the one we want\n") if $data->{'name'} ne $q->{'name'} ||
-	      ($data->{'arch'} || '') ne ($q->{'arch'} || '') ||
-	      ($data->{'epoch'} || 0) != ($q->{'epoch'} || 0) ||
-	      $data->{'version'} ne $q->{'version'} ||
-	      $data->{'release'} ne $q->{'release'};
-    BSVerify::verify_nevraquery($q);	# just in case...
+    die("downloaded package is not the one we want\n") unless is_wanted_dodbinary($pool, $p, $tmp, 1);
   };
   if ($@) {
     unlink($tmp);
