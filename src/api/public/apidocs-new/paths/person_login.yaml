@@ -1,3 +1,36 @@
+get:
+  summary: Get details about a person
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/login.yaml'
+  responses:
+    '200':
+      description: >
+        OK. The request has succeeded.
+
+        XML Schema used for body validation: [user.rng](../schema/user.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/person.yaml'
+          example:
+            login: Admin
+            email: root@localhost
+            realname: OBS Instance Superuser
+            state: confirmed
+            globalrole: Admin
+            ignore_auth_services: false
+            watchlist:
+              - project:
+                  name: "home:Admin"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/person/not_found.yaml'
+  tags:
+    - Person
+
 post:
   summary: Perform changes on a registered person
   security:
@@ -36,6 +69,6 @@ post:
     '403':
       $ref: '../components/responses/update_user_not_authorized.yaml'
     '404':
-      $ref: '../components/responses/not_found.yaml'
+      $ref: '../components/responses/person/not_found.yaml'
   tags:
     - Person
