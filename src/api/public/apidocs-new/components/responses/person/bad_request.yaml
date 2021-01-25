@@ -1,0 +1,13 @@
+description: |
+  Bad request.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../../schemas/api_response.yaml'
+    examples:
+      Subaccount chaining:
+        value:
+          code: subaccount_chaining
+          summary: A subaccount can not be assigned to subaccount <login>

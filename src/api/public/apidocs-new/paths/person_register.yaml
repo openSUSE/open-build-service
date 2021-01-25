@@ -8,7 +8,7 @@ post:
     content:
       application/xml:
         schema:
-          $ref: '../components/schemas/unregisteredperson.yaml'
+          $ref: '../components/schemas/unregistered_person.yaml'
   responses:
     '200':
       $ref: '../components/responses/succeeded.yaml'

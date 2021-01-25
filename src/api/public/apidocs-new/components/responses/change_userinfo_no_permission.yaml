@@ -1,0 +1,13 @@
+description: |
+  Unauthorized.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      change_userinfo_no_permission:
+        value:
+          code: change_userinfo_no_permission
+          summary: no permission to change userinfo for user <login>
