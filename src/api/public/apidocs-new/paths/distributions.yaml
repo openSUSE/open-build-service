@@ -14,9 +14,7 @@ get:
   tags:
     - Distributions
 
-# FIXME: This endpoint doesn't work. It should be fixed before we document it.
-#        It's not documented in the non-Swagger API documentation.
-#        PUT /distributions would do the same (while also deleting all existing distributions). This is confusing!
+# FIXME: https://github.com/openSUSE/open-build-service/issues/10695
 #
 # post:
 #   summary: Create distributions.
