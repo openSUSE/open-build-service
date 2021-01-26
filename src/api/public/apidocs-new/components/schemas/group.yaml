@@ -25,4 +25,5 @@ properties:
             attribute: true
     xml:
       wrapped: true
-
+xml:
+  name: group
