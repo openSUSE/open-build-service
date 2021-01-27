@@ -12,7 +12,7 @@
           .custom-control.custom-checkbox.custom-control-inline
             = check_box_tag group_user.group, '1', group_user.email, class: 'custom-control-input', id: "checkbox-#{group_user.group}",
               data: { url: update_my_subscriptions_path, method: :put, remote: true }
-            = label_tag group_user.group.title, nil, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
+            = label_tag nil, group_user.group.title, class: 'custom-control-label', for: "checkbox-#{group_user.group}"
             %i.fas.fa-spinner.invisible
   .card-body
     %h4.card-title Events
