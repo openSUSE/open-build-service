@@ -1,4 +1,8 @@
 type: object
+required:
+  - title
+  - description
+  - revision
 properties:
   title:
     type: string
