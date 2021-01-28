@@ -12,6 +12,8 @@ module Webui
       def create
         authorize @package, :update?
 
+        binding.pry
+        
         upload_service = FileService::Uploader.new(@package, params[:files],
                                   params[:files_new], params[:file_urls],
                                   params[:comment])
@@ -20,7 +22,7 @@ module Webui
         added_files = upload_service.added_files.join(', ')
 
         if errors.blank?
-          message = "'#{added_files}' have been successfully saved."
+          message = "'#{added_files}' has been successfully saved."
           # We have to check if it's an AJAX request or not
           if request.xhr?
             flash.now[:success] = message
@@ -43,6 +45,14 @@ module Webui
         status ||= 200
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
+    end
+
+    private
+
+    def handle_xhr_upload
+      return unless request.xhr?
+
+
     end
   end
 end

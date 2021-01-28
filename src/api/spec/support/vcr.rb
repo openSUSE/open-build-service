@@ -23,7 +23,7 @@ RSpec.configure do |config|
   config.before do
     stub_request(:get, /download.opensuse.org/).to_return(status: [500, 'Internal Server Error'])
     stub_request(:get, /www.gravatar.com/).to_return(body: File.new(Rails.root.join('app', 'assets', 'images', 'default_face.png')))
-    # CONFIG['global_write_through'] = true
+    #CONFIG['global_write_through'] = true
   end
   # You can also limit this to the type of test with
   # config.before(:each, type: feature) do...

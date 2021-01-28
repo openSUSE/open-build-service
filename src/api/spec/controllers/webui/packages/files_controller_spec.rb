@@ -1,7 +1,7 @@
 require 'webmock/rspec'
 require 'rails_helper'
 
-RSpec.describe Webui::Packages::FilesController, vcr: true do
+RSpec.describe Webui::Packages::FilesController, vcr: false do
   let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
@@ -16,15 +16,15 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
         it 'fails with an error message' do
           do_request(project_name: source_project, package_name: source_package)
           expect(response).to expected_failure_response
-          expect(flash[:error]).to eq("Error while creating '' file: No file or URI given.")
+          expect(flash[:error]).to eq("Error while adding '': No file or URI given.")
         end
       end
 
       context 'with an invalid filename' do
         it 'fails with a backend error message' do
-          do_request(project_name: source_project, package_name: source_package, filename: '.test')
+          do_request(project_name: source_project, package_name: source_package, files_new: ['.test'])
           expect(response).to expected_failure_response
-          expect(flash[:error]).to eq("Error while creating '.test' file: '.test' is not a valid filename.")
+          expect(flash[:error]).to eq("Error while adding '.test': '.test' is not a valid filename.")
         end
       end
 
@@ -38,7 +38,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
         end
 
         it { expect(response).to have_http_status(expected_success_status) }
-        it { expect(flash[:success]).to eq("The file 'newly_created_file' has been successfully saved.") }
+        it { expect(flash[:success]).to eq("'newly_created_file' has been successfully saved.") }
         it { expect(source_package.source_file('newly_created_file')).to eq('some_content') }
       end
 
@@ -50,7 +50,7 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
         end
 
         it { expect(response).to have_http_status(expected_success_status) }
-        it { expect(flash[:success]).to eq("The file '学习总结' has been successfully saved.") }
+        it { expect(flash[:success]).to eq("'学习总结' has been successfully saved.") }
 
         it 'creates the file' do
           expect { source_package.source_file('学习总结') }.not_to raise_error
@@ -83,7 +83,8 @@ RSpec.describe Webui::Packages::FilesController, vcr: true do
         end
 
         it { expect(response).to have_http_status(expected_success_status) }
-        it { expect(flash[:success]).to eq("The file 'remote_file' has been successfully saved.") }
+        it { expect(flash[:success]).to eq("'remote_file' has been successfully saved.") }
+
 
         # Uploading a remote file creates a service instead of downloading it directly!
         it 'creates a valid service file' do

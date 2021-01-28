@@ -22,11 +22,6 @@ module FileService
         http_upload if @files.present?
         remote_files if @file_urls.present?
 
-        if @added_files.empty?
-          @errors << 'No file or URI given'
-          return
-        end
-
         apply_commit_filelist
       rescue APIError => e
         @errors << e.message
@@ -35,6 +30,8 @@ module FileService
       rescue StandardError => e
         @errors << e.message
       end
+
+      @errors << 'No file or URI given' if @added_files.empty?
     end
 
     private
