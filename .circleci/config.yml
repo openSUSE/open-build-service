@@ -84,7 +84,8 @@ jobs:
       - run: rm -rf src/api/tmp/rubocop*
       - run:
           name: Run brakeman
-          command: sudo gem install --no-format-executable brakeman; brakeman --rails6 -p src/api
+          # Same brakeman version is pinned in our Dockerfile to have reproducible images (the license forbids us from shipping the gem in our appliance)
+          command: sudo gem install --no-format-executable brakeman --version 5.0.0; brakeman --rails6 -p src/api
       - run:
           name: Setup application
           command: cd src/api; bundle exec rake dev:prepare assets:precompile RAILS_ENV=test FORCE_EXAMPLE_FILES=1
