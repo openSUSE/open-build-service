@@ -19,3 +19,5 @@ properties:
   commit:
     type: string
     example: '7b5d82e6143442a8eb8459f35cc94d2fbe263ebe'
+xml:
+  name: about
