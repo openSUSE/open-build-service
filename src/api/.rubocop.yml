@@ -117,6 +117,9 @@ Rails/Exit:
   Exclude:
     - 'lib/memory_dumper.rb'
 
+RSpec/NestedGroups:
+  Enabled: false
+
 RSpec/FilePath:
   # False positives
   Exclude:
