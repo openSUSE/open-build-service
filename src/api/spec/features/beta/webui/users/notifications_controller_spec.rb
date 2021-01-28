@@ -47,7 +47,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
         expect(page).to have_text(notifiable.commentable.name)
       end
 
-      context 'when marking a comment notification as read' do # rubocop:todo RSpec/NestedGroups
+      context 'when marking a comment notification as read' do
         before do
           click_link("update-notification-#{notification_for_projects_comment.id}")
         end
@@ -90,7 +90,7 @@ RSpec.describe 'User notifications', type: :feature, js: true do
         expect(find('.list-group-item.list-group-item-action.active')).to have_text(project.name)
       end
 
-      context 'when marking a project notification as read' do # rubocop:todo RSpec/NestedGroups
+      context 'when marking a project notification as read' do
         before do
           find('#notifications-dropdown-trigger').click if mobile?
           within('#filters') { click_link(project.name) }

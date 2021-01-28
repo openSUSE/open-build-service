@@ -43,7 +43,7 @@ RSpec.describe Webui::FeedsController do
 
   describe 'GET news' do
     context 'when having status messages for admins only' do
-      context 'and the user checking the messages is the admin' do # rubocop:todo RSpec/NestedGroups
+      context 'and the user checking the messages is the admin' do
         before do
           (1..5).each do |n|
             create(:status_message, message: "message #{n}", user: admin_user)
@@ -61,7 +61,7 @@ RSpec.describe Webui::FeedsController do
         end
       end
 
-      context 'and the user checking the messages is not the admin' do # rubocop:todo RSpec/NestedGroups
+      context 'and the user checking the messages is not the admin' do
         let(:regular_user) { create(:confirmed_user) }
         let(:status_message) { create(:status_message) }
         let(:status_message_for_admins_only) { create(:status_message, :admins_only) }
