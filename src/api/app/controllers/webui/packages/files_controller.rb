@@ -12,8 +12,6 @@ module Webui
       def create
         authorize @package, :update?
 
-        binding.pry
-        
         upload_service = FileService::Uploader.new(@package, params[:files],
                                   params[:files_new], params[:file_urls],
                                   params[:comment])
@@ -22,37 +20,42 @@ module Webui
         added_files = upload_service.added_files.join(', ')
 
         if errors.blank?
-          message = "'#{added_files}' has been successfully saved."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:success] = message
-          else
-            redirect_to(package_show_path(project: @project, package: @package), success: message)
-            return
-          end
+          redirect_to(package_show_path(project: @project, package: @package),
+                                        success: "'#{added_files}' has been successfully saved.")
         else
-          message = "Error while adding '#{added_files}': #{errors.compact.join("\n")}."
-          # We have to check if it's an AJAX request or not
-          if request.xhr?
-            flash.now[:error] = message
-            status = 400
-          else
-            redirect_back(fallback_location: root_path, error: message)
-            return
-          end
+          redirect_back(fallback_location: root_path, error: "Error while adding '#{added_files}':
+                                                              #{errors.compact.join("\n")}.")
+        end
+      end
+
+      def update
+        return unless request.xhr?
+
+        authorize @package, :update?
+
+        errors = []
+
+        begin
+          @package.save_file(file: params[:file], filename: params[:filename],
+                             comment: params[:comment])
+        rescue APIError => e
+          errors << e.message
+        rescue Backend::Error => e
+          errors << Xmlhash::XMLHash.new(error: e.summary)[:error]
+        rescue StandardError => e
+          errors << e.message
+        end
+
+        if errors.blank?
+          flash.now[:success] = "'#{params[:filename]}' has been successfully saved."
+        else
+          flash.now[:error] = "Error while adding '#{params[:filename]}': #{errors.compact.join("\n")}."
+          status = 400
         end
 
         status ||= 200
         render layout: false, status: status, partial: 'layouts/webui/flash', object: flash
       end
-    end
-
-    private
-
-    def handle_xhr_upload
-      return unless request.xhr?
-
-
     end
   end
 end

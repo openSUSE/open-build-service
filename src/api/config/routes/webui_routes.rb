@@ -268,7 +268,7 @@ OBSApi::Application.routes.draw do
         resources :deletions, controller: 'webui/requests/deletions', only: [:new, :create], constraints: cons
         resources :devel_project_changes, controller: 'webui/requests/devel_project_changes', only: [:new, :create], constraints: cons
         resources :submissions, controller: 'webui/requests/submissions', only: [:new, :create], constraints: cons
-        resource :files, controller: 'webui/packages/files', only: [:new, :create], constraints: cons
+        resource :files, controller: 'webui/packages/files', only: [:new, :create, :update], constraints: cons
       end
 
       resources :role_additions, controller: 'webui/requests/role_additions', only: [:new, :create], constraints: cons
