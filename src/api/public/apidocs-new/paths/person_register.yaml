@@ -1,7 +1,5 @@
 post:
   summary: Registers a new person
-  security:
-    - basic_authentication: []
   requestBody:
     description: Data for the person to register.
     required: true
