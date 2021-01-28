@@ -138,11 +138,6 @@ class Group < ApplicationRecord
     Package.where(id: packages).where.not(project_id: projects)
   end
 
-  # returns the users that actually want email for this group's notifications
-  def email_users
-    User.where(id: groups_users.where(email: true).select(:user_id))
-  end
-
   def display_name
     address = Mail::Address.new(email)
     address.display_name = title

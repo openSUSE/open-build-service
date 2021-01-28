@@ -10,9 +10,7 @@ class EventSubscription
       receivers_and_subscriptions = {}
 
       event.class.receiver_roles.flat_map do |receiver_role|
-        # Find the users/groups who are receivers for this event
-        receivers = event.send("#{receiver_role}s")
-        receivers = filter_and_convert_groups_without_emails_to_users(receivers)
+        receivers = EventReceiversFetcher.new(event, receiver_role).call
 
         options = { eventtype: event.eventtype, receiver_role: receiver_role, channel: channel }
         # Find the default subscription for this eventtype and receiver_role
@@ -44,29 +42,6 @@ class EventSubscription
       end
 
       receivers_and_subscriptions.values.flatten
-    end
-
-    private
-
-    def filter_and_convert_groups_without_emails_to_users(receivers)
-      new_receivers = []
-
-      receivers.each do |receiver|
-        case receiver
-        when User
-          new_receivers << receiver
-
-        when Group
-
-          if receiver.email.present?
-            new_receivers << receiver
-          else
-            new_receivers += receiver.email_users
-          end
-        end
-      end
-
-      new_receivers
     end
   end
 end

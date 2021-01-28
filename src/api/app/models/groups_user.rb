@@ -3,6 +3,8 @@ class GroupsUser < ApplicationRecord
 
   belongs_to :user
   belongs_to :group
+  has_many :event_subscriptions, dependent: :destroy, inverse_of: :groups_user
+  has_many :notifications, -> { where(subscriber_type: 'GroupsUser') }, dependent: :destroy, inverse_of: :subscriber, foreign_key: 'subscriber_id'
 
   validates :user, presence: true
   validates :group, presence: true

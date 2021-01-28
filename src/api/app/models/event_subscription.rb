@@ -22,6 +22,7 @@ class EventSubscription < ApplicationRecord
 
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
+  belongs_to :groups_user, inverse_of: :event_subscriptions
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
@@ -29,9 +30,11 @@ class EventSubscription < ApplicationRecord
   }
 
   scope :for_eventtype, ->(eventtype) { where(eventtype: eventtype) }
-  scope :defaults, -> { where(user_id: nil, group_id: nil) }
+  scope :defaults, -> { where(user_id: nil, group_id: nil, groups_user_id: nil) }
   scope :for_subscriber, lambda { |subscriber|
     case subscriber
+    when GroupsUser
+      where(groups_user: subscriber)
     when User
       where(user: subscriber)
     when Group
@@ -42,7 +45,9 @@ class EventSubscription < ApplicationRecord
   }
 
   def subscriber
-    if user_id.present?
+    if groups_user_id.present?
+      groups_user
+    elsif user_id.present?
       user
     elsif group_id.present?
       group
@@ -51,6 +56,8 @@ class EventSubscription < ApplicationRecord
 
   def subscriber=(subscriber)
     case subscriber
+    when GroupsUser
+      self.groups_user = subscriber
     when User
       self.user = subscriber
     when Group
@@ -82,18 +89,20 @@ end
 #
 # Table name: event_subscriptions
 #
-#  id            :integer          not null, primary key
-#  channel       :integer          default("disabled"), not null
-#  enabled       :boolean          default(FALSE)
-#  eventtype     :string(255)      not null
-#  receiver_role :string(255)      not null
-#  created_at    :datetime
-#  updated_at    :datetime
-#  group_id      :integer          indexed
-#  user_id       :integer          indexed
+#  id             :integer          not null, primary key
+#  channel        :integer          default("disabled"), not null
+#  enabled        :boolean          default(FALSE)
+#  eventtype      :string(255)      not null
+#  receiver_role  :string(255)      not null
+#  created_at     :datetime
+#  updated_at     :datetime
+#  group_id       :integer          indexed
+#  groups_user_id :integer          indexed
+#  user_id        :integer          indexed
 #
 # Indexes
 #
-#  index_event_subscriptions_on_group_id  (group_id)
-#  index_event_subscriptions_on_user_id   (user_id)
+#  index_event_subscriptions_on_group_id        (group_id)
+#  index_event_subscriptions_on_groups_user_id  (groups_user_id)
+#  index_event_subscriptions_on_user_id         (user_id)
 #

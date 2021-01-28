@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_01_105103) do
+ActiveRecord::Schema.define(version: 2021_02_09_133931) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -404,7 +404,9 @@ ActiveRecord::Schema.define(version: 2021_02_01_105103) do
     t.integer "group_id"
     t.integer "channel", default: 0, null: false
     t.boolean "enabled", default: false
+    t.integer "groups_user_id"
     t.index ["group_id"], name: "index_event_subscriptions_on_group_id"
+    t.index ["groups_user_id"], name: "index_event_subscriptions_on_groups_user_id"
     t.index ["user_id"], name: "index_event_subscriptions_on_user_id"
   end
 
