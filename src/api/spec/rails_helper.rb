@@ -83,3 +83,6 @@ require 'support/thinking_sphinx'
 
 # support beta
 require 'support/beta'
+
+# support XML matchers
+require 'support/xml_matchers'
