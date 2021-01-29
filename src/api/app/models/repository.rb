@@ -223,6 +223,20 @@ class Repository < ApplicationRecord
     name
   end
 
+  def check_valid_release_target!(target_repository)
+    # same architectures in same order
+    unless architectures.size == target_repository.architectures.size
+      raise ArchitectureOrderMissmatch, "Repository '#{name}' and releasetarget " \
+                                        "'#{target_repository.name}' have different architectures"
+    end
+    (1..(architectures.size)).each do |i|
+      unless architectures[i - 1] == target_repository.architectures[i - 1]
+        raise ArchitectureOrderMissmatch, "Repository and releasetarget don't have the same architecture " \
+                                          "on position #{i}: #{project.name} / #{name}"
+      end
+    end
+  end
+
   def is_kiwi_type?
     # HACK: will be cleaned up after implementing FATE #308899
     name == 'images'
