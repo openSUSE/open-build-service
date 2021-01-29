@@ -43,8 +43,6 @@ post:
     Allows executing command on the person endpoint.
 
     As of now, the only command allowed is 'register'.
-  security:
-    - basic_authentication: []
   parameters:
     - in: query
       name: cmd
