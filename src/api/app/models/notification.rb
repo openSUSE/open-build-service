@@ -46,7 +46,7 @@ end
 #
 # Table name: notifications
 #
-#  id                         :integer          not null, primary key
+#  id                         :integer          unsigned, not null, primary key
 #  bs_request_oldstate        :string(255)
 #  bs_request_state           :string(255)
 #  delivered                  :boolean          default(FALSE)
