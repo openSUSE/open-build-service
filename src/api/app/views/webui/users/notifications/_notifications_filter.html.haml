@@ -5,6 +5,11 @@
   %h5.ml-3 Filter
   = filter_notification_link('Comments', filter.count['Comment'], { type: 'comments' }, filter.selected_filter)
   = filter_notification_link('Requests', filter.count['BsRequest'], { type: 'requests' }, filter.selected_filter)
+- unless filter.groups_for_filter.empty?
+  .row.list-group-flush.mt-5
+    %h5.ml-3 Groups
+    - filter.groups_for_filter.each_pair do |group_name, amount|
+      = filter_notification_link(group_name, amount, { group: group_name }, filter.selected_filter)
 - unless filter.projects_for_filter.empty?
   .row.list-group-flush.mt-5
     %h5.ml-3 Projects

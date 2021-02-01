@@ -70,6 +70,14 @@ class Webui::Users::NotificationsController < Webui::WebuiController
            .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
   end
 
+  def groups_for_filter
+    {
+      'Viva Belgrado' => 3,
+      'Boïra' => 2,
+      'Jardin de la Croix' => 1
+    }
+  end
+
   def notifications_count
     counted_notifications = NotificationsFinder.new(User.session.notifications.for_web).unread.group(:notifiable_type).count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
@@ -94,6 +102,8 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     NotificationsFilterPresenter.new(projects_for_filter,
                                      notifications_count,
                                      params[:type],
-                                     params[:project])
+                                     params[:project],
+                                     groups_for_filter,
+                                     groups_for_filter.keys.last)
   end
 end
