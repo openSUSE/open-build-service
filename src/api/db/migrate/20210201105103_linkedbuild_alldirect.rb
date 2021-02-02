@@ -1,9 +1,6 @@
-class LinkedbuildAlldirect < ActiveRecord::Migration[4.2]
-  def self.up
-    safety_assured { execute "alter table repositories modify column linkedbuild enum('off','localdep','all','alldirect');" }
-  end
-
-  def self.down
-    safety_assured { execute "alter table repositories modify column linkedbuild enum('off','localdep','all');" }
+class LinkedbuildAlldirect < ActiveRecord::Migration[6.0]
+  def change
+    # this was just kept to avoid breaking the migration version in
+    # production
   end
 end
