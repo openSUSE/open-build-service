@@ -18,6 +18,7 @@ AllCops:
     - 'files/*'
     - 'db/schema.rb'
     - 'db/data_schema.rb'
+    - 'db/migrate/001_initial_database.rb'
     # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
     - 'app/jobs/old/consistency_check_job.rb'
 
