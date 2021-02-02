@@ -1094,7 +1094,7 @@ sub getprojpack {
       }
     }
     next unless $proj;
-    for (qw{kind}) {
+    for (qw{kind link}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
     }
 

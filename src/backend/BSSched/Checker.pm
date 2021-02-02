@@ -380,7 +380,11 @@ sub wipeobsolete {
       } else {
 	if (exists($pdata->{'originproject'})) {
 	  # package from project link
-	  $reason = 'excluded' if !$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all');
+	  if (!$linkedbuild || ($linkedbuild ne 'localdep' && $linkedbuild ne 'all' && $linkedbuild ne 'alldirect')) {
+	    $reason = 'excluded';
+	  } elsif ($linkedbuild eq 'alldirect' && !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
+	    $reason = 'excluded';
+          }
 	}
 	my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	my $info = $info{$repoid};
@@ -538,7 +542,8 @@ sub expandandsort {
     }
   }
   my $projpacks = $gctx->{'projpacks'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $proj = $projpacks->{$projid};
+  my $pdatas = $proj->{'package'} || {};
 
   my %experrors;
   my %pdeps;
@@ -614,6 +619,9 @@ sub expandandsort {
     if (exists($pdata->{'originproject'})) {
       # this is a package from a project link
       if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+	$pdeps{$packid} = [];
+	next;
+      } elsif ($repo->{'linkedbuild'} eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
 	$pdeps{$packid} = [];
 	next;
       }
@@ -760,7 +768,8 @@ sub checkpkgs {
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
+  my $proj = $projpacks->{$projid};
+  my $pdatas = $proj->{'package'} || {};
 
   # Step 2d: check status of all packages
   print "    checking packages\n";
@@ -907,6 +916,10 @@ sub checkpkgs {
       # this is a package from a project link
       my $repo = $ctx->{'repo'};
       if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+	$packstatus{$packid} = 'excluded';
+	$packerror{$packid} = 'project link';
+	next;
+      } elsif ($repo->{'linkedbuild'} eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
 	$packstatus{$packid} = 'excluded';
 	$packerror{$packid} = 'project link';
 	next;

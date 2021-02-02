@@ -100,7 +100,8 @@
     <choice>
       <value>off</value>       <!-- DEFAULT: do not build packages from project links -->
       <value>localdep</value>  <!-- only build project linked packages if they depend on a local package -->
-      <value>all</value>       <!-- treat packages from project links like local packages -->
+      <value>alldirect</value> <!-- treat packages from project links like local packages, only direct linked projects -->
+      <value>all</value>       <!-- treat packages from project links like local packages, includes also indirect linked projects -->
     </choice>
   </define>
 
