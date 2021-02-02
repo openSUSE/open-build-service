@@ -61,23 +61,6 @@ class Webui::Users::NotificationsController < Webui::WebuiController
     notifications.page(params[:page]).per([total, MAX_PER_PAGE].min)
   end
 
-  # Returns a hash where the key is the name of the project and the value is the amount of notifications
-  # associated to that project. The hash is sorted by amount and then name.
-  def projects_for_filter
-    Project.joins(:notifications)
-           .where(notifications: { subscriber: User.session, delivered: false, web: true })
-           .order('name desc').group(:name).count # this query returns a sorted-by-name hash like { "home:b" => 1, "home:a" => 3  }
-           .sort_by(&:last).reverse.to_h # this sorts the hash by amount: { "home:a" => 3, "home:b" => 1 }
-  end
-
-  def groups_for_filter
-    {
-      'Viva Belgrado' => 3,
-      'Boïra' => 2,
-      'Jardin de la Croix' => 1
-    }
-  end
-
   def notifications_count
     counted_notifications = NotificationsFinder.new(User.session.notifications.for_web).unread.group(:notifiable_type).count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
@@ -99,11 +82,9 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def notifications_filter
-    NotificationsFilterPresenter.new(projects_for_filter,
+    NotificationsFilterPresenter.new(ProjectFilterChoicesPresenter.new(params[:project]),
+                                     GroupFilterChoicesPresenter.new,
                                      notifications_count,
-                                     params[:type],
-                                     params[:project],
-                                     groups_for_filter,
-                                     groups_for_filter.keys.last)
+                                     params[:type])
   end
 end
