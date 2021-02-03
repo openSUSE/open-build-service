@@ -26,11 +26,11 @@ class BsRequestAction
             source_package_name: source_package_name
           )
           source_diff(query_builder.project_name, query_builder.package_name, query.merge(query_builder.build))
-        elsif accepted?
-          query_builder = QueryBuilderForAccepted.new(
+        elsif bs_request_action.bs_request_action_accept_info.present?
+          query_builder = QueryBuilderForAcceptinfo.new(
             bs_request_action_accept_info: bs_request_action.bs_request_action_accept_info
           )
-          source_diff(target_project_name, target_package_name, query.merge(query_builder.build))
+          source_diff(bs_request_action.target_project, target_package_name, query.merge(query_builder.build))
         else
           query_builder = QueryBuilder.new(
             action: bs_request_action,
@@ -76,11 +76,25 @@ class BsRequestAction
       end
 
       def target_package_name
-        bs_request_action.target_package
+        return bs_request_action.target_package if bs_request_action.target_package.present?
+
+        if bs_request_action.target_package.blank? && bs_request_action.is_maintenance_incident?
+          pkg = Package.find_by_project_and_name(bs_request_action.source_project, bs_request_action.source_package)
+          # local link handling is needed? usually there should be no maintenance_incident projects for them ...
+          return pkg.linkinfo['package'] if pkg && pkg.linkinfo
+        end
+        nil
       end
 
       def target_project_name
-        bs_request_action.target_project
+        return bs_request_action.target_releaseproject if bs_request_action.is_maintenance_incident?
+
+        return bs_request_action.target_project if bs_request_action.target_project.present?
+
+        pkg = Package.get_by_project_and_name(bs_request_action.source_project, bs_request_action.source_package)
+        return pkg.origin_container({ local: false }).project.name if pkg
+
+        nil
       end
 
       def options

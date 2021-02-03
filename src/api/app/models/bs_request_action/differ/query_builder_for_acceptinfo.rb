@@ -1,6 +1,6 @@
 class BsRequestAction
   module Differ
-    class QueryBuilderForAccepted
+    class QueryBuilderForAcceptinfo
       include ActiveModel::Model
       attr_accessor :bs_request_action_accept_info
 
