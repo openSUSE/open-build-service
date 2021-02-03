@@ -14,6 +14,6 @@
       = f.fields_for :repositories do |repository_fields|
         = render 'repository_fields', f: repository_fields
       .col-12.mt-2.mb-4
-        = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { 'target': '#add-repository', 'toggle': 'modal' }) do
+        = link_to_add_association(f, :repositories, partial: 'repository_fields', data: { target: '#add-repository', toggle: 'modal' }) do
           %i.fas.fa-plus-circle.text-primary
           Add repository

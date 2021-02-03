@@ -2,7 +2,7 @@
 
 .card
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
         %a.active.nav-link.text-nowrap#group-members-tab{ aria: { controls: 'group-members' },
           data: { toggle: 'tab' }, href: '#group-members', role: 'tab' }
@@ -26,7 +26,7 @@
           %span.badge.badge-primary
             = @group.all_requests_count
       %li.nav-item.dropdown
-        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right
 
   .card-body

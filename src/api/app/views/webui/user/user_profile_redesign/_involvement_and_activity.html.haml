@@ -6,7 +6,7 @@
   - unless CONFIG['contribution_graph'] == :off
     -# Tabs
     .bg-light.d-none.d-md-block
-      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           = link_to('#involved-projects-and-packages', id: 'involved-projects-and-packages-tab', class: 'nav-link active text-nowrap',
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-projects-and-packages', selected: true }) do

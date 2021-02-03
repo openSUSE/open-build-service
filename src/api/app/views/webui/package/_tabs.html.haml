@@ -12,7 +12,7 @@
       = tab_link('Meta', package_meta_path(project, package), false, 'scrollable-tab-link')
 - else
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
         = tab_link('Overview', package_show_path(project, package))
       - if package.name == 'patchinfo'
@@ -32,5 +32,5 @@
         %li.nav-item
           = tab_link('Meta', package_meta_path(project, package))
       %li.nav-item.dropdown
-        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right

@@ -311,10 +311,10 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     render json: {
-      'targetProject': target_project,
-      'targetPackage': target_package,
-      'description': description,
-      'cleanupSource': @project.branch? # We should remove the package if this request is a branch
+      targetProject: target_project,
+      targetPackage: target_package,
+      description: description,
+      cleanupSource: @project.branch? # We should remove the package if this request is a branch
     }
   end
 

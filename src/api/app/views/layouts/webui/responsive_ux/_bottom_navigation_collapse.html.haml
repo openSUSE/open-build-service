@@ -1,7 +1,7 @@
 .navbar-collapse.navbar-dark{ class: "#{collapse_type}-collapse" }
   .navbar-nav
     .nav.justify-content-end.py-2
-      %button.navbar-toggler{ 'type': 'button', 'data-toggle': collapse_type, aria: { expanded: 'false', label: "Toggle #{collapse_type}" } }
+      %button.navbar-toggler{ type: 'button', 'data-toggle': collapse_type, aria: { expanded: 'false', label: "Toggle #{collapse_type}" } }
         %i.fas.fa-times
 
   = render partial: "layouts/webui/responsive_ux/#{collapse_type}", locals: { navigation: :bottom }

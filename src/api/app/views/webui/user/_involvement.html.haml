@@ -4,7 +4,7 @@
                                                                          involved_projects: involved_projects, owned: owned }
   - else
     .bg-light
-      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           = link_to('#involved-packages', id: 'involved-packages-tab', class: 'nav-link active text-nowrap',
                     data: { toggle: 'tab' }, role: 'tab', aria: { controls: 'involved-packages', selected: true }) do
@@ -24,7 +24,7 @@
             %span.badge.badge-primary
               = owned.size
         %li.nav-item.dropdown
-          %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+          %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
           .dropdown-menu.dropdown-menu-right
   .card-body
     .tab-content.obs-dataTable
