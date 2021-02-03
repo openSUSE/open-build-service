@@ -9,12 +9,12 @@ namespace :statistics do
     time = elements.sum { |element| element[1].to_i - element[0].to_i }
     time_in_hours = time / elements.count / 60 / 60
 
-    information = ''"OBS STATISTICS ON #{Time.zone.today}\n
+    information = "OBS STATISTICS ON #{Time.zone.today}\n
                   Number of users: #{User.count}
                   Number of projects: #{Project.count}
                   Number of packages: #{Package.count}
                   Average time to accept a request: #{time_in_hours} hours
-                  "''
+                  "
 
     out_file = File.new('current.txt', 'w')
     out_file.puts(information)
