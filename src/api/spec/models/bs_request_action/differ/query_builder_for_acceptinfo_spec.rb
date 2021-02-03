@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
+RSpec.describe BsRequestAction::Differ::QueryBuilderForAcceptinfo do
   describe '#build' do
     context 'with xsrcmd5 and oxsrcmd5' do
       let(:accept_info) do
@@ -12,7 +12,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
                xsrcmd5: 'xsrcmd5',
                oxsrcmd5: 'oxsrcmd5')
       end
-      let(:query) { BsRequestAction::Differ::QueryBuilderForAccepted.new(bs_request_action_accept_info: accept_info).build }
+      let(:query) { BsRequestAction::Differ::QueryBuilderForAcceptinfo.new(bs_request_action_accept_info: accept_info).build }
 
       it { expect(query[:opackage]).to eq('opackage') }
       it { expect(query[:oproject]).to eq('oproject') }
@@ -26,7 +26,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
                srcmd5: 'srcmd5',
                osrcmd5: 'osrcmd5')
       end
-      let(:query) { BsRequestAction::Differ::QueryBuilderForAccepted.new(bs_request_action_accept_info: accept_info).build }
+      let(:query) { BsRequestAction::Differ::QueryBuilderForAcceptinfo.new(bs_request_action_accept_info: accept_info).build }
 
       it { expect(query[:rev]).to eq('srcmd5') }
       it { expect(query[:orev]).to eq('osrcmd5') }
@@ -34,7 +34,7 @@ RSpec.describe BsRequestAction::Differ::QueryBuilderForAccepted do
 
     context 'without osrcmd5 and oxsrcmd5' do
       let(:accept_info) { create(:bs_request_action_accept_info) }
-      let(:query) { BsRequestAction::Differ::QueryBuilderForAccepted.new(bs_request_action_accept_info: accept_info).build }
+      let(:query) { BsRequestAction::Differ::QueryBuilderForAcceptinfo.new(bs_request_action_accept_info: accept_info).build }
 
       it { expect(query[:orev]).to eq('0') }
     end
