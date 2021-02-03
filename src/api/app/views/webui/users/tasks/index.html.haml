@@ -2,7 +2,7 @@
   - @pagetitle = "Tasks for #{User.session!}"
 .card#reviews
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
         - cache "#{User.session!.cache_key_with_version}-reviews-in" do
           %a.nav-link.text-nowrap.active{ href: '#reviews-in', title: "Requests that #{User.session!} has to review" }
@@ -17,7 +17,7 @@
 
 .card.mt-3#requests
   .bg-light
-    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+    %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
       %li.nav-item
         - cache "#{User.session!.cache_key_with_version}-requests-in" do
           %a.nav-link.text-nowrap.active#requests-in-tab{ href: '#requests-in', title: "Requests that #{User.session!} has to merge",
@@ -44,7 +44,7 @@
           %span.badge.badge-primary
             = User.session!.requests.count
       %li.nav-item.dropdown
-        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', 'role': 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
+        %a.nav-link.dropdown-toggle{ href: '#', 'data-toggle': 'dropdown', role: 'button', 'aria-expanded': 'false', 'aria-haspopup': 'true' }
         .dropdown-menu.dropdown-menu-right
   .card-body
     .tab-content
@@ -65,7 +65,7 @@
 - if involved_patchinfos.present?
   .card.mt-3#patchinfos
     .bg-light
-      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ 'role': 'tablist' }
+      %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
         %li.nav-item
           %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.session!} has to merge" }
             Maintenance Requests

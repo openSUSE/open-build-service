@@ -3,14 +3,14 @@
     %span.btn.btn-link.text-truncate{ title: f.object.name }
       - name = f.object.name.gsub(/[^0-9a-z]/i, '')
       = link_to f.object.name,
-        data: { 'target': "##{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}", 'toggle': 'modal' },
+        data: { target: "##{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}", toggle: 'modal' },
         class: 'kiwi_element_name repository_edit' do
         = f.object.name
     %span.btn.btn-link.kiwi_actions
       = link_to_remove_association(f) do
         %i.fas.fa-times.text-danger
 
-  .modal.fade{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}",
+  .modal.fade{ tabindex: '-1', role: 'dialog', id: "#{f.object.source_path.present? ? 'edit-' + name : 'add-repository-' + name}",
                 class: "#{'new_element' if f.object.new_record?}" }
     .modal-dialog{ role: 'document' }
       .modal-content
@@ -72,6 +72,6 @@
 
         .modal-footer
           = link_to('Expert Mode', '#collapse-expert', title: 'Mode Toggle', class: 'kiwi-repository-mode-toggle btn btn-warning',
-                     role: 'button', data: { 'toggle': 'collapse' })
+                     role: 'button', data: { toggle: 'collapse' })
           = link_to('Cancel', '#', title: 'Cancel', class: 'revert-dialog btn btn-secondary')
           = link_to('Continue', '#', title: 'Continue', class: 'close-dialog btn btn-primary')

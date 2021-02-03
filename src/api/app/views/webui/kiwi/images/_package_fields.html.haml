@@ -1,7 +1,7 @@
 .nested-fields.kiwi_fields.col-lg-2.col-md-3.col-sm-4
   .d-flex.justify-content-between.kiwi_list_item{ class: "#{'has-error' if f.object.errors.present?}" }
     %span.btn.btn-link.text-truncate{ title: f.object.name }
-      = link_to '', class: 'package_edit kiwi_element_name', data: { 'target': "#package-#{f.object.name}", 'toggle': 'modal' } do
+      = link_to '', class: 'package_edit kiwi_element_name', data: { target: "#package-#{f.object.name}", toggle: 'modal' } do
         = f.object.name
         - if f.object.arch.present?
           %small (#{f.object.arch})
@@ -9,7 +9,7 @@
       = link_to_remove_association f do
         %i.fas.fa-times-circle.text-danger
 
-  .modal.fade{ 'tabindex': '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}",
+  .modal.fade{ tabindex: '-1', role: 'dialog', id: "#{f.object.name.present? ? 'package-' + f.object.name : 'add-package'}",
                class: "#{'new_element' if f.object.new_record?}" }
     .modal-dialog{ role: 'document' }
       .modal-content

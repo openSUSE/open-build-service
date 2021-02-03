@@ -20,7 +20,7 @@
             %i.text-warning.fa.fa-archive
             View Package
         %li.list-inline-item{ class: "#{'d-none' unless is_edit_details_action}" }
-          = link_to('#', data: { 'target': '#description-edit', 'toggle': 'modal' }) do
+          = link_to('#', data: { target: '#description-edit', toggle: 'modal' }) do
             %i.fa.fa-edit.text-secondary
             Edit Details
         - if User.session
