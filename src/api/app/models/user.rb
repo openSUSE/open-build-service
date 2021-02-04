@@ -716,17 +716,21 @@ class User < ApplicationRecord
   end
 
   # list incoming requests involving this user
-  def incoming_requests(search = nil)
+  def incoming_requests(search = nil, all_states: false)
+    states = all_states ? BsRequest::VALID_REQUEST_STATES : [:new]
+
     result = BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_projects(involved_projects)).or(
       BsRequest.where(id: BsRequestAction.bs_request_ids_of_involved_packages(involved_packages))
-    ).with_actions.in_states(:new)
+    ).with_actions.in_states(states)
 
     search.present? ? result.do_search(search) : result
   end
 
   # list outgoing requests involving this user
-  def outgoing_requests(search = nil)
-    result = requests_created.in_states([:new, :review]).with_actions
+  def outgoing_requests(search = nil, all_states: false)
+    states = all_states ? BsRequest::VALID_REQUEST_STATES : [:new, :review]
+
+    result = requests_created.in_states(states).with_actions
     search.present? ? result.do_search(search) : result
   end
 

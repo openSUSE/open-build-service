@@ -24,6 +24,14 @@ class NotificationsFinder
                     user, user.groups.map(&:id))
   end
 
+  def for_incoming_requests(user = User.session)
+    for_subscribed_user(user).where(notifiable: user.incoming_requests(all_states: true), delivered: false)
+  end
+
+  def for_outgoing_requests(user = User.session)
+    for_subscribed_user(user).where(notifiable: user.outgoing_requests(all_states: true), delivered: false)
+  end
+
   def for_notifiable_type(type = 'unread')
     notifications = self.class.new(with_notifiable)
 
@@ -34,6 +42,10 @@ class NotificationsFinder
       notifications.unread.where(notifiable_type: 'Comment')
     when 'requests'
       notifications.unread.where(notifiable_type: 'BsRequest')
+    when 'incoming_requests'
+      notifications.for_incoming_requests
+    when 'outgoing_requests'
+      notifications.for_outgoing_requests
     else
       notifications.unread
     end
