@@ -106,7 +106,7 @@ module Webui::RequestHelper
   def diff_data(action_type, sourcediff)
     diff = (action_type == :delete ? sourcediff['old'] : sourcediff['new'])
 
-    { project: diff['project'], package: diff['package'], rev: diff['rev'] }
+    { project: diff['project'], package: diff['package'], rev: diff['rev'], expand: 1 }
   end
 
   def diff_label(diff)
