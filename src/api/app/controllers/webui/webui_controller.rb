@@ -79,12 +79,12 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def lockout_spiders
-    @spider_bot = request.bot?
-    if @spider_bot
-      head :ok
-      return true
-    end
-    false
+    return unless request.bot? && Rails.env.production?
+
+    @spider_bot = true
+    logger.debug "Spider blocked on #{request.fullpath}"
+    head :ok
+    true
   end
 
   def kerberos_auth
@@ -115,7 +115,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_user
-    @spider_bot = request.bot?
+    @spider_bot = request.bot? && Rails.env.production?
     User.session = nil # reset old users hanging around
 
     user_checker = WebuiControllerService::UserChecker.new(http_request: request, config: CONFIG)
