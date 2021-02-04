@@ -104,7 +104,7 @@ group :test do
   gem 'minitest'
   gem 'test-unit'
   # to ensure a clean state for testing
-  gem 'database_cleaner', '>= 1.0.1'
+  gem 'database_cleaner-active_record'
   # for test coverage reports
   gem 'codecov', require: false
   gem 'simplecov', require: false

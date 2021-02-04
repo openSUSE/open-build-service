@@ -1,4 +1,4 @@
-require 'database_cleaner'
+require 'database_cleaner/active_record'
 
 RSpec.configure do |config|
   STATIC_TABLES = ['roles', 'roles_static_permissions', 'static_permissions', 'configurations',
