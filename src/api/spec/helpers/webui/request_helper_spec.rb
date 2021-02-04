@@ -96,13 +96,13 @@ RSpec.describe Webui::RequestHelper do
       context "when it's a delete request" do
         subject { diff_data(:delete, source_diff) }
 
-        it { is_expected.to match(project: 'home:Admin', package: 'obs-server', rev: 12) }
+        it { is_expected.to match(project: 'home:Admin', package: 'obs-server', rev: 12, expand: 1) }
       end
 
       context "when it's not a delete request" do
         subject { diff_data(:submit, source_diff) }
 
-        it { is_expected.to match(project: 'home:tux', package: 'koji', rev: 13) }
+        it { is_expected.to match(project: 'home:tux', package: 'koji', rev: 13, expand: 1) }
       end
     end
   end
