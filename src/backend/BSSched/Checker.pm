@@ -618,7 +618,7 @@ sub expandandsort {
     }
     if (exists($pdata->{'originproject'})) {
       # this is a package from a project link
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all' && $repo->{'linkedbuild'} ne 'alldirect')) {
 	$pdeps{$packid} = [];
 	next;
       } elsif ($repo->{'linkedbuild'} eq 'alldirect' &&  !grep {$_->{'project'} eq $pdata->{'originproject'}} @{$proj->{'link'}||[]}) {
@@ -915,7 +915,7 @@ sub checkpkgs {
     if (exists($pdata->{'originproject'}) && (!$pdata->{'error'} || $pdata->{'error'} eq 'disabled')) {
       # this is a package from a project link
       my $repo = $ctx->{'repo'};
-      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all')) {
+      if (!$repo->{'linkedbuild'} || ($repo->{'linkedbuild'} ne 'localdep' && $repo->{'linkedbuild'} ne 'all' && $repo->{'linkedbuild'} ne 'alldirect')) {
 	$packstatus{$packid} = 'excluded';
 	$packerror{$packid} = 'project link';
 	next;
