@@ -178,6 +178,26 @@ jobs:
           path: /home/frontend/minitest
       - <<: *store_minitest_artefacts
 
+  migrations_test:
+    docker:
+      - <<: *frontend_backend
+      - <<: *mariadb
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *wait_for_database
+      - run:
+          name: Run migrations
+          command: |
+            cd src/api
+            bundle exec rake db:drop
+            bundle exec rake db:create
+            bundle exec rake db:migrate
+            bundle exec rake db:seed
+            bundle exec rake data:migrate
+ 
   spider:
     docker:
       - <<: *frontend_backend
@@ -284,6 +304,9 @@ workflows:
   test_all:
     jobs:
       - checkout_code
+      - migrations_test:
+          requires:
+            - checkout_code
       - backend_test:
           requires:
             - checkout_code
