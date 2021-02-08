@@ -20,6 +20,9 @@ AllCops:
     - 'db/data_schema.rb'
     # this file will be deleted as soon as app/jobs/consistency_check_job.rb is validated
     - 'app/jobs/old/consistency_check_job.rb'
+  SuggestExtensions:
+    # We don't want extra cops for minitest since we want to migrate those tests to RSpec
+    rubocop-minitest: false
 
 #################### Style ###########################
 

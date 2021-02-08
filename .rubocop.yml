@@ -16,6 +16,9 @@ AllCops:
     # These files are RPM spec files
     - 'dist/*.spec'
     - 'dist/t/spec/fixtures/hello_world.spec'
+  SuggestExtensions:
+    # We don't want extra cops for minitest since we want to migrate those tests to RSpec
+    rubocop-minitest: false
 
 #################### Layout ###########################
 
