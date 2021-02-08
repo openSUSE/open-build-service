@@ -1,0 +1,71 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or vendor/assets/stylesheets of plugins, if any, can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the top of the
+ * compiled file, but it's generally better to create a new file per style scope.
+ *
+*/
+
+@import 'codemirror';
+@import 'bootstrap_variables/breakpoints';
+@import 'bootstrap_variables/colors';
+@import 'bootstrap_variables/spacers';
+@import 'bootstrap_variables/fonts';
+@import 'bootstrap';
+@import 'bootstrap-modal';
+@import "font-awesome-sprockets";
+@import 'font-awesome';
+@import 'tokenfield';
+@import 'links';
+@import 'sticky-footer';
+@import 'datatables';
+@import 'card-component';
+@import 'breadcrumbs-component';
+@import 'tabs-component';
+@import 'personal-navigation';
+@import 'list-group-item-integrated';
+@import 'kaminari';
+@import 'coderay';
+@import 'system-status';
+@import 'texts';
+@import 'build-results';
+@import 'autocomplete';
+@import 'package-attributes';
+@import 'modals';
+@import 'comments';
+@import 'cm2';
+@import 'live_build_log';
+@import 'borders';
+@import 'diff';
+@import 'staging-workflow';
+@import 'repositories';
+@import 'collapse-component';
+@import 'project-package-show-grid';
+@import 'user';
+@import 'watchlist';
+@import 'pulse';
+@import 'requests';
+@import 'collapsible-text';
+@import 'architectures';
+@import 'flash';
+@import 'groups';
+@import 'patchinfo';
+@import 'image_templates';
+@import 'search';
+@import 'monitor';
+@import 'project-monitor';
+@import 'cloud_upload';
+
+@import 'responsive_ux/responsive_ux';
+@import 'notifications_redesign/notifications';
+@import 'notification_toolbar';
+@import 'sidebar-collapsible';
+@import 'user_profile_redesign/user_profile';
+
+html {
+    overflow-y: scroll !important;
+}

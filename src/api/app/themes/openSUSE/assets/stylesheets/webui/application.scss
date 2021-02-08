@@ -10,11 +10,6 @@
  *
 */
 
-@import 'codemirror';
-@import 'webui/bootstrap_variables/breakpoints';
-@import 'webui/bootstrap_variables/spacers';
-@import 'webui/bootstrap_variables/fonts';
-
 // Customized Bootstrap
 @import "variables";
 @import "bootstrap";
@@ -26,51 +21,4 @@
 @import "body";
 @import "megamenu";
 
-@import 'webui/bootstrap-modal';
-@import "font-awesome-sprockets";
-@import 'font-awesome';
-@import 'tokenfield';
-@import 'webui/links';
-@import 'webui/sticky-footer';
-@import 'webui/datatables';
-@import 'webui/card-component';
-@import 'webui/breadcrumbs-component';
-@import 'webui/tabs-component';
-@import 'webui/personal-navigation';
-@import 'webui/list-group-item-integrated';
-@import 'webui/kaminari';
-@import 'webui/coderay';
-@import 'webui/system-status';
-@import 'webui/texts';
-@import 'webui/build-results';
-@import 'webui/autocomplete';
-@import 'webui/package-attributes';
-@import 'webui/modals';
-@import 'webui/comments';
-@import 'webui/cm2';
-@import 'webui/live_build_log';
-@import 'webui/borders';
-@import 'webui/diff';
-@import 'webui/staging-workflow';
-@import 'webui/repositories';
-@import 'webui/collapse-component';
-@import 'webui/project-package-show-grid';
-@import 'webui/user';
-@import 'webui/watchlist';
-@import 'webui/pulse';
-@import 'webui/requests';
-@import 'webui/collapsible-text';
-@import 'webui/architectures';
-@import 'webui/flash';
-@import 'webui/groups';
-@import 'webui/patchinfo';
-@import 'webui/image_templates';
-@import 'webui/search';
-@import 'webui/monitor';
-@import 'webui/cloud_upload';
-
-@import 'webui/responsive_ux';
-
-html {
-    overflow-y: scroll !important;
-}
+@import 'webui/global';
