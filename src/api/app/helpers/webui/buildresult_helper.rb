@@ -35,7 +35,7 @@ module Webui::BuildresultHelper
   def build_state(attr)
     capture do
       if attr[:code].in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat(link_to(attr[:code], 'javascript:void(0);', id: attr[:status_id], class: attr[:css_class]))
+        concat(tag.span(attr[:code], id: attr[:status_id], class: "#{attr[:css_class]} toggle-build-info", title: 'Click to keep it open'))
       else
         concat(link_to(attr[:code].gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: attr[:package_name], repository: attr[:repo], arch: attr[:arch]),
