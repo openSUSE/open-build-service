@@ -208,6 +208,9 @@ default: &default
   # Default: 2 days (172800 seconds).
   # maintenance_release_repositories_lifetime: 172800
 
+  # Enable one of the themes in app/themes
+  theme: 'default'
+
 production:
   <<: *default
 

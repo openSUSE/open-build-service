@@ -1,0 +1,99 @@
+// https://github.com/twbs/bootstrap/blob/master/scss/_variables.scss
+
+// Colors
+// ======
+// All colors are from openSUSE Design System https://opensuse.eosdesignsystem.com/colors
+
+// Monochrome
+$black: #000000;
+$white: #ffffff;
+
+// Gray
+$gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-300: #dee2e6;
+$gray-400: #ced4da;
+$gray-500: #adb5bd;
+$gray-600: #6c757d;
+$gray-700: #495057;
+$gray-800: #343a40;
+$gray-900: #212529;
+
+// Primary colors
+$green: #73ba25;
+$teal: #173f4f;
+$turquoise: #35b9ab;
+
+// Secondary colors
+$blue: #21a4df;
+$yellow: #ffc107;
+$red: #dc3545;
+$orange: #fe7f2d;
+
+// These names are not in Bootstrap color lists
+$colors: (
+  "turquoise": $turquoise,
+  "teal": $teal,
+);
+
+// Bootstrap colors
+$primary: $teal;
+$secondary: $gray-200;
+$success: $green;
+$info: $blue;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-200;
+$dark: $gray-800;
+
+// Body background
+$body-bg: $white;
+$body-color: $black;
+
+// Links
+$link-color: $blue;
+
+// Options
+
+$enable-caret: true;
+$enable-rounded: true;
+$enable-shadows: false;
+$enable-gradients: false;
+$enable-transitions: true;
+$enable-prefers-reduced-motion-media-query: true;
+$enable-grid-classes: true;
+$enable-pointer-cursor-for-buttons: true;
+$enable-print-styles: true;
+$enable-responsive-font-sizes: true;
+$enable-validation-icons: true;
+$enable-deprecation-messages: true;
+
+// Fonts
+$font-family-sans-serif: "Source Sans Pro", sans-serif;
+$font-family-serif: "Source Serif Pro", serif;
+$font-family-monospace: "Source Code Pro", monospace;
+$font-size-base: 1rem;
+$font-size-small: 0.8rem;
+
+// Headings
+$headings-margin-bottom: 1rem;
+$headings-font-family: $font-family-sans-serif;
+$headings-font-weight: 400;
+
+// Alerts
+$alert-link-font-weight: 400;
+
+// Navbar
+$navbar-toggler-padding-y: 0.25rem;
+$navbar-toggler-padding-x: 0.25rem;
+
+// Close
+$close-text-shadow: none;
+$close-color: inherit;
+
+// Dropdowns
+$dropdown-link-hover-color: $white;
+$dropdown-link-hover-bg: $blue;
+$dropdown-link-active-color: $white;
+$dropdown-link-active-bg: darken($blue, 5%);
+$dropdown-link-disabled-color: $gray-500;
