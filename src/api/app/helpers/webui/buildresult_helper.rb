@@ -5,16 +5,16 @@ module Webui::BuildresultHelper
     status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']
     code = ''
-    theclass = ' '
+    css_class = ' '
 
     if status['code']
       code = status['code']
-      theclass = "build-state-#{code}"
+      css_class = "build-state-#{code}"
       # special case for scheduled jobs with constraints limiting the workers a lot
-      theclass = 'text-warning' if code == 'scheduled' && link_title.present?
+      css_class = 'text-warning' if code == 'scheduled' && link_title.present?
     end
 
-    return build_state(code: code, css_class: theclass, package_name: package_name, status_id: status_id, repo: repo, arch: arch) if feature_enabled?(:responsive_ux)
+    return build_state(code: code, css_class: css_class, package_name: package_name, status_id: status_id, repo: repo, arch: arch) if feature_enabled?(:responsive_ux)
 
     capture do
       if enable_help && status['code']
@@ -22,11 +22,11 @@ module Webui::BuildresultHelper
                           data: { content: Buildresult.status_description(status['code']), placement: 'top', toggle: 'popover' }))
       end
       if code.in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
-        concat(link_to(code, 'javascript:void(0);', id: status_id, class: theclass, data: { content: link_title, placement: 'right', toggle: 'popover' }))
+        concat(link_to(code, 'javascript:void(0);', id: status_id, class: css_class, data: { content: link_title, placement: 'right', toggle: 'popover' }))
       else
         concat(link_to(code.gsub(/\s/, '&nbsp;'),
                        package_live_build_log_path(project: @project.to_s, package: package_name, repository: repo, arch: arch),
-                       data: { content: link_title, placement: 'right', toggle: 'popover' }, rel: 'nofollow', class: theclass))
+                       data: { content: link_title, placement: 'right', toggle: 'popover' }, rel: 'nofollow', class: css_class))
       end
     end
   end
