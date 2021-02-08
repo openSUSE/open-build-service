@@ -31,7 +31,7 @@ module Webui::BuildresultHelper
     end
   end
 
-  # NOTE: reponsive_ux
+  # NOTE: responsive_ux
   def build_state(attr)
     capture do
       if attr[:code].in?(['-', 'unresolvable', 'blocked', 'excluded', 'scheduled'])
