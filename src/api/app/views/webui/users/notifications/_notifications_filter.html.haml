@@ -5,6 +5,8 @@
   %h5.ml-3 Filter
   = filter_notification_link('Comments', filter.count['Comment'], { type: 'comments' }, filter.selected_filter)
   = filter_notification_link('Requests', filter.count['BsRequest'], { type: 'requests' }, filter.selected_filter)
+  = filter_notification_link('Incoming Requests', filter.count['incoming_requests'], { type: 'incoming_requests' }, filter.selected_filter)
+  = filter_notification_link('Outgoing Requests', filter.count['outgoing_requests'], { type: 'outgoing_requests' }, filter.selected_filter)
 - unless filter.projects_for_filter.empty?
   .row.list-group-flush.mt-5
     %h5.ml-3 Projects

@@ -104,6 +104,77 @@ RSpec.describe Webui::Users::NotificationsController do
                                                    creation_notification.reload)
       end
     end
+
+    context "when param type is 'incoming_requests'" do
+      let(:admin_user) { create(:admin_user, login: 'king') }
+      let(:target_package) { create(:package) }
+      let(:source_package) { create(:package, :as_submission_source) }
+      let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: target_package) }
+
+      let!(:maintained_request) do
+        create(:bs_request_with_submit_action,
+               target_package: target_package,
+               source_package: source_package,
+               creator: admin_user)
+      end
+
+      let!(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+      let!(:review_wanted_notification) { review_notification }
+
+      let(:params) { default_params.merge(type: 'incoming_requests') }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it "sets @notifications to all undelivered notifications of 'incoming_requests' type" do
+        expect(assigns[:notifications]).to include(request_created_notification.reload)
+      end
+
+      it "@notifications does not include 'review_wanted' notifications for 'incoming_requests' type" do
+        expect(assigns[:notifications]).not_to include(review_wanted_notification.reload)
+      end
+    end
+
+    context "when param type is 'outgoing_requests'" do
+      let(:admin_user) { create(:admin_user, login: 'king') }
+      let(:target_package) { create(:package) }
+      let(:source_package) { create(:package, :as_submission_source) }
+      let(:declined_bs_request) do
+        create(:declined_bs_request,
+               target_package: target_package,
+               source_package: source_package,
+               creator: user)
+      end
+
+      let(:maintained_request) do
+        create(:bs_request_with_submit_action,
+               target_package: target_package,
+               source_package: source_package,
+               creator: admin_user)
+      end
+
+      let!(:state_change_to_declined_notification) { create(:web_notification, :request_state_change, notifiable: declined_bs_request, subscriber: user) }
+      let(:request_created_notification) { create(:web_notification, :request_created, notifiable: maintained_request, subscriber: user) }
+
+      let(:params) { default_params.merge(type: 'outgoing_requests') }
+
+      before do
+        subject
+      end
+
+      it_behaves_like 'returning success'
+
+      it "sets @notifications to all undelivered notifications of 'outgoing_requests' type" do
+        expect(assigns[:notifications]).to include(state_change_to_declined_notification.reload)
+      end
+
+      it "@notifications does not include incoming requests for 'outgoing_requests' type" do
+        expect(assigns[:notifications]).not_to include(request_created_notification.reload)
+      end
+    end
   end
 
   describe 'PUT #update' do

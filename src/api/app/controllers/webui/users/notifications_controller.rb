@@ -1,6 +1,6 @@
 class Webui::Users::NotificationsController < Webui::WebuiController
   MAX_PER_PAGE = 300
-  VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread'].freeze
+  VALID_NOTIFICATION_TYPES = ['read', 'reviews', 'comments', 'requests', 'unread', 'incoming_requests', 'outgoing_requests'].freeze
 
   # TODO: Remove this when we'll refactor kerberos_auth
   before_action :kerberos_auth
@@ -71,7 +71,10 @@ class Webui::Users::NotificationsController < Webui::WebuiController
   end
 
   def notifications_count
-    counted_notifications = NotificationsFinder.new(User.session.notifications.for_web).unread.group(:notifiable_type).count
+    finder = NotificationsFinder.new(User.session.notifications.for_web)
+    counted_notifications = finder.unread.group(:notifiable_type).count
+    counted_notifications['incoming_requests'] = finder.for_incoming_requests.count
+    counted_notifications['outgoing_requests'] = finder.for_outgoing_requests.count
     counted_notifications.merge!('unread' => User.session.unread_notifications)
   end
 
