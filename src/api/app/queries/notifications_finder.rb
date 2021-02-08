@@ -48,4 +48,14 @@ class NotificationsFinder
 
     self.class.new.for_subscribed_user.find_by(id: notification_id)
   end
+
+  def stale
+    @relation.where('created_at < ?', notifications_lifetime.days.ago)
+  end
+
+  private
+
+  def notifications_lifetime
+    CONFIG['notifications_lifetime'] ||= 365
+  end
 end

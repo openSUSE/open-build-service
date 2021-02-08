@@ -67,6 +67,10 @@ module Clockwork
     CleanupProjectLogEntries.perform_later
   end
 
+  every(1.day, 'cleanup notifications') do
+    CleanupNotificationsJob.perform_later
+  end
+
   every(1.day, 'create cleanup requests', at: '06:00') do
     User.session = User.get_default_admin
     ProjectCreateAutoCleanupRequestsJob.perform_later

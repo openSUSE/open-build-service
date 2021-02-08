@@ -208,6 +208,10 @@ default: &default
   # Default: 2 days (172800 seconds).
   # maintenance_release_repositories_lifetime: 172800
 
+  # Lifetime for notifications.
+  # Default: 365 days (1 year).
+  notifications_lifetime: 365
+
 production:
   <<: *default
 
@@ -220,4 +224,3 @@ development:
   <<: *default
   source_host: backend
   memcached_host: cache
-
