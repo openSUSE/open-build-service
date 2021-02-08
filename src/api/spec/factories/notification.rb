@@ -6,6 +6,10 @@ FactoryBot.define do
     title { Faker::Lorem.sentence }
     delivered { false }
 
+    trait :stale do
+      created_at { 13.months.ago }
+    end
+
     trait :request_state_change do
       event_type { 'Event::RequestStatechange' }
       association :notifiable, factory: :bs_request_with_submit_action
