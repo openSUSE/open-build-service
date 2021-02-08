@@ -78,10 +78,10 @@ class BsRequestAction
       def target_package_name
         return bs_request_action.target_package if bs_request_action.target_package.present?
 
-        if bs_request_action.target_package.blank? && bs_request_action.is_maintenance_incident?
+        if bs_request_action.is_maintenance_incident?
           pkg = Package.find_by_project_and_name(bs_request_action.source_project, bs_request_action.source_package)
           # local link handling is needed? usually there should be no maintenance_incident projects for them ...
-          return pkg.linkinfo['package'] if pkg && pkg.linkinfo
+          return pkg.linkinfo['package'] if pkg&.linkinfo
         end
         nil
       end
