@@ -14,6 +14,7 @@ RSpec.describe "Interconnect" do
     within('div[data-interconnect="openSUSE.org"]') do
       click_button('Connect')
     end
+    wait_for_ajax
     expect(page).to have_content("Project 'openSUSE.org' was successfully created.")
   end
 end
