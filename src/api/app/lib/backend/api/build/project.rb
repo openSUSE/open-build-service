@@ -28,9 +28,12 @@ module Backend
         end
 
         # Returns the binaries of a project (used in patchinfo controller)
+        # Limit results to a specific package by providing a package name
         # @return [String]
-        def self.binarylist(project_name)
-          http_get(['/build/:project/_result', project_name], params: { view: 'binarylist' })
+        def self.binarylist(project_name, package_name: nil)
+          params = { view: 'binarylist' }
+          params[:package] = package_name if package_name
+          http_get(['/build/:project/_result', project_name], params: params)
         end
       end
     end
