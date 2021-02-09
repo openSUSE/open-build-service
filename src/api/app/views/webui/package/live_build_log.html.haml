@@ -6,10 +6,13 @@
     = render partial: 'tabs', locals: { project: @project, package: @package }
   .card-body
     %h3= @pagetitle
+    %p
+      %strong Repository:
+      = @repo
+      %strong Architecture:
+      = @arch
     - if @workerid
-      = render partial: 'job_status', locals: { repository: @repo, architecture: @arch,
-                                                worker_id: @workerid, build_time: @buildtime,
-                                                percent: @percent }
+      = render partial: 'job_status', locals: { worker_id: @workerid, build_time: @buildtime, percent: @percent }
     %p
       %strong Status:
       %span#status Updating...
