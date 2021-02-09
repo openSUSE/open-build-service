@@ -109,6 +109,23 @@ class Webui::PackageController < Webui::WebuiController
 
     @services = @files.any? { |file| file[:name] == '_service' }
 
+    download_name_candidates = []
+    binary_list = Xmlhash.parse(Backend::Api::Build::Project.binarylist(@project))
+
+    binary_list.elements('result') do |result|
+      result.elements('binarylist') do |list|
+        next unless list['package'] == @package.name
+
+        list.elements('binary') do |binary|
+          next unless binary['filename'].end_with?('.rpm')
+
+          download_name_candidates << binary['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
+        end
+      end
+    end
+
+    @download_name = download_name_candidates.uniq.min || ''
+
     respond_to do |format|
       format.html
       format.js
