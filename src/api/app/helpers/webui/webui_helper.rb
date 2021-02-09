@@ -114,7 +114,7 @@ module Webui::WebuiHelper
     tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
   end
 
-  # NOTE: reponsive_ux
+  # NOTE: responsive_ux
   def repository_info(status)
     outdated = status.sub!(/^outdated_/, '')
     description = outdated ? 'State needs recalculations, former state was: ' : ''
