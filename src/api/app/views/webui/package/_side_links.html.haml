@@ -22,4 +22,4 @@
     = render partial: 'webui/package/side_links/show_linkinfo', locals: { package: package, project: project,
                                                                                   linkinfo: linkinfo, revision: revision }
 
-  = render partial: 'extra_actions', locals: { project: project, package: package }
+  = render partial: 'extra_actions', locals: { project: project, package: download_name }

@@ -29,7 +29,8 @@
                                                   linkinfo: @linkinfo,
                                                   revision: @revision,
                                                   project: @project,
-                                                  package: @package }
+                                                  package: @package,
+                                                  download_name: @download_name }
       - unless feature_enabled?(:responsive_ux)
         = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowners_mail,
                                                     configuration: @configuration,
