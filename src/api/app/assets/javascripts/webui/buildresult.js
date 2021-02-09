@@ -76,7 +76,7 @@ function toggleBuildInfo() { // jshint ignore:line
     var infoContainer = $(this).parents('.toggle-build-info-parent').next();
     $(infoContainer).toggleClass('collapsed');
     $(infoContainer).removeClass('hover');
-    $(this).attr('title', replaceTitle);
+    $('.toggle-build-info').attr('title', replaceTitle);
   });
   $('.toggle-build-info').on('mouseover', function(){
     $(this).parents('.toggle-build-info-parent').next().addClass('hover');
