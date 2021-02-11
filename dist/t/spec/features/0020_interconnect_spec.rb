@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe "Interconnect" do
+RSpec.describe "Interconnect", type: :feature do
   before(:context) do
     login
   end
