@@ -89,10 +89,10 @@ module OBSApi
 
     config.assets.js_compressor = :uglifier
 
-    config.assets.precompile += ['webui/application/cm2/index.js',
-                                 'webui/application/cm2/index-diff.js',
-                                 'webui/application/cm2/index-xml.js',
-                                 'webui/application/cm2/index-prjconf.js']
+    # config.assets.precompile += ['webui/application/cm2/index.js',
+    #                             'webui/application/cm2/index-diff.js',
+    #                             'webui/application/cm2/index-xml.js',
+    #                             'webui/application/cm2/index-prjconf.js']
 
     config.action_controller.action_on_unpermitted_parameters = :raise
 
