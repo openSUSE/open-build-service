@@ -1,6 +1,6 @@
 require "spec_helper"
 
-RSpec.describe "Package" do
+RSpec.describe "Package", type: :feature do
   before(:context) do
     login
   end
