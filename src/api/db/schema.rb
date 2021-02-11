@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_01_105103) do
+ActiveRecord::Schema.define(version: 2021_02_05_113812) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -344,9 +344,6 @@ ActiveRecord::Schema.define(version: 2021_02_01_105103) do
     t.string "api_url", collation: "utf8_bin"
     t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8_bin"
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8_bin"
-  end
-
-  create_table "data_migrations", primary_key: "version", id: :string, collation: "utf8_general_ci", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
   end
 
   create_table "delayed_jobs", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
@@ -845,7 +842,7 @@ ActiveRecord::Schema.define(version: 2021_02_01_105103) do
     t.string "remote_project_name", default: "", null: false, collation: "utf8_bin"
     t.column "rebuild", "enum('transitive','direct','local')", collation: "utf8_general_ci"
     t.column "block", "enum('all','local','never')", collation: "utf8_general_ci"
-    t.column "linkedbuild", "enum('off','localdep','all','alldirect')", collation: "utf8_general_ci"
+    t.column "linkedbuild", "enum('off','localdep','all','alldirect')"
     t.integer "hostsystem_id"
     t.string "required_checks"
     t.index ["db_project_id", "name", "remote_project_name"], name: "projects_name_index", unique: true

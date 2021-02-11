@@ -281,7 +281,7 @@ end
 #
 #  id                  :integer          not null, primary key
 #  block               :string(5)
-#  linkedbuild         :string(8)
+#  linkedbuild         :string(9)
 #  name                :string(255)      not null, indexed => [db_project_id, remote_project_name]
 #  rebuild             :string(10)
 #  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
