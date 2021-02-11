@@ -10,6 +10,8 @@ class Notification < ApplicationRecord
 
   serialize :event_payload, JSON
 
+  after_create :track_notification_creation
+
   scope :for_web, -> { where(web: true) }
   scope :for_rss, -> { where(rss: true) }
 
@@ -39,6 +41,13 @@ class Notification < ApplicationRecord
 
   def unread_date
     last_seen_at || created_at
+  end
+
+  private
+
+  def track_notification_creation
+    RabbitmqBus.send_to_bus('metrics',
+                            "notification.create,notifiable_type=#{notifiable_type},web=#{web},rss=#{rss} value=1")
   end
 end
 
