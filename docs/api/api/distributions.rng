@@ -13,9 +13,11 @@
   </define>
   <define ns="" name="distribution-element">
     <element name="distribution">
-      <attribute name="id">
-        <data type="string"/>
-      </attribute>
+      <optional>
+        <attribute name="id">
+          <data type="string"/>
+        </attribute>
+      </optional>
       <attribute name="vendor">
         <data type="string"/>
       </attribute>
