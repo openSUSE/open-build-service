@@ -68,7 +68,7 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def show
-    if request.bot?
+    if @spider_bot
       params.delete(:rev)
       params.delete(:srcmd5)
       @expand = 0
