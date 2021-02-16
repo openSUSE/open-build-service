@@ -14,7 +14,10 @@ RSpec.describe "Interconnect", type: :feature do
     within('div[data-interconnect="openSUSE.org"]') do
       click_button('Connect')
     end
-    wait_for_ajax
-    expect(page).to have_content("Project 'openSUSE.org' was successfully created.")
+    sleep(10)
+    visit "/project/show/openSUSE.org"
+
+    expect(page).to have_content("Standard OBS instance at build.opensuse.org")
+    expect(page).to have_content("https://api.opensuse.org/public")
   end
 end
