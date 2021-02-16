@@ -41,83 +41,23 @@
       "note": ""
     },
     {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "2ec75b98116c235535e552474fd8a190cf5ae0d16c4423806e6fdc1637134bd4",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/backend/test/tasks.rb",
-      "line": 26,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_publish --testmode\")",
+      "warning_type": "HTTP Verb Confusion",
+      "warning_code": 118,
+      "fingerprint": "2c16c8157cc5cf3ad60108affab7855b813e308bffa7de8b2f67f7b1dfc63fe7",
+      "check_name": "VerbConfusion",
+      "message": "Potential HTTP verb confusion. `HEAD` is routed like `GET` but `request.get?` will return `false`",
+      "file": "app/controllers/build_controller.rb",
+      "line": 10,
+      "link": "https://brakemanscanner.org/docs/warning_types/http_verb_confusion/",
+      "code": "if request.get? then\n  pass_to_backend\n  return\nend",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "Backend::Test",
-        "method": "run_publisher"
+        "class": "BuildController",
+        "method": "index"
       },
-      "user_input": "backend_config",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "33a57f9dae56a739f7a378b2d7ca87b6e9a4583947b98becdabd63f18195f01e",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/backend/test/tasks.rb",
-      "line": 17,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_dispatch --testmode\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Backend::Test",
-        "method": "run_dispatcher"
-      },
-      "user_input": "backend_config",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "3a13c1174d40d256e08937a3f5bea087a0720fedc925a6fb064593d2f49ec6e0",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/backend/test/tasks.rb",
-      "line": 35,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_deltastore --testmode\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Backend::Test",
-        "method": "run_deltastore"
-      },
-      "user_input": "backend_config",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "456accbd7b3ccc2c17f0948050fcba6ca084acc619325a5574f5a312cb133a51",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/backend/test/tasks.rb",
-      "line": 8,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_sched --testmode #{arch}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Backend::Test",
-        "method": "run_scheduler"
-      },
-      "user_input": "backend_config",
-      "confidence": "Medium",
+      "user_input": "request.get?",
+      "confidence": "Weak",
       "note": ""
     },
     {
@@ -167,7 +107,7 @@
       "check_name": "SendFile",
       "message": "Parameter value used in file name",
       "file": "app/controllers/webui/apidocs_controller.rb",
-      "line": 16,
+      "line": 18,
       "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
       "code": "send_file(File.expand_path(File.join(CONFIG[\"schema_location\"], File.basename(params[:filename]))), :type => \"text/xml\", :disposition => \"inline\")",
       "render_path": null,
@@ -177,47 +117,6 @@
         "method": "file"
       },
       "user_input": "params[:filename]",
-      "confidence": "Weak",
-      "note": ""
-    },
-    {
-      "warning_type": "Cross-Site Scripting",
-      "warning_code": 4,
-      "fingerprint": "62f93283e161bc75b900aad23f7f63f20ba56c3ecb3d38c24dbb900607e3bc26",
-      "check_name": "LinkToHref",
-      "message": "Potentially unsafe model attribute in `link_to` href",
-      "file": "app/views/webui/staging/projects/_checks.html.haml",
-      "line": 15,
-      "link": "https://brakemanscanner.org/docs/warning_types/link_to_href",
-      "code": "link_to((Unresolved Model).new.url, :class => (\"check-#{(Unresolved Model).new.state}\"), :title => (\"#{(Unresolved Model).new.short_description} (#{(Unresolved Model).new.updated_at})\"))",
-      "render_path": [
-        {
-          "type": "controller",
-          "class": "Webui::Staging::ProjectsController",
-          "method": "show",
-          "line": 51,
-          "file": "app/controllers/webui/staging/projects_controller.rb",
-          "rendered": {
-            "name": "webui/staging/projects/show",
-            "file": "app/views/webui/staging/projects/show.html.haml"
-          }
-        },
-        {
-          "type": "template",
-          "name": "webui/staging/projects/show",
-          "line": 34,
-          "file": "app/views/webui/staging/projects/show.html.haml",
-          "rendered": {
-            "name": "webui/staging/projects/_checks",
-            "file": "app/views/webui/staging/projects/_checks.html.haml"
-          }
-        }
-      ],
-      "location": {
-        "type": "template",
-        "template": "webui/staging/projects/_checks"
-      },
-      "user_input": "(Unresolved Model).new.url",
       "confidence": "Weak",
       "note": ""
     },
@@ -258,26 +157,6 @@
         "method": "project_command_lock"
       },
       "user_input": "params[:comment]",
-      "confidence": "Medium",
-      "note": ""
-    },
-    {
-      "warning_type": "Command Injection",
-      "warning_code": 14,
-      "fingerprint": "a08a4620a93aa9822be13afa5a3f9ce0461acebcea44a44e85017dff318529d8",
-      "check_name": "Execute",
-      "message": "Possible command injection",
-      "file": "lib/backend/test/tasks.rb",
-      "line": 45,
-      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
-      "code": "IO.popen(\"cd #{backend_config}; exec perl #{\"-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build\"} ./bs_admin #{args}\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "Backend::Test",
-        "method": "run_admin"
-      },
-      "user_input": "backend_config",
       "confidence": "Medium",
       "note": ""
     },
@@ -328,7 +207,7 @@
       "check_name": "CrossSiteScripting",
       "message": "Unescaped model attribute",
       "file": "app/views/webui/main/index.html.haml",
-      "line": 10,
+      "line": 7,
       "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
       "code": "::Configuration.first[\"description\"]",
       "render_path": [
@@ -336,7 +215,7 @@
           "type": "controller",
           "class": "Webui::MainController",
           "method": "index",
-          "line": 21,
+          "line": 47,
           "file": "app/controllers/webui/main_controller.rb",
           "rendered": {
             "name": "webui/main/index",
@@ -379,7 +258,7 @@
       "check_name": "RegexDoS",
       "message": "Model attribute used in regular expression",
       "file": "app/models/binary_release.rb",
-      "line": 93,
+      "line": 92,
       "link": "https://brakemanscanner.org/docs/warning_types/denial_of_service/",
       "code": "/^#{Package.striping_multibuild_suffix(binary[\"package\"])}:/",
       "render_path": null,
@@ -449,6 +328,6 @@
       "note": ""
     }
   ],
-  "updated": "2020-02-20 10:42:42 +0000",
-  "brakeman_version": "4.8.0"
+  "updated": "2021-02-16 09:03:49 +0000",
+  "brakeman_version": "5.0.0"
 }
