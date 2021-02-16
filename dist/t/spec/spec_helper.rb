@@ -2,7 +2,6 @@
 #
 # for capybara rspec support
 require 'support/capybara'
-require 'support/wait_for_ajax'
 
 SCREENSHOT_DIR = "/tmp/rspec_screens".freeze
 
