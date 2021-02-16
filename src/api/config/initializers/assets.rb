@@ -9,5 +9,3 @@ Rails.application.config.assets.version = '1.0'
 # Precompile additional assets.
 # application.js, application.css, and all non-JS/CSS in app/assets folder are already added.
 Rails.application.config.assets.precompile += ['webui2/webui2.css', 'webui2/application.js', 'webui/obs_factory/application.css', 'webui2/cm2/*.js']
-
-Rails.application.config.assets.export_concurrent = false

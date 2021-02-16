@@ -50,6 +50,11 @@ module OBSApi
     # Version of your assets, change this if you want to expire all your assets
     config.assets.version = '1.0'
 
+    # Disable concurrent assert processing
+    config.assets.configure do |env|
+      env.export_concurrent = false
+    end
+
     # Skip frameworks you're not going to use
     # config.frameworks -= [ :action_web_service, :active_resource ]
 
