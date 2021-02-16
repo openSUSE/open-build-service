@@ -1,4 +1,7 @@
-Please only create issues/feature requests for the Open Build Service server here, GitHub issues are not meant to be used for support requests!
+Please only create code related issues/feature requests for the Open Build Service server here, GitHub issues are not meant to be used for support requests and neither for content problems of any instance!
+
+Any content related problems of our public instance build.opensuse.org, like not building packages or distribution setup should
+get reported either on the mailing lists or in the [openSUSE Bugzilla](https://bugzilla.opensuse.org).
 
 For security issues, please refer to [SECURITY.md](https://github.com/openSUSE/open-build-service/blob/master/SECURITY.md).
 
