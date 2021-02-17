@@ -13,6 +13,12 @@
     }
     code { line-height: 1.5rem; }
   }
+
+  blockquote {
+    color: $gray-500;
+    padding: 0 1rem;
+    border-left: .25rem solid $gray-300;
+  }
 }
 
 .comment-preview {
