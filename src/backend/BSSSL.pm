@@ -65,7 +65,7 @@ sub tossl {
 }
 
 sub TIEHANDLE {
-  my ($self, $socket, $keyfile, $certfile, $forceconnect) = @_;
+  my ($self, $socket, $keyfile, $certfile, $forceconnect, $sni) = @_;
 
   initctx() unless $sslctx;
   my $ssl = Net::SSLeay::new($sslctx) or die("SSL_new failed\n");
@@ -79,6 +79,7 @@ sub TIEHANDLE {
   if (defined($keyfile) && !$forceconnect) {
     Net::SSLeay::accept($ssl) == 1 || die("SSL_accept\n");
   } else {
+    Net::SSLeay::set_tlsext_host_name($ssl, $sni) if $sni && defined(&Net::SSLeay::set_tlsext_host_name);
     Net::SSLeay::connect($ssl) || die("SSL_connect");
   }
   return bless [$ssl, $socket];
