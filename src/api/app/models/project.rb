@@ -1090,17 +1090,17 @@ class Project < ApplicationRecord
     # Copy the flags from the other project, adjusting them appropriately
     # for this one being a branch of it:
     #
-    # - enable building
+    # - always use the same 'build' flags
     # - disable 'publish' to save space and bandwidth
     #   (can be turned off for small installations)
     # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.disable_publish_for_branches || project.image_template?
     project.flags.each do |f|
-      next if f.flag.in?(['build', 'lock'])
+      next if f.flag.in?(['lock'])
       next if f.flag == 'publish' && disable_publish_for_branches
       # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
       #       for same flag status here explizit
-      next if flags.exists?(flag: f.flag, architecture: f.architecture, repo: f.repo)
+      next if flags.exists?(flag: f.flag, architecture: f.architecture, repo: f.repo) && !f.flag.in?(['build'])
 
       flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
