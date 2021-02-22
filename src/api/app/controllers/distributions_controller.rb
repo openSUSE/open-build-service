@@ -4,6 +4,7 @@ class DistributionsController < ApplicationController
 
   validate_action index: { method: :get, response: :distributions }
   validate_action upload: { method: :put, request: :distributions, response: :status }
+  validate_action create: { method: :post, request: :distributions }
 
   # GET /distributions
   # GET /distributions.xml
@@ -55,17 +56,9 @@ class DistributionsController < ApplicationController
   # POST /distributions
   # POST /distributions.xml
   def create
-    @distribution = Distribution.new(params[:distribution])
+    Distribution.parse(Xmlhash.parse(request.body.read), delete_current: false)
 
-    respond_to do |format|
-      if @distribution.save
-        format.xml  { render xml: @distribution, status: :created, location: @distribution }
-        format.json { render json: @distribution, status: :created, location: @distribution }
-      else
-        format.xml  { render xml: @distribution.errors, status: :unprocessable_entity }
-        format.json { render json: @distribution.errors, status: :unprocessable_entity }
-      end
-    end
+    render_ok
   end
 
   # DELETE /distributions/opensuse-11.4

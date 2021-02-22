@@ -4,10 +4,12 @@ class Distribution < ApplicationRecord
   has_and_belongs_to_many :icons, -> { distinct }, class_name: 'DistributionIcon'
   has_and_belongs_to_many :architectures, -> { distinct }, class_name: 'Architecture'
 
-  def self.parse(xmlhash)
+  def self.parse(xmlhash, delete_current: true)
     Distribution.transaction do
-      Distribution.destroy_all
-      DistributionIcon.delete_all
+      if delete_current
+        Distribution.destroy_all
+        DistributionIcon.delete_all
+      end
       xmlhash.elements('distribution') do |d|
         db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'],
                                  reponame: d['reponame'], repository: d['repository'], link: d['link'])
