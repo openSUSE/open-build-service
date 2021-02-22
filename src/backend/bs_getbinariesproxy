@@ -429,6 +429,8 @@ my $conf = {
   'maxchild' => 40,
 };
 
+$conf->{'maxchild'} = $BSConfig::binproxy_maxchild if $BSConfig::binproxy_maxchild;
+
 set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit');
 
 BSStdServer::server('bs_getbinariesproxy', \@ARGV, $conf);
