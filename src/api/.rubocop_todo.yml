@@ -1120,16 +1120,12 @@ Style/ExplicitBlockArgument:
 Style/FrozenStringLiteralComment:
   Enabled: false
 
-# Offense count: 8
+# Offense count: 2
 # Cop supports --auto-correct.
 Style/HashConversion:
   Exclude:
-    - 'app/controllers/webui/monitor_controller.rb'
     - 'app/controllers/webui/package_controller.rb'
-    - 'app/models/worker_status.rb'
     - 'app/services/consistency_check_job_service/project_meta_checker.rb'
-    - 'app/services/monitor_controller_service/building_information_updater.rb'
-    - 'test/node_matcher.rb'
 
 # Offense count: 6
 Style/IdenticalConditionalBranches:

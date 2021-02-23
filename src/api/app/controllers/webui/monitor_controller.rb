@@ -56,7 +56,7 @@ class Webui::MonitorController < Webui::WebuiController
       data[prefix] = status_history("#{prefix}_#{arch.worker}", range).map { |time, value| [time * 1000, value] }
     end
 
-    low = Hash[status_history("squeue_low_#{arch}", range)]
+    low = status_history("squeue_low_#{arch}", range).to_h
 
     comb = status_history("squeue_next_#{arch}", range).collect do |time, value|
       clow = low[time] || 0
