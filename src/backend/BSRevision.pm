@@ -398,14 +398,18 @@ sub undelete_rev {
   my $user = defined($cgi->{'user'}) ? str2utf8xml($cgi->{'user'}) : 'unknown';
   my $comment = defined($cgi->{'comment'}) ? str2utf8xml($cgi->{'comment'}) : '';
   my $nrev = { 'srcmd5' => $rev->{'srcmd5'}, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $cgi->{'requestid'} };
-  $nrev->{'version'} = $rev->{'version'} if $rev && defined $rev->{'version'};
-  $nrev->{'vrev'} = $rev->{'vrev'} if $rev && defined $rev->{'vrev'};
+  $nrev->{'vrev'} = $rev->{'vrev'} if defined $rev->{'vrev'};
+  $nrev->{'version'} = $rev->{'version'} if defined $rev->{'version'};
+  if (defined($rev->{'version'}) && defined($rev->{'vrev'}) && $rev->{'vrev'} ne '') {
+    # bump vrev
+    $rev->{'vrev'} = $1 . ($2 + 1) if $rev->{'vrev'} =~ /^(.*?)(\d+)$/;
+  }
   $nrev->{'rev'} = $rev->{'rev'} + 1;
   if ($cgi->{'time'}) {
     if ($cgi->{'time'} == 1) {
-      $nrev->{'time'} = $rev->{'time'} if $rev && $rev->{'time'};
+      $nrev->{'time'} = $rev->{'time'} if $rev->{'time'};
     } else {
-      die("specified time is less than time in last commit\n") if $rev && $rev->{'time'} > $cgi->{'time'};
+      die("specified time is less than time in last commit\n") if $rev->{'time'} > $cgi->{'time'};
       $nrev->{'time'} = $cgi->{'time'};
     }
   }
