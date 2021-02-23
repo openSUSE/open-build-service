@@ -51,7 +51,7 @@
             Apply Filter
 
     - if display_filters?(filters.keys)
-      = display_applied_filters(filters)
+      = display_applied_filters(filters, displayed_user)
   .card-body.pt-0
     - if involved_items.blank?
       This user is not involved in any project or package.
