@@ -66,6 +66,8 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $srcserver_maxchild = 20;
 # Maximum number of concurrent jobs for source service
 #our $service_maxchild = 20;
+# Maximum number of concurrent jobs for binaries proxy
+#our $binproxy_maxchild = 40;
 
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
