@@ -62,8 +62,9 @@ RSpec.describe "Package", type: :feature do
       # wait for the build results ajax call
       sleep(5)
       puts "Refreshed build results, #{counter} retries left."
-      succeed_build = page.all('a', class: 'build-state-succeeded')
-      break if succeed_build.length == 1
+      builds_in_final_state = page.all('a', class: /build-state-(succeeded|failed)/).length
+      break if builds_in_final_state.positive?
     end
+    expect(page).to have_link('succeeded')
   end
 end
