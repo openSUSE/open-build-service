@@ -135,9 +135,8 @@ OBSApi::Application.routes.draw do
     ### /search
 
     controller :search do
-      # ACL(/search/published/binary/id) TODO: direct passed call to  "pass_to_backend'
       match 'search/published/binary/id' => :pass_to_backend, via: [:get, :post]
-      # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
+      match 'search/published/repoinfo/id' => :pass_to_backend, via: [:get, :post]
       match 'search/published/pattern/id' => :pass_to_backend, via: [:get, :post]
       match 'search/channel/binary/id' => :channel_binary_id, via: [:get, :post]
       match 'search/channel/binary' => :channel_binary, via: [:get, :post]

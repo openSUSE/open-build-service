@@ -552,6 +552,14 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                                 filename: 'package-1.0-1.i586.rpm',
                                                 filepath: 'My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm',
                                                 baseproject: 'BaseDistro3Channel', type: 'rpm' }
+    get "/search/published/repoinfo/id?match=project='" + incident_project + "'"
+    assert_response :success
+    assert_xml_tag tag: 'collection', attributes: { matches: '3' }
+    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'channel_repo', project: 'BaseDistro3Channel' }
+    get '/search/published/repoinfo/id?withdownloadurl=1&match=starts-with(project,"My:Maintenance:")'
+    assert_response :success
+    assert_xml_tag tag: 'collection', attributes: { matches: '3' }
+    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'channel_repo', project: 'BaseDistro3Channel' }
 
     # create release request
     post '/request?cmd=create', params: '<request>

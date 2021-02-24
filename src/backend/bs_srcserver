@@ -5219,6 +5219,48 @@ sub search_published_binary_name {
   return search_published_binary_id($cgi, $match, 1);
 }
 
+sub published_repoinfo_projectindexfunc {
+  my ($db, $path, $value) = @_;
+  $db->{'_allkeys'} ||= [ $db->keys() ];
+  if (!defined($value)) {
+    my %projids;
+    $projids{(split('/', $_, 2))[0]} = 1 for @{$db->{'_allkeys'}};
+    return sort keys %projids;
+  }
+  return grep {/^\Q$value\E\//} @{$db->{'_allkeys'}};
+}
+
+sub search_published_repoinfo_id {
+  my ($cgi, $match) = @_;
+  my $repoinfodb;
+  if ($BSConfig::published_db_sqlite) {
+    $repoinfodb = BSSrcServer::SQLite::opendb($extrepodb, 'repoinfo');
+    $repoinfodb->{'allkeyspath'} = sub {die("413 refusing to get all keys\n")};
+  } else {
+    $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
+    $repoinfodb->{'indexfunc'} = {'project' => \&published_repoinfo_projectindexfunc };
+  }
+  my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
+  my $rootnode = BSXPathKeys::node($repoinfodb, '', $limit && $limit < 10 ? 1000 : $limit * 100);
+  my $matches = BSXPath::match($rootnode, $match) || [];
+  my $res = {};
+  my @data;
+  for my $d (@$matches) {
+    if ($cgi->{'withdownloadurl'}) {
+      my $du = BSUrlmapper::get_downloadurl("$d->{'base'}->{'project'}/$d->{'base'}->{'repository'}");
+      $d->{'base'}->{'downloadurl'} = $du if $du;
+    }
+    push @data, $d->{'base'};
+  }
+  $res->{'matches'} = @data;
+  if ($limit && @data > $limit) {
+    $res->{'limited'} = 'true';
+    splice(@data, $limit);
+  }
+  $res->{'repoinfo'} = \@data;
+  return ($res, $BSXML::collection);
+}
+
 sub search_published_pattern_id {
   my ($cgi, $match) = @_;
   my $patterndb;
@@ -7047,6 +7089,7 @@ my $dispatches = [
   '/search/published/binary/id $match: limit:num? withdownloadurl:bool?' => \&search_published_binary_id,
   '/search/published/binary/name $match: limit:num?' => \&search_published_binary_name,
   '/search/published/pattern/id $match: limit:num? withdownloadurl:bool?' => \&search_published_pattern_id,
+  '/search/published/repoinfo/id $match: limit:num? withdownloadurl:bool?' => \&search_published_repoinfo_id,
 
   # service interface, just for listing for now
   '/service' => \&listservices,
