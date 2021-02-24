@@ -65,5 +65,6 @@ RSpec.describe "Package", type: :feature do
       builds_in_final_state = page.all('a', class: /build-state-(succeeded|failed)/).length
       break if builds_in_final_state.positive?
     end
+    expect(page).to have_link('succeeded')
   end
 end
