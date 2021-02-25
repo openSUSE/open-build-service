@@ -1172,8 +1172,9 @@ sub move_entry_into_cache {
   my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
   mkdir_p("$cachedir/".substr($cacheid, 0, 2));
   unlink("$cachefile.$$");
-  return 0 unless link($path, "$cachefile.$$");
+  return 0 unless link_or_copy($path, "$cachefile.$$");
   rename("$cachefile.$$", $cachefile) || die("500 rename $cachefile.$$ $cachefile: $!\n");
+  unlink("$cachefile.$$");
   my $mpath = "$path.meta";
   $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
   if (-s $mpath) {
