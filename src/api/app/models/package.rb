@@ -103,7 +103,7 @@ class Package < ApplicationRecord
   validates :project_id, uniqueness: {
     scope: :name,
     message: lambda do |object, _data|
-      "##{object.project_id} already has a package with the name `#{object.name}`"
+      "`#{object.project.name}` already has a package with the name `#{object.name}`"
     end
   }
   validate :valid_name
