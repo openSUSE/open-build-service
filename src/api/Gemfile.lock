@@ -235,7 +235,7 @@ GEM
     mimemagic (0.3.5)
     mini_mime (1.0.2)
     mini_portile2 (2.5.0)
-    minitest (5.14.3)
+    minitest (5.14.4)
     minitest-ci (3.4.0)
       minitest (>= 5.0.6)
     minitest-fail-fast (0.1.0)
