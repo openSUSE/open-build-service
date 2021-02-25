@@ -332,7 +332,6 @@ scheduler_thread = nil
 
 at_exit do
   scheduler_thread.join if scheduler_thread
-
   system("cd #{backend_config}; exec ./bs_srcserver --stop")
   system("cd #{backend_config}; exec ./bs_repserver --stop")
 
@@ -353,8 +352,8 @@ at_exit do
   servicesrv_out.close
   servicesrv_out = nil
   servicesrv.join
-  #  FileUtils.rm_rf("#{backend_data}")
-  #  FileUtils.rm_rf("#{backend_config}")
+  FileUtils.rm_rf(backend_data)
+  FileUtils.rm_rf(backend_config)
   File.delete(schedulerdone_file) if File.exist?(schedulerdone_file)
 end
 

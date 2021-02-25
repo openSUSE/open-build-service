@@ -1227,6 +1227,13 @@ our $pattern_id = [
 	'downloadurl',
 ];
 
+our $repoinfo_id = [
+     'repoinfo' =>
+	'project',
+	'repository',
+	'downloadurl',
+];
+
 our $sourcediff = [
     'sourcediff' =>
 	'key',
@@ -1389,6 +1396,7 @@ our $collection = [
       [ $pack ],
       [ $binary_id ],
       [ $pattern_id ],
+      [ $repoinfo_id ],
       [ 'value' ],
 ];
 

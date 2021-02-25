@@ -1556,6 +1556,21 @@ GET /search/published/binary/id
 Parameters:
 
   match: xpath predicate, mandatory
+  limit: override limit of entries, optional
+  withdownloadurl: bool, add download url entries as well, optional
+
+XmlResult: collection
+
+
+GET /search/published/repoinfo/id
+
+  Search for currenlty available repositories in the publish area.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+  limit: override limit of entries, optional
+  withdownloadurl: bool, add download url entries as well, optional
 
 XmlResult: collection
 
@@ -1567,6 +1582,8 @@ GET /search/published/pattern/id
 Parameters:
 
   match: xpath predicate, mandatory
+  limit: override limit of entries, optional
+  withdownloadurl: bool, add download url entries as well, optional
 
 XmlResult: collection
 
