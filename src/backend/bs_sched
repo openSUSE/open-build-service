@@ -1100,9 +1100,7 @@ eval {
     $ctx->printstats();
 
     # trigger dod package fetching
-    if ($BSConfig::enable_download_on_demand) {
-      BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
-    }
+    BSSched::DoD::dodfetch($ctx) if $ctx->{'doddownloads'};
 
     # we always publish kiwi...
     if ($isfinished || (!$bconf->{'publishflags:noearlykiwipublish'} && $ctx->{'prptype'} eq 'kiwi')) {

@@ -27,6 +27,7 @@ use BSConfiguration;
 use BSSched::BuildResult;
 use BSSched::BuildJob;			# for expandkiwipath
 use BSSched::ProjPacks;			# for orderpackids
+use BSSched::DoD;			# for dodcheck
 my %bininfo_oldok_cache;
 
 =head1 NAME
@@ -262,7 +263,7 @@ sub check {
       return ('blocked', join(', ', @blocked));
     }
     push @rpms, @kdeps;
-    if ($BSConfig::enable_download_on_demand && $myarch eq $buildarch) {
+    if ($myarch eq $buildarch) {
       my $dods = BSSched::DoD::dodcheck($ctx, $pool, $localbuildarch, @kdeps);
       return ('blocked', $dods) if $dods;
     }
