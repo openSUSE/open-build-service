@@ -555,11 +555,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/search/published/repoinfo/id?match=project='" + incident_project + "'"
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '3' }
-    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'channel_repo', project: 'BaseDistro3Channel' }
+    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'BaseDistro3Channel', project: incident_project }
     get '/search/published/repoinfo/id?withdownloadurl=1&match=starts-with(project,"My:Maintenance:")'
     assert_response :success
     assert_xml_tag tag: 'collection', attributes: { matches: '3' }
-    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'channel_repo', project: 'BaseDistro3Channel' }
+    assert_xml_tag tag: 'repoinfo', attributes: { repository: 'BaseDistro3Channel', project: incident_project }
 
     # create release request
     post '/request?cmd=create', params: '<request>
