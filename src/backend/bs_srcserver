@@ -2803,6 +2803,8 @@ sub putfile {
     }
     my $rev = BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$", undef, $filename ]);
     notify_repservers('package', $projid) if $filename eq '_frozenlinks';
+    notify("SRCSRV_UPLOAD", {project => $projid, package => $packid, filename => $filename,
+                             meta => 1, rev => $rev, user => ($cgi->{'user'} || "unknown")});
     delete $rev->{'project'};
     delete $rev->{'package'};
     return ($rev, $BSXML::revision);
