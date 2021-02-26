@@ -39,6 +39,7 @@ use strict;
 #   db->{"fetch_$key"}      super-fast select_path_from_key function
 #   db->{'noindex'}->{$path}
 #   db->{'noindexdatall'}
+#   db->{'indexfunc'}
 #
 
 
@@ -218,7 +219,8 @@ sub boolop {
       #die("413 search limit reached\n") if $v1->{'limit'} && @k > $v1->{'limit'};
       $negpol = 0;
     } else {
-      my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v1->{'path'}}) || $db->{'noindexatall'};
+      my $noindex = $db->{'noindexatall'} && !($db->{'indexfunc'} && $db->{'indexfunc'}->{$v1->{'path'}}) ? 1 : 0;
+      $noindex = 1 if $db->{'noindex'} && $db->{'noindex'}->{$v1->{'path'}};
       $noindex = 1 if !$v1->{'keys'} && $op == \&boolop_not_helper;
       my @values;
       if (!$noindex) {
@@ -287,7 +289,8 @@ sub boolop {
       #die("413 search limit reached\n") if $v2->{'limit'} && @k > $v2->{'limit'};
       $negpol = 0;
     } else {
-      my $noindex = ($db->{'noindex'} && $db->{'noindex'}->{$v2->{'path'}}) || $db->{'noindexatall'};
+      my $noindex = $db->{'noindexatall'} && !($db->{'indexfunc'} && $db->{'indexfunc'}->{$v2->{'path'}}) ? 1 : 0;
+      $noindex = 1 if $db->{'noindex'} && $db->{'noindex'}->{$v2->{'path'}};
       my @values;
       if (!$noindex) {
         for my $vv ($db->values($v2->{'path'}, $v2->{'keys'}, $hint, $v1)) {

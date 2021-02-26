@@ -5219,15 +5219,49 @@ sub search_published_binary_name {
   return search_published_binary_id($cgi, $match, 1);
 }
 
+sub published_repoinfo_keys2prps {
+  my (@k) = @_;
+  return @k unless $BSConfig::published_db_sqlite;
+  for (@k) {
+    my @p = split('/', $_); 
+    splice(@p, 0, 2, "$p[0]$p[1]") while @p > 1 && $p[0] =~ /:$/;
+    my $projid = shift @p;
+    splice(@p, 0, 2, "$p[0]$p[1]") while @p > 1 && $p[0] =~ /:$/;
+    my $repoid = shift @p;
+    $_ = "$projid/$repoid";
+  }    
+  return @k;
+}
+
 sub published_repoinfo_projectindexfunc {
-  my ($db, $path, $value) = @_;
-  $db->{'_allkeys'} ||= [ $db->keys() ];
+  my ($db, $path, $value, $lkeys, $hint, $hintval) = @_;
+  if ($BSConfig::published_db_sqlite) {
+    return $db->rawkeys($path, $value) if defined $value;
+    return $db->rawvalues($path, $hint, $hintval);
+  }
+  $db->{'_allkeys'} ||= [ $db->rawkeys() ] unless $lkeys;
   if (!defined($value)) {
     my %projids;
-    $projids{(split('/', $_, 2))[0]} = 1 for @{$db->{'_allkeys'}};
+    $projids{(split('/', $_, 2))[0]} = 1 for @{$lkeys || $db->{'_allkeys'}};
     return sort keys %projids;
   }
-  return grep {/^\Q$value\E\//} @{$db->{'_allkeys'}};
+  return grep {/^\Q$value\E\//} @{$lkeys || $db->{'_allkeys'}};
+}
+
+sub published_repoinfo_repositoryindexfunc {
+  my ($db, $path, $value, $lkeys, $hint, $hintval) = @_;
+  $db->{'_allkeys'} ||= [ $db->rawkeys() ] unless $lkeys;
+  my @k = published_repoinfo_keys2prps(@{$lkeys || $db->{'_allkeys'}});
+  if (!defined($value)) {
+    my %repoids;
+    $repoids{(split('/', $_, 2))[1]} = 1 for @k;
+    return sort keys %repoids;
+  }
+  @k = grep {/\/\Q$value\E$/} @k;
+  if ($BSConfig::published_db_sqlite) {
+    s/:/:\//g for @k;
+  }
+  return @k;
 }
 
 sub search_published_repoinfo_id {
@@ -5235,29 +5269,29 @@ sub search_published_repoinfo_id {
   my $repoinfodb;
   if ($BSConfig::published_db_sqlite) {
     $repoinfodb = BSSrcServer::SQLite::opendb($extrepodb, 'repoinfo');
-    $repoinfodb->{'allkeyspath'} = sub {die("413 refusing to get all keys\n")};
   } else {
     $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
-    $repoinfodb->{'indexfunc'} = {'project' => \&published_repoinfo_projectindexfunc };
   }
+  $repoinfodb->{'allkeyspath'} = sub {die("413 refusing to get all keys\n")};
+  $repoinfodb->{'indexfunc'} = {'project' => \&published_repoinfo_projectindexfunc, 'repository' => \&published_repoinfo_repositoryindexfunc };
+  $repoinfodb->{'noindexatall'} = 1;
   my $limit = defined($cgi->{'limit'}) ? $cgi->{'limit'} : 1000;
   my $rootnode = BSXPathKeys::node($repoinfodb, '', $limit && $limit < 10 ? 1000 : $limit * 100);
-  my $matches = BSXPath::match($rootnode, $match) || [];
-  my $res = {};
-  my @data;
-  for my $d (@$matches) {
+  my $matches = $rootnode->keymatch($match) || [];
+  @$matches = published_repoinfo_keys2prps(@$matches);
+  for (@$matches) {
+    my ($projid, $repoid) = split('/', $_, 2);
+    $_ = { 'project' => $projid, 'repository' => $repoid };
     if ($cgi->{'withdownloadurl'}) {
-      my $du = BSUrlmapper::get_downloadurl("$d->{'base'}->{'project'}/$d->{'base'}->{'repository'}");
-      $d->{'base'}->{'downloadurl'} = $du if $du;
+      my $du = BSUrlmapper::get_downloadurl("$projid/$repoid");
+      $_->{'downloadurl'} = $du if $du;
     }
-    push @data, $d->{'base'};
   }
-  $res->{'matches'} = @data;
-  if ($limit && @data > $limit) {
+  my $res = { 'matches' => scalar(@$matches), 'repoinfo' => $matches };
+  if ($limit && @$matches > $limit) {
     $res->{'limited'} = 'true';
-    splice(@data, $limit);
+    splice(@$matches, $limit);
   }
-  $res->{'repoinfo'} = \@data;
   return ($res, $BSXML::collection);
 }
 
