@@ -1156,11 +1156,25 @@ sub link_or_copy {
     return undef;
   }
   my $buf;
-  while (sysread(F, $buf, 8192)) {
-    (syswrite(G, $buf) || 0) == length($buf) || die("$to write: $!\n");
+  while (1) {
+    my $r = sysread(F, $buf, 8192);
+    if (!defined($r)) {
+      warn("sysread $from: $!\n");
+      unlink($to);
+      close F;
+      return undef;
+    }
+    last unless $r;
+    if ((syswrite(G, $buf) || 0) != length($buf)) {
+      warn("syswrite $to: $!\n");
+      unlink($to);
+      close F;
+      return undef;
+    }
   }
   close(F);
   if (!close(G)) {
+    warn("close $to: $!\n");
     unlink($to);
     return undef;
   }
@@ -1294,6 +1308,16 @@ sub trygetbinariesproxy_preinstallimage {
   return $res;
 }
 
+sub checkmd5 {
+  my ($file, $md5) = @_;
+  local *F;
+  open(F, '<', $file) || return undef;
+  my $ctx = Digest::MD5->new;
+  $ctx->addfile(*F);
+  close F;
+  return $ctx->hexdigest() eq $md5 ? 1 : undef;
+}
+
 sub getbinaries_cache {
   my ($dir, $server, $projid, $repoid, $arch, $nometa, $bins, $modules, $bvl) = @_;
 
@@ -1354,49 +1378,40 @@ sub getbinaries_cache {
     next if $bv->{'error'};
     my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
     my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
-    my $usecache = 0;
+    if (!link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
+      push @downloadbins, $bin;
+      $downloadsizek += $bv->{'sizek'};
+      next;
+    }
+    my $usecache = 1;
     my $havemeta;
-    if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
-      my @s = stat("$dir/$bv->{'name'}");
-      die unless @s;
-      if (!$nometa && $bv->{'hdrmd5'}) {
-	my $mn = $bv->{'name'};
-        $mn =~ s/\.(?:$binsufsre)/.meta/;
-        if (link_or_copy("$cachefile.meta", "$dir/$mn")) {
-	  local *F;
-	  open(F, '<', "$dir/$mn") || die;
-	  my $ctx = Digest::MD5->new;
-	  $ctx->addfile(*F);
-	  close F;
-	  if ($ctx->hexdigest() eq $bv->{'metamd5'}) {
-	    $usecache = 1;
-	    $havemeta = 1;
-	  } else {
-	    unlink("$dir/$mn");
-	  }
+    my @s = stat("$dir/$bv->{'name'}");
+    die unless @s;
+    if (!$nometa && $bv->{'metamd5'}) {
+      my $mn = $bv->{'name'};
+      $mn =~ s/\.(?:$binsufsre)/.meta/;
+      if (link_or_copy("$cachefile.meta", "$dir/$mn")) {
+	if (checkmd5("$dir/$mn", $bv->{'metamd5'})) {
+	  $havemeta = 1;
+	} else {
+	  unlink("$dir/$mn");
 	}
-      } else {
-	$usecache = 1;
       }
-      if ($usecache) {
-	# check hdrmd5 to be sure we got the right bin
-        my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
-	$usecache = 0 if ($id || '') ne $bv->{'hdrmd5'};
-      }
-      if (!$usecache) {
-	unlink("$dir/$bv->{'name'}");
-      } else {
-	push @cacheold, [$cacheid, $s[7]];
-      }
+      $usecache = 0 unless $havemeta;
+    }
+    if ($usecache) {
+      # check hdrmd5 to be sure we got the right bin
+      my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
+      $usecache = 0 if ($id || '') ne $bv->{'hdrmd5'};
     }
     if (!$usecache) {
+      unlink("$dir/$bv->{'name'}");
       push @downloadbins, $bin;
       $downloadsizek += $bv->{'sizek'};
     } else {
+      push @cacheold, [$cacheid, $s[7]];
       $ret{$bin} = {'name' => $bv->{'name'}, 'hdrmd5' => $bv->{'hdrmd5'}};
-      if (!$nometa && $havemeta) {
-        $ret{$bin}->{'meta'} = 1;
-      }
+      $ret{$bin}->{'meta'} = 1 if !$nometa && $havemeta;
     }
   }
   $binariescachehits += @cacheold;
@@ -1855,12 +1870,7 @@ sub getpreinstallimage_metas {
       my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
       my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
       if (link_or_copy("$cachefile.meta", "$dir/$bin.meta")) {
-	local *F;
-	open(F, '<', "$dir/$bin.meta") || die;
-	my $ctx = Digest::MD5->new;
-	$ctx->addfile(*F);
-	close F;
-	next if $ctx->hexdigest() eq $bv->{'metamd5'};
+	next if checkmd5("$dir/$bin.meta", $bv->{'metamd5'});
 	unlink("$dir/$bin.meta");
       }
       push @todo, $bin;
