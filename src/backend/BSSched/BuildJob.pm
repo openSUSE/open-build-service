@@ -1084,7 +1084,7 @@ sub create {
   my @vmdeps = Build::get_vminstalls($bconf);
 
   # do DoD checking
-  if (!$ctx->{'isreposerver'} && $BSConfig::enable_download_on_demand) {
+  if (!$ctx->{'isreposerver'}) {
     my $dods;
     if ($kiwimode) {
       # image packages are already checked (they come from a different pool anyway)
