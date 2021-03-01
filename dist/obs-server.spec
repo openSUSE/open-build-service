@@ -222,8 +222,8 @@ Requires:       user(obsrun)
 Requires:       user(obsservicerun)
 # zstd is esp for Arch Linux
 Requires:       zstd
-# needed for optional bs_sourcepublish
-Recommends:     perl-DBD-SQLite
+# needed for optional sqlite databases, which are default for new installations
+Requires:     perl-DBD-SQLite
 
 Obsoletes:      obs-productconverter < 2.9
 Obsoletes:      obs-source_service < 2.9
