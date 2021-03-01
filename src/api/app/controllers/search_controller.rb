@@ -96,6 +96,9 @@ class SearchController < ApplicationController
       owners = OwnerSearch::Assignee.new(params).for(params[:binary])
     elsif (obj = owner_group_or_user)
       owners = OwnerSearch::Owned.new(params).for(obj)
+    elsif params[:project].blank? && params[:package].present?
+      # package container name without specified project
+      owners = OwnerSearch::Assignee.new(params).for_package(params[:package])
     end
     if owners.nil? && (obj = owner_package_or_project)
       owners = OwnerSearch::Container.new(params).for(obj)

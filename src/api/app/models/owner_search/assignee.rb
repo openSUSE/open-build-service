@@ -1,6 +1,8 @@
+# rubocop:disable Metrics/ClassLength
+
 module OwnerSearch
   class Assignee < Base
-    def for(search_string)
+    def for(binary_name)
       @match_all = limit.zero?
       @deepest = limit.negative?
 
@@ -14,7 +16,28 @@ module OwnerSearch
         @rootproject = project
         @lookup_limit = limit.to_i
         @devel_disabled = devel_disabled?(project)
-        find_assignees(search_string)
+        find_assignees_by_binary(binary_name)
+        webui_mode = params[:webui_mode].present?
+        return @instances_without_definition if webui_mode && @maintainers.empty?
+      end
+      @maintainers
+    end
+
+    def for_package(package_name)
+      @match_all = limit.zero?
+      @deepest = limit.negative?
+
+      @instances_without_definition = []
+      @maintainers = []
+
+      # search in each marked project
+      projects_to_look_at.each do |project|
+        @rolefilter = filter(project)
+        @already_checked = {}
+        @rootproject = project
+        @lookup_limit = limit.to_i
+        @devel_disabled = devel_disabled?(project)
+        find_assignees_by_package(package_name)
         webui_mode = params[:webui_mode].present?
         return @instances_without_definition if webui_mode && @maintainers.empty?
       end
@@ -87,15 +110,10 @@ module OwnerSearch
       m
     end
 
-    def parse_binary_info(b, prj)
-      # a binary without a package container? can only only happen
-      # with manual snapshot repos...
-      return false if b['project'] != prj.name || b['package'].blank?
-
-      package_name = b['package']
-      package_name.gsub!(/\.[^.]*$/, '') if prj.is_maintenance_release?
+    def check_for_maintainer(package_name, prj)
       package_name = Package.striping_multibuild_suffix(package_name)
       pkg = prj.packages.find_by_name(package_name)
+      pkg = prj.packages.find_by_name(pkg.releasename) if pkg && pkg.releasename
 
       return false if pkg.nil? || pkg.is_patchinfo?
 
@@ -119,7 +137,19 @@ module OwnerSearch
       true
     end
 
-    def find_assignees(binary_name)
+    def find_assignees_by_package(package_name)
+      projects = @rootproject.expand_all_projects(allow_remote_projects: false)
+
+      @deepest_match = nil
+      projects.each do |prj| # project link order
+        next unless check_for_maintainer(package_name, prj)
+        return @maintainers if @lookup_limit < 1 && !@match_all
+      end
+
+      @maintainers << @deepest_match if @deepest_match
+    end
+
+    def find_assignees_by_binary(binary_name)
       projects = @rootproject.expand_all_projects(allow_remote_projects: false)
 
       # binary search via all projects
@@ -130,7 +160,11 @@ module OwnerSearch
       @deepest_match = nil
       projects.each do |prj| # project link order
         data.elements('binary').each do |b| # no order
-          next unless parse_binary_info(b, prj)
+          # a binary without a package container? can only only happen
+          # with manual snapshot repos...
+          next if b['project'] != prj.name || b['package'].blank?
+
+          next unless check_for_maintainer(b['package'], prj)
           return @maintainers if @lookup_limit < 1 && !@match_all
         end
       end
@@ -139,3 +173,5 @@ module OwnerSearch
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
