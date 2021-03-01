@@ -63,7 +63,7 @@ gem 'builder'
 # to write the rails metrics directly into InfluxDB.
 gem 'influxdb-rails', '1.0.1.beta2'
 # for copying objects with their relations
-gem 'deep_cloneable', '~> 3.0.0'
+gem 'deep_cloneable', '~> 3.1.0'
 # Server-side datatables
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
