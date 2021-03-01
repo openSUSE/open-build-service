@@ -134,7 +134,7 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    deep_cloneable (3.0.0)
+    deep_cloneable (3.1.0)
       activerecord (>= 3.1.0, < 7)
     delayed_job (4.1.9)
       activesupport (>= 3.0, < 6.2)
@@ -471,7 +471,7 @@ DEPENDENCIES
   dalli
   data_migrate
   database_cleaner-active_record
-  deep_cloneable (~> 3.0.0)
+  deep_cloneable (~> 3.1.0)
   delayed_job_active_record (>= 4.0.0)
   factory_bot_rails
   faker
