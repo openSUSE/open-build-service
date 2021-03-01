@@ -8,13 +8,13 @@ class Webui::PackageController < Webui::WebuiController
                                      :new, :branch_diff_info, :rdiff, :create, :save, :remove,
                                      :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                      :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :save_meta, :files,
-                                     :binary_download]
+                                     :binary_download, :badge]
 
   before_action :require_package, only: [:edit, :update, :show, :dependency, :binary, :binaries, :requests, :statistics, :revisions,
                                          :branch_diff_info, :rdiff, :save, :save_meta, :remove,
                                          :remove_file, :save_person, :save_group, :remove_role, :view_file, :abort_build, :trigger_rebuild,
                                          :trigger_services, :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :users,
-                                         :binary_download]
+                                         :binary_download, :badge]
 
   before_action :validate_xml, only: [:save_meta]
 
@@ -24,7 +24,7 @@ class Webui::PackageController < Webui::WebuiController
   # make sure it's after the require_, it requires both
   before_action :require_login, except: [:show, :index, :branch_diff_info, :binaries,
                                          :users, :requests, :statistics, :revisions, :view_file, :live_build_log,
-                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files]
+                                         :update_build_log, :devel_project, :buildresult, :rpmlint_result, :rpmlint_log, :meta, :files, :badge]
 
   before_action :check_build_log_access, only: [:live_build_log, :update_build_log]
 
@@ -636,6 +636,31 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
+  def badge
+    @badge = []
+    info = { text: 'build service', colour: 'gray' }
+    info[:icon] = Rails.application.assets['obs-logo_no-text.svg']
+    info[:width] = (text_width('build service') * 11).ceil
+    @badge << info
+    result = {}
+    type = params[:type] # default, percent and ratio
+    results = badge_buildresults(@package.buildresult(@project).results[@package.name])
+    status = results.group_by(&:code)
+    result[:text] = status.max_by { |_, v| v.length }[0]
+    result[:text] = 'building' if status.key?('building')
+    result[:colour] = 'blue' # set this by default as it's the intermediate state
+    if status.key?('failed')
+      result[:text] = 'failed'
+      result[:colour] = 'red'
+    end
+    result[:colour] = 'green' if result[:text] == 'succeeded'
+    succeeded = status['succeeded'].try(:length).to_i
+    result[:text] = "#{100 * succeeded / results.length}%" if type == 'percent'
+    result[:text] = "#{succeeded}/#{results.length}" if type == 'ratio'
+    result[:width] = (text_width(result[:text]) * 11).ceil
+    @badge << result
+  end
+
   private
 
   def package_params
@@ -896,5 +921,25 @@ class Webui::PackageController < Webui::WebuiController
       @workerid = nil
       @buildtime = nil
     end
+  end
+
+  def text_width(text)
+    file = TTFunk::File.open('/usr/share/fonts/truetype/DejaVuSans.ttf')
+    sum = 0
+    text.split('').each do |char|
+      glyph_code = file.cmap.unicode.first[char.unpack1('U*')]
+      sum += file.horizontal_metrics.for(glyph_code).advance_width
+    end
+    sum.to_f / file.header.units_per_em # Remember to multiply by point size
+  end
+
+  def badge_buildresults(results)
+    results.each do |result|
+      result.code = 'failed' if result.code.in?(['unresolvable', 'broken'])
+    end
+    results.reject! do |result|
+      result.code.in?(['disabled', 'excluded'])
+    end
+    results
   end
 end

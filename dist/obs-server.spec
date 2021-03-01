@@ -314,6 +314,7 @@ Requires:       ghostscript-fonts-std
 %endif
 Requires:       obs-api-deps = %{version}
 Requires:       obs-bundled-gems = %{version}
+Requires:       dejavu-fonts
 
 %description -n obs-api
 This is the API server instance, and the web client for the

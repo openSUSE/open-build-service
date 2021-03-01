@@ -414,6 +414,7 @@ GEM
     timecop (0.9.4)
     tins (1.28.0)
       sync
+    ttfunk (1.7.0)
     tzinfo (1.2.9)
       thread_safe (~> 0.1)
     uglifier (4.2.0)
@@ -525,6 +526,7 @@ DEPENDENCIES
   thinking-sphinx (> 3.1)
   tilt (>= 1.4.1)
   timecop
+  ttfunk
   uglifier (>= 1.2.2)
   vcr
   voight_kampff
