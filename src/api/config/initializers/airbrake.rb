@@ -71,11 +71,25 @@ end
 # integration with the Logger class from stdlib.
 # https://github.com/airbrake/airbrake#logger
 # Rails.logger = Airbrake::AirbrakeLogger.new(Rails.logger)
+
 def ignore_by_class_and_message?(notice)
-  notice[:errors].any? do |error|
-    error[:type] == 'ActionController::RoutingError' &&
-      error[:message] =~ /Required Parameter|\[GET\]|Expected AJAX call/
+  notice[:errors].each do |error|
+    return true if error[:type] == 'ActionController::RoutingError' && error[:message].match?(/Required Parameter|\[GET\]|Expected AJAX call/)
+    return true if error[:type] == 'Backend::Error' && ignore_by_backend_400_message?(error[:message])
   end
+end
+
+def ignore_by_backend_400_message?(message)
+  messages_to_ignore = ['<summary>conflict in file', '<summary>unknown request:', '<summary>bad link',
+                        '<summary>broken link in', '<summary>bad files', 'does not exist</summary>',
+                        'is illegal</summary>', '<summary>service in progress</summary>', '<summary>service error',
+                        '<summary>could not apply patch', '<summary>illegal characters</summary>',
+                        '<summary>repoid is empty</summary>', '<summary>packid is empty</summary>'].freeze
+  messages_to_ignore.each do |ignored_error_message|
+    return true if message.include?(ignored_error_message)
+  end
+
+  false
 end
 
 def ignore_by_class?(notice)
