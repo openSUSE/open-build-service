@@ -137,11 +137,11 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#creator_intentions' do
-    it 'do not show the requester if he is the same as the creator' do
+    it 'do not show the requester if they are the same as the creator' do
       expect(creator_intentions(nil)).to eq('become bugowner (previous bugowners will be deleted)')
     end
 
-    it 'show the requester if he is different as the creator' do
+    it 'show the requester if they are different from the creator' do
       expect(creator_intentions('bugowner')).to eq('get the role bugowner')
     end
   end

@@ -75,7 +75,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
 
     get '/person/tom'
-    # should see his watchlist
+    # should see their watchlist
     assert_xml_tag tag: 'person', child: { tag: 'watchlist' }
 
     get '/person/fred'
@@ -280,7 +280,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     user_xml = "<person>
   <login>lost_guy</login>
   <email>lonely_person@universe.com</email>
-  <realname>The Other Guy</realname>
+  <realname>The Other Person</realname>
   <owner userid='adrian'/>
 </person>"
 

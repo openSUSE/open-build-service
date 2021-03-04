@@ -172,7 +172,7 @@ class User < ApplicationRecord
   end
 
   # This static method tries to find a user with the given login and password
-  # in the database. Returns the user or nil if he could not be found
+  # in the database. Returns the user or nil if they could not be found
   def self.find_with_credentials(login, password)
     return find_with_credentials_via_ldap(login, password) if CONFIG['ldap_mode'] == :on
 

@@ -84,7 +84,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
         assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
         assert_select 'review', state: 'new', by_user: 'adrian'
         assert_select 'review', state: 'new', by_group: 'test_group'
-        assert_select 'description', 'want to see his reaction'
+        assert_select 'description', 'want to see their reaction'
       end
     end
 
@@ -114,7 +114,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
         assert_select 'review', state: 'new', by_user: 'adrian'
         assert_select 'review', state: 'new', by_user: 'tom'
         assert_select 'review', state: 'new', by_group: 'test_group'
-        assert_select 'description', 'want to see his reaction'
+        assert_select 'description', 'want to see their reaction'
       end
       # Should find requests of groups adrian belongs to
       assert_select 'request', id: 4 do
@@ -3565,7 +3565,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag tag: 'summary', content: 'Package is used by following packages as devel package: BaseDistro:Update/pack2'
 
-    # but he should be able to add reviewers
+    # but they should be able to add reviewers
     post "/request/#{id}?cmd=addreview&by_user=tom"
     assert_response :success
 

@@ -407,7 +407,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
         assert_select 'review', state: 'new', by_user: 'adrian'
         assert_select 'review', state: 'new', by_user: 'tom'
         assert_select 'review', state: 'new', by_group: 'test_group'
-        assert_select 'description', 'want to see his reaction'
+        assert_select 'description', 'want to see their reaction'
       end
       # XPath search is not expected to find requests of groups adrian belongs to
       assert_select "request[id='4']", false
@@ -664,7 +664,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', attributes: { project: 'TEMPORARY', package: 'pack' }
     assert_no_xml_tag tag: 'owner', attributes: { project: 'home:coolo:test' }
     assert_no_xml_tag tag: 'group', attributes: { name: 'test_group', role: 'bugowner' }
-    # disable a user and check that he disappears
+    # disable a user and check that they disappears
     u = User.find_by_login('Iggy')
     u.state = 'unconfirmed'
     u.save!
