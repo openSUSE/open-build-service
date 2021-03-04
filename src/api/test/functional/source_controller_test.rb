@@ -2652,12 +2652,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag tag: 'status', attributes: { code: 'cmd_execution_no_permission' }
 
-    # but he can use the token
+    # but they can use the token
     reset_auth
     post '/trigger/release', headers: { 'Authorization' => "Token #{token}" }
     assert_response :success
 
-    # and he can release it to own space
+    # and they can release it to own space
     login_Iggy
     post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy'
     assert_response 400

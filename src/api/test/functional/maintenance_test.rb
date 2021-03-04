@@ -1238,7 +1238,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag parent: { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, tag: 'id', content: nil
 
-    # let's say the maintenance guy wants to publish it now
+    # let's say the maintenance person wants to publish it now
     get "/source/#{incident_project}/_meta"
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)

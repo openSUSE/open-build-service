@@ -82,7 +82,7 @@ RSpec.describe CommentPolicy do
       expect(subject).not_to permit(admin_user, comment)
     end
 
-    it 'a user can update his own comments' do
+    it 'a user can update their own comments' do
       expect(subject).to permit(comment_author, comment)
     end
 

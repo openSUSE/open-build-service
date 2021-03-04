@@ -60,7 +60,7 @@ authenticated but is not yet, the webapp redirects to a special page.
 The iChain system is configured in the way that accessing this special
 page requires authentication and thus iChain displays the Novell
 standard login page. The user provides the credentials and after the
-login was successfull, the user is redirected to his initial requested
+login was successfull, the user is redirected to their initial requested
 page.
 
 

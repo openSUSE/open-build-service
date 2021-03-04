@@ -183,7 +183,7 @@ RSpec.describe Webui::Users::NotificationsController do
       let(:action) { :index }
     end
 
-    context 'when a user marks one of his unread notifications as read' do
+    context 'when a user marks one of their unread notifications as read' do
       subject! do
         login user_to_log_in
         put :update, params: { notification_ids: [state_change_notification.id], user_login: user_to_log_in.login }, xhr: true
@@ -213,7 +213,7 @@ RSpec.describe Webui::Users::NotificationsController do
       end
     end
 
-    context 'when a user marks one of his read notifications as unread' do
+    context 'when a user marks one of their read notifications as unread' do
       subject! do
         login user_to_log_in
         put :update, params: { notification_ids: [read_notification.id], type: 'read', user_login: user_to_log_in.login }, xhr: true

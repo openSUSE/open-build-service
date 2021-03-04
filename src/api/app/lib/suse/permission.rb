@@ -17,8 +17,8 @@ module Suse
     end
 
     def project_change?(project = nil)
-      # one is project admin if he has the permission Project_Admin or if he
-      # is the owner of the project
+      # one is project admin if they have the permission Project_Admin or if they
+      # are the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
       case project

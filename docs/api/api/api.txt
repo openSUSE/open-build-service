@@ -151,7 +151,7 @@ XmlResult: status
 
 Parameters:
   cmd: change_password
-  cmd: lock             # will lock the user and his home projects
+  cmd: lock             # will lock the user and their home projects
   cmd: delete           # will mark the user as deleted and remove her home projects
 
 GET /person/<userid>/token
@@ -1683,7 +1683,7 @@ GET /search/owner
 Parameters:
 
   binary: specify the binary package to search for
-  user: specify a user login name to list his packages
+  user: specify a user login name to list their packages
   group: specify a group title name to list their packages
 
   devel: true/false: include devel package definitions?

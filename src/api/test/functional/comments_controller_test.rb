@@ -101,7 +101,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     get comments_request_path(request_number: 2)
     assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Hallo'
 
-    # just check if adrian gets the mail too - he's a commenter now
+    # just check if adrian gets the mail too - they're a commenter now
     login_dmayr
     SendEventEmailsJob.new.perform
     assert_difference('ActionMailer::Base.deliveries.size', +1) do

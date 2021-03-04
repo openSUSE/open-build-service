@@ -95,7 +95,7 @@ RSpec.describe Package, vcr: true do
   describe '#maintainers' do
     it 'returns an array with user objects to all maintainers for a package' do
       # first of all, we add a user who is not a maintainer but a bugowner
-      # he/she should not be recognized by package.maintainers
+      # they should not be recognized by package.maintainers
       create(:relationship_package_user_as_bugowner, user: other_user2, package: package)
 
       # we expect both users to be in that returning array

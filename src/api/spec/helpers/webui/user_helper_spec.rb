@@ -11,11 +11,11 @@ RSpec.describe Webui::UserHelper do
   describe '#requester_str' do
     let(:requester) { create(:user, login: 'Ana') }
 
-    it 'do not show the requester if he is the same as the creator' do
+    it 'do not show the requester if they are the same as the creator' do
       expect(requester_str(creator.login, creator.login, nil)).to be(nil)
     end
 
-    it 'show the requester if he is different as the creator' do
+    it 'show the requester if they are different from the creator' do
       expect(requester_str(creator.login, requester.login, nil)).to include('user', requester.login)
     end
 
