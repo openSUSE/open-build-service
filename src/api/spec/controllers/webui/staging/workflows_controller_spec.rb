@@ -7,13 +7,18 @@ RSpec.describe Webui::Staging::WorkflowsController do
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow, project: project, managers_group: managers_group) }
 
-  before do
-    login(user)
-  end
-
   describe 'GET #new' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :new }
+      let(:opts) do
+        { params: { project: project.name } }
+      end
+    end
+
     context 'non existent staging_workflow for project' do
       before do
+        login(user)
         get :new, params: { project: project.name }
       end
 
@@ -24,6 +29,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with an existent staging_workflow for project' do
       before do
+        login(user)
         staging_workflow
         get :new, params: { project: project.name }
       end
@@ -34,8 +40,17 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'POST #create' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :create }
+      let(:opts) do
+        { params: { project: project.name } }
+      end
+    end
+
     context 'a staging_workflow and staging_projects' do
       before do
+        login(user)
         post :create, params: { project: project.name, managers_title: managers_group.title }
       end
 
@@ -53,6 +68,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       let!(:staging_b) { create(:project, name: "#{project}:Staging:B") }
 
       before do
+        login(user)
         post :create, params: { project: project.name, managers_title: managers_group.title }
       end
 
@@ -69,6 +85,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       let(:params) { { project_name: project.name, managers_title: 'ItDoesNotExist' } }
 
       before do
+        login(user)
         post :create, params: params
       end
 
@@ -78,6 +95,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'when it fails to save the staging workflow' do
       before do
+        login(user)
         allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
         post :create, params: { project: project.name, managers_title: managers_group.title }
       end
@@ -102,9 +120,19 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'GET #edit' do
+    before { staging_workflow }
+
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :edit }
+      let(:opts) do
+        { params: { workflow_project: project } }
+      end
+    end
+
     context 'with an existent staging_workflow for project' do
       before do
-        staging_workflow
+        login(user)
         get :edit, params: { workflow_project: project }
       end
 
@@ -117,8 +145,17 @@ RSpec.describe Webui::Staging::WorkflowsController do
   describe 'DELETE #destroy' do
     let!(:staging_workflow) { create(:staging_workflow, project: project) }
 
+    it_behaves_like 'require logged in user' do
+      let(:method) { :delete }
+      let(:action) { :destroy }
+      let(:opts) do
+        { params: { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js } }
+      end
+    end
+
     context 'a staging workflow and staging projects' do
       before do
+        login(user)
         params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
       end
@@ -134,6 +171,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow and one staging project' do
       before do
+        login(user)
         params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids.first, format: :js }
         delete :destroy, params: params
       end
@@ -149,6 +187,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'a staging workflow unsuccessful' do
       before do
+        login(user)
         allow_any_instance_of(Staging::Workflow).to receive(:destroy).and_return(false)
         params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js }
         delete :destroy, params: params
@@ -160,12 +199,21 @@ RSpec.describe Webui::Staging::WorkflowsController do
   end
 
   describe 'PUT #update' do
+    subject { staging_workflow.reload }
+
+    it_behaves_like 'require logged in user' do
+      let(:method) { :put }
+      let(:action) { :update }
+      let(:opts) do
+        { params: { workflow_project: staging_workflow.project, managers_title: other_managers_group.title } }
+      end
+    end
+
     context 'without any problem' do
       before do
+        login(user)
         put :update, params: { workflow_project: staging_workflow.project, managers_title: other_managers_group.title }
       end
-
-      subject { staging_workflow.reload }
 
       it { expect(subject.managers_group).to eq(other_managers_group) }
 
@@ -181,12 +229,10 @@ RSpec.describe Webui::Staging::WorkflowsController do
 
     context 'with a failing save for staging workflow' do
       before do
-        staging_workflow
+        login(user)
         allow_any_instance_of(Staging::Workflow).to receive(:save).and_return(false)
         put :update, params: { workflow_project: staging_workflow.project, managers_title: other_managers_group.title }
       end
-
-      subject { staging_workflow.reload }
 
       it { expect(subject.managers_group).to eq(managers_group) }
 
