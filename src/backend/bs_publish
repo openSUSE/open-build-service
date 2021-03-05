@@ -1683,6 +1683,11 @@ sub mapsleimage {
     $rbin =~ s/\.sha256.asc$//;
     $rbin =~ s/\.(?:bz2|gz|xz|zst)$//;
     $rbin =~ s/\.(iso|packages|raw|tbz|tgz|tar|qcow2|vdi|vhdfixed|vhdx|vmdk|vmx|vagrant\..*\.box)$//;
+    $rbin =~ s/^ChangeLog\.//;
+    $rbin =~ s/\.txt$//;
+    # if we did not find it yet, try removing the build number
+    # as the ftp trees are stored without
+    $rbin =~ s/-Build\d+(\.\d+)?(\.\d+)?// unless -f "$rdir/$rbin.milestone";
     my $milestone = readstr("$rdir/$rbin.milestone", 1);
     chomp($milestone) if defined $milestone;
     $milestone ||= 'GM';
@@ -2177,6 +2182,7 @@ sub publish {
 	  # ChangeLog.* files, all formats
 	  # Document the changes for the downloader of the images
 	  $p = $bin;
+	  $p = mapsleimage($sleimagedata, "$reporoot/$prp/$arch/:repo", $rbin, $p) if $sleimagedata;
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	  if ($repotype{'slepool'}) {
