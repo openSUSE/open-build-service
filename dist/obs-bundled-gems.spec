@@ -131,6 +131,7 @@ export GEM_HOME=~/.gems
 bundle config build.ffi --enable-system-libffi
 bundle config build.nokogiri --use-system-libraries
 bundle config build.sassc --disable-march-tune-native
+bundle config build.nio4r --with-cflags='%{optflags} -Wno-return-type'
 
 bundle --local --path %{buildroot}%_libdir/obs-api/
 
