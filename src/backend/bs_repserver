@@ -4255,6 +4255,7 @@ sub registry_blob {
   my $param = {'filename' => $fd};
   my @hdrs = ("Content-Type: application/octet-stream", "Content-Length: $size", @rangehdr, "Docker-Content-Digest: $blob", "Etag: \"$blob\"", $BSRegistryServer::registry_api_hdr);
   push @hdrs, 'Cache-Control: max-age=2678400';
+  unshift @hdrs, 'Status: 206 Partial Content' if @rangehdr;
   BSServer::reply_file($fd, @hdrs);
   return undef;
 }
