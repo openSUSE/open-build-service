@@ -32,7 +32,7 @@
   @extend .text-danger;
 }
 
-#request-history {
+#request-history .card-body {
   .media .media-body {
     @extend .text-break;
   }
