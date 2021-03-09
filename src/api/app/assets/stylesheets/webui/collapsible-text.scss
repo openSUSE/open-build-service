@@ -36,6 +36,6 @@
   @include collapsible($maxHeight: 15em);
 }
 
-#request-history {
+#request-history .card-body {
   @include collapsible($maxHeight: 4.5em);
 }
