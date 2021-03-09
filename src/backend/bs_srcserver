@@ -5716,6 +5716,7 @@ sub worker_getbinaries {
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
+    push @args, "now=$cgi->{'now'}" if $cgi->{'now'};
     BSHandoff::handoff('/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
@@ -5747,6 +5748,7 @@ sub worker_getbinaryversions {
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, "nometa=1" if $cgi->{'nometa'};
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
+    push @args, "now=$cgi->{'now'}" if $cgi->{'now'};
     BSHandoff::handoff('/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
@@ -7097,8 +7099,8 @@ my $dispatches = [
   '/getsources $project $package $srcmd5:md5 workerid?' => \&getsources,
   '/getconfig $project $repository path:prp* workerid?' => \&getbuildconfig,
   '/getsslcert $project autoextend:bool? workerid? signtype:?' => \&getsslcert,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? module*' => \&worker_getbinaryversions,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&worker_getbinaryversions,
   '/getobsgendiffdata $project $repository $arch jobid? workerid?' => \&getobsgendiffdata,
 
   # publisher/signer calls
@@ -7218,8 +7220,8 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? lastsucceeded:bool? start:intnum? end:num?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool? withmd5:bool? module* withccache:bool?' => \&getbinarylist,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? module*' => \&worker_getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&worker_getbinaryversions,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? raw:bool? now:num? module*' => \&worker_getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module*' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lasteventsproxy $filter:* start:num? remoteurl: client:?' => \&lasteventsproxy,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,

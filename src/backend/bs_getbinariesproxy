@@ -160,7 +160,10 @@ sub getbinaries {
   my $nometa = $cgi->{'nometa'};
   my $metaonly = $cgi->{'metaonly'};
   die("nometa and metaonly?\n") if $nometa && $metaonly;
-
+  if ($cgi->{'now'}) {
+    my $waited = time() - $cgi->{'now'};
+    print "waited $waited seconds to accept call\n" if $waited > 60;
+  }
   mkdir_p($cachedir);
   mkdir_p($cachetmpdir);
   set_maxopen() unless defined $maxopen;
@@ -184,6 +187,7 @@ sub getbinaries {
   # get missing bvs from server
   if (@missingbvs) {
     print "missingbvs: @missingbvs\n";
+    my $callers_time = time();
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
@@ -191,6 +195,7 @@ sub getbinaries {
     push @args, "nometa" if $nometa;
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
     push @args, "binaries=".join(',', @missingbvs);
+    push @args, "now=$callers_time";
     my $bvl;
     eval {
       $bvl = BSRPC::rpc({
@@ -298,11 +303,13 @@ sub getbinaries {
     if ($downloadsizek * 1024 * 100 > $cachesize) {
       manage_cache($cachesize - $downloadsizek * 1024);
     }
+    my $callers_time = time();
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, map {"module=$_"} @{$cgi->{'module'} || []};
+    push @args, "now=$callers_time";
     my $res;
     eval {
       $res = BSRPC::rpc({
@@ -361,7 +368,10 @@ sub getbinaries {
 
 sub getpreinstallimage {
   my ($cgi, $prpa, $hdrmd5) = @_;
-
+  if ($cgi->{'now'}) {
+    my $waited = time() - $cgi->{'now'};
+    print "waited $waited seconds to accept call\n" if $waited > 60;
+  }
   mkdir_p($cachedir);
   mkdir_p($cachetmpdir);
   set_maxopen() unless defined $maxopen;
@@ -417,8 +427,8 @@ sub hello {
 
 my $dispatches = [
   '/' => \&hello,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module* workerid? server:' => \&getbinaries,
-  '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? workerid? server:' => \&getpreinstallimage,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module* workerid? now:num? server:' => \&getbinaries,
+  '/getpreinstallimage $prpa $hdrmd5:md5 path: sizek:num? workerid? now:num? server:' => \&getpreinstallimage,
 ];
 
 my $conf = {

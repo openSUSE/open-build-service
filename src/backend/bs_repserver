@@ -241,6 +241,10 @@ sub getbinaryversions {
     die unless $cgi->{'view'} && $cgi->{'view'} eq 'binaryversions';
     @bins = @{$cgi->{'binary'} || []};
   }
+  if ($cgi->{'now'}) {
+    my $waited = time() - $cgi->{'now'};
+    print "waited $waited seconds to accept call\n" if $waited > 60;
+  }
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
@@ -447,7 +451,10 @@ sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $prp = "$projid/$repoid";
   my @bins = split(',', $cgi->{'binaries'} || '');
-
+  if ($cgi->{'now'}) {
+    my $waited = time() - $cgi->{'now'};
+    print "waited $waited seconds to accept call\n" if $waited > 60;
+  }
   my $serial;
   $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
   return if $BSStdServer::isajax && !defined $serial;
@@ -4428,8 +4435,8 @@ my $dispatches = [
   '!worker /getworkercode' => \&getworkercode,
   '!worker POST:/putjob $arch $job $jobid $code:? now:num? kiwitree:bool? workerid?' => \&putjob,
   '!worker POST:/workerdispatched $arch $job $jobid hostarch:arch port workerid?' => \&workerdispatched,
-  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? module*' => \&getbinaries,
-  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? module*' => \&getbinaryversions,
+  '!worker /getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? workerid? now:num? module*' => \&getbinaries,
+  '!worker /getbinaryversions $project $repository $arch binaries: nometa:bool? workerid? now:num? module*' => \&getbinaryversions,
   '!worker /getjobdata $arch $job $jobid workerid?' => \&getjobdata,
   '!worker /getpackagebinaryversionlist $project $repository $arch $package* withcode:bool? workerid?' => \&getpackagebinaryversionlist,
   '!worker /badpackagebinaryversionlist $project $repository $arch $package* workerid?' => \&badpackagebinaryversionlist,
@@ -4488,8 +4495,8 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool? module* withccache:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:? module*' => \&getbinary,
   '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
-  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? module*' => \&getbinaries,
-  '/getbinaryversions $project $repository $arch binaries: nometa:bool? module*' => \&getbinaryversions,
+  '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool? now:num? module*' => \&getbinaries,
+  '/getbinaryversions $project $repository $arch binaries: nometa:bool? now:num? module*' => \&getbinaryversions,
 ];
 
 my $conf = {

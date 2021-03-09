@@ -1261,6 +1261,7 @@ sub trygetbinariesproxy {
   my ($server, $dir, $bins, $bvs,  @args) = @_;
 
   return undef unless $getbinariesproxy;
+  my $callers_time = time();
   my @proxybins;
   for my $bin (@$bins) {
     my $bv = $bvs->{$bin};
@@ -1277,7 +1278,7 @@ sub trygetbinariesproxy {
       'directory' => $dir,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, "server=$server", @args, 'binaries='.join(',', @proxybins));
+    }, undef, "server=$server", @args, "now=$callers_time", 'binaries='.join(',', @proxybins));
   };
   if ($@) {
     warn($@);
@@ -1289,10 +1290,12 @@ sub trygetbinariesproxy {
 sub trygetbinariesproxy_preinstallimage {
   my ($server, $filename, $img) = @_;
   return undef unless $getbinariesproxy;
+  my $callers_time = time();
   my $res;
   my @args;
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}";
+  push @args, "now=$callers_time";
   eval {
     $res = BSRPC::rpc({
       'uri' => "$getbinariesproxy/getpreinstallimage",
@@ -1340,6 +1343,7 @@ sub getbinaries_cache {
     undef $bvl if grep {!$bv{$_}} @$bins;
   }
   if ($cachedir && !$bvl) {
+    my $callers_time = time();
     my @args;
     push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
@@ -1348,6 +1352,7 @@ sub getbinaries_cache {
     push @args, "nometa" if $nometa;
     push @args, map {"module=$_"} @{$modules || []};
     push @args, "binaries=".join(',', @$bins);
+    push @args, "now=$callers_time";
     eval {
       $bvl = BSRPC::rpc({
         'uri' => "$server/getbinaryversions",
@@ -1422,12 +1427,14 @@ sub getbinaries_cache {
       # reserve space
       manage_cache($cachesize - $downloadsizek * 1024);
     }
+    my $callers_time = time();
     my @args;
     push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, map {"module=$_"} @{$modules || []};
+    push @args, "now=$callers_time";
     my $res;
     $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
     eval {
@@ -1892,6 +1899,8 @@ sub getpreinstallimage_metas {
   my $res;
   $res = trygetbinariesproxy($server, $dir, \@todo, $metas, @args) if $getbinariesproxy;
   eval {
+    my $callers_time = time();
+    push @args, "now=$callers_time";
     $res ||= BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $dir,
@@ -1948,6 +1957,7 @@ sub getpreinstallimage {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
+    my $callers_time = time();
     my @args;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
@@ -1955,6 +1965,7 @@ sub getpreinstallimage {
     push @args, "nometa" if $nometa;
     push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
     push @args, "binaries=".join(',', @bins);
+    push @args, "now=$callers_time";
     my $bvl;
     eval {
       $bvl = BSRPC::rpc({
@@ -2190,6 +2201,7 @@ sub getbinaries_buildenv {
     # maybe we need to look at the full tree as well...
     for my $repo (@{$buildinfo->{'path'} || []}) {
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my $callers_time = time();
       my @args;
       push @args, "project=$repo->{'project'}";
       push @args, "repository=$repo->{'repository'}";
@@ -2197,6 +2209,7 @@ sub getbinaries_buildenv {
       push @args, 'nometa';
       push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
       push @args, "binaries=".join(',', @needed_names);
+      push @args, "now=$callers_time";
       my $bvl;
       eval {
         $bvl = BSRPC::rpc({
@@ -2464,11 +2477,13 @@ sub getbinaries {
       die("getbinaries: job has no container repository\n") unless $repo;
       my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
       mkdir_p($ddir);
+      my $callers_time = time();
       my @args;
       push @args, "workerid=$workerid" if defined $workerid;
       push @args, "project=$repo->{'project'}";
       push @args, "repository=$repo->{'repository'}";
       push @args, "arch=$buildinfo->{'arch'}";
+      push @args, "now=$callers_time";
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $res = BSRPC::rpc({
 	'uri' => "$server/getbinaries",
