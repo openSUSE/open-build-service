@@ -1,19 +1,21 @@
 class Webui::Staging::WorkflowsController < Webui::WebuiController
   VALID_STATES_WITH_REQUESTS = [:acceptable, :accepting, :review, :testing, :building, :failed, :unacceptable].freeze
 
-  before_action :require_login, except: [:show]
+  # TODO: Remove this when we'll refactor kerberos_auth
+  before_action :kerberos_auth, except: [:show]
   before_action :set_project, only: [:new, :create]
   before_action :set_workflow_project, except: [:new, :create]
   before_action :set_staging_workflow, except: [:new, :create]
-  after_action :verify_authorized, except: [:show, :new]
+  after_action :verify_authorized, except: [:show]
 
   def new
     if @project.staging
+      authorize @project.staging
       redirect_to staging_workflow_path(@project)
       return
     end
 
-    @staging_workflow = @project.build_staging
+    @staging_workflow = authorize @project.build_staging
   end
 
   def create

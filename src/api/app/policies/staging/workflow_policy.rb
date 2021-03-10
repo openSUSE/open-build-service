@@ -1,6 +1,10 @@
 class Staging::WorkflowPolicy < ApplicationPolicy
-  def initialize(user, record)
-    super(user, record, user_optional: true)
+  def initialize(user, record, opts = {})
+    super(user, record, opts.reverse_merge(ensure_logged_in: true))
+  end
+
+  def new?
+    create?
   end
 
   def create?
