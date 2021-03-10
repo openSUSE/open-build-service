@@ -53,8 +53,8 @@
                     %i.fas.fa-clock.text-warning
                     This result is outdated
                 - if result.details
-                  %div
-                    %strong #{result.code}:
+                  .pt-1.mt-3
+                    %strong{ class: "build-state-#{result.code}" } #{result.code}:
                     %span= result.details
 
         - previous_repo = result.repository
