@@ -6,20 +6,21 @@
           Do you want to delete the staging for #{project}?
       .modal-body
         %p Please confirm deletion of the staging for #{project}
-        = form_tag staging_workflow_path, method: :delete, remote: true, id: 'staging-workflow-delete' do
-          - if @staging_workflow.staging_projects.any?
+        = form_for(staging_workflow, method: :delete, remote: true, id: 'staging-workflow-delete', url: staging_workflow_path) do |f|
+          - if staging_workflow.staging_projects.any?
             %p Check the staging projects you want to be deleted:
-            - @staging_workflow.staging_projects.each do |staging_project|
-              .form-check
-                = check_box_tag 'staging_project_ids[]', staging_project.id, false, class: 'form-check-input'
-                %label.form-check-label
-                  = staging_project.name
+            -# TODO: Adding a "Select all staging projects" checkbox could be nice
+            = f.collection_check_boxes(:staging_project_ids, staging_workflow.staging_projects,
+                                       :id, :name, include_hidden: false) do |staging_project_fields|
+              .custom-control.custom-checkbox
+                = staging_project_fields.check_box(class: 'custom-control-input', checked: false)
+                = staging_project_fields.label(class: 'custom-control-label')
           %br
           .modal-footer
             %i.fas.fa-spinner.fa-spin.delete-spinner.d-none
             %button.btn.btn-sm.btn-outline-secondary.px-4{ data: { dismiss: 'modal' } }
               Cancel
-            = submit_tag 'Delete', class: 'btn btn-sm btn-danger px-4'
+            = f.submit('Delete', class: 'btn btn-sm btn-danger px-4')
 
 - content_for :ready_function do
   setSpinnersForDeletion();

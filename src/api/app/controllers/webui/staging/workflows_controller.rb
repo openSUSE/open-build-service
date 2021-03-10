@@ -72,9 +72,9 @@ class Webui::Staging::WorkflowsController < Webui::WebuiController
     authorize @staging_workflow
     @project = @staging_workflow.project
 
-    # attached staging projects get nullified by default but we want to
-    # allow to destroy manually by setting a checkbox
-    @staging_workflow.staging_projects.where(id: params[:staging_project_ids]).destroy_all
+    # There won't be any data in the params about the staging projects of the staging workflow if the user didn't want to delete them
+    staging_project_ids = params.dig(:staging_workflow, :staging_project_ids)
+    @staging_workflow.staging_projects.where(id: staging_project_ids).destroy_all if staging_project_ids
 
     if @staging_workflow.destroy
       flash[:success] = "Staging for #{@project} was successfully deleted."
