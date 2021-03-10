@@ -25,9 +25,9 @@
 
         .collapse{ class: "collapse-project-#{repository_name}#{expanded ? ' show' : ''}", data: { repository: repository_name } }
           - build_results.sort_by(&:architecture).each do |build_result|
-            .d-flex.flex-row.flex-wrap.py-1
-              .repository-state{ title: "#{repository} summary" }
-                = repository_status_icon(status: build_result.state, details: build_result.details)
+            .d-flex.flex-row.flex-nowrap.py-1
+              .repository-state
+                = repository_status_icon(status: build_result.state)
                 %span.ml-1
                   = link_to(build_result.architecture, { action: :monitor,
                                                   "#{valid_xml_id('repo_' + repository)}": 1,
@@ -49,9 +49,8 @@
 
               .build-state.d-flex.flex-column
                 - build_result.summary.each do |status_count|
-                  %div
-                    %i.fa.fa-question-circle.text-info{ data: { content: Buildresult.status_description(status_count.code),
-                      placement: 'top', toggle: 'popover' } }
+                  .toggle-build-info-parent.text-nowrap
+                    %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
                     = link_to("#{status_count.code}: #{status_count.count}",
                       { action: :monitor,
                         "#{valid_xml_id('repo_' + repository)}": 1,
@@ -59,3 +58,13 @@
                         project: params[:project],
                         "#{status_count.code}": 1,
                         defaults: 0 }, rel: 'nofollow', class: "nowrap build-state-#{status_count.code}")
+                  .build-info.p2.mb-2.mt-1.mr-sm-3.collapsed
+                    .triangle.left
+                    .build-info-content
+                      %p.py-1= Buildresult.status_description(status_count.code)
+                      %div
+                        = repository_status_icon(status: build_result.state)
+                        %span.pl-1= repository_info(build_result.state)
+
+:javascript
+  toggleBuildInfo();
