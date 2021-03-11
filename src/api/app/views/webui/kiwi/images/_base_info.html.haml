@@ -10,23 +10,7 @@
         %li.list-inline-item
           %strong Contact:
           %span.fill{ data: { tag: 'contact' } }= contact
-    - if feature_enabled?(:responsive_ux)
-      = render partial: 'webui/kiwi/images/responsive_ux/actions',
-               locals: { package: package, is_edit_details_action: is_edit_details_action }
-    - else
-      %ul.list-inline.mb-0
-        %li.list-inline-item
-          = link_to(package_show_path(package.project, package)) do
-            %i.text-warning.fa.fa-archive
-            View Package
-        %li.list-inline-item{ class: "#{'d-none' unless is_edit_details_action}" }
-          = link_to('#', data: { target: '#description-edit', toggle: 'modal' }) do
-            %i.fa.fa-edit.text-secondary
-            Edit Details
-        - if User.session
-          %li.list-inline-item
-            = link_to(cloud_upload_index_path, id: 'cloud-upload') do
-              %i.fas.fa-cloud-upload-alt.text-secondary
-              Cloud Upload
+    = render partial: 'webui/kiwi/images/actions',
+             locals: { package: package, is_edit_details_action: is_edit_details_action }
     - if action_name == 'edit'
       = render partial: 'description_form', locals: { f: f }
