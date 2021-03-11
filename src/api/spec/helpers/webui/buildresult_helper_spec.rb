@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+# TODO: Refactor this, the specs are extremely difficult to understand
 RSpec.describe Webui::BuildresultHelper do
   include Webui::WebuiHelper
   let(:project) { create(:project) }
@@ -27,27 +28,22 @@ RSpec.describe Webui::BuildresultHelper do
         it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq(result) }
       end
 
-      context 'with status and without enable_help' do
+      context 'with status' do
         let(:hash_key) { key == 'scheduled' ? 'unknown' : 'scheduled' } # to have different key in the statushash
         let(:statushash) { { repo.name => { arch => { package.name => { 'code' => hash_key, 'details' => description } } } } }
 
-        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name, status, false)).to eq(result2) }
+        it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name, status)).to eq(result2) }
       end
     end
 
     ['succeeded', 'failed', 'broken', 'dispatching', 'building', 'signing', 'finished', 'disabled', 'locked', 'unknown'].each do |key|
       context "with #{key}" do
         let(:key) { key }
-        let(:encoded_description) { description.gsub("'", '&#39;') } # ' is encoded as &#39;
         let(:result) do
-          "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{encoded_description}\" data-placement=\"top\" "\
-            'data-toggle="popover"></i>'\
-            "<a data-content=\"#{encoded_description}\" data-placement=\"right\" data-toggle=\"popover\" rel=\"nofollow\" "\
-            "class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
+          "<a rel=\"nofollow\" class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
         end
         let(:result2) do
-          "<a data-content=\"#{encoded_description}\" data-placement=\"right\" data-toggle=\"popover\" rel=\"nofollow\" "\
-            "class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
+          "<a rel=\"nofollow\" class=\"build-state-#{key}\" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\">#{key}</a>"
         end
 
         include_examples 'generic case'
@@ -58,13 +54,10 @@ RSpec.describe Webui::BuildresultHelper do
       context "with #{key}" do
         let(:key) { key }
         let(:result) do
-          "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{description}\" data-placement=\"top\" data-toggle=\"popover\"></i>"\
-            "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key}\" data-content=\"#{description}\" data-placement=\"right\" "\
-            "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
+          "<span id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key} toggle-build-info\" title=\"Click to keep it open\">#{key}</span>"
         end
         let(:result2) do
-          "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key}\" data-content=\"#{description}\" data-placement=\"right\" "\
-            "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
+          "<span id=\"id-#{package}_#{repo}_#{arch}\" class=\"build-state-#{key} toggle-build-info\" title=\"Click to keep it open\">#{key}</span>"
         end
 
         include_examples 'generic case'
@@ -74,13 +67,10 @@ RSpec.describe Webui::BuildresultHelper do
     context 'with scheduled' do
       let(:key) { 'scheduled' }
       let(:result) do
-        "<i class=\"fa fa-question-circle text-info mr-1\" data-content=\"#{description}\" data-placement=\"top\" data-toggle=\"popover\"></i>"\
-          "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning\" data-content=\"#{description}\" data-placement=\"right\" "\
-          "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
+        "<span id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning toggle-build-info\" title=\"Click to keep it open\">#{key}</span>"
       end
       let(:result2) do
-        "<a id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning\" data-content=\"#{description}\" data-placement=\"right\" "\
-        "data-toggle=\"popover\" href=\"javascript:void(0);\">#{key}</a>"
+        "<span id=\"id-#{package}_#{repo}_#{arch}\" class=\"text-warning toggle-build-info\" title=\"Click to keep it open\">#{key}</span>"
       end
 
       include_examples 'generic case'
@@ -89,8 +79,7 @@ RSpec.describe Webui::BuildresultHelper do
     context 'without status' do
       let(:statushash) { { repo.name => { arch => { package.name => nil } } } }
       let(:result) do
-        '<a data-placement="right" data-toggle="popover" rel="nofollow" class=" " '\
-         "href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\"></a>"
+        "<a rel=\"nofollow\" class=\" \" href=\"/package/live_build_log/#{project}/#{package}/#{repo}/#{arch}\"></a>"
       end
 
       it { expect(helper.arch_repo_table_cell(repo.name, arch, package.name)).to eq(result) }
