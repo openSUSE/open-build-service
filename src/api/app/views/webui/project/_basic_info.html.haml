@@ -11,3 +11,8 @@
       %i No description set
     - else
       = render partial: 'webui/shared/collapsible_text', locals: { text: project.description }
+
+  .pt-4
+    = link_to(edit_project_path(project), class: 'nav-link', remote: true, title: 'Edit Project') do
+      %i.fas.fa-edit.text-secondary
+      %span.nav-item-name Edit Project
