@@ -149,14 +149,14 @@ RSpec.describe Webui::Staging::WorkflowsController do
       let(:method) { :delete }
       let(:action) { :destroy }
       let(:opts) do
-        { params: { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js } }
+        { params: { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids }, format: :js } }
       end
     end
 
     context 'a staging workflow and staging projects' do
       before do
         login(user)
-        params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js }
+        params = { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids }, format: :js }
         delete :destroy, params: params
       end
 
@@ -172,7 +172,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
     context 'a staging workflow and one staging project' do
       before do
         login(user)
-        params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids.first, format: :js }
+        params = { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids.first }, format: :js }
         delete :destroy, params: params
       end
 
@@ -189,7 +189,7 @@ RSpec.describe Webui::Staging::WorkflowsController do
       before do
         login(user)
         allow_any_instance_of(Staging::Workflow).to receive(:destroy).and_return(false)
-        params = { workflow_project: project, staging_project_ids: project.staging.staging_projects.ids, format: :js }
+        params = { workflow_project: project, staging_workflow: { staging_project_ids: project.staging.staging_projects.ids }, format: :js }
         delete :destroy, params: params
       end
 
