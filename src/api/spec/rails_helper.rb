@@ -47,6 +47,12 @@ RSpec.configure do |config|
       Bullet.end_request
     end
   end
+
+  # TODO: Remove once the responsive_ux feature flag is deleted
+  # responsive_ux is now rolled out, so we can enable it for every example
+  config.before do
+    Flipper.enable(:responsive_ux)
+  end
 end
 
 # support fixtures
