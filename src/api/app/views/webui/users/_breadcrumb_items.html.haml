@@ -4,11 +4,11 @@
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Manage Users
   - when 'new'
-    = render partial: (User.session ? 'webui/configuration/breadcrumb_items' : 'webui/main/breadcrumb_items')
+    - if User.session
+      = render partial: 'webui/configuration/breadcrumb_items'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       = @pagetitle.capitalize
   - when 'show'
-    = render partial: 'webui/main/breadcrumb_items'
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
       Profile of #{@displayed_user}
   - when 'edit'
