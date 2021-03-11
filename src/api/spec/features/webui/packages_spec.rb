@@ -3,7 +3,7 @@ require 'webmock/rspec'
 require 'code_mirror_helper'
 
 RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
-  it_behaves_like 'bootstrap user tab' do
+  it_behaves_like 'user tab' do
     let(:package) do
       create(:package, name: 'group_test_package',
                        project_id: user_tab_user.home_project.id)
@@ -23,7 +23,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     let(:branching_data) { BranchPackage.new(project: user.home_project.name, package: package.name).branch }
     let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
     let(:package_mime) do
-      create(:package, name: 'test.yaml', project: user.home_project, description: 'A package with a mime type suffix')
+      create(:package, name: 'test.json', project: user.home_project, description: 'A package with a mime type suffix')
     end
 
     before do
@@ -33,7 +33,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
 
     it "has a mime like suffix in it's name" do
       visit package_show_path(project: user.home_project, package: package_mime)
-      expect(page).to have_text('test.yaml')
+      expect(page).to have_text('test.json')
       expect(page).to have_text('A package with a mime type suffix')
     end
 
@@ -78,31 +78,6 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     end
   end
 
-  describe 'editing the package description' do
-    let(:file_edit_test_package) { create(:package_with_file, name: 'file_edit_test_package', project: user.home_project) }
-
-    before do
-      login(user)
-      visit package_show_path(project: user.home_project, package: file_edit_test_package)
-    end
-
-    it 'updated the package description' do
-      click_link('Edit description')
-      within('.modal-body') do
-        fill_in('Title:', with: 'Updated title')
-        fill_in('Description:', with: 'Updated description')
-      end
-      within('.modal-footer') do
-        click_on('Update')
-      end
-      expect(page).to have_text('was saved successfully')
-      within('.basic-info') do
-        expect(page).to have_text('Updated title')
-        expect(page).to have_text('Updated description')
-      end
-    end
-  end
-
   describe 'existing requests' do
     let(:source_project) { create(:project_with_package, name: 'source_project') }
     let(:source_package) { source_project.packages.first }
@@ -117,6 +92,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       visit package_show_path(package: package, project: user.home_project)
       click_link('Requests')
       expect(page).to have_css('table#all_requests_table tbody tr', count: 1)
+      first('table#all_requests_table tbody tr td').click if mobile?
       find('a', class: 'request_link').click
       expect(page).to have_current_path(%r{/request/show/\d+})
     end
@@ -239,7 +215,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       login user
       allow(Configuration).to receive(:cleanup_after_days).and_return(14)
       visit package_show_path(project: other_user.home_project, package: other_users_package)
-      click_link('Branch Package')
+      desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
     end
 
     it 'with AutoCleanup' do
@@ -270,7 +246,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
   it 'requesting package deletion' do
     login user
     visit package_show_path(package: other_users_package, project: other_user.home_project)
-    click_link('Request Deletion')
+    desktop? ? click_link('Request Deletion') : click_menu_link('Actions', 'Request Deletion')
 
     expect(page).to have_text('Do you really want to request the deletion of package ')
     fill_in('bs_request_description', with: 'Hey, why not?')
@@ -286,7 +262,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     login user
     visit package_show_path(package: package_with_develpackage, project: user.home_project)
 
-    click_link('Request Devel Project Change')
+    desktop? ? click_link('Request Devel Project Change') : click_menu_link('Actions', 'Request Devel Project Change')
 
     fill_in('New Devel Project:', with: third_project.name)
     fill_in('Description:', with: 'Hey, why not?')
@@ -300,21 +276,25 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     expect(page).to have_text("Set the devel project to package #{third_project.name} / develpackage for package #{user.home_project} / develpackage")
   end
 
-  it 'editing a package' do
-    login user
-    visit package_show_path(package: package, project: user.home_project)
-    click_link('Edit description')
-    sleep 1 # FIXME: Needed to avoid a flickering test.
+  describe "editing a package's details" do
+    it 'updates the package title and description' do
+      login user
+      visit package_show_path(package: package, project: user.home_project)
+      desktop? ? click_link('Edit Package') : click_menu_link('Actions', 'Edit Package')
+      wait_for_ajax
 
-    within('#edit-modal') do
-      fill_in('title', with: 'test title')
-      fill_in('description', with: 'test description')
-      click_button('Update')
+      within('#edit_package_details') do
+        fill_in('package_details[title]', with: 'test title')
+        fill_in('package_details[description]', with: 'test description')
+        fill_in('package_details[url]', with: 'https://test.url')
+        click_button('Update')
+      end
+
+      expect(find('#flash')).to have_text('Package was successfully updated.')
+      expect(page).to have_text('test title')
+      expect(page).to have_text('test description')
+      expect(page).to have_text('https://test.url')
     end
-
-    expect(find('#flash')).to have_text("Package data for '#{package}' was saved successfully")
-    expect(page).to have_text('test title')
-    expect(page).to have_text('test description')
   end
 
   context 'meta configuration' do
@@ -357,12 +337,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       before do
         login user
         visit project_show_path(project: user.home_project)
-        # TODO: Remove once responsive_ux is out of beta.
-        if page.has_link?('Actions')
-          click_menu_link('Actions', 'Create Package')
-        else
-          click_link('Create Package')
-        end
+        desktop? ? click_link('Create Package') : click_menu_link('Actions', 'Create Package')
       end
 
       it 'with invalid data (validation fails)' do
@@ -406,8 +381,6 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       it 'as non-admin user' do
         login other_user
         visit project_show_path(project: global_project)
-        # TODO: Remove `if` once responsive_ux is out of beta.
-        click_link('Actions') if page.has_link?('Actions')
         expect(page).not_to have_link('Create package')
 
         # Use direct path instead
@@ -420,12 +393,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       it 'as an admin' do
         login admin_user
         visit project_show_path(project: global_project)
-        # TODO: Remove once responsive_ux is out of beta.
-        if page.has_link?('Actions')
-          click_menu_link('Actions', 'Create Package')
-        else
-          click_link('Create Package')
-        end
+        desktop? ? click_link('Create Package') : click_menu_link('Actions', 'Create Package')
 
         fill_in 'package_name', with: 'coolstuff'
         click_button('Create')

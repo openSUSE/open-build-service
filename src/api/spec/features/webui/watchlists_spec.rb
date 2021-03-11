@@ -1,6 +1,6 @@
 require 'browser_helper'
 
-RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
+RSpec.describe 'Watchlists', type: :feature, js: true, vcr: true do
   let(:user) { create(:confirmed_user, :with_home, login: 'kody') }
   let(:project) { create(:project, name: 'watchlist_test_project') }
   let(:user_with_watched_project) do
@@ -15,25 +15,25 @@ RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     visit project_show_path(user.home_project)
 
     click_on('Watchlist')
-    expect(page).to have_content('List of projects you are watching')
-    expect(page).to have_css('a.dropdown-item.project-link', count: 0)
+    expect(page).to have_content('Projects you are watching')
+    expect(page).to have_css('.list-group .list-group-item', count: 0)
 
-    expect(page).to have_css('#toggle-watch', text: 'Add this project to Watchlist')
-    find('#toggle-watch').click
+    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
+    click_link('Watch this project')
 
     click_on('Watchlist')
-    expect(page).to have_css('a.dropdown-item.project-link', text: user.home_project_name)
-    expect(page).to have_css('a.dropdown-item.project-link', count: 1)
+    expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
+    expect(page).to have_css('.list-group .list-group-item', count: 1)
 
     visit project_show_path(project: project.name)
     click_on('Watchlist')
-    expect(page).to have_css('#toggle-watch', text: 'Add this project to Watchlist')
-    find('#toggle-watch').click
+    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
+    click_link('Watch this project')
 
     click_on('Watchlist')
-    expect(page).to have_css('a.dropdown-item.project-link', text: user.home_project_name)
-    expect(page).to have_css('a.dropdown-item.project-link', text: project.name)
-    expect(page).to have_css('a.dropdown-item.project-link', count: 2)
+    expect(page).to have_css('.list-group .list-group-item a', text: user.home_project_name)
+    expect(page).to have_css('.list-group .list-group-item a', text: project.name)
+    expect(page).to have_css('.list-group .list-group-item', count: 2)
   end
 
   it 'remove projects from watchlist' do
@@ -41,16 +41,16 @@ RSpec.describe 'Bootstrap_Watchlists', type: :feature, js: true, vcr: true do
     visit project_show_path(project: 'brian_s_watched_project')
 
     click_on('Watchlist')
-    expect(page).to have_content('List of projects you are watching')
-    expect(page).to have_css('a.dropdown-item.project-link', text: 'brian_s_watched_project')
-    expect(page).to have_css('a.dropdown-item.project-link', count: 1)
+    expect(page).to have_content('Projects you are watching')
+    expect(page).to have_css('.list-group .list-group-item a', text: 'brian_s_watched_project')
+    expect(page).to have_css('.list-group .list-group-item', count: 1)
     expect(page).to have_css('#toggle-watch', text: 'Remove this project from Watchlist')
 
-    find('#toggle-watch').click
+    click_link('Remove this project from Watchlist')
 
     visit project_show_path(project: 'brian_s_watched_project')
     click_on('Watchlist')
-    expect(page).to have_css('a.dropdown-item.project-link', count: 0)
-    expect(page).to have_css('#toggle-watch', text: 'Add this project to Watchlist')
+    expect(page).to have_css('.list-group .list-group-item', count: 0)
+    expect(page).to have_css('#toggle-watch', text: 'Watch this project')
   end
 end

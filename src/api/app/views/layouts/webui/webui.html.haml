@@ -38,24 +38,43 @@
     - if User.session.try(:rss_token)
       = auto_discovery_link_tag(:rss, user_rss_notifications_url(token: User.session!.rss_token.string, format: :rss), title: 'Notifications')
     = auto_discovery_link_tag(:rss, latest_updates_feed_path(format: 'rss'), title: 'Latest updates')
-  %body.d-flex.flex-column{ class: feature_css_class }
-    #navigation
-      = render partial: 'layouts/webui/navigation'
-    .w-100.m-2
-    .container-xxl
-      .row
-        .col
-          = render partial: 'layouts/webui/breadcrumbs'
-        .col-auto.ml-auto#personal-navigation
-          = render partial: 'layouts/webui/personal_navigation'
+  %body{ class: feature_css_class }
+    #grid
+      #top-navigation-area
+        = render partial: 'layouts/webui/responsive_ux/top_navigation'
+      .bg-dark#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
+        = render partial: 'layouts/webui/responsive_ux/left_navigation'
+        = render partial: 'layouts/webui/responsive_ux/left_navigation_collapse_button'
+      .d-flex.flex-column#content-area
+        - if @current_notification
+          = render partial: 'layouts/webui/notification_toolbar', locals: { notification: @current_notification }
+        .container-xxl.flex-grow-1.pb-3.border-bottom.border-gray-400
+          .sticky-top.flash-and-announcement.text-break
+            = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
+            #flash= render partial: 'layouts/webui/flash', object: flash
+          .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
 
-    .container-xxl.sticky-top.flash-and-announcement.text-break
-      = render partial: 'layouts/webui/status_message_announcement', locals: { current_announcement: @current_announcement }
-      #flash= render partial: 'layouts/webui/flash', object: flash
-    .modal.fade#modal{ tabindex: '-1', role: 'dialog', aria: { labelledby: 'modalLabel', hidden: true } }
+          .row.flex-column
+            .col#breadcrumbs
+              = render partial: 'layouts/webui/breadcrumbs'
+            .col#content{ class: "#{'expanded' if sidebar_collapsed?}" }
+              = yield
 
-    .container-xxl.flex-grow#content
-      = yield
-    .container-fluid.py-4.bg-dark#footer
-      .container-xxl
-        = render partial: 'layouts/webui/footer'
+        .container-fluid.mt-4.mb-2.py-2#footer
+          = render partial: 'layouts/webui/responsive_ux/footer'
+        .container-fluid.py-2#sponsors
+          = render partial: 'layouts/webui/responsive_ux/sponsors'
+        .container-fluid.mt-2.py-2#footer-legal
+          %p.text-center
+            = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
+            is an
+            = succeed '.' do
+              = link_to('openSUSE project', 'http://www.opensuse.org')
+
+      - if !current_page?(signup_path) && !current_page?(new_session_path)
+        #bottom-navigation-area
+          = render partial: 'layouts/webui/responsive_ux/bottom_navigation'
+
+      -# Collapsible menu shared between top and bottom navigation
+      - if User.session
+        = render partial: 'layouts/webui/responsive_ux/watchlist'
