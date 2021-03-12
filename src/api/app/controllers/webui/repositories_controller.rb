@@ -29,13 +29,8 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # GET project/add_repository_from_default_list/:project
   def distributions
-    @distributions = {}
-    Distribution.all_including_remotes.each do |dis|
-      @distributions[dis['vendor']] ||= []
-      @distributions[dis['vendor']] << dis
-    end
-
-    return unless @distributions.empty?
+    @distributions = Distribution.all_including_remotes.group_by { |e| e['vendor'] }
+    return if @distributions.present?
     redirect_to(action: 'new', project: @project) && return unless User.admin_session?
 
     redirect_to(new_interconnect_path,
