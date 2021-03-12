@@ -47,12 +47,25 @@ sub readparsed {
   return 'could not retrieve pre-parsed metadata' unless $data;
   my $baseurl = delete $data->{'/url'};
   return 'baseurl missing in data' unless $baseurl;
+  my $moduleinfo = delete $data->{'/moduleinfo'};
   for (values %$data) {
     $_->{'id'} = 'dod';
     $_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
   }
   $data->{'/url'} = $baseurl;
   $data->{'/dodcookie'} = $cookie;
+  # add pseudo buildservice:modules packages for every module info entry
+  for my $mi (@{$moduleinfo || []}) {
+    my $m = { 'name' => 'buildservice:modules',
+              'version' => "$mi->{'name'}\@$mi->{'context'}",
+              'arch' => 'src',		# so that it is ignored in create_considered
+              'provides' => [ "$mi->{'name'}" ],
+            };
+    $m->{'requires'} = $mi->{'requires'} if @{$mi->{'requires'} || []};
+    $m->{'id'} = 'dod';
+    $m->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+    $data->{"buildservice:modules:$m"} = $m;	# use perl object id as differentiator
+  }
   return $data;
 }
 
