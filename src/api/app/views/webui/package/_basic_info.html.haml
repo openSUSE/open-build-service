@@ -1,4 +1,4 @@
-.basic-info.mb-3{ class: feature_enabled?(:responsive_ux) ? 'in-place-editing' : '' }
+.basic-info.in-place-editing.mb-3
   %h3#package-title
     = package.title.presence || package.name
   - if package.url.present?
