@@ -7,11 +7,8 @@
     Branch Package
 - else
   %li.breadcrumb-item.text-word-break-all
-    - if feature_enabled?(:responsive_ux)
-      %i.fa.fa-archive
-      = link_to(@package, package_show_path(@project, @package))
-    - else
-      = link_to truncate(@package.to_s, length: 50), package_show_path(@project, @package)
+    %i.fa.fa-archive
+    = link_to(@package, package_show_path(@project, @package))
 
   - if current_page?(new_package_branches_path(package_name: @package, project: @project))
     %li.breadcrumb-item.active{ 'aria-current' => 'page' }
