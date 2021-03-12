@@ -436,6 +436,7 @@ sub preparepool {
   my $prpsearchpath = $ctx->{'prpsearchpath'};
   my $delayed;
   my $error;
+  my %missingmods;
   for my $rprp (@$prpsearchpath) {
     if (!$ctx->checkprpaccess($rprp)) {
       $error = "repository '$rprp' is unavailable";
@@ -447,6 +448,25 @@ sub preparepool {
       $error = "repository '$rprp' is unavailable";
       last;
     }
+    if (defined &BSSolv::repo::missingmodules) {
+      my @missing = $r->missingmodules();
+      while (@missing) {
+	push @{$missingmods{$missing[0]}}, $missing[1];
+	splice(@missing, 0, 2);
+      }
+    }
+  }
+  if (%missingmods) {
+    my $msg = '';
+    for my $mod (sort keys %missingmods) {
+      my @m = sort(unify(@{$missingmods{$mod}}));
+      if (@m > 1) {
+	$msg .= ", $mod needs at least one of ".join(',', @m);
+      } else {
+	$msg .= ", $mod needs $m[0]";
+      }
+    }
+    return ('broken', substr($msg, 2));
   }
   if ($error) {
     $ctx->{'havedelayed'} = 1 if $delayed;

@@ -425,6 +425,7 @@ sub parsemetadata {
   Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter, $moduleinfo) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1, 'testcaseformat' => 1);
   $baseurl =~ s/\/$//;
   $cache->{'/url'} = $baseurl;
+  $cache->{'/moduleinfo'} = $moduleinfo->{"/moduleinfo"} if $moduleinfo->{"/moduleinfo"};
   BSUtil::store("$file.parsed", $file, $cache);
 }
 
