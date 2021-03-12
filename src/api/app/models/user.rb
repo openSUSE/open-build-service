@@ -986,7 +986,7 @@ class User < ApplicationRecord
     related_items = project_or_package_class.related_to_user(id).where(relationships: { role_id: roles_to_filter }).or(
       project_or_package_class.related_to_group(group_ids).where(relationships: { role_id: roles_to_filter })
     )
-    related_items = related_items.where('name LIKE ?', "%#{filters[:search_text]}%") if filters[:search_text].present?
+    related_items = related_items.where('LOWER(name) LIKE ?', "%#{filters[:search_text].downcase}%") if filters[:search_text].present?
     related_items
   end
 end
