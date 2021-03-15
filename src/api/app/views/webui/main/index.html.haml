@@ -1,8 +1,6 @@
 :ruby
   @pagetitle = 'Welcome'
-  if feature_enabled?(:responsive_ux)
-    render partial: 'webui/main/responsive_ux/index_actions'
-  end
+  render partial: 'webui/main/index_actions'
 
 .row
   .col-md-8.col-lg-7
@@ -13,9 +11,6 @@
         -# rubocop:disable Rails/OutputSafety
         = raw @configuration['description']
         -# rubocop:enable Rails/OutputSafety
-        - unless feature_enabled?(:responsive_ux)
-          .row.no-gutters.text-center#proceed-list
-            = render partial: 'proceed-list'
     = render(partial: 'system_status', locals: { busy: @busy,
                                                  building_workers: @building_workers,
                                                  overall_workers: @overall_workers,
@@ -23,8 +18,6 @@
                                                  host_title: @configuration['title'],
                                                  system_stats: @system_stats })
   .col-md-4.col-lg-5
-    - unless feature_enabled?(:responsive_ux)
-      = render partial: 'layouts/webui/legacy_sponsors'
     - if !User.session && can_register?
       .card.mb-3
         %h5.card-header New here? Sign up!
