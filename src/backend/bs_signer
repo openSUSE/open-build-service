@@ -733,6 +733,7 @@ sub signjob {
     if ($followupfile) {
       # we need to create a followup job to integrate the signatures
       $info->{'followupfile'} = $followupfile;
+      $info->{'readytime'} = time();
       writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
       updateredisjobstatus($arch, $job, $info);
       unlink("$jobsdir/$arch/$job:status");
