@@ -1,3 +1,5 @@
+// Scrollable tabs
+
 .scrollable-tabs {
   overflow: auto;
   white-space: nowrap;
@@ -13,6 +15,28 @@
       border-color: $gray-300;
       border-bottom-color: $white;
       background-color: $white;
+    }
+  }
+}
+
+// Non-scrollable tabs
+
+ul.nav.nav-tabs li.nav-item {
+  & a {
+    color: $link-color;
+
+    &:hover {
+      color: $link-hover-color;
+    }
+
+    &.dropdown-item.active,
+    &.dropdown-item:active {
+      color: $white;
+
+      span.badge {
+        color: $link-hover-color;
+        background-color: $white;
+      }
     }
   }
 }
