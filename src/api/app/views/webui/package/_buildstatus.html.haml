@@ -25,22 +25,42 @@
           .d-flex.flex-row.py-1.bg-light.pl-1.pl-sm-2
             = link_to(word_break(result.repository, 22),
               package_binaries_path(project: project, package: package, repository: result.repository),
-              data: { content: "Binaries for #{result.repository}", placement: 'top', toggle: 'popover' })
+              title: "Binaries for #{result.repository}")
             = collapse_link(expanded, package_name, repository_name)
 
         .collapse{ class: "collapse-#{package_name}-#{repository_name}#{expanded ? ' show' : ''}",
                    data: { repository: repository_name, main: package_name } }
-          .d-flex.flex-row.flex-wrap.py-1
+          .d-flex.flex-row.flex-wrap.pt-1
             .repository-state
               - if result.is_repository_in_db
-                = repository_status_icon(status: result.state, details: result.details)
+                = repository_status_icon(status: result.state)
               - else
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
               %span.ml-1
                 = result.architecture
-            .build-state
+            .build-state.toggle-build-info-parent
+              %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
               = arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
+            .build-info.mt-1.ml-3.mb-3.mr-3.collapsed
+              .triangle.center
+              .build-info-content
+                %p.py-1= Buildresult.status_description(result.code)
+                %div
+                  - if result.is_repository_in_db
+                    = repository_status_icon(status: result.state)
+                    %span.pl-1= repository_info(result.state)
+                  - else
+                    %i.fas.fa-clock.text-warning
+                    This result is outdated
+                - if result.details
+                  .pt-1.mt-3
+                    %strong{ class: "build-state-#{result.code}" } #{result.code}:
+                    %span= result.details
+
         - previous_repo = result.repository
     - else
       All the results have state
       %strong excluded/disabled
+
+:javascript
+  toggleBuildInfo();
