@@ -3,7 +3,7 @@
     = link_to(root_path, class: 'navbar-brand', alt: 'Logo') do
       = image_tag('obs-logo_small.svg')
     .d-flex
-      = render partial: 'layouts/webui/responsive_ux/top_navigation_search'
+      = render partial: 'layouts/webui/top_navigation_search'
       - if User.session
         .toggler.text-center.justify-content-center
           = link_to('javascript:void(0)', class: 'nav-link text-light p-0 w-100', alt: 'Watchlist', data: { toggle: 'watchlist' }) do
@@ -12,7 +12,7 @@
         - if feature_enabled?(:notifications_redesign)
           .toggler.text-center.justify-content-center
             = link_to(my_notifications_path, id: 'top-notifications-counter', class: 'nav-link text-light p-0 w-100', alt: 'Notifications') do
-              = render partial: 'layouts/webui/responsive_ux/unread_notifications_counter'
+              = render partial: 'layouts/webui/unread_notifications_counter'
         - else # TODO: Remove `else` block when the notifications_redesign is rolled out
           .toggler.text-center.justify-content-center
             - tasks = User.session!.tasks
@@ -36,9 +36,9 @@
                 %i.fas.fa-sign-out-alt.fa-lg.mr-2
                 Logout
       - else
-        = render partial: 'layouts/webui/responsive_ux/top_navigation_nobody'
+        = render partial: 'layouts/webui/top_navigation_nobody'
 
 - if User.possibly_nobody.is_nobody? && !kerberos_mode?
   - if !proxy_mode? && can_sign_up?
-    = render partial: 'layouts/webui/responsive_ux/sign_up_modal'
-  = render partial: 'layouts/webui/responsive_ux/login_modal'
+    = render partial: 'layouts/webui/sign_up_modal'
+  = render partial: 'layouts/webui/login_modal'

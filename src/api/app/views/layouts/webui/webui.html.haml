@@ -41,10 +41,10 @@
   %body{ class: feature_css_class }
     #grid
       #top-navigation-area
-        = render partial: 'layouts/webui/responsive_ux/top_navigation'
+        = render partial: 'layouts/webui/top_navigation'
       .bg-dark#left-navigation-area{ class: "#{'collapsed' if sidebar_collapsed?}" }
-        = render partial: 'layouts/webui/responsive_ux/left_navigation'
-        = render partial: 'layouts/webui/responsive_ux/left_navigation_collapse_button'
+        = render partial: 'layouts/webui/left_navigation'
+        = render partial: 'layouts/webui/left_navigation_collapse_button'
       .d-flex.flex-column#content-area
         - if @current_notification
           = render partial: 'layouts/webui/notification_toolbar', locals: { notification: @current_notification }
@@ -61,9 +61,9 @@
               = yield
 
         .container-fluid.mt-4.mb-2.py-2#footer
-          = render partial: 'layouts/webui/responsive_ux/footer'
+          = render partial: 'layouts/webui/footer'
         .container-fluid.py-2#sponsors
-          = render partial: 'layouts/webui/responsive_ux/sponsors'
+          = render partial: 'layouts/webui/sponsors'
         .container-fluid.mt-2.py-2#footer-legal
           %p.text-center
             = link_to('Open Build Service (OBS)', 'http://openbuildservice.org')
@@ -73,8 +73,8 @@
 
       - if !current_page?(signup_path) && !current_page?(new_session_path)
         #bottom-navigation-area
-          = render partial: 'layouts/webui/responsive_ux/bottom_navigation'
+          = render partial: 'layouts/webui/bottom_navigation'
 
       -# Collapsible menu shared between top and bottom navigation
       - if User.session
-        = render partial: 'layouts/webui/responsive_ux/watchlist'
+        = render partial: 'layouts/webui/watchlist'
