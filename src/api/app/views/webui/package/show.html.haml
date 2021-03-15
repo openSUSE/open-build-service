@@ -4,18 +4,17 @@
 
   content_for(:meta_title, @package.title.presence || @package.name)
   content_for(:meta_description, @package.description)
-  if feature_enabled?(:responsive_ux)
-    render partial: 'webui/package/responsive_ux/show_actions', locals: { bugowners_mail: @bugowners_mail,
-                                                    configuration: @configuration,
-                                                    revision: @revision,
-                                                    current_rev: @current_rev,
-                                                    spec_count: @spec_count,
-                                                    cleanup_source: @cleanup_source,
-                                                    services: @services,
-                                                    project: @project,
-                                                    package: @package,
-                                                    is_working: @forced_unexpand.blank? }
-  end
+
+  render partial: 'webui/package/show_actions', locals: { bugowners_mail: @bugowners_mail,
+                                                  configuration: @configuration,
+                                                  revision: @revision,
+                                                  current_rev: @current_rev,
+                                                  spec_count: @spec_count,
+                                                  cleanup_source: @cleanup_source,
+                                                  services: @services,
+                                                  project: @project,
+                                                  package: @package,
+                                                  is_working: @forced_unexpand.blank? }
 
 .card.mb-3
   = render partial: 'tabs', locals: { project: @project, package: @package }
@@ -30,17 +29,7 @@
                                                   revision: @revision,
                                                   project: @project,
                                                   package: @package }
-      - unless feature_enabled?(:responsive_ux)
-        = render partial: 'bottom_actions', locals: { bugowners_mail: @bugowners_mail,
-                                                    configuration: @configuration,
-                                                    revision: @revision,
-                                                    current_rev: @current_rev,
-                                                    spec_count: @spec_count,
-                                                    cleanup_source: @cleanup_source,
-                                                    services: @services,
-                                                    project: @project,
-                                                    package: @package,
-                                                    is_working: @forced_unexpand.blank? }
+
 .overview
   .build-results
     = render partial: 'webui/shared/buildresult_box', locals: { project: @project.name, package: @package.name }
@@ -86,6 +75,5 @@
         = render partial: 'webui/comment/show', locals: { commentable: @package,
           comment_counter_id: "#comment-counter-package-#{@package.id}" }
 - if User.session && User.possibly_nobody.can_modify?(@package)
-  = render partial: 'edit_dialog', locals: { project: @project, package: @package }
   = render partial: 'delete_dialog', locals: { project: @project, package: @package, cleanup_source: @cleanup_source }
 -# haml-lint:enable ViewLength
