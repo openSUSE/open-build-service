@@ -4,7 +4,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
   let!(:admin_user) { create(:admin_user, :with_home) }
   let!(:user) { create(:confirmed_user, :with_home, login: 'Jane') }
   let(:project) { user.home_project }
-  let(:broken_package_with_error) { create(:package_with_failed_comment_attribute, project: project, name: 'broken_package') }
+  let(:broken_package_with_error) { create(:package, project: project, name: 'broken_package') }
 
   it 'project show' do
     login user
@@ -19,7 +19,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     login user
     visit project_show_path(project: project)
 
-    click_on('Edit Project')
+    desktop? ? click_link('Edit Project') : click_menu_link('Actions', 'Edit Project')
     expect(page).to have_text("Edit Project #{project}")
 
     fill_in 'project_title', with: 'My Title hopefully got changed'
@@ -38,7 +38,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
       click_link('Subprojects')
 
       expect(page).to have_text('This project has no subprojects')
-      click_link('Create Subproject')
+      desktop? ? click_link('Create Subproject') : click_menu_link('Actions', 'Create Subproject')
       fill_in 'project_name', with: 'coolstuff'
       click_button('Accept')
       expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
@@ -58,7 +58,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     end
 
     it 'unlock' do
-      click_link('Unlock Project')
+      desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content('Successfully unlocked project')
@@ -70,7 +70,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
     it 'fail to unlock' do
       allow_any_instance_of(Project).to receive(:can_be_unlocked?).and_return(false)
 
-      click_link('Unlock Project')
+      desktop? ? click_link('Unlock Project') : click_menu_link('Actions', 'Unlock Project')
       fill_in 'comment', with: 'Freedom at last!'
       click_button('Accept')
       expect(page).to have_content("Project can't be unlocked")
@@ -82,7 +82,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
 
   describe 'branching', vcr: true do
     let(:other_user) { create(:confirmed_user, :with_home, login: 'other_user') }
-    let(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
+    let!(:package_of_another_project) { create(:package_with_file, name: 'branch_test_package', project: other_user.home_project) }
 
     before do
       login user
@@ -97,6 +97,29 @@ RSpec.describe 'Projects', type: :feature, js: true do
       click_button('Branch')
 
       expect(page).to have_text('Successfully branched package')
+      expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
+    end
+
+    it 'an existing package, but chose a different target package name' do
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
+      fill_in('Branch package name', with: 'some_different_name')
+      # This needs global write through
+      click_button('Branch')
+
+      expect(page).to have_text('Successfully branched package')
+      expect(page).to have_current_path("/package/show/#{user.home_project_name}/some_different_name", ignore_query: true)
+    end
+
+    it 'an existing package were the target package already exists' do
+      create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
+
+      fill_in('linked_project', with: other_user.home_project_name)
+      fill_in('linked_package', with: package_of_another_project.name)
+      # This needs global write through
+      click_button('Branch')
+
+      expect(page).to have_text('You have already branched this package')
       expect(page).to have_current_path('/package/show/home:Jane/branch_test_package')
     end
   end
@@ -125,6 +148,7 @@ RSpec.describe 'Projects', type: :feature, js: true do
 
       visit project_show_path(maintenance_project)
       click_link('Incidents')
+      page.execute_script('window.scrollBy(0,50)')
       click_link('Create Maintenance Incident')
       expect(page).to have_css('#flash', text: "Created maintenance incident project #{project.name}:maintenance_project:0")
 
