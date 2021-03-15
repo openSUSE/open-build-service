@@ -23,7 +23,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     let(:branching_data) { BranchPackage.new(project: user.home_project.name, package: package.name).branch }
     let(:branched_project) { Project.where(name: branching_data[:data][:targetproject]).first }
     let(:package_mime) do
-      create(:package, name: 'test.json', project: user.home_project, description: 'A package with a mime type suffix')
+      create(:package, name: 'test.yaml', project: user.home_project, description: 'A package with a mime type suffix')
     end
 
     before do
@@ -33,7 +33,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
 
     it "has a mime like suffix in it's name" do
       visit package_show_path(project: user.home_project, package: package_mime)
-      expect(page).to have_text('test.json')
+      expect(page).to have_text('test.yaml')
       expect(page).to have_text('A package with a mime type suffix')
     end
 
@@ -277,23 +277,46 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
   end
 
   describe "editing a package's details" do
-    it 'updates the package title and description' do
-      login user
-      visit package_show_path(package: package, project: user.home_project)
-      desktop? ? click_link('Edit Package') : click_menu_link('Actions', 'Edit Package')
-      wait_for_ajax
+    context 'when accepting the changes' do
+      it 'updates the package title and description' do
+        login user
+        visit package_show_path(package: package, project: user.home_project)
+        desktop? ? click_link('Edit Package') : click_menu_link('Actions', 'Edit Package')
+        wait_for_ajax
 
-      within('#edit_package_details') do
-        fill_in('package_details[title]', with: 'test title')
-        fill_in('package_details[description]', with: 'test description')
-        fill_in('package_details[url]', with: 'https://test.url')
-        click_button('Update')
+        within('#edit_package_details') do
+          fill_in('package_details[title]', with: 'test title')
+          fill_in('package_details[description]', with: 'test description')
+          fill_in('package_details[url]', with: 'https://test.url')
+          click_button('Update')
+          wait_for_ajax
+        end
+
+        expect(find('#flash')).to have_text('Package was successfully updated.')
+        expect(page).to have_text('test title')
+        expect(page).to have_text('test description')
+        expect(page).to have_text('https://test.url')
       end
+    end
 
-      expect(find('#flash')).to have_text('Package was successfully updated.')
-      expect(page).to have_text('test title')
-      expect(page).to have_text('test description')
-      expect(page).to have_text('https://test.url')
+    context 'when cancelling the changes' do
+      it "renders back the original package's details" do
+        login user
+        visit package_show_path(package: package, project: user.home_project)
+        desktop? ? click_link('Edit Package') : click_menu_link('Actions', 'Edit Package')
+        wait_for_ajax
+
+        within('#edit_package_details') do
+          fill_in('package_details[title]', with: 'test title')
+          fill_in('package_details[description]', with: 'test description')
+          fill_in('package_details[url]', with: 'https://test.url')
+          click_link('Cancel')
+          wait_for_ajax
+        end
+
+        expect(page).to have_text(package.title)
+        expect(page).to have_text(package.description)
+      end
     end
   end
 

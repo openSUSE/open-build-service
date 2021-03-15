@@ -37,6 +37,8 @@ class Webui::PackageController < Webui::WebuiController
 
   after_action :verify_authorized, only: [:new, :create, :remove_file, :remove, :abort_build, :trigger_rebuild, :wipe_binaries, :save_meta, :save, :abort_build]
 
+  before_action :force_html_mime_type
+
   def index
     render json: PackageDatatable.new(params, view_context: view_context, project: @project)
   end
@@ -895,5 +897,9 @@ class Webui::PackageController < Webui::WebuiController
       @workerid = nil
       @buildtime = nil
     end
+  end
+
+  def force_html_mime_type
+    request.format = :html unless [:html, :js, :json].include?(request.format.to_sym)
   end
 end
