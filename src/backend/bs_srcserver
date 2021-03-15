@@ -863,19 +863,15 @@ sub findfile {
     }
   }
 
-  return $files{'_preinstallimage'} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return $files{'_preinstallimage'} if $ext ne 'kiwi' && $ext ne 'docker' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return $files{'Chart.yaml'} if $ext eq 'helm';
+  return $files{'Dockerfile'} if $ext eq 'docker';
+  return $files{'appimage.yml'} if $ext eq 'appimage';
+  return $files{'arch'} if $ext eq 'PKGBUILD';
+  return $files{'fissile.yml'} if $ext eq 'fissile';
   return $files{'simpleimage'} if $files{'simpleimage'};
-  return $files{'snapcraft.yaml'} if $ext eq 'snapcraft' && $files{'snapcraft.yaml'};
-  return $files{'appimage.yml'} if $ext eq 'appimage' && $files{'appimage.yml'};
-  return $files{'Dockerfile'} if $ext eq 'docker' && $files{'Dockerfile'};
-  return $files{'fissile.yml'} if $ext eq 'fissile' && $files{'fissile.yml'};
-  return $files{'Chart.yaml'} if $ext eq 'helm' && $files{'Chart.yaml'};
+  return $files{'snapcraft.yaml'} if $ext eq 'snapcraft';
   return (grep {/flatpak\.(?:ya?ml|json)$/} sort keys %$files)[0] if $ext eq 'flatpak';
-
-  if ($ext eq 'arch') {
-    return $files{'PKGBUILD'} if $files{'PKGBUILD'};
-    return undef;
-  }
 
   my $packid = $rev->{'package'};
   $packid = $1 if $rev->{'originpackage'} && $rev->{'originpackage'} =~ /:([^:]+)$/;
