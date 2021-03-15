@@ -1,0 +1,16 @@
+- if feature_enabled?(:user_profile_redesign)
+  -# Behind a proxy or not, with this Feature Flag `user_profile_redesign` we go to the edit account form.
+  %li.nav-item
+    = link_to(edit_account_user_path(user), class: 'nav-link', remote: true, title: 'Edit Your Account') do
+      %i.fas.fa-lg.mr-2.fa-user-edit
+      %span.nav-item-name Edit Your Account
+- elsif account_edit_link.present?
+  %li.nav-item
+    = link_to(account_edit_link, class: 'nav-link', title: 'Edit Your Account') do
+      %i.fas.fa-lg.mr-2.fa-user-edit
+      %span.nav-item-name Edit Your Account
+- else
+  %li.nav-item
+    = link_to('#', data: { toggle: 'modal', target: '#edit-modal' }, class: 'nav-link', title: 'Edit Your Account') do
+      %i.fas.fa-lg.mr-2.fa-user-edit
+      %span.nav-item-name Edit Your Account

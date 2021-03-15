@@ -1,3 +1,5 @@
+= render partial: 'webui/user/index_actions', locals: { configuration: configuration, user: user, account_edit_link: account_edit_link }
+
 .card.mb-3
   .card-body
     = image_tag_for(user)
@@ -36,21 +38,7 @@
             %i.fa.fa-question-circle.text-info{ data: { placement: 'top', toggle: 'popover', html: 'true',
                                                         content: 'Join the <strong>beta program</strong> to try the latest ' + |
                                                                  'features we develop and give us feedback on them before they go live.' } } |
-      .mt-4
-        - if configuration.accounts_editable?(user)
-          = render partial: 'webui/user/edit_account', locals: { account_edit_link: account_edit_link }
-        - if configuration.passwords_changable?(user)
-          = render partial: 'webui/user/change_password'
-        - if feature_enabled?(:responsive_ux)
-          - content_for :actions do
-            %li.nav-item
-              = link_to(my_subscriptions_path, class: 'nav-link', title: 'Change Your Notifications') do
-                %i.fas.fa-lg.mr-2.fa-bell
-                %span.nav-item-name Change Your Notifications
-        - else
-          = link_to(my_subscriptions_path, class: 'd-block') do
-            %i.fas.fa-bell
-            Change Your Notifications
+
         - if user.rss_token
           = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),
                                                 title: 'RSS Feed for Notifications', class: 'd-block') do
