@@ -15,7 +15,7 @@ function setCheckboxCounterAndSubmitButton() {
 
   if(amountBoxesChecked <= 0) {
     $('#done-button').prop('disabled', true);
-    $('#select-all-label').text('Select all');
+    $('#select-all-label').text('Select All');
   } else {
     $('#done-button').prop('disabled', false);
     $('#select-all-label').text(amountBoxesChecked + ' selected');
