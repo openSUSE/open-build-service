@@ -1,7 +1,4 @@
-:ruby
-  if feature_enabled?(:responsive_ux)
-    render partial: 'webui/users/notifications/responsive_ux/index_actions'
-  end
+= render partial: 'webui/users/notifications/index_actions'
 
 .row
   .col-md-4.col-lg-3.px-0.px-md-3.sticky-top#notifications-filter-desktop
