@@ -142,10 +142,9 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def buildresult
-    namespace = Flipper.enabled?(:responsive_ux, User.possibly_nobody) ? 'webui/project/responsive_ux/' : ''
-    render partial: "#{namespace}buildstatus", locals: { project: @project,
-                                                         buildresults: @project.buildresults,
-                                                         collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+    render partial: 'buildstatus', locals: { project: @project,
+                                             buildresults: @project.buildresults,
+                                             collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
   end
 
   def destroy
