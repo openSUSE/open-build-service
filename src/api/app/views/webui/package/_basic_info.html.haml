@@ -1,4 +1,7 @@
-.basic-info.in-place-editing.mb-3
+.editing-form.d-none
+  = render partial: 'edit', locals: { package: package, project: package.project }
+
+.basic-info.mb-3
   %h3#package-title
     = package.title.presence || package.name
   - if package.url.present?
@@ -8,3 +11,19 @@
       %i No description set
     - else
       = render partial: 'webui/shared/collapsible_text', locals: { text: package.description }
+
+  - if policy(package).update?
+    = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link', title: 'Edit') do
+      %i.fas.fa-edit
+      %span.nav-item-name Edit
+
+:javascript
+  $('#toggle-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+  });
+  $('#cancel-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+    return false;
+  });
