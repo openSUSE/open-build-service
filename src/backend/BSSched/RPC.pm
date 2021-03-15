@@ -95,10 +95,7 @@ sub xrpc {
     # resource is busy. Enqueue.
     if (!$ctx->{'_orderedrpcs'} && $ctx->{'changeprp'}) {
       # xrpc resulted from looking at a prp. Just do that again. Order does not matter.
-      my $handle = { '_ctx' => $ctx};
-      $handle->{$_} = $async->{$_} for keys %$async;
-      push @{$rhandle->{'_wakeup'}}, $handle;
-      return $handle;
+      return xrpc_addwakeup($rctx, $ctx, $resource, $async);
     }
     # project rpcs, we need to run them in order
     my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
@@ -137,20 +134,55 @@ sub xrpc {
   return $handle;
 }
 
-=head2 xrpc_addwakeup - TODO: add summary
+=head2 xrpc_addwakeup - add a ctx wakeup to busy resource
 
  TODO: add description
 
 =cut
 
 sub xrpc_addwakeup {
-  my ($rctx, $ctx, $resource) = @_;
+  my ($rctx, $ctx, $resource, $async) = @_;
   my $iswaiting = $rctx->{'iswaiting'};
   my $rhandle = $iswaiting->{$resource};
   die("addwakeup to not busy resource '$resource'\n") unless $rhandle;
+
+  $async ||= {};
+  my $changeprp = $async->{'_changeprp'} || $ctx->{'changeprp'};
+  my $changetype = $async->{'_changetype'} || $ctx->{'changetype'} || 'high';
+  my $changelevel = $async->{'_changelevel'} || $ctx->{'changelevel'} || 1;
+  die("addwakeup without a changeprp\n") unless $changeprp;
+
+  # return old entry if we already have a wakeup
+  my $did = $rhandle->{'_wakeup_have'};
+  return $did->{"$changeprp/$changetype/$changelevel"} if $did && $did->{"$changeprp/$changetype/$changelevel"};
+
   my $handle = { '_ctx' => $ctx };
+  $handle->{$_} = $async->{$_} for keys %$async;
   push @{$rhandle->{'_wakeup'}}, $handle;
+  $rhandle->{'_wakeup_have'}->{"$changeprp/$changetype/$changelevel"} = $handle;
   return $handle;
+}
+
+=head2 xrpc_dowakeup - call ctx wakeups if a resource is no longer busy
+
+ TODO: add description
+
+=cut
+
+sub xrpc_dowakeup {
+  my ($rctx, $handle) = @_;
+  my $wakeup = delete $handle->{'_wakeup'};
+  delete $handle->{'_wakeup_have'};
+  my %did;
+  for my $whandle (BSUtil::unify(@{$wakeup || []})) {
+    my $ctx = $whandle->{'_ctx'};
+    my $changeprp = $whandle->{'_changeprp'} || $ctx->{'changeprp'};
+    my $changetype = $whandle->{'_changetype'} || $ctx->{'changetype'} || 'high';
+    my $changelevel = $whandle->{'_changelevel'} || $ctx->{'changelevel'} || 1;
+    next if !$changeprp || $did{"$changeprp/$changetype/$changelevel"};
+    $did{"$changeprp/$changetype/$changelevel"} = 1;
+    $rctx->{'wakeupfunction'}->($ctx, $whandle);
+  }
 }
 
 =head2 xrpc_handles - return all active handles
@@ -287,19 +319,8 @@ sub xrpc_resume {
     xrpc_resume_nextrpc($rctx, $nextrpc);
   }
 
-  # call wakeup function
-  if (@{$handle->{'_wakeup'} || []}) {
-    my %did;
-    for my $whandle (BSUtil::unify(@{$handle->{'_wakeup'} || []})) {
-      my $wctx = $whandle->{'_ctx'};
-      my $changeprp = $whandle->{'_changeprp'} || $wctx->{'changeprp'};
-      my $changetype = $whandle->{'_changetype'} || $wctx->{'changetype'} || 'high';
-      my $changelevel = $whandle->{'_changelevel'} || $wctx->{'changelevel'} || 1;
-      next if !$changeprp || $did{"$changeprp/$changetype/$changelevel"};
-      $did{"$changeprp/$changetype/$changelevel"} = 1;
-      $rctx->{'wakeupfunction'}->($wctx, $whandle);
-    }
-  }
+  # wakeup waiting ctx entries
+  xrpc_dowakeup($rctx, $handle) if $handle->{'_wakeup'};
 }
 
 sub xrpc_nextparams {
