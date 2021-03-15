@@ -1,6 +1,11 @@
 #!/bin/bash
 
 #set -x
+LOGDIR=/srv/obs/service/log/
+LOGFILE=$LOGDIR/`basename $0`.log
+exec 1>>$LOGFILE
+exec 2>&1
+
 
 function printlog {
   printf "%s %s %7s %s\n" `date +"%Y-%m-%d %H:%M:%S"` "[$$]" "$@" >> $LOGFILE
@@ -14,6 +19,24 @@ function create_dir {
   else
     printlog "Directory '$DIR' already exists"
   fi
+}
+
+function cleanup_container {
+  printlog "Starting cleanup $1"
+  [ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
+  [ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
+  rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
+  rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
+  rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
+  rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
+  
+  if [ "$1" == "timeout" ];then
+    podman rm $CONTAINER_ROOT_OPT --force --volumes $CONTAINER_ID
+  else
+    podman inspect $CONTAINER_ROOT_OPT $CONTAINER_ID > /dev/null 2>&1 && podman rm $CONTAINER_ROOT_OPT --force --volumes $CONTAINER_ID
+  fi
+
+  printlog "Finished cleanup"
 }
 
 export USER=`getent passwd $UID|cut -f1 -d:`
@@ -33,8 +56,6 @@ OBS_SERVICE_NETWORK=`obs_admin --query-config obs_service_network`
 SCM_COMMAND=0
 WITH_NET=0
 COMMAND="$1"
-LOGDIR=/srv/obs/service/log/
-LOGFILE=$LOGDIR/`basename $0`.log
 
 if [[ ! $CONTAINER_IMAGE ]];then
   CONTAINER_IMAGE=localhost/obs-source-service:latest
@@ -185,6 +206,9 @@ if [ -n "$CONTAINERS_ROOT" ];then
   CONTAINER_ROOT_OPT="--root $CONTAINERS_ROOT "
 fi
 
+# force cleanup of container on timeout (SIGTERM)
+trap "cleanup_container timeout" 15
+
 # run jailed process
 CONTAINER_RUN_CMD="podman run $CONTAINER_ROOT_OPT --userns keep-id $CONTAINER_OPTS_NET $LINK --rm --name $CONTAINER_ID $CONTAINER_CUSTOM_OPT $CONTAINER_VOLUMES $DEBUG_OPTIONS $CONTAINER_IMAGE $INNERSCRIPT"
 printlog "CONTAINER_RUN_CMD: '$CONTAINER_RUN_CMD'"
@@ -212,15 +236,7 @@ fi
 if [[ $DEBUG_CONTAINER ]];then
   printlog "DEBUG_CONTAINER is set. Skipping cleanup"
 else
-  printlog "Starting cleanup"
-  [ -d "$MOUNTDIR/$INNERSRCDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNERSRCDIR"
-  [ -d "$MOUNTDIR/$INNEROUTDIR" ] && rmdir --ignore-fail-on-non-empty "$MOUNTDIR/$INNEROUTDIR"
-  rm -f "$MOUNTDIR/${INNERSCRIPT}.command" 2> /dev/null
-  rm -f "$MOUNTDIR/$INNERSCRIPT" 2> /dev/null
-  rmdir --ignore-fail-on-non-empty "$MOUNTDIR$INNERSCRIPTDIR" 2> /dev/null
-  rmdir --ignore-fail-on-non-empty "$MOUNTDIR" 2> /dev/null
-
-  podman inspect $CONTAINER_ROOT_OPT $CONTAINER_ID > /dev/null 2>&1 && podman rm $CONTAINER_ROOT_OPT --force --volumes $CONTAINER_ID
+  cleanup_container
 fi
 
 exit $RETURN
