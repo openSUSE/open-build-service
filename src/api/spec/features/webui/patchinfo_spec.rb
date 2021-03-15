@@ -10,8 +10,7 @@ RSpec.describe 'Patchinfo', type: :feature, js: true do
     it 'form incomplete' do
       login user
       visit project_show_path(user.home_project)
-      expect(page).to have_link('Create Patchinfo')
-      click_link('Create Patchinfo')
+      desktop? ? click_link('Create Patchinfo') : click_menu_link('Actions', 'Create Patchinfo')
       expect(page).to have_current_path(edit_patchinfo_path(project: project, package: 'patchinfo'))
       expect(page).to have_text("Edit Patchinfo for #{project.name}")
       fill_in 'patchinfo[summary]', with: 'A' * 9
@@ -28,8 +27,7 @@ RSpec.describe 'Patchinfo', type: :feature, js: true do
     it 'form complete' do
       login user
       visit project_show_path(user.home_project)
-      expect(page).to have_link('Create Patchinfo')
-      click_link('Create Patchinfo')
+      desktop? ? click_link('Create Patchinfo') : click_menu_link('Actions', 'Create Patchinfo')
       expect(page).to have_current_path(edit_patchinfo_path(project: project, package: 'patchinfo'))
       expect(page).to have_text("Edit Patchinfo for #{project.name}")
       fill_in 'patchinfo[summary]', with: 'A' * 15
