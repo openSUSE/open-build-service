@@ -1096,6 +1096,8 @@ eval {
 
     # free memory
     Build::forgetdeps($bconf);
+    delete $ctx->{'expander'};
+    delete $ctx->{'pool'};
 
     $ctx->printstats();
 
