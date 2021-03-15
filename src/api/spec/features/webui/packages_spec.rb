@@ -337,7 +337,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       before do
         login user
         visit project_show_path(project: user.home_project)
-        desktop? ? click_link('Create Package') : click_menu_link('Actions', 'Create Package')
+        click_link('Create Package')
       end
 
       it 'with invalid data (validation fails)' do
@@ -393,7 +393,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
       it 'as an admin' do
         login admin_user
         visit project_show_path(project: global_project)
-        desktop? ? click_link('Create Package') : click_menu_link('Actions', 'Create Package')
+        click_link('Create Package')
 
         fill_in 'package_name', with: 'coolstuff'
         click_button('Create')
