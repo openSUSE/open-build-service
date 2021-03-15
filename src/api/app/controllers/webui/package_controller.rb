@@ -539,11 +539,11 @@ class Webui::PackageController < Webui::WebuiController
       show_all = params[:show_all] == 'true'
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
-      render partial: 'webui/package/buildstatus', locals: { buildresults: @buildresults,
-                                                             index: @index,
-                                                             project: @project,
-                                                             collapsed_packages: params.fetch(:collapsedPackages, []),
-                                                             collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
+      render partial: 'buildstatus', locals: { buildresults: @buildresults,
+                                               index: @index,
+                                               project: @project,
+                                               collapsed_packages: params.fetch(:collapsedPackages, []),
+                                               collapsed_repositories: params.fetch(:collapsedRepositories, {}) }
     else
       render partial: 'no_repositories', locals: { project: @project }
     end
