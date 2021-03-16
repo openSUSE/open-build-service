@@ -4,4 +4,4 @@
       %button.navbar-toggler{ type: 'button', 'data-toggle': collapse_type, aria: { expanded: 'false', label: "Toggle #{collapse_type}" } }
         %i.fas.fa-times
 
-  = render partial: "layouts/webui/responsive_ux/#{collapse_type}", locals: { navigation: :bottom }
+  = render partial: "layouts/webui/#{collapse_type}", locals: { navigation: :bottom }

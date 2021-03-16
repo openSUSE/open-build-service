@@ -8,7 +8,7 @@
       - if feature_enabled?(:notifications_redesign)
         %li.nav-item.border-left.border-gray-500
           = link_to(my_notifications_path, id: 'bottom-notifications-counter', class: 'nav-link text-light px-1 py-2', alt: 'Notifications') do
-            = render partial: 'layouts/webui/responsive_ux/unread_notifications_counter'
+            = render partial: 'layouts/webui/unread_notifications_counter'
       - if content_for?(:actions)
         %li.nav-item.border-left.border-gray-500
           = link_to('javascript:void(0)', class: 'nav-link px-1 py-2 text-light', alt: 'Actions', data: { toggle: 'actions' }) do
@@ -26,5 +26,5 @@
         %span.d-block Places
 
 - if User.session
-  = render partial: 'layouts/webui/responsive_ux/bottom_navigation_collapse', locals: { collapse_type: 'actions' }
-= render partial: 'layouts/webui/responsive_ux/bottom_navigation_collapse', locals: { collapse_type: 'places' }
+  = render partial: 'layouts/webui/bottom_navigation_collapse', locals: { collapse_type: 'actions' }
+= render partial: 'layouts/webui/bottom_navigation_collapse', locals: { collapse_type: 'places' }

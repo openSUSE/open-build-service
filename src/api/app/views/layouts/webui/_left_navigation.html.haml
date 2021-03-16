@@ -1,0 +1,8 @@
+#left-navigation
+  - if User.session
+    = render partial: 'layouts/webui/places', locals: { navigation: :left }
+    - if content_for(:actions)
+      = render partial: 'layouts/webui/actions', locals: { navigation: :left }
+  - else
+    = render partial: 'layouts/webui/left_navigation_nobody'
+
