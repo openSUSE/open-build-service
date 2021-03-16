@@ -17,17 +17,10 @@ class Webui::UsersController < Webui::WebuiController
   end
 
   def show
-    max_items_per_page = 25
     @groups = @displayed_user.groups
 
     if Flipper.enabled?(:user_profile_redesign, User.possibly_nobody)
-      attribute_type = AttribType.find_by_name!('OBS:OwnerRootProject')
-      @owner_root_project_exists = Project.find_by_attribute_type(attribute_type).exists?
-
-      filters = adjust_filters
-
-      @involved_items = Kaminari.paginate_array(@displayed_user.involved_items(filters)).page(params[:page]).per(max_items_per_page)
-      @involved_items_as_owner = @displayed_user.involved_items_as_owner(filters) if @owner_root_project_exists
+      @involved_items_service = UserService::Involved.new(user: @displayed_user, filters: extract_filter_params, page: params[:page])
     else
       @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
       @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
@@ -157,30 +150,9 @@ class Webui::UsersController < Webui::WebuiController
 
   private
 
-  def adjust_filters
-    filters = params.slice(:search_text, :involved_projects, :involved_packages,
-                           :role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader)
-    filters[:role_owner] = params[:role_owner] if @owner_root_project_exists && params.key?(:role_owner)
-
-    filters[:search_text] = filters[:search_text]&.strip
-    @filters = filters.dup
-
-    filter_keys = [:involved_projects, :involved_packages]
-    set_all_filters_if_none_is_set(filters, filter_keys)
-
-    filter_keys = [:role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader]
-    filter_keys << :role_owner if @owner_root_project_exists
-    set_all_filters_if_none_is_set(filters, filter_keys)
-
-    filters
-  end
-
-  def set_all_filters_if_none_is_set(filters, filter_keys)
-    return unless (filters.keys.map(&:to_sym) & filter_keys).empty?
-
-    filter_keys.each do |filter|
-      filters[filter] = 1
-    end
+  def extract_filter_params
+    params.slice(:search_text, :involved_projects, :involved_packages,
+                 :role_maintainer, :role_bugowner, :role_reviewer, :role_downloader, :role_reader, :role_owner)
   end
 
   def authorize_user

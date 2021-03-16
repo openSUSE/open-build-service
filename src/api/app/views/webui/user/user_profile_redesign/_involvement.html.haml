@@ -1,4 +1,10 @@
 :ruby
+  displayed_user = involved_items_service.user
+  filters = involved_items_service.filters
+  involved_items = involved_items_service.involved_pkg_and_prj_paginated
+  involved_items_as_owner = involved_items_service.involved_items_as_owner
+  owner_root_project_exists = involved_items_service.owner_root_project_exists?
+
   projects_packages = ['projects', 'packages']
   projects_packages_html_ids = projects_packages.map { |p| "involved_#{p}" }
   projects_packages_selected = (filters.keys & projects_packages_html_ids).count
