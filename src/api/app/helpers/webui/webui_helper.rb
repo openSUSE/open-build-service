@@ -109,12 +109,9 @@ module Webui::WebuiHelper
 
     repo_state_class = repository_state_class(outdated, status)
 
-    data_options = {}
-    data_options.merge!(content: description, placement: 'top', toggle: 'popover') unless feature_enabled?(:responsive_ux)
-    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}", data: data_options)
+    tag.i('', class: "repository-state-#{repo_state_class} #{html_class} fas fa-#{repo_status_icon(status)}")
   end
 
-  # NOTE: responsive_ux
   def repository_info(status)
     outdated = status.sub!(/^outdated_/, '')
     description = outdated ? 'State needs recalculations, former state was: ' : ''
@@ -345,11 +342,6 @@ module Webui::WebuiHelper
     css_classes.join(' ')
   end
 
-  # responsive_ux:
-  def responsive_namespace
-    feature_enabled?(:responsive_ux) ? 'webui/responsive_ux' : 'webui'
-  end
-
   def sign_up_link(css_class: nil)
     return unless can_sign_up?
 
@@ -380,7 +372,7 @@ module Webui::WebuiHelper
     if css_class && css_class.include?('nav-link')
       capture do
         concat(tag.i('', class: "fas #{icon}"))
-        concat(tag.div(text, class: feature_enabled?(:responsive_ux) ? '' : 'small'))
+        concat(tag.div(text))
       end
     else
       text
