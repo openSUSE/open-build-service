@@ -22,7 +22,6 @@
   a[data-toggle="collapse"] { width: 1.875rem; }
 }
 
-// TODO: move to layout.scss as soon as the responsive_ux layout is merged
 .build-results .sticky-top, #log-space-wrapper #log-info.position-sticky {
   top: $top-navigation-height;
 }
