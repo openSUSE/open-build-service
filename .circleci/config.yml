@@ -250,7 +250,7 @@ jobs:
           destination: raw_coverage
 
   feature:
-    parallelism: 3
+    parallelism: 2
     docker:
       - <<: *frontend_base
       - <<: *mariadb
@@ -265,23 +265,16 @@ jobs:
           name: Run rspec feature tests
           command: |
             cd src/api
-            pickfile=log/pick.$CIRCLE_NODE_INDEX.list
 
             if test "$CIRCLE_NODE_INDEX" = 0; then
-              message="Running feature tests"
-              circleci tests glob 'spec/features/**/*_spec.rb' | grep -v 'spec/features/beta/' > $pickfile
+              message="Running feature tests for desktop"
             else
-              message="Running beta feature tests"
-              circleci tests glob 'spec/features/beta/**/*_spec.rb' > $pickfile
-            fi
-
-            if test "$CIRCLE_NODE_INDEX" = $((CIRCLE_NODE_TOTAL-1)); then
-              message="Running beta feature tests for mobile"
+              message="Running feature tests for mobile"
               export CAPYBARA_DRIVER='mobile'
             fi
 
             echo $message
-            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml $(cat $pickfile)
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/**/*_spec.rb
 
             mkdir coverage_results
             cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json

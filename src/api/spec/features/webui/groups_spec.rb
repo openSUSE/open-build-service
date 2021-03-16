@@ -28,6 +28,8 @@ RSpec.describe 'Groups', type: :feature, js: true do
   it 'visit group show page' do
     visit group_show_path(group_1)
 
+    # TODO: Remove this line if the dropdown is changed to a scrollable tab
+    find('.nav-link.dropdown-toggle').click if mobile?
     expect(page).to have_content('Incoming Reviews')
     expect(page).to have_content('Incoming Requests')
     expect(page).to have_content('All Requests')
@@ -40,7 +42,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   it 'create a group' do
     visit groups_path
 
-    click_link('Create Group', href: group_new_path)
+    click_link('Create Group')
 
     new_group_title = 'group_123'
     fill_in('group_title', with: new_group_title)

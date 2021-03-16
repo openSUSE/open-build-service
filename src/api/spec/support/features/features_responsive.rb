@@ -1,4 +1,4 @@
-module FeaturesBeta
+module FeaturesResponsive
   def click_menu_link(menu_name, action_name)
     click_link(menu_name, visible: true)
     within('#bottom-navigation-area') do
@@ -20,5 +20,5 @@ module FeaturesBeta
 end
 
 RSpec.configure do |c|
-  c.include FeaturesBeta, type: :feature
+  c.include FeaturesResponsive, type: :feature
 end

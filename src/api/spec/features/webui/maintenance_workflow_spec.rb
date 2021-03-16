@@ -28,7 +28,7 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
 
     visit package_show_path(project: update_project, package: package)
 
-    click_link('Branch Package')
+    desktop? ? click_link('Branch Package') : click_menu_link('Actions', 'Branch Package')
     expect(page).to have_text('Source')
 
     click_button('Branch')
@@ -42,7 +42,7 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     #####################################
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    click_link('Submit as Update')
+    desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
     expect(page).to have_title('Submit as Update')
     fill_in('description', with: 'I want the update')
     click_button('Submit')
@@ -99,7 +99,7 @@ RSpec.describe 'MaintenanceWorkflow', type: :feature, js: true, vcr: true do
     login(user)
     visit project_show_path(project: 'home:tom:branches:ProjectWithRepo:Update')
 
-    click_link('Submit as Update')
+    desktop? ? click_link('Submit as Update') : click_menu_link('Actions', 'Submit as Update')
     expect(page).to have_title('Submit as Update')
     fill_in('description', with: 'I have a additional fix')
     click_button('Submit')

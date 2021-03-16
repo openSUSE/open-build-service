@@ -7,8 +7,8 @@ require 'support/capybara'
 # helper methods for authentication in features tests
 require 'support/features/features_authentication'
 require 'support/features/features_attribute'
-require 'support/features/features_beta'
 require 'support/features/features_custom_checkbox'
+require 'support/features/features_responsive'
 require 'support/wait_for_ajax'
 
 # Shared examples. Per recommendation of RSpec,
