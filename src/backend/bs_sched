@@ -1094,11 +1094,6 @@ eval {
     delete $gctx->{'repounchanged'}->{$prp} if $isfinished && !$gctx->{'prpfinished'}->{$prp};
     sendrepochangeevent($gctx, $prp);
 
-    # free memory
-    Build::forgetdeps($bconf);
-    delete $ctx->{'expander'};
-    delete $ctx->{'pool'};
-
     $ctx->printstats();
 
     # trigger dod package fetching
@@ -1109,6 +1104,11 @@ eval {
       my ($pubstate, $pubdetails) = $ctx->publish();
       ($state, $details) = ($pubstate, $pubdetails) if $pubstate && $pubstate ne 'done';
     }
+
+    # free memory
+    Build::forgetdeps($bconf);
+    delete $ctx->{'expander'};
+    delete $ctx->{'pool'};
 
     my $wasfinished = $gctx->{'prpfinished'}->{$prp};
 
