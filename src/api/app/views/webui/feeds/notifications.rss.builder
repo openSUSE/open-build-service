@@ -18,7 +18,7 @@ xml.rss version: '2.0' do
             locals: { notification: notification }
           )
         else
-          # TODO: responsive_ux: This 'else' clause will be removed after all records from notifications are migrated
+          # TODO: notifications_redesign: This 'else' clause will be removed after all records from notifications are migrated
           xml.title notification.event.subject
           xml.description render(
             template: "event_mailer/#{notification.event.template_name}",
