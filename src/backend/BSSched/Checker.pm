@@ -459,9 +459,9 @@ sub preparepool {
   if (%missingmods) {
     my $msg = '';
     for my $mod (sort keys %missingmods) {
-      my @m = sort(unify(@{$missingmods{$mod}}));
+      my @m = sort(BSUtil::unify(@{$missingmods{$mod}}));
       if (@m > 1) {
-	$msg .= ", $mod needs at least one of ".join(',', @m);
+	$msg .= ", $mod needs one of ".join(',', @m);
       } else {
 	$msg .= ", $mod needs $m[0]";
       }
