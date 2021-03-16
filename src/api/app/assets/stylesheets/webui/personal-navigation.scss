@@ -1,22 +1,18 @@
 #personal-navigation {
-    & .nav-item a {
-        font-size: 0.9rem;
-        color: $primary;
+  & .nav-item a {
+    font-size: 0.9rem;
+    color: $primary;
 
-        &:hover {
-            color: $secondary;
-        }
+    &:hover {
+        color: $secondary;
     }
+  }
 
-    & .nav-link {
-        padding: 0.5rem 0.6rem;
-    }
+  & .nav-link {
+    padding: 0.5rem 0.6rem;
+  }
 
-    .nav-pills .show > .nav-link {
-        color: $white !important;
-    }
-
-    #login-form {
-      width: 300px;
-    }
+  .nav-pills .show > .nav-link {
+    color: $white !important;
+  }
 }
