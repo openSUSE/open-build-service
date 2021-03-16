@@ -51,7 +51,7 @@
 //= require webui/image_templates.js
 //= require webui/kiwi_editor.js
 //= require webui/monitor.js
-//= require webui/responsive_ux
+//= require webui/in_place_editing.js
 //= require webui/notification.js
-//= require webui/sidebar-menu.js
+//= require webui/navigation.js
 //= require webui/user_profile.js
