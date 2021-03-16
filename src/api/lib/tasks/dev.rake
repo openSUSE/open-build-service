@@ -56,9 +56,12 @@ namespace :dev do
       puts 'Configure default signing'
       Rake::Task['assets:clobber'].invoke
       ::Configuration.update(enforce_project_keys: true)
-      # Enable all the feature flags for all logged-in and not-logged-in users in development env.
+      # Enable all feature flags for all beta users in the development environment to easily join the beta and test changes
+      # related to feature flags while also being able to test changes for non-beta users, so without any feature flag enabled
       ENABLED_FEATURE_FLAGS.each do |feature_flag|
-        Flipper[feature_flag].enable
+        puts "Enabling feature flag #{feature_flag} for all beta users"
+        Flipper.disable(feature_flag) # making sure we are starting from a clean state since the database is not overwritten if already present
+        Flipper.enable(feature_flag, :beta)
       end
     end
   end
