@@ -59,8 +59,10 @@
 @import 'monitor';
 @import 'project-monitor';
 @import 'cloud_upload';
-
-@import 'responsive_ux/responsive_ux';
+@import 'grid';
+@import 'sponsors';
+@import 'layout';
+@import 'navbar';
 @import 'notifications_redesign/notifications';
 @import 'notification_toolbar';
 @import 'sidebar-collapsible';
