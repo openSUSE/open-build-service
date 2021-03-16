@@ -1430,23 +1430,22 @@ sub getbinaries_cache {
       # reserve space
       manage_cache($cachesize - $downloadsizek * 1024);
     }
-    my $callers_time = time();
     my @args;
     push @args, "workerid=$workerid" if defined $workerid;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, map {"module=$_"} @{$modules || []};
-    push @args, "now=$callers_time";
     my $res;
     $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
     eval {
+      my $callers_time = time();
       $res ||= BSRPC::rpc({
 	'uri' => "$server/getbinaries",
 	'directory' => $dir,
 	'timeout' => $gettimeout,
 	'receiver' => \&BSHTTP::cpio_receiver,
-      }, undef, @args, 'binaries='.join(',', @downloadbins));
+      }, undef, @args, "now=$callers_time", 'binaries='.join(',', @downloadbins));
     };
     # do not die if a (remote) project does not exist
     return {} if !@cacheold && $@ && $@ =~ /^404 /;
@@ -1903,13 +1902,12 @@ sub getpreinstallimage_metas {
   $res = trygetbinariesproxy($server, $dir, \@todo, $metas, @args) if $getbinariesproxy;
   eval {
     my $callers_time = time();
-    push @args, "now=$callers_time";
     $res ||= BSRPC::rpc({
       'uri' => "$server/getbinaries",
       'directory' => $dir,
       'timeout' => $gettimeout,
       'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args, "binaries=".join(',', @todo));
+    }, undef, @args, "now=$callers_time", "binaries=".join(',', @todo));
     die("Error\n") unless ref($res);
   };
   warn($@) if $@;
