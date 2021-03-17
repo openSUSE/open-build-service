@@ -7,7 +7,13 @@ class MaintenanceIncidentDatatable < Datatable
   end
 
   def view_columns
-    @view_columns ||= { summary: { source: 'Project.name', orderable: true } }
+    @view_columns ||= {
+      summary: { source: 'Project.name', orderable: true },
+      category: {},
+      packages: {},
+      info: {},
+      release_targets: {}
+    }
   end
 
   # rubocop:disable Naming/AccessorMethodName

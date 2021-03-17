@@ -6,7 +6,8 @@ class UserConfigurationDatatable < Datatable
     @view_columns ||= {
       name: { source: 'User.login' },
       local_user: { source: 'User.ignore_auth_services', searchable: false },
-      state: { source: 'User.state' }
+      state: { source: 'User.state' },
+      actions: {}
     }
   end
 
