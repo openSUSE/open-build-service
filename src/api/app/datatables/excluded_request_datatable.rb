@@ -11,7 +11,8 @@ class ExcludedRequestDatatable < Datatable
   def view_columns
     @view_columns ||= {
       request: { source: 'BsRequestAction.target_package', cond: :like },
-      description: { source: 'Staging::RequestExclusion.description', cond: :like }
+      description: { source: 'Staging::RequestExclusion.description', cond: :like },
+      actions: {}
     }
   end
 

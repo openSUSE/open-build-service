@@ -14,7 +14,8 @@ class MaintainedProjectDatatable < Datatable
 
   def view_columns
     @view_columns ||= {
-      name: { source: 'Project.name', cond: :like }
+      name: { source: 'Project.name', cond: :like },
+      actions: {}
     }
   end
 
