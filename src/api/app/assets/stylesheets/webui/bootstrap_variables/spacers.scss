@@ -1,6 +1,12 @@
 // Add spacing utilities to Bootstrap's defaults
 $spacer: 1rem !default;
 $spacers: (
-  6: ($spacer * 4.5),
-  7: ($spacer * 6)
-)
+  0: 0,
+  1: $spacer / 4,
+  2: $spacer / 2,
+  3: $spacer,
+  4: $spacer * 1.5,
+  5: $spacer * 3,
+  6: ($spacer * 4.5), // new value
+  7: ($spacer * 6) // new value
+) !default;
