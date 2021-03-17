@@ -15,20 +15,44 @@ RSpec.describe 'Projects', type: :feature, js: true do
     expect(page).to have_css('h3', text: project.title)
   end
 
-  it 'changing project title and description' do
-    login user
-    visit project_show_path(project: project)
+  describe 'changing project title and description' do
+    context 'when accepting the changes' do
+      it 'updates the project title, description and url' do
+        login user
+        visit project_show_path(project: project)
 
-    desktop? ? click_link('Edit Project') : click_menu_link('Actions', 'Edit Project')
-    expect(page).to have_text("Edit Project #{project}")
+        click_on('Edit')
+        expect(page).to have_text("Edit Project #{project}")
 
-    fill_in 'project_title', with: 'My Title hopefully got changed'
-    fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
-    click_button 'Update'
+        fill_in 'project_title', with: 'My Title hopefully got changed'
+        fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
+        fill_in 'project_url', with: 'https://test.url'
+        click_button 'Update'
+        wait_for_ajax
 
-    visit project_show_path(project: project)
-    expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
-    expect(find(:id, 'description-text')).to have_text('New description. Not kidding.. Brand new!')
+        expect(find(:id, 'project-title')).to have_text('My Title hopefully got changed')
+        expect(find(:id, 'description-text')).to have_text('New description. No kidding.. Brand new!')
+        expect(page).to have_text('https://test.url')
+      end
+    end
+
+    context 'when cancelling the changes' do
+      it "renders back the original project's details" do
+        login user
+        visit project_show_path(project: project)
+
+        click_on('Edit')
+        expect(page).to have_text("Edit Project #{project}")
+
+        fill_in 'project_title', with: 'My Title hopefully got changed'
+        fill_in 'project_description', with: 'New description. No kidding.. Brand new!'
+        click_link 'Cancel'
+        wait_for_ajax
+
+        expect(page).to have_text(project.title)
+        expect(page).to have_text(project.description)
+      end
+    end
   end
 
   describe 'subprojects' do
