@@ -274,7 +274,7 @@ jobs:
             fi
 
             echo $message
-            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/**/*_spec.rb
+            bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/feature/feature.xml spec/features/
 
             mkdir coverage_results
             cp -R coverage/.resultset.json coverage_results/resultset-feature-${CIRCLE_NODE_INDEX}.json
