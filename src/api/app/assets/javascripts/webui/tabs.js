@@ -25,6 +25,18 @@ function refreshTabs(tabList) {
   tabList.find('li.dropdown').toggle(dropdownState);
 }
 
+/* bootstrap's tabs javascript doesn't remove the active class
+   when tabs are implemented without the usage of ul and li */
+function toggleTabs(tabLinkContainerId) { // jshint ignore:line
+  $('#'+tabLinkContainerId+' a').on('click', function(e) {
+    e.preventDefault();
+    $(this).tab('show');
+    var currentTabLink = $(this);
+    $('#'+tabLinkContainerId+' a').removeClass('active');
+    currentTabLink.addClass('active');
+  });
+}
+
 $.fn.hasOverflow = function() {
   var element = $(this)[0];
   // We must check that the scroll is bigger than the offset to shrink the tabs until needed (the 1 pixel difference is caused by a Firefox issue)
