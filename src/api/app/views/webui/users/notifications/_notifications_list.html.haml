@@ -17,7 +17,7 @@
     .card
       .card-body
         .text-center
-          %span.ml-3= page_entries_info notifications, entry_name: 'notification'
+          %span.ms-3= page_entries_info notifications, entry_name: 'notification'
           = link_to_all unless notifications.total_pages == 1 && params['show_all'].nil?
         .list-group.list-group-flush.mt-3
           - notifications.each do |n|
@@ -36,13 +36,13 @@
                         = image_tag('icons/request-icon.svg', height: 18, title: 'Request notification')
                         = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
                         %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
-                        %span.badge.ml-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
+                        %span.badge.ms-1{ class: "badge badge-#{request_badge_color(notification.notifiable.state)}" }
                           = notification.notifiable.state
                       - else
                         %i.fas.fa-comments{ title: 'Comment notification' }
                         = link_to(notification.notifiable_link[:text], notification.notifiable_link[:path], class: 'mx-1')
                         %small.text-nowrap #{time_ago_in_words(notification.created_at)} ago
-                    .col-auto.actions.ml-auto.align-self-end.align-self-md-start
+                    .col-auto.actions.ms-auto.align-self-end.align-self-md-start
                       :ruby
                         title, icon = notification.unread? ? ['Mark as "Read"', 'fa-check'] : ['Mark as "Unread"', 'fa-undo']
                         update_path = my_notifications_path(notification_ids: [notification.id], type: selected_filter[:type],

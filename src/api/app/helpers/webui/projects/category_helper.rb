@@ -12,6 +12,6 @@ module Webui::Projects::CategoryHelper
                  else
                    'badge-dark'
                  end
-    tag.span(category, class: "quality-category badge ml-1 #{badge_type}")
+    tag.span(category, class: "quality-category badge ms-1 #{badge_type}")
   end
 end

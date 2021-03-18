@@ -21,9 +21,9 @@ class: "#{form_method}-comment-form" }, data: { preview_comment_url: preview_com
       .comment-controls.mb-3
         - case form_method
         - when :post
-          = f.submit 'Add comment', class: 'btn btn-primary mr-2', data: { disable_with: 'Creating comment...' }, disabled: true
+          = f.submit 'Add comment', class: 'btn btn-primary me-2', data: { disable_with: 'Creating comment...' }, disabled: true
         - when :put
-          = f.submit 'Update comment', class: 'btn btn-primary mr-2', data: { disable_with: 'Updating comment...' }
+          = f.submit 'Update comment', class: 'btn btn-primary me-2', data: { disable_with: 'Updating comment...' }
         - if has_cancel
           %a.cancel-comment.btn.btn-outline-secondary
             Cancel

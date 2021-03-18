@@ -9,7 +9,7 @@ module Webui::NotificationHelper
   def filter_notification_link(link_text, amount, filter_item, selected_filter)
     link_to(my_notifications_path(filter_item), class: css_for_filter_link(filter_item, selected_filter)) do
       concat(link_text)
-      concat(tag.span(amount, class: "badge #{badge_color(filter_item, selected_filter)} align-text-top ml-2")) if amount && amount.positive?
+      concat(tag.span(amount, class: "badge #{badge_color(filter_item, selected_filter)} align-text-top ms-2")) if amount && amount.positive?
     end
   end
 

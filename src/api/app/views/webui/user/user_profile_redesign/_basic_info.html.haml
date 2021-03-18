@@ -26,7 +26,7 @@
   .mt-4
     - if User.session
       = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
-        %i.fas.fa-envelope.mr-1
+        %i.fas.fa-envelope.me-1
         = user.email
 
 

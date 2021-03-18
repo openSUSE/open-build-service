@@ -16,7 +16,7 @@
               = role.capitalize.pluralize
               - if emails.present? && User.session
                 = mail_to(emails) do
-                  %i.far.fa-envelope.ml-1{ title: "Send email to #{role.pluralize(records.size)}" }
+                  %i.far.fa-envelope.ms-1{ title: "Send email to #{role.pluralize(records.size)}" }
             .d-flex.flex-wrap.flex-column.flex-md-row
               - records.each do |record|
                 .card.m-1.p-2.search-result

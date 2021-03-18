@@ -23,7 +23,7 @@
             %span.caret
             Projects / Packages
             - if projects_packages_selected.positive?
-              %span.badge.badge-secondary.ml-2= projects_packages_selected
+              %span.badge.badge-secondary.ms-2= projects_packages_selected
           .dropdown-menu.keep-open
             - projects_packages.each do |project_or_package|
               - involved_html_id = "involved_#{project_or_package}"
@@ -37,7 +37,7 @@
             %span.caret
             Role
             - if roles_selected.positive?
-              %span.badge.badge-secondary.ml-2= roles_selected
+              %span.badge.badge-secondary.ms-2= roles_selected
           .dropdown-menu.keep-open
             - if owner_root_project_exists
               .dropdown-item

@@ -23,7 +23,7 @@
       = hidden_field_tag(:repository, @repository)
       %p.form-group
         = label_tag(:hosts, 'Jobs:', class: 'mr-1')
-        = select_tag(:hosts, options_for_select((2..100).to_a, @hosts), class: 'custom-select mr-1')
+        = select_tag(:hosts, options_for_select((2..100).to_a, @hosts), class: 'custom-select me-1')
         %button.btn.btn-primary{ type: 'submit' } Check
     %h3 Longest Paths
     %table.grid_16.alpha.omega

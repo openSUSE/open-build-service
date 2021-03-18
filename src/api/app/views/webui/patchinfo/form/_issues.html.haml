@@ -19,7 +19,7 @@
       - issue_name = "#{issue[1]}_#{issue[0]}"
       .list-group-item.flex-column.align-items-start.issue-element{ id: "issue_#{issue_name}" }
         .d-flex.w-100.mb-1
-          %i.fa.fa-bug.text-danger.pt-1.mr-1
+          %i.fa.fa-bug.text-danger.pt-1.me-1
           = patchinfo_issue_link(issue[1], issue[0], issue[2])
           = link_to('#', id: "delete_issue_#{issue_name}", title: 'Delete', class: 'ml-1') do
             %i.fas.fa-times-circle.text-danger

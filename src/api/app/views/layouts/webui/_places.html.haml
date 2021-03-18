@@ -1,51 +1,51 @@
 %h5.pt-2.text-light{ class: navigation == :left ? 'pl-2' : '' }
   %span.section-name Places
 
-%ul.ml-auto.pt-0.text-nowrap.menu-options.mb-4{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
+%ul.ms-auto.pt-0.text-nowrap.menu-options.mb-4{ class: navigation == :left ? 'nav flex-column' : 'navbar-nav' }
   - if User.session
     - if navigation != :left
       %li.nav-item
         = link_to(user_path(User.session!), id: 'link-to-user-home', class: 'nav-link') do
-          = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light mr-2')
+          = image_tag_for(User.session, size: 23, custom_class: 'rounded-circle bg-light me-2')
           Profile
     %li.nav-item
       = link_to(my_tasks_path, class: 'nav-link', title: 'Tasks') do
-        %i.fas.fa-tasks.fa-lg.mr-2
+        %i.fas.fa-tasks.fa-lg.me-2
         %span.nav-item-name Tasks
     %li.nav-item
       - if User.session!.home_project
         = link_to(project_show_path(User.session!.home_project), class: 'nav-link', title: 'Your Home Project') do
-          %i.fas.fa-cubes.fa-lg.mr-2
+          %i.fas.fa-cubes.fa-lg.me-2
           %span.nav-item-name Your Home Project
       - else
         = link_to(new_project_path(name: User.session!.home_project_name), class: 'nav-link', title: 'Create Your Home Project') do
-          %i.fas.fa-cubes.fa-lg.mr-2
+          %i.fas.fa-cubes.fa-lg.me-2
           %span.nav-item-name Create Your Home Project
     %li.nav-item
       = link_to(projects_path, class: 'nav-link', title: 'All Projects') do
-        %i.fas.fa-list.fa-lg.mr-2
+        %i.fas.fa-list.fa-lg.me-2
         %span.nav-item-name All Projects
     %li.nav-item
       = link_to(monitor_path, class: 'nav-link', title: 'Status Monitor') do
-        %i.fas.fa-heartbeat.fa-lg.mr-2
+        %i.fas.fa-heartbeat.fa-lg.me-2
         %span.nav-item-name Status Monitor
     - if User.admin_session?
       %li.nav-item
         = link_to(configuration_path, class: 'nav-link', title: 'Configuration') do
-          %i.fas.fa-cogs.mr-2
+          %i.fas.fa-cogs.me-2
           %span.nav-item-name Configuration
     - if navigation != :left
       %li.nav-item
         = link_to(session_path, method: :delete, id: 'logout-link', class: 'nav-link') do
-          %i.fas.fa-sign-out-alt.fa-lg.mr-2
+          %i.fas.fa-sign-out-alt.fa-lg.me-2
           Logout
   - else
     %li.nav-item
       = link_to(projects_path, class: 'nav-link', title: 'All Projects') do
-        %i.fas.fa-list.fa-lg.mr-2
+        %i.fas.fa-list.fa-lg.me-2
         %span.nav-item-name All Projects
     - unless @spider_bot
       %li.nav-item
         = link_to(monitor_path, class: 'nav-link', title: 'Status Monitor') do
-          %i.fas.fa-heartbeat.fa-lg.mr-2
+          %i.fas.fa-heartbeat.fa-lg.me-2
           %span.nav-item-name Status Monitor

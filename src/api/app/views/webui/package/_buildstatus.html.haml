@@ -36,12 +36,12 @@
                 = repository_status_icon(status: result.state)
               - else
                 %i.fas.fa-clock.text-warning{ title: 'This result is outdated' }
-              %span.ml-1
+              %span.ms-1
                 = result.architecture
             .build-state.toggle-build-info-parent
               %i.fa.fa-question-circle.text-info.px-2.pl-lg-1.toggle-build-info{ title: 'Click to keep it open' }
               = arch_repo_table_cell(result.repository, result.architecture, package, 'code' => result.code, 'details' => result.details)
-            .build-info.mt-1.ml-3.mb-3.mr-3.collapsed
+            .build-info.mt-1.ms-3.mb-3.me-3.collapsed
               .triangle.center
               .build-info-content
                 %p.py-1= Buildresult.status_description(result.code)
