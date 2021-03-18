@@ -112,7 +112,7 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.15)
-    codecov (0.4.3)
+    codecov (0.5.1)
       simplecov (>= 0.15, < 0.22)
     coderay (1.1.3)
     concurrent-ruby (1.1.8)
