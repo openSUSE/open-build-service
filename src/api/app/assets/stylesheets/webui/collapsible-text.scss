@@ -1,8 +1,8 @@
-@mixin collapsible($maxHeight: 4.5em) {
+@mixin collapsible($maxHeight: 4.5em, $maxWidth: $seventy-five-chars) {
   .obs-collapsible-textbox {
     padding-right: 1em;
     @extend .text-break;
-    max-width: $seventy-five-chars;
+    max-width: $maxWidth;
 
     .obs-collapsible-text {
       overflow: hidden;
@@ -38,4 +38,9 @@
 
 #request-history .card-body {
   @include collapsible($maxHeight: 4.5em);
+}
+
+#involvement-description {
+  @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
+  .obs-collapsible-textbox {  @extend .pr-0; }
 }
