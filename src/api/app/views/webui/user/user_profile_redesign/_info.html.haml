@@ -2,7 +2,9 @@
 
 .card.mb-3
   .card-body
-    = render partial: 'webui/user/user_profile_redesign/basic_info', locals: { user: user, role_titles: role_titles }
+    .in-place-editing
+      = render partial: 'webui/user/user_profile_redesign/basic_info',
+               locals: { user: user, role_titles: role_titles, configuration: configuration, account_edit_link: account_edit_link }
 
     - if user.rss_token && is_user
       = link_to(user_rss_notifications_path(token: user.rss_token.string, format: 'rss'),

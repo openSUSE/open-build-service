@@ -4,7 +4,7 @@ resetFormValidation();
     element = $("##{@displayed_user.class.name.underscore}_#{field}"); // Create strings like "user_email"
     setFormValidation(element, "#{messages.to_sentence}");
 - else
-  - locals = { user: @displayed_user, role_titles: @role_titles }
+  - locals = { user: @displayed_user, role_titles: @role_titles, account_edit_link: @account_edit_link, configuration: @configuration }
   :plain
     $('.in-place-editing').animate({
       opacity: 0.25

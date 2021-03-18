@@ -1,4 +1,14 @@
-.basic-info{ class: feature_enabled?(:user_profile_redesign) ? 'in-place-editing' : '' }
+.editing-form.d-none
+  = render partial: 'webui/user/user_profile_redesign/edit_account_form',
+           locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
+
+.basic-info
+  - if configuration.accounts_editable?(user)
+    .d-flex.flex-row-reverse
+      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link', remote: true, title: 'Edit Your Account') do
+        %i.fas.mr-2.fa-user-edit
+        %span.nav-item-name Edit
+
   .row.mb-3.mb-md-0
     .col-4.col-sm-2.col-md-12.text-center
       = image_tag_for(user, size: 200)
@@ -18,3 +28,15 @@
       = mail_to(user.email, title: "Send mail to #{user.name}", class: 'd-block') do
         %i.fas.fa-envelope.mr-1
         = user.email
+
+
+:javascript
+  $('#toggle-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+  });
+  $('#cancel-in-place-editing').on('click', function () {
+    $('.in-place-editing .basic-info').toggleClass('d-none');
+    $('.in-place-editing .editing-form').toggleClass('d-none');
+    return false;
+  });
