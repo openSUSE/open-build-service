@@ -867,7 +867,7 @@ sub findfile {
   return $files{'Chart.yaml'} if $ext eq 'helm';
   return $files{'Dockerfile'} if $ext eq 'docker';
   return $files{'appimage.yml'} if $ext eq 'appimage';
-  return $files{'arch'} if $ext eq 'PKGBUILD';
+  return $files{'PKGBUILD'} if $ext eq 'arch';
   return $files{'fissile.yml'} if $ext eq 'fissile';
   return $files{'simpleimage'} if $files{'simpleimage'};
   return $files{'snapcraft.yaml'} if $ext eq 'snapcraft';
