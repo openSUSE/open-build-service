@@ -3,7 +3,7 @@
            locals: { displayed_user: user, role_titles: role_titles, account_edit_link: account_edit_link }
 
 .basic-info
-  - if configuration.accounts_editable?(user)
+  - if configuration.accounts_editable?(user) && policy(user).update?
     .d-flex.flex-row-reverse
       = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link', remote: true, title: 'Edit Your Account') do
         %i.fas.fa-user-edit
