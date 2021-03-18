@@ -1315,8 +1315,9 @@ sub getprojpack {
       } else {
         $pack = BSRevision::readpack_local($projid, $packid, 1);
       }
-      ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
-      $pack ||= {} if $proj->{'link'};
+      if (($proj->{'remoteurl'} && $cgi->{'parseremote'}) || ($proj->{'link'} && !defined $pack)) {
+        ($pack) = getpackage({}, $projid, $packid);
+      }
       if (!$pack) {
 	$pinfo->{'error'} = 'package does not exist';
 	next;
