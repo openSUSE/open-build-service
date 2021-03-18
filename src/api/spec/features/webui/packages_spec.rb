@@ -280,7 +280,7 @@ RSpec.describe 'Packages', type: :feature, js: true, vcr: true do
     it 'updates the package title and description' do
       login user
       visit package_show_path(package: package, project: user.home_project)
-      desktop? ? click_link('Edit Package') : click_menu_link('Actions', 'Edit Package')
+      click_link('Edit')
       wait_for_ajax
 
       within('#edit_package_details') do

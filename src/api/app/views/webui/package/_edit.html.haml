@@ -13,5 +13,5 @@
     = form.label(:description, 'Description:')
     = form.text_area(:description, rows: 8, class: 'form-control')
   .form-group.text-right
-    = link_to 'Cancel', package_show_path(project, package), class: 'cancel btn btn-outline-danger px-4', remote: true
+    = button_tag('Cancel', id: 'cancel-in-place-editing', class: 'cancel btn btn-outline-danger px-4')
     = submit_tag('Update', class: 'btn btn-primary px-4')

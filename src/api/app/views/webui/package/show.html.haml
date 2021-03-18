@@ -21,7 +21,8 @@
   .card-body
     .row
       .col-md-8
-        = render partial: 'basic_info', locals: { package: @package }
+        .in-place-editing
+          = render partial: 'basic_info', locals: { package: @package, project: @project }
       .col-md-4
         = render partial: 'side_links', locals: { devel_package: @package.develpackage,
                                                   failures: @failures,
