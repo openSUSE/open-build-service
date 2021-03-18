@@ -25,7 +25,7 @@
                       = link_to(user_or_group_show_path(record)) do
                         = image_tag_for(record, size: 60, custom_class: 'align-self-center shadow-lg border border-secondary rounded border-2')
                     .col
-                      .card-body.p-0.pl-2
+                      .card-body.p-0.ps-2
                         %ul.list-unstyled
                           %li{ title: record.name }
                             = truncate(record.name, length: 40)

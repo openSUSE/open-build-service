@@ -10,7 +10,7 @@
         - if resolve_asset_path("distributions/#{vendor.downcase}.svg")
           = image_tag("distributions/#{vendor.downcase}.svg")
         #{vendor} distributions
-      .form-group.pl-3
+      .form-group.ps-3
         -# rubocop:disable Style/CombinableLoops
         - list.each do |distribution|
           - selected = @project.has_distribution(distribution['project'], distribution['repository'])
@@ -37,7 +37,7 @@
     %h6
       = image_tag('distributions/kiwi.svg')
       Kiwi image builds
-    .form-group.pl-3
+    .form-group.ps-3
       - selected = @project.repositories.where(name: 'images').any?
       .custom-control.custom-checkbox.custom-control-inline
         = check_box_tag 'images', 'true', selected, id: 'repo_images', class: 'repocheckbox custom-control-input'

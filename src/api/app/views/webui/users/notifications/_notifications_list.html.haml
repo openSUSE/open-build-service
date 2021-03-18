@@ -24,7 +24,7 @@
             - notification = NotificationPresenter.new(n)
             .list-group-item.px-0.px-md-1.py-3
               .row
-                .col-auto.pr-0
+                .col-auto.pe-0
                   .custom-control.custom-checkbox
                     = check_box_tag('notification_ids[]', notification.id, false,
                                     id: "notification_ids_#{notification.id}", class: 'custom-control-input')
@@ -52,12 +52,12 @@
                                 method: :put, class: 'btn btn-sm btn-outline-success px-3', title: title,
                                 data: { remote: true, 'disable-with': tag.i(class: 'fas fa-spinner fa-spin') }) do
                         %i.fas{ class: "#{icon}" }
-                  .row.mt-1.pl-sm-4
-                    .col-auto.pr-0
+                  .row.mt-1.ps-sm-4
+                    .col-auto.pe-0
                       = render partial: 'notification_avatars', locals: { avatar_objects: notification.avatar_objects }
-                    .col-auto.pl-xs-2
+                    .col-auto.ps-xs-2
                       %span.text-word-break-all= action_description(notification)
-                  .row.d-none.d-md-block.pl-4
+                  .row.d-none.d-md-block.ps-4
                     .col
                       %p.mt-3.mb-0= notification.excerpt
   = paginate notifications, views_prefix: 'webui', window: 2, params: { action: 'index', id: nil }

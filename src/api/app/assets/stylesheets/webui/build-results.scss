@@ -83,8 +83,8 @@
 // Build state
 
 .build-state {
-  @extend .pl-1;
-  @extend .pl-sm-2;
+  @extend .ps-1;
+  @extend .ps-sm-2;
   flex-basis: 62%;
 }
 
@@ -140,8 +140,8 @@
 // Repository state
 
 .repository-state {
-  @extend .pl-1;
-  @extend .pl-sm-3;
+  @extend .ps-1;
+  @extend .ps-sm-3;
   @extend .text-nowrap;
   flex-basis: 38%;
 }

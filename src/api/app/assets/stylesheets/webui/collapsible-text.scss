@@ -42,5 +42,5 @@
 
 #involvement-description {
   @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
-  .obs-collapsible-textbox {  @extend .pr-0; }
+  .obs-collapsible-textbox {  @extend .pe-0; }
 }

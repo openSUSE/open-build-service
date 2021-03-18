@@ -19,7 +19,7 @@
         .custom-control.custom-checkbox.custom-control-inline
           = check_box_tag('available', true, arch.available, class: 'custom-control-input', id: "arch-#{arch}",
             data: { remote: true, url: architecture_path(arch), method: :patch })
-          %label.custom-control-label.pr-2{ for: "arch-#{arch}" }
+          %label.custom-control-label.pe-2{ for: "arch-#{arch}" }
             = arch.name
           %i.fas.fa-spinner.invisible
 
