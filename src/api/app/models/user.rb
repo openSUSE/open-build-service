@@ -694,7 +694,13 @@ class User < ApplicationRecord
     involved_items.concat(related_items(Project, roles_to_filter, filters)) if filters.key?(:involved_projects)
     involved_items.concat(related_items(Package, roles_to_filter, filters)) if filters.key?(:involved_packages)
 
-    involved_items.uniq
+    involved_items.uniq.sort_by do |involved_item|
+      if involved_item.is_a?(Package)
+        "#{involved_item.project} / #{involved_item}".downcase
+      else
+        involved_item.name.downcase
+      end
+    end
   end
 
   # lists reviews involving this user
@@ -986,6 +992,7 @@ class User < ApplicationRecord
     related_items = project_or_package_class.related_to_user(id).where(relationships: { role_id: roles_to_filter }).or(
       project_or_package_class.related_to_group(group_ids).where(relationships: { role_id: roles_to_filter })
     )
+    related_items = related_items.includes(:project) if project_or_package_class == Package # to avoid n+1 queries
     related_items = related_items.where('LOWER(name) LIKE ?', "%#{filters[:search_text].downcase}%") if filters[:search_text].present?
     related_items
   end
