@@ -42,12 +42,13 @@ def login
     fill_in 'user-password', with: 'opensuse'
     click_button('Log In')
   end
-  expect(page).to have_link('link-to-user-home')
+  expect(page).to have_link('top-navigation-profile-dropdown')
 end
 
 def logout
-  within("#personal-navigation") do
+  click_link('top-navigation-profile-dropdown')
+  within("#top-navigation-area") do
     click_link('Logout')
   end
-  expect(page).to have_no_link('link-to-user-home')
+  expect(page).to have_no_link('top-navigation-profile-dropdown')
 end

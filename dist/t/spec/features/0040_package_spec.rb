@@ -10,8 +10,8 @@ RSpec.describe "Package", type: :feature do
   end
 
   it "should be able to create new" do
-    within("div#personal-navigation") do
-      click_link('Home Project')
+    within("#left-navigation") do
+      click_link('Your Home Project')
     end
     click_link('Create Package')
     fill_in 'package_name', with: 'hello_world'
@@ -22,8 +22,8 @@ RSpec.describe "Package", type: :feature do
   end
 
   it "should be able to upload files" do
-    within("div#personal-navigation") do
-      click_link('Home Project')
+    within("#left-navigation") do
+      click_link('Your Home Project')
     end
     click_link('hello_world')
     click_link('Add File')
@@ -33,8 +33,8 @@ RSpec.describe "Package", type: :feature do
   end
 
   it "should be able to branch" do
-    within("div#personal-navigation") do
-      click_link('Home Project')
+    within("#left-navigation") do
+      click_link('Your Home Project')
     end
     click_link('Branch Package')
     fill_in 'linked_project', with: 'openSUSE.org:openSUSE:Tools'
@@ -44,13 +44,13 @@ RSpec.describe "Package", type: :feature do
   end
 
   it 'should be able to delete' do
-    within("div#personal-navigation") do
-      click_link('Home Project')
+    within("#left-navigation") do
+      click_link('Your Home Project')
     end
     within("table#packages-table") do
       click_link('build')
     end
-    click_link('Delete package')
+    click_link('Delete Package')
     expect(page).to have_content('Do you really want to delete this package?')
     click_button('Delete')
     expect(page).to have_content('Package was successfully removed.')

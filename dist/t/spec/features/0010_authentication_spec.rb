@@ -15,11 +15,11 @@ RSpec.describe "Authentication", type: :feature do
       click_button('Sign Up')
     end
     expect(page).to have_content("The account 'test_user' is now active.")
-    expect(page).to have_link('link-to-user-home')
+    expect(page).to have_link('top-navigation-profile-dropdown')
   end
 
   it "should be able to login" do
     login
-    expect(page).to have_link('link-to-user-home')
+    expect(page).to have_link('top-navigation-profile-dropdown')
   end
 end
