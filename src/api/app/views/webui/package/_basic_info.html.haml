@@ -1,7 +1,7 @@
 .editing-form.d-none
   = render partial: 'edit', locals: { package: package, project: package.project }
 
-.basic-info.mb-3
+.basic-info
   %h3#package-title
     = package.title.presence || package.name
   - if package.url.present?
@@ -13,9 +13,10 @@
       = render partial: 'webui/shared/collapsible_text', locals: { text: package.description }
 
   - if policy(package).update?
-    = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link', title: 'Edit') do
-      %i.fas.fa-edit
-      %span.nav-item-name Edit
+    .pt-4
+      = link_to('javascript:void(0);', id: 'toggle-in-place-editing', class: 'nav-link pl-0', title: 'Edit') do
+        %i.fas.fa-edit
+        %span.nav-item-name Edit
 
 :javascript
   $('#toggle-in-place-editing').on('click', function () {
