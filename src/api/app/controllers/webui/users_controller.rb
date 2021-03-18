@@ -26,6 +26,11 @@ class Webui::UsersController < Webui::WebuiController
 
       filters = adjust_filters
 
+      # TODO: Do the following here in the controller or in the service object
+      # depending on the filters...
+      # call InvolvedItemsFinder for Project.all and/or Package.all.includes(:project) (to avoid n+1 queries) (take the search and roles into consideration)
+      # concat the results
+      # sort the results
       @involved_items = Kaminari.paginate_array(@displayed_user.involved_items(filters)).page(params[:page]).per(max_items_per_page)
       @involved_items_as_owner = @displayed_user.involved_items_as_owner(filters) if @owner_root_project_exists
     else
