@@ -502,7 +502,7 @@ class BranchPackage
 
   def set_update_project_attribute
     aname = params[:update_project_attribute] || 'OBS:UpdateProject'
-    update_project_at = aname.split(/:/)
+    update_project_at = aname.split(':')
     raise ArgumentError, "attribute '#{aname}' must be in the $NAMESPACE:$NAME style" if update_project_at.length != 2
 
     @up_attribute_namespace = update_project_at[0]

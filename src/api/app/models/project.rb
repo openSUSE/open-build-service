@@ -313,7 +313,7 @@ class Project < ApplicationRecord
     def find_remote_project(name, skip_access = false)
       return unless name
 
-      fragments = name.split(/:/)
+      fragments = name.split(':')
 
       while fragments.length > 1
         remote_project = [fragments.pop, remote_project].compact.join(':')
@@ -836,7 +836,7 @@ class Project < ApplicationRecord
   # Calculate all possible ancestors names for a project
   # Ex: home:foo:bar:purr => ["home:foo:bar", "home:foo", "home"]
   def possible_ancestor_names
-    names = name.split(/:/)
+    names = name.split(':')
     possible_projects = []
     while names.length > 1
       names.pop
