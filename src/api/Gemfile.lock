@@ -154,9 +154,9 @@ GEM
       i18n (>= 1.6, < 2)
     ffi (1.15.0)
     flipper (0.20.4)
-    flipper-active_record (0.20.3)
+    flipper-active_record (0.20.4)
       activerecord (>= 5.0, < 7)
-      flipper (~> 0.20.3)
+      flipper (~> 0.20.4)
     flot-rails (0.0.7)
       jquery-rails
     font-awesome-sass (5.15.1)
