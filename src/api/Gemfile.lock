@@ -80,7 +80,7 @@ GEM
     ast (2.4.2)
     autoprefixer-rails (10.2.0.0)
       execjs
-    awesome_print (1.8.0)
+    awesome_print (1.9.2)
     bcrypt (3.1.16)
     bigdecimal (3.0.0)
     bootstrap (4.6.0)
