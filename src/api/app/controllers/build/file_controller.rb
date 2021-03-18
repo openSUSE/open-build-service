@@ -97,7 +97,7 @@ module Build
       logger.info "streaming #{path}"
 
       c_type =
-        case params[:filename].split(/\./)[-1]
+        case params[:filename].split('.')[-1]
         when 'rpm' then 'application/x-rpm'
         when 'deb' then 'application/x-deb'
         when 'iso' then 'application/x-cd-image'

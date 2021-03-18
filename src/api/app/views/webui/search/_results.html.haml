@@ -20,7 +20,7 @@
           = '...'
         - else
           - desc = truncate(result.description, length: 80)
-          - desc.split(/\n/).each do |line|
+          - desc.split('\n').each do |line|
             = highlight(line, search_text, highlighter: '<b>\1</b>')
   - if per_page
     = paginate results, views_prefix: 'webui'

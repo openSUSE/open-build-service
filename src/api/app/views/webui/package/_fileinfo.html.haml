@@ -6,7 +6,7 @@
   %dd.col-md-10
     - description = fileinfo.value('description')
     - if description
-      - description.split(/\n/).each do |line|
+      - description.split('\n').each do |line|
         = line
         %br
     - else

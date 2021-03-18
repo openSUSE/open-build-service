@@ -30,7 +30,7 @@ class AttribType < ApplicationRecord
   end
 
   def self.find_by_name(name, or_fail = false)
-    name_parts = name.split(/:/)
+    name_parts = name.split(':')
     raise InvalidAttributeError, "Attribute '#{name}' must be in the $NAMESPACE:$NAME style" if name_parts.length != 2
 
     find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
