@@ -5589,6 +5589,10 @@ sub getsignkey {
 
 sub projid2sslcert {
   my ($skprojid, $sk, $projid, $nocreate, $signtype) = @_;
+  if ($BSConfig::disable_sslcert_cache && $BSConfig::disable_sslcert_cache->{$skprojid}) {
+    # we ignore nocreate here for now
+    return BSSrcServer::Signkey::pubkey2sslcert($projid || $skprojid, "$projectsdir/$skprojid.pkg/_pubkey", "$projectsdir/$skprojid.pkg/_signkey", $signtype);
+  }
   my $rev = BSRevision::getrev_meta($skprojid, undef);
   my $files = BSRevision::lsrev($rev);
   if (!$files->{'_sslcert'}) {
