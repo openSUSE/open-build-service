@@ -1,4 +1,5 @@
-= render partial: 'webui/user/index_actions', locals: { configuration: configuration, user: user, account_edit_link: account_edit_link }
+- if is_user
+  = render partial: 'webui/user/index_actions', locals: { configuration: configuration, user: user, account_edit_link: account_edit_link }
 
 .card.mb-3
   .card-body
