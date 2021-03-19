@@ -189,6 +189,7 @@ Metrics/ClassLength:
     - 'app/models/staging/workflow.rb'
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
+    - 'app/services/user_service/involved.rb'
     - 'lib/xpath_engine.rb'
     - 'test/functional/attributes_test.rb'
     - 'test/functional/binary_release_test.rb'

@@ -15,6 +15,16 @@ module UserService
       Kaminari.paginate_array(involved_packages_and_projects).page(@page).per(MAX_ITEMS_PER_PAGE)
     end
 
+    def sort_involved_items(involved_items)
+      involved_items.sort_by do |involved_item|
+        if involved_item.is_a?(Package)
+          "#{involved_item.project} / #{involved_item}".downcase
+        else
+          involved_item.name.downcase
+        end
+      end
+    end
+
     def involved_packages_and_projects
       involved_items = []
       roles = roles_to_filter
@@ -28,7 +38,7 @@ module UserService
         involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Package)) if consider_involved_packages?
         involved_items.concat(pkg_or_prj_unfiltered(user: @user, klass: Project)) if consider_involved_projects?
       end
-      involved_items.uniq
+      sort_involved_items(involved_items.uniq)
     end
 
     def owner_root_project_exists?
