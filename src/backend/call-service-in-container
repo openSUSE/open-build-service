@@ -3,9 +3,6 @@
 #set -x
 LOGDIR=/srv/obs/service/log/
 LOGFILE=$LOGDIR/`basename $0`.log
-exec 1>>$LOGFILE
-exec 2>&1
-
 
 function printlog {
   printf "%s %s %7s %s\n" `date +"%Y-%m-%d %H:%M:%S"` "[$$]" "$@" >> $LOGFILE
