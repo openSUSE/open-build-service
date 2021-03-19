@@ -1,5 +1,9 @@
 :ruby
-  @pagetitle = "Profile of #{@displayed_user}"
+  @pagetitle = if feature_enabled?('user_profile_redesign')
+                 @is_displayed_user ? 'Your Profile' : "Profile of #{@displayed_user}"
+               else
+                 "Profile of #{@displayed_user}"
+               end
 
   content_for(:meta_title, @pagetitle)
   content_for(:meta_image, gravatar_url(@displayed_user.email))
