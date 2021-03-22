@@ -224,10 +224,7 @@ sub trigger_auto_deep_checks {
       if (!$newrepo || !BSUtil::identical($oldrepo->{'path'}, $newrepo->{'path'})) {
 	$badprp{"$projid/$repoid"} = 1;
       } elsif ($oldconfig ne $newconfig) {
-	my @mprefix = ("%define _project $projid", "%define _repository $repoid");
-	my $cold = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $oldconfig) ]);
-	my $cnew = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $newconfig) ]);
-	$badprp{"$projid/$repoid"} = 1 if !BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
+	$badprp{"$projid/$repoid"} = 1 if has_critical_config_change($projid, $repoid, $gctx->{'arch'}, $oldconfig, $newconfig);
       }
     }
   } elsif ($oldconfig ne $newconfig) {
@@ -241,7 +238,7 @@ sub trigger_auto_deep_checks {
     }
   }
   return unless %badprp;
-  print "had macro change for ".join(', ', sort keys %badprp)."\n";
+  print "had critical config change for ".join(', ', sort keys %badprp)."\n";
   my %badprojids = ($projid => 1);
   my $projpacks = $gctx->{'projpacks'};
   my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
@@ -498,6 +495,28 @@ sub update_project_meta {
   return 1;
 }
 
+
+=head2 has_critical_config_change - TODO: add summary
+
+ check if the project config was changed in a way that needs us
+ to re-fetch all packages
+
+=cut
+
+sub has_critical_config_change {
+  my ($projid, $repoid, $arch, $oldconfig, $newconfig) = @_;
+  my @mprefix = ("%define _project $projid", "%define _repository $repoid");
+  my $cold = Build::read_config($arch, [ @mprefix, split("\n", $oldconfig || '') ]);
+  my $cnew = Build::read_config($arch, [ @mprefix, split("\n", $newconfig || '') ]);
+  return 1 unless BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
+  return 1 unless BSUtil::identical($cold->{'type'}, $cnew->{'type'});
+  # some buildflags change the dependency parsing
+  my @bf_old = grep {/^dockerarg:/} @{$cold->{'buildflags'} || []};
+  my @bf_new = grep {/^dockerarg:/} @{$cnew->{'buildflags'} || []};
+  return 1 unless BSUtil::identical(\@bf_old, \@bf_new);
+  return 0;
+}
+
 =head2 update_project_meta_check - TODO: add summary
 
  check if the project meta update changes things so that we need
@@ -520,14 +539,9 @@ sub update_project_meta_check {
   # XXX: could be more clever here
   return 0 unless BSUtil::identical($proj->{'repository'}, $oldproj->{'repository'});
   if (($proj->{'config'} || '') ne ($oldproj->{'config'} || '')) {
-    # check macro definitions and build type for all repositories
-    my $myarch = $gctx->{'arch'};
+    # check for critical changes in all repositories
     for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
-      my @mprefix = ("%define _project $projid", "%define _repository $repoid");
-      my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
-      my $cnew = Build::read_config($myarch, [ @mprefix, split("\n", $proj->{'config'} || '') ]);
-      return 0 unless BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
-      return 0 unless BSUtil::identical($cold->{'type'}, $cnew->{'type'});
+      return 0 if has_critical_config_change($projid, $repoid, $gctx->{'arch'}, $oldproj->{'config'}, $proj->{'config'});
     }
   }
   # not a critical change
