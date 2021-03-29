@@ -23,7 +23,6 @@
               %small.form-text.text-muted
                 URLs to src.rpm files will get extracted. URLs to git repositories will get stored in a tar ball.
             .form-group.package-add-file
-              .custom-file
-                = file_field_tag 'file', class: 'custom-file-input', id: 'file', required: true
-                %label.custom-file-label-with-overflow{ for: 'file' } Choose a file
+              = file_field_tag 'file', class: 'form-control', id: 'file', required: true
+              %label.form-label.overflow-hidden{ for: 'file' } Choose a file
             = submit_tag 'Add File', class: 'btn btn-sm btn-primary', id: :submit_button

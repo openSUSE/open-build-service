@@ -1,6 +1,7 @@
 $(document).ready(function() {
   // to resolve the filename in the label
-  $('.custom-file-input').on('change',function() {
+  $('input[type="file"].form-control').on('change',function() {
+      var forAttribute = $(this).attr("for");
       //get the file name
       var fileName = $(this).val();
       // Most modern browser don't allow JS to access
@@ -8,6 +9,6 @@ $(document).ready(function() {
       // As this is confusing we only show the filename and strip the path
       fileName = fileName.replace(/^.*[\\\/]/, '');
       //replace the "Choose a file" label
-      $(this).next('.custom-file-label-with-overflow').html(fileName);
+      $(this).next('label[for="' + forAttribute + '"]').html(fileName);
   });
 });
