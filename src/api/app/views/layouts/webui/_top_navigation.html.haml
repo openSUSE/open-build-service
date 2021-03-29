@@ -24,7 +24,7 @@
                 %span.d-block Tasks
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',
-                    'data-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
+                    'data-bs-toggle': 'dropdown', aria: { haspopup: true, expanded: false }) do
             = image_tag_for(User.session, size: 32, custom_class: 'rounded-circle bg-light me-2')
           .dropdown-menu.dropdown-menu-end{ 'aria-labelledby': 'top-navigation-profile-dropdown' }
             .dropdown-item
