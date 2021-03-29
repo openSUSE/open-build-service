@@ -14,7 +14,7 @@
         %i.fas.fa-envelope
         = user.email
     - role_titles.each do |title|
-      %span.badge.badge-secondary
+      %span.badge.bg-secondary
         = title.upcase
 
     - if groups.any?
@@ -25,7 +25,7 @@
             %li
               = link_to(group_show_path(group)) do
                 #{group.title}
-                %span.badge.badge-primary.align-baseline
+                %span.badge.bg-primary.align-baseline
                   #{group.tasks} #{'task'.pluralize(group.tasks)}
 
     - if is_user

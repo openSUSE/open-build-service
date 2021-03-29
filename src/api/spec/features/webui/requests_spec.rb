@@ -87,7 +87,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -123,7 +123,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -155,7 +155,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button 'Accept'
 
         expect(page).to have_text("Request #{bs_request.number}")
-        expect(find('span.badge.badge-success')).to have_text('accepted')
+        expect(find('span.badge.bg-success')).to have_text('accepted')
         expect(page).to have_text('In state accepted')
       end
     end
@@ -209,7 +209,7 @@ RSpec.describe 'Bootstrap_Requests', type: :feature, js: true, vcr: true do
         click_button('Accept')
         expect(page).to have_text(/Open review for\s+#{reviewer.login}/)
         expect(page).to have_text('Request 1')
-        expect(find('span.badge.badge-secondary')).to have_text('review')
+        expect(find('span.badge.bg-secondary')).to have_text('review')
         expect(page).to have_text('In state review')
         expect(Review.all.count).to eq(1)
         logout

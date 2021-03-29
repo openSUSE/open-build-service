@@ -1,5 +1,5 @@
 %span.badge{ class: "state-#{staging_project.overall_state}" }
-  %span.badge.badge-light
+  %span.badge.bg-light
     = link_to(Staging::ProjectDecorator.new(staging_project).title,
               staging_workflow_staging_project_path(staging_workflow.project, staging_project.name),
               data: { content: staging_project.description, placement: 'bottom', toggle: 'popover' })

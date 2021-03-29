@@ -20,7 +20,7 @@
               .tasks-counter
                 %i.fas.fa-tasks
                 - unless tasks.zero?
-                  %span.badge.badge-primary.align-text-top= tasks
+                  %span.badge.bg-primary.align-text-top= tasks
                 %span.d-block Tasks
         .toggler.text-center.justify-content-center.nav-item.dropdown
           = link_to('#', class: 'nav-link dropdown-toggle text-light', id: 'top-navigation-profile-dropdown', role: 'button',

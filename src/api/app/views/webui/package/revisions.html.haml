@@ -6,7 +6,7 @@
   .card-body
     %h3
       = @pagetitle
-      %span.badge.badge-primary= @revisions.count
+      %span.badge.bg-primary= @revisions.count
     - if @revisions.present?
       .list-group
         - @revisions.each do |revision|
