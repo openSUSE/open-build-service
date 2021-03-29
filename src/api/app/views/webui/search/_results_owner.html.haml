@@ -32,7 +32,7 @@
                           - if record.is_a?(User) && record.realname.present?
                             %li.small
                               = record.login
-                          %li.float-right
+                          %li.float-end
                             - if record.email.present? && User.session
                               = mail_to(record.email) do
                                 %i.far.fa-envelope{ title: "Send email to #{record.class.name.downcase}" }

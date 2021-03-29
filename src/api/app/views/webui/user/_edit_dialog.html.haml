@@ -17,6 +17,6 @@
               = f.label(:biography) do
                 Biography:
               = f.text_area(:biography, rows: 6, class: 'form-control', maxlength: User::MAX_BIOGRAPHY_LENGTH_ALLOWED)
-              %small.form-text.float-right#bio-chars-counter
+              %small.form-text.float-end#bio-chars-counter
         .modal-footer
           = render partial: 'webui/shared/dialog_action_buttons', locals: { submit_tag_text: 'Update' }
