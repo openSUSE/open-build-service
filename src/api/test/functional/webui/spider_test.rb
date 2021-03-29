@@ -20,6 +20,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return true if link.end_with?('/package/show/home:Iggy/TestPack')
     return true if link.end_with?('/package/show/home:Iggy/ToBeDeletedTestPack')
     return true if link.end_with?('/project/show/home:Iggy')
+    return true if link.end_with?('/package/show/home:Iggy:branches:Apache/apache2')
     return true if link.end_with?('/project/show/home:user6')
     return true if link =~ %r{/live_build_log/BinaryprotectedProject}
     return true if link =~ %r{/live_build_log/SourceprotectedProject}
