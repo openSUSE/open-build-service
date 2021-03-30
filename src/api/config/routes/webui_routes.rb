@@ -356,7 +356,7 @@ OBSApi::Application.routes.draw do
       get 'group/autocomplete' => :autocomplete, as: 'autocomplete_groups'
     end
 
-    resources :groups, only: [], param: :title, constraints: { title: %r{[^/]*} } do
+    resources :groups, only: [], param: :title, constraints: cons do
       resources :user, only: [:create, :destroy, :update], constraints: cons, param: :user_login, controller: 'webui/groups/users'
     end
 

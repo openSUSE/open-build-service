@@ -16,6 +16,7 @@ module RoutesHelper
       service: %r{\w[^/]*},
       title: %r{[^/]*},
       user: %r{[^/]*},
+      user_login: %r{[^/]*},
       repository_publish_build_id: %r{[^/]*},
       workflow_project: %r{[^/]*},
       staging_project_name: %r{[^/]*},
