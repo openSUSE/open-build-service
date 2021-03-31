@@ -322,6 +322,8 @@ OBSApi::Application.routes.draw do
         end
       end
 
+      resources :patchinfos, only: [:index], controller: 'webui/users/patchinfos', as: :my_patchinfos
+
       post 'rss_tokens' => :create, controller: 'webui/users/rss_tokens', as: :my_rss_token
       post 'status_messages/:id' => :acknowledge, controller: 'webui/status_messages', as: :acknowledge_status_message
     end

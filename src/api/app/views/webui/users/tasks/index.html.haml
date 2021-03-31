@@ -61,8 +61,8 @@
         = render(partial: 'webui/shared/requests_table', locals: { id: 'all_requests_table', source_url: user_requests_path(User.session!),
                  page_length: 10 })
 
-- involved_patchinfos = User.session!.involved_patchinfos
-- if involved_patchinfos.present?
+- number_of_involved_patchinfos = User.session!.involved_patchinfos.size
+- if number_of_involved_patchinfos.positive?
   .card.mt-3#patchinfos
     .bg-light
       %ul.nav.nav-tabs.pt-2.px-3.flex-nowrap.collapsible{ role: 'tablist' }
@@ -70,7 +70,7 @@
           %a.nav-link.text-nowrap.active{ href: '#patchinfos-in', title: "Requests that #{User.session!} has to merge" }
             Maintenance Requests
             %span.badge.badge-primary
-              = involved_patchinfos.size
+              = number_of_involved_patchinfos
     .card-body
       .tab-content#patchinfos-in
-        = render(partial: 'webui/shared/patchinfos_table', locals: { involved_patchinfos: involved_patchinfos })
+        = render(partial: 'webui/shared/patchinfos_table', locals: { source_url: my_patchinfos_path })
