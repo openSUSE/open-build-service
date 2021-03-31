@@ -10,7 +10,8 @@
         .card.m-1.p-2.group-user
           - if write_access
             = render(partial: 'webui/groups/group_members_delete_dialog', locals: { user: user, group: group })
-            = link_to('#', data: { toggle: 'modal', target: "#delete-group-members-modal-#{user}" }, title: 'Remove member from group') do
+            = link_to('#', data: { toggle: 'modal', target: "#delete-group-members-modal-#{dom_id(user)}" },
+                      title: 'Remove member from group') do
               .float-right
                 %i.fas.fa-sm.fa-times-circle.text-danger
           .row.no-gutters
