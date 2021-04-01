@@ -15,7 +15,7 @@ class BsRequest
           .offset(@params[:offset])
           .limit(@params[:limit])
           .reorder(@params[:sort])
-          .includes(:bs_request_actions)
+          .preload(:bs_request_actions)
       end
 
       def records_total
