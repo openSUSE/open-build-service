@@ -10,16 +10,16 @@ RSpec.describe "Project", type: :feature do
   end
 
   it "should be able to create" do
-    within("div#personal-navigation") do
-      click_link('Create Home')
+    within("#left-navigation") do
+      click_link('Create Your Home Project')
     end
     click_button('Accept')
     expect(page).to have_content("Project 'home:Admin' was created successfully")
   end
 
   it "should be able to add repositories" do
-    within("div#personal-navigation") do
-      click_link('Home Project')
+    within("#left-navigation") do
+      click_link('Your Home Project')
     end
     click_link('Repositories')
     click_link('Add from a Distribution')
