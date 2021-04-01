@@ -62,6 +62,8 @@ paths:
 
   /build:
     $ref: 'paths/build.yaml'
+  /build/{project_name}:
+    $ref: 'paths/build_project_name.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'

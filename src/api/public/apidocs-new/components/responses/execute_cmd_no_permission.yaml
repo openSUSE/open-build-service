@@ -1,0 +1,13 @@
+description: |
+  Execute command no permission.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    examples:
+      Execute cmd no permission:
+        value:
+          code: execute_cmd_no_permission
+          summary: "No permission to execute command on package <some package> in project <some project>"
