@@ -164,7 +164,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    @requests = @project.open_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
