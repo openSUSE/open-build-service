@@ -98,6 +98,8 @@ paths:
     $ref: 'paths/published.yaml'
   /published/{project_name}:
     $ref: 'paths/published_project_name.yaml'
+  /published/{project_name}/{repository_name}:
+    $ref: 'paths/published_project_name_repository_name.yaml'
 
   /request:
     $ref: 'paths/request.yaml'
