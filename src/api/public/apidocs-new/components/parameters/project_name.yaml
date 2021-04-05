@@ -1,0 +1,7 @@
+in: path
+name: project_name
+schema:
+  type: string
+required: true
+description: Project name
+example: "home:Admin"
