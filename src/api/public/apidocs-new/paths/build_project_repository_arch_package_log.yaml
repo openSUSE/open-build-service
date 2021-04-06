@@ -1,0 +1,54 @@
+get:
+  description: This endpoint returns the last log file for a specific build artifact
+  operationId: getBuildProjectRepositoryArchPackageLog
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description: |
+        This endpoint returns the log file content
+      content:
+        text/plain:
+          example: |
+            [    0s] Memory limit set to 23077696KB
+            [    0s] Using BUILD_ROOT=/var/cache/obs/worker/root_2
+            [    0s] Using BUILD_ARCH=i586:i486:i386
+            [    0s] 
+            [    0s] 
+            [    0s] 5d0262043f4a started "build ctris.spec" at Tue Apr  6 12:27:31 UTC 2021.
+            [    0s] 
+            [    0s] Building ctris for project 'home:Admin' repository 'openSUSE_Tumbleweed' arch 'i586' srcmd5 '6b7c8d9cb5c5d36453c1dc8e102016b1'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        Error: Not Acceptable
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'download_binary_no_permission'
+            summary: 'No permission to download binaries from package ctris, project home:Admin'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build

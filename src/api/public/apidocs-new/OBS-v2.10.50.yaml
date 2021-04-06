@@ -66,6 +66,10 @@ paths:
     $ref: 'paths/build_project_name.yaml'
   /build/{project_name}/_result:
     $ref: 'paths/build_project_name_result.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
+    $ref: 'paths/build_project_repository_arch_package_log.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
+    $ref: 'paths/build_project_repository_arch_package_buildinfo.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'

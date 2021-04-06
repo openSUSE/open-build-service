@@ -1,0 +1,107 @@
+type: object
+properties:
+  project:
+    type: string
+    example: 'home:Admin'
+    xml:
+      attribute: true
+  repository:
+    type: string
+    example: 'openSUSE_Tumbleweed'
+    xml:
+      attribute: true
+  package:
+    type: string
+    example: 'ctris'
+    xml:
+      attribute: true
+  arch:
+    type: string
+    example: 'i586'
+  srcmd5:
+    type: string
+    example: '6b7c8d9cb5c5d36453c1dc8e102016b1'
+  verifymd5:
+    type: string
+    example: '6b7c8d9cb5c5d36453c1dc8e102016b1'
+  rev:
+    type: integer
+    example: 3
+  specfile:
+    type: string
+    example: 'ctris.spec' 
+  file:
+    type: string
+    example: 'ctris.spec'
+  versrel:
+    type: string
+    example: '0.42.1-3'
+  bcnt:
+    type: string
+    example: '2'
+  release:
+    type: string
+    example: '3.2'
+  debuginfo:
+    type: integer
+    example: 0
+  subpack:
+    type: string
+    example: 'ctris'
+  bdep:
+    type: object
+    properties:
+      name:
+        type: string
+        example: 'liblua5_4-5'
+        xml:
+          attribute: true
+      preinstall:
+        type: string
+        example: '1'
+        xml:
+          attribute: true
+      notmeta:
+        type: string
+        example: '1'
+        xml:
+          attribute: true
+      version:
+        type: string
+        example: '5.4.2'
+        xml:
+          attribute: true
+      release:
+        type: string
+        example: '3.1'
+        xml:
+          attribute: true
+      arch:
+        type: string
+        example: 'i586'
+        xml:
+          attribute: true
+      project:
+        type: string
+        example: 'openSUSE.org:openSUSE:Tumbleweed'
+        xml:
+          attribute: true
+      repository:
+        type: string
+        example: 'dod'
+        xml:
+          attribute: true
+  path:
+    project:
+      type: string
+      example: 'home:Admin'
+      xml:
+        attribute: true
+    repository:
+      type: string
+      example: 'openSUSE_Tumbleweed'
+      xml:
+        attribute: true
+
+xml:
+  name: 'buildinfo'
