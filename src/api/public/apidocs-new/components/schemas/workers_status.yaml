@@ -1,0 +1,155 @@
+type: object
+properties:
+  clients:
+    type: integer
+    xml:
+      attribute: true
+  idle:
+    type: array
+    items:
+      type: object
+      properties:
+        workerid:
+          type: string
+          xml:
+            attribute: true
+        hostarch:
+          type: string
+          xml:
+            attribute: true
+  building:
+    type: array
+    items:
+      type: object
+      properties:
+        repository:
+          type: string
+          xml:
+            attribute: true
+        arch:
+          type: string
+          xml:
+            attribute: true
+        project:
+          type: string
+          xml:
+            attribute: true
+        package:
+          type: string
+          xml:
+            attribute: true
+        starttime:
+          type: string
+          xml:
+            attribute: true
+        workerid:
+          type: string
+          xml:
+            attribute: true
+        hostarch:
+          type: string
+          xml:
+            attribute: true
+  down:
+    type: array
+    items:
+      type: object
+      properties:
+        workerid:
+          type: string
+          xml:
+            attribute: true
+        hostarch:
+          type: string
+          xml:
+            attribute: true
+  waiting:
+    type: array
+    items:
+      type: object
+      properties:
+        arch:
+          type: string
+          xml:
+            attribute: true
+        jobs:
+          type: string
+          xml:
+            attribute: true
+  blocked:
+    type: array
+    items:
+      type: object
+      properties:
+        arch:
+          type: string
+          xml:
+            attribute: true
+        jobs:
+          type: string
+          xml:
+            attribute: true
+  buildavg:
+    type: array
+    items:
+      type: object
+      properties:
+        arch:
+          type: string
+          xml:
+            attribute: true
+        buildavg:
+          type: string
+          xml:
+            attribute: true
+  partition:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          xml:
+            attribute: true
+        daemon:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                xml:
+                  attribute: true
+              state:
+                type: string
+                xml:
+                  attribute: true
+              starttime:
+                type: string
+                xml:
+                  attribute: true
+              arch:
+                type: string
+                xml:
+                  attribute: true
+              queue:
+                type: object
+                properties:
+                  high:
+                    type: string
+                    xml:
+                      attribute: true
+                  med:
+                    type: string
+                    xml:
+                      attribute: true
+                  low:
+                    type: string
+                    xml:
+                      attribute: true
+                  next:
+                    type: string
+                    xml:
+                      attribute: true
+xml:
+  name: workerstatus
