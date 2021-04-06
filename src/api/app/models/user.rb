@@ -739,34 +739,12 @@ class User < ApplicationRecord
     search.present? ? result.do_search(search) : result
   end
 
-  # lists running maintenance updates where this user is involved in
+  # TODO: This should be in a query object
   def involved_patchinfos
-    array = []
-
-    ids = PackageIssue.open_issues_of_owner(id).with_patchinfo.distinct.select(:package_id)
-
-    Package.where(id: ids).find_each do |p|
-      hash = { package: { project: p.project.name, name: p.name } }
-      issues = []
-
-      p.issues.each do |is|
-        i = {}
-        i[:name] = is.name
-        i[:tracker] = is.issue_tracker.name
-        i[:label] = is.label
-        i[:url] = is.url
-        i[:summary] = is.summary
-        i[:state] = is.state
-        i[:login] = is.owner.login if is.owner
-        i[:updated_at] = is.updated_at
-        issues << i
-      end
-
-      hash[:issues] = issues
-      array << hash
-    end
-
-    array
+    @involved_patchinfos ||= Package.joins(:issues).includes({ issues: :issue_tracker }, :package_kinds, :project)
+                                    .where(issues: { state: 'OPEN', owner_id: id },
+                                           package_kinds: { kind: 'patchinfo' })
+                                    .distinct
   end
 
   def user_relevant_packages_for_status
