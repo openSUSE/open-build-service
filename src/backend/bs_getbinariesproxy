@@ -153,6 +153,11 @@ sub manage_cache {
 }
 
 
+sub printstats {
+  my ($nhit, $khit, $nmiss, $kmiss, $type) = @_;
+  print "getbinariesproxy statistics: $nhit $khit $nmiss $kmiss $type\n";
+}
+
 sub getbinaries {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -168,6 +173,7 @@ sub getbinaries {
   mkdir_p($cachetmpdir);
   set_maxopen() unless defined $maxopen;
 
+  my ($nhit, $khit, $nmiss, $kmiss) = (0, 0, 0, 0);
   my @binaries = split(',', $cgi->{'binaries'});
   my %bv;
   my @missingbvs;
@@ -287,6 +293,8 @@ sub getbinaries {
       push @downloadbins, $bin;
       $downloadsizek += $bv->{'sizek'};
     } else {
+      $nhit++;
+      $khit += int($s[7] / 1024);
       push @cpio, {'name' => $bv->{'name'}, 'filename' => $binfd} if $binfd;
       push @cpio, {'name' => "$bin.meta", 'filename' => $metafd} if $metafd;
       $openfds++ if $binfd;
@@ -336,6 +344,8 @@ sub getbinaries {
 	  }
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
 	  push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
+	  $nmiss++;
+	  $kmiss += int($s[7] / 1024);
 	} elsif ($r->{'name'} =~ /^\Q$tmpprefix\E(.*)\.meta$/) {
 	  my $n = $1;
 	  next unless $downloadbins{$n};
@@ -362,6 +372,7 @@ sub getbinaries {
     }
     die("too many files to send\n") if $toomany;
   }
+  printstats($nhit, $khit, $nmiss, $kmiss, 'binary');
   BSServer::reply_cpio(\@cpio);
   return undef;
 }
@@ -390,6 +401,7 @@ sub getpreinstallimage {
 	my @s = stat($fd);
 	# put entry on top
 	manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef) if @s;
+	printstats(1, int($s[7] / 1024), 0, 0, 'preinstallimage');
 	BSServer::reply_file($fd, "Content-Type: application/octet-stream");
 	return undef;
       }
@@ -416,6 +428,7 @@ sub getpreinstallimage {
   manage_cache($cachesize, undef, [ [$cacheid, $s[7], $tmpfilename] ]);
   unlink("$tmpfilename.meta");
   unlink($tmpfilename);
+  printstats(0, 0, 1, int($s[7] / 1024), 'preinstallimage');
   BSServer::reply_file($fd, "Content-Type: application/octet-stream");
   return undef;
 }
@@ -439,7 +452,7 @@ my $conf = {
   'maxchild' => 40,
 };
 
-$conf->{'maxchild'} = $BSConfig::binproxy_maxchild if $BSConfig::binproxy_maxchild;
+$conf->{'maxchild'} = $BSConfig::getbinariesproxyserver_maxchild if $BSConfig::getbinariesproxyserver_maxchild;
 
 set_maxopen() unless @ARGV && ($ARGV[0] eq '--test' || $ARGV[0] eq '--stop' || $ARGV[0] eq '--exit');
 
