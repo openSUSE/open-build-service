@@ -1,0 +1,66 @@
+get:
+  summary: Get the build results for packages, architectures and repositories of the specified project.
+  description: Get the build results for packages, architectures and repositories of the specified project.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - summary
+          - status
+          - binarylist
+      description: |
+        Specify which sections should be included in the result list.
+
+        * `status`: Include detailed infos about the build status. **Default**
+        * `summary`: Include the summary of the status values.
+        * `binarylist`: Include a list of generated binary files.
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: Name of the package. Limit results to the specified package.
+      example: 'obs-server'
+    - in: query
+      name: arch
+      schema:
+        type: string
+      description: Name of the build architecture. Limit results to the specified build architecture.
+      example: 'x86_64'
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: Name of the repository. Limit results to the specified repository.
+      example: 'openSUSE_Leap_15.2'
+    - in: query
+      name: lastbuild
+      schema:
+        type: boolean
+      description: Show the last build result (excludes current building job states).
+      example: 1
+    - in: query
+      name: locallink
+      schema:
+        type: boolean
+      description: Include build results from packages with project local links.
+      example: 1
+    - in: query
+      name: multibuild
+      schema:
+        type: boolean
+      description: Include build results from _multibuild definitions.
+      example: 1
+  responses:
+    '200':
+      $ref: '../components/responses/resultlist.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build
