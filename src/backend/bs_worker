@@ -3304,7 +3304,7 @@ sub dobuild {
     push @args, "--vm-worker", $vm_worker_name;
     push @args, "--vm-kernel", $vm_kernel;
     push @args, "--openstack-flavor", "$openstack_flavor";
-  } elsif ($vm eq 'lxc') {
+  } elsif ($vm eq 'lxc' || $vm eq 'docker') {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $vm;
     push @args, '--memory', $vm_memory if $vm_memory;
