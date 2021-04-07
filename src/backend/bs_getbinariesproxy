@@ -154,8 +154,8 @@ sub manage_cache {
 
 
 sub printstats {
-  my ($nhit, $khit, $nmiss, $kmiss, $type) = @_;
-  print "getbinariesproxy statistics: $nhit $khit $nmiss $kmiss $type\n";
+  my ($nhit, $khit, $nmiss, $kmiss, $type, $prpa) = @_;
+  print "getbinariesproxy statistics: $nhit $khit $nmiss $kmiss $type $prpa\n";
 }
 
 sub getbinaries {
@@ -164,6 +164,7 @@ sub getbinaries {
   my $server = $cgi->{'server'};
   my $nometa = $cgi->{'nometa'};
   my $metaonly = $cgi->{'metaonly'};
+  my $prpa = "$projid/$repoid/$arch";
   die("nometa and metaonly?\n") if $nometa && $metaonly;
   if ($cgi->{'now'}) {
     my $waited = time() - $cgi->{'now'};
@@ -241,7 +242,7 @@ sub getbinaries {
       push @cpio, {'name' => $bin, 'error' => $bv->{'error'}};
       next;
     }
-    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+    my $cacheid =  Digest::MD5::md5_hex("$prpa/$bv->{'hdrmd5'}");
     my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
     my $usecache;
     my @s;
@@ -342,7 +343,7 @@ sub getbinaries {
 	    push @cpio, {'name' => "$n.$suf", 'filename' => $fd};
 	    $openfds++;
 	  }
-	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
+	  my $cacheid =  Digest::MD5::md5_hex("$prpa/$id");
 	  push @cachenew, [$cacheid, $s[7], "$cachetmpdir/$r->{'name'}"];
 	  $nmiss++;
 	  $kmiss += int($s[7] / 1024);
@@ -372,7 +373,7 @@ sub getbinaries {
     }
     die("too many files to send\n") if $toomany;
   }
-  printstats($nhit, $khit, $nmiss, $kmiss, 'binary');
+  printstats($nhit, $khit, $nmiss, $kmiss, 'binary', $prpa);
   BSServer::reply_cpio(\@cpio);
   return undef;
 }
@@ -401,7 +402,7 @@ sub getpreinstallimage {
 	my @s = stat($fd);
 	# put entry on top
 	manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef) if @s;
-	printstats(1, int($s[7] / 1024), 0, 0, 'preinstallimage');
+	printstats(1, int($s[7] / 1024), 0, 0, 'preinstallimage', $prpa);
 	BSServer::reply_file($fd, "Content-Type: application/octet-stream");
 	return undef;
       }
@@ -428,7 +429,7 @@ sub getpreinstallimage {
   manage_cache($cachesize, undef, [ [$cacheid, $s[7], $tmpfilename] ]);
   unlink("$tmpfilename.meta");
   unlink($tmpfilename);
-  printstats(0, 0, 1, int($s[7] / 1024), 'preinstallimage');
+  printstats(0, 0, 1, int($s[7] / 1024), 'preinstallimage', $prpa);
   BSServer::reply_file($fd, "Content-Type: application/octet-stream");
   return undef;
 }
