@@ -70,6 +70,8 @@ paths:
     $ref: 'paths/build_project_repository_arch_package_log.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
     $ref: 'paths/build_project_repository_arch_package_buildinfo.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status:
+    $ref: 'paths/build_project_repository_arch_package_status.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
