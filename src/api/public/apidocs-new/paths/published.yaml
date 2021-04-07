@@ -1,0 +1,23 @@
+get:
+  summary: List all the published projects.
+  description: >
+    Get a list of all the projects, all of them are considered published.
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'OBS:Server:Unstable'
+              - name: 'devel:languages:ruby'
+              - name: 'openSUSE:Maintenance:9810'
+              - name: 'zypp:plugins'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Published Binaries

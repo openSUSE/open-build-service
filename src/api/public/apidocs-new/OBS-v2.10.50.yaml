@@ -8,6 +8,7 @@ tags:
   - name: Groups
   - name: Issue Trackers
   - name: Person
+  - name: Published Binaries
   - name: Attribute Namespaces
   - name: Attributes
   - name: Request
@@ -92,6 +93,9 @@ paths:
     $ref: 'paths/person_login_token.yaml'
   /person/{login}/token/{id}:
     $ref: 'paths/person_login_token_id.yaml'
+
+  /published:
+    $ref: 'paths/published.yaml'
 
   /request:
     $ref: 'paths/request.yaml'
