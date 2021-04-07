@@ -104,7 +104,8 @@ paths:
     $ref: 'paths/published_project_name_repository_name_view_status.yaml'
   /published/{project_name}/{repository_name}/{architecture_name}:
     $ref: 'paths/published_project_name_repository_name_architecture_name.yaml'
-
+  /published/{project_name}/{repository_name}/{architecture_name}/{binary_filename}:
+    $ref: 'paths/published_project_name_repository_name_architecture_name_binary_filename.yaml'
 
   /request:
     $ref: 'paths/request.yaml'
