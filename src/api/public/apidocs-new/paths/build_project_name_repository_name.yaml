@@ -1,0 +1,36 @@
+get:
+  summary: List of all architectures the specified project builds against a given repository.
+  description: List of all architectures the specified project builds against a given repository.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+  responses:
+    '200':
+      description: |
+        OK
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'x86_64'
+              - name: 'i586'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 404
+            summary: "project '<project_name>' has no repository '<repository_name>'"
+            details: "404 project '<project_name>' has no repository '<repository_name>'"
+  tags:
+    - Build
