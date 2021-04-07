@@ -13,6 +13,7 @@ tags:
   - name: Request
   - name: Configuration
   - name: Distributions
+  - name: Workers
 
 info:
   description: |
@@ -100,6 +101,9 @@ paths:
     $ref: 'paths/request_id.yaml'
   /request/{id}?cmd=diff:
     $ref: 'paths/request_id_cmd_diff.yaml'
+
+  /worker/status:
+    $ref: 'paths/worker_status.yaml'
 
 components:
   securitySchemes:

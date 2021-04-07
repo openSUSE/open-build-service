@@ -1,0 +1,111 @@
+get:
+  summary: Lists status of workers, jobs, backend services and general statistics.
+  description: |
+    Lists status of workers, running jobs, waiting jobs, status of the backend services and general statistics.
+
+    Other ways to obtain the same information as with this endpoint are:
+      * `GET /worker/_status`
+      * `GET /status/workerstatus`
+      * `GET /build/_workerstatus`
+  security:
+    - basic_authentication: []
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/workers_status.yaml'
+          example:
+            clients: '2'
+            idle:
+              - workerid: '1a1f67b948b6:1'
+                hostarch: 'x86_64'
+            building:
+              - repository: 'openSUSE_11.3_Update'
+                arch: 'x86_64'
+                project: 'home:enzokiel'
+                package: 'android-sdk'
+                starttime: '1289838671'
+                workerid: '1a1f67b948b6:2'
+                hostarch: 'x86_64'
+            down:
+              - workerid: 'armbuild03:1'
+                hostarch: 'aarch64'
+            waiting:
+              - arch: 'i586'
+                jobs: '0'
+              - arch: 'x86_64'
+                jobs: '0'
+            blocked:
+              - arch: 'i586'
+                jobs: '0'
+              - arch: 'x86_64'
+                jobs: '0'
+            buildavg:
+              - arch: 'i586'
+                buildavg: '1200'
+              - arch: 'x86_64'
+                buildavg: '1200'
+            partition:
+              - daemon:
+                - type: 'srcserver'
+                  state: 'running'
+                  starttime: '1617711138'
+                - type: 'servicedispatch'
+                  state: 'running'
+                  starttime: '1617711144'
+                - type: 'service'
+                  state: 'running'
+                  starttime: '1617711144'
+                - type: 'clouduploadserver'
+                  state: 'running'
+                  starttime: '1617711145'
+                - type: 'clouduploadworker'
+                  state: 'running'
+                  starttime: '1617711144'
+                - type: 'scheduler'
+                  arch: 'i586'
+                  state: 'running'
+                  starttime: '1617711145'
+                  queue:
+                    high: '0'
+                    med: '0'
+                    low: '11'
+                    next: '0'
+                - type: 'scheduler'
+                  arch: 'x86_64'
+                  state: 'running'
+                  starttime: '1617711145'
+                  queue:
+                    high: '0'
+                    med: '0'
+                    low: '11'
+                    next: '0'
+                - type: 'repserver'
+                  state: 'running'
+                  starttime: '1617711143'
+                - type: 'dispatcher'
+                  state: 'running'
+                  starttime: '1617711144'
+                - type: 'publisher'
+                  state: 'running'
+                  starttime: '1617711145'
+                - type: 'signer'
+                  state: 'running'
+                  starttime: '1617711146'
+              - name: 'back-main'
+                daemon:
+                  - type: 'scheduler'
+                    arch: 'aarch64'
+                    state: 'running'
+                    starttime: '1617148925'
+                    queue:
+                      high: '0'
+                      med: '1'
+                      low: '4'
+                      next: '22'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+  tags:
+    - Workers
