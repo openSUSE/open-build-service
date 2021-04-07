@@ -101,6 +101,8 @@ paths:
     $ref: 'paths/build_project_name_repository_name.yaml'
   /build/{project_name}/{repository_name}/_buildconfig:
     $ref: 'paths/build_project_name_repository_name_buildconfig.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/_builddepinfo:
+    $ref: 'paths/build_project_name_repository_name_architecture_name_builddepinfo.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
     $ref: 'paths/build_project_repository_arch_package_log.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
