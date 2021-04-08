@@ -106,6 +106,8 @@ paths:
     $ref: 'paths/published_project_name_repository_name_architecture_name.yaml'
   /published/{project_name}/{repository_name}/{architecture_name}/{binary_filename}:
     $ref: 'paths/published_project_name_repository_name_architecture_name_binary_filename.yaml'
+  /published/{project_name}/{repository_name}/{architecture_name}/{binary_filename}?view=ymp:
+    $ref: 'paths/published_project_name_repository_name_architecture_name_binary_filename_view_ymp.yaml'
 
   /request:
     $ref: 'paths/request.yaml'
