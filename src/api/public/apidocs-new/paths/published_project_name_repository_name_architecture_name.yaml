@@ -22,6 +22,8 @@ get:
               - name: 'obs-api-testsuite-rspec-2.11~alpha.20200618T200341.d42d8310aa-lp152.10515.1.x86_64.rpm'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
     '404':
       description: Not Found.
       content:

@@ -23,6 +23,8 @@ get:
               - name: 'x86_64'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
     '404':
       description: Not Found.
       content:

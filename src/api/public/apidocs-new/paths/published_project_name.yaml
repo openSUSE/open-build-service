@@ -21,6 +21,8 @@ get:
               - name: 'openSUSE_15.2'
     '401':
       $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
     '404':
       description: Not Found.
       content:
