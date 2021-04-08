@@ -1,0 +1,89 @@
+get:
+  summary: Get a simple directory listing of all repositories for the specified project
+  description: Get a simple directory listing of all repositories for the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+  responses:
+    '200':
+      description: |
+        OK
+
+        XML Schema used for body validation: [directory.xsd](../schema/directory.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          example:
+            entry:
+              - name: 'openSUSE_Tumbleweed'
+              - name: 'openSUSE_Leap_15.3'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build
+
+post:
+  summary: Apply different actions on builds/build processes of the specified project
+  description: Apply different actions on builds/build processes of the specified project
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: Name of the package. Scope the commands to the specified package.
+      example: 'firefox'
+    - in: query
+      name: arch
+      schema:
+        type: string
+      description: Name of the build architecture. Scope the commands to the specified architectures.
+      example: 'x86_64'
+    - in: query
+      name: repository
+      schema:
+        type: string
+      description: Name of the repository. Scope the commands to the specified repository.
+      example: 'openSUSE_Leap_15.2'
+    - in: query
+      name: cmd
+      required: true
+      schema:
+        type: string
+        enum:
+          - wipe
+          - restartbuild
+          - killbuild
+          - abortbuild
+          - rebuild
+          - unpublish
+          - sendsysrq
+      description: |
+        **NOTE**: All commands described below, can be scoped to a package within the project by setting the `package`
+        parameter.
+
+        * `wipe`: Delete all binaries build by the project.
+        * `restartbuild`: Restart all running build processes inside the project.
+        * `rebuild`: Trigger a rebuild of all packages inside the project.
+        * `abortbuild`: Abort all running build processes for the specified project, marking them as failed.
+        * `killbuild`: Alias for `abortbuild`.
+        * `unpublish`: Delete all published package binaries, for the specified project, from the download repository.
+        * `sendsysrq`: Send a single sysrq character to the kernel of a running build. Character need to be specified
+                       through the `sysrq` parameter. Only a subset of debugging requests are supported (eg. 9, t or w).
+  responses:
+    '200':
+      $ref: '../components/responses/succeeded.yaml'
+    '400':
+      $ref: '../components/responses/illegal_request.yaml'
+    '403':
+      $ref: '../components/responses/execute_cmd_no_permission.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build

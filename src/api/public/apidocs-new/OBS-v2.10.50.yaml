@@ -15,6 +15,7 @@ tags:
   - name: Configuration
   - name: Distributions
   - name: Workers
+  - name: Build
 
 info:
   description: |
@@ -58,6 +59,13 @@ paths:
     $ref: 'paths/attribute_namespace_attribute_name.yaml'
   /attribute/{namespace}/{attribute_name}/_meta:
     $ref: 'paths/attribute_namespace_attribute_name_meta.yaml'
+
+  /build:
+    $ref: 'paths/build.yaml'
+  /build/{project_name}:
+    $ref: 'paths/build_project_name.yaml'
+  /build/{project_name}/_result:
+    $ref: 'paths/build_project_name_result.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
