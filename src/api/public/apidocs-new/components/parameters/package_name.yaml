@@ -5,4 +5,3 @@ schema:
 required: true
 description: Package name
 example: "ctris"
-
