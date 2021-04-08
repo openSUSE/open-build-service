@@ -12,6 +12,37 @@ tags:
   - name: Attribute Namespaces
   - name: Attributes
   - name: Request
+    description: |
+      Please, before using request endpoints, make sure you have read and understood the "Request and Review System" section of
+      the [user guide](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html).
+
+      In the next sections you will see how calls to request endpoints could be combined to fullfill different workflows.
+
+      ## Workflow 1: Create a submit request from package A to package B
+
+      The steps described in this workflow could be easily replicated with this command:
+      `osc createrequest -a submit home:Admin:Origin A home:Admin:Destination B -m "Submit A to B"`
+
+      The logic involved in the creation of a submit request will require to call more endpoints. For the sake of simplicity we suppose, that:
+        - The project `home:Admin:Origin` exists, with a package `A`, and it has a file called `test.txt`.
+        - The latest revision of the package `home:Admin:Origin:A` is `1`.
+        - The project `home:Admin:Destination` doesn't exist.
+        - There aren't any other submit requests previously created with the same source and target.
+
+      To create a submit request, pass the following request body:
+      ```
+      <request>
+        <action type="submit">
+          <source project="home:Admin:Origin" package="A" rev="1"/>
+          <target project="home:Admin:Destination" package="B"/>
+        </action>
+        <state name="new"/>
+        <description>Submit A to B</description>
+      </request>
+      ```
+      ... to this endpoint: `POST /request?cmd=create`
+    externalDocs:
+      url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
   - name: Configuration
   - name: Distributions
   - name: Workers
