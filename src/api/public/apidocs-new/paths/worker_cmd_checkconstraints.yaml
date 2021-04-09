@@ -1,0 +1,114 @@
+post:
+  summary: Lists workers which match a constraints filter.
+  description: |
+    Given a project, package, repository and architecture, list workers which can build with that restrictions, and also match a constraints filter.
+
+    This endpoint doesn't create or modify any data.
+
+    More information about constraints can be found in the
+    [user guide](https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.build_job_constraints.html).
+
+    This operation is the same as `POST /worker/command/run?cmd=checkconstraints`.
+  security:
+    - basic_authentication: []
+  parameters:
+    - in: query
+      name: project
+      schema:
+        type: string
+      required: true
+      example: home:user1
+      description: Project name.
+    - in: query
+      name: repository
+      schema:
+        type: string
+      required: true
+      description: Repository name.
+      example: openSUSE_Tumbleweed
+    - in: query
+      name: arch
+      schema:
+        type: string
+      required: true
+      description: Architecture name.
+      example: x86_64
+    - in: query
+      name: package
+      schema:
+        type: string
+      required: true
+      description: Package name.
+      example: test_package
+  requestBody:
+    description: Constraints XML filter
+    required: true
+    content:
+      application/xml; charset=utf-8:
+        schema:
+          $ref: '../components/schemas/constraints.yaml'
+        examples:
+          cpu_flags:
+            summary: Cpu flags
+            value:
+              hardware:
+                cpu:
+                  flag:
+                    - mmx
+                    - sse2
+          processors:
+            summary: Number of processors
+            value:
+              hardware:
+                processors: 2
+          mix:
+            summary: Linux version and linux flavor
+            value:
+              linux:
+                version:
+                  min: 3.0
+                  max: 4.0
+                flavor: default
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/directory.yaml'
+          examples:
+            two_workers:
+              summary: Two Workers Satisfy the Constraints
+              value:
+                entry:
+                  - name: 'x86_64:1a1f67b948b6:1'
+                  - name: 'x86_64:1a1f67b948b6:2'
+            no_workers:
+              summary: No Workers Satisfy the Constraints
+              value:
+    '400':
+      description: Bad Request.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'missing_parameter'
+            summary: Required Parameter arch missing
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'not_found'
+            summary: |
+              &lt;status code="404"&gt;
+              &lt;summary&gt;repository 'home:Admin/openSUSE_Tumbleweed' has no architecture 'x86_64d'&lt;/summary&gt;
+              &lt;details&gt;404 repository 'home:Admin/openSUSE_Tumbleweed' has no architecture 'x86_64d'&lt;/details&gt;
+              &lt;/status&gt;
+  tags:
+    - Workers

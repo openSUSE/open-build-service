@@ -169,6 +169,8 @@ paths:
     $ref: 'paths/worker_status.yaml'
   /worker/{architecture_name}:{worker_id}:
     $ref: 'paths/worker_architecture_name_worker_id.yaml'
+  /worker?cmd=checkconstraints:
+    $ref: 'paths/worker_cmd_checkconstraints.yaml'
 
 components:
   securitySchemes:
