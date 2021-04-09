@@ -41,6 +41,32 @@ tags:
       </request>
       ```
       ... to this endpoint: `POST /request?cmd=create`
+
+
+      ## Workflow 2: Review a Submit Request
+      **Add a User as Reviewer of a Submit Request**
+
+      First, we make sure that a certain user can review our submit request.
+      We will add the user `test1` as a reviewer of the already created submit request.
+
+      For the sake of simplicity we suppose, that:
+        - There is already a user with login name `test1`.
+        - There is already a submit request with number `33`.
+
+      Adding the user `test1` as a reviewer of the submit request number `33` can be performed with this command:
+      `osc review add -m 'Add user test1 as reviewer' -U test1 33`
+
+      The same action can be done with this API endpoint: `POST /request/33?cmd=addreview&by_user=test1`
+
+      **Mark a Review of a Submit Request as Accepted**
+
+      Now that the user `test1` is a reviewer of the submit request number `33`, this user can review that submit request as `accepted`.
+
+      To review the submit request as `accepted`, issue the following command, using for authentication the login `test1`:
+      `osc review accept -m 'Accept submit request' -U test1 33`
+
+      This can also be done with this API endpoint, using for authentication the login `test1`:
+      `POST /request/33?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
   - name: Configuration
