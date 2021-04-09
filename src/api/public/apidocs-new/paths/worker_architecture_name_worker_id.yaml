@@ -1,0 +1,60 @@
+get:
+  summary: Lists capabilites of a worker.
+  description: |
+    Lists capabilites of a worker.
+
+    This can be useful when checking for constraints.
+
+    This operation is the same as `GET /worker/capability/{architecture_name}:{worker_id}`.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: path
+      name: worker_id
+      schema:
+        type: string
+      required: true
+      description: Worker id.
+      example: '1a1f67b948b6:1'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/worker_capabilities.yaml'
+          example:
+            hostarch: 'x86_64'
+            registerserver: 'http://backend:5252'
+            workerid: '1a1f67b948b6:1'
+            hostlabel: 'OBS_WORKER_SECURITY_LEVEL_'
+            sandbox: 'chroot'
+            linux:
+              version: '5.11.6-1'
+              flavor: 'default'
+            hardware:
+              cpu:
+                flag:
+                  - 'fpu'
+                  - 'vme'
+                  - 'de'
+                  - 'pse'
+                  - 'tsc'
+                  - 'msr'
+              processors: '8'
+              jobs: '1'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: 'remote error: unknown worker (http://backend:5252/worker/x86_64:1a1f67b948bf:1)'
+            details: '404 remote error: unknown worker (http://backend:5252/worker/x86_64:1a1f67b948bf:1)'
+  tags:
+    - Workers
