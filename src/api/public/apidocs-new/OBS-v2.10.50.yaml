@@ -18,7 +18,7 @@ tags:
 
       In the next sections you will see how calls to request endpoints could be combined to fullfill different workflows.
 
-      ## Workflow 1: Create a submit request from package A to package B
+      ## Workflow 1: Create a Submit Request from Package A to Package B
 
       The steps described in this workflow could be easily replicated with this command:
       `osc createrequest -a submit home:Admin:Origin A home:Admin:Destination B -m "Submit A to B"`
