@@ -1,0 +1,35 @@
+get:
+  description: This endpoint returns the build history for a specific artifact
+  operationId: getBuildProjectRepositoryArchPackageHistory
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description:
+        Returns ok when the build status is ok
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/buildhistory.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'unknown_project'
+            summary: 'Project not found: 1'
+
+  tags:
+    - Build

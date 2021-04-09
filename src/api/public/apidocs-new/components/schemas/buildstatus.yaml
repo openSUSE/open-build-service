@@ -1,0 +1,15 @@
+type: object
+properties:
+  package:
+    type: string
+    example: 'ctris'
+    xml:
+      attribute: true
+  code:
+    type: string
+    example: 'failed'
+    xml:
+      attribute: true
+xml:
+  name: 'status'
+
