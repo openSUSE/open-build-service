@@ -1,0 +1,13 @@
+type: object
+properties:
+  explain:
+    type: string
+    example: 'source change'
+  time:
+    type: string
+    example: '1617982407'
+  oldsource:
+    type: string
+    example: 'da9ebc6a12b6da45f9ead3fc2f924889'
+xml:
+  name: reason

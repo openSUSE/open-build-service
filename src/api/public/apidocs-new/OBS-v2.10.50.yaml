@@ -113,6 +113,8 @@ paths:
     $ref: 'paths/build_project_repository_arch_package_status.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_history:
     $ref: 'paths/build_project_repository_arch_package_history.yaml'
+  /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_reason:
+    $ref: 'paths/build_project_repository_arch_package_reason.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
