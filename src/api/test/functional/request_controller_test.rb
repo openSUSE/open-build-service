@@ -202,6 +202,40 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_submit_with_and_without_revision
+    prepare_request_with_user('Iggy', 'buildservice')
+
+    # we have a devel package definition in source
+    get '/source/BaseDistro:Update/pack2/_meta'
+    assert_response :success
+    assert_xml_tag(tag: 'devel')
+
+    post '/request?cmd=create', params: '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="NEW_PACKAGE"/>
+                                   </action>
+                                   <description>Source has a devel package</description>
+                                 </request>'
+    assert_response :success
+    assert_no_xml_tag(tag: 'source', attributes: { rev: 'd430c2f61e4d8999f9ca6ed6667a104e' })
+
+    attrib_type = AttribType.find_by_namespace_and_name('OBS', 'EnforceRevisionsInRequests')
+    attrib = Attrib.create(attrib_type: attrib_type, project: Project.find_by_name('home:Iggy'))
+
+    post '/request?cmd=create', params: '<request>
+                                   <action type="submit">
+                                     <source project="RemoteInstance:BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="NEW_PACKAGE2"/>
+                                   </action>
+                                   <description>Source has a devel package</description>
+                                 </request>'
+    assert_response :success
+    assert_xml_tag(tag: 'source', attributes: { rev: 'd430c2f61e4d8999f9ca6ed6667a104e' })
+
+    attrib.delete
+  end
+
   def test_submit_request_of_new_package
     Backend::Test.start(wait_for_scheduler: true)
 
