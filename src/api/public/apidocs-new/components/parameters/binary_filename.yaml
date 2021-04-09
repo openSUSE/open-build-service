@@ -1,0 +1,7 @@
+in: path
+name: binary_filename
+schema:
+  type: string
+required: true
+description: Binary filename
+example: ctris-0.42.1-8.1.x86_64.rpm

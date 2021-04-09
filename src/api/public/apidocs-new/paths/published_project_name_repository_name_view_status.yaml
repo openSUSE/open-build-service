@@ -1,0 +1,60 @@
+get:
+  summary: Present information about the last publication of the pair project and repository.
+  description: >
+    Get information about the build process (build id, start time, etc.) for the pair project and repository.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - status
+      description: Set this parameter to status in order to get details about the last publication.
+      example: status
+  responses:
+    '200':
+      description: OK. The request has succeeded.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+                example: succeeded
+                xml:
+                  attribute: true
+              starttime:
+                type: integer
+                example: 1617574611
+              endtime:
+                type: integer
+                example: 1617574611
+              buildid:
+                type: integer
+                example: 1569496563
+            xml:
+              name: status
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            project:
+              code: not_found
+              summary: "Couldn't find Project"
+            unknown:
+              value:
+                code: unknown
+  tags:
+    - Published Binaries

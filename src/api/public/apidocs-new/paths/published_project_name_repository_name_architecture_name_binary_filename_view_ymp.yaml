@@ -1,0 +1,58 @@
+get:
+  summary: Generate a ymp pattern that includes the needed repositories to install the given binary.
+  description: >
+    Generate a ymp pattern, which contains the list of packages needed for intalling certain software without having to
+    create dependencies between them.
+
+    Read more about patterns [in this tutorial](https://en.opensuse.org/openSUSE:Build_Service_Tutorial#Create_Patterns).
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+  responses:
+    '200':
+      description: OK.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/ymp_pattern.yaml'
+          example:
+            group:
+              repositories:
+                repository:
+                  - recommended: true
+                    name: OBS:Server:Unstable
+                    summary: Developer versions of the Open Build Service Server
+                    description: These are the developer versions of the tools for the Open Build Service project
+                    url: https://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_15.2
+                  - recommended: false
+                    name: openSUSE:Leap:15.2
+                    summary: openSUSE Leap 15.2
+                    description: openSUSE Leap borrows packages from SLE for the base system
+                    url: http://download.opensuse.org/distribution/leap/15.2/repo/oss
+              software:
+                item:
+                  name: virt-v2v-debuginfo
+                  summary: Debug information for package virt-v2v
+                  description: This package provides debug information for package virt-v2v
+              distversion: openSUSEsLeap 15.2
+            xmlns:os: "http://opensuse.org/Standards/One_Click_Install"
+            xmlns: "http://opensuse.org/Standards/One_Click_Install"
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: not_found
+            summary: "Couldn't find Project"
+  tags:
+    - Published Binaries

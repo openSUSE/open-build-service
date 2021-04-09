@@ -1,0 +1,11 @@
+description: |
+  Forbidden.
+
+  XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+content:
+  application/xml; charset=utf-8:
+    schema:
+      $ref: '../schemas/api_response.yaml'
+    example:
+      code: download_binary_no_permission
+      summary: No permission for binaries from project home:Admin

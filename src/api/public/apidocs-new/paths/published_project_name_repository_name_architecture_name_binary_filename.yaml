@@ -1,0 +1,50 @@
+get:
+  summary: Return the binary file itself.
+  description: >
+    Allow to download the binary file that was published and stored under the directory
+    given by project/repository/architecture/.
+
+    Can response with Media Types like application/x-rpm, text/xml, etc.
+
+    NOTE: Use this only if you absolutely have to, as it doesn't use the redirector.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/binary_filename.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        application/*: # Media Types like application/x-rpm, application/octet-stream
+          schema:
+            type: string
+            format: binary
+        text/xml:
+          schema:
+            type: string
+            format: binary
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      $ref: '../components/responses/download_binary_forbidden.yaml'
+    '404':
+      description: Not Found.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          examples:
+            NotFound:
+              value:
+                code: not_found
+                summary: "Couldn't find Project"
+            NoSuchFile:
+              value:
+                code: 404
+                summary: no such file
+                details: 404 no such file
+  tags:
+    - Published Binaries
