@@ -67,6 +67,33 @@ tags:
 
       This can also be done with this API endpoint, using for authentication the login `test1`:
       `POST /request/33?cmd=changereviewstate&newstate=accepted&by_user=test1`
+
+
+      ## Workflow 3: Approve a Submit Request
+
+      To mark a submit request as approved means that a submit request will be automatically accepted when all the required reviews are accepted.
+
+      For the sake of simplicity let's accept that:
+        - There is already a user with the login name `test1`, which is also a maintainer of the project `home:Admin`.
+        - There is already a submit request with the number `44`.
+        - The user with login name `test1` is a reviewer of the submit request number `44`.
+
+      **Note**: The following commands or endpoints should all be executed as user `test1`.
+
+      **Mark a Submit Request as Approved**
+
+      To mark a request as approved, execute the following command: `osc request approve -m 'Approve submit request' -U test1 44`
+
+      This can also be done with this endpoint (as user `test1`): `POST /request/44?cmd=approve`
+
+      **Review an Already Approved Submit Request as Accepted**
+
+      After adding a review to this submit request with state `accepted`, the submit request will automatically be accepted.
+      This is the same step that has been described previously in the last section *"Review a Submit Request as Accepted"*.
+
+      To perform this operation with `osc`, perform the following command: `osc review accept -m 'Accept submit request' -U test1 44`
+
+      The same can be done with the following endpoint: `POST /request/44?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
   - name: Configuration
