@@ -1,0 +1,39 @@
+get:
+  summary: Return a specific artifact file contents
+  description: |
+    Given a project, repository, architecture and package, retrieve the given file's content.
+  operationId: getBuildProjectRepositoryArchitecturePackageFile
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+  responses:
+    '200':
+      description:
+        Returns the artifact's actual file contents
+      content:
+        application/*:
+          schema:
+            type: string
+            format: binary
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: "project 'home:Admin' has no repository '4'"
+            details: "404 project 'home:Admin' has no repository '4'"
+  tags:
+    - Build
