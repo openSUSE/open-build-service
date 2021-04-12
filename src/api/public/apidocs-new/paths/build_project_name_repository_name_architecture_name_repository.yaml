@@ -1,0 +1,24 @@
+get:
+  summary: List all binaries (produced by all packages of the given project).
+  description: >
+    List all binaries (produced by all packages of the given project) for the specified
+    repository and architecture.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+  responses:
+    '200':
+      description: OK.
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/binarylist.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build
