@@ -297,7 +297,7 @@ class Project
         }
         if dod['master']
           dod_attributes[:masterurl]            = dod['master']['url']
-          dod_attributes[:mastersslfingerprint] = dod['master']['sslfingerprint']
+          dod_attributes[:mastersslfingerprint] = dod['master']['sslfingerprint'] if dod['master']['sslfingerprint'].present?
         end
 
         repository = DownloadRepository.new(dod_attributes)
