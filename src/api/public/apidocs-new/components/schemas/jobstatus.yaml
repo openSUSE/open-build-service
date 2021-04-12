@@ -1,0 +1,24 @@
+type: object
+properties:
+  code:
+    type: string
+    example: 'building'
+    xml:
+      attribute: true
+  starttime:
+    type: string
+    example: '1618222900'
+  lastduration:
+    type: string
+    example: '43'
+  hostarch:
+    type: string
+    example: 'x86_64'
+  uri:
+    type: string
+    example: 'http://172.18.0.5:38963'
+  jobid:
+    type: string
+    example: '17c8d25b92da67f6ec428ea51a9b5342'
+xml:
+  name: jobstatus

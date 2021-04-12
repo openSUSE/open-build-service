@@ -1,0 +1,28 @@
+get:
+  summary: Show the build status of a currently running build job.
+  description: >
+    Show the build status of a currently running build job. Shows an empty
+    result if no build job is running.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+  responses:
+    '200':
+      description: |
+        OK.
+
+        XML Schema used for body validation: [jobstatus.rng](../schema/jobstatus.rng)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/jobstatus.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build
