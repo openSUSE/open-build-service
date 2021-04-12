@@ -1,0 +1,43 @@
+get:
+  summary: Show the build dependencies of packages that are part of the project.
+  description: >
+    Show the build dependencies of packages that are part of the project,
+    for a given repository and architecture.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - in: query
+      name: package
+      schema:
+        type: string
+      description: Name of the package. Limit results to the specified package.
+      example: 'obs-server'
+    - in: query
+      name: view
+      schema:
+        type: string
+        enum:
+          - pkgnames
+          - revpkgnames
+          - order
+      description: |
+        * `pkgnames`: Show whole package dependencies, instead of individual binaries.
+        * `revpkgnames`: Show which packages depend on the provided project/package for
+          the given repository/architecture, and therefore a rebuild gets triggered on change.
+        * `order`: Show packages ordered by dependencies.
+  responses:
+    '200':
+      description: OK
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/builddepinfo.yaml'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build

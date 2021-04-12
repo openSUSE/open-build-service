@@ -1,0 +1,51 @@
+get:
+  summary: Show the build configuration for the specified repository.
+  description: >
+    Show the build configuration for the specified repository. Includes all base package
+    requirements, mappings and macros.
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+  responses:
+    '200':
+      description: OK
+      content:
+        text/plain:
+          example: |
+            %define _project home:Admin
+
+            ### from openSUSE.org:openSUSE:Leap:15.2
+            %define _repository standard
+
+            Macros:
+            %vendor obs://build.some.where/home:Admin
+            %_project home:Admin
+
+            ### from openSUSE.org:openSUSE:Leap:15.2
+
+            %_repository standard
+            :Macros
+
+
+            Release: <CI_CNT>.<B_CNT> spec:lp152.<CI_CNT>.<B_CNT>
+            %define gcc_version 7
+
+            # testing new cycle algorithm
+            BuildFlags: genmetaalgo:1
+
+            # abort the build if the log file didn't move in an hour (seen in libreoffice builds)
+            BuildFlags: logidlelimit:3600
+
+            PublishFlags: ympdist:openSUSE%20Leap%2015.2
+
+            # Help with the switch to the gcc7 provided libs
+            Prefer: -libstdc++6-gcc7 -libtsan0-gcc7 -libgomp1-gcc7 -libgcc_s1-gcc7 -libatomic1-gcc7 -libcilkrts5-gcc7 -libitm1-gcc7
+            Prefer: -liblsan0-gcc7 -libmpx2-gcc7 -libubsan0-gcc7
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      $ref: '../components/responses/unknown_project.yaml'
+  tags:
+    - Build

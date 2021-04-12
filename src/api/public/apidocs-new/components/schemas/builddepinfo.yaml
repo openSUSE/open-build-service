@@ -1,0 +1,32 @@
+type: object
+properties:
+  package:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'memcached'
+          xml:
+            attribute: true
+        source:
+          type: string
+          example: 'memcached'
+        pkgdep:
+          type: array
+          items:
+            type: string
+            example:
+              - 'gzip'
+              - 'obs-server'
+        subpkg:
+          type: array
+          items:
+            type: string
+            example:
+              - 'memcached-devel'
+              - 'memcached-debugsource'
+
+xml:
+  name: builddepinfo

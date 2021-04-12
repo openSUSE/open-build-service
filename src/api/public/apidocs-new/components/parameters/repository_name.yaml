@@ -4,4 +4,4 @@ schema:
   type: string
 required: true
 description: Repository name
-example: "openSUSE:Tumbleweed"
+example: 'openSUSE_Tumbleweed'
