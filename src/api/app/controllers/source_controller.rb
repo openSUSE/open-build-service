@@ -395,8 +395,8 @@ class SourceController < ApplicationController
   def lastevents
     path = get_request_path
 
-    # map to a GET, so we can X-forward it
-    volley_backend_path(path) unless forward_from_backend(path)
+    # force to a GET, so we can X-forward it
+    pass_to_backend(path, force_get: true)
   end
 
   # POST /source?cmd=createmaintenanceincident

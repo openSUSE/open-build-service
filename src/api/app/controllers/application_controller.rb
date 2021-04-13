@@ -156,10 +156,10 @@ class ApplicationController < ActionController::Base
     path + query_string
   end
 
-  def pass_to_backend(path = nil)
+  def pass_to_backend(path = nil, force_get: false)
     path ||= get_request_path
 
-    if request.get? || request.head?
+    if request.get? || request.head? || force_get
       volley_backend_path(path) unless forward_from_backend(path)
       return
     end
