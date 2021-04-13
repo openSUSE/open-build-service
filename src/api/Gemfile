@@ -143,7 +143,7 @@ group :development, :test do
   # for mocking the backend
   gem 'vcr'
   # as alternative to the standard IRB shell
-  gem 'pry', '>= 0.9.12'
+  gem 'pry'
   # add step-by-step debugging and stack navigation capabilities to pry
   gem 'pry-byebug'
   # for style checks

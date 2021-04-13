@@ -494,7 +494,7 @@ DEPENDENCIES
   mocha
   mysql2
   nokogiri
-  pry (>= 0.9.12)
+  pry
   pry-byebug
   pry-rails
   puma
