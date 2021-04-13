@@ -101,6 +101,7 @@ OBSApi::Application.routes.draw do
         get 'package/repositories/:project/:package', to: redirect('/repositories/%{project}/%{package}'), constraints: cons
         # For backward compatibility
         get 'package/files/:project/:package' => :show, constraints: cons
+        get 'package/badge/:project/:package.svg' => :badge, constraints: cons, defaults: { format: 'svg' }
       end
     end
 

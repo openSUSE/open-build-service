@@ -1,0 +1,59 @@
+<%- title = @badge.map { |x| x[:text] }.join(': ') %>
+<%- border_width = 2 %>
+<%- item_padding = 4 %>
+<%- icon_size = 14 %>
+<%- badge_height = 20 %>
+<%- font_size = 11  %>
+<%- total_width = 2 * border_width %>
+<%- @badge.each do |item| %>
+  <%- total_width += 2 * item_padding %>
+  <%- total_width += item[:width] if item.has_key? :text %>
+  <%- total_width += icon_size if item.has_key? :icon %>
+  <%- total_width += item_padding if item.has_key? :icon and item.has_key? :text %>
+<%- end %>
+<svg aria-label="<%= title %>" role="img" version="1.1" viewBox="0 0 <%= total_width %> <%= badge_height %>" width="<%= total_width %>" height="<%= badge_height %>" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <title><%= title %></title>
+ <linearGradient id="s" x2="0" y2="100%">
+  <stop stop-color="#bbb" stop-opacity=".1" offset="0"/>
+  <stop stop-opacity=".1" offset="1"/>
+ </linearGradient>
+ <clipPath id="r">
+  <rect width="<%= total_width %>" height="<%= badge_height %>" rx="3" fill="#fff"/>
+ </clipPath>
+ <g clip-path="url(#r)">
+  <% pre = 0 %>
+  <% @badge.each do |item| %>
+  <% width = 2 * item_padding %>
+  <% width += border_width if item.in?([@badge.first, @badge.last]) %>
+  <% width += icon_size if item.has_key? :icon %>
+  <% width += item_padding if item.has_key? :icon and item.has_key? :text %>
+  <% width += item[:width] if item.has_key? :text %>
+  <%- fill = "#555"    if item[:colour] == 'gray' %>
+  <%- fill = "#97ca00" if item[:colour] == 'green' %>
+  <%- fill = "#dfb317" if item[:colour] == 'yellow' %>
+  <%- fill = "#fe7d37" if item[:colour] == 'orange' %>
+  <%- fill = "#007ec6" if item[:colour] == 'blue' %>
+  <%- fill = "#e05d44" if item[:colour] == 'red' %>
+  <rect x="<%= pre %>" width="<%= width %>" height="<%= badge_height %>" fill="<%= fill %>"/>
+  <% pre += width %>
+  <% end %>
+  <rect width="<%= total_width %>" height="<%= badge_height %>" fill="url(#s)"/>
+ </g>
+ <g font-family="Verdana,Geneva,DejaVu Sans,sans-serif" font-size="<%= font_size %>" text-anchor="middle" text-rendering="geometricPrecision">
+  <% pre = border_width %>
+  <% @badge.each do |item| %>
+    <% pre += item_padding %>
+    <% if item.has_key? :icon %>
+      <image x="<%= pre %>" y="<%= (badge_height - icon_size) / 2 %>" width="<%= icon_size %>" height="<%= icon_size %>" xlink:href="data:<%= item[:icon].content_type %>;base64,<%= Base64.strict_encode64(item[:icon].to_s) %>" xmlns:xlink="http://www.w3.org/1999/xlink"/>
+      <% pre += icon_size %>
+    <% end %>
+    <% pre += item_padding if item.has_key? :icon and item.has_key? :text %>
+    <% if item.has_key? :text %>
+      <text x="<%= pre + (item[:width].to_f / 2) %>" y="<%= (badge_height - (font_size * 0.6)).ceil + 1 %>" fill="#010101" fill-opacity=".3" aria-hidden="true" textLength="<%= item[:width] %>"><%= item[:text] %></text>
+      <text x="<%= pre + (item[:width].to_f / 2) %>" y="<%= (badge_height - (font_size * 0.6)).ceil %>" fill="#fff" textLength="<%= item[:width] %>"><%= item[:text] %></text>
+      <% pre += item[:width] %>
+    <% end %>
+    <% pre += item_padding %>
+  <% end %>
+ </g>
+</svg>
