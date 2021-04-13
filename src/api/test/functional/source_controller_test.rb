@@ -2625,10 +2625,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    person = doc.elements["/project'"].add_element 'person'
+    person = doc.elements['/project'].add_element 'person'
     person.add_attribute(REXML::Attribute.new('userid', 'adrian'))
     person.add_attribute(REXML::Attribute.new('role', 'maintainer'))
-    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt = doc.elements['/project/repository'].add_element 'releasetarget'
     rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
     rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
@@ -2735,7 +2735,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt = doc.elements['/project/repository'].add_element 'releasetarget'
     rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
     rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
@@ -2856,7 +2856,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt = doc.elements['/project/repository'].add_element 'releasetarget'
     rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
     rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     put '/source/home:Iggy/_meta', params: doc.to_s
