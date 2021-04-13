@@ -5,12 +5,15 @@ servers:
 
 tags:
   - name: General Information
+  - name: Attributes
+  - name: Attribute Namespaces
+  - name: Build
+  - name: Configuration
+  - name: Distributions
   - name: Groups
   - name: Issue Trackers
   - name: Person
   - name: Published Binaries
-  - name: Attribute Namespaces
-  - name: Attributes
   - name: Request
     description: |
       Please, before using request endpoints, make sure you have read and understood the "Request and Review System" section of
@@ -96,10 +99,8 @@ tags:
       The same can be done with the following endpoint: `POST /request/44?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
-  - name: Configuration
-  - name: Distributions
   - name: Workers
-  - name: Build
+
 
 info:
   description: |
