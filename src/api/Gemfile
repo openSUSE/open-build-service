@@ -23,8 +23,6 @@ gem 'kaminari'
 gem 'haml'
 # streamline HAML's integration in Rails
 gem 'haml-rails'
-# to avoid tilt downgrade
-gem 'tilt', '>= 1.4.1'
 # to use markdown in the comment system
 gem 'redcarpet'
 # for nested attribute forms
