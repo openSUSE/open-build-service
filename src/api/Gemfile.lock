@@ -491,7 +491,7 @@ DEPENDENCIES
   minitest-ci
   minitest-fail-fast
   minitest-reporters
-  mocha (> 0.13.0)
+  mocha
   mysql2
   nokogiri
   pry (>= 0.9.12)
