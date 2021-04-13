@@ -519,7 +519,7 @@ DEPENDENCIES
   single_test
   strong_migrations
   test-unit
-  thinking-sphinx (> 3.1)
+  thinking-sphinx
   timecop
   uglifier (>= 1.2.2)
   vcr
