@@ -468,7 +468,7 @@ DEPENDENCIES
   dalli
   data_migrate
   database_cleaner-active_record
-  deep_cloneable (~> 3.1.0)
+  deep_cloneable
   delayed_job_active_record
   factory_bot_rails
   faker
