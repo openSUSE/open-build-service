@@ -35,7 +35,7 @@ xml.project(project_attributes) do
           xml_download.archfilter download_repository.archfilter if download_repository.archfilter.present?
           if download_repository.masterurl.present?
             params = { url: download_repository.masterurl }
-            params[:sslfingerprint] = download_repository.mastersslfingerprint
+            params[:sslfingerprint] = download_repository.mastersslfingerprint if download_repository.mastersslfingerprint
             xml_download.master(params)
           end
           xml_download.pubkey download_repository.pubkey if download_repository.pubkey.present?
