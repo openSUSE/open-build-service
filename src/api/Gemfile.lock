@@ -521,7 +521,7 @@ DEPENDENCIES
   test-unit
   thinking-sphinx
   timecop
-  uglifier (>= 1.2.2)
+  uglifier
   vcr
   voight_kampff
   webmock
