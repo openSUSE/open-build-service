@@ -1,6 +1,7 @@
 # Edit this Gemfile to bundle your application's dependencies.
 source 'https://rubygems.org'
 
+# We have a version constraint to tackle Rails updates whenever we have time
 gem 'rails', '~> 6.0'
 
 # as our database
