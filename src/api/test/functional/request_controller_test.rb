@@ -1379,7 +1379,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
-    rt = doc.elements["/project/repository'"].add_element 'releasetarget'
+    rt = doc.elements['/project/repository'].add_element 'releasetarget'
     rt.add_attribute(REXML::Attribute.new('project', 'home:adrian:RT'))
     rt.add_attribute(REXML::Attribute.new('repository', 'rt'))
     rt.add_attribute(REXML::Attribute.new('trigger', 'manual'))
