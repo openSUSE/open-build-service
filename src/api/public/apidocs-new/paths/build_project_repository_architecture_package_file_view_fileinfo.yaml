@@ -1,0 +1,98 @@
+get:
+  summary: This endpoint returns details about an specific artifact
+  description: |
+    Given a project, repository, architecture and package, retrieve the given artifact's details.
+  operationId: getBuildProjectRepositoryArchitecturePackageFileViewFileinfo
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+    - name: view
+      in: query
+      required: true
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - "fileinfo"
+            - "fileinfo_ext"
+  responses:
+    '200':
+      description:
+        Returns details about the artifact
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/fileinfo.yaml'
+          examples:
+            fileinfo:
+              summary: 'view=fileinfo'
+              value: 
+                filename: 'ctris-0.42.1-4.1.x86_64.rpm'
+                name: 'ctris'
+                version: '0.42.1'
+                release: '4.1'
+                arch: 'x86_64'
+                summary: 'Console based tetris clone'
+                description: 'ctris is a colorized, small and flexible Tetris(TM)-clone for the console. Go play!'
+                size: '765725'
+                mtime: '1617270174' 
+                provides:
+                  - 'ctris = 0.42.1-6.2'
+                  - 'ctris(x86-64) = 0.42.1-6.2'
+                requires:
+                  - 'libc.so.6()(64bit)'
+                  - 'libc.so.6(GLIBC_2.2.5)(64bit)'
+            fileinfo_ext:
+              summary: 'view=fileinfo_ext'
+              value: 
+                filename: 'ctris-0.42.1-4.2.x86_64.rpm'
+                name: 'ctris'
+                version: '0.42.1'
+                release: '4.1'
+                arch: 'x86_64'
+                source: 'ctris'
+                summary: 'Console based tetris clone'
+                description: 'ctris is a colorized, small and flexible Tetris(TM)-clone for the console. Go play!'
+                size: '765725'
+                mtime: '1617270174' 
+                provides:
+                  - 'ctris = 0.42.1-6.2'
+                  - 'ctris(x86-64) = 0.42.1-6.2'
+                requires:
+                  - 'libc.so.6()(64bit)'
+                  - 'libc.so.6(GLIBC_2.2.5)(64bit)'
+                provides_ext:
+                  dep: 'ctris(x86-64) = 0.42.1-6.2'
+                requires_ext:
+                  dep: 'libc.so.6()(64bit)'
+                  provided_by:
+                    name: 'glibc'
+                    version: '2.33'
+                    release: '4.1'
+                    arch: 'x86_64'
+                    project: 'openSUSE.org:openSUSE:Tumbleweed'
+                    repository: 'dod'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: "project 'home:Admin' has no repository '4'"
+            details: "404 project 'home:Admin' has no repository '4'"
+  tags:
+    - Build
+

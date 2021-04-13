@@ -1,0 +1,110 @@
+get:
+  summary: Return a specific artifact file contents
+  description: |
+    Given a project, repository, architecture and package, retrieve the given file's content.
+  operationId: getBuildProjectRepositoryArchitecturePackageFile
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - $ref: '../components/parameters/package_name.yaml'
+    - $ref: '../components/parameters/file_name.yaml'
+  responses:
+    '200':
+      description:
+        Returns the artifact's actual file contents
+      content:
+        application/*:
+          schema:
+            type: string
+            format: binary
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: "project 'home:Admin' has no repository '4'"
+            details: "404 project 'home:Admin' has no repository '4'"
+  tags:
+    - Build
+
+put:
+  summary: Update a specific artifact file contents
+  description: |
+    Given a project, repository, architecture and package, update the given file's content.
+
+    This is for Admins only.
+  operationId: putBuildProjectRepositoryArchitecturePackageFile
+  security:
+    - basic_authentication: []
+  parameters:
+    - $ref: '../components/parameters/project_name.yaml'
+    - $ref: '../components/parameters/repository_name.yaml'
+    - $ref: '../components/parameters/architecture_name.yaml'
+    - name: package_name
+      in: path
+      schema:
+        type: array
+        items:
+          type: string
+          enum:
+            - "_repository"
+      required: true
+      description: Package name
+    - $ref: '../components/parameters/file_name.yaml'
+  requestBody:
+    content:
+      plain/text:
+        schema:
+          type: string
+          properties:
+            file:
+              type: string
+              format: binary
+  responses:
+    '200':
+      description:
+        Updates the artifact's file contents
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'ok'
+    '401':
+      $ref: '../components/responses/unauthorized.yaml'
+    '403':
+      description: |
+        No permission to upload binaries for this project
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: 'upload_binary_no_permission'
+            summary: "No permission to upload binaries."
+    '404':
+      description: |
+        Error: Not Found
+
+        XML Schema used for body validation: [status.xsd](../schema/status.xsd)
+      content:
+        application/xml; charset=utf-8:
+          schema:
+            $ref: '../components/schemas/api_response.yaml'
+          example:
+            code: '404'
+            summary: "project 'home:Admin' has no repository '4'"
+            details: "404 project 'home:Admin' has no repository '4'"
+  tags:
+    - Build
