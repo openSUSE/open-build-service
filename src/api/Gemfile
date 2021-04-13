@@ -82,7 +82,7 @@ group :development, :production do
   # to document ruby code
   gem 'rdoc'
   # to not rely on cron+rake
-  gem 'clockwork', '>= 0.7'
+  gem 'clockwork'
   # as interface to LDAP
   gem 'ruby-ldap', require: false
   # to have better logs

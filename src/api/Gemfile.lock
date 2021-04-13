@@ -459,7 +459,7 @@ DEPENDENCIES
   bunny-mock
   capybara
   capybara_minitest_spec
-  clockwork (>= 0.7)
+  clockwork
   cocoon
   codecov
   coderay
