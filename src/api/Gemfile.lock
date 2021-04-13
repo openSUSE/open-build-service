@@ -524,7 +524,7 @@ DEPENDENCIES
   uglifier (>= 1.2.2)
   vcr
   voight_kampff
-  webmock (>= 2.3.0)
+  webmock
   xmlhash
   xmlrpc
   yajl-ruby
