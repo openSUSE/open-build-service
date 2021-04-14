@@ -5,12 +5,15 @@ servers:
 
 tags:
   - name: General Information
+  - name: Attributes
+  - name: Attribute Namespaces
+  - name: Build
+  - name: Configuration
+  - name: Distributions
   - name: Groups
   - name: Issue Trackers
   - name: Person
   - name: Published Binaries
-  - name: Attribute Namespaces
-  - name: Attributes
   - name: Request
     description: |
       Please, before using request endpoints, make sure you have read and understood the "Request and Review System" section of
@@ -96,10 +99,8 @@ tags:
       The same can be done with the following endpoint: `POST /request/44?cmd=changereviewstate&newstate=accepted&by_user=test1`
     externalDocs:
       url: https://openbuildservice.org/help/manuals/obs-user-guide/cha.obs.request_and_review_system.html
-  - name: Configuration
-  - name: Distributions
   - name: Workers
-  - name: Build
+
 
 info:
   description: |
@@ -159,23 +160,23 @@ paths:
   /build/{project_name}/{repository_name}/{architecture_name}/_repository:
     $ref: 'paths/build_project_name_repository_name_architecture_name_repository.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}:
-    $ref: 'paths/build_project_name_repo_name_arch_name_package_name.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_log:
-    $ref: 'paths/build_project_repository_arch_package_log.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_log.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_buildinfo:
-    $ref: 'paths/build_project_repository_arch_package_buildinfo.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_buildinfo.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_status:
-    $ref: 'paths/build_project_repository_arch_package_status.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_status.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_history:
-    $ref: 'paths/build_project_repository_arch_package_history.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_history.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_reason:
-    $ref: 'paths/build_project_repository_arch_package_reason.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_reason.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/_jobstatus:
-    $ref: 'paths/build_project_repository_arch_package_jobstatus.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_jobstatus.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}:
-    $ref: 'paths/build_project_repository_architecture_package_file.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name.yaml'
   /build/{project_name}/{repository_name}/{architecture_name}/{package_name}/{file_name}?view=fileinfo:
-    $ref: 'paths/build_project_repository_architecture_package_file_view_fileinfo.yaml'
+    $ref: 'paths/build_project_name_repository_name_architecture_name_package_name_file_name_view_fileinfo.yaml'
 
   /configuration:
     $ref: 'paths/configuration.yaml'
