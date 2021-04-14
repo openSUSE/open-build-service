@@ -197,7 +197,7 @@ jobs:
             bundle exec rake db:migrate
             bundle exec rake db:seed
             bundle exec rake data:migrate
- 
+
   spider:
     docker:
       - <<: *frontend_backend
@@ -292,6 +292,26 @@ jobs:
       - store_test_results:
           path: /home/frontend/feature
 
+  next_rails:
+    docker:
+      - <<: *frontend_base
+      - <<: *mariadb
+    environment:
+      BUNDLE_GEMFILE: Gemfile.next
+    steps:
+      - attach_workspace:
+         at: .
+      - run: *install_dependencies
+      - run: *init_git_submodule
+      - run: *create_test_db
+      - run: *wait_for_database
+      - run:
+          name: Run specs
+          command: cd src/api && bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
+      - run:
+          name: Run minitest test suite
+          command: cd src/api && bundle exec rake test:api:group1 test:api:group2
+
 workflows:
   version: 2
   test_all:
@@ -322,3 +342,12 @@ workflows:
       - feature:
           requires:
             - checkout_code
+      - next_rails:
+          requires:
+            - checkout_code
+          # Run this job on any upstream (not from a fork) branch starting with the prefix next_rails-
+          # This is to avoid slowing down our continuous integration for branches not related to the next Rails vervion update
+          filters:
+            branches:
+              only:
+                - /next_rails\-.*/
