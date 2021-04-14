@@ -1,0 +1,44 @@
+name: Continuous integration for next Rails version
+
+# Run this workflow on the branch master and on PRs with the prefix next_rails- in their branch name
+on:
+  push:
+    branches:
+      - master
+      - 'next_rails-*'
+  pull_request:
+    branches:
+      - 'next_rails-*'
+
+jobs:
+  next_rails:
+    runs-on: ubuntu-20.04 # This is required, but we're running all steps in the container defined below
+    container:
+      image: registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/frontend-base:latest
+      env:
+        NOKOGIRI_USE_SYSTEM_LIBRARIES: 1
+      options: --user frontend
+    services:
+      database:
+        image: registry.opensuse.org/obs/server/unstable/container/ci/containers/openbuildservice/mariadb:latest
+        # TODO: How to change the command of a service container?
+        # command: |
+        #   /bin/bash -c 'echo -e "[mysqld]\ndatadir = /dev/shm" > /etc/my.cnf.d/obs.cnf && cp -a /var/lib/mysql/* /dev/shm && /usr/lib/mysql/mysql-systemd-helper start'
+        options: --name db
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install dependencies
+        uses: ruby/setup-ruby@v1
+      - name: Install dependencies from src/api/Gemfile.next
+        run: cd ./src/api && && next bundle install --jobs=4 --retry=3
+      - name: Init submodule
+        run: git submodule update --init --recursive --remote
+      - name: Wait for DB
+        run: mysqladmin ping -h db
+      - name: Create database with next Rails version
+        run: cd src/api; next bundle exec rake db:setup RAILS_ENV=test
+      - name: Run specs
+        run: cd src/api && next bundle exec rspec --format progress --format RspecJunitFormatter -o /home/frontend/rspec/rspec.db.xml
+      - name: Run minitest test suite
+        run: cd src/api && next bundle exec rake test:api:group1 test:api:group2
