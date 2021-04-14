@@ -1,7 +1,7 @@
 # Edit this Gemfile to bundle your application's dependencies.
-# This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
+# We have a version constraint to tackle Rails updates whenever we have time
 gem 'rails', '~> 6.0'
 
 # as our database
@@ -9,22 +9,20 @@ gem 'mysql2'
 # for XML handling
 gem 'nokogiri'
 # for delayed tasks
-gem 'delayed_job_active_record', '>= 4.0.0'
+gem 'delayed_job_active_record'
 # to fill errbit
 gem 'airbrake'
 gem 'airbrake-ruby'
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby', require: 'yajl/json_gem'
 # to search the database
-gem 'thinking-sphinx', '> 3.1'
+gem 'thinking-sphinx'
 # to paginate search results
 gem 'kaminari'
 # for abstract HTML
 gem 'haml'
 # streamline HAML's integration in Rails
 gem 'haml-rails'
-# to avoid tilt downgrade
-gem 'tilt', '>= 1.4.1'
 # to use markdown in the comment system
 gem 'redcarpet'
 # for nested attribute forms
@@ -32,7 +30,7 @@ gem 'cocoon'
 # for activerecord lists. Used for AttribValues
 gem 'acts_as_list'
 # to parse a XML string into a ruby hash
-gem 'xmlhash', '>=1.3.6'
+gem 'xmlhash'
 # as authorization system
 gem 'pundit'
 # for password hashing
@@ -63,7 +61,7 @@ gem 'builder'
 # to write the rails metrics directly into InfluxDB.
 gem 'influxdb-rails'
 # for copying objects with their relations
-gem 'deep_cloneable', '~> 3.1.0'
+gem 'deep_cloneable'
 # Server-side datatables
 gem 'ajax-datatables-rails'
 # Add syntax highlight in ruby
@@ -84,7 +82,7 @@ group :development, :production do
   # to document ruby code
   gem 'rdoc'
   # to not rely on cron+rake
-  gem 'clockwork', '>= 0.7'
+  gem 'clockwork'
   # as interface to LDAP
   gem 'ruby-ldap', require: false
   # to have better logs
@@ -119,11 +117,11 @@ group :test do
   # to freeze time
   gem 'timecop'
   # to fake backend replies
-  gem 'webmock', '>= 2.3.0'
+  gem 'webmock'
   # for mocking and stubbing
-  gem 'mocha', '> 0.13.0', require: false
+  gem 'mocha', require: false
   # for testing common Rails functionality with simple one-liners
-  gem 'shoulda-matchers', '~> 4.0'
+  gem 'shoulda-matchers'
   # assigns has been extracted to a gem
   gem 'rails-controller-testing'
   # To generate random data
@@ -145,7 +143,7 @@ group :development, :test do
   # for mocking the backend
   gem 'vcr'
   # as alternative to the standard IRB shell
-  gem 'pry', '>= 0.9.12'
+  gem 'pry'
   # add step-by-step debugging and stack navigation capabilities to pry
   gem 'pry-byebug'
   # for style checks
@@ -180,7 +178,7 @@ end
 # Gems used only for assets and not required in production environments by default.
 group :assets do
   # for minifying JavaScript
-  gem 'uglifier', '>= 1.2.2'
+  gem 'uglifier'
   # to use sass in the asset pipeline
   gem 'sassc-rails'
   # assets for jQuery DataTables

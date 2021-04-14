@@ -459,7 +459,7 @@ DEPENDENCIES
   bunny-mock
   capybara
   capybara_minitest_spec
-  clockwork (>= 0.7)
+  clockwork
   cocoon
   codecov
   coderay
@@ -468,8 +468,8 @@ DEPENDENCIES
   dalli
   data_migrate
   database_cleaner-active_record
-  deep_cloneable (~> 3.1.0)
-  delayed_job_active_record (>= 4.0.0)
+  deep_cloneable
+  delayed_job_active_record
   factory_bot_rails
   faker
   flipper
@@ -491,10 +491,10 @@ DEPENDENCIES
   minitest-ci
   minitest-fail-fast
   minitest-reporters
-  mocha (> 0.13.0)
+  mocha
   mysql2
   nokogiri
-  pry (>= 0.9.12)
+  pry
   pry-byebug
   pry-rails
   puma
@@ -514,19 +514,18 @@ DEPENDENCIES
   ruby-ldap
   sassc-rails
   selenium-webdriver
-  shoulda-matchers (~> 4.0)
+  shoulda-matchers
   simplecov
   single_test
   strong_migrations
   test-unit
-  thinking-sphinx (> 3.1)
-  tilt (>= 1.4.1)
+  thinking-sphinx
   timecop
-  uglifier (>= 1.2.2)
+  uglifier
   vcr
   voight_kampff
-  webmock (>= 2.3.0)
-  xmlhash (>= 1.3.6)
+  webmock
+  xmlhash
   xmlrpc
   yajl-ruby
 
