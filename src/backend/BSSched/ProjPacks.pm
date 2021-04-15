@@ -231,7 +231,7 @@ sub trigger_auto_deep_checks {
     my @mprefix = ("%define _project $projid");
     my $cold = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
     my $cnew = Build::read_config($gctx->{'arch'}, [ @mprefix, split("\n", $newproj->{'config'} || '') ]);
-    if (($cold->{'expandflags:macroserial'} || '') ne ($cold->{'expandflags:macroserial'} || '')) {
+    if (($cold->{'expandflags:macroserial'} || '') ne ($cnew->{'expandflags:macroserial'} || '')) {
       for my $oldrepo (@{$oldproj->{'repository'} || []}) {
 	$badprp{"$projid/$oldrepo->{'name'}"} = 1;
       }
