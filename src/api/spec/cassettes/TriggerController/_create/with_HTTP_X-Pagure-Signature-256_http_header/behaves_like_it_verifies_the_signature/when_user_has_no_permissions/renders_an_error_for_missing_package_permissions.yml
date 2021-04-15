@@ -1,0 +1,385 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_10/_meta?user=user_33
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_10">
+          <title>Time of our Darkness</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_10">
+          <title>Time of our Darkness</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 12:37:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_10/package_10/_meta?user=user_34
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_10" project="project_10">
+          <title>Endless Night</title>
+          <description>Voluptates nam tempora dolorem.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_10" project="project_10">
+          <title>Endless Night</title>
+          <description>Voluptates nam tempora dolorem.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:37:11 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 12:37:12 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_35
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>The Green Bay Tree</title>
+          <description>Qui suscipit culpa praesentium.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>The Green Bay Tree</title>
+          <description>Qui suscipit culpa praesentium.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:37:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="199" vrev="199">
+          <srcmd5>c4879515428254d8bf6d13d6f81d6632</srcmd5>
+          <version>unknown</version>
+          <time>1619440633</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 26 Apr 2021 12:37:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_11/_meta?user=user_36
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_11">
+          <title>Blue Remembered Earth</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_11">
+          <title>Blue Remembered Earth</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 12:37:13 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_11/package_11/_meta?user=user_37
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="project_11">
+          <title>To Say Nothing of the Dog</title>
+          <description>Reprehenderit tempora enim quae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_11" project="project_11">
+          <title>To Say Nothing of the Dog</title>
+          <description>Reprehenderit tempora enim quae.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:37:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_meta?user=user_38
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Recalled to Life</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Recalled to Life</title>
+          <description></description>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 12:37:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_39
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="Apache">
+          <title>O Pioneers!</title>
+          <description>Consequatur nisi perferendis velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="Apache">
+          <title>O Pioneers!</title>
+          <description>Consequatur nisi perferendis velit.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:37:15 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/apache2/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="20" vrev="20">
+          <srcmd5>0fb867aad6c44bfd706c369bc5f675c7</srcmd5>
+          <version>unknown</version>
+          <time>1619440635</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 26 Apr 2021 12:37:15 GMT
+recorded_with: VCR 6.0.0
