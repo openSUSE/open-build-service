@@ -67,7 +67,7 @@ OBSApi::Application.routes.draw do
     post 'trigger/rebuild' => 'trigger#rebuild'
     post 'trigger/release' => 'trigger#release'
     post 'trigger/runservice' => 'trigger#runservice'
-    post 'trigger/webhook' => 'services/webhooks#create'
+    post 'trigger/webhook' => 'trigger#create'
 
     ### /issue_trackers
     resources :issue_trackers, only: [:index, :show, :create, :update, :destroy], param: :name do

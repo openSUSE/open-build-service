@@ -4,9 +4,7 @@ class TriggerController < ApplicationController
   validate_action runservice: { method: :post, response: :status }
 
   before_action :validate_token, :set_package, :set_user, only: [:create]
-
   before_action :disallow_project_param, only: [:release]
-
   before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token, except: [:create]
   #
   # Authentication happens with tokens, so no login is required
@@ -20,6 +18,16 @@ class TriggerController < ApplicationController
   include MaintenanceHelper
 
   include Trigger::Errors
+
+  def create
+    if !@user.is_active? || !@user.can_modify?(@package)
+      render_error message: 'Token not found or not valid.', status: 404
+      return
+    end
+
+    Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
+    render_ok
+  end
 
   def rebuild
     rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
@@ -54,18 +62,6 @@ class TriggerController < ApplicationController
 
     @pkg.sources_changed
   end
-
-  def create
-    if !@user.is_active? || !@user.can_modify?(@package)
-      render_error message: 'Token not found or not valid.', status: 404
-      return
-    end
-
-    Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
-    render_ok
-  end
-
-
 
   private
 
@@ -115,7 +111,6 @@ class TriggerController < ApplicationController
       @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
     end
   end
-
 
   def set_package
     @package = @token.package || Package.get_by_project_and_name(params[:project], params[:package], use_source: true)

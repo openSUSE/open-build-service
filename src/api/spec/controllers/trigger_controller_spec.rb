@@ -1,4 +1,5 @@
 require 'rails_helper'
+require 'webmock/rspec'
 
 RSpec.describe TriggerController, vcr: true do
   let(:admin) { create(:admin_user, :with_home, login: 'foo_admin') }
