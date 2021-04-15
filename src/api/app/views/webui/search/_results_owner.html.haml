@@ -22,7 +22,7 @@
                 .card.m-1.p-2.search-result
                   .row.no-gutters
                     .col-auto
-                      = link_to(user_or_group_show_path(record)) do
+                      = link_to(user_or_group_path(record)) do
                         = image_tag_for(record, size: 60, custom_class: 'align-self-center shadow-lg border border-secondary rounded border-2')
                     .col
                       .card-body.p-0.pl-2

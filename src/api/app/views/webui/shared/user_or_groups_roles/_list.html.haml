@@ -6,7 +6,7 @@
   %tr
     %td.align-middle
       = image_tag_for(record, size: 20)
-      = link_to(display_name(record), user_or_group_show_path(record))
+      = link_to(display_name(record), user_or_group_path(record))
     - roles.each do |role|
       %td.align-middle
         .custom-control.custom-checkbox

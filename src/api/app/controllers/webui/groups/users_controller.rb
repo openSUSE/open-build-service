@@ -11,7 +11,7 @@ module Webui
         user = User.find_by(login: params[:user_login])
         if user.nil?
           flash[:error] = "User '#{params[:user_login]}' not found"
-          redirect_to group_show_path(@group)
+          redirect_to group_path(@group)
           return
         end
 
@@ -22,7 +22,7 @@ module Webui
           flash[:error] = "Couldn't add user '#{user}' to group '#{@group}': #{group_user.errors.full_messages.to_sentence}"
         end
 
-        redirect_to group_show_path(@group)
+        redirect_to group_path(@group)
       end
 
       def destroy
@@ -34,7 +34,7 @@ module Webui
           flash[:error] = "Couldn't remove user '#{@user}' from group '#{@group}'"
         end
 
-        redirect_to group_show_path(@group)
+        redirect_to group_path(@group)
       end
 
       def update

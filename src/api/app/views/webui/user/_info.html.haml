@@ -23,7 +23,7 @@
         %ul
           - groups.each do |group|
             %li
-              = link_to(group_show_path(group)) do
+              = link_to(group_path(group)) do
                 #{group.title}
                 %span.badge.badge-primary.align-baseline
                   #{group.tasks} #{'task'.pluralize(group.tasks)}

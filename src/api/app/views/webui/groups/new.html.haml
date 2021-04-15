@@ -4,7 +4,7 @@
   .card-body
     %h3= @pagetitle
     .col-lg-6.pl-0
-      = form_for(Group.new, url: group_create_path, method: :post) do |form|
+      = form_for(Group.new, url: groups_path, method: :post) do |form|
         .form-group
           = form.label(:title)
           %abbr.text-danger{ title: 'required' } *

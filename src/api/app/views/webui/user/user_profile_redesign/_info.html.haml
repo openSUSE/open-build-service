@@ -18,7 +18,7 @@
       %ul.list-group.list-group-flush
         - groups.each do |group|
           %li.list-group-item.d-flex.justify-content-between.align-items-center.p-2
-            = link_to(group.title, group_show_path(group))
+            = link_to(group.title, group_path(group))
             %span.badge.badge-primary
               #{group.tasks} #{'task'.pluralize(group.tasks)}
 
