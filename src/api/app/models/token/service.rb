@@ -3,16 +3,31 @@ class Token::Service < Token
     'runservice'
   end
 
-  def valid_signature?(signature, body)
-    return false unless signature
+  def code_from_webhook_controller
+    if !@user.is_active? || !@user.can_modify?(@package)
+      render_error message: 'Token not found or not valid.', status: 404
+      return
+    end
 
-    ActiveSupport::SecurityUtils.secure_compare(signature_of(body), signature)
+    Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
+    render_ok
+  end
+
+  def runservice
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+
+    # execute the service in backend
+    pass_to_backend(prepare_path_for_runservice)
+
+    @pkg.sources_changed
   end
 
   private
 
-  def signature_of(body)
-    'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, body)
+  def prepare_path_for_runservice
+    path = @pkg.source_path
+    params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
+    URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
   end
 end
 

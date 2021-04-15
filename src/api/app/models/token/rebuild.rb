@@ -2,6 +2,13 @@ class Token::Rebuild < Token
   def self.token_name
     'rebuild'
   end
+
+  def rebuild
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
+    authorize rebuild_trigger.policy_object, :update?
+    rebuild_trigger.rebuild?
+    render_ok
+  end
 end
 
 # == Schema Information

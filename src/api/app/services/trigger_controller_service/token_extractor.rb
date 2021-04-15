@@ -2,29 +2,60 @@ module TriggerControllerService
   class TokenExtractor
     def initialize(http_request)
       @http_request = http_request
+      @token_id = http_request.params[:id]
+      @body = @http_request.body.read
     end
 
     def call
-      extract_auth_token
-      self
+      if @token_id
+        extract_token_from_request_signature
+      else
+        extract_auth_token_from_headers
+      end
     end
 
-    def extract_auth_token
-      events = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook']
-      @auth_token = if events.any?(@http_request.env['HTTP_X_GITLAB_EVENT'])
-                      'Token ' + @http_request.env['HTTP_X_GITLAB_TOKEN']
-                    else
-                      @http_request.env['HTTP_AUTHORIZATION']
-                    end
+    private
+
+    def extract_auth_token_from_headers
+      auth_token = @http_request.env['HTTP_X_GITLAB_TOKEN'] ||
+                   @http_request.env['HTTP_AUTHORIZATION'].to_s.slice(6..-1)
+      return unless auth_token
+
+      Token.find_by_string!(auth_token) if auth_token.match?(%r{^[A-Za-z0-9+/]+$})
     end
 
-    def valid?
-      @auth_token.present? && @auth_token[0..4] == 'Token' && @auth_token[6..-1].match?(%r{^[A-Za-z0-9+/]+$})
+    def extract_token_from_request_signature
+      token = Token::Service.find_by(id: @token_id)
+      return token if token && token.valid_signature?(signature, @body)
     end
 
-    # it will return a Token subclass or raise ActiveRecord::RecordNotFound
-    def token
-      Token.token_type(@http_request['action']).find_by_string!(@auth_token[6..-1])
+    # from Token::Service
+    def valid_signature?(signature)
+      return false unless signature
+
+      ActiveSupport::SecurityUtils.secure_compare(signature_of(@body), signature)
+    end
+
+    # from Token::Service
+    def signature_of
+      # TODO: use sha256 (from X-Hub-Signature-256)
+      'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, @body)
+    end
+
+    # To trigger the webhook, the sender needs to
+    # generate a signature with a secret token.
+    # The signature needs to be generated over the
+    # payload of the HTTP request and stored
+    # in a HTTP header.
+    # GitHub: HTTP_X_HUB_SIGNATURE
+    # https://developer.github.com/webhooks/securing/
+    # Pagure: HTTP_X-Pagure-Signature-256
+    # https://docs.pagure.org/pagure/usage/using_webhooks.html
+    # Custom signature: HTTP_X_OBS_SIGNATURE
+    def signature
+      @http_request.env['HTTP_X_OBS_SIGNATURE'] ||
+        @http_request.env['HTTP_X_HUB_SIGNATURE'] ||
+        @http_request.env['HTTP_X-Pagure-Signature-256']
     end
   end
 end
