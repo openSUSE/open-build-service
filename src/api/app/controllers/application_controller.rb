@@ -12,6 +12,7 @@ class ApplicationController < ActionController::Base
   include FlipperFeature
 
   include RescueHandler
+  include BackendProxy
 
   # session :disabled => true
 
@@ -103,90 +104,6 @@ class ApplicationController < ActionController::Base
   def add_api_version
     response.headers['X-Opensuse-APIVersion'] = (CONFIG['version']).to_s
   end
-
-  def volley_backend_path(path)
-    logger.debug "[backend] VOLLEY: #{path}"
-    Backend::Test.start
-    backend_http = Net::HTTP.new(CONFIG['source_host'], CONFIG['source_port'])
-    backend_http.read_timeout = 1000
-
-    # we have to be careful with object life cycle. the actual data is
-    # deleted once the tempfile is garbage collected, but isn't kept alive
-    # as the send_file function only references the path to it. So we keep it
-    # for ourselves. And once the controller is garbage collected, it should
-    # be fine to unlink the data
-    @volleyfile = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
-    opts = { url_based_filename: true }
-
-    backend_http.request_get(path) do |res|
-      opts[:status] = res.code
-      opts[:type] = res['Content-Type']
-      res.read_body do |segment|
-        @volleyfile.write(segment)
-      end
-    end
-    opts[:length] = @volleyfile.length
-    opts[:disposition] = 'inline' if ['text/plain', 'text/xml'].include?(opts[:type])
-    # streaming makes it very hard for test cases to verify output
-    opts[:stream] = false if Rails.env.test?
-    send_file(@volleyfile.path, opts)
-    # close the file so it's not staying in the file system
-    @volleyfile.close
-  end
-
-  def download_request
-    file = Tempfile.new('volley', "#{Rails.root}/tmp", encoding: 'ascii-8bit')
-    b = request.body
-    buffer = ''
-    file.write(buffer) while b.read(40_960, buffer)
-    file.close
-    file.open
-    file
-  end
-
-  def get_request_path
-    path = request.path_info
-    query_string = request.query_string
-    if request.form_data?
-      # it's uncommon, but possible that we have both
-      query_string += '&' if query_string.present?
-      query_string += request.raw_post
-    end
-    query_string = '?' + query_string if query_string.present?
-    path + query_string
-  end
-
-  def pass_to_backend(path = nil)
-    path ||= get_request_path
-
-    if request.get? || request.head?
-      volley_backend_path(path) unless forward_from_backend(path)
-      return
-    end
-    case request.method_symbol
-    when :post
-      # for form data we don't need to download anything
-      if request.form_data?
-        response = Backend::Connection.post(path, '', 'Content-Type' => 'application/x-www-form-urlencoded')
-      else
-        file = download_request
-        response = Backend::Connection.post(path, file)
-        file.close!
-      end
-    when :put
-      file = download_request
-      response = Backend::Connection.put(path, file)
-      file.close!
-    when :delete
-      response = Backend::Connection.delete(path)
-    end
-
-    text = response.body
-    send_data(text, type: response.fetch('content-type'),
-                    disposition: 'inline')
-    text
-  end
-  public :pass_to_backend
 
   def require_parameter!(parameter)
     raise MissingParameterError, "Required Parameter #{parameter} missing" unless params.include?(parameter.to_s)
@@ -333,41 +250,6 @@ class ApplicationController < ActionController::Base
   end
 
   private
-
-  def forward_from_backend(path)
-    # apache & mod_xforward case
-    if CONFIG['use_xforward'] && CONFIG['use_xforward'] != 'false'
-      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    # lighttpd 1.5 case
-    if CONFIG['x_rewrite_host']
-      logger.debug "[backend] VOLLEY(lighttpd): #{path}"
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    # nginx case
-    if CONFIG['use_nginx_redirect']
-      logger.debug "[backend] VOLLEY(nginx): #{path}"
-      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    false
-  end
 
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
