@@ -7,15 +7,7 @@ class SourceProjectConfigController < SourceController
 
     sliced_params = slice_and_permit(params, [:rev])
 
-    return if forward_from_backend(config.full_path(sliced_params))
-
-    content = config.content(sliced_params)
-
-    unless content
-      render_404(config.errors.full_messages.to_sentence)
-      return
-    end
-    send_config(content, config.response[:type])
+    pass_to_backend(config.full_path(sliced_params))
   end
 
   # PUT /source/:project/_config
