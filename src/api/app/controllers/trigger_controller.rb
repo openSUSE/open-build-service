@@ -24,9 +24,9 @@ class TriggerController < ApplicationController
   include Trigger::Errors
 
   def create
-    authencation
-    get token
-    pundit
+    authentication   # Done
+    get token        # Done
+    # pundit
     token.call
   end
 
@@ -47,31 +47,33 @@ class TriggerController < ApplicationController
     raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
+  # TODO: rename require_valid_token to something appropriate
   def require_valid_token
     raise TokenNotFound unless @token
 
     User.session = @token.user
 
+    # NOTE: Do we need to report inactive users? Or should we limit the scope to search only in active users?
     raise NoPermissionForInactive unless User.session.is_active?
 
-    if @token.package
-      @pkg = @token.package
-      @pkg_name = @pkg.name
-      @prj = @pkg.project
-    else
-      @prj = Project.get_by_name(params[:project])
-      @pkg_name = params[:package] # for multibuild container
-      opts = if @token.instance_of?(Token::Rebuild)
-               { use_source: false,
-                 follow_project_links: true,
-                 follow_multibuild: true }
-             else
-               { use_source: true,
-                 follow_project_links: false,
-                 follow_multibuild: false }
-             end
-      @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
-    end
+    # if @token.package
+    #   @pkg = @token.package
+    #   @pkg_name = @pkg.name
+    #   @prj = @pkg.project
+    # else
+    #   @prj = Project.get_by_name(params[:project])
+    #   @pkg_name = params[:package] # for multibuild container
+    #   opts = if @token.instance_of?(Token::Rebuild)
+    #            { use_source: false,
+    #              follow_project_links: true,
+    #              follow_multibuild: true }
+    #          else
+    #            { use_source: true,
+    #              follow_project_links: false,
+    #              follow_multibuild: false }
+    #          end
+    #   @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
+    # end
   end
 
   # AUTHORIZATION webhook

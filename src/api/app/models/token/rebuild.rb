@@ -4,12 +4,37 @@ class Token::Rebuild < Token
   end
 
   def rebuild
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
-    authorize rebuild_trigger.policy_object, :update?
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: package, project: package.project, params: params)
+    #authorize rebuild_trigger.policy_object, :update?
     rebuild_trigger.rebuild?
-    render_ok
+    #render_ok
+  end
+
+  def package(project_name, package_name)
+    opts = { use_source: false,
+             follow_project_links: true,
+             follow_multibuild: true }
+    package || Package.get_by_project_and_name(project_name, package_name, opts)
   end
 end
+
+####
+#
+#
+# id     user   package
+#
+# 123456 Admin  nil
+# 123457 Admin  home:Admin:test
+#
+# /trigger/rebuild?token=123456 # This won't work.
+#
+# /trigger/rebuild?token=123456&project=home:Admin&package=test&repository=openSUSE_Tumbleweed&arch=x86_64
+#
+# /trigger/rebuild?token=123457 # This will work.
+#
+# /trigger/rebuild?token=123457&project=IGNORED&package=IGNORED&repository=openSUSE_Tumbleweed&arch=x86_64
+#
+####
 
 # == Schema Information
 #
