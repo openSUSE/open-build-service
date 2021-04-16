@@ -21,7 +21,7 @@ module TriggerControllerService
                    @http_request.env['HTTP_AUTHORIZATION'].to_s.slice(6..-1)
       return unless auth_token
 
-      Token.find_by_string!(auth_token) if auth_token.match?(%r{^[A-Za-z0-9+/]+$})
+      Token.token_type(@http_request['action']).find_by_string!(auth_token) if auth_token.match?(%r{^[A-Za-z0-9+/]+$})
     end
 
     def extract_token_from_request_signature

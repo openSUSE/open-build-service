@@ -10,11 +10,26 @@ class Token < ApplicationRecord
     self.class.token_name
   end
 
-  def package(project_name, package_name)
-    opts = { use_source: true,
-             follow_project_links: false,
-             follow_multibuild: false }
-    package || Package.get_by_project_and_name(project_name, package_name, opts)
+  def self.token_type(action)
+    case action
+    when 'rebuild'
+      Token::Rebuild
+    when 'release'
+      Token::Release
+    else
+      # default is Token::Service
+      Token::Service
+    end
+  end
+
+  # TODO
+  # make sure:
+  # a) the name makes sense
+  # b) it lives in the right place
+  def package_find_options
+    { use_source: true,
+      follow_project_links: false,
+      follow_multibuild: false }
   end
 end
 

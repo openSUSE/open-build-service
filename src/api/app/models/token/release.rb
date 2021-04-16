@@ -3,22 +3,28 @@ class Token::Release < Token
     'release'
   end
 
-  def release
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+  def call(pkg)
+    release(pkg)
+  end
 
-    manual_release_targets = @pkg.project.release_targets.where(trigger: 'manual')
-    raise NoPermissionForPackage.setup('not_found', 404, "#{@pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
+  def release(pkg)
+    # TODO
+    # move authorization to pundit
+    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{pkg} in project #{pkg.project}") unless policy(pkg).update?
+
+    manual_release_targets = pkg.project.release_targets.where(trigger: 'manual')
+    raise NoPermissionForPackage.setup('not_found', 404, "#{pkg.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
-      release_package(@pkg,
+      release_package(pkg,
                       release_target.target_repository,
-                      @pkg.release_target_name,
+                      pkg.release_target_name,
                       { filter_source_repository: release_target.repository,
                         manual: true,
                         comment: 'Releasing via trigger event' })
     end
 
-    render_ok
+    # render_ok
   end
 end
 

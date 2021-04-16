@@ -3,18 +3,18 @@ class Token::Rebuild < Token
     'rebuild'
   end
 
-  def rebuild
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: package, project: package.project, params: params)
-    #authorize rebuild_trigger.policy_object, :update?
-    rebuild_trigger.rebuild?
-    #render_ok
+  def call(pkg)
+    rebuild(pkg)
   end
 
-  def package(project_name, package_name)
-    opts = { use_source: false,
-             follow_project_links: true,
-             follow_multibuild: true }
-    package || Package.get_by_project_and_name(project_name, package_name, opts)
+  def rebuild(pkg)
+    pkg.rebuild({ project: pkg.project, package: pkg })
+  end
+
+  def package_find_options
+    { use_source: false,
+      follow_project_links: true,
+      follow_multibuild: true }
   end
 end
 

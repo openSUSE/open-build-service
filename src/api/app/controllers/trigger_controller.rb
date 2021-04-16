@@ -1,5 +1,5 @@
 class TriggerController < ApplicationController
-  ALLOWED_GITLAB_EVENTS = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook']
+  ALLOWED_GITLAB_EVENTS = ['Push Hook', 'Tag Push Hook', 'Merge Request Hook'].freeze
 
   validate_action rebuild: { method: :post, response: :status }
   validate_action release: { method: :post, response: :status }
@@ -9,6 +9,11 @@ class TriggerController < ApplicationController
   before_action :disallow_project_param, only: [:release]
   before_action :validate_gitlab_event
   before_action :set_token
+
+  # TODO
+  # we have to call it for runservices
+  before_action :require_valid_token
+  # before_action :set_package
   # before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token, except: [:create]
   #
   # Authentication happens with tokens, so no login is required
@@ -24,10 +29,26 @@ class TriggerController < ApplicationController
   include Trigger::Errors
 
   def create
-    authentication   # Done
-    get token        # Done
-    # pundit
-    token.call
+    # authentication   # Done
+    # get token        # Done
+    # pundit           # TODO
+
+    package = set_package # TODO: set_filter, should be named fetch_package, maybe?
+    # the token type inference, we are still doing via action type.
+    @token.call(package) # i.e Token::Rebuild / Token::Release / Token::Service
+    render_ok
+  end
+
+  def rebuild
+    create
+  end
+
+  def release
+    create
+  end
+
+  def runservice
+    create
   end
 
   private
@@ -86,7 +107,8 @@ class TriggerController < ApplicationController
   end
 
   def set_package
-    @package = @token.package || Package.get_by_project_and_name(params[:project], params[:package], use_source: true)
+    @token.package || Package.get_by_project_and_name(params[:project], @token.package_find_options)
+    # @package = @token.package || Package.get_by_project_and_name(params[:project], params[:package], use_source: true)
   end
 
   def set_user

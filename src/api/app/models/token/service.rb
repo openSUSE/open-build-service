@@ -3,32 +3,42 @@ class Token::Service < Token
     'runservice'
   end
 
-  def code_from_webhook_controller
-    if !@user.is_active? || !@user.can_modify?(@package)
-      render_error message: 'Token not found or not valid.', status: 404
-      return
-    end
-
-    Backend::Api::Sources::Package.trigger_services(@package.project.name, @package.name, @user.login)
-    render_ok
+  def call(pkg)
+    runservice(pkg)
   end
 
-  def runservice
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{@pkg} in project #{@pkg.project}") unless policy(@pkg).update?
+  # "runservice" (create action) from webhook_controller
+  # def code_from_webhook_controller
+  def runservice(pkg)
+    # TODO: move it to pundit in the trigger controller
+    # if !@user.is_active? || !@user.can_modify?(@package)
+    #  render_error message: 'Token not found or not valid.', status: 404
+    #  return
+    # end
 
-    # execute the service in backend
-    pass_to_backend(prepare_path_for_runservice)
-
-    @pkg.sources_changed
+    Backend::Api::Sources::Package.trigger_services(pkg.project.name, pkg.name, User.session!.login)
+    # TODO
+    # check if its necessary
+    package.sources_changed
+    # render_ok
   end
 
-  private
+  # "runservice" (runservice action) from trigger controller
+  # def runservice
+  #   # TODO: move it to pundit in the trigger controller
+  #   # raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{package} in project #{@pkg.project}") unless policy(@pkg).update?
 
-  def prepare_path_for_runservice
-    path = @pkg.source_path
-    params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
-    URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
-  end
+  #   # execute the service in backend
+  #   pass_to_backend(prepare_path_for_runservice)
+
+  #   package.sources_changed
+  # end
+
+  # def prepare_path_for_runservice
+  #   path = package.source_path
+  #   params = { cmd: 'runservice', comment: 'runservice via trigger', user: User.session!.login }
+  #   URI(path + build_query_from_hash(params, [:cmd, :comment, :user])).to_s
+  # end
 end
 
 # == Schema Information
