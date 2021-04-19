@@ -9,23 +9,6 @@ class Token::Rebuild < Token
 
     Backend::Api::Sources::Package.rebuild(project_name, package_name, params)
   end
-
-  # authorization needs to check:
-  # sourceaccess => package.check_source_access?
-  # follow_multibuild => already handled by backend (packages names with '*:' in the name)
-
-  opts = if @token.instance_of?(Token::Rebuild)
-    { use_source: false,
-      follow_project_links: true,
-      follow_multibuild: true }
-  else
-    { use_source: true,
-      follow_project_links: false,
-      follow_multibuild: false }
-  end
-
-  @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
-
 end
 
 ####

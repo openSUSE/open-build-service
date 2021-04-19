@@ -120,6 +120,7 @@ class Package < ApplicationRecord
     Project.check_access?(package.project)
   end
 
+  # This returns a package or nil
   def self.check_cache(project, package, opts)
     @key = { 'get_by_project_and_name' => 1, :package => package, :opts => opts }
 
@@ -131,6 +132,7 @@ class Package < ApplicationRecord
                      else
                        project
                      end
+    # pid means package id
     pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
     if pid
       pkg = Package.where(id: pid).includes(:project).first
@@ -170,13 +172,13 @@ class Package < ApplicationRecord
     return pkg if pkg
 
     prj = internal_get_project(project)
-    return unless prj # remote prjs
+    return unless prj # remote projects or can't find the project
 
-    if pkg.nil? && opts[:follow_project_links]
+    if opts[:follow_project_links]
       pkg = prj.find_package(package, opts[:check_update_project])
-    elsif pkg.nil?
+    else
       pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
-      pkg = prj.packages.find_by_name(package) if pkg.nil?
+      pkg ||= prj.packages.find_by_name(package)
     end
 
     # FIXME: Why is this returning nil (the package is not found) if _ANY_ of the
