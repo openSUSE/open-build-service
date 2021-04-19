@@ -7,11 +7,18 @@ module TriggerControllerService
     end
 
     def call
-      if @token_id
-        extract_token_from_request_signature
-      else
-        extract_auth_token_from_headers
-      end
+      token = if @token_id
+                extract_token_from_request_signature
+              else
+                extract_auth_token_from_headers
+              end
+
+      # We need to store in memory the package in order to do authorization
+      token.package_from_association_or_params = token.package || Package.get_by_project_and_name(@http_request.params[:project], @http_request.params[:package],
+                                                                                                  token.package_find_options)
+      raise ActiveRecord::RecordNotFound if token.package_from_association_or_params.nil? # This can happen due to the Package.get_by_project_and_name method
+
+      token
     end
 
     private

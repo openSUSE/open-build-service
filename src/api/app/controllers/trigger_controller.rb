@@ -5,7 +5,7 @@ class TriggerController < ApplicationController
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
 
-  # before_action :validate_token, :set_package, :set_user, only: [:create]
+  # before_action :validate_token, only: [:create]
   before_action :disallow_project_param, only: [:release]
   before_action :validate_gitlab_event
   before_action :set_token
@@ -13,7 +13,6 @@ class TriggerController < ApplicationController
   # TODO
   # we have to call it for runservices
   before_action :require_valid_token
-  # before_action :set_package
   # before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token, except: [:create]
   #
   # Authentication happens with tokens, so no login is required
@@ -33,9 +32,9 @@ class TriggerController < ApplicationController
     # get token        # Done
     # pundit           # TODO
 
-    package = set_package # TODO: set_filter, should be named fetch_package, maybe?
+    authorize @token
     # the token type inference, we are still doing via action type.
-    @token.call(package) # i.e Token::Rebuild / Token::Release / Token::Service
+    @token.call(params) # i.e Token::Rebuild / Token::Release / Token::Service
     render_ok
   end
 
@@ -104,14 +103,5 @@ class TriggerController < ApplicationController
 
     render_error message: 'Token not found or not valid.', status: 403
     false
-  end
-
-  def set_package
-    @token.package || Package.get_by_project_and_name(params[:project], @token.package_find_options)
-    # @package = @token.package || Package.get_by_project_and_name(params[:project], params[:package], use_source: true)
-  end
-
-  def set_user
-    @user = @token.user
   end
 end

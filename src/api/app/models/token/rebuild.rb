@@ -3,15 +3,21 @@ class Token::Rebuild < Token
     'rebuild'
   end
 
+  # TODO: Use package_from_association_or_params instead of package
+  # def call(package:, project:, repository:, architecture:) USE THIS
   def call(params)
     package_name = package&.name || params[:package]
-    project_name = package&.project.name || params[:project]
+    project_name = package&.project.&name || params[:project]
 
     Backend::Api::Sources::Package.rebuild(project_name, package_name, params)
   end
+
+  def package_find_options
+    { use_source: false, follow_project_links: true, follow_multibuild: true }
+  end
 end
 
-####
+#### TODO: keep it or delete
 #
 #
 # id     user   package

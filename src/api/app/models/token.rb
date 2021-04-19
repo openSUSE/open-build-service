@@ -2,6 +2,8 @@ class Token < ApplicationRecord
   belongs_to :user
   belongs_to :package, inverse_of: :tokens
 
+  attr_accessor :package_from_association_or_params
+
   has_secure_token :string
 
   validates :user, presence: true
@@ -22,14 +24,12 @@ class Token < ApplicationRecord
     end
   end
 
-  # TODO
-  # make sure:
-  # a) the name makes sense
-  # b) it lives in the right place
+  def call(_params)
+    raise AbstractMethodCalled
+  end
+
   def package_find_options
-    { use_source: true,
-      follow_project_links: false,
-      follow_multibuild: false }
+    {}
   end
 end
 
