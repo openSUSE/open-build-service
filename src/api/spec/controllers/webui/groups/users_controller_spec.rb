@@ -16,7 +16,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it 'adds the user to the group' do
-        expect(response).to redirect_to(group_show_path(title: group.title))
+        expect(response).to redirect_to(group_path(title: group.title))
         expect(flash[:success]).to eq("Added user '#{user}' to group '#{group}'")
         expect(group.users.where(groups_users: { user_id: user })).to exist
       end
@@ -76,7 +76,7 @@ RSpec.describe Webui::Groups::UsersController do
       end
 
       it 'removes the user from the group' do
-        expect(response).to redirect_to(group_show_path(title: group.title))
+        expect(response).to redirect_to(group_path(title: group.title))
         expect(flash[:success]).to eq("Removed user '#{user}' from group '#{group}'")
         expect(group.users.where(groups_users: { user_id: user })).not_to exist
       end

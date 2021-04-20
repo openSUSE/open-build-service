@@ -7,7 +7,7 @@ RSpec.describe Webui::Groups::BsRequestsController do
     let(:group) { create(:group) }
     let!(:relationship_project_group) { create(:relationship_project_group, group: group, project: target_project) }
     let!(:relationship_project_group2) { create(:relationship_project_group, group: group, project: target_project2) }
-    let(:base_params) { { title: group.title, format: :json, dataTableId: 'requests_in_table' } }
+    let(:base_params) { { group_title: group.title, format: :json, dataTableId: 'requests_in_table' } }
     let(:context_params) { {} }
     let(:params) { base_params.merge(context_params) }
 

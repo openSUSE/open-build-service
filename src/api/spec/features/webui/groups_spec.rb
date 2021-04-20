@@ -11,7 +11,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   end
 
   def group_in_datatable(page, group)
-    expect(page).to have_link(group.title, href: group_show_path(group))
+    expect(page).to have_link(group.title, href: group_path(group))
     group.users.each { |user| expect(page).to have_link(user.login, href: user_path(user)) }
   end
 
@@ -26,7 +26,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   end
 
   it 'visit group show page' do
-    visit group_show_path(group_1)
+    visit group_path(group_1)
 
     # TODO: Remove this line if the dropdown is changed to a scrollable tab
     find('.nav-link.dropdown-toggle').click if mobile?
@@ -55,7 +55,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   end
 
   it 'remove a member from a group' do
-    visit group_show_path(group_1)
+    visit group_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
       click_link('Remove member from group')
@@ -67,7 +67,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   end
 
   it 'give maintainer rights to a group member' do
-    visit group_show_path(group_1)
+    visit group_path(group_1)
 
     within(find('div.group-user', text: admin.login)) do
       check('Maintainer')
@@ -77,7 +77,7 @@ RSpec.describe 'Groups', type: :feature, js: true do
   end
 
   it 'add a group member' do
-    visit group_show_path(group_2)
+    visit group_path(group_2)
 
     click_link('Add Member')
 
