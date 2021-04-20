@@ -3,11 +3,12 @@ module PackageControllerService
     def initialize(options = {})
       @package = options[:package]
       @project = options[:project]
-      @params = options[:params]
+      @repository = options[:repository]
+      @arch = options[:arch]
     end
 
     def rebuild?
-      @package.rebuild(@params.slice(*allowed_params).permit!.to_h)
+      @package.rebuild(package: @package, project: @project, repository: @repository, arch: @arch)
     end
 
     # When we're in a linked project, the package's project points to some other
@@ -25,12 +26,6 @@ module PackageControllerService
 
     def error_message
       "Error while triggering rebuild for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
-    end
-
-    private
-
-    def allowed_params
-      [:project, :package, :repository, :arch]
     end
   end
 end
