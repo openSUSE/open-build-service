@@ -538,7 +538,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def buildresult
     if @project.repositories.any?
-      show_all = params[:show_all] == 'true'
+      show_all = params[:show_all].to_s.casecmp?('true')
       @index = params[:index]
       @buildresults = @package.buildresult(@project, show_all)
       render partial: 'buildstatus', locals: { buildresults: @buildresults,

@@ -387,7 +387,7 @@ class Webui::ProjectController < Webui::WebuiController
   private
 
   def show_all?
-    (params[:all].to_s == 'true')
+    params[:all].to_s.casecmp?('true')
   end
 
   def project_for_datatable

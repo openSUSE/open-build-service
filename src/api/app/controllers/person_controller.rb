@@ -118,7 +118,7 @@ class PersonController < ApplicationController
       # only admin is allowed to change these, ignore for others
       user.state = xml.value('state')
       update_globalroles(user, xml)
-      user.update(ignore_auth_services: xml.value('ignore_auth_services').to_s == 'true')
+      user.update(ignore_auth_services: xml.value('ignore_auth_services').to_s.casecmp?('true'))
 
       if xml['owner']
         user.state = :subaccount

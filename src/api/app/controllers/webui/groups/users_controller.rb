@@ -42,7 +42,7 @@ module Webui
 
         # In the UI we have multiple "maintainer" checkboxes. They need to have different ids and names
         # to avoid conflicting html ids.
-        if params['maintainer'] == 'true'
+        if params['maintainer'].to_s.casecmp?('true')
           # FIXME: This should be an attribute of GroupsUser
           group_maintainer = GroupMaintainer.create(user: @user, group: @group)
           if group_maintainer.valid?
