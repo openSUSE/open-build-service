@@ -39,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Fri, 05 Jun 2020 12:08:48 GMT
+  recorded_at: Tue, 20 Apr 2021 14:16:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -50,7 +50,7 @@ http_interactions:
           <title/>
           <description/>
           <person userid="tom" role="maintainer"/>
-          <repository name="repository_2">
+          <repository name="openSUSE_Leap_15.1">
             <arch>i586</arch>
           </repository>
         </project>
@@ -73,7 +73,7 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '201'
+      - '207'
     body:
       encoding: UTF-8
       string: |
@@ -81,11 +81,11 @@ http_interactions:
           <title></title>
           <description></description>
           <person userid="tom" role="maintainer"/>
-          <repository name="repository_2">
+          <repository name="openSUSE_Leap_15.1">
             <arch>i586</arch>
           </repository>
         </project>
-  recorded_at: Fri, 05 Jun 2020 12:08:48 GMT
+  recorded_at: Tue, 20 Apr 2021 14:16:47 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -93,8 +93,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>In est minus cum.</description>
+          <title>A Glass of Blessings</title>
+          <description>Maxime similique dolores ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -115,18 +115,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '167'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>By Grand Central Station I Sat Down and Wept</title>
-          <description>In est minus cum.</description>
+          <title>A Glass of Blessings</title>
+          <description>Maxime similique dolores ea.</description>
         </package>
-  recorded_at: Fri, 05 Jun 2020 12:08:48 GMT
+  recorded_at: Tue, 20 Apr 2021 14:16:47 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?cmd=rebuild&package=my_package
+    uri: http://backend:5352/build/home:tom?arch=i586&cmd=rebuild&package=my_package&repository=openSUSE_Leap_15.1
     body:
       encoding: UTF-8
       string: ''
@@ -157,5 +157,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 05 Jun 2020 12:08:48 GMT
+  recorded_at: Tue, 20 Apr 2021 14:16:47 GMT
 recorded_with: VCR 6.0.0

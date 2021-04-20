@@ -1288,7 +1288,9 @@ class Package < ApplicationRecord
   #### WARNING: these operations run in build object, not this package object
   def rebuild(params)
     begin
-      Backend::Api::Sources::Package.rebuild(params[:project], params[:package], params)
+      Backend::Api::Sources::Package.rebuild(params[:project], params[:package],
+                                             { repository: params[:repository],
+                                               arch: params[:arch] })
     rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false

@@ -20,7 +20,9 @@ class TriggerController < ApplicationController
   include Trigger::Errors
 
   def rebuild
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj,
+                                                                   repository: params[:repository],
+                                                                   arch: params[:arch])
     authorize rebuild_trigger.policy_object, :update?
     rebuild_trigger.rebuild?
     render_ok
