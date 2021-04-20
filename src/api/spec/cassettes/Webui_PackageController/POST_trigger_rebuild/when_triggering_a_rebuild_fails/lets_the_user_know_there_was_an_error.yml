@@ -39,8 +39,7 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+  recorded_at: Tue, 20 Apr 2021 13:47:23 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/my_package/_meta?user=tom
@@ -48,8 +47,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Repellendus molestiae ut distinctio.</description>
+          <title>An Instant In The Wind</title>
+          <description>Necessitatibus reiciendis tenetur non.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,19 +69,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="my_package" project="home:tom">
-          <title>Look to Windward</title>
-          <description>Repellendus molestiae ut distinctio.</description>
+          <title>An Instant In The Wind</title>
+          <description>Necessitatibus reiciendis tenetur non.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:34 GMT
+  recorded_at: Tue, 20 Apr 2021 13:47:23 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/home:tom?cmd=rebuild&package=my_package&repository=non_existant_repository
+    uri: http://backend:5352/build/home:tom?arch=&cmd=rebuild&package=my_package&repository=non_existant_repository
     body:
       encoding: UTF-8
       string: ''
@@ -98,7 +96,7 @@ http_interactions:
   response:
     status:
       code: 400
-      message: no repository defined
+      message: arch is empty
     headers:
       Content-Type:
       - text/xml
@@ -107,13 +105,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '73'
+      - '65'
     body:
       encoding: UTF-8
       string: |
         <status code="400">
-          <summary>no repository defined</summary>
+          <summary>arch is empty</summary>
         </status>
-    http_version: null
-  recorded_at: Fri, 29 May 2020 15:37:34 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Tue, 20 Apr 2021 13:47:23 GMT
+recorded_with: VCR 6.0.0

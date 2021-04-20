@@ -855,11 +855,12 @@ RSpec.describe Webui::PackageController, vcr: true do
     end
 
     context 'when triggering a rebuild succeeds' do
+      let!(:repository) { create(:repository, project: source_project, architectures: ['i586'], name: 'openSUSE_Leap_15.1') }
+
       before do
-        create(:repository, project: source_project, architectures: ['i586'])
         source_project.store
 
-        post :trigger_rebuild, params: { project: source_project, package: source_package }
+        post :trigger_rebuild, params: { project: source_project, package: source_package, repository: repository.name, arch: 'i586' }
       end
 
       it { expect(flash[:success]).to eq("Triggered rebuild for #{source_project.name}/#{source_package.name} successfully.") }
