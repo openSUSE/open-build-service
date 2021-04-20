@@ -22,6 +22,10 @@ class PackagePolicy < ApplicationPolicy
     true
   end
 
+  def rebuild?
+    return @project if @project != @package.project
+  end
+
   def update?
     user.can_modify?(record)
   end

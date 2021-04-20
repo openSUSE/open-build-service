@@ -5,12 +5,6 @@ class Token::Service < Token
 
   # TODO: Use package_from_association_or_params instead of package
   def call(_params)
-    # TODO: move it to pundit in the trigger controller
-    # if !@user.is_active? || !@user.can_modify?(@package)
-    #  render_error message: 'Token not found or not valid.', status: 404
-    #  return
-    # end
-
     Backend::Api::Sources::Package.trigger_services(package.project.name, package.name, user.login)
     # TODO
     # check if its necessary

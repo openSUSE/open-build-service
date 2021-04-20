@@ -31,21 +31,27 @@ class TriggerController < ApplicationController
     # authentication   # Done
     # get token        # Done
     # pundit           # TODO
-
     authorize @token
+    params[:project]
+    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
+    authorize rebuild_trigger.policy_object, :update?    
+
     # the token type inference, we are still doing via action type.
     @token.call(params) # i.e Token::Rebuild / Token::Release / Token::Service
     render_ok
   end
 
+  # FIXME: Redirect this via routes
   def rebuild
     create
   end
 
+  # FIXME: Redirect this via routes
   def release
     create
   end
 
+  # FIXME: Redirect this via routes
   def runservice
     create
   end
