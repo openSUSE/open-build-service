@@ -18,6 +18,7 @@
       - @architectures.each do |arch|
         .custom-control.custom-checkbox.custom-control-inline
           = check_box_tag('available', true, arch.available, class: 'custom-control-input', id: "arch-#{arch}",
+            onchange: "this.setAttribute('data-params', this.name + '=' + this.checked)",
             data: { remote: true, url: architecture_path(arch), method: :patch })
           %label.custom-control-label.pr-2{ for: "arch-#{arch}" }
             = arch.name
