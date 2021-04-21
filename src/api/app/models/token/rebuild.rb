@@ -5,11 +5,10 @@ class Token::Rebuild < Token
 
   # TODO: Use package_from_association_or_params instead of package
   # def call(package:, project:, repository:, architecture:) USE THIS
-  def call(params)
-    package_name = package&.name || params[:package]
-    project_name = package&.project.&name || params[:project]
-
-    Backend::Api::Sources::Package.rebuild(project_name, package_name, params)
+  def call(options)
+    # TODO: Use the Package#rebuild? instead of calling the Backend directly
+    Backend::Api::Sources::Package.rebuild(package_from_association_or_params.project.name,
+                                           package_from_association_or_params.name)
   end
 
   def package_find_options

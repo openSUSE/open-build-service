@@ -8,18 +8,14 @@ class Token::Release < Token
   end
 
   # TODO: Use package_from_association_or_params instead of package
-  def call(_params)
-    # AUTHORIZATION
-    raise NoPermissionForPackage.setup('no_permission', 403, "no permission for package #{package} in project #{package.project}") unless policy(package).update?
-
-    manual_release_targets = package.project.release_targets.where(trigger: 'manual')
-    # AUTHORIZATION
+  def call(_option)
+    manual_release_targets = package_from_association_or_params.project.release_targets.where(trigger: 'manual')
     raise NoPermissionForPackage.setup('not_found', 404, "#{package.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
-      release_package(package,
+      release_package(package_from_association_or_params,
                       release_target.target_repository,
-                      package.release_target_name,
+                      package_from_association_or_params.release_target_name,
                       { filter_source_repository: release_target.repository,
                         manual: true,
                         comment: 'Releasing via trigger event' })

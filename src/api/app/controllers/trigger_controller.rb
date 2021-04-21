@@ -13,7 +13,6 @@ class TriggerController < ApplicationController
   # new gitlab versions send other data as parameters, which we may need to ignore here. Like the project hash.
   skip_before_action :validate_params
 
-  before_action :disallow_project_param, only: [:release]
   before_action :validate_gitlab_event
   before_action :set_token
   before_action :set_package
@@ -26,21 +25,9 @@ class TriggerController < ApplicationController
       # authentication   # Done
       # get token        # Done
       # pundit           # TODO
-
-      rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @token.package_from_association_or_params,
-                                                                     project: @token.package_from_association_or_params.project,
-                                                                     params: params)
-      authorize rebuild_trigger.policy_object, :update?
-
-      # the token type inference, we are still doing via action type.
-      @token.call(params) # i.e Token::Rebuild / Token::Release / Token::Service
+      @token.call(repository: params[:repository], arch: params[:arch])
       render_ok
     end
-  end
-
-  # FIXME: Redirect this via routes
-  def release
-    create
   end
 
   # FIXME: Redirect this via routes
@@ -49,12 +36,6 @@ class TriggerController < ApplicationController
   end
 
   private
-
-  # TODO: ensure we really need this
-  def disallow_project_param
-    render_error(message: 'You specified a project, but the token defines the project/package to release',
-                 status: 403, errorcode: 'no_permission') if params[:project].present?
-  end
 
   # AUTHENTICATION
   def set_token
@@ -75,5 +56,9 @@ class TriggerController < ApplicationController
                                                                                 @token.package_find_options)
     # This can happen due to the Package.get_by_project_and_name method
     raise ActiveRecord::RecordNotFound if @token.package_from_association_or_params.nil?
+  end
+
+  def token_params
+    params.permit(:project, :package, :repository, :arch)
   end
 end
