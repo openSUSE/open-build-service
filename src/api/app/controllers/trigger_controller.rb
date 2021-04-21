@@ -40,6 +40,7 @@ class TriggerController < ApplicationController
   # AUTHENTICATION
   def set_token
     @token = ::TriggerControllerService::TokenExtractor.new(request).call
+    raise InvalidToken unless @token
   end
 
   def validate_gitlab_event

@@ -13,10 +13,7 @@ RSpec.describe TriggerController, vcr: true do
   render_views
 
   before do
-    allow(User).to receive(:session!).and_return(admin)
-    allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-      -> { OpenStruct.new(valid?: true, token: token) }
-    }
+    allow_any_instance_of(::TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
     package
   end
 
@@ -24,20 +21,20 @@ RSpec.describe TriggerController, vcr: true do
     context 'authentication token is invalid' do
       before do
         allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: false, token: nil) }
+          -> { nil }
         }
-        post :rebuild, params: { format: :xml }
+        post :create, params: { format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
     end
 
     context 'when token is valid and packet rebuild' do
-      let(:token) { Token::Rebuild.create(user: admin, package: package) }
+      let!(:token) { Token::Rebuild.create(user: admin, package: package) }
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
-        post :rebuild, params: { format: :xml }
+        post :create, params: { format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
