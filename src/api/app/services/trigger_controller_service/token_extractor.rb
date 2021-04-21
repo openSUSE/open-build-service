@@ -30,16 +30,14 @@ module TriggerControllerService
       return token if token && token.valid_signature?(signature, @body)
     end
 
-    # from Token::Service
     def valid_signature?(signature)
       return false unless signature
 
       ActiveSupport::SecurityUtils.secure_compare(signature_of(@body), signature)
     end
 
-    # from Token::Service
     def signature_of
-      # TODO: use sha256 (from X-Hub-Signature-256)
+      # FIXME: use sha256 (from X-Hub-Signature-256)
       'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, @body)
     end
 

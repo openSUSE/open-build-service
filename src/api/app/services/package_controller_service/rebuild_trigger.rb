@@ -12,13 +12,9 @@ module PackageControllerService
 
     # When we're in a linked project, the package's project points to some other
     # project, not the one we're triggering the build from.
-    def linked_project?
-      @project != @package.project if @package
-    end
-
-    # Here we detect if we're on a linked project, and if so, we authorize against the linked project.
+    # Here we detect that, and if so, we authorize against the linked project.
     def policy_object
-      return @project if linked_project?
+      return @project if @project != @package.project
 
       @package
     end
