@@ -9,7 +9,7 @@ class Webui::ArchitecturesController < Webui::WebuiController
   def update
     architecture = Architecture.find(params[:id])
 
-    if architecture.update(available: params[:available] == 'true')
+    if architecture.update(available: params[:available].to_s.casecmp?('true'))
       flash.now[:success] = "Updated architecture '#{architecture.name}'"
       ::Configuration.write_to_backend
       status = :ok
