@@ -3,12 +3,10 @@ class Token::Service < Token
     'runservice'
   end
 
-  # TODO: Use package_from_association_or_params instead of package
-  def call(_params)
-    Backend::Api::Sources::Package.trigger_services(package.project.name, package.name, user.login)
-    # TODO
-    # check if its necessary
-    package.sources_changed
+  def call(_options)
+    Backend::Api::Sources::Package.trigger_services(package_from_association_or_params.project.name,
+                                                    package_from_association_or_params.name,
+                                                    user.login)
   end
 
   def package_find_options

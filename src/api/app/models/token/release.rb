@@ -1,16 +1,14 @@
 class Token::Release < Token
-  # TODO: refactor this out of the helper
-  # to get access to the method release_package
+  # FIXME: refactor this out of the helper to get access to the method release_package
   include MaintenanceHelper
 
   def self.token_name
     'release'
   end
 
-  # TODO: Use package_from_association_or_params instead of package
-  def call(_option)
+  def call(_options)
     manual_release_targets = package_from_association_or_params.project.release_targets.where(trigger: 'manual')
-    raise NoPermissionForPackage.setup('not_found', 404, "#{package.project} has no release targets that are triggered manually") unless manual_release_targets.any?
+    raise NoPermissionForPackage.setup('not_found', 404, "#{package_from_association_or_params.project} has no release targets that are triggered manually") unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
       release_package(package_from_association_or_params,

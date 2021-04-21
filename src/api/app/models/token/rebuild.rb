@@ -3,36 +3,17 @@ class Token::Rebuild < Token
     'rebuild'
   end
 
-  # TODO: Use package_from_association_or_params instead of package
-  # def call(package:, project:, repository:, architecture:) USE THIS
   def call(options)
     # TODO: Use the Package#rebuild? instead of calling the Backend directly
     Backend::Api::Sources::Package.rebuild(package_from_association_or_params.project.name,
-                                           package_from_association_or_params.name)
+                                           package_from_association_or_params.name,
+                                           options)
   end
 
   def package_find_options
     { use_source: false, follow_project_links: true, follow_multibuild: true }
   end
 end
-
-#### TODO: keep it or delete
-#
-#
-# id     user   package
-#
-# 123456 Admin  nil
-# 123457 Admin  home:Admin:test
-#
-# /trigger/rebuild?token=123456 # This won't work.
-#
-# /trigger/rebuild?token=123456&project=home:Admin&package=test&repository=openSUSE_Tumbleweed&arch=x86_64
-#
-# /trigger/rebuild?token=123457 # This will work.
-#
-# /trigger/rebuild?token=123457&project=IGNORED&package=IGNORED&repository=openSUSE_Tumbleweed&arch=x86_64
-#
-####
 
 # == Schema Information
 #

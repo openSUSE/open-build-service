@@ -66,7 +66,7 @@ OBSApi::Application.routes.draw do
     ### /trigger
     post 'trigger/rebuild' => 'trigger#create'
     post 'trigger/release' => 'trigger#create'
-    post 'trigger/runservice' => 'trigger#runservice'
+    post 'trigger/runservice' => 'trigger#create'
     post 'trigger/webhook' => 'trigger#create'
 
     ### /issue_trackers
