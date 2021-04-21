@@ -1,4 +1,8 @@
 class Token::Release < Token
+  # TODO: refactor this out of the helper
+  # to get access to the method release_package
+  include MaintenanceHelper
+
   def self.token_name
     'release'
   end

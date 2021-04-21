@@ -1,6 +1,8 @@
 module Trigger::Errors
   extend ActiveSupport::Concern
 
+  # TODO: check which errors are used.
+
   class NoPermissionForInactive < APIError
     setup 403, 'no permission due to inactive user'
   end

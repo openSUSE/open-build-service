@@ -7,18 +7,11 @@ module TriggerControllerService
     end
 
     def call
-      token = if @token_id
-                extract_token_from_request_signature
-              else
-                extract_auth_token_from_headers
-              end
-
-      # We need to store in memory the package in order to do authorization
-      token.package_from_association_or_params = token.package || Package.get_by_project_and_name(@http_request.params[:project], @http_request.params[:package],
-                                                                                                  token.package_find_options)
-      raise ActiveRecord::RecordNotFound if token.package_from_association_or_params.nil? # This can happen due to the Package.get_by_project_and_name method
-
-      token
+      if @token_id
+        extract_token_from_request_signature
+      else
+        extract_auth_token_from_headers
+      end
     end
 
     private
@@ -26,9 +19,10 @@ module TriggerControllerService
     def extract_auth_token_from_headers
       auth_token = @http_request.env['HTTP_X_GITLAB_TOKEN'] ||
                    @http_request.env['HTTP_AUTHORIZATION'].to_s.slice(6..-1)
+
       return unless auth_token
 
-      Token.token_type(@http_request['action']).find_by_string!(auth_token) if auth_token.match?(%r{^[A-Za-z0-9+/]+$})
+      Token.find_by_string!(auth_token) if auth_token.match?(%r{^[A-Za-z0-9+/]+$})
     end
 
     def extract_token_from_request_signature

@@ -5,45 +5,37 @@ class TriggerController < ApplicationController
   validate_action release: { method: :post, response: :status }
   validate_action runservice: { method: :post, response: :status }
 
-  # before_action :validate_token, only: [:create]
+  # Authentication happens with tokens, so extracting the user is not required
+  skip_before_action :extract_user
+  # Authentication happens with tokens, so no login is required
+  skip_before_action :require_login
+  # TODO: check if we really need to skip this before action
+  # new gitlab versions send other data as parameters, which we may need to ignore here. Like the project hash.
+  skip_before_action :validate_params
+
   before_action :disallow_project_param, only: [:release]
   before_action :validate_gitlab_event
   before_action :set_token
-
-  # TODO
-  # we have to call it for runservices
-  before_action :require_valid_token
-  # before_action :extract_auth_from_request, :validate_auth_token, :require_valid_token, except: [:create]
-  #
-  # Authentication happens with tokens, so no login is required
-  #
-  skip_before_action :extract_user
-  skip_before_action :require_login
-  skip_before_action :validate_params # new gitlab versions send other data as parameters,
-  # which which we may need to ignore here. Like the project hash.
-
-  # to get access to the method release_package
-  include MaintenanceHelper
+  before_action :set_package
 
   include Trigger::Errors
 
   def create
-    # authentication   # Done
-    # get token        # Done
-    # pundit           # TODO
     authorize @token
-    params[:project]
-    rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @pkg, project: @prj, params: params)
-    authorize rebuild_trigger.policy_object, :update?    
+    @token.user.run_as do
+      # authentication   # Done
+      # get token        # Done
+      # pundit           # TODO
 
-    # the token type inference, we are still doing via action type.
-    @token.call(params) # i.e Token::Rebuild / Token::Release / Token::Service
-    render_ok
-  end
+      rebuild_trigger = PackageControllerService::RebuildTrigger.new(package: @token.package_from_association_or_params,
+                                                                     project: @token.package_from_association_or_params.project,
+                                                                     params: params)
+      authorize rebuild_trigger.policy_object, :update?
 
-  # FIXME: Redirect this via routes
-  def rebuild
-    create
+      # the token type inference, we are still doing via action type.
+      @token.call(params) # i.e Token::Rebuild / Token::Release / Token::Service
+      render_ok
+    end
   end
 
   # FIXME: Redirect this via routes
@@ -58,8 +50,10 @@ class TriggerController < ApplicationController
 
   private
 
+  # TODO: ensure we really need this
   def disallow_project_param
-    render_error(message: 'You specified a project, but the token defines the project/package to release', status: 403, errorcode: 'no_permission') if params[:project].present?
+    render_error(message: 'You specified a project, but the token defines the project/package to release',
+                 status: 403, errorcode: 'no_permission') if params[:project].present?
   end
 
   # AUTHENTICATION
@@ -73,41 +67,13 @@ class TriggerController < ApplicationController
     raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
-  # TODO: rename require_valid_token to something appropriate
-  def require_valid_token
-    raise TokenNotFound unless @token
-
-    User.session = @token.user
-
-    # NOTE: Do we need to report inactive users? Or should we limit the scope to search only in active users?
-    raise NoPermissionForInactive unless User.session.is_active?
-
-    # if @token.package
-    #   @pkg = @token.package
-    #   @pkg_name = @pkg.name
-    #   @prj = @pkg.project
-    # else
-    #   @prj = Project.get_by_name(params[:project])
-    #   @pkg_name = params[:package] # for multibuild container
-    #   opts = if @token.instance_of?(Token::Rebuild)
-    #            { use_source: false,
-    #              follow_project_links: true,
-    #              follow_multibuild: true }
-    #          else
-    #            { use_source: true,
-    #              follow_project_links: false,
-    #              follow_multibuild: false }
-    #          end
-    #   @pkg = Package.get_by_project_and_name(params[:project].to_s, params[:package].to_s, opts)
-    # end
-  end
-
-  # AUTHORIZATION webhook
-  def validate_token
-    @token = Token::Service.find_by(id: params[:id])
-    return if @token && @token.valid_signature?(signature, request.body.read)
-
-    render_error message: 'Token not found or not valid.', status: 403
-    false
+  def set_package
+    # We need to store in memory the package in order to do authorization
+    @token.package_from_association_or_params = @token.package ||
+                                                Package.get_by_project_and_name(params[:project],
+                                                                                params[:package],
+                                                                                @token.package_find_options)
+    # This can happen due to the Package.get_by_project_and_name method
+    raise ActiveRecord::RecordNotFound if @token.package_from_association_or_params.nil?
   end
 end
