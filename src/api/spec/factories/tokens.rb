@@ -16,5 +16,13 @@ FactoryBot.define do
         package_from_association_or_params { package }
       end
     end
+    factory :release_token, class: 'Token::Release' do
+      type { 'Token::Release' }
+      user
+      package
+      trait :with_package_from_association_or_param do
+        package_from_association_or_params { package }
+      end
+    end
   end
 end
