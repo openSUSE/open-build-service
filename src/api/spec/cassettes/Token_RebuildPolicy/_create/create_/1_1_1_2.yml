@@ -1,0 +1,157 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>The Moon by Night</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_3">
+          <title>The Moon by Night</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="project_3">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sapiente similique quibusdam soluta.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_3" project="project_3">
+          <title>The Stars' Tennis Balls</title>
+          <description>Sapiente similique quibusdam soluta.</description>
+        </package>
+  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>As I Lay Dying</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>As I Lay Dying</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/package_4/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_4">
+          <title>Sleep the Brave</title>
+          <description>Veritatis totam maxime et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_4">
+          <title>Sleep the Brave</title>
+          <description>Veritatis totam maxime et.</description>
+        </package>
+  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+recorded_with: VCR 6.0.0
