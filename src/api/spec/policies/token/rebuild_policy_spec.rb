@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe Token::RebuildPolicy, vcr: true do
+RSpec.describe Token::RebuildPolicy do
   let!(:user) { create(:confirmed_user, login: 'foo') }
   let!(:project) { create(:project, maintainer: user) }
   let!(:package) { create(:package, project: project) }

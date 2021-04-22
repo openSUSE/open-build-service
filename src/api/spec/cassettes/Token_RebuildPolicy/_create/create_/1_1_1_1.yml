@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/_meta?user=user_1
+    uri: http://backend:5352/source/project_1/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>I Will Fear No Evil</title>
+          <title>Stranger in a Strange Land</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '155'
     body:
       encoding: UTF-8
       string: |
         <project name="project_1">
-          <title>I Will Fear No Evil</title>
+          <title>Stranger in a Strange Land</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+  recorded_at: Thu, 22 Apr 2021 11:38:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_2
+    uri: http://backend:5352/source/project_1/package_1/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Other Side of Silence</title>
-          <description>Sed voluptatem eveniet culpa.</description>
+          <title>The Parliament of Man</title>
+          <description>Asperiores perferendis voluptatem delectus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,23 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '170'
     body:
       encoding: UTF-8
       string: |
         <package name="package_1" project="project_1">
-          <title>The Other Side of Silence</title>
-          <description>Sed voluptatem eveniet culpa.</description>
+          <title>The Parliament of Man</title>
+          <description>Asperiores perferendis voluptatem delectus.</description>
         </package>
-  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+  recorded_at: Thu, 22 Apr 2021 11:38:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/_meta?user=user_3
+    uri: http://backend:5352/source/project_2/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>Blithe Spirit</title>
+          <title>Wildfire at Midnight</title>
           <description/>
         </project>
     headers:
@@ -107,24 +107,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '99'
+      - '106'
     body:
       encoding: UTF-8
       string: |
         <project name="project_2">
-          <title>Blithe Spirit</title>
+          <title>Wildfire at Midnight</title>
           <description></description>
         </project>
-  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+  recorded_at: Thu, 22 Apr 2021 11:38:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_2/package_2/_meta?user=user_4
+    uri: http://backend:5352/source/project_2/package_1/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>Butter In a Lordly Dish</title>
-          <description>Nulla delectus odit officiis.</description>
+        <package name="package_1" project="project_2">
+          <title>From Here to Eternity</title>
+          <description>Praesentium aliquam quis ipsam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -149,9 +149,9 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <package name="package_2" project="project_2">
-          <title>Butter In a Lordly Dish</title>
-          <description>Nulla delectus odit officiis.</description>
+        <package name="package_1" project="project_2">
+          <title>From Here to Eternity</title>
+          <description>Praesentium aliquam quis ipsam.</description>
         </package>
-  recorded_at: Thu, 22 Apr 2021 10:54:18 GMT
+  recorded_at: Thu, 22 Apr 2021 11:38:54 GMT
 recorded_with: VCR 6.0.0
