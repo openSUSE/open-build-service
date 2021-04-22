@@ -1,0 +1,1989 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://backend:5352/build/project_1?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'project_1' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'project_1' does not exist</summary>
+          <details>404 project 'project_1' does not exist</details>
+        </status>
+  recorded_at: Thu, 22 Apr 2021 13:07:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo_admin">
+          <title/>
+          <description/>
+          <person userid="foo_admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo_admin">
+          <title></title>
+          <description></description>
+          <person userid="foo_admin" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:06:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_97
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:06:07 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_98
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Precious Bane</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '100'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Precious Bane</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:06:08 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_28?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 23 Apr 2021 11:06:08 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_28/package_trigger?cmd=copy&comment=Release%20from%20home:foo_admin%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=home:foo_admin&user=foo_admin&withacceptinfo=1&withvrev=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '254'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1619175969</time>
+          <user>foo_admin</user>
+          <comment>Release from home:foo_admin / package_trigger</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '155'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_28">
+          <title>The Waste Land</title>
+          <description>Nam distinctio fuga tempora.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_28/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_28/package_trigger?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_28/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_28/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '289'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="670163bf5d95daa1d3e7b4754081fbd4">
+          <old project="project_28" package="package_trigger" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_28" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_28/repository_1/x86_64/package_trigger?cmd=copy&multibuild=1&opackage=package_trigger&oproject=home:foo_admin&orepository=package_test_repository&resign=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'project_28' has no repository 'repository_1'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'project_28' has no repository 'repository_1'</summary>
+          <details>404 project 'project_28' has no repository 'repository_1'</details>
+        </status>
+  recorded_at: Fri, 23 Apr 2021 11:06:09 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_93
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>To Say Nothing of the Dog</title>
+          <description>Veritatis necessitatibus eum ducimus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '179'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>To Say Nothing of the Dog</title>
+          <description>Veritatis necessitatibus eum ducimus.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:24:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_94
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Quo Vadis</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '96'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Quo Vadis</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:24:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_88
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Fear and Trembling</title>
+          <description>Hic vel eos rerum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '153'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Fear and Trembling</title>
+          <description>Hic vel eos rerum.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:26:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_89
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Frequent Hearses</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Frequent Hearses</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:26:10 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_98
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>His Dark Materials</title>
+          <description>Odit eaque voluptatem quos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>His Dark Materials</title>
+          <description>Odit eaque voluptatem quos.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:03:29 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_99
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Arms and the Man</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Arms and the Man</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:03:30 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Look Homeward, Angel</title>
+          <description>Consequuntur et perferendis eum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '169'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Look Homeward, Angel</title>
+          <description>Consequuntur et perferendis eum.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:17:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>The Wind's Twelve Quarters</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>The Wind's Twelve Quarters</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:17:18 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_12
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:32:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_5/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Butter In a Lordly Dish</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_5">
+          <title>Butter In a Lordly Dish</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:26 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_6/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Clouds of Witness</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_6">
+          <title>Clouds of Witness</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/_meta?user=user_15
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Ah, Wilderness!</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '101'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_7">
+          <title>Ah, Wilderness!</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:27 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_7?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 23 Apr 2021 12:32:27 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_7/package_trigger?cmd=copy&comment=Release%20from%20home:foo_admin%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=home:foo_admin&user=foo_admin&withacceptinfo=1&withvrev=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '254'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1619181148</time>
+          <user>foo_admin</user>
+          <comment>Release from home:foo_admin / package_trigger</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_7/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_7">
+          <title>Mr Standfast</title>
+          <description>Magnam deserunt porro doloremque.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_7/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_7/package_trigger?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_7/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_7/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '287'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="d20e0218b83df390c67599b548631ac4">
+          <old project="project_7" package="package_trigger" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_7" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_7/repository_7/x86_64/package_trigger?cmd=copy&multibuild=1&opackage=package_trigger&oproject=home:foo_admin&orepository=package_test_repository&resign=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'project_7' has no repository 'repository_7'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '182'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'project_7' has no repository 'repository_7'</summary>
+          <details>404 project 'project_7' has no repository 'repository_7'</details>
+        </status>
+  recorded_at: Fri, 23 Apr 2021 12:32:28 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_91
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:37:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>A Passage to India</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>A Passage to India</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:37:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_29/_meta?user=user_93
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_29">
+          <title>Rosemary Sutcliff</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_29">
+          <title>Rosemary Sutcliff</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:37:39 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_30/_meta?user=user_94
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_30">
+          <title>Tirra Lirra by the River</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_30">
+          <title>Tirra Lirra by the River</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:37:40 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_30?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Fri, 23 Apr 2021 12:37:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_30/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:37:40 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_30/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:37:40 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_30/package_trigger?cmd=copy&comment=Release%20from%20home:foo_admin%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=home:foo_admin&user=foo_admin&withacceptinfo=1&withvrev=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '254'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
+          <version>unknown</version>
+          <time>1619181460</time>
+          <user>foo_admin</user>
+          <comment>Release from home:foo_admin / package_trigger</comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_30/package_trigger/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project_30">
+          <title>Fear and Trembling</title>
+          <description>Quod sed harum saepe.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_30/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_30/package_trigger?view=info
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+          <error>no source uploaded</error>
+        </sourceinfo>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_30/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/project_30/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '289'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="14a7c71ca627d50b929ba6111494a759">
+          <old project="project_30" package="package_trigger" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="project_30" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <files/>
+        </sourcediff>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: post
+    uri: http://backend:5352/build/project_30/repository_3/x86_64/package_trigger?cmd=copy&multibuild=1&opackage=package_trigger&oproject=home:foo_admin&orepository=package_test_repository&resign=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'project_30' has no repository 'repository_3'
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'project_30' has no repository 'repository_3'</summary>
+          <details>404 project 'project_30' has no repository 'repository_3'</details>
+        </status>
+  recorded_at: Fri, 23 Apr 2021 12:37:41 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_90
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>That Good Night</title>
+          <description>Sed debitis rerum facere.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '157'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>That Good Night</title>
+          <description>Sed debitis rerum facere.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:42:32 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_28/_meta?user=user_91
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Have His Carcase</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_28">
+          <title>Have His Carcase</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_29/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_29">
+          <title>A Many-Splendoured Thing</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_29">
+          <title>A Many-Splendoured Thing</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:33 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_30/_meta?user=user_93
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_30">
+          <title>A Monstrous Regiment of Women</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '116'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_30">
+          <title>A Monstrous Regiment of Women</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:34 GMT
+recorded_with: VCR 6.0.0

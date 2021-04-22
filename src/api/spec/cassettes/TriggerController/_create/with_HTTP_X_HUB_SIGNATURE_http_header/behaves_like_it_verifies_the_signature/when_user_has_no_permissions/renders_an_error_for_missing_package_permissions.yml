@@ -1,0 +1,385 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/_meta?user=user_40
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_12">
+          <title>An Evil Cradling</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_12">
+          <title>An Evil Cradling</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:30:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_12/package_12/_meta?user=user_41
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>Surprised by Joy</title>
+          <description>Fugit itaque omnis officiis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_12" project="project_12">
+          <title>Surprised by Joy</title>
+          <description>Fugit itaque omnis officiis.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 15:30:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:30:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_42
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>To Your Scattered Bodies Go</title>
+          <description>Recusandae et iste consequuntur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '162'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>To Your Scattered Bodies Go</title>
+          <description>Recusandae et iste consequuntur.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 15:30:56 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="106" vrev="106">
+          <srcmd5>11347db5d9e059e15bf4219be1580a84</srcmd5>
+          <version>unknown</version>
+          <time>1619191856</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 23 Apr 2021 15:30:56 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_13/_meta?user=user_43
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_13">
+          <title>His Dark Materials</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_13">
+          <title>His Dark Materials</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:30:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_13/package_13/_meta?user=user_44
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="project_13">
+          <title>Fear and Trembling</title>
+          <description>Fuga quas doloremque corrupti.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_13" project="project_13">
+          <title>Fear and Trembling</title>
+          <description>Fuga quas doloremque corrupti.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 15:30:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/_meta?user=user_45
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Fair Stood the Wind for France</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="Apache">
+          <title>Fair Stood the Wind for France</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:30:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/apache2/_meta?user=user_46
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="Apache">
+          <title>The Millstone</title>
+          <description>Explicabo reprehenderit a assumenda.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="Apache">
+          <title>The Millstone</title>
+          <description>Explicabo reprehenderit a assumenda.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 15:30:59 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/Apache/apache2/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '209'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="11" vrev="11">
+          <srcmd5>a00ed4e467c757ffd7e01be3d11f434f</srcmd5>
+          <version>unknown</version>
+          <time>1619191859</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Fri, 23 Apr 2021 15:31:00 GMT
+recorded_with: VCR 6.0.0

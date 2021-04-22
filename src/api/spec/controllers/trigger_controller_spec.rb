@@ -5,7 +5,7 @@ RSpec.describe TriggerController, vcr: true do
   let(:admin) { create(:admin_user, :with_home, login: 'foo_admin') }
   let(:project) { admin.home_project }
   let(:package) { create(:package, name: 'package_trigger', project: project) }
-  let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project) }
+  let(:repository) { create(:repository_with_release_target, name: 'package_test_repository', architectures: ['x86_64'], project: project) }
   let(:target_project) { create(:project, name: 'target_project') }
   let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
   let(:release_target) { create(:release_target, target_repository: target_repository, repository: repository, trigger: 'manual') }
@@ -22,10 +22,9 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#rebuild' do
     context 'authentication token is invalid' do
+      let(:token) { nil }
+
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> {}
-        }
         post :create, params: { format: :xml }
       end
 
@@ -46,11 +45,15 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#release' do
     context 'for inexistent project' do
+      let(:token) { Token::Release.create(user: admin, package: package) }
+      let(:target_repository) { create(:repository) }
+
       before do
-        post :release, params: { project: 'foo', format: :xml }
+        ReleaseTarget.create!(repository: repository, target_repository: target_repository, trigger: 'manual')
+        post :create, params: { project: 'foo', format: :xml }
       end
 
-      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'when token is valid and package exists' do
@@ -66,7 +69,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(Backend::Connection).to receive(:post).and_call_original
         allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
-        post :release, params: { package: package, format: :xml }
+        post :create, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -78,12 +81,10 @@ RSpec.describe TriggerController, vcr: true do
 
       before do
         allow(User).to receive(:session!).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
+        post :create, params: { package: package, format: :xml }
       end
 
-      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/no permission for package/) }
+      it { expect(response).to be_forbidden }
     end
 
     context 'when user has no rights for target' do
@@ -95,10 +96,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
-        post :release, params: { package: package, format: :xml }
+        post :create, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -113,25 +111,23 @@ RSpec.describe TriggerController, vcr: true do
       before do
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
+        post :create, params: { package: package, format: :xml }
       end
 
-      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/has no release targets that are triggered manually/) }
+      it { expect(response).to be_not_found }
     end
   end
 
   describe '#runservice' do
     let(:token) { Token::Service.create(user: admin, package: package) }
     let(:project) { admin.home_project }
-    let!(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
+    let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     before do
-      post :runservice, params: { package: package, format: :xml }
+      post :create, params: { package: package, format: :xml }
     end
 
-    it { expect(response).to have_http_status(:success) }
+    it { expect(response).to be_ok }
   end
 
   describe '#create' do
@@ -140,6 +136,7 @@ RSpec.describe TriggerController, vcr: true do
     let(:body) { { hello: :world }.to_json }
     let(:project) { user.home_project }
     let(:package) { create(:package_with_service, name: 'apache2', project: project) }
+    let(:token) { Token::Service.create(user: admin, package: package) }
     let(:signature) { 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), service_token.string, body) }
 
     shared_examples 'it verifies the signature' do
@@ -159,15 +156,16 @@ RSpec.describe TriggerController, vcr: true do
       end
 
       context 'when token is invalid' do
+        let(:token) { nil }
+
         it 'renders an error with an invalid signature' do
           request.headers[signature_header_name] = 'sha1=invalid'
-          post :create, body: body, params: { id: service_token.id, project: project.name, package: package.name, format: :xml }
+          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
           expect(response).to be_forbidden
         end
 
         it 'renders an error with an invalid token' do
-          invalid_token_id = 42
-          post :create, body: body, params: { id: invalid_token_id, project: project.name, package: package.name, format: :xml }
+          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
           expect(response).to be_forbidden
         end
       end
@@ -176,32 +174,34 @@ RSpec.describe TriggerController, vcr: true do
         let(:project_without_permissions) { create(:project, name: 'Apache') }
         let(:package_without_permissions) { create(:package_with_service, name: 'apache2', project: project_without_permissions) }
         let(:inactive_user) { create(:user) }
-        let(:invalid_service_token) { create(:service_token, user: inactive_user) }
+        let(:token) { create(:service_token, user: inactive_user) }
 
         it 'renders an error for missing package permissions' do
-          params = { id: service_token.id, project: project_without_permissions.name, package: package_without_permissions.name, format: :xml }
+          params = { id: token.id, project: project_without_permissions.name, package: package_without_permissions.name, format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response).to be_forbidden
         end
 
         it 'renders an error for an inactive user' do
-          signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), invalid_service_token.string, body)
+          signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), token.string, body)
           request.headers[signature_header_name] = signature
-          params = { id: invalid_service_token.id, project: project.name, package: package.name, format: :xml }
+          params = { id: token.id, project: project.name, package: package.name, format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response.code).to eql('403')
         end
       end
 
       context 'when entity does not exist' do
+        let(:token) { Token::Rebuild.create(user: admin) }
+
         it 'renders an error for package' do
-          params = { id: service_token.id, project: project.name, package: 'does-not-exist', format: :xml }
+          params = { id: token.id, project: project.name, package: 'does-not-exist', format: :xml }
           post :create, body: body, params: params
           expect(response).to be_not_found
         end
 
         it 'renders an error for project' do
-          params = { id: service_token.id, project: 'does-not-exist', package: package.name, format: :xml }
+          params = { id: token.id, project: 'does-not-exist', package: package.name, format: :xml }
           post :create, body: body, params: params
           expect(response).to be_not_found
         end

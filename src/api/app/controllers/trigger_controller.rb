@@ -36,10 +36,15 @@ class TriggerController < ApplicationController
 
   def set_package
     # We need to store in memory the package in order to do authorization
-    @token.package_from_association_or_params = @token.package ||
-                                                Package.get_by_project_and_name(params[:project],
-                                                                                params[:package],
-                                                                                @token.package_find_options)
+    begin
+      @token.package_from_association_or_params = @token.package ||
+                                                  Package.get_by_project_and_name(params[:project],
+                                                                                  params[:package],
+                                                                                  @token.package_find_options)
+    rescue Package::Errors::UnknownObjectError
+      raise ActiveRecord::RecordNotFound
+    end
+
     # This can happen due to the Package.get_by_project_and_name method
     raise ActiveRecord::RecordNotFound if @token.package_from_association_or_params.nil?
   end

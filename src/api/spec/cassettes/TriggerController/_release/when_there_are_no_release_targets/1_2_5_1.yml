@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <project name="home:foo_admin">
           <title></title>
           <description></description>
-          <person userid="foo_admin" role="maintainer" />
+          <person userid="foo_admin" role="maintainer"/>
         </project>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
+  recorded_at: Thu, 22 Apr 2021 08:55:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+          <title>Infinite Jest</title>
+          <description>Repellendus tenetur deleniti ipsum.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,24 +69,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '165'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+          <title>Infinite Jest</title>
+          <description>Repellendus tenetur deleniti ipsum.</description>
         </package>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
+  recorded_at: Thu, 22 Apr 2021 08:55:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_93
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Doloremque omnis iure nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -107,15 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+          <title>A Swiftly Tilting Planet</title>
+          <description>Doloremque omnis iure nihil.</description>
         </package>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
+  recorded_at: Fri, 23 Apr 2021 11:06:03 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_1
@@ -123,8 +123,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>A Scanner Darkly</title>
-          <description>Unde quis rerum autem.</description>
+          <title>If I Forget Thee Jerusalem</title>
+          <description>Consequatur omnis necessitatibus velit.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,24 +145,62 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>A Scanner Darkly</title>
-          <description>Unde quis rerum autem.</description>
+          <title>If I Forget Thee Jerusalem</title>
+          <description>Consequatur omnis necessitatibus velit.</description>
         </package>
-  recorded_at: Thu, 22 Apr 2021 08:55:27 GMT
+  recorded_at: Fri, 23 Apr 2021 11:08:01 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_100
+    uri: http://backend:5352/source/target_project/_meta?user=user_2
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Noli Me Tangere</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Noli Me Tangere</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:10:03 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_96
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>For Whom the Bell Tolls</title>
-          <description>Ad quisquam quo similique.</description>
+          <title>The Wings of the Dove</title>
+          <description>Accusamus ex consequatur necessitatibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,15 +221,53 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '178'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>For Whom the Bell Tolls</title>
-          <description>Ad quisquam quo similique.</description>
+          <title>The Wings of the Dove</title>
+          <description>Accusamus ex consequatur necessitatibus.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 11:06:13 GMT
+  recorded_at: Fri, 23 Apr 2021 11:24:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_95
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Postern of Fate</title>
+          <description>Culpa aut qui aut.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Postern of Fate</title>
+          <description>Culpa aut qui aut.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:26:24 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_90
@@ -199,8 +275,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>In Death Ground</title>
-          <description>Est saepe sint aut.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim eligendi aut voluptatibus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -221,24 +297,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '172'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>In Death Ground</title>
-          <description>Est saepe sint aut.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Enim eligendi aut voluptatibus.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 11:24:15 GMT
+  recorded_at: Fri, 23 Apr 2021 12:11:10 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_88
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Doors of Perception</title>
-          <description>Autem eveniet eius voluptas.</description>
+          <title>Of Mice and Men</title>
+          <description>Repudiandae sequi unde quidem.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,24 +335,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '168'
+      - '162'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Doors of Perception</title>
-          <description>Autem eveniet eius voluptas.</description>
+          <title>Of Mice and Men</title>
+          <description>Repudiandae sequi unde quidem.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 12:11:08 GMT
+  recorded_at: Fri, 23 Apr 2021 12:17:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_12
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_16
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Green Bay Tree</title>
-          <description>Voluptas sint odio aut.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Veritatis rerum nostrum consequuntur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -297,24 +373,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '190'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Green Bay Tree</title>
-          <description>Voluptas sint odio aut.</description>
+          <title>The Mirror Crack'd from Side to Side</title>
+          <description>Veritatis rerum nostrum consequuntur.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 12:17:27 GMT
+  recorded_at: Fri, 23 Apr 2021 12:32:30 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_106
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_94
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>For a Breath I Tarry</title>
-          <description>Et facere sit est.</description>
+          <title>Jesting Pilate</title>
+          <description>Debitis beatae perspiciatis similique.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -335,24 +411,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '155'
+      - '169'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>For a Breath I Tarry</title>
-          <description>Et facere sit est.</description>
+          <title>Jesting Pilate</title>
+          <description>Debitis beatae perspiciatis similique.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 12:37:53 GMT
+  recorded_at: Fri, 23 Apr 2021 12:42:36 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_3
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_108
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Behold the Man</title>
-          <description>Qui aut quasi dicta.</description>
+          <title>All Passion Spent</title>
+          <description>Esse inventore quod odio.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -373,13 +449,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '151'
+      - '159'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Behold the Man</title>
-          <description>Qui aut quasi dicta.</description>
+          <title>All Passion Spent</title>
+          <description>Esse inventore quod odio.</description>
         </package>
-  recorded_at: Fri, 23 Apr 2021 15:30:20 GMT
+  recorded_at: Fri, 23 Apr 2021 15:32:00 GMT
 recorded_with: VCR 6.0.0

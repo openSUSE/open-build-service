@@ -1,0 +1,955 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo_admin">
+          <title/>
+          <description/>
+          <person userid="foo_admin" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '140'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:foo_admin">
+          <title></title>
+          <description></description>
+          <person userid="foo_admin" role="maintainer"/>
+        </project>
+  recorded_at: Thu, 22 Apr 2021 08:55:34 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_3
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Voluptatem aperiam rerum voluptatum.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '194'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Those Barren Leaves, Thrones, Dominations</title>
+          <description>Voluptatem aperiam rerum voluptatum.</description>
+        </package>
+  recorded_at: Thu, 22 Apr 2021 08:55:35 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Mermaids Singing</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Mermaids Singing</title>
+          <description></description>
+        </project>
+  recorded_at: Thu, 22 Apr 2021 08:55:36 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_91
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Way of All Flesh</title>
+          <description>Molestiae veritatis saepe pariatur.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '172'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Way of All Flesh</title>
+          <description>Molestiae veritatis saepe pariatur.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:06:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_92
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Little Foxes</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Little Foxes</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:06:01 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_99
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Little Foxes</title>
+          <description>Fugiat neque odit reprehenderit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '165'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Little Foxes</title>
+          <description>Fugiat neque odit reprehenderit.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:24:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_100
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Wings of the Dove</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '112'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Wings of the Dove</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:24:25 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_93
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Veniam nihil impedit quos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '177'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The World, the Flesh and the Devil</title>
+          <description>Veniam nihil impedit quos.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 11:26:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_94
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Road Less Traveled</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Road Less Traveled</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 11:26:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_94
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Sleep the Brave</title>
+          <description>Molestiae esse sapiente quibusdam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Sleep the Brave</title>
+          <description>Molestiae esse sapiente quibusdam.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:11:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_95
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Road Less Traveled</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '113'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>The Road Less Traveled</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:11:14 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Ut velit aut velit.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '150'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Ut velit aut velit.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:17:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_8
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>East of Eden</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '103'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>East of Eden</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:17:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Iste necessitatibus quam repellendus.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '168'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Waste Land</title>
+          <description>Iste necessitatibus quam repellendus.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:32:19 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>A Glass of Blessings</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>A Glass of Blessings</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_1/_meta?user=user_6
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Everything is Illuminated</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '111'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_1">
+          <title>Everything is Illuminated</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:20 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_2/_meta?user=user_7
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Frequent Hearses</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_2">
+          <title>Frequent Hearses</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:32:21 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_95
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Blue Remembered Earth</title>
+          <description>Et ea natus laboriosam.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>Blue Remembered Earth</title>
+          <description>Et ea natus laboriosam.</description>
+        </package>
+  recorded_at: Fri, 23 Apr 2021 12:37:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_31/_meta?user=user_96
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_31">
+          <title>For a Breath I Tarry</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_31">
+          <title>For a Breath I Tarry</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:37:43 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_32/_meta?user=user_97
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_32">
+          <title>In a Glass Darkly</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '104'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_32">
+          <title>In a Glass Darkly</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:37:44 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/target_project/_meta?user=user_96
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Dying of the Light</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '109'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="target_project">
+          <title>Dying of the Light</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_31/_meta?user=user_97
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_31">
+          <title>Ring of Bright Water</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_31">
+          <title>Ring of Bright Water</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:37 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_32/_meta?user=user_98
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_32">
+          <title>A Farewell to Arms</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_32">
+          <title>A Farewell to Arms</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 12:42:38 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_33/_meta?user=user_101
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_33">
+          <title>Mother Night</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '99'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_33">
+          <title>Mother Night</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:31:56 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_34/_meta?user=user_102
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_34">
+          <title>Moab Is My Washpot</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '105'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_34">
+          <title>Moab Is My Washpot</title>
+          <description></description>
+        </project>
+  recorded_at: Fri, 23 Apr 2021 15:31:56 GMT
+recorded_with: VCR 6.0.0
