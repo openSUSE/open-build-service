@@ -8,5 +8,13 @@ FactoryBot.define do
     factory :rss_token, class: 'Token::Rss' do
       type { 'Token::Rss' }
     end
+    factory :rebuild_token, class: 'Token::Rebuild' do
+      type { 'Token::Rebuild' }
+      user
+      package
+      trait :with_package_from_association_or_param do
+        package_from_association_or_params { package }
+      end
+    end
   end
 end
