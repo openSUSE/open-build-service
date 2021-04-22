@@ -50,8 +50,12 @@ Airbrake.configure do |c|
   # A list of parameters that should be filtered out of what is sent to
   # Airbrake. By default, all "password" attributes will have their contents
   # replaced.
-  # https://github.com/airbrake/airbrake-ruby#blacklist_keys
-  c.blacklist_keys = [/password/i, /authorization/i]
+  # https://github.com/airbrake/airbrake-ruby#blocklist_keys
+  if RailsVersion.is_6_1?
+    c.blocklist_keys = [/password/i, /authorization/i]
+  else
+    c.blacklist_keys = [/password/i, /authorization/i]
+  end
 
   # Alternatively, you can integrate with Rails' filter_parameters.
   # Read more: https://goo.gl/gqQ1xS

@@ -468,6 +468,9 @@ rm -rf %{buildroot}%{__obs_api_prefix}/spec
 # only config for CI
 rm %{buildroot}%{__obs_api_prefix}/config/brakeman.ignore
 
+# Remove Gemfile.next and Gemfile.next.lock since they are only for testing the next Rails version in development and test environments
+rm %{buildroot}%{__obs_api_prefix}/Gemfile.next %{buildroot}%{__obs_api_prefix}/Gemfile.next.lock
+
 # fail when Makefiles created a directory
 if ! test -L %{buildroot}/usr/lib/obs/server/build; then
   echo "/usr/lib/obs/server/build is not a symlink!"

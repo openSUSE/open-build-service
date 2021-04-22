@@ -1,8 +1,18 @@
+# next? was generated with `next --init`
+# src/api/Gemfile.next.lock was generated with `next bundle install`
+def next?
+  File.basename(__FILE__) == 'Gemfile.next'
+end
+
 # Edit this Gemfile to bundle your application's dependencies.
 source 'https://rubygems.org'
 
-# We have a version constraint to tackle Rails updates whenever we have time
-gem 'rails', '~> 6.0'
+# Start the Rails application using src/api/Gemfile.next with `next rails s`
+if next?
+  gem 'rails', '~> 6.1'
+else
+  gem 'rails', '~> 6.0'
+end
 
 # as our database
 gem 'mysql2'
@@ -173,6 +183,8 @@ end
 group :development do
   # add a comment summarizing the current schema
   gem 'annotate'
+  # toolkit to upgrade your Rails application
+  gem 'next_rails'
 end
 
 # Gems used only for assets and not required in production environments by default.
