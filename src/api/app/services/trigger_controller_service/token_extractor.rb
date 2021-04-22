@@ -26,19 +26,18 @@ module TriggerControllerService
     end
 
     def extract_token_from_request_signature
-      token = Token::Service.find_by(id: @token_id)
-      return token if token && token.valid_signature?(signature, @body)
+      token = Token.find_by(id: @token_id)
+      return token if token && valid_signature?(token.string)
     end
 
-    def valid_signature?(signature)
+    def valid_signature?(token_string)
       return false unless signature
 
-      ActiveSupport::SecurityUtils.secure_compare(signature_of(@body), signature)
+      ActiveSupport::SecurityUtils.secure_compare(signature_of(token_string), signature)
     end
 
-    def signature_of
-      # FIXME: use sha256 (from X-Hub-Signature-256)
-      'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, @body)
+    def signature_of(token_string)
+      'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), token_string, @body)
     end
 
     # To trigger the webhook, the sender needs to
@@ -46,15 +45,15 @@ module TriggerControllerService
     # The signature needs to be generated over the
     # payload of the HTTP request and stored
     # in a HTTP header.
-    # GitHub: HTTP_X_HUB_SIGNATURE
+    # GitHub: HTTP_X_HUB_SIGNATURE_256
     # https://developer.github.com/webhooks/securing/
     # Pagure: HTTP_X-Pagure-Signature-256
     # https://docs.pagure.org/pagure/usage/using_webhooks.html
     # Custom signature: HTTP_X_OBS_SIGNATURE
     def signature
-      @http_request.env['HTTP_X_OBS_SIGNATURE'] ||
-        @http_request.env['HTTP_X_HUB_SIGNATURE'] ||
-        @http_request.env['HTTP_X-Pagure-Signature-256']
+      @signature ||= @http_request.env['HTTP_X_OBS_SIGNATURE'] ||
+                     @http_request.env['HTTP_X_HUB_SIGNATURE_256'] ||
+                     @http_request.env['HTTP_X-Pagure-Signature-256']
     end
   end
 end
