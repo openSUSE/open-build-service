@@ -21,6 +21,7 @@ class Token::Release < Token
                         manual: true,
                         comment: 'Releasing via trigger event' })
     end
+    true
   end
 
   def package_find_options
