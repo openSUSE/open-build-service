@@ -6,7 +6,4 @@ module Trigger::Errors
           403,
           'No valid token found'
   end
-
-  class NoPermissionForPackage < APIError
-  end
 end

@@ -8,10 +8,7 @@ class Token::Release < Token
 
   def call(_options)
     manual_release_targets = package_from_association_or_params.project.release_targets.where(trigger: 'manual')
-    unless manual_release_targets.any?
-      raise NoPermissionForPackage.setup('not_found', 404,
-                                         "#{package_from_association_or_params.project} has no release targets that are triggered manually")
-    end
+    raise NoReleaseTargetFound, "#{package_from_association_or_params.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
       release_package(package_from_association_or_params,
