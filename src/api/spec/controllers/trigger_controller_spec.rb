@@ -13,7 +13,10 @@ RSpec.describe TriggerController, vcr: true do
   render_views
 
   before do
+    # FIXME: fix the rubocop complain
+    # rubocop:disable RSpec/AnyInstance
     allow_any_instance_of(::TriggerControllerService::TokenExtractor).to receive(:call).and_return(token)
+    # rubocop:enable RSpec/AnyInstance
     package
   end
 
@@ -21,7 +24,7 @@ RSpec.describe TriggerController, vcr: true do
     context 'authentication token is invalid' do
       before do
         allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { nil }
+          -> {}
         }
         post :create, params: { format: :xml }
       end
