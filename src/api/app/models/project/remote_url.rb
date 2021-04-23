@@ -11,7 +11,8 @@ class Project::RemoteURL
       uri.open.read
     rescue OpenURI::HTTPError, SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
            Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error, OpenSSL::SSL::SSLError => e
-      Rails.logger.debug "#{e} when fetching #{path} from #{remote_project.remoteurl}"
+      Rails.logger.info "#{e} when fetching #{path} from #{remote_project.remoteurl}"
+      Airbrake.notify(e)
       nil
     end
   end
