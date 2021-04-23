@@ -8,6 +8,8 @@ class Token < ApplicationRecord
 
   validates :user, presence: true
 
+  include Token::Errors
+
   def token_name
     self.class.token_name
   end
