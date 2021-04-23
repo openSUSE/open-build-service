@@ -7,6 +7,7 @@ class Token < ApplicationRecord
   has_secure_token :string
 
   validates :user, presence: true
+  validates :string, uniqueness: { case_sensitive: false }
 
   include Token::Errors
 
