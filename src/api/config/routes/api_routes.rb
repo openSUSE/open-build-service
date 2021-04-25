@@ -177,11 +177,15 @@ OBSApi::Application.routes.draw do
 
     ### /distributions
 
-    put '/distributions' => 'distributions#upload'
-    # as long as the distribution IDs are integers, there is no clash
-    get '/distributions/include_remotes' => 'distributions#include_remotes'
-    # update is missing here
-    resources :distributions, only: [:index, :show, :create, :destroy]
+    resources :distributions, except: [:new, :edit] do
+      collection do
+        match 'bulk_replace', via: [:put, :post]
+        # Gives us a poor mans osc interface for bulk replacing...
+        # osc api -e /distributions/bulk_replace
+        get 'bulk_replace' => :index
+        get 'include_remotes'
+      end
+    end
 
     ### /mail_handler
 

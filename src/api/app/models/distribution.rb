@@ -4,25 +4,35 @@ class Distribution < ApplicationRecord
   has_and_belongs_to_many :icons, -> { distinct }, class_name: 'DistributionIcon'
   has_and_belongs_to_many :architectures, -> { distinct }, class_name: 'Architecture'
 
-  def self.parse(xmlhash, delete_current: true)
-    Distribution.transaction do
-      if delete_current
-        Distribution.destroy_all
-        DistributionIcon.delete_all
-      end
-      xmlhash.elements('distribution') do |d|
-        db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'],
-                                 reponame: d['reponame'], repository: d['repository'], link: d['link'])
-        d.elements('architecture') do |a|
-          dba = Architecture.find_by_name!(a.to_s)
-          db.architectures << dba
-        end
-        d.elements('icon') do |i|
-          dbi = DistributionIcon.find_or_create_by(width: i['width'], height: i['height'], url: i['url'])
-          db.icons << dbi
-        end
-      end
+  def self.new_from_xmlhash(xmlhash)
+    return new unless xmlhash.is_a?(Xmlhash::XMLHash)
+
+    distribution = Distribution.new(xmlhash.except('architecture', 'icon', 'id')
+                                           .merge(architectures: Architecture.where(name: xmlhash['architecture'])))
+    xmlhash.elements('icon') do |icon|
+      distribution.icons.new(icon)
     end
+
+    distribution
+  end
+
+  def update_from_xmlhash(xmlhash)
+    return unless xmlhash.is_a?(Xmlhash::XMLHash)
+
+    update(xmlhash.except('id', 'architecture', 'icon'))
+
+    architectures.clear
+    xmlhash.elements('architecture') do |architecture_name|
+      architecture = Architecture.find_by(name: architecture_name)
+      architectures << architecture if architecture
+    end
+
+    icons.clear
+    xmlhash.elements('icon') do |icon|
+      icons.create(icon)
+    end
+
+    self
   end
 
   def to_hash

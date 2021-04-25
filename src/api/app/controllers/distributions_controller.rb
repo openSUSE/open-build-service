@@ -1,13 +1,17 @@
 class DistributionsController < ApplicationController
-  # Distribution list is insensitive information, no login needed therefore
   before_action :require_admin, except: [:index, :show, :include_remotes]
+  before_action :set_body_xml, except: [:index, :show, :include_remotes]
 
-  validate_action index: { method: :get, response: :distributions }
-  validate_action upload: { method: :put, request: :distributions, response: :status }
-  validate_action create: { method: :post, request: :distributions }
+  validate_action bulk_replace: { method: :put, request: :distributions }
+  validate_action bulk_replace: { method: :post, request: :distributions }
+
+  validate_action create: { method: :put, request: :distribution }
+  validate_action create: { method: :post, request: :distribution }
+
+  validate_action update: { method: :put, request: :distribution }
+  validate_action update: { method: :post, request: :distribution }
 
   # GET /distributions
-  # GET /distributions.xml
   def index
     @distributions = Distribution.all_as_hash
 
@@ -17,19 +21,7 @@ class DistributionsController < ApplicationController
     end
   end
 
-  # GET /distributions/include_remotes
-  # GET /distributions/include_remotes.xml
-  def include_remotes
-    @distributions = Distribution.all_including_remotes
-
-    respond_to do |format|
-      format.xml { render 'index' }
-      format.json { render json: @distributions }
-    end
-  end
-
   # GET /distributions/1234
-  # GET /distributions/1234.xml
   def show
     @distribution = Distribution.find(params[:id]).to_hash
 
@@ -39,37 +31,75 @@ class DistributionsController < ApplicationController
     end
   end
 
-  # basically what the other parts of our API would look like
-  def upload
-    raise 'routes broken' unless request.put?
-
-    req = Xmlhash.parse(request.body.read)
-    unless req
-      render_error message: 'Invalid XML',
-                   status: 400, errorcode: 'invalid_xml'
-      return
-    end
-    @distributions = Distribution.parse(req)
-    render_ok
-  end
-
-  # POST /distributions
-  # POST /distributions.xml
+  # PUT /distributions
   def create
-    Distribution.parse(Xmlhash.parse(request.body.read), delete_current: false)
+    distribution = Distribution.new_from_xmlhash(@body_xml)
+
+    if distribution.save
+      render_ok
+    else
+      render_error message: distribution.errors.full_messages,
+                   status: 400, errorcode: 'invalid_distribution'
+    end
+  end
+
+  # PUT /distributions/1234
+  def update
+    distribution = Distribution.find(params[:id])
+
+    if distribution.update_from_xmlhash(@body_xml)
+      render_ok
+    else
+      render_error message: distribution.errors.full_messages,
+                   status: 400, errorcode: 'invalid_distribution'
+    end
+  end
+
+  # DELETE /distributions/1234
+  def destroy
+    distribution = Distribution.find(params[:id])
+    distribution.destroy
 
     render_ok
   end
 
-  # DELETE /distributions/opensuse-11.4
-  # DELETE /distributions/opensuse-11.4.xml
-  def destroy
-    @distribution = Distribution.find(params[:id])
-    @distribution.destroy
+  # GET /distributions/include_remotes
+  def include_remotes
+    @distributions = Distribution.all_including_remotes
 
     respond_to do |format|
-      format.xml  { head :ok }
-      format.json { head :ok }
+      format.xml { render :index }
+      format.json { render json: @distributions }
     end
+  end
+
+  # PUT /distributions/bulk_replace
+  def bulk_replace
+    errors = []
+    distributions = []
+
+    @body_xml.elements('distribution') do |distribution_xmlhash|
+      distribution = Distribution.new_from_xmlhash(distribution_xmlhash)
+      distributions << distribution
+      errors << distributions.errors unless distribution.valid?
+    end
+
+    if errors.any?
+      render_error message: errors.map(&:full_messages),
+                   status: 400, errorcode: 'invalid_distributions'
+    elsif distributions.empty?
+      render_error message: 'No distributions found in body',
+                   status: 400, errorcode: 'invalid_distributions'
+    else
+      Distribution.where(remote: false).destroy_all
+      distributions.map(&:save!)
+      render_ok
+    end
+  end
+
+  private
+
+  def set_body_xml
+    @body_xml = Xmlhash.parse(request.body.read)
   end
 end
