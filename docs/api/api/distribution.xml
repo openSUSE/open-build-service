@@ -1,0 +1,13 @@
+<distribution id="opensuse-11.0" vendor="opensuse" version="11.0">
+  <name>openSUSE 11.0</name>
+  <project>openSUSE:11.0</project>
+  <repository>standard</repository>
+  <reponame>openSUSE_11.0</reponame>
+  <architecture>i586</architecture>
+  <architecture>x86_64</architecture>
+  <architecture>ppc</architecture>
+  <architecture>ppc64</architecture>
+  <icon width="8" url="http://opensuse.org/static/os11logo8.png"/>
+  <icon width="16" height="16" url="http://opensuse.org/static/os11logo16.png"/>
+  <link>http://www.opensuse.org</link>
+</distribution>
