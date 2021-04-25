@@ -82,8 +82,10 @@ module Suse
         schema = nil
         if File.exist?(schema_base_filename + '.rng')
           schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + '.rng'))
+          logger.debug "validating against #{schema_base_filename + '.rng'}"
         elsif File.exist?(schema_base_filename + '.xsd')
           schema = Nokogiri::XML::Schema(File.open(schema_base_filename + '.xsd'))
+          logger.debug "validating against #{schema_base_filename + '.xsd'}"
         else
           logger.debug "no schema found, skipping validation for #{opt.inspect}"
           return true
