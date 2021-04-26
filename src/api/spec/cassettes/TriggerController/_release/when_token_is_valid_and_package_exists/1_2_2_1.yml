@@ -39,17 +39,16 @@ http_interactions:
           <description></description>
           <person userid="foo_admin" role="maintainer"/>
         </project>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:13 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_1
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,24 +69,23 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_2
+    uri: http://backend:5352/source/target_project/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Passage to India</title>
+          <title>The Wings of the Dove</title>
           <description/>
         </project>
     headers:
@@ -109,16 +107,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '112'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Passage to India</title>
+          <title>The Wings of the Dove</title>
           <description></description>
         </project>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
@@ -152,8 +149,7 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
@@ -161,8 +157,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,16 +179,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
@@ -200,8 +195,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -222,16 +217,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=copy&comment=Release%20from%20home:foo_admin%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=home:foo_admin&user=foo_admin&withacceptinfo=1&withvrev=1
@@ -266,13 +260,12 @@ http_interactions:
         <revision rev="1" vrev="1">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1588924574</time>
+          <time>1619455881</time>
           <user>foo_admin</user>
           <comment>Release from home:foo_admin / package_trigger</comment>
           <requestid/>
         </revision>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: put
     uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
@@ -280,8 +273,8 @@ http_interactions:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -302,16 +295,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '191'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>The Curious Incident of the Dog in the Night-Time</title>
+          <description>Sed illo explicabo quasi.</description>
         </package>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -343,8 +335,7 @@ http_interactions:
       string: |
         <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger?view=info
@@ -377,8 +368,7 @@ http_interactions:
         <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -410,8 +400,7 @@ http_interactions:
       string: |
         <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -448,8 +437,7 @@ http_interactions:
           <new project="target_project" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
@@ -483,6 +471,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: null
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
-recorded_with: VCR 5.1.0
+  recorded_at: Mon, 26 Apr 2021 16:51:21 GMT
+recorded_with: VCR 6.0.0

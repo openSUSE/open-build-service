@@ -30,26 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '140'
     body:
       encoding: UTF-8
       string: |
         <project name="home:foo_admin">
           <title></title>
           <description></description>
-          <person userid="foo_admin" role="maintainer" />
+          <person userid="foo_admin" role="maintainer"/>
         </project>
-    http_version: 
-  recorded_at: Mon, 20 May 2019 12:19:31 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_12
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Inventore quis et sapiente.</description>
+          <title>Behold the Man</title>
+          <description>Nesciunt ut quia nihil.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -70,25 +69,64 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '154'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Inventore quis et sapiente.</description>
+          <title>Behold the Man</title>
+          <description>Nesciunt ut quia nihil.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 20 May 2019 12:19:32 GMT
+  recorded_at: Mon, 26 Apr 2021 16:51:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/project_a/_meta?user=user_13
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Inventore quis et sapiente.</description>
+        <project name="project_a">
+          <title>Let Us Now Praise Famous Men</title>
+          <description/>
+          <person userid="lukas" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '159'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_a">
+          <title>Let Us Now Praise Famous Men</title>
+          <description></description>
+          <person userid="lukas" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 16:51:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_a/foo/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="foo" project="project_a">
+          <title>The Wings of the Dove</title>
+          <description>Velit tempora placeat ea.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,14 +147,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '162'
+      - '146'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Inventore quis et sapiente.</description>
+        <package name="foo" project="project_a">
+          <title>The Wings of the Dove</title>
+          <description>Velit tempora placeat ea.</description>
         </package>
-    http_version: 
-  recorded_at: Mon, 20 May 2019 12:19:32 GMT
-recorded_with: VCR 4.0.0
+  recorded_at: Mon, 26 Apr 2021 16:51:22 GMT
+recorded_with: VCR 6.0.0
