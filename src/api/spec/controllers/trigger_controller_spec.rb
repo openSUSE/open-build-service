@@ -208,8 +208,8 @@ RSpec.describe TriggerController, vcr: true do
       it_behaves_like 'it verifies the signature'
     end
 
-    context 'with HTTP_X_HUB_SIGNATURE http header' do
-      let(:signature_header_name) { 'HTTP_X_HUB_SIGNATURE' }
+    context 'with HTTP_X_HUB_SIGNATURE_256 http header' do
+      let(:signature_header_name) { 'HTTP_X_HUB_SIGNATURE_256' }
 
       it_behaves_like 'it verifies the signature'
     end
