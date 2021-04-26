@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe Token::Release, vcr: true do
   let(:user) { create(:user, login: 'foo') }
 
-  let(:project_staging) { create(:project_with_package, name: 'Bar:Staging', maintainer: user) }
+  let(:project_staging) { create(:project_with_package, name: 'Bar:Staging', package_name: 'bar_package', maintainer: user) }
   let(:target_project) { create(:project, name: 'Bar', maintainer: user) }
   let(:package) { project_staging.packages.first }
 
