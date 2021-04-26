@@ -15,7 +15,7 @@ class TriggerController < ApplicationController
   def create
     authorize @token
     @token.user.run_as do
-      @token.call(params.slice(:repository, :arch))
+      @token.call(params.slice(:repository, :arch).permit!)
       render_ok
     end
   end

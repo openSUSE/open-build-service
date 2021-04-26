@@ -597,12 +597,12 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     post '/trigger/runservice', headers: { 'Authorization' => "Token #{token}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'no_permission_for_inactive' }
+    assert_xml_tag tag: 'status', attributes: { code: 'create_token/service_not_authorized' }
     # with global token
     post '/trigger/runservice?project=home:tom&package=service', headers: { 'Authorization' => "Token #{alltoken}" }
     # success, but no source service configured :)
     assert_response 403
-    assert_xml_tag tag: 'status', attributes: { code: 'no_permission_for_inactive' }
+    assert_xml_tag tag: 'status', attributes: { code: 'create_token/service_not_authorized' }
 
     # reset and drop stuff as tom
     tom.state = 'confirmed'
