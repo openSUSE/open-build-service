@@ -438,4 +438,42 @@ http_interactions:
 
 '
   recorded_at: Mon, 26 Apr 2021 10:30:22 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_with_service/_meta?user=user_99
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:foo_admin">
+          <title>The Last Enemy</title>
+          <description>Odio veniam excepturi quis.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '163'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:foo_admin">
+          <title>The Last Enemy</title>
+          <description>Odio veniam excepturi quis.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:38:20 GMT
 recorded_with: VCR 6.0.0
