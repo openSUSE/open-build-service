@@ -45,11 +45,13 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#release' do
     context 'for inexistent project' do
+      let(:token) { Token::Release.create(user: admin, package: package) }
+
       before do
-        post :release, params: { project: 'foo', format: :xml }
+        post :create, params: { project: 'foo', format: :xml }
       end
 
-      it { expect(response).to have_http_status(:forbidden) }
+      it { expect(response).to have_http_status(:not_found) }
     end
 
     context 'when token is valid and package exists' do
@@ -65,7 +67,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(Backend::Connection).to receive(:post).and_call_original
         allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
-        post :release, params: { package: package, format: :xml }
+        post :create, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -77,12 +79,10 @@ RSpec.describe TriggerController, vcr: true do
 
       before do
         allow(User).to receive(:session!).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
+        post :create, params: { package: package, format: :xml }
       end
 
-      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/no permission for package/) }
+      it { expect(response).to have_http_status(:forbidden) }
     end
 
     context 'when user has no rights for target' do
@@ -94,10 +94,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
-        post :release, params: { package: package, format: :xml }
+        post :create, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -112,12 +109,10 @@ RSpec.describe TriggerController, vcr: true do
       before do
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> { OpenStruct.new(valid?: true, token: token) }
-        }
+        post :create, params: { package: package, format: :xml }
       end
 
-      it { expect { post :release, params: { package: package, format: :xml } }.to raise_error.with_message(/has no release targets that are triggered manually/) }
+      it { expect(response).to have_http_status(:not_found) }
     end
   end
 
