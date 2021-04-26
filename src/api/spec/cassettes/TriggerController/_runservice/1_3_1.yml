@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="foo_admin" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:11 GMT
 - request:
     method: put
@@ -78,7 +77,6 @@ http_interactions:
           <title>The Monkey's Raincoat</title>
           <description>Facere quod incidunt et.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: put
@@ -117,7 +115,6 @@ http_interactions:
           <title>The Monkey's Raincoat</title>
           <description>Facere quod incidunt et.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: put
@@ -156,7 +153,6 @@ http_interactions:
           <comment></comment>
           <requestid/>
         </revision>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: post
@@ -191,7 +187,6 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: put
@@ -230,7 +225,6 @@ http_interactions:
           <title>The Monkey's Raincoat</title>
           <description>Facere quod incidunt et.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: get
@@ -265,7 +259,6 @@ http_interactions:
           <serviceinfo code="succeeded" xsrcmd5="9c5bb7dc288748d34f0f26080c2f1636" />
           <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1558338449" />
         </directory>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: get
@@ -299,7 +292,6 @@ http_interactions:
         <sourceinfo package="package_with_service" rev="27" vrev="27" srcmd5="9c5bb7dc288748d34f0f26080c2f1636" verifymd5="3ac4b29d09369cc0bd4c17dd6a5c7d4c">
           <error>bad build configuration, no build type defined or detected</error>
         </sourceinfo>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: get
@@ -334,7 +326,6 @@ http_interactions:
           <serviceinfo code="succeeded" xsrcmd5="9c5bb7dc288748d34f0f26080c2f1636" />
           <entry name="_service" md5="53b4f5c97c7a2122b964e5182c8325a2" size="11" mtime="1558338449" />
         </directory>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: post
@@ -374,6 +365,77 @@ http_interactions:
           <issues>
           </issues>
         </sourcediff>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_with_service/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:foo_admin">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Architecto velit temporibus dignissimos.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '188'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_with_service" project="home:foo_admin">
+          <title>The Wind's Twelve Quarters</title>
+          <description>Architecto velit temporibus dignissimos.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 10:30:21 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:foo_admin/package_with_service?cmd=runservice&user=foo_admin
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Mon, 26 Apr 2021 10:30:22 GMT
+recorded_with: VCR 6.0.0
