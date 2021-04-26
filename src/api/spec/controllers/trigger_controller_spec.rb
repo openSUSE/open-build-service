@@ -119,10 +119,10 @@ RSpec.describe TriggerController, vcr: true do
   describe '#runservice' do
     let(:token) { Token::Service.create(user: admin, package: package) }
     let(:project) { admin.home_project }
-    let!(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
+    let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     before do
-      post :runservice, params: { package: package, format: :xml }
+      post :create, params: { package: package, format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
