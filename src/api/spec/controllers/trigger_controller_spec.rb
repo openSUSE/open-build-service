@@ -22,10 +22,9 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#rebuild' do
     context 'authentication token is invalid' do
+      let!(:token) { nil }
+
       before do
-        allow(::TriggerControllerService::TokenExtractor).to receive(:new) {
-          -> {}
-        }
         post :create, params: { format: :xml }
       end
 
