@@ -2,9 +2,14 @@ class Token < ApplicationRecord
   belongs_to :user
   belongs_to :package, inverse_of: :tokens
 
+  attr_accessor :package_from_association_or_params
+
   has_secure_token :string
 
   validates :user, presence: true
+  validates :string, uniqueness: { case_sensitive: false }
+
+  include Token::Errors
 
   def token_name
     self.class.token_name
@@ -20,6 +25,14 @@ class Token < ApplicationRecord
       # default is Token::Service
       Token::Service
     end
+  end
+
+  def call(_options)
+    raise AbstractMethodCalled
+  end
+
+  def package_find_options
+    {}
   end
 end
 

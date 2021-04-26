@@ -3,16 +3,14 @@ class Token::Service < Token
     'runservice'
   end
 
-  def valid_signature?(signature, body)
-    return false unless signature
-
-    ActiveSupport::SecurityUtils.secure_compare(signature_of(body), signature)
+  def call(_options)
+    Backend::Api::Sources::Package.trigger_services(package_from_association_or_params.project.name,
+                                                    package_from_association_or_params.name,
+                                                    user.login)
   end
 
-  private
-
-  def signature_of(body)
-    'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), string, body)
+  def package_find_options
+    { use_source: true, follow_project_links: false, follow_multibuild: false }
   end
 end
 

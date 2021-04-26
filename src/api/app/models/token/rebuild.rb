@@ -2,6 +2,17 @@ class Token::Rebuild < Token
   def self.token_name
     'rebuild'
   end
+
+  def call(options)
+    # FIXME: Use the Package#rebuild? instead of calling the Backend directly
+    Backend::Api::Sources::Package.rebuild(package_from_association_or_params.project.name,
+                                           package_from_association_or_params.name,
+                                           options)
+  end
+
+  def package_find_options
+    { use_source: false, follow_project_links: true, follow_multibuild: true }
+  end
 end
 
 # == Schema Information

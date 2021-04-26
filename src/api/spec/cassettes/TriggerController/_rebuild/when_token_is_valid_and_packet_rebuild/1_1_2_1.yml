@@ -39,7 +39,6 @@ http_interactions:
           <description></description>
           <person userid="foo_admin" role="maintainer" />
         </project>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: put
@@ -78,7 +77,6 @@ http_interactions:
           <title>Blue Remembered Earth</title>
           <description>Et aspernatur placeat quasi.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
 - request:
     method: put
@@ -117,6 +115,43 @@ http_interactions:
           <title>Blue Remembered Earth</title>
           <description>Et aspernatur placeat quasi.</description>
         </package>
-    http_version: 
   recorded_at: Mon, 20 May 2019 10:56:12 GMT
-recorded_with: VCR 4.0.0
+- request:
+    method: put
+    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_1
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Line of Beauty</title>
+          <description>Distinctio dolor eius mollitia.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="home:foo_admin">
+          <title>The Line of Beauty</title>
+          <description>Distinctio dolor eius mollitia.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:36:42 GMT
+recorded_with: VCR 6.0.0
