@@ -44,19 +44,18 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'when project passed by params, ignore it' do
       let(:user) { create(:confirmed_user, login: 'lukas') }
-      let(:project_a) { create(:project_with_package, name: 'project_a', package_name: 'foo', maintainer: user) }
-      let(:project_b) { create(:project_with_package, name: 'project_b', package_name: 'foo') }
-      let(:package_foo) { project_a.packages.first }
+      let(:project_a) { create(:project, name: 'project_a', maintainer: user) }
+      let(:package_foo) { create(:package, name: 'foo', project: project_a) }
       let(:token) { Token::Rebuild.create(user: user, package: package_foo) }
 
       before do
         allow(User).to receive(:session!).and_return(user)
-        allow(package_foo).to receive(:rebuild).with(project: project_a, package: package_foo, repository: nil, arch: nil)
+        allow(package_foo).to receive(:rebuild).with(project_override: project_a, repository: nil, arch: nil)
 
         post :rebuild, params: { format: :xml, project: 'project_b', package: 'foo' }
       end
 
-      it { expect(package_foo).to have_received(:rebuild).with(project: project_a, package: package_foo, repository: nil, arch: nil) }
+      it { expect(package_foo).to have_received(:rebuild).with(project_override: project_a, repository: nil, arch: nil) }
     end
   end
 

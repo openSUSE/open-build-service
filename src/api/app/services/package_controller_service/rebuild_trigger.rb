@@ -8,7 +8,8 @@ module PackageControllerService
     end
 
     def rebuild?
-      @package.rebuild(package: @package, project: @project, repository: @repository, arch: @arch)
+      # Override the project in case @package is project linked
+      @package.rebuild(project_override: @project, repository: @repository, arch: @arch)
     end
 
     # When we're in a linked project, the package's project points to some other

@@ -1286,11 +1286,11 @@ class Package < ApplicationRecord
   end
 
   #### WARNING: these operations run in build object, not this package object
-  def rebuild(params)
+  def rebuild(project_override: nil, repository: nil, arch: nil)
+    project_override ||= project
+    options = { repository: repository, arch: arch }.compact
     begin
-      Backend::Api::Sources::Package.rebuild(params[:project], params[:package],
-                                             { repository: params[:repository],
-                                               arch: params[:arch] })
+      Backend::Api::Sources::Package.rebuild(project_override.to_param, to_param, options)
     rescue Backend::Error, Timeout::Error, Project::WritePermissionError => e
       errors.add(:base, e.message)
       return false

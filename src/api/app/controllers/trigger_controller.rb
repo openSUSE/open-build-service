@@ -24,8 +24,12 @@ class TriggerController < ApplicationController
                                                                    repository: params[:repository],
                                                                    arch: params[:arch])
     authorize rebuild_trigger.policy_object, :update?
-    rebuild_trigger.rebuild?
-    render_ok
+    if rebuild_trigger.rebuild?
+      render_ok
+    else
+      render_error status: 400, errorcode: 'rebuild_failed',
+                   message: rebuild_trigger.error_message
+    end
   end
 
   def release
