@@ -1,0 +1,192 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+  recorded_at: Mon, 26 Apr 2021 12:36:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_12
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Dolores aut debitis molestias.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="apache2" project="home:tom">
+          <title>Everything is Illuminated</title>
+          <description>Dolores aut debitis molestias.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:36:55 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/home:tom/apache2/_service
+    body:
+      encoding: UTF-8
+      string: "<services/>"
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '211'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="195" vrev="195">
+          <srcmd5>879a943aa80f0b20dbe9bc6fd185adbd</srcmd5>
+          <version>unknown</version>
+          <time>1619440616</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+  recorded_at: Mon, 26 Apr 2021 12:36:56 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/_meta?user=user_13
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_4">
+          <title>Françoise Sagan</title>
+          <description/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PHByb2plY3QgbmFtZT0icHJvamVjdF80Ij4KICA8dGl0bGU+RnJhbsOnb2lzZSBTYWdhbjwvdGl0bGU+CiAgPGRlc2NyaXB0aW9uPjwvZGVzY3JpcHRpb24+CjwvcHJvamVjdD4K
+  recorded_at: Mon, 26 Apr 2021 12:36:58 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_4/package_4/_meta?user=user_14
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_4">
+          <title>Recalled to Life</title>
+          <description>Similique inventore quidem et.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '152'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_4" project="project_4">
+          <title>Recalled to Life</title>
+          <description>Similique inventore quidem et.</description>
+        </package>
+  recorded_at: Mon, 26 Apr 2021 12:36:58 GMT
+recorded_with: VCR 6.0.0

@@ -1,42 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: http://backend:5352/source/home:tom/apache2?cmd=runservice&user=tom
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home tom' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '144'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:tom' does not exist</summary>
-          <details>404 project 'home:tom' does not exist</details>
-        </status>
-  recorded_at: Thu, 15 Apr 2021 13:51:45 GMT
-- request:
     method: put
     uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
     body:
@@ -75,7 +39,7 @@ http_interactions:
           <description></description>
           <person userid="foo_admin" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:36:51 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
@@ -115,16 +79,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:36:51 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:28 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_9
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_52
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Eaque fugiat sed dolores.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Perspiciatis fugit ut aut.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -145,15 +109,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '153'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>An Instant In The Wind</title>
-          <description>Eaque fugiat sed dolores.</description>
+          <title>The Violent Bear It Away</title>
+          <description>Perspiciatis fugit ut aut.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:36:51 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:28 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/apache2/_service
@@ -183,23 +147,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="193" vrev="193">
-          <srcmd5>72e3300e5516929846966ac80b0e9a33</srcmd5>
+        <revision rev="203" vrev="203">
+          <srcmd5>9374f1f02ae94f52a997f47230c3dc5b</srcmd5>
           <version>unknown</version>
-          <time>1619440612</time>
+          <time>1619440649</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 26 Apr 2021 12:36:52 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:29 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/_meta?user=user_10
+    uri: http://backend:5352/source/project_16/_meta?user=user_53
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Parliament of Man</title>
+        <project name="project_16">
+          <title>Consider the Lilies</title>
           <description/>
         </project>
     headers:
@@ -221,24 +185,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>The Parliament of Man</title>
+        <project name="project_16">
+          <title>Consider the Lilies</title>
           <description></description>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:36:52 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:31 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_11
+    uri: http://backend:5352/source/project_16/package_16/_meta?user=user_54
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>The Millstone</title>
-          <description>Assumenda voluptatum repellat deserunt.</description>
+        <package name="package_16" project="project_16">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Libero nemo hic expedita.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -259,47 +223,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '162'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>The Millstone</title>
-          <description>Assumenda voluptatum repellat deserunt.</description>
+        <package name="package_16" project="project_16">
+          <title>Bury My Heart at Wounded Knee</title>
+          <description>Libero nemo hic expedita.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:36:53 GMT
-- request:
-    method: post
-    uri: http://backend:5352/source/home:tom/apache2?cmd=runservice&user=foo_admin
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Mon, 26 Apr 2021 12:36:53 GMT
+  recorded_at: Mon, 26 Apr 2021 12:37:31 GMT
 recorded_with: VCR 6.0.0

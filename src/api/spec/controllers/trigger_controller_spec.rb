@@ -134,7 +134,8 @@ RSpec.describe TriggerController, vcr: true do
     let(:body) { { hello: :world }.to_json }
     let(:project) { user.home_project }
     let(:package) { create(:package_with_service, name: 'apache2', project: project) }
-    let(:signature) { 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), service_token.string, body) }
+    let(:token) { Token::Service.create(user: admin, package: package) }
+    let(:signature) { 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), service_token.string, body) }
 
     shared_examples 'it verifies the signature' do
       before do
@@ -153,16 +154,17 @@ RSpec.describe TriggerController, vcr: true do
       end
 
       context 'when token is invalid' do
+        let(:token) { nil }
+
         it 'renders an error with an invalid signature' do
-          request.headers[signature_header_name] = 'sha1=invalid'
-          post :create, body: body, params: { id: service_token.id, project: project.name, package: package.name, format: :xml }
-          expect(response).to be_forbidden
+          request.headers[signature_header_name] = 'sha256=invalid'
+          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
+          expect(response).to have_http_status(:forbidden)
         end
 
         it 'renders an error with an invalid token' do
-          invalid_token_id = 42
-          post :create, body: body, params: { id: invalid_token_id, project: project.name, package: package.name, format: :xml }
-          expect(response).to be_forbidden
+          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
@@ -170,34 +172,36 @@ RSpec.describe TriggerController, vcr: true do
         let(:project_without_permissions) { create(:project, name: 'Apache') }
         let(:package_without_permissions) { create(:package_with_service, name: 'apache2', project: project_without_permissions) }
         let(:inactive_user) { create(:user) }
-        let(:invalid_service_token) { create(:service_token, user: inactive_user) }
+        let(:token) { create(:service_token, user: inactive_user) }
 
         it 'renders an error for missing package permissions' do
           params = { id: service_token.id, project: project_without_permissions.name, package: package_without_permissions.name, format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response).to have_http_status(:forbidden)
         end
 
         it 'renders an error for an inactive user' do
-          signature = 'sha1=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha1'), invalid_service_token.string, body)
+          signature = 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), token.string, body)
           request.headers[signature_header_name] = signature
-          params = { id: invalid_service_token.id, project: project.name, package: package.name, format: :xml }
+          params = { id: token.id, project: project.name, package: package.name, format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
       context 'when entity does not exist' do
+        let(:token) { Token::Rebuild.create(user: admin) }
+
         it 'renders an error for package' do
-          params = { id: service_token.id, project: project.name, package: 'does-not-exist', format: :xml }
+          params = { id: token.id, project: project.name, package: 'does-not-exist', format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response).to have_http_status(:not_found)
         end
 
         it 'renders an error for project' do
-          params = { id: service_token.id, project: 'does-not-exist', package: package.name, format: :xml }
+          params = { id: token.id, project: 'does-not-exist', package: package.name, format: :xml }
           post :create, body: body, params: params
-          expect(response).to be_not_found
+          expect(response).to have_http_status(:not_found)
         end
       end
     end
