@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    uri: http://backend:5352/source/project/_meta?user=user_108
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title/>
+        <project name="project">
+          <title>Lilies of the Field</title>
           <description/>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '140'
+      - '146'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title></title>
+        <project name="project">
+          <title>Lilies of the Field</title>
           <description></description>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Fri, 08 May 2020 07:56:13 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_1
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_109
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+        <package name="package_trigger" project="project">
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,24 +69,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '159'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+        <package name="package_trigger" project="project">
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_2
+    uri: http://backend:5352/source/target_project/_meta?user=user_110
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Passage to India</title>
+          <title>The Widening Gyre</title>
           <description/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -107,15 +108,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '109'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="target_project">
-          <title>A Passage to India</title>
+          <title>The Widening Gyre</title>
           <description></description>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=suspendproject&comment=Releasing%20via%20trigger%20event
@@ -149,16 +151,16 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -179,24 +181,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -217,18 +219,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/target_project/package_trigger?cmd=copy&comment=Release%20from%20home:foo_admin%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=home:foo_admin&user=foo_admin&withacceptinfo=1&withvrev=1
+    uri: http://backend:5352/source/target_project/package_trigger?cmd=copy&comment=Release%20from%20project%20/%20package_trigger&expand=1&noservice=1&opackage=package_trigger&oproject=project&user=foo&withacceptinfo=1&withvrev=1
     body:
       encoding: UTF-8
       string: ''
@@ -253,28 +255,28 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '254'
+      - '243'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
+        <revision rev="11" vrev="11">
           <srcmd5>d41d8cd98f00b204e9800998ecf8427e</srcmd5>
           <version>unknown</version>
-          <time>1588924574</time>
-          <user>foo_admin</user>
-          <comment>Release from home:foo_admin / package_trigger</comment>
+          <time>1619517956</time>
+          <user>foo</user>
+          <comment>Release from project / package_trigger</comment>
           <requestid/>
         </revision>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/target_project/package_trigger/_meta?user=foo
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -295,15 +297,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '163'
+      - '166'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="target_project">
-          <title>Blue Remembered Earth</title>
-          <description>Est voluptatem quos sint.</description>
+          <title>Recalled to Life</title>
+          <description>Et consequatur adipisci quisquam.</description>
         </package>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -329,13 +331,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '109'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_trigger" rev="11" vrev="11" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger?view=info
@@ -361,14 +363,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '150'
     body:
       encoding: UTF-8
       string: |
-        <sourceinfo package="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <sourceinfo package="package_trigger" rev="11" vrev="11" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
           <error>no source uploaded</error>
         </sourceinfo>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: get
     uri: http://backend:5352/source/target_project/package_trigger
@@ -394,13 +396,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '109'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" rev="1" vrev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="package_trigger" rev="11" vrev="11" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: post
     uri: http://backend:5352/source/target_project/package_trigger?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -428,16 +430,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '297'
+      - '298'
     body:
       encoding: UTF-8
       string: |
-        <sourcediff key="1ca27113e2e89131f9f59e0c8677b623">
+        <sourcediff key="815f7719837f3908303416a156d697cf">
           <old project="target_project" package="package_trigger" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
-          <new project="target_project" package="package_trigger" rev="1" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
+          <new project="target_project" package="package_trigger" rev="11" srcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
           <files/>
         </sourcediff>
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: post
     uri: http://backend:5352/build/target_project?cmd=resumeproject&comment=Releasing%20via%20trigger%20event
@@ -471,81 +473,5 @@ http_interactions:
       string: '<status code="ok" />
 
 '
-  recorded_at: Fri, 08 May 2020 07:56:14 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_96
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Rerum odit sunt numquam.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '169'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Heart Is a Lonely Hunter</title>
-          <description>Rerum odit sunt numquam.</description>
-        </package>
-  recorded_at: Mon, 26 Apr 2021 12:38:16 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/target_project/_meta?user=user_97
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>The House of Mirth</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '109'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="target_project">
-          <title>The House of Mirth</title>
-          <description></description>
-        </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:16 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 recorded_with: VCR 6.0.0

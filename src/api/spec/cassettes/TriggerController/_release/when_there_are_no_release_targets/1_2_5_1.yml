@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    uri: http://backend:5352/source/project/_meta?user=user_104
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title/>
+        <project name="project">
+          <title>The Monkey's Raincoat</title>
           <description/>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '140'
+      - '148'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title></title>
+        <project name="project">
+          <title>The Monkey's Raincoat</title>
           <description></description>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:18 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:55 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_98
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_105
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Doloribus at et dolore.</description>
+        <package name="package_trigger" project="project">
+          <title>Jesting Pilate</title>
+          <description>Natus dolores quo aspernatur.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '158'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Moving Toyshop</title>
-          <description>Doloribus at et dolore.</description>
+        <package name="package_trigger" project="project">
+          <title>Jesting Pilate</title>
+          <description>Natus dolores quo aspernatur.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:38:19 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:55 GMT
 recorded_with: VCR 6.0.0

@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    uri: http://backend:5352/source/project/_meta?user=user_106
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title/>
+        <project name="project">
+          <title>This Side of Paradise</title>
           <description/>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '140'
+      - '148'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title></title>
+        <project name="project">
+          <title>This Side of Paradise</title>
           <description></description>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_95
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_107
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Ipsum autem eos a.</description>
+        <package name="package_trigger" project="project">
+          <title>The Last Enemy</title>
+          <description>Recusandae debitis nihil incidunt.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '160'
+      - '158'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Alone on a Wide, Wide Sea</title>
-          <description>Ipsum autem eos a.</description>
+        <package name="package_trigger" project="project">
+          <title>The Last Enemy</title>
+          <description>Recusandae debitis nihil incidunt.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:38:14 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:56 GMT
 recorded_with: VCR 6.0.0

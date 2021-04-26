@@ -1,80 +1,6 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: http://backend:5352/source/home:tom/apache2?cmd=runservice&user=foo_admin
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '21'
-    body:
-      encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Mon, 26 Apr 2021 12:36:25 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:foo_admin">
-          <title/>
-          <description/>
-          <person userid="foo_admin" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '140'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:foo_admin">
-          <title></title>
-          <description></description>
-          <person userid="foo_admin" role="maintainer"/>
-        </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:06 GMT
-- request:
     method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
@@ -113,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:06 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_87
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_89
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Quis et nihil quia.</description>
+          <title>Mother Night</title>
+          <description>Perspiciatis tempora eos iusto.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -143,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '146'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Quis et nihil quia.</description>
+          <title>Mother Night</title>
+          <description>Perspiciatis tempora eos iusto.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:38:06 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/apache2/_service
@@ -181,23 +107,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="213" vrev="213">
-          <srcmd5>2534939652ffb0d1ae1b3f5e7301b126</srcmd5>
+        <revision rev="117" vrev="117">
+          <srcmd5>746c31ef64bcda600955d90b1071f10c</srcmd5>
           <version>unknown</version>
-          <time>1619440686</time>
+          <time>1619517954</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 26 Apr 2021 12:38:07 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_27/_meta?user=user_88
+    uri: http://backend:5352/source/project_25/_meta?user=user_90
     body:
       encoding: UTF-8
       string: |
-        <project name="project_27">
-          <title>Beneath the Bleeding</title>
+        <project name="project_25">
+          <title>Shall not Perish</title>
           <description/>
         </project>
     headers:
@@ -219,24 +145,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '107'
+      - '103'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_27">
-          <title>Beneath the Bleeding</title>
+        <project name="project_25">
+          <title>Shall not Perish</title>
           <description></description>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:38:07 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_27/package_27/_meta?user=user_89
+    uri: http://backend:5352/source/project_25/package_25/_meta?user=user_91
     body:
       encoding: UTF-8
       string: |
-        <package name="package_27" project="project_27">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Ut quam id soluta.</description>
+        <package name="package_25" project="project_25">
+          <title>Taming a Sea Horse</title>
+          <description>Sed consectetur pariatur natus.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -257,13 +183,47 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '152'
+      - '157'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_27" project="project_27">
-          <title>The Wind's Twelve Quarters</title>
-          <description>Ut quam id soluta.</description>
+        <package name="package_25" project="project_25">
+          <title>Taming a Sea Horse</title>
+          <description>Sed consectetur pariatur natus.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:38:07 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
+- request:
+    method: post
+    uri: http://backend:5352/source/home:tom/apache2?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+  recorded_at: Tue, 27 Apr 2021 10:05:54 GMT
 recorded_with: VCR 6.0.0
