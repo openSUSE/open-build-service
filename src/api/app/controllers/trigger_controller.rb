@@ -38,8 +38,13 @@ class TriggerController < ApplicationController
   def set_package
     # We need to store in memory the package in order to do authorization
     if @token.package
+      @token.project_from_association_or_params = @token.package.project
       @token.package_from_association_or_params = @token.package
     elsif params[:project] && params[:package]
+      # If params[:project] is a Project that has a project link, then Package.get_by_project_and_name
+      # might get a Package from another Project if the @token.package_find_options allows following
+      # project links. The Token policy needs to make sure to authorize the right object then.
+      @token.project_from_association_or_params = Project.get_by_name(params[:project])
       @token.package_from_association_or_params = Package.get_by_project_and_name(params[:project],
                                                                                   params[:package],
                                                                                   @token.package_find_options)
