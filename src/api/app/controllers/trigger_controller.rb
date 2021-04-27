@@ -13,7 +13,7 @@ class TriggerController < ApplicationController
 
   include Trigger::Errors
 
-  def create
+  def trigger
     authorize @token
     @token.user.run_as do
       @token.call(params.slice(:repository, :arch).permit!)

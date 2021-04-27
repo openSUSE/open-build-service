@@ -56,6 +56,7 @@ module RescueHandler
         when 'destroy?' then 'delete'
         when 'create_branch?' then 'create_branch'
         when 'accept?' then 'accept'
+        when 'trigger?' then 'trigger'
         else exception.try(:query)
         end
 

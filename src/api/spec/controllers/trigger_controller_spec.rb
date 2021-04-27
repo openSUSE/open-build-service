@@ -25,7 +25,7 @@ RSpec.describe TriggerController, vcr: true do
       let!(:token) { nil }
 
       before do
-        post :create, params: { format: :xml }
+        post :trigger, params: { format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -36,7 +36,7 @@ RSpec.describe TriggerController, vcr: true do
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
-        post :create, params: { format: :xml }
+        post :trigger, params: { format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -53,7 +53,7 @@ RSpec.describe TriggerController, vcr: true do
         allow(User).to receive(:session!).and_return(user)
         allow(Backend::Api::Sources::Package).to receive(:rebuild).with('project_a', 'foo', ActionController::Parameters.new.permit!)
 
-        post :create, params: { format: :xml, project: 'project_b', package: 'foo' }
+        post :trigger, params: { format: :xml, project: 'project_b', package: 'foo' }
       end
 
       it { expect(Backend::Api::Sources::Package).to have_received(:rebuild).with('project_a', 'foo', ActionController::Parameters.new.permit!) }
@@ -65,7 +65,7 @@ RSpec.describe TriggerController, vcr: true do
       let(:token) { Token::Release.create(user: admin, package: package) }
 
       before do
-        post :create, params: { project: 'foo', format: :xml }
+        post :trigger, params: { project: 'foo', format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -84,7 +84,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(Backend::Connection).to receive(:post).and_call_original
         allow(Backend::Connection).to receive(:post).with(backend_url).and_return("<status code=\"ok\" />\n")
-        post :create, params: { package: package, format: :xml }
+        post :trigger, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
@@ -96,7 +96,7 @@ RSpec.describe TriggerController, vcr: true do
 
       before do
         allow(User).to receive(:session!).and_return(user)
-        post :create, params: { package: package, format: :xml }
+        post :trigger, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -111,7 +111,7 @@ RSpec.describe TriggerController, vcr: true do
         release_target
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        post :create, params: { package: package, format: :xml }
+        post :trigger, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:forbidden) }
@@ -126,7 +126,7 @@ RSpec.describe TriggerController, vcr: true do
       before do
         allow(User).to receive(:session!).and_return(user)
         allow(User).to receive(:possibly_nobody).and_return(user)
-        post :create, params: { package: package, format: :xml }
+        post :trigger, params: { package: package, format: :xml }
       end
 
       it { expect(response).to have_http_status(:not_found) }
@@ -139,13 +139,13 @@ RSpec.describe TriggerController, vcr: true do
     let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     before do
-      post :create, params: { package: package, format: :xml }
+      post :trigger, params: { package: package, format: :xml }
     end
 
     it { expect(response).to have_http_status(:success) }
   end
 
-  describe '#create' do
+  describe '#trigger' do
     let(:user) { create(:confirmed_user, :with_home, login: 'tom') }
     let(:service_token) { create(:service_token, user: user) }
     let(:body) { { hello: :world }.to_json }
@@ -164,7 +164,7 @@ RSpec.describe TriggerController, vcr: true do
 
         before do
           stub_request(:get, path).and_return(body: 'does not matter')
-          post :create, body: body, params: { id: service_token.id, project: project.name, package: package.name, format: :xml }
+          post :trigger, body: body, params: { id: service_token.id, project: project.name, package: package.name, format: :xml }
         end
 
         it { expect(response).to have_http_status(:success) }
@@ -175,12 +175,12 @@ RSpec.describe TriggerController, vcr: true do
 
         it 'renders an error with an invalid signature' do
           request.headers[signature_header_name] = 'sha256=invalid'
-          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
+          post :trigger, body: body, params: { project: project.name, package: package.name, format: :xml }
           expect(response).to have_http_status(:forbidden)
         end
 
         it 'renders an error with an invalid token' do
-          post :create, body: body, params: { project: project.name, package: package.name, format: :xml }
+          post :trigger, body: body, params: { project: project.name, package: package.name, format: :xml }
           expect(response).to have_http_status(:forbidden)
         end
       end
@@ -212,18 +212,18 @@ RSpec.describe TriggerController, vcr: true do
 
       it 'renders an error for package' do
         params = { project: project.name, package: 'does-not-exist', format: :xml }
-        post :create, params: params
+        post :trigger, params: params
         expect(response).to have_http_status(:not_found)
       end
 
       it 'renders an error for project' do
         params = { project: 'does-not-exist', package: package.name, format: :xml }
-        post :create, params: params
+        post :trigger, params: params
         expect(response).to have_http_status(:not_found)
       end
 
       it 'renders an error for nothing' do
-        post :create, params:  { format: :xml }
+        post :trigger, params: { format: :xml }
         expect(response).to have_http_status(:not_found)
       end
     end
