@@ -3,7 +3,7 @@ class ProjectCreateAutoCleanupRequestsJob < ApplicationJob
 Accepting this request will free resources on our always crowded server.
 Please decline this request if you want to keep this repository nevertheless. Otherwise this request
 will get accepted automatically in near future.
-These requests are not created for project with open requests or if you remove the OBS:AutoCleanup attribute.".freeze
+These requests are not created for projects with open requests or if you remove the OBS:AutoCleanup attribute.".freeze
 
   class CleanupRequestTemplate
     attr_accessor :project, :description, :cleanup_time
