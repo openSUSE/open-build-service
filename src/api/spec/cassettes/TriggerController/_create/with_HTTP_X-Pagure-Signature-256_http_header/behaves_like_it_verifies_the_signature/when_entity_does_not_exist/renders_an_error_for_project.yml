@@ -2,46 +2,6 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:foo_admin">
-          <title/>
-          <description/>
-          <person userid="foo_admin" role="maintainer"/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '140'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="home:foo_admin">
-          <title></title>
-          <description></description>
-          <person userid="foo_admin" role="maintainer"/>
-        </project>
-  recorded_at: Mon, 26 Apr 2021 12:37:32 GMT
-- request:
-    method: put
     uri: http://backend:5352/source/home:tom/_meta?user=tom
     body:
       encoding: UTF-8
@@ -79,16 +39,16 @@ http_interactions:
           <description></description>
           <person userid="tom" role="maintainer"/>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:37:32 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_55
+    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_20
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>The Widening Gyre</title>
-          <description>Ut quis dignissimos eum.</description>
+          <title>East of Eden</title>
+          <description>Placeat natus et quos.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -109,15 +69,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '144'
+      - '137'
     body:
       encoding: UTF-8
       string: |
         <package name="apache2" project="home:tom">
-          <title>The Widening Gyre</title>
-          <description>Ut quis dignissimos eum.</description>
+          <title>East of Eden</title>
+          <description>Placeat natus et quos.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:37:32 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:49 GMT
 - request:
     method: put
     uri: http://backend:5352/source/home:tom/apache2/_service
@@ -147,23 +107,23 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="204" vrev="204">
-          <srcmd5>566d4b2cbbe420ca72c1f38b8908e64b</srcmd5>
+        <revision rev="100" vrev="100">
+          <srcmd5>940316cddff030e2c013dee37687847f</srcmd5>
           <version>unknown</version>
-          <time>1619440653</time>
+          <time>1619517949</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
-  recorded_at: Mon, 26 Apr 2021 12:37:33 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_17/_meta?user=user_56
+    uri: http://backend:5352/source/project_4/_meta?user=user_21
     body:
       encoding: UTF-8
       string: |
-        <project name="project_17">
-          <title>Many Waters</title>
+        <project name="project_4">
+          <title>Oh! To be in England</title>
           <description/>
         </project>
     headers:
@@ -185,24 +145,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '98'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_17">
-          <title>Many Waters</title>
+        <project name="project_4">
+          <title>Oh! To be in England</title>
           <description></description>
         </project>
-  recorded_at: Mon, 26 Apr 2021 12:37:34 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:49 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_17/package_17/_meta?user=user_57
+    uri: http://backend:5352/source/project_4/package_4/_meta?user=user_22
     body:
       encoding: UTF-8
       string: |
-        <package name="package_17" project="project_17">
-          <title>To a God Unknown</title>
-          <description>Eos fugit et adipisci.</description>
+        <package name="package_4" project="project_4">
+          <title>Some Buried Caesar</title>
+          <description>Qui et sed explicabo.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -223,13 +183,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '145'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_17" project="project_17">
-          <title>To a God Unknown</title>
-          <description>Eos fugit et adipisci.</description>
+        <package name="package_4" project="project_4">
+          <title>Some Buried Caesar</title>
+          <description>Qui et sed explicabo.</description>
         </package>
-  recorded_at: Mon, 26 Apr 2021 12:37:35 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:49 GMT
 recorded_with: VCR 6.0.0

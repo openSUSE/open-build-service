@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/_meta?user=foo_admin
+    uri: http://backend:5352/source/project/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title/>
+        <project name="project">
+          <title>The Skull Beneath the Skin</title>
           <description/>
-          <person userid="foo_admin" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '141'
+      - '153'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:foo_admin">
-          <title></title>
+        <project name="project">
+          <title>The Skull Beneath the Skin</title>
           <description></description>
-          <person userid="foo_admin" role="maintainer" />
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:48 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+        <package name="package_trigger" project="project">
+          <title>Down to a Sunless Sea</title>
+          <description>Pariatur impedit nostrum dolores.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,89 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '164'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
+        <package name="package_trigger" project="project">
+          <title>Down to a Sunless Sea</title>
+          <description>Pariatur impedit nostrum dolores.</description>
         </package>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=foo_admin
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '166'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>Blue Remembered Earth</title>
-          <description>Et aspernatur placeat quasi.</description>
-        </package>
-  recorded_at: Mon, 20 May 2019 10:56:12 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/home:foo_admin/package_trigger/_meta?user=user_1
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Line of Beauty</title>
-          <description>Distinctio dolor eius mollitia.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '166'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="home:foo_admin">
-          <title>The Line of Beauty</title>
-          <description>Distinctio dolor eius mollitia.</description>
-        </package>
-  recorded_at: Mon, 26 Apr 2021 12:36:42 GMT
+  recorded_at: Tue, 27 Apr 2021 10:05:48 GMT
 recorded_with: VCR 6.0.0

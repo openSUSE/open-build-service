@@ -2,13 +2,10 @@ require 'rails_helper'
 require 'webmock/rspec'
 
 RSpec.describe TriggerController, vcr: true do
-  let(:admin) { create(:admin_user, :with_home, login: 'foo_admin') }
-  let(:project) { admin.home_project }
+  let(:user) { create(:confirmed_user, login: 'foo') }
+  let(:project) { create(:project, name: 'project', maintainer: user) }
   let(:package) { create(:package, name: 'package_trigger', project: project) }
   let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project) }
-  let(:target_project) { create(:project, name: 'target_project') }
-  let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
-  let(:release_target) { create(:release_target, target_repository: target_repository, repository: repository, trigger: 'manual') }
 
   render_views
 
@@ -32,7 +29,7 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when token is valid and packet rebuild' do
-      let!(:token) { Token::Rebuild.create(user: admin, package: package) }
+      let!(:token) { Token::Rebuild.create(user: user, package: package) }
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
@@ -61,8 +58,12 @@ RSpec.describe TriggerController, vcr: true do
   end
 
   describe '#release' do
+    let(:target_project) { create(:project, name: 'target_project', maintainer: user) }
+    let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
+    let(:release_target) { create(:release_target, repository: repository, target_repository: target_repository, trigger: 'manual') }
+
     context 'for inexistent project' do
-      let(:token) { Token::Release.create(user: admin, package: package) }
+      let(:token) { Token::Release.create(user: user, package: package) }
 
       before do
         post :create, params: { project: 'foo', format: :xml }
@@ -72,7 +73,7 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when token is valid and package exists' do
-      let(:token) { Token::Release.create(user: admin, package: package) }
+      let(:token) { Token::Release.create(user: user, package: package) }
 
       let(:backend_url) do
         "/build/#{target_project.name}/#{target_repository.name}/x86_64/#{package.name}" \
@@ -91,11 +92,11 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when user has no rights for source' do
-      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: user, package: package) }
+      let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: other_user, package: package) }
 
       before do
-        allow(User).to receive(:session!).and_return(user)
+        release_target
         post :create, params: { package: package, format: :xml }
       end
 
@@ -103,14 +104,12 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when user has no rights for target' do
-      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: user, package: package) }
-      let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: package) }
+      let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: other_user, package: package) }
+      let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: package) }
 
       before do
         release_target
-        allow(User).to receive(:session!).and_return(user)
-        allow(User).to receive(:possibly_nobody).and_return(user)
         post :create, params: { package: package, format: :xml }
       end
 
@@ -119,13 +118,11 @@ RSpec.describe TriggerController, vcr: true do
     end
 
     context 'when there are no release targets' do
-      let(:user) { create(:confirmed_user, login: 'mrfluffy') }
-      let(:token) { Token::Release.create(user: user, package: package) }
-      let!(:relationship_package_user) { create(:relationship_package_user, user: user, package: package) }
+      let(:other_user) { create(:confirmed_user, login: 'mrfluffy') }
+      let(:token) { Token::Release.create(user: other_user, package: package) }
+      let!(:relationship_package_user) { create(:relationship_package_user, user: other_user, package: package) }
 
       before do
-        allow(User).to receive(:session!).and_return(user)
-        allow(User).to receive(:possibly_nobody).and_return(user)
         post :create, params: { package: package, format: :xml }
       end
 
@@ -134,8 +131,7 @@ RSpec.describe TriggerController, vcr: true do
   end
 
   describe '#runservice' do
-    let(:token) { Token::Service.create(user: admin, package: package) }
-    let(:project) { admin.home_project }
+    let(:token) { Token::Service.create(user: user, package: package) }
     let(:package) { create(:package_with_service, name: 'package_with_service', project: project) }
 
     before do
@@ -151,7 +147,7 @@ RSpec.describe TriggerController, vcr: true do
     let(:body) { { hello: :world }.to_json }
     let(:project) { user.home_project }
     let(:package) { create(:package_with_service, name: 'apache2', project: project) }
-    let(:token) { Token::Service.create(user: admin, package: package) }
+    let(:token) { Token::Service.create(user: user, package: package) }
     let(:signature) { 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), service_token.string, body) }
 
     shared_examples 'it verifies the signature' do
@@ -208,7 +204,7 @@ RSpec.describe TriggerController, vcr: true do
   describe '#set_package' do
     context 'when entity does not exist' do
       let(:signature_header_name) { 'HTTP_X_OBS_SIGNATURE' }
-      let(:token) { Token::Rebuild.create(user: admin) }
+      let(:token) { Token::Rebuild.create(user: user) }
 
       it 'renders an error for package' do
         params = { project: project.name, package: 'does-not-exist', format: :xml }
