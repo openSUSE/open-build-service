@@ -184,43 +184,6 @@ RSpec.describe TriggerController, vcr: true do
           expect(response).to have_http_status(:forbidden)
         end
       end
-
-      context 'when user has no permissions' do
-        let(:project_without_permissions) { create(:project, name: 'Apache') }
-        let(:package_without_permissions) { create(:package_with_service, name: 'apache2', project: project_without_permissions) }
-        let(:inactive_user) { create(:user) }
-        let(:token) { create(:service_token, user: inactive_user) }
-
-        it 'renders an error for missing package permissions' do
-          params = { id: service_token.id, project: project_without_permissions.name, package: package_without_permissions.name, format: :xml }
-          post :create, body: body, params: params
-          expect(response).to have_http_status(:forbidden)
-        end
-
-        it 'renders an error for an inactive user' do
-          signature = 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), token.string, body)
-          request.headers[signature_header_name] = signature
-          params = { id: token.id, project: project.name, package: package.name, format: :xml }
-          post :create, body: body, params: params
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
-      context 'when entity does not exist' do
-        let(:token) { Token::Rebuild.create(user: admin) }
-
-        it 'renders an error for package' do
-          params = { id: token.id, project: project.name, package: 'does-not-exist', format: :xml }
-          post :create, body: body, params: params
-          expect(response).to have_http_status(:not_found)
-        end
-
-        it 'renders an error for project' do
-          params = { id: token.id, project: 'does-not-exist', package: package.name, format: :xml }
-          post :create, body: body, params: params
-          expect(response).to have_http_status(:not_found)
-        end
-      end
     end
 
     context 'with HTTP_X_OBS_SIGNATURE http header' do
@@ -239,6 +202,30 @@ RSpec.describe TriggerController, vcr: true do
       let(:signature_header_name) { 'HTTP_X-Pagure-Signature-256' }
 
       it_behaves_like 'it verifies the signature'
+    end
+  end
+
+  describe '#set_package' do
+    context 'when entity does not exist' do
+      let(:signature_header_name) { 'HTTP_X_OBS_SIGNATURE' }
+      let(:token) { Token::Rebuild.create(user: admin) }
+
+      it 'renders an error for package' do
+        params = { project: project.name, package: 'does-not-exist', format: :xml }
+        post :create, params: params
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'renders an error for project' do
+        params = { project: 'does-not-exist', package: package.name, format: :xml }
+        post :create, params: params
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'renders an error for nothing' do
+        post :create, params:  { format: :xml }
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end

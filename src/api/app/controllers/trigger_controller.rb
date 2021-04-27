@@ -5,6 +5,7 @@ class TriggerController < ApplicationController
   skip_before_action :extract_user
   # Authentication happens with tokens, so no login is required
   skip_before_action :require_login
+  after_action :verify_authorized
 
   before_action :validate_gitlab_event
   before_action :set_token
@@ -36,10 +37,13 @@ class TriggerController < ApplicationController
 
   def set_package
     # We need to store in memory the package in order to do authorization
-    @token.package_from_association_or_params = @token.package ||
-                                                Package.get_by_project_and_name(params[:project],
-                                                                                params[:package],
-                                                                                @token.package_find_options)
+    if @token.package
+      @token.package_from_association_or_params = @token.package
+    elsif params[:project] && params[:package]
+      @token.package_from_association_or_params = Package.get_by_project_and_name(params[:project],
+                                                                                  params[:package],
+                                                                                  @token.package_find_options)
+    end
     # This can happen due to the Package.get_by_project_and_name method
     raise ActiveRecord::RecordNotFound if @token.package_from_association_or_params.nil?
   end
