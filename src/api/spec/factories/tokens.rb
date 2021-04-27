@@ -4,8 +4,9 @@ FactoryBot.define do
     user
     package
 
-    trait :with_package_from_association_or_param do
+    trait :with_package_from_association_or_params do
       package_from_association_or_params { package }
+      project_from_association_or_params { package.project }
     end
 
     factory :service_token, class: 'Token::Service' do
