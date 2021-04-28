@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_28_112249) do
+ActiveRecord::Schema.define(version: 2021_04_28_122525) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -1005,7 +1005,9 @@ ActiveRecord::Schema.define(version: 2021_04_28_112249) do
     t.integer "user_id", null: false
     t.integer "package_id"
     t.string "type", collation: "utf8_unicode_ci"
+    t.string "scm_token"
     t.index ["package_id"], name: "package_id"
+    t.index ["scm_token"], name: "index_tokens_on_scm_token"
     t.index ["string"], name: "index_tokens_on_string", unique: true
     t.index ["user_id"], name: "user_id"
   end
