@@ -83,6 +83,8 @@ gem 'strong_migrations'
 # for some rails console fancy
 gem 'pry-rails'
 gem 'awesome_print'
+# Simple wrapper for the GitHub API
+gem 'octokit'
 
 group :development, :production do
   # to have the delayed job daemon

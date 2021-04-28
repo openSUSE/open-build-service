@@ -154,6 +154,15 @@ GEM
       railties (>= 5.0.0)
     faker (2.17.0)
       i18n (>= 1.6, < 2)
+    faraday (1.4.1)
+      faraday-excon (~> 1.1)
+      faraday-net_http (~> 1.0)
+      faraday-net_http_persistent (~> 1.1)
+      multipart-post (>= 1.2, < 3)
+      ruby2_keywords (>= 0.0.4)
+    faraday-excon (1.1.0)
+    faraday-net_http (1.0.1)
+    faraday-net_http_persistent (1.1.0)
     ffi (1.15.0)
     flipper (0.20.4)
     flipper-active_record (0.20.4)
@@ -245,6 +254,7 @@ GEM
       minitest (>= 5.0)
       ruby-progressbar
     mocha (1.12.0)
+    multipart-post (2.1.1)
     mysql2 (0.5.3)
     next_rails (1.0.4)
       colorize (>= 0.8.1)
@@ -252,6 +262,9 @@ GEM
     nokogiri (1.11.3)
       mini_portile2 (~> 2.5.0)
       racc (~> 1.4)
+    octokit (4.21.0)
+      faraday (>= 0.9)
+      sawyer (~> 0.8.0, >= 0.5.3)
     parallel (1.20.1)
     parser (3.0.1.0)
       ast (~> 2.4.1)
@@ -362,6 +375,7 @@ GEM
       rubocop-ast (>= 1.1.0)
     ruby-ldap (0.9.20)
     ruby-progressbar (1.11.0)
+    ruby2_keywords (0.0.4)
     ruby_parser (3.15.1)
       sexp_processor (~> 4.9)
     rubyzip (2.3.0)
@@ -373,6 +387,9 @@ GEM
       sprockets (> 3.0)
       sprockets-rails
       tilt
+    sawyer (0.8.2)
+      addressable (>= 2.3.5)
+      faraday (> 0.8, < 2.0)
     selenium-webdriver (3.142.7)
       childprocess (>= 0.5, < 4.0)
       rubyzip (>= 1.2.2)
@@ -499,6 +516,7 @@ DEPENDENCIES
   mysql2
   next_rails
   nokogiri
+  octokit
   pry
   pry-byebug
   pry-rails
