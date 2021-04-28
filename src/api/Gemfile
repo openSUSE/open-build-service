@@ -85,6 +85,8 @@ gem 'pry-rails'
 gem 'awesome_print'
 # flexible and safe downloading of remote files
 gem 'down'
+# Simple wrapper for the GitHub API
+gem 'octokit'
 
 group :development, :production do
   # to have the delayed job daemon
