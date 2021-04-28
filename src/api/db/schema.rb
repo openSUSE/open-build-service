@@ -1006,7 +1006,9 @@ ActiveRecord::Schema.define(version: 2021_05_05_160725) do
     t.integer "user_id", null: false
     t.integer "package_id"
     t.string "type", collation: "utf8_unicode_ci"
+    t.string "scm_token"
     t.index ["package_id"], name: "package_id"
+    t.index ["scm_token"], name: "index_tokens_on_scm_token"
     t.index ["string"], name: "index_tokens_on_string", unique: true
     t.index ["user_id"], name: "user_id"
   end
