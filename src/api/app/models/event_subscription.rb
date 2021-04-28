@@ -20,6 +20,8 @@ class EventSubscription < ApplicationRecord
     rss: 3
   }
 
+  serialize :payload, JSON
+
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
   belongs_to :token, inverse_of: :event_subscriptions
@@ -87,6 +89,7 @@ end
 #  channel       :integer          default("disabled"), not null
 #  enabled       :boolean          default(FALSE)
 #  eventtype     :string(255)      not null
+#  payload       :text(65535)
 #  receiver_role :string(255)      not null
 #  created_at    :datetime
 #  updated_at    :datetime
