@@ -9,7 +9,7 @@ class TriggerController < ApplicationController
   skip_before_action :validate_params
   after_action :verify_authorized
 
-  before_action :validate_gitlab_event
+  before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
   before_action :set_project
   before_action :set_package
@@ -28,10 +28,12 @@ class TriggerController < ApplicationController
 
   private
 
-  def validate_gitlab_event
-    return unless request.env['HTTP_X_GITLAB_EVENT']
+  def gitlab_webhook?
+    request.env['HTTP_X_GITLAB_EVENT'].present?
+  end
 
-    raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
+  def validate_gitlab_event
+    raise InvalidToken unless event.in?(ALLOWED_GITLAB_EVENTS)
   end
 
   # AUTHENTICATION
