@@ -1,5 +1,6 @@
 class Token < ApplicationRecord
   belongs_to :user
+  has_many :event_subscriptions, dependent: :destroy # TODO: Is this for all tokens or only for Token::Workflow?
   belongs_to :package, inverse_of: :tokens
 
   attr_accessor :package_from_association_or_params, :project_from_association_or_params
