@@ -402,6 +402,7 @@ ActiveRecord::Schema.define(version: 2021_05_05_160725) do
     t.integer "channel", default: 0, null: false
     t.boolean "enabled", default: false
     t.integer "token_id"
+    t.text "payload"
     t.index ["group_id"], name: "index_event_subscriptions_on_group_id"
     t.index ["token_id"], name: "index_event_subscriptions_on_token_id"
     t.index ["user_id"], name: "index_event_subscriptions_on_user_id"
