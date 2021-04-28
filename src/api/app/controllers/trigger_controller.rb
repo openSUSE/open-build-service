@@ -9,12 +9,13 @@ class TriggerController < ApplicationController
   skip_before_action :validate_params
   after_action :verify_authorized
 
-  before_action :validate_gitlab_event
+  before_action :validate_gitlab_event, if: :gitlab_webhook?
   before_action :set_token
   before_action :set_package
 
   include Trigger::Errors
 
+  # TODO: split into different controllers, there is some behaviour that only applies to one specific kind of token.
   def create
     authorize @token
     @token.user.run_as do
@@ -25,16 +26,18 @@ class TriggerController < ApplicationController
 
   private
 
+  def gitlab_webhook?
+    request.env['HTTP_X_GITLAB_EVENT'].present?
+  end
+
+  def validate_gitlab_event
+    raise InvalidToken unless event.in?(ALLOWED_GITLAB_EVENTS)
+  end
+
   # AUTHENTICATION
   def set_token
     @token = ::TriggerControllerService::TokenExtractor.new(request).call
     raise InvalidToken unless @token
-  end
-
-  def validate_gitlab_event
-    return unless request.env['HTTP_X_GITLAB_EVENT']
-
-    raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
   def set_package
