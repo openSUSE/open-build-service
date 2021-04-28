@@ -10,6 +10,8 @@ Rails.autoloaders.each do |autoloader|
     'remote_url' => 'RemoteURL',
     'rss_channel' => 'RSSChannel',
     'url_generator' => 'URLGenerator',
-    'scm_status_reporter' => 'SCMStatusReporter'
+    'scm_status_reporter' => 'SCMStatusReporter',
+    'yaml_download_service' => 'YAMLDownloadService',
+    'yaml_to_workflows_service' => 'YAMLToWorkflowsService'
   )
 end
