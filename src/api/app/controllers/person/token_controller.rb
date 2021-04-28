@@ -16,7 +16,7 @@ module Person
 
       pkg = (Package.get_by_project_and_name(params[:project], params[:package]) if params[:project] || params[:package])
 
-      @token = Token.token_type(params[:operation]).create(user: @user, package: pkg)
+      @token = Token.token_type(params[:operation]).create(user: @user, package: pkg, scm_token: params[:scm_token])
     end
 
     # DELETE /person/<login>/token/<id>

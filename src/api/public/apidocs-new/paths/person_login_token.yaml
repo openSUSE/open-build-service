@@ -82,6 +82,15 @@ post:
 
         When operation is not specified, 'runservice' is the default value.
       example: runservice
+    - in: query
+      name: scm_token
+      schema:
+        type: string
+      description: |
+        SCM token used in OBS workflows to report back the workflow status, when the operation is workflow.
+
+        It's normally possible to generate SCM tokens directly on the SCM's website like GitHub or GitLab.
+      example: ghp_fake_token_123
   responses:
     '200':
       description: |
