@@ -1,5 +1,6 @@
 class Token < ApplicationRecord
   belongs_to :user
+  has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens
 
   attr_accessor :object_to_authorize
