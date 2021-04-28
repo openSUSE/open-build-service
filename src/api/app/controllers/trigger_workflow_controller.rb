@@ -3,7 +3,6 @@ class TriggerWorkflowController < TriggerController
   before_action :set_scm_event
   before_action :validate_scm_event
 
-  # TODO: split into different controllers, there is some behaviour that only applies to one specific kind of token.
   def create
     authorize @token
     @token.user.run_as do
