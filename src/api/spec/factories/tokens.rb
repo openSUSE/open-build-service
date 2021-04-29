@@ -3,11 +3,7 @@ FactoryBot.define do
     string { Faker::Lorem.characters(number: 32) }
     user
     package
-
-    trait :with_package_from_association_or_params do
-      package_from_association_or_params { package }
-      project_from_association_or_params { package.project }
-    end
+    object_to_authorize { package }
 
     factory :service_token, class: 'Token::Service' do
       type { 'Token::Service' }
