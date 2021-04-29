@@ -2,13 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_28
+    uri: http://backend:5352/source/project/_meta?user=user_34
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Nine Coaches Waiting</title>
+          <title>A Time of Gifts</title>
           <description/>
+          <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
     headers:
@@ -30,25 +31,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '182'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Nine Coaches Waiting</title>
+          <title>A Time of Gifts</title>
           <description></description>
+          <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+  recorded_at: Mon, 03 May 2021 15:47:18 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_with_service/_meta?user=user_29
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_35
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_service" project="project">
-          <title>Dance Dance Dance</title>
-          <description>Aut asperiores in ut.</description>
+        <package name="package_trigger" project="project">
+          <title>The Grapes of Wrath</title>
+          <description>Itaque architecto est officia.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +71,21 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '159'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_service" project="project">
-          <title>Dance Dance Dance</title>
-          <description>Aut asperiores in ut.</description>
+        <package name="package_trigger" project="project">
+          <title>The Grapes of Wrath</title>
+          <description>Itaque architecto est officia.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+  recorded_at: Mon, 03 May 2021 15:47:18 GMT
 - request:
-    method: put
-    uri: http://backend:5352/source/project/package_with_service/_service
+    method: get
+    uri: http://backend:5352/source/project/package_trigger
     body:
-      encoding: UTF-8
-      string: "<services/>"
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -103,22 +105,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '90'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>12c260a0c06a2bb742c4963b93e20b80</srcmd5>
-          <version>unknown</version>
-          <time>1620056837</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+        <directory name="package_trigger" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 03 May 2021 15:47:18 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/project/package_with_service?cmd=runservice&user=foo
+    uri: http://backend:5352/build/project?cmd=rebuild&package=package_trigger
     body:
       encoding: UTF-8
       string: ''
@@ -133,8 +129,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: no repository defined
     headers:
       Content-Type:
       - text/xml
@@ -143,11 +139,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '73'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
+  recorded_at: Mon, 03 May 2021 15:47:18 GMT
 recorded_with: VCR 6.0.0
