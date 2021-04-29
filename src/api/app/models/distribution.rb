@@ -4,6 +4,10 @@ class Distribution < ApplicationRecord
   has_and_belongs_to_many :icons, -> { distinct }, class_name: 'DistributionIcon'
   has_and_belongs_to_many :architectures, -> { distinct }, class_name: 'Architecture'
 
+  scope :local, -> { where(remote: false) }
+  scope :remote, -> { where(remote: true) }
+  scope :for_project, ->(project_name) { where('project like ?', project_name + ':%') }
+
   def self.new_from_xmlhash(xmlhash)
     return new unless xmlhash.is_a?(Xmlhash::XMLHash)
 

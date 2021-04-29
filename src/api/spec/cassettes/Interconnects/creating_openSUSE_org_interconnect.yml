@@ -1,0 +1,725 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://api.opensuse.org/public/distributions.xml
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Tue, 08 Jun 2021 14:08:10 GMT
+      Server:
+      - Apache/2.4.33 (Linux/SUSE)
+      Strict-Transport-Security:
+      - max-age=31536000
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Vary:
+      - Accept-Encoding
+      Referrer-Policy:
+      - strict-origin-when-cross-origin
+      X-Permitted-Cross-Domain-Policies:
+      - none
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Opensuse-Runtimes:
+      - '{"view":22.576807998120785,"db":11.108079925179482,"backend":0}'
+      X-Request-Id:
+      - 35dbc7e6-7816-43fb-aaf3-16d7ae2d19da
+      X-Opensuse-Apiversion:
+      - 2.11~alpha.20210608T091701.79aaf33c2f
+      X-Download-Options:
+      - noopen
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Runtime:
+      - '0.076792'
+      X-Content-Type-Options:
+      - nosniff
+      X-Powered-By:
+      - Phusion Passenger 6.0.7
+      Etag:
+      - W/"b14ae4eb3a91cfffc7d4fd0bf614e280"
+      Status:
+      - 200 OK
+      Content-Type:
+      - application/xml; charset=utf-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: |
+        <distributions>
+          <distribution vendor="openEuler" version="20.03" id="18648">
+            <name>openEuler 20.03</name>
+            <project>openEuler:20.03</project>
+            <reponame>openEuler_20.03</reponame>
+            <repository>standard</repository>
+            <link>http://www.openeuler.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/openeuler.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/openeuler.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>aarch64</architecture>
+          </distribution>
+          <distribution vendor="openEuler" version="21.03" id="18651">
+            <name>openEuler 21.03</name>
+            <project>openEuler:21.03</project>
+            <reponame>openEuler_21.03</reponame>
+            <repository>standard</repository>
+            <link>http://www.openeuler.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/openeuler.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/openeuler.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>aarch64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="Tumbleweed" id="18654">
+            <name>openSUSE Tumbleweed</name>
+            <project>openSUSE:Factory</project>
+            <reponame>openSUSE_Tumbleweed</reponame>
+            <repository>snapshot</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="15.3" id="18657">
+            <name>openSUSE Leap 15.3</name>
+            <project>openSUSE:Leap:15.3</project>
+            <reponame>openSUSE_Leap_15.3</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="15.2" id="18660">
+            <name>openSUSE Leap 15.2</name>
+            <project>openSUSE:Leap:15.2</project>
+            <reponame>openSUSE_Leap_15.2</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="15.2 ARM" id="18663">
+            <name>openSUSE Leap 15.2 ARM</name>
+            <project>openSUSE:Leap:15.2:ARM</project>
+            <reponame>openSUSE_Leap_15.2_ARM</reponame>
+            <repository>ports</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>aarch64</architecture>
+            <architecture>armv7l</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="15.2 PowerPC" id="18666">
+            <name>openSUSE Leap 15.2 PowerPC</name>
+            <project>openSUSE:Leap:15.2:PowerPC</project>
+            <reponame>openSUSE_Leap_15.2_PowerPC</reponame>
+            <repository>ports</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="FactoryRISCV" id="18669">
+            <name>openSUSE Factory RISCV</name>
+            <project>openSUSE:Factory:RISCV</project>
+            <reponame>openSUSE_Factory_RISCV</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>riscv64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="FactoryARM" id="18672">
+            <name>openSUSE Factory ARM</name>
+            <project>openSUSE:Factory:ARM</project>
+            <reponame>openSUSE_Factory_ARM</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>armv7l</architecture>
+            <architecture>aarch64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="FactoryPPC" id="18675">
+            <name>openSUSE Factory PowerPC</name>
+            <project>openSUSE:Factory:PowerPC</project>
+            <reponame>openSUSE_Factory_PowerPC</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>ppc64</architecture>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="FactoryzSystems" id="18678">
+            <name>openSUSE Factory zSystems</name>
+            <project>openSUSE:Factory:zSystems</project>
+            <reponame>openSUSE_Factory_zSystems</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>s390x</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_15_SP3_Backports" id="18681">
+            <name>openSUSE Backports for SLE 15 SP3</name>
+            <project>openSUSE:Backports:SLE-15-SP3</project>
+            <reponame>SLE_15_SP3_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_15_SP2_Backports" id="18684">
+            <name>openSUSE Backports for SLE 15 SP2</name>
+            <project>openSUSE:Backports:SLE-15-SP2</project>
+            <reponame>SLE_15_SP2_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_15_SP1_Backports" id="18687">
+            <name>openSUSE Backports for SLE 15 SP1</name>
+            <project>openSUSE:Backports:SLE-15-SP1</project>
+            <reponame>SLE_15_SP1_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_15_Backports" id="18690">
+            <name>openSUSE Backports for SLE 15</name>
+            <project>openSUSE:Backports:SLE-15</project>
+            <reponame>SLE_15_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12_SP5" id="18693">
+            <name>openSUSE Backports for SLE 12 SP5</name>
+            <project>openSUSE:Backports:SLE-12-SP5</project>
+            <reponame>SLE_12_SP5_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12_SP4" id="18696">
+            <name>openSUSE Backports for SLE 12 SP4</name>
+            <project>openSUSE:Backports:SLE-12-SP4</project>
+            <reponame>SLE_12_SP4_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12_SP3" id="18699">
+            <name>openSUSE Backports for SLE 12 SP3</name>
+            <project>openSUSE:Backports:SLE-12-SP3</project>
+            <reponame>SLE_12_SP3_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12_SP2" id="18702">
+            <name>openSUSE Backports for SLE 12 SP2</name>
+            <project>openSUSE:Backports:SLE-12-SP2</project>
+            <reponame>SLE_12_SP2_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12_SP1" id="18705">
+            <name>openSUSE Backports for SLE 12 SP1</name>
+            <project>openSUSE:Backports:SLE-12-SP1</project>
+            <reponame>SLE_12_SP1_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="openSUSE" version="SLE_12" id="18708">
+            <name>openSUSE Backports for SLE 12 SP0</name>
+            <project>openSUSE:Backports:SLE-12</project>
+            <reponame>SLE_12_Backports</reponame>
+            <repository>standard</repository>
+            <link>http://www.opensuse.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="SUSE Linux Enterprise" version="SLE-15-SP3" id="18711">
+            <name>SUSE SLE-15-SP3</name>
+            <project>SUSE:SLE-15-SP3:GA</project>
+            <reponame>SLE_15_SP3</reponame>
+            <repository>standard</repository>
+            <link>http://www.suse.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="SUSE Linux Enterprise" version="SLE-15-SP2" id="18714">
+            <name>SUSE SLE-15-SP2</name>
+            <project>SUSE:SLE-15-SP2:GA</project>
+            <reponame>SLE_15_SP2</reponame>
+            <repository>standard</repository>
+            <link>http://www.suse.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="SUSE Linux Enterprise" version="SLE-15-SP1" id="18717">
+            <name>SUSE SLE-15-SP1</name>
+            <project>SUSE:SLE-15-SP1:GA</project>
+            <reponame>SLE_15_SP1</reponame>
+            <repository>standard</repository>
+            <link>http://www.suse.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="SUSE Linux Enterprise" version="SLE-12-SP5" id="18720">
+            <name>SUSE SLE-12-SP5</name>
+            <project>SUSE:SLE-12-SP5:GA</project>
+            <reponame>SLE_12_SP5</reponame>
+            <repository>standard</repository>
+            <link>http://www.suse.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="SUSE Linux Enterprise" version="SLE-11-SP4" id="18723">
+            <name>SUSE SLE-11 SP 4</name>
+            <project>SUSE:SLE-11:SP4</project>
+            <reponame>SLE_11_SP4</reponame>
+            <repository>standard</repository>
+            <link>http://www.suse.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/suse.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Arch" version="1.0" id="18726">
+            <name>Arch Extra</name>
+            <project>Arch:Extra</project>
+            <reponame>Arch</reponame>
+            <repository>standard</repository>
+            <link>http://www.archlinux.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/arch.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/arch.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Arch" version="1.0" id="18729">
+            <name>Arch Community</name>
+            <project>Arch:Community</project>
+            <reponame>Arch</reponame>
+            <repository>standard</repository>
+            <link>http://www.archlinux.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/arch.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/arch.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Raspbian" version="10" id="18732">
+            <name>Raspbian 10</name>
+            <project>Raspbian:10</project>
+            <reponame>Raspbian_10</reponame>
+            <repository>standard</repository>
+            <link>http://www.raspbian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/raspbian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/raspbian.png" width="16" height="16"/>
+            <architecture>armv7l</architecture>
+          </distribution>
+          <distribution vendor="Raspbian" version="9.0" id="18735">
+            <name>Raspbian 9.0</name>
+            <project>Raspbian:9.0</project>
+            <reponame>Raspbian_9.0</reponame>
+            <repository>standard</repository>
+            <link>http://www.raspbian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/raspbian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/raspbian.png" width="16" height="16"/>
+            <architecture>armv7l</architecture>
+          </distribution>
+          <distribution vendor="Debian" version="Unstable" id="18738">
+            <name>Debian Unstable</name>
+            <project>Debian:Next</project>
+            <reponame>Debian_Unstable</reponame>
+            <repository>standard</repository>
+            <link>http://www.debian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Debian" version="Testing" id="18741">
+            <name>Debian Testing</name>
+            <project>Debian:Testing</project>
+            <reponame>Debian_Testing</reponame>
+            <repository>update</repository>
+            <link>http://www.debian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Debian" version="10" id="18744">
+            <name>Debian 10</name>
+            <project>Debian:10</project>
+            <reponame>Debian_10</reponame>
+            <repository>standard</repository>
+            <link>http://www.debian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Debian" version="9.0" id="18747">
+            <name>Debian 9.0</name>
+            <project>Debian:9.0</project>
+            <reponame>Debian_9.0</reponame>
+            <repository>standard</repository>
+            <link>http://www.debian.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/debian.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Fedora" version="Rawhide" id="18750">
+            <name>Fedora Rawhide (unstable)</name>
+            <project>Fedora:Rawhide</project>
+            <reponame>Fedora_Rawhide</reponame>
+            <repository>standard</repository>
+            <link>http://fedoraproject.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Fedora" version="34" id="18753">
+            <name>Fedora 34</name>
+            <project>Fedora:34</project>
+            <reponame>Fedora_34</reponame>
+            <repository>standard</repository>
+            <link>http://fedoraproject.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>armv7l</architecture>
+            <architecture>aarch64</architecture>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="Fedora" version="33" id="18756">
+            <name>Fedora 33</name>
+            <project>Fedora:33</project>
+            <reponame>Fedora_33</reponame>
+            <repository>standard</repository>
+            <link>http://fedoraproject.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>armv7l</architecture>
+            <architecture>aarch64</architecture>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="Fedora" version="32" id="18759">
+            <name>Fedora 32</name>
+            <project>Fedora:32</project>
+            <reponame>Fedora_32</reponame>
+            <repository>standard</repository>
+            <link>http://fedoraproject.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>armv7l</architecture>
+            <architecture>aarch64</architecture>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="Fedora" version="31" id="18762">
+            <name>Fedora 31</name>
+            <project>Fedora:31</project>
+            <reponame>Fedora_31</reponame>
+            <repository>standard</repository>
+            <link>http://fedoraproject.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/fedora.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>armv7l</architecture>
+            <architecture>aarch64</architecture>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="ScientificLinux" version="SL-7" id="18765">
+            <name>ScientificLinux 7</name>
+            <project>ScientificLinux:7</project>
+            <reponame>ScientificLinux_7</reponame>
+            <repository>standard</repository>
+            <link>http://www.ScientificLinux.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/scientificlinux.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/scientificlinux.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="ScientificLinux" version="SL-6" id="18768">
+            <name>ScientificLinux 6</name>
+            <project>ScientificLinux:6</project>
+            <reponame>ScientificLinux_6</reponame>
+            <repository>standard</repository>
+            <link>http://www.ScientificLinux.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/scientificlinux.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/scientificlinux.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="RedHat" version="RHEL-7" id="18771">
+            <name>RedHat RHEL-7</name>
+            <project>RedHat:RHEL-7</project>
+            <reponame>RHEL_7</reponame>
+            <repository>standard</repository>
+            <link>http://www.redhat.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+            <architecture>ppc64</architecture>
+          </distribution>
+          <distribution vendor="RedHat" version="RHEL-6" id="18774">
+            <name>RedHat RHEL-6</name>
+            <project>RedHat:RHEL-6</project>
+            <reponame>RHEL_6</reponame>
+            <repository>standard</repository>
+            <link>http://www.redhat.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="RedHat" version="RHEL-5" id="18777">
+            <name>RedHat RHEL-5</name>
+            <project>RedHat:RHEL-5</project>
+            <reponame>RHEL_5</reponame>
+            <repository>standard</repository>
+            <link>http://www.redhat.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/redhat.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="CentOS" version="CentOS-8-Stream" id="18780">
+            <name>CentOS CentOS-8-Stream</name>
+            <project>CentOS:CentOS-8:Stream</project>
+            <reponame>CentOS_8_Stream</reponame>
+            <repository>standard</repository>
+            <link>http://www.centos.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="CentOS" version="CentOS-8" id="18783">
+            <name>CentOS CentOS-8</name>
+            <project>CentOS:CentOS-8</project>
+            <reponame>CentOS_8</reponame>
+            <repository>standard</repository>
+            <link>http://www.centos.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="CentOS" version="CentOS-7" id="18786">
+            <name>CentOS CentOS-7</name>
+            <project>CentOS:CentOS-7</project>
+            <reponame>CentOS_7</reponame>
+            <repository>standard</repository>
+            <link>http://www.centos.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/centos.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="21.04" id="18789">
+            <name>Ubuntu 21.04</name>
+            <project>Ubuntu:21.04</project>
+            <reponame>xUbuntu_21.04</reponame>
+            <repository>universe</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="20.10" id="18792">
+            <name>Ubuntu 20.10</name>
+            <project>Ubuntu:20.10</project>
+            <reponame>xUbuntu_20.10</reponame>
+            <repository>universe</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="20.04" id="18795">
+            <name>Ubuntu 20.04</name>
+            <project>Ubuntu:20.04</project>
+            <reponame>xUbuntu_20.04</reponame>
+            <repository>universe</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="18.04" id="18798">
+            <name>Ubuntu 18.04</name>
+            <project>Ubuntu:18.04</project>
+            <reponame>xUbuntu_18.04</reponame>
+            <repository>universe</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="16.04" id="18801">
+            <name>Ubuntu 16.04</name>
+            <project>Ubuntu:16.04</project>
+            <reponame>xUbuntu_16.04</reponame>
+            <repository>universe</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Ubuntu" version="14.04" id="18804">
+            <name>Ubuntu 14.04</name>
+            <project>Ubuntu:14.04</project>
+            <reponame>xUbuntu_14.04</reponame>
+            <repository>standard</repository>
+            <link>http://www.ubuntu.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/ubuntu.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="4.4" id="18807">
+            <name>Univention UCS 4.4</name>
+            <project>Univention:4.4</project>
+            <reponame>Univention_4.4</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="4.3" id="18810">
+            <name>Univention UCS 4.3</name>
+            <project>Univention:4.3</project>
+            <reponame>Univention_4.3</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="4.2" id="18813">
+            <name>Univention UCS 4.2</name>
+            <project>Univention:4.2</project>
+            <reponame>Univention_4.2</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="4.1" id="18816">
+            <name>Univention UCS 4.1</name>
+            <project>Univention:4.1</project>
+            <reponame>Univention_4.1</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="4.0" id="18819">
+            <name>Univention UCS 4.0</name>
+            <project>Univention:4.0</project>
+            <reponame>Univention_4.0</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Mageia" version="Cauldron" id="18822">
+            <name>Mageia Cauldron (unstable)</name>
+            <project>Mageia:Cauldron</project>
+            <reponame>Mageia_Cauldron</reponame>
+            <repository>standard</repository>
+            <link>http://www.mageia.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/mageia.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/mageia.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Mageia" version="8" id="18825">
+            <name>Mageia 8</name>
+            <project>Mageia:8</project>
+            <reponame>Mageia_8</reponame>
+            <repository>standard</repository>
+            <link>http://www.mageia.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/mageia.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/mageia.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="Univention" version="3.2" id="18828">
+            <name>Univention UCS 3.2</name>
+            <project>Univention:3.2</project>
+            <reponame>Univention_3.2</reponame>
+            <repository>standard</repository>
+            <link>http://www.univention.com/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/univention.png" width="16" height="16"/>
+            <architecture>i586</architecture>
+            <architecture>x86_64</architecture>
+          </distribution>
+          <distribution vendor="IBM" version="3.1" id="18831">
+            <name>IBM PowerKVM 3.1</name>
+            <project>IBM:PowerKVM:3.1</project>
+            <reponame>PowerKVM_3.1</reponame>
+            <repository>standard</repository>
+            <link>http://www-03.ibm.com/systems/power/software/linux/powerkvm/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/powerkvm.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/powerkvm.png" width="16" height="16"/>
+            <architecture>ppc64le</architecture>
+          </distribution>
+          <distribution vendor="Many" version="42.3" id="18834">
+            <name>AppImage</name>
+            <project>OBS:AppImage</project>
+            <reponame>AppImage</reponame>
+            <repository>AppImage</repository>
+            <link>http://www.appimage.org/</link>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="8" height="8"/>
+            <icon url="https://static.opensuse.org/distributions/logos/opensuse.png" width="16" height="16"/>
+            <architecture>x86_64</architecture>
+          </distribution>
+        </distributions>
+  recorded_at: Tue, 08 Jun 2021 14:08:10 GMT
+recorded_with: VCR 6.0.0
