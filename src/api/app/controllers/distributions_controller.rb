@@ -46,6 +46,8 @@ class DistributionsController < ApplicationController
   # PATCH/PUT /distributions/1234
   def update
     distribution = Distribution.find(params[:id])
+    # We don't allow updating remote distributions
+    distribution.readonly! if distribution.remote
 
     if distribution.update_from_xmlhash(@body_xml)
       render_ok
@@ -58,6 +60,8 @@ class DistributionsController < ApplicationController
   # DELETE /distributions/1234
   def destroy
     distribution = Distribution.find(params[:id])
+    # We don't allow deleting remote distributions
+    distribution.readonly! if distribution.remote
     distribution.destroy
 
     render_ok
