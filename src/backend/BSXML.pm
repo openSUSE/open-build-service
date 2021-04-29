@@ -186,10 +186,13 @@ our $packinfo = [
 	  [ 'dep' ],
 	  [ 'prereq' ],
 	  [ 'buildtimeservice' ],
+	  [ 'onlynative' ],
+	  [ 'alsonative' ],
 	  [ 'imagetype' ],	# kiwi
 	  [ 'imagearch' ],	# kiwi
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
+	    'nativebuild',	# cross build: native
 	 [[ 'path' =>
 		'project',
 		'repository',
