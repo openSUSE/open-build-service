@@ -3,7 +3,7 @@ class Token < ApplicationRecord
   has_many :event_subscriptions, dependent: :destroy # TODO: Is this for all tokens or only for Token::Workflow?
   belongs_to :package, inverse_of: :tokens
 
-  attr_accessor :package_from_association_or_params, :project_from_association_or_params
+  attr_accessor :object_to_authorize
 
   has_secure_token :string
 
@@ -36,6 +36,10 @@ class Token < ApplicationRecord
 
   def package_find_options
     {}
+  end
+
+  def follow_links?
+    package_find_options[:follow_multibuild] || package_find_options[:follow_project_links]
   end
 end
 
