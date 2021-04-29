@@ -1261,10 +1261,9 @@ sub manage_cache {
 }
 
 sub trygetbinariesproxy {
-  my ($server, $dir, $bins, $bvs,  @args) = @_;
+  my ($server, $param, $bins, $bvs, @args) = @_;
 
   return undef unless $getbinariesproxy;
-  my $callers_time = time();
   my @proxybins;
   for my $bin (@$bins) {
     my $bv = $bvs->{$bin};
@@ -1275,13 +1274,9 @@ sub trygetbinariesproxy {
     }
   }
   my $res;
+  my $callers_time = time();
   eval {
-    $res = BSRPC::rpc({
-      'uri' => "$getbinariesproxy/getbinaries",
-      'directory' => $dir,
-      'timeout' => $gettimeout,
-      'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, "server=$server", @args, "now=$callers_time", 'binaries='.join(',', @proxybins));
+    $res = BSRPC::rpc({ %$param, 'uri' => "$getbinariesproxy/getbinaries" }, undef, "server=$server", @args, "now=$callers_time", 'binaries='.join(',', @proxybins));
   };
   if ($@) {
     warn($@);
@@ -1291,21 +1286,15 @@ sub trygetbinariesproxy {
 }
 
 sub trygetbinariesproxy_preinstallimage {
-  my ($server, $filename, $img) = @_;
+  my ($server, $param, $img) = @_;
   return undef unless $getbinariesproxy;
-  my $callers_time = time();
   my $res;
   my @args;
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "prpa=$img->{'prpa'}", "hdrmd5=$img->{'hdrmd5'}", "sizek=$img->{'sizek'}", "path=$img->{'path'}";
-  push @args, "now=$callers_time";
+  my $callers_time = time();
   eval {
-    $res = BSRPC::rpc({
-      'uri' => "$getbinariesproxy/getpreinstallimage",
-      'filename' => $filename,
-      'timeout' => $gettimeout,
-      'receiver' => \&BSHTTP::file_receiver,
-    }, undef, "server=$server", @args);
+    $res = BSRPC::rpc({ %$param, 'uri' => "$getbinariesproxy/getpreinstallimage" }, undef, "server=$server", @args, "now=$callers_time");
   };
   if ($@) {
     warn($@);
@@ -1436,16 +1425,17 @@ sub getbinaries_cache {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, map {"module=$_"} @{$modules || []};
+    my $param = {
+      'uri' => "$server/getbinaries",
+      'directory' => $dir,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    };
     my $res;
-    $res = trygetbinariesproxy($server, $dir, \@downloadbins, \%bv, @args) if $getbinariesproxy;
+    $res = trygetbinariesproxy($server, $param, \@downloadbins, \%bv, @args) if $getbinariesproxy;
     eval {
       my $callers_time = time();
-      $res ||= BSRPC::rpc({
-	'uri' => "$server/getbinaries",
-	'directory' => $dir,
-	'timeout' => $gettimeout,
-	'receiver' => \&BSHTTP::cpio_receiver,
-      }, undef, @args, "now=$callers_time", 'binaries='.join(',', @downloadbins));
+      $res ||= BSRPC::rpc($param, undef, @args, "now=$callers_time", 'binaries='.join(',', @downloadbins));
     };
     # do not die if a (remote) project does not exist
     return {} if !@cacheold && $@ && $@ =~ /^404 /;
@@ -1898,16 +1888,17 @@ sub getpreinstallimage_metas {
   push @args, "metaonly=1";
   my $repo = (grep {$_->{'project'} eq $buildinfo->{'project'} && $_->{'repository'} eq $buildinfo->{'repository'}} @{$buildinfo->{'path'} || []})[0] || {};
   my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+  my $param = {
+    'uri' => "$server/getbinaries",
+    'directory' => $dir,
+    'timeout' => $gettimeout,
+    'receiver' => \&BSHTTP::cpio_receiver,
+  };
   my $res;
-  $res = trygetbinariesproxy($server, $dir, \@todo, $metas, @args) if $getbinariesproxy;
+  $res = trygetbinariesproxy($server, $param, \@todo, $metas, @args) if $getbinariesproxy;
   eval {
     my $callers_time = time();
-    $res ||= BSRPC::rpc({
-      'uri' => "$server/getbinaries",
-      'directory' => $dir,
-      'timeout' => $gettimeout,
-      'receiver' => \&BSHTTP::cpio_receiver,
-    }, undef, @args, "now=$callers_time", "binaries=".join(',', @todo));
+    $res ||= BSRPC::rpc($param, undef, @args, "now=$callers_time", "binaries=".join(',', @todo));
     die("Error\n") unless ref($res);
   };
   warn($@) if $@;
@@ -2094,16 +2085,15 @@ sub getpreinstallimage {
 
     # nope, download it
     manage_cache($cachesize - $bestimg->{'sizek'} * 1024) if $cachedir;	# make room
-    my $res;
-    $res = trygetbinariesproxy_preinstallimage($bestimg->{'server'}, "$dir/$ifile", $bestimg) if $getbinariesproxy;
-    eval {
-      $res ||= BSRPC::rpc({
-	'uri' => "$bestimg->{'server'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
-	'timeout' => $gettimeout,
-	'receiver' => \&BSHTTP::file_receiver,
-	'filename' => "$dir/$ifile",
-      });
+    my $param = {
+      'uri' => "$bestimg->{'server'}/build/$bestimg->{'prpa'}/$bestimg->{'path'}",
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::file_receiver,
+      'filename' => "$dir/$ifile",
     };
+    my $res;
+    $res = trygetbinariesproxy_preinstallimage($bestimg->{'server'}, $param, $bestimg) if $getbinariesproxy;
+    eval { $res ||= BSRPC::rpc($param) };
     if ($@) {
       warn($@);
     } elsif (-s "$dir/$ifile") {
