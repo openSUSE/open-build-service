@@ -558,6 +558,12 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
 	  delete $_->{'sibling'};
 	}
       }
+      # convert old hostsystem entries to arrays
+      for my $proj (values(%{$gctx->{'projpacks'} || {}}), values (%{$gctx->{'remoteprojs'} || {}})) {
+	for my $repo (@{$proj->{'repository'} || []}) {
+	  $repo->{'hostsystem'} = [ $repo->{'hostsystem'} ] if $repo->{'hostsystem'} && ref($repo->{'hostsystem'}) eq 'HASH';
+	}
+      }
     } else {
       # get project and package information from src server
       BSSched::ProjPacks::get_projpacks($gctx, undef);	# XXX: async

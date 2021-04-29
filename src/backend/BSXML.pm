@@ -81,10 +81,10 @@ our $repo = [
 	    'project',
 	    'repository',
      ]],
-      [ 'hostsystem' =>
+     [[ 'hostsystem' =>
 	    'project',
 	    'repository',
-      ],
+     ]],
       [ 'base' =>		# expanded repo only!
 	    'project',
 	    'repository',

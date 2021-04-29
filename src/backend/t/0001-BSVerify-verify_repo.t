@@ -41,7 +41,7 @@ my $tc_repo = {
             download => [
                 { arch => 'x86_64' , url => "http://www.suse.de?view=mysource.tgz" }
             ],
-            hostsystem => { project => 'openSUSE:13.2' , repository => 'standard' }
+            hostsystem => [ { project => 'openSUSE:13.2' , repository => 'standard' } ]
         }
     ],
     invalid             => [
