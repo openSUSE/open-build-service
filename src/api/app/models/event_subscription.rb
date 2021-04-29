@@ -17,7 +17,8 @@ class EventSubscription < ApplicationRecord
     disabled: 0,
     instant_email: 1,
     web: 2,
-    rss: 3
+    rss: 3,
+    scm: 4
   }
 
   serialize :payload, JSON
