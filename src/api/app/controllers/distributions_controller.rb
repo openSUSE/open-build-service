@@ -13,7 +13,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions
   def index
-    @distributions = Distribution.all_as_hash
+    @distributions = Distribution.local
 
     respond_to do |format|
       format.xml
@@ -23,7 +23,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions/1234
   def show
-    @distribution = Distribution.find(params[:id]).to_hash
+    @distribution = Distribution.find(params[:id])
 
     respond_to do |format|
       format.xml
@@ -69,7 +69,7 @@ class DistributionsController < ApplicationController
 
   # GET /distributions/include_remotes
   def include_remotes
-    @distributions = Distribution.all_including_remotes
+    @distributions = Distribution.all
 
     respond_to do |format|
       format.xml { render :index }
@@ -96,7 +96,7 @@ class DistributionsController < ApplicationController
       render_error message: 'No distributions found in body',
                    status: 400, errorcode: 'invalid_distributions'
     else
-      Distribution.where(remote: false).destroy_all
+      Distribution.local.destroy_all
       distributions.map(&:save!)
       render_ok
     end
