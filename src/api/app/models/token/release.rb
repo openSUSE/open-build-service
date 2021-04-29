@@ -6,6 +6,8 @@ class Token::Release < Token
   end
 
   def call(options)
+    return unless options[:package]
+
     # FIXME: Take repository and arch into account
     package_to_release = options[:package]
     manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
