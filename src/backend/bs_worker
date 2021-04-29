@@ -2330,7 +2330,7 @@ sub getkiwimode {
 }
 
 sub getbinaries {
-  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $kiwiorigins) = @_;
+  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $origins) = @_;
 
   return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
 
@@ -2436,9 +2436,9 @@ sub getbinaries {
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
       }
-      if (!$kiwimode && $kiwiorigins) {
+      if (!$kiwimode && $origins) {
 	# sigh, no package information available yet...
-	$kiwiorigins->{$_} = "$repoprp/$buildinfo->{'arch'}";
+	$origins->{$_} = "$repoprp/$buildinfo->{'arch'}";
       }
     }
     @todo = grep {!$done{$_}} @todo;
@@ -2449,7 +2449,7 @@ sub getbinaries {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
 	  push @meta, "$id  $repoprp/$n";
 	  # sigh, no package information available yet...
-          $kiwiorigins->{$n} = "$repoprp/$buildinfo->{'arch'}" if $kiwiorigins;
+          $origins->{$n} = "$repoprp/$buildinfo->{'arch'}" if $origins;
 	}
 	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
@@ -2508,7 +2508,7 @@ sub getbinaries {
 	  }
 	}
       }
-      push @{$kiwiorigins->{':basecontainers'}}, $bin;
+      push @{$origins->{':basecontainers'}}, $bin;
     }
     if ($buildinfo->{'containerannotation'}) {
       mkdir_p("$srcdir/containers");
@@ -3164,7 +3164,7 @@ sub dobuild {
 
 
   my $bconf = Build::read_config($buildinfo->{'arch'}, "$buildroot/.build.config");
-  my $useccache=0;
+  my $useccache = 0;
   if (exists $bconf->{'buildflags:useccache'}) {
       my $opackid = $packid;
       $opackid = $buildinfo->{'releasename'} if $buildinfo->{'releasename'};
