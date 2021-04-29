@@ -10,7 +10,7 @@ RSpec.describe Token::Release, vcr: true do
   let(:repository) { create(:repository, name: 'package_test_repository', architectures: ['x86_64'], project: project_staging) }
   let(:target_repository) { create(:repository, name: 'target_repository', project: target_project) }
 
-  subject { create(:release_token, :with_package_from_association_or_params, package: package, user: user) }
+  subject { create(:release_token, package: package, user: user) }
 
   describe '#call' do
     context 'when no release target is set' do
