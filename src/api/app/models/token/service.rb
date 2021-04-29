@@ -4,6 +4,8 @@ class Token::Service < Token
   end
 
   def call(_options)
+    # we can not work on remote sources
+    raise ActiveRecord::RecordNotFound if package_from_association_or_params.nil?
     Backend::Api::Sources::Package.trigger_services(package_from_association_or_params.project.name,
                                                     package_from_association_or_params.name,
                                                     user.login)

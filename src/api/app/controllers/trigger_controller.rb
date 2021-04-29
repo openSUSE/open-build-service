@@ -40,6 +40,7 @@ class TriggerController < ApplicationController
     if @token.package
       @token.project_from_association_or_params = @token.package.project
       @token.package_from_association_or_params = @token.package
+      @token.package_name = @token.package.name
     elsif params[:project] && params[:package]
       # If params[:project] is a Project that has a project link, then Package.get_by_project_and_name
       # might get a Package from another Project if the @token.package_find_options allows following
@@ -48,8 +49,8 @@ class TriggerController < ApplicationController
       @token.package_from_association_or_params = Package.get_by_project_and_name(params[:project],
                                                                                   params[:package],
                                                                                   @token.package_find_options)
+      # we need to store the package name for remote and for multibuild case
+      @token.package_name = params[:package]
     end
-    # This can happen due to the Package.get_by_project_and_name method
-    raise ActiveRecord::RecordNotFound if @token.package_from_association_or_params.nil?
   end
 end

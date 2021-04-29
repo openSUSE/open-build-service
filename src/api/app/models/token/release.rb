@@ -7,21 +7,25 @@ class Token::Release < Token
   end
 
   def call(_options)
+    # release from remote is not supported
+    raise ActiveRecord::RecordNotFound if package_from_association_or_params.nil?
     manual_release_targets = package_from_association_or_params.project.release_targets.where(trigger: 'manual')
     raise NoReleaseTargetFound, "#{package_from_association_or_params.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
+      opts = { filter_source_repository: release_target.repository,
+                        manual: true,
+                        comment: 'Releasing via trigger event' }
+      opts[:multibuild_container] = package_name.gsub(/.*:/, '') if package_name.include?(':')
       release_package(package_from_association_or_params,
                       release_target.target_repository,
                       package_from_association_or_params.release_target_name,
-                      { filter_source_repository: release_target.repository,
-                        manual: true,
-                        comment: 'Releasing via trigger event' })
+                      opts)
     end
   end
 
   def package_find_options
-    { use_source: true, follow_project_links: false, follow_multibuild: false }
+    { use_source: true, follow_project_links: false, follow_multibuild: true }
   end
 end
 

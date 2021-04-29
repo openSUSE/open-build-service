@@ -6,7 +6,7 @@ class Token::Rebuild < Token
   def call(options)
     # FIXME: Use the Package#rebuild? instead of calling the Backend directly
     Backend::Api::Sources::Package.rebuild(project_from_association_or_params.name,
-                                           package_from_association_or_params.name,
+                                           package_name,
                                            options)
   end
 

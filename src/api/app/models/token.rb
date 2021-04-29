@@ -2,7 +2,7 @@ class Token < ApplicationRecord
   belongs_to :user
   belongs_to :package, inverse_of: :tokens
 
-  attr_accessor :package_from_association_or_params, :project_from_association_or_params
+  attr_accessor :package_from_association_or_params, :project_from_association_or_params, :package_name
 
   has_secure_token :string
 
