@@ -12,6 +12,8 @@ Rails.autoloaders.each do |autoloader|
     'url_generator' => 'URLGenerator',
     'scm_status_reporter' => 'SCMStatusReporter',
     'yaml_download_service' => 'YAMLDownloadService',
-    'yaml_to_workflows_service' => 'YAMLToWorkflowsService'
+    'yaml_to_workflows_service' => 'YAMLToWorkflowsService',
+    'scm_status_reporter' => 'SCMStatusReporter',
+    'report_to_scm_job' => 'ReportToSCMJob'
   )
 end
