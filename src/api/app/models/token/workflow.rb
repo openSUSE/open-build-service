@@ -12,6 +12,17 @@ class Token::Workflow < Token
 
     return unless extractor.accepted_event_and_action?
 
+    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      EventSubscription.create!(eventtype: build_event,
+                                receiver_role: 'watcher', # TODO: check if this makes sense
+                                user: user,
+                                channel: 'scm',
+                                enabled: true,
+                                token: self,
+                                payload: payload)
+    end
+
+    SCMStatusReporter.new(extractor.extract, scm_token).call
     # scm_extractor_payload = extractor.extract # returns { scm: 'github', repo_url: 'http://...' }
 
     # Read configuration file
