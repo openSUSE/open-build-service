@@ -32,7 +32,7 @@ class TriggerController < ApplicationController
   end
 
   def validate_gitlab_event
-    raise InvalidToken unless event.in?(ALLOWED_GITLAB_EVENTS)
+    raise InvalidToken unless request.env['HTTP_X_GITLAB_EVENT'].in?(ALLOWED_GITLAB_EVENTS)
   end
 
   # AUTHENTICATION
