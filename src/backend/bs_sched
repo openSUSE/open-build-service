@@ -461,6 +461,7 @@ my $gctx = {
   'relatedprpdeps' => {},		# prpdeps filtered for related projects
   'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
   'alllocked' => {},			# prps where all packages are locked
+  'prpsearchpath_host' => {},		# which prps to use for building for the host system
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed

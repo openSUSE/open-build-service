@@ -224,6 +224,23 @@ sub wipeobsoleterepo {
   }
 }
 
+# see if a remote repository is in an error state
+sub check_remote_repo_error {
+  my ($gctx, $prpsearchpath) = @_;
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  for my $aprp (@$prpsearchpath) {
+    my ($aprojid) = split('/', $aprp, 2);
+    my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
+    if ($error) {
+      if ($error =~ /interconnect error:/ || $error =~ /5\d\d remote error:/) {
+        $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $aprojid});
+      }
+      return "$aprojid: $error";
+    }
+  }
+  return undef;
+}
+
 sub setup {
   my ($ctx) = @_;
   my $prp = $ctx->{'prp'};
@@ -262,18 +279,8 @@ sub setup {
   return (0, 'no prpsearchpath?') unless $prpsearchpath;
   my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, $prpsearchpath);
   if (!$bconf) {
-    # see if it is caused by a remote error
-    my $remoteprojs = $gctx->{'remoteprojs'};
-    for my $aprp (@$prpsearchpath) {
-      my ($aprojid) = split('/', $aprp, 2);
-      my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
-      if ($error) {
-        if ($error =~ /interconnect error:/ || $error =~ /5\d\d remote error:/) {
-          $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $aprojid});
-        }
-	return (0, "$aprojid: $error");
-      }
-    }
+    my $error = check_remote_repo_error($gctx, $prpsearchpath);
+    return (0, $error) if $error;
     my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
     return ('broken', "no config ($lastprojid)");
   }
@@ -342,6 +349,42 @@ sub setup {
     $gctx->{'genbuildreqs'}->{$prp} = $genbuildreqs;
   } else {
     delete $gctx->{'genbuildreqs'}->{$prp} ;
+  }
+
+  my $crosshostarch;
+  # FIXME: get it from the searchparth
+  if ($repo->{'hostsystem'}) {
+    $crosshostarch = $bconf->{'hostarch'} || $myarch;
+  }
+  # check if the crosshostarch matches our expectations
+  if (($repo->{'crosshostarch'} || '') ne ($crosshostarch || '')) {
+    delete $repo->{'crosshostarch'};
+    $repo->{'crosshostarch'} = $crosshostarch if $crosshostarch;
+    BSSched::ProjPacks::get_projpacks_postprocess_projects($gctx, $projid);
+    BSSched::Lookat::setchanged($gctx, $prp);
+    return (0, 'crosshostarch mismatch');
+  }
+
+  if ($crosshostarch && $crosshostarch ne $myarch) {
+    # doing cross builds, setup host data
+    if (!grep {$_ eq $crosshostarch} @{$repo->{'arch'} || []}) {
+      return ('broken', "host arch $crosshostarch missing in repo architectures");
+    }
+    my $prpsearchpath_host = $gctx->{'prpsearchpath_host'}->{$prp};
+    return (0, 'no prpsearchpath_host?') unless $prpsearchpath_host && $prpsearchpath_host->[1];
+    $prpsearchpath_host = $prpsearchpath_host->[1];
+    my $bconf_host = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $bconf->{'hostarch'}, $prpsearchpath_host);
+    if (!$bconf_host) {
+      my $error = check_remote_repo_error($gctx, $prpsearchpath);
+      return (0, $error) if $error;
+      my $lastprojid = (split('/', $prpsearchpath_host->[-1]))[0];
+      return ('broken', "no config ($lastprojid)");
+    }
+    if ($bconf_host->{'hostarch'} && $bconf_host->{'hostarch'} ne $bconf->{'hostarch'}) {
+      return ('broken', "$bconf->{'hostarch'} is not native");
+    }
+    $ctx->{'prpsearchpath_host'} = $prpsearchpath_host;
+    $ctx->{'conf_host'} = $bconf_host;
   }
 
   return ('scheduling', undef);
@@ -420,20 +463,41 @@ sub wipeobsolete {
   }
 }
 
-sub preparepool {
-  my ($ctx) = @_;
-  my $gctx = $ctx->{'gctx'};
-  my $bconf = $ctx->{'conf'};
-  my $prp = $ctx->{'prp'};
+sub preparehashes {
+  my ($pool, $prp, $prpnotready) = @_;
+  return $pool->preparehashes($prp, $prpnotready) if defined &BSSolv::pool::preparehashes;
+  # slow perl implementation
+  $prpnotready ||= {};
+  my %dep2src;
+  my %dep2pkg;
+  my %depislocal;     # used in meta calculation
+  my %notready;       # unfinished and will modify :full
+  my %subpacks;
 
-  return ('scheduling', undef) if $ctx->{'alllocked'};		# we do not need a pool
+  for my $p ($pool->consideredpackages()) {
+    my $rprp = $pool->pkg2reponame($p);
+    my $n = $pool->pkg2name($p);
+    my $sn = $pool->pkg2srcname($p) || $n;
+    $dep2pkg{$n} = $p;
+    $dep2src{$n} = $sn;
+    if ($rprp eq $prp) {
+      $depislocal{$n} = 1;
+    } else {
+      $notready{$sn} = 2 if $prpnotready->{$rprp} && $prpnotready->{$rprp}->{$sn};
+    }
+  }
+  push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
+  return (\%dep2pkg, \%dep2src, \%depislocal, \%notready, \%subpacks);
+}
+
+sub createpool {
+  my ($ctx, $bconf, $prpsearchpath, $arch) = @_;
+
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
   $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
   $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-  $ctx->{'pool'} = $pool;
 
-  my $prpsearchpath = $ctx->{'prpsearchpath'};
   my $delayed;
   my $error;
   my %missingmods;
@@ -442,7 +506,7 @@ sub preparepool {
       $error = "repository '$rprp' is unavailable";
       last;
     }
-    my $r = $ctx->addrepo($pool, $rprp);
+    my $r = $ctx->addrepo($pool, $rprp, $arch);
     if (!$r) {
       $delayed = 1 if defined $r;
       $error = "repository '$rprp' is unavailable";
@@ -466,50 +530,39 @@ sub preparepool {
 	$msg .= ", $mod needs $m[0]";
       }
     }
-    return ('broken', substr($msg, 2));
+    $error = substr($msg, 2);
   }
+  return ($pool, $error, $delayed) if $error;
+  $pool->createwhatprovides();
+  return ($pool);
+}
+
+sub preparepool {
+  my ($ctx) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my $bconf = $ctx->{'conf'};
+  my $prp = $ctx->{'prp'};
+
+  return ('scheduling', undef) if $ctx->{'alllocked'};		# we do not need a pool
+  my ($pool, $error, $delayed) = createpool($ctx, $bconf, $ctx->{'prpsearchpath'});
+  $ctx->{'pool'} = $pool;
   if ($error) {
     $ctx->{'havedelayed'} = 1 if $delayed;
     return ('broken', $error);
   }
-  $pool->createwhatprovides();
-
   my $prpnotready = $gctx->{'prpnotready'};
   $prpnotready = undef if ($ctx->{'repo'}->{'block'} || '') eq 'local';
+  ($ctx->{'dep2pkg'}, $ctx->{'dep2src'}, $ctx->{'depislocal'}, $ctx->{'notready'}, $ctx->{'subpacks'}) = preparehashes($pool, $prp, $prpnotready);
 
-  # if we have the fast preparehashes helper function, use it.
-  if (defined &BSSolv::pool::preparehashes) {
-    ($ctx->{'dep2pkg'}, $ctx->{'dep2src'}, $ctx->{'depislocal'}, $ctx->{'notready'}, $ctx->{'subpacks'}) = $pool->preparehashes($prp, $prpnotready);
-    return ('scheduling', undef);
-  }
-
-  # old code
-  my %dep2src;
-  my %dep2pkg;
-  my %depislocal;     # used in meta calculation
-  my %notready;       # unfinished and will modify :full
-  my %subpacks;
-
-  $prpnotready ||= {};
-  for my $p ($pool->consideredpackages()) {
-    my $rprp = $pool->pkg2reponame($p);
-    my $n = $pool->pkg2name($p);
-    my $sn = $pool->pkg2srcname($p) || $n;
-    $dep2pkg{$n} = $p;
-    $dep2src{$n} = $sn;
-    if ($rprp eq $prp) {
-      $depislocal{$n} = 1;
-    } else {
-      $notready{$sn} = 2 if $prpnotready->{$rprp} && $prpnotready->{$rprp}->{$sn};
+  if ($ctx->{'conf_host'}) {
+    ($pool, $error, $delayed) = createpool($ctx, $ctx->{'conf_host'}, $ctx->{'prpsearchpath_host'}, $ctx->{'repo'}->{'crosshostarch'});
+    $ctx->{'pool_host'} = $pool;
+    if ($error) {
+      $ctx->{'havedelayed'} = 1 if $delayed;
+      return ('broken', $error);
     }
+    ($ctx->{'dep2pkg_host'}) = preparehashes($pool, $prp, $prpnotready);
   }
-  push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
-
-  $ctx->{'notready'} = \%notready;
-  $ctx->{'dep2pkg'} = \%dep2pkg;
-  $ctx->{'dep2src'} = \%dep2src;
-  $ctx->{'depislocal'} = \%depislocal;
-  $ctx->{'subpacks'} = \%subpacks;
   return ('scheduling', undef);
 }
 
@@ -537,6 +590,32 @@ sub emulate_depsort2 {
     }
   }
   return BSSolv::depsort(\%pkgdeps, undef, $cycles, @packs);
+}
+
+sub split_hostdeps {
+  my ($ctx, $bconf, $info) = @_;
+  my $dep = $info->{'dep'} || [];
+  return ($dep, []) unless @$dep;
+  my %onlynative = map {$_ => 1} @{$bconf->{'onlynative'} || []};
+  my %alsonative = map {$_ => 1} @{$bconf->{'alsonative'} || []};
+  for (@{$info->{'onlynative'} || []}) {
+    if (/^!(.*)/) {
+      delete $onlynative{$1};
+    } else {
+      $onlynative{$_} = 1;
+    }   
+  }
+  for (@{$info->{'alsonative'} || []}) {
+    if (/^!(.*)/) {
+      delete $alsonative{$1};
+    } else {
+      $alsonative{$_} = 1;
+    }   
+  }
+  return ($dep, []) unless %onlynative || %alsonative;
+  my @hdep = grep {$onlynative{$_} || $alsonative{$_}} @$dep;
+  return ($dep, \@hdep) if !@hdep || !%onlynative;
+  return ([ grep {!$onlynative{$_}} @$dep ], \@hdep)
 }
 
 sub expandandsort {
@@ -573,6 +652,7 @@ sub expandandsort {
   my %pkg2buildtype;
 
   my $subpacks = $ctx->{'subpacks'};
+  my $cross = $ctx->{'conf_host'} ? 1 : 0;
 
   $ctx->{'experrors'} = \%experrors;
   my $packs = $ctx->{'packs'};
@@ -659,8 +739,16 @@ sub expandandsort {
       undef $genbuildreqs if $genbuildreqs->[2] && $genbuildreqs->[2] ne $verifymd5;
       push @deps, @{$genbuildreqs->[1]} if $genbuildreqs;
     }
-    my $handler = $handlers{$buildtype} || $handlers{default};
-    my ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
+    my ($eok, @edeps);
+    my $handler = $handlers{$buildtype};
+    if ($cross && !$handler) {
+      my @splitdeps = split_hostdeps($ctx, $bconf, $info);
+      $ctx->{'split_hostdeps'}->{$packid} = \@splitdeps;
+      ($eok, @edeps) = Build::get_sysroot($bconf, $subpacks->{$info->{'name'}}, @{$splitdeps[0]});
+    } else {
+      $handler ||= $handlers{default};
+      ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
+    }
     if (!$eok) {
       $experrors{$packid} = join(', ', @edeps) || '?';
       @edeps = @deps;
@@ -1127,6 +1215,16 @@ sub checkpkgs {
       print "    sending $type event to $prpa\n";
       my ($aprojid, $arepoid, $aarch) = split('/', $prpa, 3);
       BSSched::EventSource::Directory::sendunblockedevent($gctx, "$aprojid/$arepoid", $aarch, $type);
+    }
+  }
+
+  # send unblockedevents for cross builds if we are the native arch
+  if ($myarch ne 'local' && ($ctx->{'repo'}->{'crosshostarch'} || '') eq $myarch) {
+    my $type = ($ctx->{'changetype'} || 'med') eq 'low' ? 'lowunblocked' : 'unblocked';
+    for my $arch (@{$ctx->{'repo'}->{'arch'} || []}) {
+      next if $arch eq $myarch;
+      print "    sending $type event to $arch\n";
+      BSSched::EventSource::Directory::sendunblockedevent($gctx, "$projid/$repoid", $arch, $type);
     }
   }
 

@@ -1009,6 +1009,10 @@ sub create {
     $syspath = $searchpath if @$searchpath;
     $searchpath = path2buildinfopath($gctx, [ expandkiwipath($ctx, $info) ]);
   }
+  if ($ctx->{'crossmode'}) {
+    $syspath = $searchpath if @$searchpath;
+    $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath_host'});
+  }
 
   my $expanddebug = $ctx->{'expanddebug'};
 

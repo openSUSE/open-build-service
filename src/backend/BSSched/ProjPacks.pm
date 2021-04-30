@@ -146,8 +146,7 @@ sub get_projpacks {
   my ($gctx, $doasync, $projid, @packids) = @_;
 
   my $myarch = $gctx->{'arch'};
-  my $projpacks = $gctx->{'projpacks'};
-  undef $projid unless $projpacks;
+  undef $projid unless $gctx->{'projpacks'};
   @packids = () unless defined $projid;
   @packids = grep {defined $_} @packids;
 
@@ -200,9 +199,10 @@ sub get_projpacks {
   update_projpacks($gctx, $projpacksin, $projid, \@packids);
 
   if ($testprojid) {
+    my $projpacks = $gctx->{'projpacks'};
     my $proj = $projpacks->{$projid} || {};
     for my $repo (@{$proj->{'repository'} || []}) {
-      for my $path (@{$repo->{'path'} || []}) {
+      for my $path (@{$repo->{'path'} || []}, @{$repo->{'hostsystem'} || []}) {
 	next if $path->{'project'} eq $testprojid;
 	next if $projid ne $testprojid && $projpacks->{$path->{'project'}};
 	get_projpacks($gctx, undef, $path->{'project'});
@@ -807,14 +807,15 @@ sub find_local_linked_sources {
 =cut
 
 sub expandsearchpath {
-  my ($gctx, $projid, $repository) = @_;
+  my ($gctx, $projid, $repository, $pathelement) = @_;
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  $pathelement ||= 'path';
   my %done;
   my @ret;
-  my @path = @{$repository->{'path'} || []};
+  my @path = @{$repository->{$pathelement} || $repository->{'path'} || []};
   # our own repository is not included in the path,
   # so put it infront of everything
   unshift @path, {'project' => $projid, 'repository' => $repository->{'name'}};
@@ -830,8 +831,8 @@ sub expandsearchpath {
       $proj = $remoteprojs->{$pid} if !$proj || $proj->{'remoteurl'};
       next unless $proj;
       $done{"/$prp"} = 1;       # mark expanded
-      my @repo = grep {$_->{'name'} eq $rid} @{$proj->{'repository'} || []};
-      push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
+      my $repo = (grep {$_->{'name'} eq $rid} @{$proj->{'repository'} || []})[0];
+      push @path, @{$repo->{$pathelement} || $repo->{'path'} || []} if $repo;
     }
   }
   return @ret;
@@ -931,6 +932,7 @@ sub setup_projects {
     $gctx->{'projpacks_linked'} = {};
     $gctx->{'projpacks_linked_blks'} = {};
     $gctx->{'prpsearchpath'} = {};
+    $gctx->{'prpsearchpath_host'} = {};
     $gctx->{'prpdeps'} = {};
     $gctx->{'relatedprpdeps'} = {};
     $gctx->{'expandedprojlink'} = {};
@@ -973,6 +975,7 @@ sub setup_projects {
       # remove project from various prp indexed hashes
       for my $prp (@{$gctx->{'project_prps'}->{$projid} || []}) {
 	delete $gctx->{'prpsearchpath'}->{$prp};
+	delete $gctx->{'prpsearchpath_host'}->{$prp};
 	delete $gctx->{'prpdeps'}->{$prp};
 	delete $gctx->{'relatedprpdeps'}->{$prp};
 	delete $gctx->{'alllocked'}->{$prp};
@@ -1102,7 +1105,8 @@ sub setup_projects {
 	next;
       }
 
-      my @searchpath = expandsearchpath($gctx, $projid, $repo);
+      my $iscrossnative = $repo->{'crosshostarch'} && $repo->{'crosshostarch'} eq $myarch && $myarch ne 'local';
+      my @searchpath = expandsearchpath($gctx, $projid, $repo, $iscrossnative ? 'hostsystem' : 'path');
       # map searchpath to internal prp representation
       my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
       $prpsearchpath->{$prp} = \@sp;
@@ -1146,6 +1150,13 @@ sub setup_projects {
       # get list of related prp
       my @related_prps = grep { $prp ne $_ && is_related($projid, $_) } @{$prpdeps->{$prp} || []};
       $relatedprpdeps->{$prp} = \@related_prps if @related_prps;
+
+      # expand hostsystem for cross builds
+      if ($repo->{'hostsystem'} && $repo->{'crosshostarch'} && $repo->{'crosshostarch'} ne $myarch && $repo->{'crosshostarch'} ne 'local') {
+        my @searchpath_host = expandsearchpath($gctx, $projid, $repo, 'hostsystem');
+        @searchpath_host = map {"$_->{'project'}/$_->{'repository'}"} @searchpath_host;
+	$gctx->{'prpsearchpath_host'}->{$prp} = [ $repo->{'crosshostarch'}, \@searchpath_host ];
+      }
     }
     $gctx->{'project_prps'}->{$projid} = [ sort keys %myprps ] if %myprps;
   }
