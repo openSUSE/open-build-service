@@ -25,6 +25,8 @@ class Token::Workflow < Token
     SCMStatusReporter.new(extractor.extract, scm_token).call
     # scm_extractor_payload = extractor.extract # returns { scm: 'github', repo_url: 'http://...' }
 
+    # yaml_file = Workflows::YAMLDownloadService.new(scm_extractor_payload).call
+
     # Read configuration file
     #   if the ref is not included in the config file's branch whitelist we do nothing.
 
