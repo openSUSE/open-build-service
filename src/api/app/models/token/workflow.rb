@@ -8,7 +8,7 @@ class Token::Workflow < Token
     scm = options[:scm] # github, gitlab
     event = options[:event] # pull_request, merge_request
 
-    extractor = ScmExtractor.new(scm, event, payload)
+    extractor = TriggerControllerService::ScmExtractor.new(scm, event, payload)
 
     return unless extractor.accepted_event_and_action?
 
