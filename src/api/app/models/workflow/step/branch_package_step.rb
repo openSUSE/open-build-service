@@ -37,23 +37,33 @@ class Workflow
         source_project + ":PR-#{@pr_number}"
       end
 
+      def remote_source?
+        return true if Project.find_remote_project(source_project)
+
+        false
+      end
+
+      def check_source_access
+        return if remote_source?
+
+        options = { use_source: false, follow_project_links: true, follow_multibuild: true }
+        src_package = Package.get_by_project_and_name(source_project, source_package, options)
+
+        raise Pundit::NotAuthorizedError unless PackagePolicy.new(User.session, src_package).create_branch?
+      end
+
       def branch
-        unless Project.find_remote_project(source_project)
-          options = { use_source: false, follow_project_links: true, follow_multibuild: true }
+        check_source_access
 
-          src_package = Package.get_by_project_and_name(source_project, source_package, options)
-
-          raise Pundit::NotAuthorizedError unless PackagePolicy.new(User.session, src_package).create_branch?
-        end
-
-        branch_params = { project: source_project, package: source_package,
-                          target_project: destination_project, target_package: destination_package }
-        BranchPackage.new(branch_params).branch
+        BranchPackage.new({ project: source_project, package: source_package,
+                            target_project: destination_project,
+                            target_package: destination_package }).branch
 
         Event::BranchCommand.create(project: source_project, package: source_package,
                                     targetproject: destination_project,
                                     targetpackage: destination_package,
                                     user: User.session.login)
+
         Package.find_by_project_and_name(destination_project, destination_package)
       rescue BranchPackage::DoubleBranchPackageError
         @errors << 'You have already branched this package'
