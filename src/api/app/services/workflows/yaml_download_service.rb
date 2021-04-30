@@ -4,8 +4,8 @@ module Workflows
 
     attr_reader :errors
 
-    def initialize(url:)
-      @url = url
+    def initialize(scm_payload)
+      @scm_payload = scm_payload
       @errors = []
     end
 
@@ -16,9 +16,18 @@ module Workflows
     private
 
     def download_yaml_file
-      Down.download(@url, max_size: MAX_FILE_SIZE)
+      Down.download(download_url, max_size: MAX_FILE_SIZE)
     rescue Down::Error => e
       @errors << e.message
+    end
+
+    def download_url
+      case @scm_payload[:scm]
+      when 'github'
+        "https://raw.githubusercontent.com/#{@scm_payload[:repository_owner]}/#{@scm_payload[:repository_name]}/#{@scm_payload[:branch]}/.obs/workflows.yml"
+      when 'gitlab'
+        "https://gitlab.com/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:branch]}/.obs/workflows.yml"
+      end
     end
   end
 end
