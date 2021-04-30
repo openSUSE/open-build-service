@@ -17,11 +17,15 @@ class EventSubscription < ApplicationRecord
     disabled: 0,
     instant_email: 1,
     web: 2,
-    rss: 3
+    rss: 3,
+    scm: 4
   }
+
+  serialize :payload, JSON
 
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
+  belongs_to :token, inverse_of: :event_subscriptions
 
   validates :receiver_role, inclusion: {
     in: [:maintainer, :bugowner, :reader, :source_maintainer, :target_maintainer,
@@ -86,14 +90,17 @@ end
 #  channel       :integer          default("disabled"), not null
 #  enabled       :boolean          default(FALSE)
 #  eventtype     :string(255)      not null
+#  payload       :text(65535)
 #  receiver_role :string(255)      not null
 #  created_at    :datetime
 #  updated_at    :datetime
 #  group_id      :integer          indexed
+#  token_id      :integer          indexed
 #  user_id       :integer          indexed
 #
 # Indexes
 #
 #  index_event_subscriptions_on_group_id  (group_id)
+#  index_event_subscriptions_on_token_id  (token_id)
 #  index_event_subscriptions_on_user_id   (user_id)
 #
