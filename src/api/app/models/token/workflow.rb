@@ -12,20 +12,11 @@ class Token::Workflow < Token
 
     return unless extractor.accepted_event_and_action?
 
-    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
-      EventSubscription.create!(eventtype: build_event,
-                                receiver_role: 'watcher', # TODO: check if this makes sense
-                                user: user,
-                                channel: 'scm',
-                                enabled: true,
-                                token: self,
-                                payload: payload)
-    end
-
-    SCMStatusReporter.new(extractor.extract, scm_token).call
-    # scm_extractor_payload = extractor.extract # returns { scm: 'github', repo_url: 'http://...' }
-
+    # scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
     # yaml_file = Workflows::YAMLDownloadService.new(scm_extractor_payload).call
+    # workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, pr_number: scm_extractor_payload[:pr_number]).call
+    # step = workflows.first.steps.first
+    # step.call if step.valid?
 
     # Read configuration file
     #   if the ref is not included in the config file's branch whitelist we do nothing.
@@ -45,6 +36,18 @@ class Token::Workflow < Token
 
     # if scm_extractor_payload.scm == 'gitlab' && scm_extractor_payload.action == 'open'
     # end
+
+    ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      EventSubscription.create!(eventtype: build_event,
+                                receiver_role: 'watcher', # TODO: check if this makes sense
+                                user: user,
+                                channel: 'scm',
+                                enabled: true,
+                                token: self,
+                                payload: payload)
+    end
+
+    SCMStatusReporter.new(scm_extractor_payload, scm_token).call
   end
 end
 
