@@ -16,7 +16,7 @@ module TriggerControllerService
     end
 
     # TODO: What happens when some of the keys are missing?
-    def extract
+    def call
       case @scm
       when 'github'
         {
@@ -42,15 +42,15 @@ module TriggerControllerService
         }
       end
     end
-  end
 
-  private
+    private
 
-  def accepted_github_event_and_action?
-    @event == 'pull_request' && @payload['action'].in?(ALLOWED_GITHUB_ACTIONS)
-  end
+    def accepted_github_event_and_action?
+      @event == 'pull_request' && @payload['action'].in?(ALLOWED_GITHUB_ACTIONS)
+    end
 
-  def accepted_gitlab_event_and_action?
-    @event == 'Merge Request Hook' && @payload['object_attributes']['action'].in?(ALLOWED_GITLAB_ACTIONS)
+    def accepted_gitlab_event_and_action?
+      @event == 'Merge Request Hook' && @payload['object_attributes']['action'].in?(ALLOWED_GITLAB_ACTIONS)
+    end
   end
 end
