@@ -1632,6 +1632,47 @@ sub getprojpack {
 	      $rinfo->{'error'} = $conf->{'error'};
 	      next;
 	    }
+	    if ($repo->{'hostsystem'}) {
+	      $repo->{'crosshostarch'} = $conf->{'hostarch'} || $arch;
+	      my $path = $expandedrepos{"$projid/$repoid/hostsystem"};
+	      if (!$path) {
+	        eval {
+		  my @path = expandsearchpath($projid, $repoid, $remotemap, undef, 'hostsystem');
+		  $expandedrepos{"$projid/$repoid/hostsystem"} = \@path;
+		  concatconfigs($projid, $repoid, $remotemap, @path);
+		};
+		$expandedrepos{"$projid/$repoid/hostsystem"} = $@ if $@;
+		$path = $expandedrepos{"$projid/$repoid/hostsystem"};
+	      }
+	      if (!ref($path)) {
+		chomp $path;
+		$rinfo->{'error'} = $path;
+		next;
+	      }
+	      if ($repo->{'crosshostarch'} eq $arch) {
+		# we're doing native builds, switch to hostsystem conf
+		if (!$bconfs{"$repoid/$arch"}) {
+		  eval {
+		    my $c = concatconfigs($projid, $repoid, $remotemap, @$path);
+		    $bconfs{"$repoid/$arch"} = Build::read_config($arch, [ split("\n", $c) ]);
+		  };
+		  if ($@) {
+		    my $err = $@;
+		    chomp $err;
+		    $bconfs{"$repoid/$arch"} = {'error' => $err};
+		  }
+		}
+		$conf = $bconfs{"$repoid/$arch"};
+		if ($conf->{'error'}) {
+		  $rinfo->{'error'} = $conf->{'error'};
+		  next;
+		}
+		if ($conf->{'hostarch'} && $conf->{'hostarch'} ne $arch) {
+		  $rinfo->{'error'} = "native arch confusion: $conf->{'hostarch'}";
+		  next;
+		}
+	      }
+	    }
 	    my $type = $conf->{'type'};
 	    if (!$type || $type eq 'UNDEFINED') {
 	      $rinfo->{'error'} = 'bad build configuration, no build type defined or detected';
@@ -1681,6 +1722,16 @@ sub getprojpack {
 	    if (!defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse name from $file";
 	      next;
+	    }
+	    if ($repo->{'crosshostarch'}) {
+	      if ($repo->{'crosshostarch'} eq $arch && !$d->{'nativebuild'}) {
+	        $rinfo->{'error'} = 'excluded';
+		next;
+	      }
+	      if ($repo->{'crosshostarch'} ne $arch && $d->{'nativebuild'}) {
+	        $rinfo->{'error'} = 'excluded';
+		next;
+	      }
 	    }
 	    my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
 	    $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
@@ -2215,10 +2266,11 @@ sub getpackagehistory {
 ##########################################################################
 
 sub expandsearchpath {
-  my ($projid, $repoid, $remotemap, $base) = @_;
+  my ($projid, $repoid, $remotemap, $base, $pathelement) = @_;
   my %done;
   my @ret;
   my @path = {project => $projid, repository => $repoid};
+  $pathelement ||= 'path';
   while (@path) {
     my $t = shift @path;
     my $prp = "$t->{'project'}/$t->{'repository'}";
@@ -2240,8 +2292,8 @@ sub expandsearchpath {
       }
       BSSrcServer::Partition::checkpartition($remotemap, $pid, $proj) if $remotemap && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$pid};
       $done{"/$prp"} = 1;       # mark expanded
-      my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
-      push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
+      my $repo = (grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []})[0];
+      push @path, @{$repo->{$pathelement} || $repo->{'path'} || []} if $repo;
     } elsif ($remotemap) {
       my $pid = $t->{'project'};
       my $proj = BSRevision::readproj_local($pid, 1);

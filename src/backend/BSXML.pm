@@ -91,6 +91,7 @@ our $repo = [
       ],
       [ 'arch' ],
 	'status',
+	'crosshostarch',	# internal
 ];
 
 our @disableenable = (
@@ -569,6 +570,7 @@ our $buildinfo = [
 	'notmeta',
 	'noinstall',
 	'installonly',
+	'sysroot',
 
 	'epoch',
 	'version',
