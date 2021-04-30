@@ -37,7 +37,8 @@ module TriggerControllerService
           pr_number: @payload['object_attributes']['iid'],
           branch: @payload['object_attributes']['source_branch'],
           action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-          project_id: @payload['project']['id']
+          project_id: @payload['project']['id'],
+          path_with_namespace: @payload['project']['path_with_namespace']
         }
       end
     end
