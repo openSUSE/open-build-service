@@ -461,6 +461,7 @@ my $gctx = {
   'relatedprpdeps' => {},		# prpdeps filtered for related projects
   'rrelatedprpdeps' => {},		# reverse of relatedprpdeps
   'alllocked' => {},			# prps where all packages are locked
+  'prpsearchpath_host' => {},		# which prps to use for building for the host system
 
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
@@ -556,6 +557,12 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
 	  next unless $_->{'sibling'};
 	  $_->{'partition'} ||= $_->{'sibling'};
 	  delete $_->{'sibling'};
+	}
+      }
+      # convert old hostsystem entries to arrays
+      for my $proj (values(%{$gctx->{'projpacks'} || {}}), values (%{$gctx->{'remoteprojs'} || {}})) {
+	for my $repo (@{$proj->{'repository'} || []}) {
+	  $repo->{'hostsystem'} = [ $repo->{'hostsystem'} ] if $repo->{'hostsystem'} && ref($repo->{'hostsystem'}) eq 'HASH';
 	}
       }
     } else {

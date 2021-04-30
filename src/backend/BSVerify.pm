@@ -260,10 +260,9 @@ sub verify_repo {
   if ($repo->{'base'}) {
     die("repo contains a 'base' element\n");
   }
-  # what is this?
-  if ($repo->{'hostsystem'}) {
-    verify_projid($repo->{'hostsystem'}->{'project'});
-    verify_repoid($repo->{'hostsystem'}->{'repository'});
+  for my $rt (@{$repo->{'hostsystem'} || []}) {
+    verify_projid($rt->{'project'});
+    verify_repoid($rt->{'repository'});
   }
 }
 

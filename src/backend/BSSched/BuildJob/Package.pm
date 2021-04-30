@@ -123,6 +123,22 @@ sub check {
     splice(@blocked, 10, scalar(@blocked), '...') if @blocked > 10;
     return ('blocked', join(', ', @blocked));
   }
+  # expand host deps
+  my $hdeps;
+  if ($ctx->{'conf_host'}) {
+    my $split_hostdeps = ($ctx->{'split_hostdeps'} || {})->{$packid};
+    return ('broken', 'missing split_hostdeps entry') unless $split_hostdeps;
+    my $subpacks = $ctx->{'subpacks'};
+    my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
+    $hdeps = [ @{$split_hostdeps->[1]} ];
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    @$hdeps = Build::get_deps($ctx->{'conf_host'}, $subpacks->{$info->{'name'}}, @$hdeps);
+    return ('unresolvable', 'host: '.join(', ', @$hdeps)) unless shift @$hdeps;
+  }
+
   my $reason;
   my @meta_s = stat("$gdst/:meta/$packid");
   # we store the lastcheck data in one string instead of an array
@@ -156,13 +172,13 @@ sub check {
       print "      - $packid ($buildtype)\n";
       print "        no meta, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'new build' } ]);
+    return ('scheduled', [ { 'explain' => 'new build' }, $hdeps ]);
   } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
     if ($ctx->{'verbose'}) {
       print "      - $packid ($buildtype)\n";
       print "        src change, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) } ]);
+    return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) }, $hdeps ]);
   } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
     my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
@@ -176,7 +192,7 @@ sub check {
       print "      - $packid ($buildtype)\n";
       print "        retrying bad build\n";
     }
-    return ('scheduled', [ { 'explain' => 'retrying bad build' } ]);
+    return ('scheduled', [ { 'explain' => 'retrying bad build' }, $hdeps ]);
   } else {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local' || $pdata->{'hasbuildenv'}) {
@@ -191,10 +207,13 @@ sub check {
     }
     my $check = substr($mylastcheck, 32, 32);	# metamd5
     my $pool = $ctx->{'pool'};
+    my $pool_host = $ctx->{'pool_host'};
     my $dep2pkg = $ctx->{'dep2pkg'};
+    my $dep2pkg_host = $ctx->{'dep2pkg_host'};
     $check .= $ctx->{'genmetaalgo'} if $ctx->{'genmetaalgo'};
     $check .= $rebuildmethod;
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
+    $check .= $pool_host->pkg2pkgid($dep2pkg_host->{$_}) for sort @{$hdeps || []};
     $check = Digest::MD5::md5_hex($check);
     if ($check eq substr($mylastcheck, 64, 32)) {
       # print "      - $packid ($buildtype)\n";
@@ -252,6 +271,12 @@ sub check {
 	push @new_meta, ($pool->pkg2pkgid($pkg)."  $bin");
       }
     }
+    if ($hdeps) {
+      my $hostarch = $ctx->{'conf_host'}->{'hostarch'};
+      for my $bin (@$hdeps) {
+	push @new_meta, ($pool_host->pkg2pkgid($dep2pkg_host->{$_})."  $hostarch:$bin");
+      }
+    }
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
     unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
     if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
@@ -290,7 +315,7 @@ sub check {
       print "        $_\n" for @diff;
       print "        meta change, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason } ] );
+    return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason }, $hdeps ] );
   }
 relsynccheck:
   if ($ctx->{'relsynctrigger'}->{$packid}) {
@@ -298,7 +323,7 @@ relsynccheck:
       print "      - $packid ($buildtype)\n";
       print "        rebuild counter sync, start build\n";
     }
-    return ('scheduled', [ { 'explain' => 'rebuild counter sync' } ] );
+    return ('scheduled', [ { 'explain' => 'rebuild counter sync' }, $hdeps ] );
   }
   return ('done');
 }
@@ -313,17 +338,40 @@ sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
   my $reason = $data->[0];
-  my $needed = $ctx->{'rebuildpackage_needed'};
-  if (!$needed) {
-    $needed = $ctx->{'rebuildpackage_needed'} = {};
+  my $hdeps = $data->[1];
+
+  if ($packid && !$ctx->{'rebuildpackage_needed'}) {
+    my $needed = $ctx->{'rebuildpackage_needed'} = {};
     my $edeps = $ctx->{'edeps'};
     my $dep2src = $ctx->{'dep2src'};
     for my $p (keys %$edeps) {
       $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
     }
   }
+
+  my $needed = $packid ? ($ctx->{'rebuildpackage_needed'}->{$packid} || 0) : 0;
+  my $subpacks = $ctx->{'subpacks'}->{$info->{'name'}} || [];
+  my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
+
+  if ($ctx->{'conf_host'}) {
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'crossmode' => 1}, ref($ctx);
+    my @bdeps;
+    for (@$edeps) {
+      push @bdeps, {'name' => $_, 'sysroot' => 1};
+    }
+    $ctx->{'extrabdeps'} = \@bdeps;
+    $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
+    my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $hdeps, $reason, $needed);
+    delete $info->{'nounchanged'};
+    return ($state, $job);
+  }
+
   $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
-  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [], $reason, $packid ? ($needed->{$packid} || 0) : 0);
+  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed);
   delete $info->{'nounchanged'};
   return ($state, $job);
 }

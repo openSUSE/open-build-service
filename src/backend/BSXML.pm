@@ -81,16 +81,17 @@ our $repo = [
 	    'project',
 	    'repository',
      ]],
-      [ 'hostsystem' =>
+     [[ 'hostsystem' =>
 	    'project',
 	    'repository',
-      ],
+     ]],
       [ 'base' =>		# expanded repo only!
 	    'project',
 	    'repository',
       ],
       [ 'arch' ],
 	'status',
+	'crosshostarch',	# internal
 ];
 
 our @disableenable = (
@@ -186,10 +187,13 @@ our $packinfo = [
 	  [ 'dep' ],
 	  [ 'prereq' ],
 	  [ 'buildtimeservice' ],
+	  [ 'onlynative' ],
+	  [ 'alsonative' ],
 	  [ 'imagetype' ],	# kiwi
 	  [ 'imagearch' ],	# kiwi
 	    'nodbgpkgs',	# kiwi
 	    'nosrcpkgs',	# kiwi
+	    'nativebuild',	# cross build: native
 	 [[ 'path' =>
 		'project',
 		'repository',
@@ -566,6 +570,7 @@ our $buildinfo = [
 	'notmeta',
 	'noinstall',
 	'installonly',
+	'sysroot',
 
 	'epoch',
 	'version',

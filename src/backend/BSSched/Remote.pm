@@ -126,37 +126,46 @@ sub setup_watches {
   # this includes the prpsearchpath plus the extra deps from kiwi/aggregates/...
   # (we just watch the repository for the extra deps as it costs too much to
   # watch every single package)
+  my %projdeps;
   my $rprpdeps = $gctx->{'rprpdeps'};
   if (%$rprpdeps) {
     my $myarch = $gctx->{'arch'};
-    my %projdeps;
+    my $localarch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : undef;
     for my $prp (keys %$rprpdeps) {
       my ($projid, $repoid) = split('/', $prp, 2);
-      push @{$projdeps{$projid}}, $repoid;
+      push @{$projdeps{$projid}}, "$repoid/$myarch";
+      push @{$projdeps{$projid}}, "$repoid/$localarch" if $localarch
     }
-    for my $projid (sort keys %projdeps) {
-      next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
-      my $rproj = remoteprojid($gctx, $projid);
-      next unless $rproj;		# not remote, so nothing to watch
-      my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+  }
 
-      # we need the config for all path elements, so we also add a project watch
-      # XXX: should make this implicit with the repository watch
-      $needremoteproj{$projid} = $rproj;	# we need this one in remoteprojs
-      $watchremote->{$remoteurl}->{"project/$rproj->{'remoteproject'}"} = $projid;
+  # add watches for all the host prpsearchpath
+  if (%{$gctx->{'prpsearchpath_host'}}) {
+    my $prpsearchpath_host = $gctx->{'prpsearchpath_host'};
+    for my $prp (keys %$prpsearchpath_host) {
+      my $ent = $prpsearchpath_host->{$prp};
+      my $hostarch = $ent->[0];
+      for my $aprp (@{$ent->[1]}) {
+	my ($aprojid, $arepoid) = split('/', $aprp, 2);
+        push @{$projdeps{$aprojid}}, "$arepoid/$hostarch";
+      }
+    }
+  }
 
-      # add watches for the repositories
-      for my $repoid (sort @{$projdeps{$projid}}) {
-	$needremoterepo{"$projid/$repoid/$myarch"} = 1;
-        $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoid/$myarch"} = $projid;
-      }
-      # watch localarch for building kiwi products on the 'local' scheduler
-      if ($myarch eq 'local' && $BSConfig::localarch) {
-        for my $repoid (sort @{$projdeps{$projid}}) {
-	  $needremoterepo{"$projid/$repoid/$BSConfig::localarch"} = 1;
-          $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoid/$BSConfig::localarch"} = $projid;
-        }
-      }
+  for my $projid (sort keys %projdeps) {
+    next if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
+    my $rproj = remoteprojid($gctx, $projid);
+    next unless $rproj;		# not remote, so nothing to watch
+    my $remoteurl = $rproj->{'partition'} ? $BSConfig::srcserver : $rproj->{'remoteurl'};
+
+    # we need the config for all path elements, so we also add a project watch
+    # XXX: should make this implicit with the repository watch
+    $needremoteproj{$projid} = $rproj;	# we need this one in remoteprojs
+    $watchremote->{$remoteurl}->{"project/$rproj->{'remoteproject'}"} = $projid;
+
+    # add watches for the repositories
+    for my $repoidarch (sort @{$projdeps{$projid}}) {
+      $needremoterepo{"$projid/$repoidarch"} = 1;
+      $watchremote->{$remoteurl}->{"repository/$rproj->{'remoteproject'}/$repoidarch"} = $projid;
     }
   }
 
@@ -360,7 +369,11 @@ sub addrepo_remote {
   my @modules;
   @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
   my $gctx = $ctx->{'gctx'};
-  print "    fetching remote repository state for $prp\n";
+  if ($gctx->{'arch'} ne $arch) {
+    print "    fetching remote repository state for $prp/$arch\n";
+  } else {
+    print "    fetching remote repository state for $prp\n";
+  }
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200,
