@@ -3143,6 +3143,7 @@ sub publishstats {
   my $createtime = $ev->{'time'} || $starttime;
   my $flavor = $req->{'flavor'} || '-';
   $flavor =~ s/\s/_/g;
+  $code ||= 'unknown';
   print "publish statistics: $prp/- $code $createtime-$starttime-$endtime $flavor\n";
 }
 
