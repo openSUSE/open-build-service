@@ -44,6 +44,6 @@ class SCMStatusReporter
   private
 
   def github?
-    @payload[:scm] == :github
+    @payload[:scm] == 'github'
   end
 end
