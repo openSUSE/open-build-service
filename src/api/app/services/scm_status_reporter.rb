@@ -5,21 +5,7 @@ class SCMStatusReporter
     @payload = payload
     @scm_token = scm_token
 
-    # Depending on the SCM, it's different
-    #   GitHub: pending, success, failure or error
-    #   GitLab: pending, success, failed, running or canceled
-    @state = if event.nil?
-               'pending'
-             else
-               case event.class.name
-               when 'Event::BuildFail'
-                 github? ? 'failure' : 'failed'
-               when 'Event::BuildSuccess'
-                 'success'
-               else
-                 'pending'
-               end
-             end
+    @state = event.nil? ? 'pending' : scm_final_state(event)
   end
 
   def call
@@ -45,5 +31,19 @@ class SCMStatusReporter
 
   def github?
     @payload[:scm] == 'github'
+  end
+
+  # Depending on the SCM, the state is different
+  #   GitHub: pending, success, failure or error
+  #   GitLab: pending, success, failed, running or canceled
+  def scm_final_state(event)
+    case event.class.name
+    when 'Event::BuildFail'
+      github? ? 'failure' : 'failed'
+    when 'Event::BuildSuccess'
+      'success'
+    else
+      'pending'
+    end
   end
 end
