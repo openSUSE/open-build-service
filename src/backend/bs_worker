@@ -2343,8 +2343,7 @@ sub getbinaries {
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
-  my $cross = $buildinfo->{'syspath'} ? $buildinfo->{'hostarch'} : undef;
-  die("cross build makes no sense with kiwi\n") if $cross && $kiwimode;
+  my $cross = !$kiwimode && $buildinfo->{'syspath'} ? $buildinfo->{'hostarch'} : undef;
 
   my @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
   my @todo_sysroot;
@@ -2373,7 +2372,7 @@ sub getbinaries {
     for my $repo (@{$buildinfo->{'syspath'} || []}) {
       last if !@todo;
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, 1, \@todo, $modules);
+      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'hostarch'} || $buildinfo->{'arch'}, 1, \@todo, $modules);
       @todo = grep {!$got->{$_}} @todo;
     }
     die("getbinaries: missing packages: @todo\n") if @todo;

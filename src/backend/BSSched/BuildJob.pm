@@ -1008,8 +1008,7 @@ sub create {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
     $searchpath = path2buildinfopath($gctx, [ expandkiwipath($ctx, $info) ]);
-  }
-  if ($ctx->{'crossmode'}) {
+  } elsif ($ctx->{'crossmode'}) {
     $syspath = $searchpath if @$searchpath;
     $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath_host'});
   }

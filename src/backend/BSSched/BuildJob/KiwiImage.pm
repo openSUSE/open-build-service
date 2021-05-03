@@ -298,6 +298,20 @@ sub build {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
 
+  if ($ctx->{'conf_host'}) {
+    my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
+    no warnings 'redefine';
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+    use warnings 'redefine';
+    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'prpsearchpath' => $ctx->{'prpsearchpath_host'} }, ref($ctx);
+    if ($cbdep) {
+      $ctx->{'extrabdeps'} = [ $cbdep ];
+      $ctx->{'containerpath'} = [ $cprp ] if $cprp;
+      $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
+    }
+    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
+  }
+
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use kiwi repositories also for kiwi system setup
     my $xp = BSSolv::expander->new($epool, $bconf);
