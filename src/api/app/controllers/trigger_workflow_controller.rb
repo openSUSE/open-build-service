@@ -7,7 +7,7 @@ class TriggerWorkflowController < TriggerController
   def create
     authorize @token
     @token.user.run_as do
-      @token.call({ scm: scm, event: event, payload: payload })
+      @token.call(scm: scm, event: event, payload: payload)
       render_ok
     end
   end
