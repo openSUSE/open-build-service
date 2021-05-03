@@ -11,8 +11,8 @@ module TriggerControllerService
       @event = event
     end
 
-    def accepted_event_and_action?
-      accepted_github_event_and_action? || accepted_gitlab_event_and_action?
+    def allowed_event_and_action?
+      allowed_github_event_and_action? || allowed_gitlab_event_and_action?
     end
 
     # TODO: What happens when some of the keys are missing?
@@ -28,7 +28,7 @@ module TriggerControllerService
           action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           repository_owner: @payload['pull_request']['head']['repo']['owner']['login'],
           repository_name: @payload['pull_request']['head']['repo']['name']
-        }
+        }.with_independent_access
       when 'gitlab'
         {
           scm: 'gitlab',
@@ -39,17 +39,17 @@ module TriggerControllerService
           action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           project_id: @payload['project']['id'],
           path_with_namespace: @payload['project']['path_with_namespace']
-        }
+        }.with_independent_access
       end
     end
 
     private
 
-    def accepted_github_event_and_action?
+    def allowed_github_event_and_action?
       @event == 'pull_request' && @payload['action'].in?(ALLOWED_GITHUB_ACTIONS)
     end
 
-    def accepted_gitlab_event_and_action?
+    def allowed_gitlab_event_and_action?
       @event == 'Merge Request Hook' && @payload['object_attributes']['action'].in?(ALLOWED_GITLAB_ACTIONS)
     end
   end
