@@ -13,6 +13,7 @@ class Package < ApplicationRecord
   include HasRatings
   include HasAttributes
   include PackageSphinx
+  include MultibuildPackage
 
   BINARY_EXTENSIONS = ['.0', '.bin', '.bin_mid', '.bz', '.bz2', '.ccf', '.cert',
                        '.chk', '.der', '.dll', '.exe', '.fw', '.gem', '.gif', '.gz',
@@ -146,13 +147,6 @@ class Package < ApplicationRecord
     return if Project.is_remote_project?(project)
 
     Project.get_by_name(project)
-  end
-
-  def self.striping_multibuild_suffix(name)
-    # exception for package names used to have a collon
-    return name if name.start_with?('_patchinfo:', '_product:')
-
-    name.gsub(/:.*$/, '')
   end
 
   # returns an object of package or raises an exception
@@ -1001,10 +995,6 @@ class Package < ApplicationRecord
       packages << candidate unless candidate.linkinfo
     end
     packages
-  end
-
-  def self.valid_multibuild_name?(name)
-    valid_name?(name, true)
   end
 
   def self.valid_name?(name, allow_multibuild = false)
