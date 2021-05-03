@@ -11,12 +11,13 @@ class Project < ApplicationRecord
   include ProjectSphinx
   include Project::Errors
   include StagingProject
+  include ProjectLinks
 
   TYPES = ['standard', 'maintenance', 'maintenance_incident',
            'maintenance_release'].freeze
 
   after_initialize :init
-  before_destroy :cleanup_before_destroy
+  before_destroy :cleanup_before_destroy, prepend: true
   after_destroy_commit :delete_on_backend
 
   after_save :discard_cache
@@ -53,12 +54,6 @@ class Project < ApplicationRecord
 
   has_many :messages, as: :db_object, dependent: :delete_all
   has_many :watched_projects, dependent: :destroy, inverse_of: :project
-
-  # Direct links between projects (not expanded ones)
-  has_many :linking_to, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :db_project_id, dependent: :delete_all
-  has_many :projects_linking_to, through: :linking_to, class_name: 'Project', source: :linked_db_project
-  has_many :linked_by, -> { order(:position) }, class_name: 'LinkedProject', foreign_key: :linked_db_project_id, dependent: :delete_all
-  has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project
 
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
@@ -387,26 +382,6 @@ class Project < ApplicationRecord
       {}
     end
 
-    def validate_link_xml_attribute(request_data, project_name)
-      request_data.elements('link') do |e|
-        # permissions check
-        target_project_name = e.value('project')
-        target_project = Project.get_by_name(target_project_name)
-
-        # The read access protection for own and linked project must be the same.
-        # ignore this for remote targets
-        if target_project.instance_of?(Project) &&
-           target_project.disabled_for?('access', nil, nil) &&
-           !FlagHelper.xml_disabled_for?(request_data, 'access')
-          return {
-            error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
-          }
-        end
-        logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"
-      end
-      {}
-    end
-
     def validate_repository_xml_attribute(request_data, project_name)
       # Check used repo pathes for existens and read access permissions
       request_data.elements('repository') do |repository|
@@ -613,17 +588,6 @@ class Project < ApplicationRecord
     self
   end
 
-  def cleanup_linking_projects
-    # replace links to this project with links to the "deleted" project
-    LinkedProject.transaction do
-      LinkedProject.where(linked_db_project: self).find_each do |lp|
-        id = lp.db_project_id
-        lp.destroy
-        Rails.cache.delete("xml_project_#{id}")
-      end
-    end
-  end
-
   def cleanup_linking_repos
     # replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |linking_repository|
@@ -644,7 +608,7 @@ class Project < ApplicationRecord
   end
 
   def cleanup_linking_targets
-    # replace links to this projects with links to the "deleted" project
+    # replace links to this project with links to the "deleted" project
     find_repos(:linking_target_repositories) do |linking_target_repository|
       linking_target_repository.release_targets.includes(:target_repository, :link).find_each do |release_target|
         next unless release_target.link.db_project_id == id
@@ -925,10 +889,6 @@ class Project < ApplicationRecord
 
   def expand_all_repositories
     repositories.collect(&:expand_all_repositories).flatten.uniq
-  end
-
-  def expand_linking_to
-    expand_all_projects(allow_remote_projects: false).map(&:id)
   end
 
   def expand_all_projects(project_map: {}, allow_remote_projects: true)

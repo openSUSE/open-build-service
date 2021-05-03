@@ -960,6 +960,7 @@ Rails/InverseOf:
     - 'app/models/message.rb'
     - 'app/models/package.rb'
     - 'app/models/project.rb'
+    - 'app/models/concerns/project_links.rb'
     - 'app/models/rating.rb'
     - 'app/models/repository.rb'
     - 'app/models/review.rb'
