@@ -375,7 +375,7 @@ sub setup {
     $prpsearchpath_host = $prpsearchpath_host->[1];
     my $bconf_host = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $bconf->{'hostarch'}, $prpsearchpath_host);
     if (!$bconf_host) {
-      my $error = check_remote_repo_error($gctx, $prpsearchpath);
+      my $error = check_remote_repo_error($gctx, $prpsearchpath_host);
       return (0, $error) if $error;
       my $lastprojid = (split('/', $prpsearchpath_host->[-1]))[0];
       return ('broken', "no config ($lastprojid)");
