@@ -4,14 +4,8 @@ class Token::Workflow < Token
   end
 
   def call(options)
-    payload = options[:payload]
-
-    scm = options[:scm] # github, gitlab
-    event = options[:event] # pull_request, merge_request
-
-    extractor = TriggerControllerService::ScmExtractor.new(scm, event, payload)
-
-    return unless extractor.accepted_event_and_action?
+    extractor = TriggerControllerService::ScmExtractor.new(options[:scm], options[:event], options[:payload])
+    return unless extractor.allowed_event_and_action?
 
     scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
     # yaml_file = Workflows::YAMLDownloadService.new(scm_extractor_payload).call
@@ -32,10 +26,10 @@ class Token::Workflow < Token
     # - closed -> remove the existent branched package
 
     # Some pseudocode:
-    # if scm_extractor_payload.scm == 'github' && scm_extractor_payload.action == 'opened'
+    # if scm_extractor_payload[:scm] == 'github' && scm_extractor_payload[:action] == 'opened'
     # end
 
-    # if scm_extractor_payload.scm == 'gitlab' && scm_extractor_payload.action == 'open'
+    # if scm_extractor_payload[:scm] == 'gitlab' && scm_extractor_payload[:action] == 'open'
     # end
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
