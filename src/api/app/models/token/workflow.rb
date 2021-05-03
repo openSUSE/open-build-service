@@ -5,6 +5,7 @@ class Token::Workflow < Token
 
   def call(options)
     payload = options[:payload]
+
     scm = options[:scm] # github, gitlab
     event = options[:event] # pull_request, merge_request
 
@@ -12,7 +13,7 @@ class Token::Workflow < Token
 
     return unless extractor.accepted_event_and_action?
 
-    # scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
+    scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
     # yaml_file = Workflows::YAMLDownloadService.new(scm_extractor_payload).call
     # workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, pr_number: scm_extractor_payload[:pr_number]).call
     # step = workflows.first.steps.first
@@ -44,7 +45,7 @@ class Token::Workflow < Token
                                 channel: 'scm',
                                 enabled: true,
                                 token: self,
-                                payload: payload)
+                                payload: scm_extractor_payload)
     end
 
     SCMStatusReporter.new(scm_extractor_payload, scm_token).call
