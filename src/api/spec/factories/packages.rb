@@ -56,6 +56,26 @@ FactoryBot.define do
       end
     end
 
+    factory :multibuild_package do
+      transient do
+        flavors { ['flavor_a', 'flavor_b'] }
+      end
+
+      after(:create) do |package, evaluator|
+        # NOTE: Enable global write through when writing new VCR cassetes.
+        # ensure the backend knows the project
+
+        flavor_xml = evaluator.flavors.map { |flavor| "<flavor>#{flavor}</flavor>" }.join
+        flavor_xml = "<multibuild>#{flavor_xml}</multibuild>"
+        if CONFIG['global_write_through']
+          Backend::Connection.put("/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_config", Faker::Lorem.paragraph)
+          Backend::Connection.put(
+            "/source/#{CGI.escape(package.project.name)}/#{CGI.escape(package.name)}/_multibuild", flavor_xml
+          )
+        end
+      end
+    end
+
     factory :package_with_binary do
       transient do
         target_file_name { 'bigfile_archive.tar.gz' }
