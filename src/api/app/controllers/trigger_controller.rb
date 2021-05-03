@@ -19,8 +19,7 @@ class TriggerController < ApplicationController
   def create
     authorize @token
     @token.user.run_as do
-      # TODO: This is what we should have in place for the Token::Workflow
-      @token.call(params.slice(:repository, :arch).permit!.merge(request: request))
+      @token.call(params.slice(:repository, :arch).permit!)
       render_ok
     end
   end
