@@ -5,7 +5,7 @@ class Token
     end
 
     def create?
-      return false unless record.user.is_active?
+      record.user.is_active?
     end
   end
 end
