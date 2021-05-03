@@ -274,7 +274,7 @@ sub check {
     if ($hdeps) {
       my $hostarch = $ctx->{'conf_host'}->{'hostarch'};
       for my $bin (@$hdeps) {
-	push @new_meta, ($pool_host->pkg2pkgid($dep2pkg_host->{$_})."  $hostarch:$bin");
+	push @new_meta, ($pool_host->pkg2pkgid($dep2pkg_host->{$bin})."  $hostarch:$bin");
       }
     }
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
