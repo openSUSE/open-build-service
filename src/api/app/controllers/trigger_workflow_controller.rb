@@ -1,4 +1,5 @@
 class TriggerWorkflowController < TriggerController
+  skip_before_action :set_package
   before_action :set_scm_event
   before_action :validate_scm_event
 
