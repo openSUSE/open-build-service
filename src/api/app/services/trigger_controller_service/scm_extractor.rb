@@ -28,7 +28,7 @@ module TriggerControllerService
           action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           repository_owner: @payload['pull_request']['head']['repo']['owner']['login'],
           repository_name: @payload['pull_request']['head']['repo']['name']
-        }.with_independent_access
+        }.with_indifferent_access
       when 'gitlab'
         {
           scm: 'gitlab',
@@ -39,7 +39,7 @@ module TriggerControllerService
           action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           project_id: @payload['project']['id'],
           path_with_namespace: @payload['project']['path_with_namespace']
-        }.with_independent_access
+        }.with_indifferent_access
       end
     end
 
