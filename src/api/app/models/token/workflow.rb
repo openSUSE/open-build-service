@@ -11,15 +11,22 @@ class Token::Workflow < Token
     yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
     workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload).call
     step = workflows.first.steps.first
-    step.call if step && step.valid?
+    package_from_step = if step && step.valid?
+                          step.call
+                        else
+                          # TODO: Raise a proper error
+                          raise 'Something something'
+                        end
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
+      # TODO: Deal with old EventSubscription (this can happen when someone pushes a new commit to a PR/branch, then we only want to report to the latest commit)
       EventSubscription.create!(eventtype: build_event,
-                                receiver_role: 'watcher', # TODO: check if this makes sense
+                                receiver_role: 'reader', # We pass a valid value, but we don't need this.
                                 user: user,
                                 channel: 'scm',
                                 enabled: true,
                                 token: self,
+                                package: package_from_step,
                                 payload: scm_extractor_payload)
     end
 

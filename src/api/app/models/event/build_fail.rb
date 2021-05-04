@@ -6,6 +6,8 @@ module Event
     self.description = 'Package has failed to build'
     receiver_roles :maintainer, :bugowner, :reader, :watcher
 
+    create_jobs :report_to_scm_job
+
     def subject
       "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"
     end
