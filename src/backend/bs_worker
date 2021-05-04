@@ -1947,15 +1947,17 @@ sub getpreinstallimage {
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
   my %metas;
+  my $arch = $buildinfo->{'crossarch'} || $buildinfo->{'arch'};
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
+    $nometa = 1 if $buildinfo->{'crossarch'};	# preinstallimage is always native
     my $callers_time = time();
     my @args;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
-    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "arch=$arch";
     push @args, "nometa" if $nometa;
     push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
     push @args, "binaries=".join(',', @bins);
@@ -1969,8 +1971,8 @@ sub getpreinstallimage {
     };
     warn($@) if $@;
     last unless $bvl;	# stop here
-    push @{$prpas{$server}}, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}" if $server ne $buildinfo->{'srcserver'};
-    $bvls->{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"} = $bvl if $bvls;
+    push @{$prpas{$server}}, "$repo->{'project'}/$repo->{'repository'}/$arch" if $server ne $buildinfo->{'srcserver'};
+    $bvls->{"$repo->{'project'}/$repo->{'repository'}/$arch"} = $bvl if $bvls;
     my %bv;
     for (@{$bvl->{'binary'} || []}) {
       if ($_->{'error'}) {
@@ -1981,7 +1983,7 @@ sub getpreinstallimage {
 	$metas{$1} = $_ if !$nometa && $_->{'metamd5'};
       }
     }
-    my @origin = ($repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'});
+    my @origin = ($repo->{'project'}, $repo->{'repository'}, $arch);
     for my $bin (@bins) {
       my $bv = $bv{$bin} || {};
       next if $bv->{'error'};
@@ -2042,7 +2044,7 @@ sub getpreinstallimage {
       next unless $img->{'sizek'} && $img->{'hdrmd5'};
       next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []};
       # ignore our own image
-      next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
+      next if $img->{'prpa'} eq "$projid/$repoid/$arch" && $img->{'package'} eq $buildinfo->{'package'};
       if ($buildinfo->{'file'} eq '_preinstallimage') {
 	# for building preinstall images we want at least one new package to avoid cycles
 	my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
@@ -2074,7 +2076,7 @@ sub getpreinstallimage {
 	      # put entry on top
 	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
 	    }
-	    if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+	    if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
 	      $imagefile = $ifile;
 	      $imageinfo = $bestimg;
 	      last;
@@ -2106,7 +2108,7 @@ sub getpreinstallimage {
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
-      if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+      if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
         $imagefile = $ifile;
         $imageinfo = $bestimg;
         last;
@@ -2491,20 +2493,19 @@ sub getbinaries {
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
-  my $cross = $buildinfo->{'syspath'} ? $buildinfo->{'crossarch'} : undef;
-
   my @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
-  my @todo_sysroot = map {$_->{'name'}} grep {$_->{'sysroot'}} @bdep;
-  die("sysroot packages need cross enabled\n") if @todo_sysroot && !$cross;
-  @bdep = grep {!$_->{'sysroot'}} @bdep if @todo_sysroot;
-  my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'}} @bdep;
-  @bdep = map {$_->{'name'}} @bdep;
-  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
+  my @todo = map {$_->{'name'}} @bdep;
 
-  my %done;
-  my @todo = @bdep;
+  # split into todo/todo_sysroot in cross mode
+  my $cross = $buildinfo->{'crossarch'};
+  my @todo_sysroot = map {$_->{'name'}} grep {$_->{'sysroot'}} @bdep;
+  die("sysroot packages need a crossarch\n") if @todo_sysroot && !$cross;
+  @todo = map {$_->{'name'}} grep {!$_->{'sysroot'}} @bdep if @todo_sysroot;
   die("no binaries needed for this package?\n") unless @todo;
-  my @meta;
+
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
+  my %done;
+
   my %meta;
   my $packid = $buildinfo->{'package'};
   my $projid = $buildinfo->{'project'};
@@ -2512,6 +2513,7 @@ sub getbinaries {
   my $modules = $buildinfo->{'module'};
   my %bvls;		# bvl cache, the query is not free
 
+  # get a preinstall image if available
   my ($imagefile, $imagebins);
   if (@todo && $preinstallimagedata && $Build::Features::preinstallimage) {
     my ($imagesource, $imagemetas, $imageorigins);
@@ -2534,22 +2536,28 @@ sub getbinaries {
   }
   $imagebins ||= {};
 
+  # get all the (target) packages
+  @todo = @todo_sysroot if $cross;
   for my $repo (@{$buildinfo->{'path'} || []}) {
     last unless @todo;
     my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
     my $nometa = 0;
     $nometa = 1 if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
-    $nometa = 1 if $cross;
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $arch = $cross || $buildinfo->{'arch'};
-    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, $nometa, \@todo, $modules, $bvls{"$repoprp/$arch"});
+    my $arch = $buildinfo->{'arch'};
+    my $binaryprefix = $cross ? '__sysroot__' : '';
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, $nometa, \@todo, $modules, $bvls{"$repoprp/$arch"}, $binaryprefix);
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
       $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
       if ($outbdep) {
 	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
+	if ($cross) {
+	  substr($obdep->{'name'}, 0, length($binaryprefix), '');
+	  $obdep->{'sysroot'} = 1;
+	}
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
@@ -2559,25 +2567,24 @@ sub getbinaries {
 	$origins->{$_} = "$repoprp/$arch";
       }
     }
-    @todo = grep {!$done{$_}} @todo;
+    @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
 
+  # now get the native packages in cross mode
+  @todo = map {$_->{'name'}} grep {!$_->{'sysroot'}} @bdep if $cross;
+  @todo = grep {!$imagebins->{$_}} @todo;
   for my $repo (@{$buildinfo->{'syspath'} || []}) {
-    last unless @todo_sysroot;
+    last unless @todo;
     my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
-    my $nometa = 0;
-    $nometa = 1 if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
-    $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $arch = $buildinfo->{'arch'};
-    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, $nometa, \@todo_sysroot, $modules, $bvls{"$repoprp/$arch"}, '__sysroot__');
+    my $arch = $cross;
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, 1, \@todo, $modules, $bvls{"$repoprp/$arch"});
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
-      $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
       if ($outbdep) {
-	my $obdep = { 'name' => substr($_, 11), 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'}, 'sysroot' => 1 };
+	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
@@ -2587,14 +2594,16 @@ sub getbinaries {
         $origins->{$_} = "$repoprp/$arch";
       }
     }
-    @todo_sysroot = grep {!$done{"__sysroot__$_"}} @todo_sysroot;
+    @todo = grep {!$done{$_}} @todo;
   }
-  die("getbinaries: missing sysroot packages: @todo_sysroot\n") if @todo_sysroot;
+  die("getbinaries: missing native packages: @todo\n") if @todo;
 
-  # generate meta data
+  # everything is downloaded, now generate meta data
+  my @meta;
+
+  # add meta for all native deps in cross mode
   if ($cross) {
-    # add all native deps
-    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'} && !$_->{'sysroot'}} @{$buildinfo->{'bdep'} || []}) {
+    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'} && !$_->{'sysroot'}} @bdep) {
       my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
       push @meta, "$id  $cross:$dep";
     }
@@ -2617,9 +2626,9 @@ sub getbinaries {
   }
   my @metadeps;
   if ($cross) {
-    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'} && $_->{'sysroot'}} @{$buildinfo->{'bdep'} || []};
+    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'} && $_->{'sysroot'}} @bdep;
   } else {
-    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []};
+    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'}} @bdep;
   }
   for my $dep (sort {"$a/" cmp "$b/"} @metadeps) {
     my $prefixeddep = $cross ? "__sysroot__$dep" : $dep;
@@ -3138,7 +3147,7 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
-    for ('versrel', 'bcnt', 'release', 'module') {
+    for ('versrel', 'bcnt', 'release', 'module', 'crossarch') {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }
