@@ -13,26 +13,26 @@
       .form-group.pl-3
         -# rubocop:disable Style/CombinableLoops
         - list.each do |distribution|
-          - selected = @project.has_distribution(distribution['project'], distribution['repository'])
+          - selected = @project.has_distribution(distribution.project, distribution.repository)
           .custom-control.custom-checkbox.custom-control-inline
-            = check_box_tag 'distributions[]', distribution['reponame'], selected,
-                                               id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}",
+            = check_box_tag 'distributions[]', distribution.reponame, selected,
+                                               id: "repo_#{replace_jquery_meta_characters(distribution.reponame)}",
                                                class: 'repocheckbox custom-control-input'
-            = label_tag :distribution_name, for: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}", class: 'custom-control-label' do
-              = distribution['name']
+            = label_tag :distribution_name, for: "repo_#{replace_jquery_meta_characters(distribution.reponame)}", class: 'custom-control-label' do
+              = distribution.name
         - list.each do |distribution|
           = form_tag({ action: :create, project: @project }, remote: true, class: 'd-none',
-                                                             id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}_create") do
-            = hidden_field_tag 'repository', distribution['reponame']
-            = hidden_field_tag 'target_project', distribution['project']
-            = hidden_field_tag 'target_repo', distribution['repository']
-            - distribution['architectures'].each do |arch|
+                                                             id: "repo_#{replace_jquery_meta_characters(distribution.reponame)}_create") do
+            = hidden_field_tag 'repository', distribution.reponame
+            = hidden_field_tag 'target_project', distribution.project
+            = hidden_field_tag 'target_repo', distribution.repository
+            - distribution.architectures.each do |arch|
               = hidden_field_tag 'architectures[]', arch
 
           = form_tag({ action: :destroy }, remote: true, class: 'd-none',
-                                           id: "repo_#{replace_jquery_meta_characters(distribution['reponame'])}_destroy") do
+                                           id: "repo_#{replace_jquery_meta_characters(distribution.reponame)}_destroy") do
             = hidden_field_tag 'project', @project.name
-            = hidden_field_tag 'target', distribution['reponame']
+            = hidden_field_tag 'target', distribution.reponame
         -# rubocop:enable Style/CombinableLoops
     %h6
       = image_tag('distributions/kiwi.svg')

@@ -29,12 +29,15 @@ class Webui::RepositoriesController < Webui::WebuiController
 
   # GET project/add_repository_from_default_list/:project
   def distributions
-    @distributions = Distribution.all_including_remotes.group_by { |e| e['vendor'] }
+    @distributions = Distribution.all.group_by(&:vendor)
     return if @distributions.present?
-    redirect_to(action: 'new', project: @project) && return unless User.admin_session?
 
-    redirect_to(new_interconnect_path,
-                alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
+    if User.admin_session?
+      redirect_to(new_interconnect_path,
+                  alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
+    else
+      redirect_to(action: 'new', project: @project)
+    end
   end
 
   # POST project/save_repository
