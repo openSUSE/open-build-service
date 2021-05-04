@@ -8,32 +8,10 @@ class Token::Workflow < Token
     return unless extractor.allowed_event_and_action?
 
     scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
-    # yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
-    # BUT THIS DOESN'T
-    # workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, pr_number: scm_extractor_payload[:pr_number]).call
-    # step = workflows.first.steps.first
-    # step.call if step.valid?
-
-    # Read configuration file
-    #   if the ref is not included in the config file's branch whitelist we do nothing.
-
-    # Decide what to do by action:
-    # FIXME: Who does this branching? Should we just overwrite the _service file with the data coming
-    #        from the workflow config file and trigger a Service token?
-    # - opened -> create a branch package on OBS using the configuration file's details and the PR number.
-    #
-    # NICE TO HAVE:
-    # - synchronize -> get the existent branched package on OBS and ensure it updates the source
-    #                  code and it rebuilds (trigger service). We should have a previous branch with the
-    #                  contents of the initial pull_request or the previous synchronization.
-    # - closed -> remove the existent branched package
-
-    # Some pseudocode:
-    # if scm_extractor_payload[:scm] == 'github' && scm_extractor_payload[:action] == 'opened'
-    # end
-
-    # if scm_extractor_payload[:scm] == 'gitlab' && scm_extractor_payload[:action] == 'open'
-    # end
+    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
+    workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, scm_extractor_payload: scm_extractor_payload).call
+    step = workflows.first.steps.first
+    step.call if step && step.valid?
 
     ['Event::BuildFail', 'Event::BuildSuccess'].each do |build_event|
       EventSubscription.create!(eventtype: build_event,
