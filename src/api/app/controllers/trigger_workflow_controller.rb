@@ -19,7 +19,7 @@ class TriggerWorkflowController < TriggerController
   end
 
   def validate_scm_event
-    raise InvalidToken unless @gitlab_event.present? || @github_event.present?
+    raise BadScmHeaders unless @gitlab_event.present? || @github_event.present?
   end
 
   def scm
@@ -35,6 +35,13 @@ class TriggerWorkflowController < TriggerController
   end
 
   def payload
-    JSON.parse(request.body.read)
+    request_body = request.body.read
+    raise BadScmPayload if request_body.blank?
+
+    begin
+      JSON.parse(request_body)
+    rescue JSON::ParserError
+      raise BadScmPayload
+    end
   end
 end
