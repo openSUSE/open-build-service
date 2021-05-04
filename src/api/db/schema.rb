@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_04_28_132708) do
+ActiveRecord::Schema.define(version: 2021_05_05_121605) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -403,7 +403,9 @@ ActiveRecord::Schema.define(version: 2021_04_28_132708) do
     t.boolean "enabled", default: false
     t.integer "token_id"
     t.text "payload"
+    t.integer "package_id"
     t.index ["group_id"], name: "index_event_subscriptions_on_group_id"
+    t.index ["package_id"], name: "index_event_subscriptions_on_package_id"
     t.index ["token_id"], name: "index_event_subscriptions_on_token_id"
     t.index ["user_id"], name: "index_event_subscriptions_on_user_id"
   end
@@ -415,9 +417,11 @@ ActiveRecord::Schema.define(version: 2021_04_28_132708) do
     t.datetime "updated_at", precision: 6
     t.integer "undone_jobs", default: 0
     t.boolean "mails_sent", default: false
+    t.integer "package_id"
     t.index ["created_at"], name: "index_events_on_created_at"
     t.index ["eventtype"], name: "index_events_on_eventtype"
     t.index ["mails_sent"], name: "index_events_on_mails_sent"
+    t.index ["package_id"], name: "index_events_on_package_id"
   end
 
   create_table "flags", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|

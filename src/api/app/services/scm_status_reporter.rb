@@ -1,11 +1,11 @@
 class SCMStatusReporter
   attr_accessor :payload, :scm_token, :state
 
-  def initialize(payload, scm_token, event = nil)
+  def initialize(payload, scm_token, event_type = nil)
     @payload = payload
     @scm_token = scm_token
 
-    @state = event.nil? ? 'pending' : scm_final_state(event)
+    @state = event_type.nil? ? 'pending' : scm_final_state(event_type)
   end
 
   def call
@@ -36,8 +36,8 @@ class SCMStatusReporter
   # Depending on the SCM, the state is different
   #   GitHub: pending, success, failure or error
   #   GitLab: pending, success, failed, running or canceled
-  def scm_final_state(event)
-    case event.class.name
+  def scm_final_state(event_type)
+    case event_type
     when 'Event::BuildFail'
       github? ? 'failure' : 'failed'
     when 'Event::BuildSuccess'
