@@ -129,7 +129,7 @@ fi										\
 }
 %endif
 
-%global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-sphinx.service
+%global obs_api_support_scripts obs-api-support.target obs-clockwork.service obs-delayedjob-queue-consistency_check.service obs-delayedjob-queue-default.service obs-delayedjob-queue-issuetracking.service obs-delayedjob-queue-mailers.service obs-delayedjob-queue-project_log_rotate.service obs-delayedjob-queue-releasetracking.service obs-delayedjob-queue-staging.service obs-delayedjob-queue-scm.service obs-sphinx.service
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
@@ -946,6 +946,7 @@ usermod -a -G docker obsservicerun
 %{_unitdir}/obs-delayedjob-queue-quick@.service
 %{_unitdir}/obs-delayedjob-queue-releasetracking.service
 %{_unitdir}/obs-delayedjob-queue-staging.service
+%{_unitdir}/obs-delayedjob-queue-scm.service
 %{_unitdir}/obs-sphinx.service
 %if 0%{?suse_version}
 %{_sbindir}/rcobs-api-support
@@ -957,6 +958,7 @@ usermod -a -G docker obsservicerun
 %{_sbindir}/rcobs-delayedjob-queue-project_log_rotate
 %{_sbindir}/rcobs-delayedjob-queue-releasetracking
 %{_sbindir}/rcobs-delayedjob-queue-staging
+%{_sbindir}/rcobs-delayedjob-queue-scm
 %{_sbindir}/rcobs-sphinx
 %{_sbindir}/rcobsapisetup
 %endif
