@@ -1,8 +1,8 @@
 module Workflows
   class YAMLToWorkflowsService
-    def initialize(yaml_file:, pr_number:)
+    def initialize(yaml_file:, scm_extractor_payload:)
       @yaml_file = yaml_file
-      @pr_number = pr_number
+      @scm_extractor_payload = scm_extractor_payload
     end
 
     def call
@@ -16,7 +16,7 @@ module Workflows
       workflows = []
 
       parsed_workflows_yaml.each do |_workflow_name, workflow|
-        workflows << Workflow.new(workflow: workflow, pr_number: @pr_number)
+        workflows << Workflow.new(workflow: workflow, scm_extractor_payload: @scm_extractor_payload)
       end
       workflows
     end
