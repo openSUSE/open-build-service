@@ -2412,7 +2412,7 @@ sub getbinaries_kiwiimage {
 
   # fetch environment in two path mode
   if ($buildinfo->{'syspath'}) {
-    my $syspatharch = $buildinfo->{'hostarch'} || $buildinfo->{'arch'};
+    my $syspatharch = $buildinfo->{'crossarch'} || $buildinfo->{'arch'};
     @todo = grep {!$bdep_noinstall{$_}} @bdep;
     for my $repo (@{$buildinfo->{'syspath'} || []}) {
       last unless @todo;
@@ -2491,7 +2491,7 @@ sub getbinaries {
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
-  my $cross = $buildinfo->{'syspath'} ? $buildinfo->{'hostarch'} : undef;
+  my $cross = $buildinfo->{'syspath'} ? $buildinfo->{'crossarch'} : undef;
 
   my @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
   my @todo_sysroot = map {$_->{'name'}} grep {$_->{'sysroot'}} @bdep;
