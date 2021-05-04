@@ -20,7 +20,7 @@ class TriggerWorkflowController < TriggerController
   end
 
   def validate_scm_event
-    raise InvalidToken unless @gitlab_event.present? || @github_event.present?
+    raise BadScmHeaders unless @gitlab_event.present? || @github_event.present?
   end
 
   def scm

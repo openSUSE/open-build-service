@@ -6,4 +6,10 @@ module Trigger::Errors
           403,
           'No valid token found'
   end
+
+  class BadScmHeaders < APIError
+    setup 'bad_request',
+          400,
+          'Valid SCM HTTP request headers required'
+  end
 end
