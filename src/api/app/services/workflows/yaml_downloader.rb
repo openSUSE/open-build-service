@@ -1,5 +1,5 @@
 module Workflows
-  class YAMLDownloadService
+  class YAMLDownloader
     MAX_FILE_SIZE = 1024 * 1024 # 1MB
 
     attr_reader :errors
