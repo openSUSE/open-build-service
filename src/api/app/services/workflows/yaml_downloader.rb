@@ -24,9 +24,9 @@ module Workflows
     def download_url
       case @scm_payload[:scm]
       when 'github'
-        "https://raw.githubusercontent.com/#{@scm_payload[:repository_owner]}/#{@scm_payload[:repository_name]}/#{@scm_payload[:branch]}/.obs/workflows.yml"
+        "https://raw.githubusercontent.com/#{@scm_payload[:repository_owner]}/#{@scm_payload[:repository_name]}/#{@scm_payload[:default_branch]}/.obs/workflows.yml"
       when 'gitlab'
-        "https://gitlab.com/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:branch]}/.obs/workflows.yml"
+        "https://gitlab.com/#{@scm_payload[:path_with_namespace]}/-/raw/#{@scm_payload[:default_branch]}/.obs/workflows.yml"
       end
     end
   end
