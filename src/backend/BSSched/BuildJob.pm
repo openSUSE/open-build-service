@@ -876,6 +876,7 @@ sub create_jobdata {
   $binfo->{'nodbgpkgs'} = $info->{'nodbgpkgs'} if $info->{'nodbgpkgs'};
   $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
+  $binfo->{'crossarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'} && $ctx->{'conf_host'};
   $binfo->{'module'} = $bconf->{'modules'} if $bconf->{'modules'};
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid" if defined($obsname) && defined($packid);
