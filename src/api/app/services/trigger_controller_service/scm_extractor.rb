@@ -44,8 +44,7 @@ module TriggerControllerService
         source_branch: @payload['pull_request']['head']['ref'],
         target_branch: @payload['pull_request']['base']['ref'],
         action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        repository_owner: @payload['pull_request']['head']['repo']['owner']['login'],
-        repository_name: @payload['pull_request']['head']['repo']['name']
+        repository_full_name: @payload['pull_request']['head']['repo']['full_name'],
       }.with_indifferent_access
     end
 
