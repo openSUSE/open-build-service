@@ -12,7 +12,7 @@ class SCMStatusReporter
     if github?
       github_client = Octokit::Client.new(access_token: @scm_token)
       # https://docs.github.com/en/rest/reference/repos#create-a-commit-status
-      github_client.create_status("#{@payload[:repository_owner]}/#{@payload[:repository_name]}",
+      github_client.create_status("#{@payload[:repository_full_name]}",
                                   @payload[:commit_sha],
                                   @state,
                                   { context: 'OBS Workflow' })
