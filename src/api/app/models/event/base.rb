@@ -7,6 +7,8 @@ module Event
 
     after_create :create_project_log_entry_job, if: -> { (PROJECT_CLASSES | PACKAGE_CLASSES).include?(self.class.name) }
 
+    belongs_to :package
+
     EXPLANATION_FOR_NOTIFICATIONS =  {
       'Event::BuildFail' => 'Receive notifications of build failures for packages for which you are...',
       'Event::ServiceFail' => 'Receive notifications of source service failures for packages for which you are...',
@@ -105,9 +107,10 @@ module Event
     end
 
     def initialize(attribs)
-      attributes = attribs.dup
+      attributes = attribs.dup.with_indifferent_access
       super()
       self.created_at = attribs[:time] if attributes[:time]
+      self.package = Package.get_by_project_and_name(attributes[:project], attributes[:package]) if attributes[:project] && attributes[:package]
       attributes.delete :eventtype
       attributes.delete :time
 
