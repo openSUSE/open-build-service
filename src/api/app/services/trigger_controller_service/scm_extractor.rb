@@ -24,8 +24,8 @@ module TriggerControllerService
           repo_url: @payload['pull_request']['head']['repo']['html_url'],
           commit_sha: @payload['pull_request']['head']['sha'],
           pr_number: @payload['number'],
-          branch: @payload['pull_request']['head']['ref'],
-          default_branch: @payload['repository']['default_branch'],
+          source_branch: @payload['pull_request']['head']['ref'],
+          target_branch: @payload['pull_request']['base']['ref'],
           action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           repository_owner: @payload['pull_request']['head']['repo']['owner']['login'],
           repository_name: @payload['pull_request']['head']['repo']['name']
@@ -36,8 +36,8 @@ module TriggerControllerService
           repo_url: @payload['project']['web_url'],
           commit_sha: @payload['object_attributes']['last_commit']['id'],
           pr_number: @payload['object_attributes']['iid'],
-          branch: @payload['object_attributes']['source_branch'],
-          default_branch: @payload['project']['default_branch'],
+          source_branch: @payload['object_attributes']['source_branch'],
+          target_branch: @payload['object_attributes']['target_branch'],
           action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
           project_id: @payload['project']['id'],
           path_with_namespace: @payload['project']['path_with_namespace']
