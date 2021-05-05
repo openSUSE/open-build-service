@@ -2,12 +2,90 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_34
+    uri: http://backend:5352/source/project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>A Time of Gifts</title>
+          <title>Wildfire at Midnight</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '147'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>Wildfire at Midnight</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_4
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>From Here to Eternity</title>
+          <description>Pariatur impedit eos vitae.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '158'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>From Here to Eternity</title>
+          <description>Pariatur impedit eos vitae.</description>
+        </package>
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_5
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_with_a_link">
+          <title>For Whom the Bell Tolls</title>
           <description/>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
@@ -31,26 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '182'
+      - '202'
     body:
       encoding: UTF-8
       string: |
-        <project name="project">
-          <title>A Time of Gifts</title>
+        <project name="project_with_a_link">
+          <title>For Whom the Bell Tolls</title>
           <description></description>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:18 GMT
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_35
+    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="project">
-          <title>The Grapes of Wrath</title>
-          <description>Itaque architecto est officia.</description>
+        <package name="local_package" project="project_with_a_link">
+          <title>In Death Ground</title>
+          <description>Nesciunt a nam quod.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -71,18 +149,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_trigger" project="project">
-          <title>The Grapes of Wrath</title>
-          <description>Itaque architecto est officia.</description>
+        <package name="local_package" project="project_with_a_link">
+          <title>In Death Ground</title>
+          <description>Nesciunt a nam quod.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:18 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 - request:
     method: get
-    uri: http://backend:5352/source/project/package_trigger
+    uri: http://backend:5352/source/project_with_a_link/local_package
     body:
       encoding: US-ASCII
       string: ''
@@ -105,16 +183,16 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '90'
+      - '88'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        <directory name="local_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
         </directory>
-  recorded_at: Mon, 03 May 2021 15:47:18 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/project?cmd=rebuild&package=package_trigger
+    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=local_package
     body:
       encoding: UTF-8
       string: ''
@@ -146,5 +224,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Mon, 03 May 2021 15:47:18 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 recorded_with: VCR 6.0.0
