@@ -42,6 +42,7 @@ Style/MethodCallWithArgsParentheses:
   Exclude:
     - 'app/views/**/*'
     - 'db/migrate/**/*'
+    - 'db/data/**/*'
     - 'Gemfile*'
   # the cop doesn't come with a well defined list of good methods, so this
   # list is the list of offending functions when introducing. Removing functions

@@ -7,7 +7,7 @@ class PathElement < ApplicationRecord
   belongs_to :link, class_name: 'Repository', foreign_key: 'repository_id', inverse_of: :links
 
   validates :link, :repository, presence: true
-  validates :repository, uniqueness: { scope: :link }
+  validates :repository, uniqueness: { scope: [:link, :kind] }
 end
 
 # == Schema Information
@@ -15,6 +15,7 @@ end
 # Table name: path_elements
 #
 #  id            :integer          not null, primary key
+#  kind          :string(10)       default("standard")
 #  position      :integer          not null
 #  parent_id     :integer          not null, indexed => [repository_id]
 #  repository_id :integer          not null, indexed => [parent_id], indexed

@@ -1011,6 +1011,7 @@ Rails/SkipsModelValidations:
   Exclude:
     - 'db/migrate/20170621100321_add_channel_to_event_subscriptions.rb'
     - 'db/migrate/20170630144825_convert_tokens_to_service_tokens.rb'
+    - 'db/data/20210505155012_backfill_add_kind_to_path_element.rb'
 
 # Offense count: 82
 # Cop supports --auto-correct.

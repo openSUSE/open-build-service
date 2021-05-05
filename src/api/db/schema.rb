@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_02_05_113812) do
+ActiveRecord::Schema.define(version: 2021_05_05_155931) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -721,6 +721,7 @@ ActiveRecord::Schema.define(version: 2021_02_05_113812) do
     t.integer "parent_id", null: false
     t.integer "repository_id", null: false
     t.integer "position", null: false
+    t.column "kind", "enum('standard','hostsystem')", default: "standard"
     t.index ["parent_id", "repository_id"], name: "parent_repository_index", unique: true
     t.index ["repository_id"], name: "repository_id"
   end
