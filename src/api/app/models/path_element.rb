@@ -15,14 +15,14 @@ end
 # Table name: path_elements
 #
 #  id            :integer          not null, primary key
-#  kind          :string(10)       default("standard")
+#  kind          :string(10)       default("standard"), indexed => [parent_id, repository_id]
 #  position      :integer          not null
-#  parent_id     :integer          not null, indexed => [repository_id]
-#  repository_id :integer          not null, indexed => [parent_id], indexed
+#  parent_id     :integer          not null, indexed => [repository_id, kind]
+#  repository_id :integer          not null, indexed => [parent_id, kind], indexed
 #
 # Indexes
 #
-#  parent_repository_index  (parent_id,repository_id) UNIQUE
+#  parent_repository_index  (parent_id,repository_id,kind) UNIQUE
 #  repository_id            (repository_id)
 #
 # Foreign Keys

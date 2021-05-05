@@ -297,6 +297,7 @@ Rails/BulkChangeTable:
     - 'db/migrate/20170912140257_change_kiwi_packages_columns_from_big_int_to_int.rb'
     - 'db/migrate/20171107125828_rename_kiwi_preference_types_to_kiwi_preferences.rb'
     - 'db/migrate/20180516074538_explicitly_set_charset.rb'
+    - 'db/migrate/20210505160725_add_kind_to_path_element_uniq_indexes.rb'
 
 ##################### RSpec ##################################
 
