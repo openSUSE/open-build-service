@@ -51,7 +51,8 @@ module TriggerControllerService
     def gitlab_extractor_payload
       {
         scm: 'gitlab',
-        repo_url: @payload['project']['web_url'],
+        object_kind: @payload['object_kind'],
+        http_url: @payload['project']['http_url'],
         commit_sha: @payload['object_attributes']['last_commit']['id'],
         pr_number: @payload['object_attributes']['iid'],
         source_branch: @payload['object_attributes']['source_branch'],
