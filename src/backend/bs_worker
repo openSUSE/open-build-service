@@ -1947,15 +1947,17 @@ sub getpreinstallimage {
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
   my %metas;
+  my $arch = $buildinfo->{'crossarch'} || $buildinfo->{'arch'};
   for my $repo (@{$buildinfo->{'path'} || []}) {
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $nometa = $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid ? 1 : 0;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
+    $nometa = 1 if $buildinfo->{'crossarch'};	# preinstallimage is always native
     my $callers_time = time();
     my @args;
     push @args, "project=$repo->{'project'}";
     push @args, "repository=$repo->{'repository'}";
-    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "arch=$arch";
     push @args, "nometa" if $nometa;
     push @args, map {"module=$_"} @{$buildinfo->{'module'} || []};
     push @args, "binaries=".join(',', @bins);
@@ -1969,8 +1971,8 @@ sub getpreinstallimage {
     };
     warn($@) if $@;
     last unless $bvl;	# stop here
-    push @{$prpas{$server}}, "$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}" if $server ne $buildinfo->{'srcserver'};
-    $bvls->{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"} = $bvl if $bvls;
+    push @{$prpas{$server}}, "$repo->{'project'}/$repo->{'repository'}/$arch" if $server ne $buildinfo->{'srcserver'};
+    $bvls->{"$repo->{'project'}/$repo->{'repository'}/$arch"} = $bvl if $bvls;
     my %bv;
     for (@{$bvl->{'binary'} || []}) {
       if ($_->{'error'}) {
@@ -1981,7 +1983,7 @@ sub getpreinstallimage {
 	$metas{$1} = $_ if !$nometa && $_->{'metamd5'};
       }
     }
-    my @origin = ($repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'});
+    my @origin = ($repo->{'project'}, $repo->{'repository'}, $arch);
     for my $bin (@bins) {
       my $bv = $bv{$bin} || {};
       next if $bv->{'error'};
@@ -2042,7 +2044,7 @@ sub getpreinstallimage {
       next unless $img->{'sizek'} && $img->{'hdrmd5'};
       next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []};
       # ignore our own image
-      next if $img->{'prpa'} eq "$projid/$repoid/$buildinfo->{'arch'}" && $img->{'package'} eq $buildinfo->{'package'};
+      next if $img->{'prpa'} eq "$projid/$repoid/$arch" && $img->{'package'} eq $buildinfo->{'package'};
       if ($buildinfo->{'file'} eq '_preinstallimage') {
 	# for building preinstall images we want at least one new package to avoid cycles
 	my %havehdrmd5 = map {$_ => 1} @{$img->{'hdrmd5s'} || []};
@@ -2074,7 +2076,7 @@ sub getpreinstallimage {
 	      # put entry on top
 	      manage_cache($cachesize, [ [$cacheid, $s[7]] ], undef);
 	    }
-	    if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+	    if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
 	      $imagefile = $ifile;
 	      $imageinfo = $bestimg;
 	      last;
@@ -2106,7 +2108,7 @@ sub getpreinstallimage {
 	manage_cache($cachesize, undef, [ [$cacheid, $s[7], "$dir/$ifile"] ]);
 	unlink("$dir/$ifile.meta");
       }
-      if (getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
+      if (!%metas || getpreinstallimage_metas($buildinfo, $dir, \%metas, $bestimg, \%hdrmd5s)) {
         $imagefile = $ifile;
         $imageinfo = $bestimg;
         last;
@@ -2331,70 +2333,189 @@ sub getkiwimode {
   return $kiwimode;
 }
 
-sub getbinaries {
-  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $origins) = @_;
+sub getbinaries_containers {
+  my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
-  return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
+  my @meta;
+  for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
+    my $repo = ($buildinfo->{'containerpath'} || [])->[0];
+    die("getbinaries: job has no container repository\n") unless $repo;
+    my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
+    mkdir_p($ddir);
+    my $callers_time = time();
+    my @args;
+    push @args, "workerid=$workerid" if defined $workerid;
+    push @args, "project=$repo->{'project'}";
+    push @args, "repository=$repo->{'repository'}";
+    push @args, "arch=$buildinfo->{'arch'}";
+    push @args, "now=$callers_time";
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $res = BSRPC::rpc({
+      'uri' => "$server/getbinaries",
+      'directory' => $ddir,
+      'withmd5' => 1,
+      'timeout' => $gettimeout,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef, @args, "binaries=$bdep->{'name'}");
+    die("Error\n") unless ref($res);
+    $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
+    die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
+    my $tarname = $res->[0]->{'name'};
+    my $kiwimode = getkiwimode($buildinfo);
+    if ($kiwimode eq 'image' && $tarname =~ /\.tar$/) {
+      system('gzip', '-f', '-1', "$ddir/$tarname") && die("kiwi container compression: $?\n");
+      $tarname .= '.gz';
+      die("kiwi container compression did not work\n") unless -f "$ddir/$tarname";
+    }
+    push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$tarname";
+    push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
+    my $bin = {
+      'name' => $bdep->{'name'},
+      'project' => $repo->{'project'},
+      'repository' => $repo->{'repository'},
+      'arch' => $buildinfo->{'arch'},
+    };
+    if ($buildinfo->{'containerannotation'}) {
+      my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
+      if ($annotation) {
+	for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
+	  $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
+	}
+      }
+    }
+    push @{$origins->{':basecontainers'}}, $bin;
+  }
+
+  if ($buildinfo->{'containerannotation'}) {
+    mkdir_p("$srcdir/containers");
+    writestr("$srcdir/containers/annotation", undef, $buildinfo->{'containerannotation'});
+  }
+
+  return @meta;
+}
+
+sub getbinaries_kiwiimage {
+  my ($buildinfo, $dir, $srcdir, $origins) = @_;
 
   mkdir_p($dir);
-  my $recipefile = $buildinfo->{'file'};
-  my $kiwimode = getkiwimode($buildinfo);
 
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
-  my $cross = !$kiwimode && $buildinfo->{'syspath'} ? $buildinfo->{'hostarch'} : undef;
-
   my @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
-  my @todo_sysroot;
-  @todo_sysroot = map {$_->{'name'}} grep {$_->{'sysroot'}} @bdep;
-  die("sysroot packages need cross enabled\n") if @todo_sysroot && !$cross;
-  @bdep = grep {!$_->{'sysroot'}} @bdep if @todo_sysroot;
   my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'}} @bdep;
-  my %bdep_noinstall;		# kiwi mode noinstall
-  %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'}} @bdep if $kiwimode;
+  my %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'}} @bdep;
   @bdep = map {$_->{'name'}} @bdep;
-  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
 
-  my %done;
   my @todo = @bdep;
   die("no binaries needed for this package?\n") unless @todo;
   my @meta;
-  my %meta;
-  my $packid = $buildinfo->{'package'};
-  my $projid = $buildinfo->{'project'};
-  my $repoid = $buildinfo->{'repository'};
   my $modules = $buildinfo->{'module'};
 
-  if ($kiwimode && $buildinfo->{'syspath'}) {
-    # two path mode: fetch environment
+  # fetch environment in two path mode
+  if ($buildinfo->{'syspath'}) {
+    my $syspatharch = $buildinfo->{'crossarch'} || $buildinfo->{'arch'};
     @todo = grep {!$bdep_noinstall{$_}} @bdep;
     for my $repo (@{$buildinfo->{'syspath'} || []}) {
-      last if !@todo;
+      last unless @todo;
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'hostarch'} || $buildinfo->{'arch'}, 1, \@todo, $modules);
+      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $syspatharch, 1, \@todo, $modules);
       @todo = grep {!$got->{$_}} @todo;
     }
     die("getbinaries: missing packages: @todo\n") if @todo;
     @todo = grep {$bdep_noinstall{$_} || !$bdep_notmeta{$_}} @bdep;
   }
-  @todo = grep {!/^container:/} @todo if $kiwimode;
+
+  # we fetch the containes in a second step
+  @todo = grep {!/^container:/} @todo;
 
   # unordered repositories feature
   my %todo_origins;
-  if ($kiwimode) {
-    for (@{$buildinfo->{'bdep'} || []}) {
-      next unless $_->{'project'} && $_->{'repository'};
-      next if $_->{'repoarch'} || '' eq 'src';
-      next if $_->{'name'} =~ /^container:/;
-      next if !$_->{'noinstall'} && $_->{'notmeta'};
-      $todo_origins{$_->{'name'}} = "$_->{'project'}/$_->{'repository'}";
-    }
+  for (@{$buildinfo->{'bdep'} || []}) {
+    next unless $_->{'project'} && $_->{'repository'};
+    next if $_->{'repoarch'} || '' eq 'src';
+    next if $_->{'name'} =~ /^container:/;
+    next if !$_->{'noinstall'} && $_->{'notmeta'};
+    $todo_origins{$_->{'name'}} = "$_->{'project'}/$_->{'repository'}";
   }
 
   my %bvls;		# bvl cache, the query is not free
+
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
+    my $ddir = "$srcdir/repos/$repoprp";
+    mkdir_p($ddir);
+    my @todo_repo = @todo;
+    if (%todo_origins) {
+      @todo_repo = grep {!$todo_origins{$_} || $todo_origins{$_} eq $repoprp} @todo_repo;
+    }
+    next if !@todo_repo;
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $arch = $buildinfo->{'arch'};
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, 1, \@todo_repo, $modules, $bvls{"$repoprp/$arch"});
+    for my $n (sort keys %$got) {
+      my $f = $got->{$n};
+      if (!$bdep_notmeta{$n}) {
+	my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
+	push @meta, "$id  $repoprp/$n";
+	# sigh, no package information available yet...
+	$origins->{$n} = "$repoprp/$buildinfo->{'arch'}" if $origins;
+      }
+      if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
+	if (!-e "$dir/$f->{'name'}") {
+	  link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
+	}
+	unlink("$ddir/$f->{'name'}") if $bdep_notmeta{$n};
+      }
+    }
+    @todo = grep {!$got->{$_}} @todo;
+  }
+  die("getbinaries: missing packages: @todo\n") if @todo;
+
+  # fetch the base containers
+  push @meta, getbinaries_containers($buildinfo, $dir, $srcdir, $origins);
+
+  # sort the meta
+  @meta = sort {substr($a, 34) cmp substr($b, 34) || $a cmp $b} @meta;
+  return @meta;
+}
+
+sub getbinaries {
+  my ($buildinfo, $dir, $srcdir, $preinstallimagedata, $origins) = @_;
+
+  return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
+
+  my $kiwimode = getkiwimode($buildinfo);
+  return getbinaries_kiwiimage($buildinfo, $dir, $srcdir, $origins) if $kiwimode;
+
+  mkdir_p($dir);
+
+  # we need the Build package for queryhdrmd5
+  importbuild() unless defined &Build::queryhdrmd5;
+
+  my @bdep = grep {($_->{'repoarch'} || '') ne 'src'} @{$buildinfo->{'bdep'} || []};
+  my @todo = map {$_->{'name'}} @bdep;
+
+  # split into todo/todo_sysroot in cross mode
+  my $cross = $buildinfo->{'crossarch'};
+  my @todo_sysroot = map {$_->{'name'}} grep {$_->{'sysroot'}} @bdep;
+  die("sysroot packages need a crossarch\n") if @todo_sysroot && !$cross;
+  @todo = map {$_->{'name'}} grep {!$_->{'sysroot'}} @bdep if @todo_sysroot;
+  die("no binaries needed for this package?\n") unless @todo;
+
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
+  my %done;
+
+  my %meta;
+  my $packid = $buildinfo->{'package'};
+  my $projid = $buildinfo->{'project'};
+  my $repoid = $buildinfo->{'repository'};
+  my $modules = $buildinfo->{'module'};
+  my %bvls;		# bvl cache, the query is not free
+
+  # get a preinstall image if available
   my ($imagefile, $imagebins);
-  if (@todo && !$kiwimode && $preinstallimagedata && $Build::Features::preinstallimage) {
+  if (@todo && $preinstallimagedata && $Build::Features::preinstallimage) {
     my ($imagesource, $imagemetas, $imageorigins);
     ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins && $imagemetas) {
@@ -2415,207 +2536,130 @@ sub getbinaries {
   }
   $imagebins ||= {};
 
+  # get all the (target) packages
+  @todo = @todo_sysroot if $cross;
   for my $repo (@{$buildinfo->{'path'} || []}) {
-    my $ddir = $dir;
+    last unless @todo;
     my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
-    if ($kiwimode) {
-      $ddir = "$srcdir/repos/$repoprp";
-      mkdir_p($ddir);
-    }
-    my @todo_repo = @todo;
-    if ($kiwimode && %todo_origins) {
-      @todo_repo = grep {!$todo_origins{$_} || $todo_origins{$_} eq $repoprp} @todo_repo;
-    }
-    next if !@todo_repo;
     my $nometa = 0;
-    $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
+    $nometa = 1 if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
-    $nometa = 1 if $cross;
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $arch = $cross || $buildinfo->{'arch'};
-    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, $nometa, \@todo_repo, $modules, $bvls{"$repoprp/$arch"});
+    my $arch = $buildinfo->{'arch'};
+    my $binaryprefix = $cross ? '__sysroot__' : '';
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, $nometa, \@todo, $modules, $bvls{"$repoprp/$arch"}, $binaryprefix);
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
       $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
       if ($outbdep) {
 	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
+	if ($cross) {
+	  substr($obdep->{'name'}, 0, length($binaryprefix), '');
+	  $obdep->{'sysroot'} = 1;
+	}
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
       }
-      if (!$kiwimode && !$cross && $origins) {
+      if (!$cross && $origins) {
 	# sigh, no package information available yet...
 	$origins->{$_} = "$repoprp/$arch";
       }
     }
-    @todo = grep {!$done{$_}} @todo;
-    if ($kiwimode) {
-      for my $n (keys %$got) {
-	my $f = $got->{$n};
-	if (!$bdep_notmeta{$n}) {
-	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	  push @meta, "$id  $repoprp/$n";
-	  # sigh, no package information available yet...
-          $origins->{$n} = "$repoprp/$buildinfo->{'arch'}" if $origins;
-	}
-	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
-          if (!-e "$dir/$f->{'name'}") {
-	    link_or_copy("$ddir/$f->{'name'}", "$dir/$f->{'name'}") || die("link_or_copy $ddir/$f->{'name'} $dir/$f->{'name'}: $!\n");
-	  }
-	  unlink("$ddir/$f->{'name'}") if $bdep_notmeta{$n};
-	}
-      }
-    }
+    @todo = grep {!$done{"$binaryprefix$_"}} @todo;
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
 
-  if (@todo_sysroot) {
-    for my $repo (@{$buildinfo->{'syspath'} || []}) {
-      my $nometa = 0;
-      $nometa = 1 if $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
-      $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
-      my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
-      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-      my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo_sysroot, $modules, $bvls{"$repoprp/$buildinfo->{'arch'}"}, '__sysroot__');
-print Dumper($got);
-      for (sort keys %$got) {
-	my $gotpkg = $got->{$_};
-	$done{$_} = $gotpkg->{'name'};
-	$meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
-	if ($outbdep) {
-	  my $obdep = { 'name' => substr($_, 11), 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'}, 'sysroot' => 1 };
-	  $obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
-	  # fill epoch/version/release/arch?
-	  push @$outbdep, $obdep;
-	}
-	# sigh, no package information available yet...
-	$origins->{$_} = "$repoprp/$buildinfo->{'arch'}" if $origins;
+  # now get the native packages in cross mode
+  @todo = map {$_->{'name'}} grep {!$_->{'sysroot'}} @bdep if $cross;
+  @todo = grep {!$imagebins->{$_}} @todo;
+  for my $repo (@{$buildinfo->{'syspath'} || []}) {
+    last unless @todo;
+    my $repoprp = "$repo->{'project'}/$repo->{'repository'}";
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $arch = $cross;
+    my $got = getbinaries_cache($dir, $server, $repo->{'project'}, $repo->{'repository'}, $arch, 1, \@todo, $modules, $bvls{"$repoprp/$arch"});
+    for (sort keys %$got) {
+      my $gotpkg = $got->{$_};
+      $done{$_} = $gotpkg->{'name'};
+      if ($outbdep) {
+	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
+	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
+	# fill epoch/version/release/arch?
+	push @$outbdep, $obdep;
       }
-      @todo_sysroot = grep {!$done{"__sysroot__$_"}} @todo_sysroot;
+      if ($origins) {
+        # sigh, no package information available yet...
+        $origins->{$_} = "$repoprp/$arch";
+      }
     }
-    die("getbinaries: missing sysroot packages: @todo_sysroot\n") if @todo_sysroot;
+    @todo = grep {!$done{$_}} @todo;
   }
+  die("getbinaries: missing native packages: @todo\n") if @todo;
 
-  if ($kiwimode) {
-    for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
-      my $repo = ($buildinfo->{'containerpath'} || [])->[0];
-      die("getbinaries: job has no container repository\n") unless $repo;
-      my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
-      mkdir_p($ddir);
-      my $callers_time = time();
-      my @args;
-      push @args, "workerid=$workerid" if defined $workerid;
-      push @args, "project=$repo->{'project'}";
-      push @args, "repository=$repo->{'repository'}";
-      push @args, "arch=$buildinfo->{'arch'}";
-      push @args, "now=$callers_time";
-      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-      my $res = BSRPC::rpc({
-	'uri' => "$server/getbinaries",
-	'directory' => $ddir,
-	'withmd5' => 1,
-	'timeout' => $gettimeout,
-	'receiver' => \&BSHTTP::cpio_receiver,
-      }, undef, @args, "binaries=$bdep->{'name'}");
-      die("Error\n") unless ref($res);
-      $res = [ grep {$_->{'name'} ne '.errors'} @$res ];
-      die("getbinaries: missing packages: $bdep->{'name'}\n") unless @$res == 1;
-      my $tarname = $res->[0]->{'name'};
-      if ($kiwimode eq 'image' && $tarname =~ /\.tar$/) {
-        system('gzip', '-f', '-1', "$ddir/$tarname") && die("kiwi container compression: $?\n");
-        $tarname .= '.gz';
-        die("kiwi container compression did not work\n") unless -f "$ddir/$tarname";
-      }
-      push @{$buildinfo->{'containerurl'}}, "dir://./containers/$repo->{'project'}/$repo->{'repository'}/$tarname";
-      push @meta, "$res->[0]->{'md5'}  $repo->{'project'}/$repo->{'repository'}/$bdep->{'name'}";
-      my $bin = {
-	'name' => $bdep->{'name'},
-	'project' => $repo->{'project'},
-	'repository' => $repo->{'repository'},
-	'arch' => $buildinfo->{'arch'},
-      };
-      if ($buildinfo->{'containerannotation'}) {
-	my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
-	if ($annotation) {
-	  for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
-	    $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';
-	  }
-	}
-      }
-      push @{$origins->{':basecontainers'}}, $bin;
-    }
-    if ($buildinfo->{'containerannotation'}) {
-      mkdir_p("$srcdir/containers");
-      writestr("$srcdir/containers/annotation", undef, $buildinfo->{'containerannotation'});
-    }
-  }
+  # everything is downloaded, now generate meta data
+  my @meta;
 
+  # add meta for all native deps in cross mode
   if ($cross) {
-    # add all native deps
-    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'} && !$_->{'sysroot'}} @{$buildinfo->{'bdep'} || []}) {
+    for my $dep (map {$_->{'name'}} grep {!$_->{'notmeta'} && !$_->{'sysroot'}} @bdep) {
       my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$dep}") || "deaddeaddeaddeaddeaddeaddeaddead";
       push @meta, "$id  $cross:$dep";
     }
   }
 
-  if (!$kiwimode) {
-    # generate meta data
-    # we carefully prune entries here to keep the memory usage down
-    # so that coolo's image builds work
-    # - do not prune entries that have one of our subpacks in the
-    #   path as they are handled in a special way
-    # - use the same order as the code in BSBuild
-    my %mseen;
-    my @subp = @{$buildinfo->{'subpack'} || []};
-    my $subpackre = '';
-    for (@subp) {
-      $subpackre .= "|/\Q$_\E/";
-    }
-    if ($subpackre) {
-      $subpackre = substr($subpackre, 1);
-      $subpackre = qr/$subpackre/;
-    }
-    my @metadeps;
-    if ($cross) {
-      @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'} && $_->{'sysroot'}} @{$buildinfo->{'bdep'} || []};
+  # we carefully prune entries here to keep the memory usage down
+  # so that coolo's image builds work
+  # - do not prune entries that have one of our subpacks in the
+  #   path as they are handled in a special way
+  # - use the same order as the code in BSBuild
+  my %mseen;
+  my @subp = @{$buildinfo->{'subpack'} || []};
+  my $subpackre = '';
+  for (@subp) {
+    $subpackre .= "|/\Q$_\E/";
+  }
+  if ($subpackre) {
+    $subpackre = substr($subpackre, 1);
+    $subpackre = qr/$subpackre/;
+  }
+  my @metadeps;
+  if ($cross) {
+    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'} && $_->{'sysroot'}} @bdep;
+  } else {
+    @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'}} @bdep;
+  }
+  for my $dep (sort {"$a/" cmp "$b/"} @metadeps) {
+    my $prefixeddep = $cross ? "__sysroot__$dep" : $dep;
+    my $m;
+    $m = readstr("$dir/$prefixeddep.meta", 1) if $meta{$prefixeddep};
+    if (!$m) {
+      my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$prefixeddep}") || "deaddeaddeaddeaddeaddeaddeaddead";
+      push @meta, "$id  $dep";
     } else {
-      @metadeps = map {$_->{'name'}} grep {!$_->{'notmeta'}} @{$buildinfo->{'bdep'} || []};
-    }
-    for my $dep (sort {"$a/" cmp "$b/"} @metadeps) {
-      my $prefixeddep = $cross ? "__sysroot__$dep" : $dep;
-      my $m;
-      $m = readstr("$dir/$prefixeddep.meta", 1) if $meta{$prefixeddep};
-      if (!$m) {
-	my $id = $imagebins->{$dep} || Build::queryhdrmd5("$dir/$done{$prefixeddep}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	push @meta, "$id  $dep";
+      chomp $m;
+      my @m = split("\n", $m);
+      # do not include our own build results
+      next if $m[0] =~ /  \Q$packid\E$/s;
+      $m[0] =~ s/  .*/  $dep/;
+      push @meta, shift @m;
+      if ($subpackre && "/$dep/" =~ /$subpackre/) {
+	s/  /  $dep\// for @m;
+	push @meta, @m;
       } else {
-	chomp $m;
-	my @m = split("\n", $m);
-	# do not include our own build results
-	next if $m[0] =~ /  \Q$packid\E$/s;
-	$m[0] =~ s/  .*/  $dep/;
-	push @meta, shift @m;
-	if ($subpackre && "/$dep/" =~ /$subpackre/) {
-	  s/  /  $dep\// for @m;
-	  push @meta, @m;
-	} else {
-	  for (@m) {
-	    next if $mseen{$_};
-	    my $x = $_;
-	    s/  /  $dep\//;
-	    $mseen{$x} = 1 unless $subpackre && "$_/" =~ /$subpackre/;
-	    push @meta, $_;
-	  }
+	for (@m) {
+	  next if $mseen{$_};
+	  my $x = $_;
+	  s/  /  $dep\//;
+	  $mseen{$x} = 1 unless $subpackre && "$_/" =~ /$subpackre/;
+	  push @meta, $_;
 	}
       }
     }
-    BSBuild::setgenmetaalgo($buildinfo->{'genmetaalgo'}) if $buildinfo->{'genmetaalgo'};
-    @meta = BSBuild::gen_meta($buildinfo->{'subpack'} || [], @meta);
-  } else {
-    # simply sort the meta
-    @meta = sort {substr($a, 34) cmp substr($b, 34) || $a cmp $b} @meta;
   }
+  BSBuild::setgenmetaalgo($buildinfo->{'genmetaalgo'}) if $buildinfo->{'genmetaalgo'};
+  @meta = BSBuild::gen_meta($buildinfo->{'subpack'} || [], @meta);
   return @meta;
 }
 
@@ -3085,6 +3129,7 @@ sub dobuild {
   }
 
   unlink("$buildroot/.build.meta");
+  unlink("$buildroot/.build.packages");
   rm_rf("$buildroot/.build.packages") if -d "$buildroot/.build.packages";
   rm_rf($srcdir) if -d $srcdir;
   # changed to cleandir so that pkgdir can be a symlink
@@ -3102,7 +3147,7 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
-    for ('versrel', 'bcnt', 'release', 'module') {
+    for ('versrel', 'bcnt', 'release', 'module', 'crossarch') {
       $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
     }
   }
