@@ -21,9 +21,12 @@ class Workflow
       def call
         # Decide what to do by action:
         # - opened -> create a branch package on OBS using the configuration file's details and the PR number.
+        return unless new_pull_request?
 
-        branch if new_pull_request?
+        branched_package = branch
+        add_branch_request_file(package: branched_package)
 
+        branched_package
         # NICE TO HAVE:
         # - synchronize -> get the existent branched package on OBS and ensure it updates the source
         #                  code and it rebuilds (trigger service). We should have a previous branch with the
@@ -96,12 +99,40 @@ class Workflow
       end
 
       # New pull request or new merge request
+      # TODO: implement updated_pull_request? and closed_pull_request? similarly to new_pull_request?
       def new_pull_request?
         (github_pull_request? && @scm_extractor_payload[:action] == 'opened') ||
           (gitlab_merge_request? && @scm_extractor_payload[:action] == 'open')
       end
 
-      # TODO: implement updated_pull_request? and closed_pull_request? similarly to new_pull_request?
+      def add_branch_request_file(package:)
+        case @scm_extractor_payload[:scm]
+        when 'github'
+          branch_request_file = branch_request_file_github
+        when 'gitlab'
+          branch_request_file = branch_request_file_gitlab
+        end
+
+        package.save_file({ file: branch_request_file, filename: '_branch_request' })
+      end
+
+      def branch_request_file_github
+        {
+          action: @scm_extractor_payload[:action],
+          pull_request: {
+            head: {
+              repo: { full_name: @scm_extractor_payload[:repository_full_name] },
+              sha: @scm_extractor_payload[:commit_sha]
+            }
+          }
+        }.to_json
+      end
+
+      def branch_request_file_gitlab
+        { object_kind: @scm_extractor_payload[:object_kind],
+          project: { http_url: @scm_extractor_payload[:http_url] },
+          object_attributes: { source: { default_branch: @scm_extractor_payload[:commit_sha] } } }.to_json
+      end
     end
   end
 end
