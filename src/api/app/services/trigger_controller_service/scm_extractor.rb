@@ -6,7 +6,7 @@ module TriggerControllerService
 
     def initialize(scm, event, payload)
       # TODO: What should we do when the user sends a wwwurlencoded payload? Raise an exception?
-      @payload = payload
+      @payload = payload.with_indifferent_access
       @scm = scm
       @event = event
     end
@@ -38,13 +38,14 @@ module TriggerControllerService
     def github_extractor_payload
       {
         scm: 'github',
-        repo_url: @payload['pull_request']['head']['repo']['html_url'],
-        commit_sha: @payload['pull_request']['head']['sha'],
+        repo_url: @payload.dig('pull_request', 'head', 'repo', 'html_url'),
+        commit_sha: @payload.dig('pull_request', 'head', 'sha'),
         pr_number: @payload['number'],
-        source_branch: @payload['pull_request']['head']['ref'],
-        target_branch: @payload['pull_request']['base']['ref'],
+        source_branch: @payload.dig('pull_request', 'head', 'ref'),
+        target_branch: @payload.dig('pull_request', 'base', 'ref'),
         action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        repository_full_name: @payload['pull_request']['head']['repo']['full_name'],
+        repository_full_name: @payload.dig('pull_request', 'head', 'repo', 'full_name'),
+        event: @event
       }.with_indifferent_access
     end
 
@@ -52,14 +53,15 @@ module TriggerControllerService
       {
         scm: 'gitlab',
         object_kind: @payload['object_kind'],
-        http_url: @payload['project']['http_url'],
-        commit_sha: @payload['object_attributes']['last_commit']['id'],
-        pr_number: @payload['object_attributes']['iid'],
-        source_branch: @payload['object_attributes']['source_branch'],
-        target_branch: @payload['object_attributes']['target_branch'],
-        action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        project_id: @payload['project']['id'],
-        path_with_namespace: @payload['project']['path_with_namespace']
+        http_url: @payload.dig('project', 'http_url'),
+        commit_sha: @payload.dig('object_attributes', 'last_commit', 'id'),
+        pr_number: @payload.dig('object_attributes', 'iid'),
+        source_branch: @payload.dig('object_attributes', 'source_branch'),
+        target_branch: @payload.dig('object_attributes', 'target_branch'),
+        action: @payload.dig('object_attributes', 'action'), # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
+        project_id: @payload.dig('project', 'id'),
+        path_with_namespace: @payload.dig('project', 'path_with_namespace'),
+        event: @event
       }.with_indifferent_access
     end
   end
