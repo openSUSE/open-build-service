@@ -4562,7 +4562,7 @@ sub getmultibuildpackages {
   my ($cgi, $projid, $packid) = @_;
   my $pack_hash = {};
   my $mb = BSSrcServer::Multibuild::getmultibuild($projid, $packid) || {};
-  foreach my $pack (@{$mb->{'package'}}) {
+  for my $pack (@{$mb->{'flavor'} || $mb->{'package'} || []}) {
     my $entry = {'name' => $pack};
     push @{$pack_hash->{'entry'}}, $entry;
   }
