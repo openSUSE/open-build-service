@@ -15,7 +15,8 @@ class TriggerController < ApplicationController
   before_action :set_project
   before_action :set_package
   before_action :set_object_to_authorize
-  before_action :set_multibuild_flavor
+  # set_multibuild_flavor needs to run after the set_object_to_authorize callback
+  append_before_action :set_multibuild_flavor
   include Trigger::Errors
 
   # TODO: split into different controllers, there is some behaviour that only applies to one specific kind of token.
