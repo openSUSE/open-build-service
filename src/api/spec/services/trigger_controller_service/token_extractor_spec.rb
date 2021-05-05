@@ -18,7 +18,7 @@ RSpec.describe ::TriggerControllerService::TokenExtractor do
     end
 
     context 'with the ID of a nonexistent token in the params' do
-      let(:request) { OpenStruct.new(params: { id: -1 }, body: StringIO.new(request_body)) }
+      let(:request) { OpenStruct.new(params: { id: -1 }, body: StringIO.new(request_body), env: {}) }
 
       it 'returns nil' do
         expect(subject).to be_nil

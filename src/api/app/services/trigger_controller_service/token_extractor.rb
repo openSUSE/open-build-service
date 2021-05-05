@@ -7,7 +7,7 @@ module TriggerControllerService
     end
 
     def call
-      if @token_id
+      if @token_id && signature
         extract_token_from_request_signature
       else
         extract_auth_token_from_headers
