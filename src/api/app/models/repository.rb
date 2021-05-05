@@ -26,6 +26,9 @@ class Repository < ApplicationRecord
   validates :name, format: { with: %r{\A[^_:/\000-\037][^:/\000-\037]*\Z},
                              message: "must not start with '_' or contain any of these characters ':/'" }
 
+  # never used in production, but existed for quite some time...
+  self.ignored_columns = ['hostsystem_id']
+
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
   # Note that remote repositories have to be unique among their remote project (remote_project_name)
   # and the associated db_project.
@@ -167,6 +170,10 @@ class Repository < ApplicationRecord
     false
   end
 
+  def has_hostsystem?
+    path_elements.where(kind: :hostsystem).any?
+  end
+
   def linking_target_repositories
     return [] if targetlinks.size.zero?
 
@@ -213,7 +220,7 @@ class Repository < ApplicationRecord
     if source_repository.has_local_path?
       # don't link to the original external repo, but use the repo from this project
       # pointing to this external repo.
-      source_repository.path_elements.each do |spe|
+      source_repository.path_elements.where(kind: 'standard').find_each do |spe|
         next unless spe.link.project == source_repository.project
 
         local_repository = project.repositories.find_by_name(spe.link.name)
@@ -223,7 +230,7 @@ class Repository < ApplicationRecord
     elsif source_repository.is_kiwi_type?
       # kiwi builds need to copy path elements
       source_repository.path_elements.each do |pa|
-        path_elements.create(link: pa.link, position: pa.position)
+        path_elements.create(link: pa.link, position: pa.position, kind: pa.kind)
       end
       # and set type in prjconf
       prjconf = project.source_file('_config')
@@ -236,6 +243,7 @@ class Repository < ApplicationRecord
 
     # we build against the other repository by default
     path_elements.create(link: source_repository, position: position)
+    path_elements.create(link: source_repository, position: position, kind: :hostsystem) if source_repository.has_hostsystem?
   end
 
   def download_url(file)
@@ -287,7 +295,6 @@ end
 #  remote_project_name :string(255)      default(""), not null, indexed => [db_project_id, name], indexed
 #  required_checks     :string(255)
 #  db_project_id       :integer          not null, indexed => [name, remote_project_name]
-#  hostsystem_id       :integer          indexed
 #
 # Indexes
 #

@@ -3428,6 +3428,31 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_create_project_with_hostsystem
+    login_tom
+    # testing with overlap of one repo
+    raw_put '/source/home:tom:temporary/_meta',
+            '<project name="home:tom:temporary"> <title/> <description/>
+               <repository name="cross_compile_with_sysroot">
+                 <hostsystem project="BaseDistro2.0" repository="BaseDistro2_repo" />
+                 <hostsystem project="BaseDistro" repository="BaseDistro_repo" />
+                 <path project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" />
+                 <path project="BaseDistro2.0" repository="BaseDistro2_repo" />
+               </repository>
+             </project>'
+    assert_response :success
+
+    get '/source/home:tom:temporary/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'hostsystem', attributes: { project: 'BaseDistro2.0', repository: 'BaseDistro2_repo' }
+    assert_xml_tag tag: 'hostsystem', attributes: { project: 'BaseDistro', repository: 'BaseDistro_repo' }
+    assert_xml_tag tag: 'path', attributes: { project: 'BaseDistro2.0:LinkedUpdateProject', repository: 'BaseDistro2LinkedUpdateProject_repo' }
+    assert_xml_tag tag: 'path', attributes: { project: 'BaseDistro2.0', repository: 'BaseDistro2_repo' }
+
+    delete '/source/home:tom:temporary'
+    assert_response :success
+  end
+
   def test_create_project_with_invalid_repository_reference
     login_tom
     put url_for(controller: :source_project_meta, action: :update, project: 'home:tom:temporary'), params: '<project name="home:tom:temporary"> <title/> <description/>
@@ -3467,7 +3492,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
          </project>'
     assert_response 400
     assert_xml_tag tag: 'status', attributes: { code: 'project_save_error' }
-    assert_match(/Unknown target repository/, @response.body)
+    assert_match(/Unknown hostsystem repository/, @response.body)
 
     delete '/source/home:tom:temporary'
     assert_response :success
