@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_56
+    uri: http://backend:5352/source/project/_meta?user=user_79
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>A Scanner Darkly</title>
+          <title>Tirra Lirra by the River</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '151'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>A Scanner Darkly</title>
+          <title>Tirra Lirra by the River</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Mon, 03 May 2021 15:47:22 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_57
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_80
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Have His Carcase</title>
-          <description>Adipisci quo facilis et.</description>
+          <title>An Instant In The Wind</title>
+          <description>Tempore numquam aperiam quod.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,45 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '161'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Have His Carcase</title>
-          <description>Adipisci quo facilis et.</description>
+          <title>An Instant In The Wind</title>
+          <description>Tempore numquam aperiam quod.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:20 GMT
+  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project/package_trigger
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '90'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="package_trigger" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Mon, 03 May 2021 15:47:23 GMT
 recorded_with: VCR 6.0.0

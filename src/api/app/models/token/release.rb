@@ -1,19 +1,22 @@
 class Token::Release < Token
-  # FIXME: refactor this out of the helper to get access to the method release_package
   include MaintenanceHelper
 
   def self.token_name
     'release'
   end
 
-  def call(_options)
-    manual_release_targets = package_from_association_or_params.project.release_targets.where(trigger: 'manual')
-    raise NoReleaseTargetFound, "#{package_from_association_or_params.project} has no release targets that are triggered manually" unless manual_release_targets.any?
+  def call(options)
+    return unless options[:package]
+
+    # FIXME: Take repository and arch into account
+    package_to_release = options[:package]
+    manual_release_targets = package_to_release.project.release_targets.where(trigger: 'manual')
+    raise NoReleaseTargetFound, "#{package_to_release.project} has no release targets that are triggered manually" unless manual_release_targets.any?
 
     manual_release_targets.each do |release_target|
-      release_package(package_from_association_or_params,
+      release_package(package_to_release,
                       release_target.target_repository,
-                      package_from_association_or_params.release_target_name,
+                      package_to_release.release_target_name,
                       { filter_source_repository: release_target.repository,
                         manual: true,
                         comment: 'Releasing via trigger event' })

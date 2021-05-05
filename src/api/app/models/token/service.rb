@@ -3,9 +3,9 @@ class Token::Service < Token
     'runservice'
   end
 
-  def call(_options)
-    Backend::Api::Sources::Package.trigger_services(package_from_association_or_params.project.name,
-                                                    package_from_association_or_params.name,
+  def call(options)
+    Backend::Api::Sources::Package.trigger_services(options[:project].to_param,
+                                                    options[:package].to_param,
                                                     user.login)
   end
 

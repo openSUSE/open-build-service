@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_28
+    uri: http://backend:5352/source/project/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Wealth of Nations</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '147'
+      - '148'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Nine Coaches Waiting</title>
+          <title>The Wealth of Nations</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_with_service/_meta?user=user_29
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_10
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_service" project="project">
-          <title>Dance Dance Dance</title>
-          <description>Aut asperiores in ut.</description>
+        <package name="package_trigger" project="project">
+          <title>To Say Nothing of the Dog</title>
+          <description>Eveniet et repudiandae in.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,21 +69,27 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '153'
+      - '161'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_service" project="project">
-          <title>Dance Dance Dance</title>
-          <description>Aut asperiores in ut.</description>
+        <package name="package_trigger" project="project">
+          <title>To Say Nothing of the Dog</title>
+          <description>Eveniet et repudiandae in.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_with_service/_service
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_11
     body:
       encoding: UTF-8
-      string: "<services/>"
+      string: |
+        <project name="project_with_a_link">
+          <title>Taming a Sea Horse</title>
+          <description/>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
+        </project>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -103,22 +109,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '207'
+      - '197'
     body:
       encoding: UTF-8
       string: |
-        <revision rev="1" vrev="1">
-          <srcmd5>12c260a0c06a2bb742c4963b93e20b80</srcmd5>
-          <version>unknown</version>
-          <time>1620056837</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+        <project name="project_with_a_link">
+          <title>Taming a Sea Horse</title>
+          <description></description>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/project/package_with_service?cmd=runservice&user=foo
+    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=remote_package_trigger
     body:
       encoding: UTF-8
       string: ''
@@ -133,8 +137,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: no repository defined
     headers:
       Content-Type:
       - text/xml
@@ -143,11 +147,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '73'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Mon, 03 May 2021 15:47:17 GMT
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 recorded_with: VCR 6.0.0

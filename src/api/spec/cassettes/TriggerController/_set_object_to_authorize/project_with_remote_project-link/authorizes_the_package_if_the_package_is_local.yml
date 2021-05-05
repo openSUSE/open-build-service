@@ -2,14 +2,14 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/_meta?user=tom
+    uri: http://backend:5352/source/project/_meta?user=user_3
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom">
-          <title/>
+        <project name="project">
+          <title>Wildfire at Midnight</title>
           <description/>
-          <person userid="tom" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '128'
+      - '147'
     body:
       encoding: UTF-8
       string: |
-        <project name="home:tom">
-          <title></title>
+        <project name="project">
+          <title>Wildfire at Midnight</title>
           <description></description>
-          <person userid="tom" role="maintainer"/>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_meta?user=user_7
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_4
     body:
       encoding: UTF-8
       string: |
-        <package name="apache2" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Maxime reprehenderit qui a.</description>
+        <package name="package_trigger" project="project">
+          <title>From Here to Eternity</title>
+          <description>Pariatur impedit eos vitae.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,62 +69,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '150'
+      - '158'
     body:
       encoding: UTF-8
       string: |
-        <package name="apache2" project="home:tom">
-          <title>For a Breath I Tarry</title>
-          <description>Maxime reprehenderit qui a.</description>
+        <package name="package_trigger" project="project">
+          <title>From Here to Eternity</title>
+          <description>Pariatur impedit eos vitae.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/home:tom/apache2/_service
-    body:
-      encoding: UTF-8
-      string: "<services/>"
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '207'
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_5
     body:
       encoding: UTF-8
       string: |
-        <revision rev="3" vrev="3">
-          <srcmd5>2e6e934080e32612f463a0e4c3989cc8</srcmd5>
-          <version>unknown</version>
-          <time>1620056835</time>
-          <user>unknown</user>
-          <comment></comment>
-          <requestid/>
-        </revision>
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project_3/_meta?user=user_8
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="project_3">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+        <project name="project_with_a_link">
+          <title>For Whom the Bell Tolls</title>
           <description/>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
         </project>
     headers:
       Accept-Encoding:
@@ -145,24 +109,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '130'
+      - '202'
     body:
       encoding: UTF-8
       string: |
-        <project name="project_3">
-          <title>By Grand Central Station I Sat Down and Wept</title>
+        <project name="project_with_a_link">
+          <title>For Whom the Bell Tolls</title>
           <description></description>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
+  recorded_at: Wed, 05 May 2021 12:16:23 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project_3/package_3/_meta?user=user_9
+    uri: http://backend:5352/source/project_with_a_link/local_package/_meta?user=user_6
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Have His Carcase</title>
-          <description>Doloremque cupiditate maxime ut.</description>
+        <package name="local_package" project="project_with_a_link">
+          <title>In Death Ground</title>
+          <description>Nesciunt a nam quod.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -183,18 +149,50 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '154'
+      - '155'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_3" project="project_3">
-          <title>Have His Carcase</title>
-          <description>Doloremque cupiditate maxime ut.</description>
+        <package name="local_package" project="project_with_a_link">
+          <title>In Death Ground</title>
+          <description>Nesciunt a nam quod.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
+- request:
+    method: get
+    uri: http://backend:5352/source/project_with_a_link/local_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '88'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="local_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 - request:
     method: post
-    uri: http://backend:5352/source/home:tom/apache2?cmd=runservice&user=tom
+    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=local_package
     body:
       encoding: UTF-8
       string: ''
@@ -209,8 +207,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 200
-      message: OK
+      code: 400
+      message: no repository defined
     headers:
       Content-Type:
       - text/xml
@@ -219,11 +217,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '21'
+      - '73'
     body:
       encoding: UTF-8
-      string: '<status code="ok" />
-
-'
-  recorded_at: Mon, 03 May 2021 15:47:15 GMT
+      string: |
+        <status code="400">
+          <summary>no repository defined</summary>
+        </status>
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 recorded_with: VCR 6.0.0

@@ -464,6 +464,7 @@ Naming/HeredocDelimiterNaming:
 Naming/MemoizedInstanceVariableName:
   Exclude:
     - 'app/controllers/application_controller.rb'
+    - 'app/controllers/trigger_controller.rb'
     - 'app/lib/authenticator.rb'
 
 # Offense count: 8
@@ -960,6 +961,7 @@ Rails/InverseOf:
     - 'app/models/message.rb'
     - 'app/models/package.rb'
     - 'app/models/project.rb'
+    - 'app/models/concerns/project_links.rb'
     - 'app/models/rating.rb'
     - 'app/models/repository.rb'
     - 'app/models/review.rb'

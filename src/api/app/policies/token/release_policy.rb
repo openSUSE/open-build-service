@@ -7,7 +7,7 @@ class Token
     def create?
       return false unless record.user.is_active?
 
-      PackagePolicy.new(record.user, record.package_from_association_or_params).update?
+      PackagePolicy.new(record.user, record.object_to_authorize).update?
     end
   end
 end

@@ -28,32 +28,16 @@ RSpec.describe TriggerController, vcr: true do
       it { expect(response).to have_http_status(:forbidden) }
     end
 
-    context 'when token is valid and packet rebuild' do
+    context 'when token is valid' do
       let!(:token) { Token::Rebuild.create(user: user, package: package) }
 
       before do
         allow(Backend::Api::Sources::Package).to receive(:rebuild).and_return("<status code=\"ok\" />\n")
+
         post :create, params: { format: :xml }
       end
 
       it { expect(response).to have_http_status(:success) }
-    end
-
-    context 'when project passed by params, ignore it' do
-      let(:user) { create(:confirmed_user, login: 'lukas') }
-      let(:project_a) { create(:project_with_package, name: 'project_a', package_name: 'foo', maintainer: user) }
-      let(:project_b) { create(:project_with_package, name: 'project_b', package_name: 'foo') }
-      let(:package_foo) { project_a.packages.first }
-      let(:token) { Token::Rebuild.create(user: user, package: package_foo) }
-
-      before do
-        allow(User).to receive(:session!).and_return(user)
-        allow(Backend::Api::Sources::Package).to receive(:rebuild).with('project_a', 'foo', ActionController::Parameters.new.permit!)
-
-        post :create, params: { format: :xml, project: 'project_b', package: 'foo' }
-      end
-
-      it { expect(Backend::Api::Sources::Package).to have_received(:rebuild).with('project_a', 'foo', ActionController::Parameters.new.permit!) }
     end
   end
 
@@ -201,25 +185,127 @@ RSpec.describe TriggerController, vcr: true do
     end
   end
 
+  describe '#set_project' do
+    let(:token) { Token::Rebuild.create(user: user) }
+
+    before { allow(Project).to receive(:get_by_name).and_return('some:remote:project') }
+
+    it 'raises a not found for a remote project' do
+      params = { project: 'some:remote:project', package: package.name, format: :xml }
+      post :create, params: params
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe '#set_package' do
-    context 'when entity does not exist' do
-      let(:signature_header_name) { 'HTTP_X_OBS_SIGNATURE' }
+    let(:token) { Token::Service.create(user: user) }
+
+    it 'raises when package does not exist' do
+      params = { project: project.name, package: 'does-not-exist', format: :xml }
+      post :create, params: params
+      expect(response).to have_http_status(:not_found)
+    end
+
+    context 'project with project-link and token that follows project-links' do
+      let(:token) { Token::Rebuild.create(user: user) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
+
+      it 'raises when package does not exist in link' do
+        params = { project: project_with_a_link.name, package: 'does-not-exist', format: :xml }
+        post :create, params: params
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'assigns linked package' do
+        params = { project: project_with_a_link.name, package: package.name, format: :xml }
+        post :create, params: params
+        expect(assigns(:package)).to eq(package)
+      end
+    end
+
+    context 'project with remote project-link' do
+      let(:token) { Token::Rebuild.create(user: user) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
+
+      it 'assigns remote package string' do
+        params = { project: project_with_a_link.name, package: 'remote_package_trigger', format: :xml }
+        post :create, params: params
+        expect(assigns(:package)).to eq('remote_package_trigger')
+      end
+    end
+  end
+
+  describe '#set_object_to_authorize' do
+    let(:token) { Token::Service.create(user: user) }
+    let(:local_package) { create(:package, name: 'local_package', project: project_with_a_link) }
+
+    it 'assigns associated package' do
+      params = { project: project.name, package: package.name, format: :xml }
+      post :create, params: params
+      expect(assigns(:token).object_to_authorize).to eq(package)
+    end
+
+    context 'project with project-link' do
+      let(:token) { Token::Rebuild.create(user: user) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
+
+      it 'authorizes the project if the package is from a project with a link' do
+        params = { project: project_with_a_link.name, package: package.name, format: :xml }
+        post :create, params: params
+        expect(assigns(:token).object_to_authorize).to eq(project_with_a_link)
+      end
+
+      it 'authorizes the package if the package is local' do
+        params = { project: project_with_a_link.name, package: local_package.name, format: :xml }
+        post :create, params: params
+        expect(assigns(:token).object_to_authorize).to eq(local_package)
+      end
+    end
+
+    context 'project with remote project-link' do
+      let(:token) { Token::Rebuild.create(user: user) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
+
+      it 'authorizes the project if the package is from a project with a link' do
+        params = { project: project_with_a_link.name, package: 'some-remote-package-that-might-exist', format: :xml }
+        post :create, params: params
+        expect(assigns(:token).object_to_authorize).to eq(project_with_a_link)
+      end
+
+      it 'authorizes the package if the package is local' do
+        params = { project: project_with_a_link.name, package: local_package.name, format: :xml }
+        post :create, params: params
+        expect(assigns(:token).object_to_authorize).to eq(local_package)
+      end
+    end
+  end
+
+  describe '#set_multibuild_flavor' do
+    let(:multibuild_package) { create(:multibuild_package, name: 'package_a', project: project, flavors: ['libfoo1', 'libfoo2']) }
+    let(:multibuild_flavor) { "#{multibuild_package.name}:libfoo2" }
+
+    context 'with a token that allows multibuild' do
       let(:token) { Token::Rebuild.create(user: user) }
 
-      it 'renders an error for package' do
-        params = { project: project.name, package: 'does-not-exist', format: :xml }
+      it 'assigns flavor name' do
+        params = { project: project.name, package: multibuild_flavor, format: :xml }
         post :create, params: params
-        expect(response).to have_http_status(:not_found)
+        expect(assigns(:package)).to eq(multibuild_flavor)
       end
 
-      it 'renders an error for project' do
-        params = { project: 'does-not-exist', package: package.name, format: :xml }
+      it 'authorizes package object' do
+        params = { project: project.name, package: multibuild_flavor, format: :xml }
         post :create, params: params
-        expect(response).to have_http_status(:not_found)
+        expect(assigns(:token).object_to_authorize).to eq(multibuild_package)
       end
+    end
 
-      it 'renders an error for nothing' do
-        post :create, params:  { format: :xml }
+    context 'with a token that does not allow multibuild' do
+      let(:token) { Token::Service.create(user: user) }
+
+      it 'raises not found' do
+        params = { project: project.name, package: multibuild_flavor, format: :xml }
+        post :create, params: params
         expect(response).to have_http_status(:not_found)
       end
     end
