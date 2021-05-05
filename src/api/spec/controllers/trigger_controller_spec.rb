@@ -208,19 +208,16 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'project with project-link and token that follows project-links' do
       let(:token) { Token::Rebuild.create(user: user) }
-      let!(:user) { create(:confirmed_user, login: 'foo') }
-      let!(:linked_project) { create(:project, name: 'linked_project') }
-      let!(:project) { create(:project, name: 'project', maintainer: user, link_to: linked_project) }
-      let!(:package) { create(:package, name: 'package_trigger', project: linked_project) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
       it 'raises when package does not exist in link' do
-        params = { project: project.name, package: 'does-not-exist', format: :xml }
+        params = { project: project_with_a_link.name, package: 'does-not-exist', format: :xml }
         post :create, params: params
         expect(response).to have_http_status(:not_found)
       end
 
       it 'assigns linked package' do
-        params = { project: project.name, package: package.name, format: :xml }
+        params = { project: project_with_a_link.name, package: package.name, format: :xml }
         post :create, params: params
         expect(assigns(:package)).to eq(package)
       end
@@ -228,11 +225,10 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'project with remote project-link' do
       let(:token) { Token::Rebuild.create(user: user) }
-      let!(:user) { create(:confirmed_user, login: 'foo') }
-      let!(:project) { create(:project, name: 'project', maintainer: user, link_to: 'some:remote:project') }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
 
       it 'assigns remote package string' do
-        params = { project: project.name, package: 'remote_package_trigger', format: :xml }
+        params = { project: project_with_a_link.name, package: 'remote_package_trigger', format: :xml }
         post :create, params: params
         expect(assigns(:package)).to eq('remote_package_trigger')
       end
@@ -241,6 +237,7 @@ RSpec.describe TriggerController, vcr: true do
 
   describe '#set_object_to_authorize' do
     let(:token) { Token::Service.create(user: user) }
+    let(:local_package) { create(:package, name: 'local_package', project: project_with_a_link) }
 
     it 'assigns associated package' do
       params = { project: project.name, package: package.name, format: :xml }
@@ -250,20 +247,16 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'project with project-link' do
       let(:token) { Token::Rebuild.create(user: user) }
-      let!(:user) { create(:confirmed_user, login: 'foo') }
-      let!(:linked_project) { create(:project, name: 'linked_project') }
-      let!(:project) { create(:project, name: 'project', maintainer: user, link_to: linked_project) }
-      let!(:package) { create(:package, name: 'linked_package', project: linked_project) }
-      let!(:local_package) { create(:package, name: 'local_package', project: project) }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: project) }
 
-      it 'authorizes the project if the package is from linked project' do
-        params = { project: project.name, package: package.name, format: :xml }
+      it 'authorizes the project if the package is from a project with a link' do
+        params = { project: project_with_a_link.name, package: package.name, format: :xml }
         post :create, params: params
-        expect(assigns(:token).object_to_authorize).to eq(project)
+        expect(assigns(:token).object_to_authorize).to eq(project_with_a_link)
       end
 
       it 'authorizes the package if the package is local' do
-        params = { project: project.name, package: local_package.name, format: :xml }
+        params = { project: project_with_a_link.name, package: local_package.name, format: :xml }
         post :create, params: params
         expect(assigns(:token).object_to_authorize).to eq(local_package)
       end
@@ -271,19 +264,18 @@ RSpec.describe TriggerController, vcr: true do
 
     context 'project with remote project-link' do
       let(:token) { Token::Rebuild.create(user: user) }
-      let!(:user) { create(:confirmed_user, login: 'foo') }
-      let!(:project) { create(:project, name: 'project', maintainer: user, link_to: 'some:remote:project') }
+      let(:project_with_a_link) { create(:project, name: 'project_with_a_link', maintainer: user, link_to: 'some:remote:project') }
 
-      it 'authorizes the project if the package is from linked project' do
-        params = { project: project.name, package: 'some-remote-package-that-might-exist', format: :xml }
+      it 'authorizes the project if the package is from a project with a link' do
+        params = { project: project_with_a_link.name, package: 'some-remote-package-that-might-exist', format: :xml }
         post :create, params: params
-        expect(assigns(:token).object_to_authorize).to eq(project)
+        expect(assigns(:token).object_to_authorize).to eq(project_with_a_link)
       end
 
       it 'authorizes the package if the package is local' do
-        params = { project: project.name, package: package.name, format: :xml }
+        params = { project: project_with_a_link.name, package: local_package.name, format: :xml }
         post :create, params: params
-        expect(assigns(:token).object_to_authorize).to eq(package)
+        expect(assigns(:token).object_to_authorize).to eq(local_package)
       end
     end
   end

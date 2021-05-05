@@ -2,12 +2,12 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_64
+    uri: http://backend:5352/source/project/_meta?user=user_1
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Surprised by Joy</title>
+          <title>Rosemary Sutcliff</title>
           <description/>
           <person userid="foo" role="maintainer"/>
         </project>
@@ -30,25 +30,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '143'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>Surprised by Joy</title>
+          <title>Rosemary Sutcliff</title>
           <description></description>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
+  recorded_at: Wed, 05 May 2021 12:18:03 GMT
 - request:
     method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_65
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_2
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Some Buried Caesar</title>
-          <description>Officia blanditiis qui eveniet.</description>
+          <title>Behold the Man</title>
+          <description>Harum magnam aut quaerat.</description>
         </package>
     headers:
       Accept-Encoding:
@@ -69,13 +69,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '159'
+      - '149'
     body:
       encoding: UTF-8
       string: |
         <package name="package_trigger" project="project">
-          <title>Some Buried Caesar</title>
-          <description>Officia blanditiis qui eveniet.</description>
+          <title>Behold the Man</title>
+          <description>Harum magnam aut quaerat.</description>
         </package>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
+  recorded_at: Wed, 05 May 2021 12:18:03 GMT
 recorded_with: VCR 6.0.0

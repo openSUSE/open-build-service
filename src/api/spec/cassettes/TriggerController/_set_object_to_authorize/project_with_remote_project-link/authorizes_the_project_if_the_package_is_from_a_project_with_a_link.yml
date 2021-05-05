@@ -2,90 +2,13 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/linked_project/_meta?user=user_69
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="linked_project">
-          <title>That Hideous Strength</title>
-          <description/>
-        </project>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '112'
-    body:
-      encoding: UTF-8
-      string: |
-        <project name="linked_project">
-          <title>That Hideous Strength</title>
-          <description></description>
-        </project>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/linked_project/package_trigger/_meta?user=user_70
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="linked_project">
-          <title>Jacob Have I Loved</title>
-          <description>Ipsa voluptatibus quia est.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '162'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="linked_project">
-          <title>Jacob Have I Loved</title>
-          <description>Ipsa voluptatibus quia est.</description>
-        </package>
-  recorded_at: Mon, 03 May 2021 15:47:21 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project/_meta?user=user_71
+    uri: http://backend:5352/source/project/_meta?user=user_7
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Violent Bear It Away</title>
+          <title>Clouds of Witness</title>
           <description/>
-          <link project="linked_project"/>
           <person userid="foo" role="maintainer"/>
         </project>
     headers:
@@ -107,23 +30,26 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '186'
+      - '144'
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>The Violent Bear It Away</title>
+          <title>Clouds of Witness</title>
           <description></description>
-          <link project="linked_project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 - request:
-    method: get
-    uri: http://backend:5352/source/linked_project/package_trigger
+    method: put
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_8
     body:
-      encoding: US-ASCII
-      string: ''
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>Things Fall Apart</title>
+          <description>At et voluptatem excepturi.</description>
+        </package>
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -143,16 +69,60 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '90'
+      - '154'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_trigger" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
-        </directory>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+        <package name="package_trigger" project="project">
+          <title>Things Fall Apart</title>
+          <description>At et voluptatem excepturi.</description>
+        </package>
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_9
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_with_a_link">
+          <title>Oh! To be in England</title>
+          <description/>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '199'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_with_a_link">
+          <title>Oh! To be in England</title>
+          <description></description>
+          <link project="some:remote:project"/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/project?cmd=rebuild&package=package_trigger
+    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=some-remote-package-that-might-exist
     body:
       encoding: UTF-8
       string: ''
@@ -184,5 +154,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+  recorded_at: Wed, 05 May 2021 12:16:24 GMT
 recorded_with: VCR 6.0.0

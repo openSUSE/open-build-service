@@ -2,12 +2,90 @@
 http_interactions:
 - request:
     method: put
-    uri: http://backend:5352/source/project/_meta?user=user_72
+    uri: http://backend:5352/source/project/_meta?user=user_9
     body:
       encoding: UTF-8
       string: |
         <project name="project">
-          <title>In Dubious Battle</title>
+          <title>The Wealth of Nations</title>
+          <description/>
+          <person userid="foo" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '148'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project">
+          <title>The Wealth of Nations</title>
+          <description></description>
+          <person userid="foo" role="maintainer"/>
+        </project>
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_10
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>To Say Nothing of the Dog</title>
+          <description>Eveniet et repudiandae in.</description>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '161'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="package_trigger" project="project">
+          <title>To Say Nothing of the Dog</title>
+          <description>Eveniet et repudiandae in.</description>
+        </package>
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
+- request:
+    method: put
+    uri: http://backend:5352/source/project_with_a_link/_meta?user=user_11
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="project_with_a_link">
+          <title>Taming a Sea Horse</title>
           <description/>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
@@ -31,58 +109,20 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '184'
+      - '197'
     body:
       encoding: UTF-8
       string: |
-        <project name="project">
-          <title>In Dubious Battle</title>
+        <project name="project_with_a_link">
+          <title>Taming a Sea Horse</title>
           <description></description>
           <link project="some:remote:project"/>
           <person userid="foo" role="maintainer"/>
         </project>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
-- request:
-    method: put
-    uri: http://backend:5352/source/project/package_trigger/_meta?user=user_73
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="project">
-          <title>Arms and the Man</title>
-          <description>Ab ea nam quo.</description>
-        </package>
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '140'
-    body:
-      encoding: UTF-8
-      string: |
-        <package name="package_trigger" project="project">
-          <title>Arms and the Man</title>
-          <description>Ab ea nam quo.</description>
-        </package>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 - request:
     method: post
-    uri: http://backend:5352/build/project?cmd=rebuild&package=remote_package_trigger
+    uri: http://backend:5352/build/project_with_a_link?cmd=rebuild&package=remote_package_trigger
     body:
       encoding: UTF-8
       string: ''
@@ -114,5 +154,5 @@ http_interactions:
         <status code="400">
           <summary>no repository defined</summary>
         </status>
-  recorded_at: Mon, 03 May 2021 15:47:22 GMT
+  recorded_at: Wed, 05 May 2021 12:18:05 GMT
 recorded_with: VCR 6.0.0
