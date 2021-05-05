@@ -5,6 +5,8 @@ class TriggerController < ApplicationController
   skip_before_action :extract_user
   # Authentication happens with tokens, so no login is required
   skip_before_action :require_login
+  # GitLab/Github send data as parameters which are not strings
+  skip_before_action :validate_params
   after_action :verify_authorized
 
   before_action :validate_gitlab_event
