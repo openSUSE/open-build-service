@@ -8,7 +8,7 @@ class Token::Workflow < Token
     return unless extractor.allowed_event_and_action?
 
     scm_extractor_payload = extractor.call # returns { scm: 'github', repo_url: 'http://...' }
-    yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
+    # yaml_file = Workflows::YAMLDownloader.new(scm_extractor_payload).call
     # BUT THIS DOESN'T
     # workflows = Workflows::YAMLToWorkflowsService.new(yaml_file: yaml_file, pr_number: scm_extractor_payload[:pr_number]).call
     # step = workflows.first.steps.first

@@ -5,8 +5,9 @@ class TriggerController < ApplicationController
   skip_before_action :extract_user
   # Authentication happens with tokens, so no login is required
   skip_before_action :require_login
-  # GitLab sends data as parameters which are not strings, like the project hash.
-  skip_before_action :validate_params
+  # GitLab and GitHub can send data as parameters which are not strings,
+  # like the integer PR number (GitHub) or the project hash (GitLab).
+  skip_before_action :validate_params, if: :scm_webhook?
   after_action :verify_authorized
 
   before_action :validate_gitlab_event, if: :gitlab_webhook?
@@ -19,8 +20,7 @@ class TriggerController < ApplicationController
   def create
     authorize @token
     @token.user.run_as do
-      # TODO: This is what we should have in place for the Token::Workflow
-      @token.call(params.slice(:repository, :arch).permit!.merge(request: request))
+      @token.call(params.slice(:repository, :arch).permit!)
       render_ok
     end
   end
@@ -29,6 +29,14 @@ class TriggerController < ApplicationController
 
   def gitlab_webhook?
     request.env['HTTP_X_GITLAB_EVENT'].present?
+  end
+
+  def github_webhook?
+    request.env['HTTP_X_GITHUB_EVENT'].present?
+  end
+
+  def scm_webhook?
+    gitlab_webhook? || github_webhook?
   end
 
   def validate_gitlab_event
