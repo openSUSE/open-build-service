@@ -1,5 +1,6 @@
 class Token < ApplicationRecord
   belongs_to :user
+  has_many :event_subscriptions, dependent: :destroy
   belongs_to :package, inverse_of: :tokens
 
   attr_accessor :object_to_authorize
@@ -45,6 +46,7 @@ end
 # Table name: tokens
 #
 #  id         :integer          not null, primary key
+#  scm_token  :string(255)      indexed
 #  string     :string(255)      indexed
 #  type       :string(255)
 #  package_id :integer          indexed
@@ -52,9 +54,10 @@ end
 #
 # Indexes
 #
-#  index_tokens_on_string  (string) UNIQUE
-#  package_id              (package_id)
-#  user_id                 (user_id)
+#  index_tokens_on_scm_token  (scm_token)
+#  index_tokens_on_string     (string) UNIQUE
+#  package_id                 (package_id)
+#  user_id                    (user_id)
 #
 # Foreign Keys
 #
