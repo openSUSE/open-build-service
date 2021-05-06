@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe UpdateNotificationEvents, type: :model do
   let!(:admin) { create(:admin_user, login: 'Admin') }
+  let!(:project_with_package) { create(:project_with_package, name: 'project_1', package_name: 'multibuild') }
   let(:notifications) do
     <<-RESPONSE
         <notifications next="3">
