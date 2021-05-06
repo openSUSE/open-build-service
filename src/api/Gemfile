@@ -83,6 +83,12 @@ gem 'strong_migrations'
 # for some rails console fancy
 gem 'pry-rails'
 gem 'awesome_print'
+# flexible and safe downloading of remote files
+gem 'down'
+# Simple wrapper for the GitHub API
+gem 'octokit'
+# Ruby wrapper and CLI for the GitLab REST API
+gem 'gitlab'
 
 group :development, :production do
   # to have the delayed job daemon
