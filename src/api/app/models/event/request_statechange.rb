@@ -38,10 +38,12 @@ end
 #  undone_jobs :integer          default(0)
 #  created_at  :datetime         indexed
 #  updated_at  :datetime
+#  package_id  :integer          indexed
 #
 # Indexes
 #
 #  index_events_on_created_at  (created_at)
 #  index_events_on_eventtype   (eventtype)
 #  index_events_on_mails_sent  (mails_sent)
+#  index_events_on_package_id  (package_id)
 #
