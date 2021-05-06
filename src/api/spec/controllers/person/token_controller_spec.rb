@@ -59,7 +59,7 @@ RSpec.describe Person::TokenController, vcr: false do
 
       before do
         login user
-        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice' }, format: :xml
+        post :create, params: { login: user.login, package: package, project: package.project, operation: 'runservice', scm_token: '123456789' }, format: :xml
       end
 
       it { expect(response).to have_http_status(:success) }
