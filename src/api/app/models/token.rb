@@ -22,6 +22,8 @@ class Token < ApplicationRecord
       Token::Rebuild
     when 'release'
       Token::Release
+    when 'workflow'
+      Token::Workflow
     else
       # default is Token::Service
       Token::Service
