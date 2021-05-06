@@ -1,0 +1,12 @@
+workflow123:
+  filters:
+    event: pull_request
+    branches:
+      only:
+        - master
+      ignore:
+        - 2.10
+  steps:
+    - branch_package:
+        source_project: "test-project"
+        source_package: "test-package"
