@@ -9,6 +9,7 @@ Rails.autoloaders.each do |autoloader|
     'opensuse_upstream_version_finder' => 'OpenSUSEUpstreamVersionFinder',
     'remote_url' => 'RemoteURL',
     'rss_channel' => 'RSSChannel',
-    'url_generator' => 'URLGenerator'
+    'url_generator' => 'URLGenerator',
+    'scm_status_reporter' => 'SCMStatusReporter'
   )
 end
