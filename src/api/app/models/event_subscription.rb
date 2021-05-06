@@ -95,12 +95,14 @@ end
 #  created_at    :datetime
 #  updated_at    :datetime
 #  group_id      :integer          indexed
+#  package_id    :integer          indexed
 #  token_id      :integer          indexed
 #  user_id       :integer          indexed
 #
 # Indexes
 #
-#  index_event_subscriptions_on_group_id  (group_id)
-#  index_event_subscriptions_on_token_id  (token_id)
-#  index_event_subscriptions_on_user_id   (user_id)
+#  index_event_subscriptions_on_group_id    (group_id)
+#  index_event_subscriptions_on_package_id  (package_id)
+#  index_event_subscriptions_on_token_id    (token_id)
+#  index_event_subscriptions_on_user_id     (user_id)
 #
