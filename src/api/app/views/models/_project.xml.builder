@@ -19,7 +19,7 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
-  repos = my_model.repositories.preload(:download_repositories, :release_targets, :hostsystem, path_elements: :link).not_remote.order(name: :desc)
+  repos = my_model.repositories.preload(:download_repositories, :release_targets, path_elements: :link).not_remote.order(name: :desc)
   FlagHelper.render(my_model, xml)
 
   repos.each do |repo|
@@ -48,14 +48,17 @@ xml.project(project_attributes) do
         params[:trigger] = rt.trigger if rt.trigger.present?
         xml_repository.releasetarget(params)
       end
-      xml_repository.hostsystem(project: repo.hostsystem.project.name, repository: repo.hostsystem.name) if repo.hostsystem
-      repo.path_elements.includes(:link).each do |pe|
+      repo.path_elements.includes(:link).order(kind: :desc).each do |pe|
         project_name = if pe.link.remote_project_name.present?
                          pe.link.project.name + ':' + pe.link.remote_project_name
                        else
                          pe.link.project.name
                        end
-        xml_repository.path(project: project_name, repository: pe.link.name)
+        if pe.kind == 'hostsystem'
+          xml_repository.hostsystem(project: project_name, repository: pe.link.name)
+        else
+          xml_repository.path(project: project_name, repository: pe.link.name)
+        end
       end
       repo.repository_architectures.joins(:architecture).pluck('architectures.name').each do |arch|
         xml_repository.arch arch

@@ -183,7 +183,7 @@ class Project
 
       update_repository_flags(current_repo, xml_hash)
       update_release_targets(current_repo, xml_hash)
-      update_hostsystem(current_repo, xml_hash)
+      current_repo.save! if current_repo.changed?
       update_repository_architectures(current_repo, xml_hash)
       update_download_repositories(current_repo, xml_hash)
 
@@ -195,9 +195,20 @@ class Project
     def update_path_elements(current_repo, xml_hash)
       # destroy all current pathelements
       current_repo.path_elements.destroy_all
-      return unless xml_hash['path']
+      return unless xml_hash['path'] || xml_hash['hostsystem']
 
-      # recreate pathelements from xml
+      # recreate hostsystem elements from xml
+      position = 1
+      xml_hash.elements('hostsystem') do |hostsystem|
+        host_repo = Repository.find_by_project_and_name(hostsystem['project'], hostsystem['repository'])
+        raise SaveError, 'Using same repository as hostsystem element is not allowed' if hostsystem['project'] == project.name && hostsystem['repository'] == xml_hash['name']
+        raise SaveError, "Unknown hostsystem repository '#{hostsystem['project']}/#{hostsystem['repository']}'" unless host_repo
+
+        current_repo.path_elements.new(link: host_repo, position: position, kind: :hostsystem)
+        position += 1
+      end
+
+      # recreate path elements from xml
       position = 1
       xml_hash.elements('path') do |path|
         link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
@@ -244,23 +255,6 @@ class Project
 
         current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
       end
-    end
-
-    def update_hostsystem(current_repo, xml_hash)
-      if xml_hash.key?('hostsystem')
-        target_project = Project.get_by_name(xml_hash['hostsystem']['project'])
-        target_repo = target_project.repositories.find_by_name(xml_hash['hostsystem']['repository'])
-        if xml_hash['hostsystem']['project'] == project.name && xml_hash['hostsystem']['repository'] == xml_hash['name']
-          raise SaveError, 'Using same repository as hostsystem element is not allowed'
-        end
-        raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'" unless target_repo
-
-        current_repo.hostsystem = target_repo
-      else
-        current_repo.hostsystem = nil
-      end
-
-      current_repo.save! if current_repo.changed?
     end
 
     def check_for_duplicated_archs!(architectures)

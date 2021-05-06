@@ -1116,29 +1116,32 @@ class Project < ApplicationRecord
         next if cycle_detection[path.id]
 
         # go to all my path elements
-        path.link.path_elements.each do |ipe|
-          # avoid mixing update code streams with channels
-          # FIXME: should be done via repository types instead, but we need to move
-          #        them from build config to project meta first
-          next unless path.link.project.kind == ipe.link.project.kind
+        path_kinds = ['standard', 'hostsystem'] # for rubocop
+        path_kinds.each do |path_kind|
+          path.link.path_elements.where(kind: path_kind).find_each do |ipe|
+            # avoid mixing update code streams with channels
+            # FIXME: should be done via repository types instead, but we need to move
+            #        them from build config to project meta first
+            next unless path.link.project.kind == ipe.link.project.kind
 
-          # is this path pointing to some repository which is used in another
-          # of my repositories?
-          repositories.joins(:path_elements).where('path_elements.repository_id' => ipe.link).find_each do |my_repo|
-            next if my_repo == repo # do not add my self
-            next if repo.path_elements.where(link: my_repo).count.positive?
+            # is this path pointing to some repository which is used in another
+            # of my repositories?
+            repositories.joins(:path_elements).where('path_elements.repository_id': ipe.link, 'path_elements.kind': path_kind).find_each do |my_repo|
+              next if my_repo == repo # do not add my self
+              next if repo.path_elements.where(link: my_repo).count.positive?
 
-            elements = repo.path_elements.where(position: ipe.position)
-            if elements.count.zero?
-              new_path = repo.path_elements.create(link: my_repo, position: ipe.position)
-              cycle_detection[new_path.id]
-            else
-              PathElement.update(elements.first.id, position: ipe.position, link: my_repo)
-            end
-            cycle_detection[elements.first.id] = true
-            if elements.count > 1
-              # note: we don't enforce a unique entry by position atm....
-              repo.path_elements.where('position = ipe.position AND NOT id = ?', elements.first.id).delete_all
+              elements = repo.path_elements.where(position: ipe.position, kind: path_kind)
+              if elements.count.zero?
+                new_path = repo.path_elements.create(link: my_repo, position: ipe.position, kind: path_kind)
+                cycle_detection[new_path.id]
+              else
+                PathElement.update(elements.first.id, position: ipe.position, link: my_repo, kind: path_kind)
+              end
+              cycle_detection[elements.first.id] = true
+              if elements.count > 1
+                # note: we don't enforce a unique entry by position atm....
+                repo.path_elements.where('position = ipe.position AND kind = ? AND NOT id = ?', [path_kind, elements.first.id]).delete_all
+              end
             end
           end
         end
