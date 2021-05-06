@@ -44,22 +44,24 @@ module TriggerControllerService
         source_branch: @payload['pull_request']['head']['ref'],
         target_branch: @payload['pull_request']['base']['ref'],
         action: @payload['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
-        repository_owner: @payload['pull_request']['head']['repo']['owner']['login'],
-        repository_name: @payload['pull_request']['head']['repo']['name']
+        repository_full_name: @payload['pull_request']['head']['repo']['full_name'],
+        event: @event
       }.with_indifferent_access
     end
 
     def gitlab_extractor_payload
       {
         scm: 'gitlab',
-        repo_url: @payload['project']['web_url'],
+        object_kind: @payload['object_kind'],
+        http_url: @payload['project']['http_url'],
         commit_sha: @payload['object_attributes']['last_commit']['id'],
         pr_number: @payload['object_attributes']['iid'],
         source_branch: @payload['object_attributes']['source_branch'],
         target_branch: @payload['object_attributes']['target_branch'],
         action: @payload['object_attributes']['action'], # TODO: Names may differ, maybe we need to find our own naming (defer to service?)
         project_id: @payload['project']['id'],
-        path_with_namespace: @payload['project']['path_with_namespace']
+        path_with_namespace: @payload['project']['path_with_namespace'],
+        event: @event
       }.with_indifferent_access
     end
   end
