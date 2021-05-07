@@ -1,5 +1,5 @@
 class TriggerWorkflowController < TriggerController
-  skip_before_action :set_package
+  skip_before_action :set_project, :set_package, :set_object_to_authorize, :set_multibuild_flavor
   before_action :set_scm_event
   before_action :validate_scm_event
 
