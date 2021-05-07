@@ -168,7 +168,8 @@ POST /person/<userid>/token
   project: together with package, used to create a token for a specific package
   package: together with project, used to create a token for a specific package
   operation: runservice(default), rebuild, release
-  scm_token: SCM token used in OBS workflows to report back the workflow status, when the operation is workflow
+  scm_token: (Beta/Unstable) SCM token used in OBS workflows to report back the
+             workflow status, when the operation is workflow.
 
 XmlResult: status
 

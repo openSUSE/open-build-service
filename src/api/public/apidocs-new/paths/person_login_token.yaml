@@ -87,6 +87,8 @@ post:
       schema:
         type: string
       description: |
+        **(Beta/Unstable)**
+
         SCM token used in OBS workflows to report back the workflow status, when the operation is workflow.
 
         It's normally possible to generate SCM tokens directly on the SCM's website like GitHub or GitLab.
