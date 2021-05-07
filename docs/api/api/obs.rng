@@ -248,7 +248,14 @@
               <data type="string" />
             </attribute>
             <attribute name="repotype">
-              <data type="string" />
+              <choice>
+                <value>rpmmd</value>
+                <value>susetags</value>
+                <value>deb</value>
+                <value>arch</value>
+                <value>mdk</value>
+                <value>registry</value>
+              </choice>
               <!--
               Type of the repository meta data.
               -->
