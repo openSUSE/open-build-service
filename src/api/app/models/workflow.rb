@@ -8,6 +8,7 @@ class Workflow
 
   def steps
     steps = []
+    return steps if @workflow['steps'].blank?
 
     @workflow['steps'].each do |step|
       step.each do |step_name, step_instructions|
