@@ -1,17 +1,15 @@
 class AddKindToPathElementUniqIndexes < ActiveRecord::Migration[6.0]
   def up
-    safety_assured { execute 'SET FOREIGN_KEY_CHECKS=0;' }
+    remove_foreign_key :path_elements, name: 'path_elements_ibfk_1'
     remove_index :path_elements, name: 'parent_repository_index'
     add_index :path_elements, ['parent_id', 'repository_id', 'kind'], name: 'parent_repository_index', unique: true
-  ensure
-    safety_assured { execute 'SET FOREIGN_KEY_CHECKS=1;' }
+    add_foreign_key 'path_elements', 'repositories', column: 'parent_id', name: 'path_elements_ibfk_1'
   end
 
   def down
-    safety_assured { execute 'SET FOREIGN_KEY_CHECKS=0;' }
+    remove_foreign_key :path_elements, name: 'path_elements_ibfk_1'
     remove_index :path_elements, name: 'parent_repository_index'
     add_index :path_elements, ['parent_id', 'repository_id'], name: 'parent_repository_index', unique: true
-  ensure
-    safety_assured { execute 'SET FOREIGN_KEY_CHECKS=1;' }
+    add_foreign_key 'path_elements', 'repositories', column: 'parent_id', name: 'path_elements_ibfk_1'
   end
 end
