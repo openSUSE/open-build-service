@@ -11,7 +11,7 @@ RSpec.describe DownloadRepository do
     it { is_expected.to validate_uniqueness_of(:arch).scoped_to(:repository_id).case_insensitive }
 
     it do
-      expect(subject).to validate_inclusion_of(:repotype).in_array(['rpmmd', 'susetags', 'deb', 'arch', 'mdk'])
+      expect(subject).to validate_inclusion_of(:repotype).in_array(['rpmmd', 'susetags', 'deb', 'arch', 'mdk', 'registry'])
                                                          .with_message(/is not a valid repotype/)
     end
 
