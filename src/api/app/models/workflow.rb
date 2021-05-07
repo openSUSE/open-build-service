@@ -1,18 +1,9 @@
 class Workflow
-  include ActiveModel::Model
-
-  SUPPORTED_EVENTS = %w[pull_request].freeze
   SUPPORTED_STEPS = { 'branch_package' => Workflow::Step::BranchPackageStep }.freeze
-
-  validates :event, inclusion: { in: SUPPORTED_EVENTS, allow_nil: false }
 
   def initialize(workflow:, scm_extractor_payload:)
     @workflow = workflow
     @scm_extractor_payload = scm_extractor_payload
-  end
-
-  def event
-    @workflow['filters']['event']
   end
 
   def steps
