@@ -97,91 +97,90 @@ sub check {
 
   my @deps = @{$info->{'dep'} || []};
 
-  my $cdep;	# container dependency
-  my $cprp;	# container prp
+  my $cprp;   # container prp
   my $cbdep;	# container bdep for job
   my $cmeta;	# container meta entry
   my $expanddebug = $ctx->{'expanddebug'};
 
   my @containerdeps = grep {/^container:/} @deps;
   if (@containerdeps) {
-    return ('broken', 'multiple containers') if @containerdeps != 1;
-    $cdep = $containerdeps[0];
     @deps = grep {!/^container:/} @deps;
 
     # setup container pool
     my $cpool = $ctx->{'pool'};
-
-    # expand to container package name
     my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
-    my ($cok, @cdeps) = $xp->expand($cdep);
-    BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
-    return ('unresolvable', join(', ', @cdeps)) unless $cok;
-    return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
 
-    # find container package
-    my $p;
-    for ($cpool->whatprovides($cdeps[0])) {
-      $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
-    }
-    return ('unresolvable', 'weird result of container expansion') unless $p;
+    foreach my $cdep (@containerdeps) {
+      # expand to container package names
+      my ($cok, @cdeps) = $xp->expand($cdep);
+      BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
+      return ('unresolvable', join(', ', @cdeps)) unless $cok;
+      return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
 
-    # generate bdep entry
-    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    $cprp = $cpool->pkg2reponame($p);
-    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
-    if ($ctx->{'dobuildinfo'}) {
-      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
-      my $d = $cpool->pkg2data($p);
-      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $cbdep->{'version'} = $d->{'version'};
-      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
-      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
-      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
-    }
-
-    # append container repositories to path
-    my @infopath = @{$info->{'path'} || []};
-    splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
-    my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
-    my @newpath;
-    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
-    if ($annotation && !$haveobsrepositories) {
-      # map all repos and add to path
-      my $remoteprojs = $gctx->{'remoteprojs'} || {};
-      my $rproj = $remoteprojs->{(split('/', $cprp, 2))[0]};
-      undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
-      for my $r (@{$annotation->{'repo'} || []}) {
-	my $url = $r->{'url'};
-	next unless $url;
-	# see Build::Kiwi
-	my $urlprp;
-	if ($url eq 'obsrepositories:/') {
-	  $urlprp = '_obsrepositories/';
-	} elsif ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
-	  $urlprp = "$1/$2";
-	  $urlprp = maptoremote($rproj, $1, $2) if $rproj;
-	} else {
-	  if ($Build::Kiwi::urlmapper) {
-	    $urlprp = $Build::Kiwi::urlmapper->($url);
-	  } else {
-	    $ctx->{'urlmappercache'} ||= {};
-	    $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
-	  }
-	}
-	# if we can't map fall back to project/repository element from annotation
-	if (!$urlprp && $r->{'project'} && $r->{'repository'}) {
-	  $urlprp = "$r->{'project'}/$r->{'repository'}";
-	  $urlprp = maptoremote($rproj, $r->{'project'}, $r->{'repository'}) if $rproj;
-	}
-	return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
-	my ($pr, $rp) = split('/', $urlprp, 2);
-	push @newpath, {'project' => $pr, 'repository' => $rp};
-	$newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
+      # find container package
+      my $p;
+      for ($cpool->whatprovides($cdeps[0])) {
+        $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
       }
+      return ('unresolvable', 'weird result of container expansion') unless $p;
+
+      # generate bdep entry
+      $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
+      $cprp = $cpool->pkg2reponame($p);
+      $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
+      if ($ctx->{'dobuildinfo'}) {
+	      ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
+	      my $d = $cpool->pkg2data($p);
+	      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+	      $cbdep->{'version'} = $d->{'version'};
+	      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
+	      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+	      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
+      }
+
+      # append container repositories to path
+      my @infopath = @{$info->{'path'} || []};
+      splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
+      my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
+      my @newpath;
+      my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
+      if ($annotation && !$haveobsrepositories) {
+        # map all repos and add to path
+        my $remoteprojs = $gctx->{'remoteprojs'} || {};
+        my $rproj = $remoteprojs->{(split('/', $cprp, 2))[0]};
+        undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
+        for my $r (@{$annotation->{'repo'} || []}) {
+          my $url = $r->{'url'};
+          next unless $url;
+          # see Build::Kiwi
+          my $urlprp;
+          if ($url eq 'obsrepositories:/') {
+            $urlprp = '_obsrepositories/';
+          } elsif ($url =~ /^obs:\/{1,3}([^\/]+)\/([^\/]+)\/?$/) {
+            $urlprp = "$1/$2";
+            $urlprp = maptoremote($rproj, $1, $2) if $rproj;
+          } else {
+            if ($Build::Kiwi::urlmapper) {
+              $urlprp = $Build::Kiwi::urlmapper->($url);
+            } else {
+              $ctx->{'urlmappercache'} ||= {};
+              $urlprp = BSUrlmapper::urlmapper($url, $ctx->{'urlmappercache'});
+            }
+          }
+          # if we can't map fall back to project/repository element from annotation
+          if (!$urlprp && $r->{'project'} && $r->{'repository'}) {
+            $urlprp = "$r->{'project'}/$r->{'repository'}";
+            $urlprp = maptoremote($rproj, $r->{'project'}, $r->{'repository'}) if $rproj;
+          }
+          return ('broken', "repository url '$url' cannot be handled") unless $urlprp;
+          my ($pr, $rp) = split('/', $urlprp, 2);
+          push @newpath, {'project' => $pr, 'repository' => $rp};
+          $newpath[-1]->{'priority'} = $r->{'priority'} if defined $r->{'priority'};
+        }
+      }
+      my $r = $ctx->append_info_path($info, \@newpath);
+      return ('delayed', 'remotemap entry missing') unless $r;
     }
-    my $r = $ctx->append_info_path($info, \@newpath);
-    return ('delayed', 'remotemap entry missing') unless $r;
   }
   
   
@@ -303,6 +302,7 @@ sub check {
     }
     return ('blocked', join(', ', @blocked));
   }
+  ### TODO: Check all specified container dependencies
   push @new_meta, $cmeta if $cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
