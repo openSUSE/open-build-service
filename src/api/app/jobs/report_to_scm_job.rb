@@ -8,7 +8,7 @@ class ReportToScmJob < CreateJob
 
     EventSubscription.joins('INNER JOIN events ON event_subscriptions.eventtype = events.eventtype AND event_subscriptions.package_id = events.package_id')
                      .where(events: { eventtype: ['Event::BuildFail', 'Event::BuildSuccess'], id: event_id }, channel: :scm)
-                     .where(Event.arel_table[:undone_jobs].gt(0))
+                     .where(Event::Base.arel_table[:undone_jobs].gt(0))
                      .where.not(token_id: nil)
                      .order('events.created_at ASC').each do |event_subscription|
       SCMStatusReporter.new(event_subscription.payload, event_subscription.token.scm_token, event_subscription.eventtype).call
