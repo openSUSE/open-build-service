@@ -20,5 +20,9 @@ FactoryBot.define do
     factory :release_token, class: 'Token::Release' do
       type { 'Token::Release' }
     end
+
+    factory :workflow_token, class: 'Token::Workflow' do
+      type { 'Token::Workflow' }
+    end
   end
 end
