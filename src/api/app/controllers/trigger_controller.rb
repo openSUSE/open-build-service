@@ -91,9 +91,9 @@ class TriggerController < ApplicationController
     # @package is a String if @project has a project link, no need to do anything then.
     return unless @package.is_a?(Package)
 
-    # We use the package parameter if it is a valid multibuild flavor of the package
-    # See https://github.com/openSUSE/open-build-service/wiki/Links#mulitbuild-packages
-    @package = params[:package] if @package.multibuild_flavor?(params[:package])
+    # We use the package parameter if it is a multibuild flavor of a package
+    # The package object may not exist (different project, maybe even remote)
+    @package = params[:package] if params[:package].present? && params[:package].include?(':')
   end
 
   def package_from_project_link?
