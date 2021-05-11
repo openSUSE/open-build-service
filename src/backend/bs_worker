@@ -2338,8 +2338,14 @@ sub getbinaries_containers {
 
   my @meta;
   for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
-    my $repo = ($buildinfo->{'containerpath'} || [])->[0];
-    die("getbinaries: job has no container repository\n") unless $repo;
+    my $repo;
+    if ($bdep->{'project'} && $bdep->{'repository'}) {
+      $repo = grep {$_->{'project'} eq $bdep->{'project'} && $_->{'repository'} eq $bdep->{'repository'}} @{$buildinfo->{'containerpath'} || []};
+      die("getbinaries: job has no container repository matching $bdep->{'project'}/$bdep->{'repository'}\n") unless $repo;
+    } else {
+      $repo = ($buildinfo->{'containerpath'} || [])->[0];
+      die("getbinaries: job has no container repository\n") unless $repo;
+    }
     my $ddir = "$srcdir/containers/$repo->{'project'}/$repo->{'repository'}";
     mkdir_p($ddir);
     my $callers_time = time();
@@ -2375,8 +2381,8 @@ sub getbinaries_containers {
       'repository' => $repo->{'repository'},
       'arch' => $buildinfo->{'arch'},
     };
-    if ($buildinfo->{'containerannotation'}) {
-      my $annotation = BSUtil::fromxml($buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
+    if ($bdep->{'annotation'} || $buildinfo->{'containerannotation'}) {
+      my $annotation = BSUtil::fromxml($bdep->{'annotation'} || $buildinfo->{'containerannotation'}, $BSXML::binannotation, 1);
       if ($annotation) {
 	for (qw{package version release binaryarch disturl buildhost buildtime binaryid}) {
 	  $bin->{$_} = $annotation->{$_} if defined($annotation->{$_}) && $annotation->{$_} ne '';

@@ -22,6 +22,7 @@ use warnings;
 
 use Data::Dumper;
 use Build;
+use BSUtil;
 use BSSolv;
 use BSConfiguration;
 use BSUrlmapper;
@@ -96,17 +97,12 @@ sub check {
   my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
 
   my @deps = @{$info->{'dep'} || []};
-
-  my $cdep;	# container dependency
-  my $cprp;	# container prp
-  my $cbdep;	# container bdep for job
-  my $cmeta;	# container meta entry
+  my @cbdep;
+  my @cmeta;
   my $expanddebug = $ctx->{'expanddebug'};
 
   my @containerdeps = grep {/^container:/} @deps;
   if (@containerdeps) {
-    return ('broken', 'multiple containers') if @containerdeps != 1;
-    $cdep = $containerdeps[0];
     @deps = grep {!/^container:/} @deps;
 
     # setup container pool
@@ -114,30 +110,36 @@ sub check {
 
     # expand to container package name
     my $xp = BSSolv::expander->new($cpool, $ctx->{'conf'});
-    my ($cok, @cdeps) = $xp->expand($cdep);
+    my ($cok, @cdeps) = $xp->expand(@containerdeps);
     BSSched::BuildJob::add_expanddebug($ctx, 'container expansion', $xp, $cpool) if $expanddebug;
     return ('unresolvable', join(', ', @cdeps)) unless $cok;
-    return ('unresolvable', 'weird result of container expansion') if @cdeps != 1;
+    return ('unresolvable', 'weird result of container expansion') unless @cdeps > 0 && @cdeps <= @containerdeps;
 
-    # find container package
-    my $p;
-    for ($cpool->whatprovides($cdeps[0])) {
-      $p = $_ if $cpool->pkg2name($_) eq $cdeps[0];
-    }
-    return ('unresolvable', 'weird result of container expansion') unless $p;
+    my ($lastbdep, $lastp);
+    for my $cdep (@cdeps) {
+      # find container package
+      my $p;
+      for ($cpool->whatprovides($cdep)) {
+        $p = $_ if $cpool->pkg2name($_) eq $cdep;
+      }
+      return ('unresolvable', 'weird result of container expansion') unless $p;
 
-    # generate bdep entry
-    $cbdep = {'name' => $cdeps[0], 'noinstall' => 1};
-    $cprp = $cpool->pkg2reponame($p);
-    $cmeta = $cpool->pkg2pkgid($p) . "  $cprp/$cdeps[0]";
-    if ($ctx->{'dobuildinfo'}) {
+      # generate bdep entry
+      my $cbdep = {'name' => $cdep, 'noinstall' => 1};
+      my $cprp = $cpool->pkg2reponame($p);
+      push @cmeta, $cpool->pkg2pkgid($p) . "  $cprp/$cdep";
       ($cbdep->{'project'}, $cbdep->{'repository'}) = split('/', $cprp, 2);
-      my $d = $cpool->pkg2data($p);
-      $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $cbdep->{'version'} = $d->{'version'};
-      $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
-      $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
-      $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
+      if ($ctx->{'dobuildinfo'}) {
+        my $d = $cpool->pkg2data($p);
+        $cbdep->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+        $cbdep->{'version'} = $d->{'version'};
+        $cbdep->{'release'} = $d->{'release'} if defined $d->{'release'};
+        $cbdep->{'arch'} = $d->{'arch'} if $d->{'arch'};
+        $cbdep->{'hdrmd5'} = $d->{'hdrmd5'} if $d->{'hdrmd5'};
+      }
+      push @cbdep, $cbdep;
+      $lastbdep = $cbdep;
+      $lastp = $p;
     }
 
     # append container repositories to path
@@ -145,11 +147,11 @@ sub check {
     splice(@infopath, -$info->{'extrapathlevel'}) if $info->{'extrapathlevel'};
     my $haveobsrepositories = grep {$_->{'project'} eq '_obsrepositories'} @infopath;
     my @newpath;
-    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $p, $cbdep);
+    my $annotation = BSSched::BuildJob::getcontainerannotation($cpool, $lastp, $lastbdep);
     if ($annotation && !$haveobsrepositories) {
       # map all repos and add to path
       my $remoteprojs = $gctx->{'remoteprojs'} || {};
-      my $rproj = $remoteprojs->{(split('/', $cprp, 2))[0]};
+      my $rproj = $remoteprojs->{$lastbdep->{'project'}};
       undef $rproj if $rproj && !defined($rproj->{'root'});	# no partitions
       for my $r (@{$annotation->{'repo'} || []}) {
 	my $url = $r->{'url'};
@@ -303,10 +305,10 @@ sub check {
     }
     return ('blocked', join(', ', @blocked));
   }
-  push @new_meta, $cmeta if $cmeta;
+  push @new_meta, @cmeta;
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, $buildtype, \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, $cbdep, $cprp, $unorderedrepos]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, $buildtype, \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg, \@cbdep, $unorderedrepos]);
   if ($state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
@@ -314,6 +316,19 @@ sub check {
   return ($state, $data);
 }
 
+=head2 add_container_deps - add container data to the cloned context
+
+ TODO: add description
+
+=cut
+
+sub add_container_deps {
+  my ($ctx, $cbdep) = @_;
+  return unless @{$cbdep || []};
+  push @{$ctx->{'extrabdeps'}}, @$cbdep;
+  $ctx->{'containerpath'} = [ BSUtil::unify(map {"$_->{'project'}/$_->{'repository'}"} @$cbdep) ];
+  $ctx->{'containerannotation'} = delete $_->{'annotation'} for @$cbdep;
+}
 
 =head2 build - TODO: add summary
 
@@ -328,9 +343,8 @@ sub build {
   my $epool = $data->[2];
   my $edep2pkg = $data->[3];
   my $cbdep = $data->[4];
-  my $cprp = $data->[5];
-  my $unorderedrepos = $data->[6];
-  my $reason = $data->[7];
+  my $unorderedrepos = $data->[5];
+  my $reason = $data->[6];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
@@ -344,11 +358,7 @@ sub build {
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     $ctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp, 'unorderedrepos' => $unorderedrepos}, ref($ctx);
-    if ($cbdep) {
-      $ctx->{'extrabdeps'} = [ $cbdep ];
-      $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-      $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
-    }
+    add_container_deps($ctx, $cbdep);
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 
@@ -377,12 +387,7 @@ sub build {
     $edeps = [];
   }
 
-  # add container deps
-  if ($cbdep) {
-    push @{$ctx->{'extrabdeps'}}, $cbdep;
-    $ctx->{'containerpath'} = [ $cprp ] if $cprp;
-    $ctx->{'containerannotation'} = delete $cbdep->{'annotation'};
-  }
+  add_container_deps($ctx, $cbdep);
 
   # repo has a configured path, expand docker build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
