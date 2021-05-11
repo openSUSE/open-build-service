@@ -9,8 +9,7 @@ class CreateJob < ApplicationJob
 
     # in test suite the undone_jobs are 0 as the delayed jobs are not delayed
     event.with_lock do
-      event.undone_jobs -= 1
-      event.save!
+      event.mark_job_done!
     end
   end
 

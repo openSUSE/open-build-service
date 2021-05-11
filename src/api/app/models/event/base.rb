@@ -106,7 +106,7 @@ module Event
     end
 
     def initialize(attribs)
-      attributes = attribs.dup
+      attributes = attribs.dup.with_indifferent_access
       super()
       self.created_at = attribs[:time] if attributes[:time]
       attributes.delete :eventtype
@@ -168,6 +168,13 @@ module Event
         self.undone_jobs += 1
       end
       save if self.undone_jobs.positive?
+    end
+
+    def mark_job_done!
+      return unless undone_jobs.positive?
+
+      self.undone_jobs -= 1
+      save!
     end
 
     # to be overwritten in subclasses
