@@ -585,6 +585,7 @@ our $buildinfo = [
 	'binary',	# filename
 	'package',
 	'srcmd5',
+	'annotation',	# for containers
      ]],
       [ 'pdep' ],	# obsolete
      [[ 'path' =>
