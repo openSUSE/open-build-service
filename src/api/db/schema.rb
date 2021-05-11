@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_05_05_160725) do
+ActiveRecord::Schema.define(version: 2021_05_11_201658) do
 
   create_table "architectures", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
     t.string "name", null: false, collation: "utf8_general_ci"
@@ -344,6 +344,9 @@ ActiveRecord::Schema.define(version: 2021_05_05_160725) do
     t.string "api_url", collation: "utf8_bin"
     t.string "unlisted_projects_filter", default: "^home:.+", collation: "utf8_bin"
     t.string "unlisted_projects_filter_description", default: "home projects", collation: "utf8_bin"
+  end
+
+  create_table "data_migrations", primary_key: "version", id: :string, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci", force: :cascade do |t|
   end
 
   create_table "delayed_jobs", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC", force: :cascade do |t|
