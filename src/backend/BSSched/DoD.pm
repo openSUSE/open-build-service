@@ -19,7 +19,12 @@ package BSSched::DoD;
 use strict;
 use warnings;
 
+use Digest::MD5 ();
+
 use BSUtil;
+use BSSched::RPC;
+use BSXML;
+use BSHTTP;
 
 =head2 gencookie - generate a cookie from file metadata
 
@@ -49,6 +54,7 @@ sub readparsed {
   return 'baseurl missing in data' unless $baseurl;
   my $moduleinfo = delete $data->{'/moduleinfo'};
   for (values %$data) {
+    next unless ref($_) eq 'HASH';
     $_->{'id'} = 'dod';
     $_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
   }
@@ -136,8 +142,21 @@ sub clean_obsolete_dodpackages {
   }
   my @nbins;
   my $nbinsdirty;
+  my $clean_blobs;
   while (@bins) {
     my ($path, $id) = splice(@bins, 0, 2);
+    if ($path =~ s/\.obsbinlnk$//) {
+      $clean_blobs = 1;
+      if ($paths{"$path.tar"}) {
+        push @nbins, "$path.obsbinlnk", $id;
+        next;
+      }
+      $nbinsdirty = 1;
+      print "      - :full/$path.tar [DoD cleanup]\n";
+      unlink("$dir/$path.obsbinlnk");
+      unlink("$dir/$path.containerinfo");
+      next;
+    }
     if ($paths{$path}) {
       push @nbins, $path, $id;
       next;
@@ -193,15 +212,16 @@ sub dodcheck {
 sub dodfetch_resume {
   my ($ctx, $handle, $error) = @_;
   my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
+  my $gctx = $ctx->{'gctx'};
   if ($error) {
     if (BSSched::RPC::is_transient_error($error)) {
-      $ctx->{'gctx'}->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+      $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
     }
     return;
   }
   $ctx->setchanged($handle);
   # drop cache
-  $ctx->{'gctx'}->{'repodatas'}->drop("$projid/$repoid", $arch);
+  $gctx->{'repodatas'}->drop("$projid/$repoid", $arch);
 }
 
 =head2 dodfetch - TODO: add summary
