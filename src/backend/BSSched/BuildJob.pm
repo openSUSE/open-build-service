@@ -1089,11 +1089,12 @@ sub create {
   # do DoD checking
   if (!$ctx->{'isreposerver'}) {
     my $dods;
+    my $arch = $bconf->{'hostarch'} && $ctx->{'conf_host'} ? $bconf->{'hostarch'} : $myarch;
     if ($kiwimode) {
       # image packages are already checked (they come from a different pool anyway)
-      $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @sysdeps);
+      $dods = BSSched::DoD::dodcheck($ctx, $pool, $arch, @pdeps, @vmdeps, @sysdeps);
     } else {
-      $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @pdeps, @vmdeps, @bdeps, @sysdeps);
+      $dods = BSSched::DoD::dodcheck($ctx, $pool, $arch, @pdeps, @vmdeps, @bdeps, @sysdeps);
     }
     if ($dods) {
       print "        blocked: $dods\n" if $ctx->{'verbose'};
