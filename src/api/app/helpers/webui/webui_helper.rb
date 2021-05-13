@@ -273,21 +273,6 @@ module Webui::WebuiHelper
     safe_join(string.scan(/.{1,#{length}}/), '<wbr>'.html_safe)
   end
 
-  def toggle_sliced_text(text, slice_length = 50, id = "toggle_sliced_text_#{Time.now.to_f.to_s.delete('.')}")
-    return text if text.to_s.length < slice_length
-
-    javascript_toggle_code = "$(\"[data-toggle-id='".html_safe + id + "']\").toggle();".html_safe
-    short = tag.span('data-toggle-id' => id) do
-      tag.span(text.slice(0, slice_length) + ' ') +
-        link_to('[+]', 'javascript:void(0)', onclick: javascript_toggle_code)
-    end
-    long = tag.span('data-toggle-id' => id, :style => 'display: none;') do
-      tag.span(text + ' ') +
-        link_to('[-]', 'javascript:void(0)', onclick: javascript_toggle_code)
-    end
-    short + long
-  end
-
   # paths param will accept one or more paths to match to make this tab active.
   # Only the first one will be used as link though if more than one is present.
   def tab_link(label, paths, active = false, html_class = 'nav-link text-nowrap')

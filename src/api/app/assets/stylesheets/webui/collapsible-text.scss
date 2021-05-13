@@ -44,3 +44,8 @@
   @include collapsible($maxHeight: 2.75em, $maxWidth: 'none');
   .obs-collapsible-textbox {  @extend .pr-0; }
 }
+
+#issue-summary {
+  @include collapsible($maxHeight: 1.5em);
+  .obs-collapsible-textbox {  @extend .pr-0; }
+}
