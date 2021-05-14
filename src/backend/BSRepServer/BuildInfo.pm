@@ -96,8 +96,16 @@ sub buildinfo {
   my $debugoutput = '';
   $ctx->{'expanddebug'} = \$debugoutput if $opts{'debug'};
 
-  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo);
+  # set prpsearchpath
+  my $pathelement;
+  $pathelement = 'hostsystem' if $repo->{'crosshostarch'} && $repo->{'crosshostarch'} eq $arch;
+  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo, $pathelement);
   $ctx->{'prpsearchpath'} = \@prpsearchpath;
+  if ($repo->{'crosshostarch'} && $repo->{'crosshostarch'} ne $arch) {
+    $pathelement = 'hostsystem' if $repo->{'crosshostarch'} && $repo->{'crosshostarch'} eq $arch;
+    my @prpsearchpath_host = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo, 'hostsystem');
+    $ctx->{'prpsearchpath_host'} = \@prpsearchpath_host;
+  }
 
   # setup config
   $ctx->setup();

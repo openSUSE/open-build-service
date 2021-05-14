@@ -44,7 +44,7 @@ sub addrepo_remote {
   return undef unless $remoteproj;
   my @modules;
   @modules = $pool->getmodules() if defined &BSSolv::pool::getmodules;
-  print "fetching remote repository state for $prp\n";
+  print "fetching remote repository state for $prp/$arch\n";
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200,
