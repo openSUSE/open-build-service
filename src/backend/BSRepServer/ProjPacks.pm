@@ -94,14 +94,15 @@ sub update_projpacks {
 }
 
 sub expandsearchpath {
-  my ($gctx, $projid, $repo) = @_;
+  my ($gctx, $projid, $repo, $pathelement) = @_;
 
   my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  $pathelement ||= 'path';
   my %done;
   my @ret;
-  my @path = @{$repo->{'path'} || []}; 
+  my @path = @{$repo->{$pathelement} || $repo->{'path'} || []}; 
   # our own repository is not included in the path,
   # so put it infront of everything
   unshift @path, {'project' => $projid, 'repository' => $repo->{'name'}};
@@ -117,7 +118,7 @@ sub expandsearchpath {
       next unless $proj;
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $rid} @{$proj->{'repository'} || []}; 
-      push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
+      push @path, @{$repo[0]->{$pathelement} || $repo[0]->{'path'} || []} if @repo;
     }    
   }
   return @ret;

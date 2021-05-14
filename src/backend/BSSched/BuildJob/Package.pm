@@ -126,10 +126,10 @@ sub check {
   # expand host deps
   my $hdeps;
   if ($ctx->{'conf_host'}) {
-    my $split_hostdeps = ($ctx->{'split_hostdeps'} || {})->{$packid};
+    my $split_hostdeps = $info->{'split_hostdeps'};
+    $split_hostdeps ||= ($ctx->{'split_hostdeps'} || {})->{$packid} if $packid;
     return ('broken', 'missing split_hostdeps entry') unless $split_hostdeps;
     my $subpacks = $ctx->{'subpacks'};
-    my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
     $hdeps = [ @{$split_hostdeps->[1]} ];
     my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
     no warnings 'redefine';
@@ -354,15 +354,27 @@ sub build {
   my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
 
   if ($ctx->{'conf_host'}) {
+    my $dobuildinfo = $ctx->{'dobuildinfo'};
     my $xp = BSSolv::expander->new($ctx->{'pool_host'}, $ctx->{'conf_host'});
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'crossmode' => 1}, ref($ctx);
     my @bdeps;
     for (@$edeps) {
-      push @bdeps, {'name' => $_, 'sysroot' => 1};
+      my $bdep = {'name' => $_, 'sysroot' => 1};
+      if ($dobuildinfo) {
+	my $p = $ctx->{'dep2pkg'}->{$_};
+        my $prp = $ctx->{'pool'}->pkg2reponame($p);
+        ($bdep->{'project'}, $bdep->{'repository'}) = split('/', $prp, 2) if $prp;
+	my $d = $ctx->{'pool'}->pkg2data($p);
+	$bdep->{'epoch'}      = $d->{'epoch'} if $d->{'epoch'};
+	$bdep->{'version'}    = $d->{'version'};
+	$bdep->{'release'}    = $d->{'release'} if defined $d->{'release'};
+	$bdep->{'arch'}       = $d->{'arch'} if $d->{'arch'};
+      }
+      push @bdeps, $bdep;
     }
+    $ctx = bless { %$ctx, 'conf' => $ctx->{'conf_host'}, 'pool' => $ctx->{'pool_host'}, 'dep2pkg' => $ctx->{'dep2pkg_host'}, 'realctx' => $ctx, 'expander' => $xp, 'crossmode' => 1}, ref($ctx);
     $ctx->{'extrabdeps'} = \@bdeps;
     $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
     my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $subpacks, $hdeps, $reason, $needed);

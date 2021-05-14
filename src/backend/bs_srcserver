@@ -1149,13 +1149,19 @@ sub getprojpack {
       # add all projects from the expanded path
       my $er = $expandedrepos{"$projid/$cgi->{'repository'}->[0]"};
       die($er) unless ref($er);
+      my $c;
       eval {
-	concatconfigs($projid, $cgi->{'repository'}->[0], $remotemap, @$er);
+	$c = concatconfigs($projid, $cgi->{'repository'}->[0], $remotemap, @$er);
       };
       for my $prp (@$er) {
         my ($p) = split('/', $prp, 2);
         next if $remotemap && $remotemap->{$p};
 	push @projids, $p unless $p eq $projid || grep {$_ eq $p} @projids;
+      }
+      my $repo = (grep {$_->{'name'} eq $cgi->{'repository'}->[0]} @{$jinfo->{'repository'} || []})[0];
+      if ($repo && $repo->{'hostsystem'}) {
+        my $conf = Build::read_config($arch, [ split("\n", $c) ]);
+        $repo->{'crosshostarch'} = $conf->{'hostarch'} || $arch;
       }
     }
 

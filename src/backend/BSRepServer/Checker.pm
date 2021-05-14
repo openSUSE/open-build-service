@@ -87,6 +87,15 @@ sub setup {
   $ctx->{'repo'} = $repo;
   my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'prpsearchpath'});
   $ctx->{'conf'} = $bconf;
+  my $crosshostarch;
+  if ($repo->{'hostsystem'}) {
+    $crosshostarch = $bconf->{'hostarch'} || $myarch;
+  }
+  die("crosshostarch mismatch\n") if ($repo->{'crosshostarch'} || '') ne ($crosshostarch || '');
+  if ($crosshostarch && $crosshostarch ne $myarch) {
+    my $bconf_host = $ctx->getconfig($projid, $repoid, $crosshostarch, $ctx->{'prpsearchpath_host'});
+    $ctx->{'conf_host'} = $bconf_host;
+  }
 }
 
 sub depstotestcaseformat {
@@ -120,25 +129,8 @@ sub addldeprepo {
   die("ldepfile repo add failed\n") unless $r;
 }
 
-sub preparepool {
-  my ($ctx, $pname, $ldepfile) = @_;
-
-  my $gctx = $ctx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  my $bconf = $ctx->{'conf'};
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
-  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
-  $ctx->{'pool'} = $pool;
-
-  addldeprepo($pool, $bconf, $ldepfile) if $ldepfile;
-  my $prpsearchpath = $ctx->{'prpsearchpath'};
-  for my $rprp (@$prpsearchpath) {
-    $ctx->addrepo($pool, $rprp, $myarch);
-  }
-  $pool->createwhatprovides();
-
+sub preparehashes {
+  my ($pool, $bconf, $pname) = @_;
   my %dep2src;
   my %dep2pkg;
   my %subpacks;
@@ -147,15 +139,70 @@ sub preparepool {
     $dep2pkg{$n} = $p; 
     $dep2src{$n} = $pool->pkg2srcname($p);
   }
-  $ctx->{'dep2pkg'} = \%dep2pkg;
-  $ctx->{'dep2src'} = \%dep2src;
-  if (!defined($pname)) {
-    $ctx->{'subpacks'} = {};
-  } else {
+  if (defined($pname)) {
     my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
     @subpacks = () if $bconf->{'type'} eq 'kiwi' || $bconf->{'type'} eq 'docker';
-    $ctx->{'subpacks'} = { $pname => \@subpacks };
+    $subpacks{$pname} = \@subpacks;
   }
+  return (\%dep2pkg, \%dep2src, \%subpacks);
+}
+
+sub createpool {
+  my ($ctx, $bconf, $prpsearchpath, $arch, $ldepfile) = @_;
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $pool->settype('arch') if $bconf->{'binarytype'} eq 'arch';
+  $pool->setmodules($bconf->{'modules'}) if $bconf->{'modules'} && defined &BSSolv::pool::setmodules;
+
+  addldeprepo($pool, $bconf, $ldepfile) if $ldepfile;
+  for my $rprp (@$prpsearchpath) {
+    $ctx->addrepo($pool, $rprp, $arch);
+  }
+  $pool->createwhatprovides();
+  return $pool;
+}
+
+sub preparepool {
+  my ($ctx, $pname, $ldepfile) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
+  my $bconf = $ctx->{'conf'};
+
+  my $pool = $ctx->createpool($bconf, $ctx->{'prpsearchpath'}, $myarch, $ldepfile);
+  $ctx->{'pool'} = $pool;
+  ($ctx->{'dep2pkg'}, $ctx->{'dep2src'}, $ctx->{'subpacks'}) = preparehashes($pool, $bconf, $pname);
+  if ($ctx->{'conf_host'}) {
+    $pool = $ctx->createpool($ctx->{'conf_host'}, $ctx->{'prpsearchpath_host'}, $ctx->{'repo'}->{'crosshostarch'});
+    $ctx->{'pool_host'} = $pool;
+    ($ctx->{'dep2pkg_host'}) = preparehashes($pool, $bconf, $pname);
+  }
+}
+
+sub split_hostdeps {
+  my ($ctx, $bconf, $info) = @_;
+  my $dep = $info->{'dep'} || [];
+  return ($dep, []) unless @$dep;
+  my %onlynative = map {$_ => 1} @{$bconf->{'onlynative'} || []};
+  my %alsonative = map {$_ => 1} @{$bconf->{'alsonative'} || []};
+  for (@{$info->{'onlynative'} || []}) {
+    if (/^!(.*)/) {
+      delete $onlynative{$1};
+    } else {
+      $onlynative{$_} = 1;
+    }
+  }
+  for (@{$info->{'alsonative'} || []}) {
+    if (/^!(.*)/) {
+      delete $alsonative{$1};
+    } else {
+      $alsonative{$_} = 1;
+    }
+  }
+  return ($dep, []) unless %onlynative || %alsonative;
+  my @hdep = grep {$onlynative{$_} || $alsonative{$_}} @$dep;
+  return ($dep, \@hdep) if !@hdep || !%onlynative;
+  return ([ grep {!$onlynative{$_}} @$dep ], \@hdep)
 }
 
 # see checkpks in BSSched::Checker
@@ -173,11 +220,21 @@ sub buildinfo {
   my $buildtype = $bconf->{'type'};
   $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
   $buildtype ||= 'unknown';
-  my $handler = $handlers{$buildtype} || $handlers{'default'};
+  my $cross = $ctx->{'conf_host'} ? 1 : 0;
+  my $handler = $handlers{$buildtype};
   $handler = $handlers{'buildenv'} if $pdata->{'buildenv'};
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$info->{'error'}\n") if $info->{'error'};
-  my ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
+  my ($eok, @edeps);
+  if ($cross && !$handler) {
+    $handler ||= $handlers{default};
+    my @splitdeps = split_hostdeps($ctx, $bconf, $info);
+    $info->{'split_hostdeps'} = \@splitdeps;
+    ($eok, @edeps) = Build::get_sysroot($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$splitdeps[0]});
+  } else {
+    $handler ||= $handlers{default};
+    ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
+  }
   BSSched::BuildJob::add_expanddebug($ctx, 'meta deps expansion') if $expanddebug;
   die("unresolvable: ".join(", ", @edeps)."\n") unless $eok;
   $info->{'edeps'} = \@edeps;
