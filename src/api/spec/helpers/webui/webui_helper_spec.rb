@@ -199,24 +199,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#toggle_sliced_text' do
-    let(:short_text) { 'short_text' }
-    let(:big_text) { 'big_text_' * 100 }
-    let(:sliced_text) { big_text.slice(0, 50) }
-
-    context 'with nil as text' do
-      it { expect(toggle_sliced_text(nil)).to be_nil }
-    end
-
-    context 'with a short text' do
-      it { expect(toggle_sliced_text(short_text)).to eq(short_text) }
-    end
-
-    context 'with a big text' do
-      it { expect(toggle_sliced_text(big_text)).to match(/(.+)#{sliced_text}(.+)\[\+\](.+)#{big_text}(.+)\[-\](.+)/) }
-    end
-  end
-
   describe '#pick_max_problems' do
     let(:max_shown) { 5 }
 
