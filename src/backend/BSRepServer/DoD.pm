@@ -24,6 +24,7 @@ use BSHandoff;
 use BSContar;
 use BSStdServer;
 use BSUtil;
+use BSBearer;
 
 use BSRepServer::Containertar;
 use BSRepServer::Containerinfo;
@@ -80,6 +81,14 @@ sub blob_matches_digest {
   return (split(':', $digest, 2))[1] eq $ctx->hexdigest() ? 1 : 0;
 }
 
+my %registry_authenticators;
+
+sub doauthrpc {
+  my ($param, $xmlargs, @args) = @_;
+  $param = { %$param, 'resulthook' => sub { $xmlargs->($_[0]) } };
+  return BSWatcher::rpc($param, $xmlargs, @args);
+}
+
 sub fetchdodcontainer {
   my ($gdst, $pool, $repo, $p, $handoff) = @_;
   my $container = $pool->pkg2name($p);
@@ -109,9 +118,12 @@ sub fetchdodcontainer {
     my $tmp = "$dir/._blob.$blob.$$";
     my $url = $repo->dodurl();
     $url .= '/' unless $url =~ /\/$/;
+    my $authenticator = $registry_authenticators{"$url$regrepo"};
+    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc) unless $authenticator;
     $url .= "v2/$regrepo/blobs/$blob";
     print "fetching: $url\n";
     my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
+    $param->{'authenticator'} = $authenticator;
     $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
     my $r;
     eval { $r = BSWatcher::rpc($param); };
