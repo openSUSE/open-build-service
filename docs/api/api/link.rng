@@ -36,7 +36,15 @@
       <interleave>
         <zeroOrMore>
           <element ns="" name="add">
-            <attribute name="name"/>
+            <a:documentation>
+              Add a file to the package on top of the original package.
+            </a:documentation>
+            <attribute name="name">
+              <a:documentation>
+                Name of the file which should be added to the package. It must
+                be checked-in in the unexpanded package.
+              </a:documentation>
+            </attribute>
             <optional>
                 <attribute name="type"/>
             </optional>
@@ -55,6 +63,9 @@
 
         <zeroOrMore>
           <element ns="" name="apply">
+            <a:documentation>
+              Apply the patch with the supplied name when expanding the sources.
+            </a:documentation>
             <attribute name="name"/>
             <empty/>
           </element>
@@ -62,6 +73,9 @@
 
         <zeroOrMore>
           <element ns="" name="delete">
+            <a:documentation>
+              Remove the file with the supplied name when expanding the sources.
+            </a:documentation>
             <attribute name="name"/>
             <empty/>
           </element>
@@ -70,6 +84,10 @@
         <optional>
           <element>
             <name ns="">branch</name>
+            <a:documentation>
+              If present, then perform a full copy of all sources from the link
+              source into the current package.
+            </a:documentation>
             <empty/>
           </element>
         </optional>
@@ -77,6 +95,9 @@
         <zeroOrMore>
           <element>
             <name ns="">topadd</name>
+            <a:documentation>
+              Add the given string to the top of the spec file in the package sources.
+            </a:documentation>
             <text/>
           </element>
         </zeroOrMore>
@@ -88,22 +109,54 @@
   <define name="link-element">
     <element>
       <name ns="">link</name>
+      <a:documentation>
+        A source link element instructs OBS to link a certain package into a
+        different project and optionally to apply modifications, like patches,
+        on top of the original package.
+
+        The actual build of the package is run in the so-called "expanded
+        sources". The expansion is performed either as a 3-way merge or as a
+        plain copy of the linked package into the linking package, depending
+        whether the 'branch' element is present in the 'patches' child element.
+
+        If the 'branch' element not present, then a simple copy is performed. If
+        the 'branch' is present, then OBS applies the diff of the linking
+        package at 'rev' (or HEAD if omitted) to the linked package at 'baserev'
+        (or HEAD if omitted) to the latest revision of the linked package.
+      </a:documentation>
 
       <optional>
-        <attribute name="project"/>
+        <attribute name="project">
+          <a:documentation>
+            The name of the project to which this link points.
+          </a:documentation>
+        </attribute>
       </optional>
       <optional>
-        <attribute name="package"/>
+        <attribute name="package">
+          <a:documentation>
+            The name of the package to which this link points.
+          </a:documentation>
+        </attribute>
       </optional>
       <optional>
         <attribute name="missingok">
           <choice>
             <value>true</value>
           </choice>
+          <a:documentation>
+            Allow linking against packages that have been deleted.
+          </a:documentation>
         </attribute>
       </optional>
       <optional>
-        <attribute name="rev"/>
+        <attribute name="rev">
+          <a:documentation>
+            Revision of the package containing the _link file that is used for
+            the 3-way merge to construct the expanded sources.
+            If omitted, defaults to the latest revision.
+          </a:documentation>
+        </attribute>
       </optional>
       <optional>
         <attribute name="vrev"/>
@@ -111,10 +164,22 @@
       <optional>
         <attribute name="cicount">
           <ref name="cicount"/>
+          <a:documentation>
+            Determines how the cicount (=check in count, the number of commits
+            since the last version bump of the package) of the linked package is
+            calculated.
+            If omitted, then the default is "add".
+          </a:documentation>
         </attribute>
       </optional>
       <optional>
-        <attribute name="baserev"/>
+        <attribute name="baserev">
+          <a:documentation>
+            Revision of the base package to which the link points that is used
+            for the 3-way merge to calculate the expanded sources.
+            If omitted, then the latest revision is used.
+          </a:documentation>
+        </attribute>
       </optional>
 
       <zeroOrMore>
