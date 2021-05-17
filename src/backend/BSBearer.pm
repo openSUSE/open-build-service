@@ -28,6 +28,14 @@ use MIME::Base64;
 
 use strict;
 
+sub decode_reply {
+  my ($state, $json) = @_;
+  my $reply = JSON::XS::decode_json($json);
+  my $token = $reply->{'token'} || $reply->{'access_token'};
+  die("bearer auth rpc did not return a token\n") unless $token;
+  return $state->{'auth'} = "Bearer $token";
+}
+
 sub authenticator_function {
   my ($state, $param, $wwwauthenticate) = @_; 
   return $state->{'auth'} if !$wwwauthenticate;		# return last auth
@@ -37,24 +45,22 @@ sub authenticator_function {
   my %auth = BSHTTP::parseauthenticate($wwwauthenticate);
   if ($auth{'basic'} && defined($creds)) {
     $auth = 'Basic '.MIME::Base64::encode_base64($creds, '');
+    $state->{'auth'} = $auth;
   } elsif ($auth{'bearer'}) {
     my $bearer = $auth{'bearer'};
     my $realm = ($bearer->{'realm'} || [])->[0];
-    return undef unless $realm && $realm =~ /^https?:\/\//i;
+    return '' unless $realm && $realm =~ /^https?:\/\//i;
     my @args = BSRPC::args($bearer, 'service', 'scope');
     print "requesting bearer auth from $realm [@args]\n" if $state->{'verbose'};
     my $bparam = { 'uri' => $realm };
     push @{$bparam->{'headers'}}, 'Authorization: Basic '.MIME::Base64::encode_base64($creds, '') if defined($creds);
-    my $reply;
-    eval { $reply = BSRPC::rpc($bparam, \&JSON::XS::decode_json, @args); };
+    my $rpc = $state->{'rpccall'} || \&BSRPC::rpc;
+    my $decoder = sub {decode_reply($state, $_[0])};
+    eval { $auth = $rpc->($bparam, $decoder, @args) };
+    return undef unless defined $auth;		# in progress
     warn($@) if $@; 
-    return undef unless $reply;
-    my $token = $reply->{'token'} || $reply->{'access_token'};
-    return undef unless $token;
-    $auth = "Bearer $token";
   }
-  $state->{'auth'} = $auth if defined $auth;
-  return $auth;
+  return $auth || '';
 }
 
 sub generate_authenticator {
