@@ -232,7 +232,7 @@ class Webui::RequestController < Webui::WebuiController
     case params[:new_state]
     when 'Approve'
       'accepted'
-    when 'Disregard'
+    when 'Decline'
       'declined'
     end
   end

@@ -225,7 +225,7 @@ RSpec.describe Webui::RequestController, vcr: true do
 
     context 'with valid parameters' do
       it_behaves_like 'a valid review', 'Approve'
-      it_behaves_like 'a valid review', 'Disregard'
+      it_behaves_like 'a valid review', 'Decline'
     end
 
     context 'with invalid parameters' do
