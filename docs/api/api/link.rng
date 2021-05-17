@@ -2,11 +2,33 @@
 <!--
   A source link file with optional modificators like patches
 -->
-<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+<grammar ns="http://buildservice.org/api"
+         xmlns="http://relaxng.org/ns/structure/1.0"
+         datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes"
+         xmlns:a="http://www.example.com/annotation">
 
   <start>
     <ref name="link-element"/>
   </start>
+
+  <define name="cicount">
+    <choice>
+      <value>add</value>
+        <a:documentation>
+          The resulting check in counter is calculated by adding the linked
+          package's cicount to the link's cicount.
+        </a:documentation>
+      <value>copy</value>
+        <a:documentation>
+          The check in counter is copied over from the original package.
+        </a:documentation>
+      <value>local</value>
+        <a:documentation>
+          The check in counter is the number of commits to the local package
+          (and not taking the package that is being linked to into account).
+        </a:documentation>
+    </choice>
+  </define>
 
   <define name="patches-element">
     <element>
@@ -87,7 +109,9 @@
         <attribute name="vrev"/>
       </optional>
       <optional>
-        <attribute name="cicount"/>
+        <attribute name="cicount">
+          <ref name="cicount"/>
+        </attribute>
       </optional>
       <optional>
         <attribute name="baserev"/>
