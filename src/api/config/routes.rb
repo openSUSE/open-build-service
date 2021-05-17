@@ -423,6 +423,8 @@ OBSApi::Application.routes.draw do
     controller 'webui/session' do
       get 'session/new' => :new
       post 'session/create' => :create
+      get 'session/sso' => :sso, as: 'sso'
+      get 'session/sso/:provider/callback' => :sso_callback
       delete 'session/destroy' => :destroy
     end
 

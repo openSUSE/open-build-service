@@ -1,8 +1,8 @@
 - @pagetitle = 'Please Log In'
 
 .card
-  .card-body#loginform
-    .col-lg-6.pl-0
+  .card-body.row#loginform
+    .col-lg-6.pl-3
       - if CONFIG['proxy_auth_mode'] == :on
         = render partial: 'form', locals: { form_url: CONFIG['proxy_auth_login_page'],
                                             options: { method: :post, enctype: 'application/x-www-form-urlencoded' },
@@ -17,3 +17,6 @@
                                             options: { method: :post },
                                             proxy: false,
                                             pagetitle: @pagetitle }
+    - if CONFIG['sso_auth']
+      .col-lg-6.pl-3.border-left
+        = render partial: 'sso'

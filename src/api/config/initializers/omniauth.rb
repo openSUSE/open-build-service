@@ -15,6 +15,7 @@ if File.exist? path
       CONFIG['sso_auth'].each do |name, options|
           options[:name] = name
           provider (options['strategy'] || name), options
+          options['description'] ||= OmniAuth::Utils.camelize(name)
       end
   end
 end

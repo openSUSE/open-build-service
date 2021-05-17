@@ -6,7 +6,7 @@
     Log In
   .dropdown-menu.dropdown-menu-right.shadow-lg.bg-dark{ 'aria-labelledby': 'dropdownMenuButton' }
     .px-4.py-3#login-form
-      = form_tag(form_url, options) do
+      = form_tag(form_url, options.merge({class: 'pb-3'})) do
         - if proxy
           = hidden_field_tag(:context, 'default')
           = hidden_field_tag(:proxypath, 'reserve')
@@ -21,3 +21,9 @@
         .float-right
           = submit_tag('Log In', class: 'btn btn-success')
         .clearfix
+      .form-group.border-top.pt-3
+        %p{class: 'text-light'} Or sign in with:
+        .form-inline
+          - CONFIG['sso_auth'].each do |name, options|
+            = form_tag "#{sso_path}/#{name}", method: 'post', class: 'px-1' do
+              = button_tag options['description'], class: 'btn btn-light'

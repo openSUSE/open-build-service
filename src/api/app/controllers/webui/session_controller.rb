@@ -1,7 +1,7 @@
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 
-  skip_before_action :check_anonymous, only: [:create]
+  skip_before_action :check_anonymous, only: [:new, :create, :sso]
 
   def new
     switch_to_webui2
@@ -38,6 +38,10 @@ class Webui::SessionController < Webui::WebuiController
     User.session = nil
 
     redirect_on_logout
+  end
+
+  def sso
+    switch_to_webui2
   end
 
   private
