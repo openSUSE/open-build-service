@@ -2340,7 +2340,7 @@ sub getbinaries_containers {
   for my $bdep (grep {$_->{'name'} =~ /^container:/} @{$buildinfo->{'bdep'} || []}) {
     my $repo;
     if ($bdep->{'project'} && $bdep->{'repository'}) {
-      $repo = grep {$_->{'project'} eq $bdep->{'project'} && $_->{'repository'} eq $bdep->{'repository'}} @{$buildinfo->{'containerpath'} || []};
+      $repo = (grep {$_->{'project'} eq $bdep->{'project'} && $_->{'repository'} eq $bdep->{'repository'}} @{$buildinfo->{'containerpath'} || []})[0];
       die("getbinaries: job has no container repository matching $bdep->{'project'}/$bdep->{'repository'}\n") unless $repo;
     } else {
       $repo = ($buildinfo->{'containerpath'} || [])->[0];
