@@ -55,7 +55,7 @@
                 - if result.details
                   .pt-1.mt-3
                     %strong{ class: "build-state-#{result.code}" } #{result.code}:
-                    %span= result.details
+                    %span.text-word-break-all= result.details
 
         - previous_repo = result.repository
     - else
