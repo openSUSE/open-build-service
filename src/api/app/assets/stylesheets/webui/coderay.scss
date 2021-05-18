@@ -2,11 +2,11 @@
   background: $card-bg;
   color: $body-color;
 }
-.CodeRay pre {
-  margin: 0;
+.details-with-coderay .CodeRay pre {
   display: grid;
   grid-template-columns: min-content [col-separator] auto;
 }
+.CodeRay pre { margin: 0; }
 span.CodeRay { white-space: pre }
 
 .CodeRay .line-numbers {
