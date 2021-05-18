@@ -1,7 +1,7 @@
 class Webui::SessionController < Webui::WebuiController
   before_action :kerberos_auth, only: [:new]
 
-  skip_before_action :check_anonymous, only: [:new, :create, :sso]
+  skip_before_action :check_anonymous, only: [:new, :create, :sso, :sso_callback]
 
   def new
     switch_to_webui2
@@ -42,6 +42,29 @@ class Webui::SessionController < Webui::WebuiController
 
   def sso
     switch_to_webui2
+  end
+
+  def sso_callback
+    @auth_hash = request.env['omniauth.auth']
+    user = User.find_with_omniauth(@auth_hash)
+
+    unless user
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=unauthenticated value=1')
+      redirect_to(session_new_path, error: 'Authentication failed')
+      return
+    end
+
+    unless user.is_active?
+      RabbitmqBus.send_to_bus('metrics', 'login,access_point=webui,failure=disabled value=1')
+      redirect_to(root_path, error: 'Your account is disabled. Please contact the administrator for details.')
+      return
+    end
+
+    User.session = user
+    session[:login] = user.login
+    Rails.logger.debug "Authenticated user '#{user.login}'"
+
+    redirect_on_login
   end
 
   private
