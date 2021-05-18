@@ -18,14 +18,25 @@
 package BSRepServer::Registry;
 
 use JSON::XS ();
+use Digest::SHA ();
 
+use BSConfiguration;
+use BSWatcher ':https';
 use BSTUF;
 use BSUtil;
-use BSConfiguration;
+use BSVerify;
+use BSBearer;
+use BSContar;
+
+use BSRepServer::Containertar;
+use BSRepServer::Containerinfo;
+
 
 use strict;
 
 my $uploaddir = "$BSConfig::bsdir/upload";
+
+my %registry_authenticators;
 
 sub select_manifest {
   my ($mani, $goarch, $goos, $govariant) = @_;
@@ -62,6 +73,104 @@ sub extend_timestamp {
   }
   close($fd);
   return $tuf;
+}
+
+sub blob_matches_digest {
+  my ($tmp, $digest) = @_;
+  my $ctx;
+  $ctx = Digest::SHA->new($1) if $digest =~ /^sha(256|512):/;
+  return 0 unless $ctx;
+  my $fd;
+  return 0 unless open ($fd, '<', $tmp);
+  $ctx->addfile($fd);
+  close($fd);
+  return (split(':', $digest, 2))[1] eq $ctx->hexdigest() ? 1 : 0;
+}
+
+sub doauthrpc {
+  my ($param, $xmlargs, @args) = @_;
+  $param = { %$param, 'resulthook' => sub { $xmlargs->($_[0]) } };
+  return BSWatcher::rpc($param, $xmlargs, @args);
+}
+
+sub download_blobs {
+  my ($dir, $url, $regrepo, $blobs, $proxy, $maxredirects) = @_;
+
+  $url .= '/' unless $url =~ /\/$/;
+  for my $blob (@$blobs) {
+    next if -e "$dir/_blob.$blob";
+    my $tmp = "$dir/._blob.$blob.$$";
+    my $authenticator = $registry_authenticators{"$url$regrepo"};
+    $authenticator = $registry_authenticators{"$url$regrepo"} = BSBearer::generate_authenticator(undef, 'verbose' => 1, 'rpccall' => \&doauthrpc) unless $authenticator;
+    my $bloburl = "${url}v2/$regrepo/blobs/$blob";
+    # print "fetching: $bloburl\n";
+    my $param = {'uri' => $bloburl, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
+    $param->{'authenticator'} = $authenticator;
+    $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
+    my $r;
+    eval { $r = BSWatcher::rpc($param); };
+    if ($@) {
+      unlink($tmp);
+      $@ =~ s/(\d* *)/$1$bloburl: /;
+      die($@);
+    }
+    return unless defined $r;
+    if (!blob_matches_digest($tmp, $blob)) {
+      unlink($tmp);
+      die("$bloburl: blob does not match digest\n");
+    }
+    rename($tmp, "$dir/_blob.$blob") || die("rename $tmp $dir/_blob.$blob: $!\n");
+  }
+  return 1;
+}
+
+sub construct_containerinfo {
+  my ($dir, $pkgname, $data, $blobs) = @_;
+
+  BSVerify::verify_filename($pkgname);
+  BSVerify::verify_simple($pkgname);
+
+  # delete old cruft
+  unlink("$dir/$pkgname.containerinfo");
+  unlink("$dir/$pkgname.obsbinlnk");
+
+  # hack: get tags from provides
+  my @tags;
+  for (@{$data->{'provides' || []}}) {
+    push @tags, $_ unless / = /;
+  }
+  push @tags, $data->{'name'} unless @tags;
+  my $mtime = time();
+  my @layers = @$blobs;
+  shift @layers;
+  my $manifest = {
+    'Config' => $blobs->[0],
+    'RepoTags' => \@tags,
+    'Layers' => \@layers,
+  };
+  my $manifest_ent = BSContar::create_manifest_entry($manifest, $mtime);
+  my $containerinfo = {
+    'tar_manifest' => $manifest_ent->{'data'},
+    'tar_size' => 1,	# make construct_container_tar() happy
+    'tar_mtime' => $mtime,
+    'tar_blobids' => $blobs,
+    'name' => $pkgname,
+    'version' => $data->{'version'},
+    'tags' => \@tags,
+    'file' => "$pkgname.tar",
+  };
+  $containerinfo->{'release'} = $data->{'release'} if defined $data->{'release'};
+  my ($tar) = BSRepServer::Containertar::construct_container_tar($dir, $containerinfo);
+  ($containerinfo->{'tar_md5sum'}, $containerinfo->{'tar_sha256sum'}, $containerinfo->{'tar_size'}) = BSContar::checksum_tar($tar);
+  BSRepServer::Containerinfo::writecontainerinfo("$dir/.$pkgname.containerinfo", "$dir/$pkgname.containerinfo", $containerinfo);
+
+  # write obsbinlnk file (do this last!)
+  my $lnk = BSRepServer::Containerinfo::containerinfo2nevra($containerinfo);
+  $lnk->{'source'} = $lnk->{'name'};
+  BSVerify::verify_nevraquery($lnk);
+  $lnk->{'hdrmd5'} = $containerinfo->{'tar_md5sum'};
+  $lnk->{'path'} = "$pkgname.tar";
+  BSUtil::store("$dir/.$pkgname.obsbinlnk", "$dir/$pkgname.obsbinlnk", $lnk);
 }
 
 1;
