@@ -1,9 +1,4 @@
-Flipper.configure do |config|
-  config.default do
-    adapter = Flipper::Adapters::ActiveRecord.new
-    Flipper.new(adapter)
-  end
-
+Flipper.configure do
   # Register beta and rollout groups by default.
   # We need to add it when initializing because Flipper.register doesn't
   # store anything in database.
