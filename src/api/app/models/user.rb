@@ -3,6 +3,7 @@ require 'api_error'
 
 class User < ApplicationRecord
   include CanRenderModel
+  include Flipper::Identifier
 
   # Keep in sync with states defined in db/schema.rb
   STATES = ['unconfirmed', 'confirmed', 'locked', 'deleted', 'subaccount'].freeze
@@ -106,8 +107,6 @@ class User < ApplicationRecord
   validates :biography, length: { maximum: MAX_BIOGRAPHY_LENGTH_ALLOWED }
 
   after_create :create_home_project, :track_create
-
-  alias flipper_id id
 
   def track_create
     RabbitmqBus.send_to_bus('metrics', 'user.create value=1')
