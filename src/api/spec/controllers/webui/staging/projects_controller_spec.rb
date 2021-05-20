@@ -5,10 +5,6 @@ RSpec.describe Webui::Staging::ProjectsController do
   let(:project) { user.home_project }
   let(:staging_workflow) { create(:staging_workflow, project: project) }
 
-  before do
-    login(user)
-  end
-
   describe 'POST #create' do
     before do
       ActiveJob::Base.queue_adapter = :test
@@ -18,8 +14,17 @@ RSpec.describe Webui::Staging::ProjectsController do
       ActiveJob::Base.queue_adapter = :inline
     end
 
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :create }
+      let(:opts) do
+        { params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' } }
+      end
+    end
+
     context 'a staging_project' do
       before do
+        login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
@@ -45,6 +50,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       let!(:existent_project) { create(:project, name: "#{project}:new-staging", maintainer: user) }
 
       before do
+        login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: existent_project.name }
       end
 
@@ -63,6 +69,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
     context 'an existent staging project' do
       before do
+        login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:Staging:A' }
       end
 
@@ -77,6 +84,7 @@ RSpec.describe Webui::Staging::ProjectsController do
 
     context 'when the user does not have permissions to create that project' do
       before do
+        login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'Apache' }
       end
 
@@ -89,6 +97,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       before do
         staging_workflow
         allow_any_instance_of(Project).to receive(:valid?).and_return(false)
+        login(user)
         post :create, params: { workflow_project: staging_workflow.project, staging_project_name: 'home:tom:My:Projects' }
       end
 
@@ -145,8 +154,17 @@ RSpec.describe Webui::Staging::ProjectsController do
   end
 
   describe 'DELETE #destroy' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :delete }
+      let(:action) { :destroy }
+      let(:opts) do
+        { params: { workflow_project: staging_workflow.project, project_name: project.name } }
+      end
+    end
+
     context 'non existent staging project' do
       before do
+        login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: 'fake_name' }
       end
 
@@ -160,6 +178,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       let(:staging_project) { staging_workflow.staging_projects.first }
 
       before do
+        login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
 
@@ -194,6 +213,7 @@ RSpec.describe Webui::Staging::ProjectsController do
       before do
         bs_request.staging_project = staging_project
         bs_request.save
+        login(user)
         delete :destroy, params: { workflow_project: staging_workflow.project, project_name: staging_project.name }
       end
 
@@ -201,6 +221,16 @@ RSpec.describe Webui::Staging::ProjectsController do
 
       it { expect(response).to redirect_to(edit_staging_workflow_path(subject.project)) }
       it { expect(flash[:error]).to include('could not be deleted because it has staged requests.') }
+    end
+  end
+
+  describe 'GET #preview_copy' do
+    it_behaves_like 'require logged in user' do
+      let(:method) { :get }
+      let(:action) { :preview_copy }
+      let(:opts) do
+        { params: { workflow_project: staging_workflow.project, project_name: project.name } }
+      end
     end
   end
 
@@ -223,7 +253,17 @@ RSpec.describe Webui::Staging::ProjectsController do
       ActiveJob::Base.queue_adapter = :inline
     end
 
+    it_behaves_like 'require logged in user' do
+      let(:method) { :post }
+      let(:action) { :copy }
+      let(:opts) do
+        { params: params }
+      end
+    end
+
     it 'queues a StagingProjectCopyJob job' do
+      login(user)
+
       expect { post :copy, params: params }.to have_enqueued_job(StagingProjectCopyJob).with(staging_workflow.project.name,
                                                                                              original_staging_project_name,
                                                                                              staging_project_copy_name,
